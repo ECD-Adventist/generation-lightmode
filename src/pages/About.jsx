@@ -36,7 +36,7 @@ export default function About() {
             Faith Turned Into <span className="glm-gradient-text">Light</span>
           </h1>
           <p className="glm-body" style={{ fontSize: 19, maxWidth: 680, margin: "0 auto 40px" }}>
-            Generation LightMode was born from a simple belief — that the world changes when young believers stop hiding their faith and start living it out loud.
+            Generation LightMode was born from a simple belief — that the world changes when young believers stop hiding their faith and start living it out loud. <span style={{ color: "#FFD000", fontStyle: "normal", fontWeight: 700 }}>Faith. Always On.</span>
           </p>
           <p style={{ fontFamily: "Inter, sans-serif", fontStyle: "italic", color: "#8A5CFF", fontSize: 16, letterSpacing: "0.05em" }}>
             "Let your light shine before others." — Matthew 5:16
@@ -54,7 +54,7 @@ export default function About() {
               Our <span className="glm-gold-text">Mission</span>
             </h2>
             <p className="glm-body" style={{ fontSize: 17, marginBottom: 20 }}>
-              To mobilize 1 million young believers across 12 nations — equipping them with the tools, community, and courage to live their faith publicly in a digital-first world.
+              To mobilize 1 million young believers across the nations of the East-Central Africa Division — equipping them with the tools, community, and courage to live their faith publicly in a digital-first world.
             </p>
             <p className="glm-body" style={{ fontSize: 17, marginBottom: 32 }}>
               We create digital campaigns, faith challenges, accountability communities, and a global platform where young people discover that their faith is the most powerful force in their generation.
@@ -66,7 +66,7 @@ export default function About() {
               </div>
               <div>
                 <div className="glm-headline" style={{ fontSize: 36, color: "#FFD000" }}>12</div>
-                <div className="glm-body" style={{ fontSize: 14 }}>Nations</div>
+                <div className="glm-body" style={{ fontSize: 14 }}>ECD Nations</div>
               </div>
               <div>
                 <div className="glm-headline" style={{ fontSize: 36, color: "#8A5CFF" }}>2024</div>
