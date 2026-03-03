@@ -70,7 +70,7 @@ export default function Impact() {
             The Light Is <span className="glm-gradient-text">Everywhere</span>
           </h1>
           <p className="glm-body" style={{ fontSize: 17, maxWidth: 620, margin: "0 auto" }}>
-            Real numbers. Real lives. A movement that's growing across every continent, one switched-on soul at a time.
+            Real numbers. Real lives. A movement growing across the East-Central Africa Division — one switched-on soul at a time. <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
           </p>
         </div>
       </section>

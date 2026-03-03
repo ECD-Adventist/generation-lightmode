@@ -279,7 +279,7 @@ export default function Layout({ children, currentPageName }) {
                 style={{ height: 56, marginBottom: 16, filter: "drop-shadow(0 0 10px rgba(0,207,255,0.5))" }}
               />
               <p className="glm-body" style={{ fontSize: 14, maxWidth: 260 }}>
-                A faith-based digital movement turning hidden faith into visible light — one soul at a time.
+                A faith-based digital movement across East-Central Africa turning hidden faith into visible light. <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
               </p>
             </div>
             <div>
