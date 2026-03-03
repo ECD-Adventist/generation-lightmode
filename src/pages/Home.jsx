@@ -59,25 +59,39 @@ export default function Home() {
         position: "relative",
         overflow: "hidden",
       }}>
-        {/* Background glow orbs */}
+        {/* Background video */}
+        <video
+          autoPlay muted loop playsInline
+          style={{
+            position: "absolute", inset: 0, width: "100%", height: "100%",
+            objectFit: "cover", opacity: 0.35, pointerEvents: "none",
+          }}
+        >
+          <source src="https://videos.pexels.com/video-files/3130284/3130284-uhd_2560_1440_30fps.mp4" type="video/mp4" />
+        </video>
+
+        {/* Dark overlay */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(180deg, rgba(11,15,26,0.5) 0%, rgba(11,15,26,0.3) 50%, rgba(11,15,26,0.85) 100%)",
+          pointerEvents: "none",
+        }} />
+
+        {/* Glow orbs on top of video */}
         <div style={{
           position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
           width: 600, height: 600, borderRadius: "50%",
           background: "radial-gradient(circle, rgba(0,207,255,0.08) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
-        <div style={{
-          position: "absolute", bottom: "10%", right: "10%",
-          width: 300, height: 300, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(138,92,255,0.1) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }} />
 
         {/* Tagline badge */}
         <div style={{
+          position: "relative", zIndex: 2,
           display: "inline-flex", alignItems: "center", gap: 8,
-          background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.3)",
+          background: "rgba(0,207,255,0.12)", border: "1px solid rgba(0,207,255,0.4)",
           borderRadius: 50, padding: "8px 20px", marginBottom: 32,
+          backdropFilter: "blur(8px)",
         }}>
           <span className="glow-dot"></span>
           <span style={{ color: "#00CFFF", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600 }}>
@@ -85,31 +99,36 @@ export default function Home() {
           </span>
         </div>
 
-        {/* Logo */}
-        <div className="animate-float" style={{ marginBottom: 32 }}>
+        {/* Logo — BIG */}
+        <div style={{ position: "relative", zIndex: 2, marginBottom: 36 }}>
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
             alt="Generation LightMode"
-            style={{ height: 140, width: "auto", filter: "drop-shadow(0 0 30px rgba(0,207,255,0.7))" }}
+            style={{ height: "clamp(180px, 25vw, 280px)", width: "auto", filter: "drop-shadow(0 0 40px rgba(0,207,255,0.8)) drop-shadow(0 0 80px rgba(255,208,0,0.3))" }}
           />
         </div>
 
-        <h1 className="glm-headline" style={{ fontSize: "clamp(36px, 7vw, 80px)", lineHeight: 1.1, marginBottom: 24, maxWidth: 900 }}>
+        <h1 className="glm-headline" style={{ position: "relative", zIndex: 2, fontSize: "clamp(30px, 5.5vw, 68px)", lineHeight: 1.1, marginBottom: 24, maxWidth: 900 }}>
           Your Faith Is The{" "}
           <span className="glm-gradient-text">Switch</span>
           <br />The World Is Waiting For
         </h1>
 
-        <p className="glm-body" style={{ fontSize: "clamp(16px, 2vw, 20px)", maxWidth: 620, marginBottom: 48, color: "#C8D0E0" }}>
-          Join 1M+ young believers turning hidden faith into visible light — across 12 nations, one glow at a time.
+        <p className="glm-body" style={{ position: "relative", zIndex: 2, fontSize: "clamp(16px, 2vw, 20px)", maxWidth: 680, marginBottom: 24, color: "#E0E8F0" }}>
+          Join 1M+ young believers turning hidden faith into visible light — across the nations of the East-Central Africa Division.
+        </p>
+
+        {/* Slogan */}
+        <p style={{ position: "relative", zIndex: 2, fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, color: "#FFD000", fontSize: 18, marginBottom: 16, letterSpacing: "0.08em", textShadow: "0 0 20px rgba(255,208,0,0.5)" }}>
+          ⚡ Faith. Always On.
         </p>
 
         {/* Bible verse */}
-        <p style={{ fontFamily: "Inter, sans-serif", fontStyle: "italic", color: "#8A5CFF", fontSize: 15, marginBottom: 48, letterSpacing: "0.05em" }}>
+        <p style={{ position: "relative", zIndex: 2, fontFamily: "Inter, sans-serif", fontStyle: "italic", color: "#8A5CFF", fontSize: 15, marginBottom: 48, letterSpacing: "0.05em" }}>
           "You are the light of the world." — Matthew 5:14
         </p>
 
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
+        <div style={{ position: "relative", zIndex: 2, display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
           <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 18, padding: "16px 40px" }}>
             Switch On ⚡
           </a>
@@ -119,7 +138,7 @@ export default function Home() {
         </div>
 
         {/* Scroll hint */}
-        <div style={{ position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)", animation: "float 2s ease-in-out infinite" }}>
+        <div style={{ position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)", animation: "float 2s ease-in-out infinite", zIndex: 2 }}>
           <ChevronDown size={28} color="rgba(0,207,255,0.5)" />
         </div>
       </section>
@@ -137,7 +156,7 @@ export default function Home() {
           </div>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
             <StatCard value={1000000} suffix="+" label="Youth Mobilized" icon={Users} color="#00CFFF" started={statsVisible} />
-            <StatCard value={12} suffix="" label="Nations Reached" icon={Globe} color="#FFD000" started={statsVisible} />
+            <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#FFD000" started={statsVisible} />
             <StatCard value={50000} suffix="+" label="Challenges Completed" icon={Zap} color="#8A5CFF" started={statsVisible} />
             <StatCard value={500} suffix="+" label="GlowGroups Active" icon={Star} color="#00CFFF" started={statsVisible} />
           </div>
@@ -172,7 +191,7 @@ export default function Home() {
             {[
               { icon: "⚡", title: "Daily Challenges", desc: "Faith-activating missions" },
               { icon: "👥", title: "GlowGroups", desc: "Community accountability" },
-              { icon: "🌍", title: "Global Impact", desc: "12 nations and counting" },
+              { icon: "🌍", title: "East-Central Africa", desc: "ECD nations, one glow" },
               { icon: "🏆", title: "Rank System", desc: "Grow from Starter to Champion" },
             ].map(item => (
               <div key={item.title} className="glm-card" style={{ padding: 24 }}>
