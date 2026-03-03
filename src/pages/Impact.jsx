@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
 function useCountUp(target, duration = 2000, start = false) {
   const [count, setCount] = useState(0);
@@ -17,19 +19,31 @@ function useCountUp(target, duration = 2000, start = false) {
   return count;
 }
 
+const mapLocations = [
+  { name: "Nairobi, Kenya", coordinates: [-1.286389, 36.817223], members: 85000, groups: 120, color: "#00CFFF" },
+  { name: "Kampala, Uganda", coordinates: [0.347596, 32.582520], members: 62000, groups: 85, color: "#FFD000" },
+  { name: "Dar es Salaam, Tanzania", coordinates: [-6.792354, 39.208328], members: 58000, groups: 72, color: "#8A5CFF" },
+  { name: "Kigali, Rwanda", coordinates: [-1.944073, 30.061886], members: 45000, groups: 55, color: "#00CFFF" },
+  { name: "Bujumbura, Burundi", coordinates: [-3.382200, 29.364400], members: 32000, groups: 40, color: "#FFD000" },
+  { name: "Addis Ababa, Ethiopia", coordinates: [9.005401, 38.763611], members: 42000, groups: 60, color: "#8A5CFF" },
+  { name: "Juba, South Sudan", coordinates: [4.851656, 31.582470], members: 18000, groups: 22, color: "#00CFFF" },
+  { name: "Kinshasa, DRC", coordinates: [-4.441931, 15.266293], members: 68000, groups: 95, color: "#FFD000" },
+  { name: "Mombasa, Kenya", coordinates: [-4.043477, 39.668205], members: 22000, groups: 30, color: "#8A5CFF" },
+  { name: "Entebbe, Uganda", coordinates: [0.051184, 32.463708], members: 15000, groups: 18, color: "#00CFFF" },
+];
+
 const nations = [
-  { name: "Nigeria", flag: "🇳🇬", members: 185000, groups: 94, color: "#00CFFF" },
-  { name: "United States", flag: "🇺🇸", members: 142000, groups: 78, color: "#FFD000" },
-  { name: "Kenya", flag: "🇰🇪", members: 98000, groups: 52, color: "#8A5CFF" },
-  { name: "Philippines", flag: "🇵🇭", members: 87000, groups: 43, color: "#00CFFF" },
-  { name: "United Kingdom", flag: "🇬🇧", members: 76000, groups: 38, color: "#1DA1FF" },
-  { name: "Brazil", flag: "🇧🇷", members: 65000, groups: 31, color: "#8A5CFF" },
-  { name: "Ghana", flag: "🇬🇭", members: 54000, groups: 27, color: "#FFD000" },
-  { name: "South Africa", flag: "🇿🇦", members: 48000, groups: 24, color: "#00CFFF" },
-  { name: "India", flag: "🇮🇳", members: 43000, groups: 22, color: "#8A5CFF" },
-  { name: "Australia", flag: "🇦🇺", members: 36000, groups: 18, color: "#1DA1FF" },
-  { name: "Canada", flag: "🇨🇦", members: 32000, groups: 15, color: "#FFD000" },
-  { name: "Germany", flag: "🇩🇪", members: 28000, groups: 13, color: "#00CFFF" },
+  { name: "Kenya", flag: "🇰🇪", members: 185000, groups: 250, color: "#00CFFF" },
+  { name: "Tanzania", flag: "🇹🇿", members: 142000, groups: 180, color: "#FFD000" },
+  { name: "Uganda", flag: "🇺🇬", members: 98000, groups: 120, color: "#8A5CFF" },
+  { name: "DR Congo", flag: "🇨🇩", members: 87000, groups: 110, color: "#00CFFF" },
+  { name: "Rwanda", flag: "🇷🇼", members: 76000, groups: 90, color: "#1DA1FF" },
+  { name: "Burundi", flag: "🇧🇮", members: 65000, groups: 75, color: "#8A5CFF" },
+  { name: "Ethiopia", flag: "🇪🇹", members: 54000, groups: 65, color: "#FFD000" },
+  { name: "South Sudan", flag: "🇸🇸", members: 48000, groups: 50, color: "#00CFFF" },
+  { name: "Somalia", flag: "🇸🇴", members: 43000, groups: 40, color: "#8A5CFF" },
+  { name: "Djibouti", flag: "🇩🇯", members: 36000, groups: 35, color: "#1DA1FF" },
+  { name: "Eritrea", flag: "🇪🇷", members: 32000, groups: 25, color: "#FFD000" },
 ];
 
 const testimonies = [
@@ -98,26 +112,55 @@ export default function Impact() {
 
       <div className="section-divider" />
 
-      {/* NATIONS */}
+      {/* GLOW MAP & NATIONS */}
       <section style={{ padding: "100px 24px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
-          <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>12 Nations. One Light.</h2>
-          <p className="glm-body" style={{ fontSize: 17, marginBottom: 56 }}>Every flag represents thousands of young believers choosing to glow.</p>
+          <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>East-Central Africa Light Map</h2>
+          <p className="glm-body" style={{ fontSize: 17, marginBottom: 56 }}>Visualizing the spread of faith across the division. Every marker is a switched-on community.</p>
+          
+          <style>{`
+            .leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 8px; }
+            .leaflet-popup-tip { background: #121826; border: 1px solid rgba(0,207,255,0.4); }
+          `}</style>
+          
+          <div style={{ height: "450px", width: "100%", borderRadius: "24px", overflow: "hidden", marginBottom: "64px", border: "1px solid rgba(0,207,255,0.2)", position: "relative", zIndex: 10 }}>
+            <MapContainer 
+              center={[-1.286389, 34.817223]} 
+              zoom={5} 
+              scrollWheelZoom={false}
+              style={{ height: "100%", width: "100%", background: "#0B0F1A" }}
+            >
+              <TileLayer
+                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                attribution='&copy; <a href="https://carto.com/">CartoDB</a>'
+              />
+              {mapLocations.map((loc, i) => (
+                <CircleMarker
+                  key={i}
+                  center={loc.coordinates}
+                  radius={Math.max(8, loc.members / 3500)}
+                  pathOptions={{
+                    color: loc.color,
+                    fillColor: loc.color,
+                    fillOpacity: 0.6,
+                    weight: 2
+                  }}
+                >
+                  <Popup>
+                    <div style={{ background: "#121826", padding: "12px", borderRadius: "8px", border: `1px solid ${loc.color}40`, color: "#FFF", minWidth: "160px" }}>
+                      <h4 className="glm-headline" style={{ fontSize: "16px", color: loc.color, marginBottom: "8px" }}>{loc.name}</h4>
+                      <p className="glm-body" style={{ fontSize: "13px", marginBottom: "4px" }}><strong style={{color:"#FFF"}}>{loc.members.toLocaleString()}</strong> Members</p>
+                      <p className="glm-body" style={{ fontSize: "13px", marginBottom: "0" }}><strong style={{color:"#FFF"}}>{loc.groups}</strong> GlowGroups</p>
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              ))}
+            </MapContainer>
+          </div>
+
+          <h3 className="glm-headline" style={{ fontSize: "28px", color: "#FFF", marginBottom: "32px" }}>Division Nations</h3>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
-            {[
-              { name: "Nigeria", flag: "🇳🇬", members: 185000, color: "#00CFFF" },
-              { name: "United States", flag: "🇺🇸", members: 142000, color: "#FFD000" },
-              { name: "Kenya", flag: "🇰🇪", members: 98000, color: "#8A5CFF" },
-              { name: "Philippines", flag: "🇵🇭", members: 87000, color: "#00CFFF" },
-              { name: "United Kingdom", flag: "🇬🇧", members: 76000, color: "#1DA1FF" },
-              { name: "Brazil", flag: "🇧🇷", members: 65000, color: "#8A5CFF" },
-              { name: "Ghana", flag: "🇬🇭", members: 54000, color: "#FFD000" },
-              { name: "South Africa", flag: "🇿🇦", members: 48000, color: "#00CFFF" },
-              { name: "India", flag: "🇮🇳", members: 43000, color: "#8A5CFF" },
-              { name: "Australia", flag: "🇦🇺", members: 36000, color: "#1DA1FF" },
-              { name: "Canada", flag: "🇨🇦", members: 32000, color: "#FFD000" },
-              { name: "Germany", flag: "🇩🇪", members: 28000, color: "#00CFFF" },
-            ].map(nation => (
+            {nations.map(nation => (
               <div key={nation.name} className="glm-card" style={{ padding: 20, textAlign: "left", border: `1px solid ${nation.color}20` }}>
                 <div style={{ fontSize: 32, marginBottom: 10 }}>{nation.flag}</div>
                 <h3 className="glm-headline" style={{ fontSize: 16, color: "#FFFFFF", marginBottom: 6 }}>{nation.name}</h3>

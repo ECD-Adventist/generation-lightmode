@@ -64,16 +64,17 @@ export default function Home() {
           autoPlay muted loop playsInline
           style={{
             position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "cover", opacity: 0.35, pointerEvents: "none",
+            objectFit: "cover", opacity: 0.6, pointerEvents: "none",
           }}
         >
-          <source src="https://videos.pexels.com/video-files/3130284/3130284-uhd_2560_1440_30fps.mp4" type="video/mp4" />
+          {/* Dark room video */}
+          <source src="https://videos.pexels.com/video-files/1851190/1851190-uhd_2560_1440_25fps.mp4" type="video/mp4" />
         </video>
 
         {/* Dark overlay */}
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(180deg, rgba(11,15,26,0.5) 0%, rgba(11,15,26,0.3) 50%, rgba(11,15,26,0.85) 100%)",
+          background: "linear-gradient(180deg, rgba(11,15,26,0.65) 0%, rgba(11,15,26,0.45) 50%, rgba(11,15,26,0.95) 100%)",
           pointerEvents: "none",
         }} />
 
@@ -81,7 +82,7 @@ export default function Home() {
         <div style={{
           position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
           width: 600, height: 600, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(0,207,255,0.08) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(0,207,255,0.12) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
 
@@ -99,12 +100,12 @@ export default function Home() {
           </span>
         </div>
 
-        {/* Logo — BIG */}
-        <div style={{ position: "relative", zIndex: 2, marginBottom: 36 }}>
+        {/* Logo — SUPER BIG */}
+        <div style={{ position: "relative", zIndex: 2, marginBottom: 40 }}>
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
             alt="Generation LightMode"
-            style={{ height: "clamp(180px, 25vw, 280px)", width: "auto", filter: "drop-shadow(0 0 40px rgba(0,207,255,0.8)) drop-shadow(0 0 80px rgba(255,208,0,0.3))" }}
+            style={{ height: "clamp(260px, 40vw, 480px)", width: "auto", filter: "drop-shadow(0 0 60px rgba(0,207,255,0.9)) drop-shadow(0 0 120px rgba(255,208,0,0.5))" }}
           />
         </div>
 
