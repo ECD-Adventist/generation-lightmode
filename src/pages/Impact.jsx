@@ -67,7 +67,7 @@ export default function Impact() {
 
   const total = useCountUp(1000000, 2500, started);
   const groups = useCountUp(500, 2000, started);
-  const nations = useCountUp(12, 1500, started);
+  const nationsCount = useCountUp(12, 1500, started);
   const challenges = useCountUp(50000, 2200, started);
 
   return (
@@ -97,7 +97,7 @@ export default function Impact() {
           {[
             { value: total, suffix: "+", label: "Youth Mobilized", color: "#00CFFF" },
             { value: groups, suffix: "+", label: "GlowGroups Active", color: "#8A5CFF" },
-            { value: nations, suffix: "", label: "Nations Reached", color: "#FFD000" },
+            { value: nationsCount, suffix: "", label: "Nations Reached", color: "#FFD000" },
             { value: challenges, suffix: "+", label: "Challenges Done", color: "#1DA1FF" },
           ].map(stat => (
             <div key={stat.label} className="glm-card" style={{ textAlign: "center" }}>
