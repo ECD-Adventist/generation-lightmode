@@ -123,39 +123,84 @@ export default function Impact() {
             .leaflet-popup-tip { background: #121826; border: 1px solid rgba(0,207,255,0.4); }
           `}</style>
           
-          <div style={{ height: "450px", width: "100%", borderRadius: "24px", overflow: "hidden", marginBottom: "64px", border: "1px solid rgba(0,207,255,0.2)", position: "relative", zIndex: 10 }}>
+          <div style={{ 
+            height: "550px", width: "100%", borderRadius: "24px", overflow: "hidden", 
+            marginBottom: "64px", position: "relative", zIndex: 10,
+            background: "#080C14",
+            boxShadow: "0 0 40px rgba(0,207,255,0.15), inset 0 0 40px rgba(0,207,255,0.1)",
+            border: "1px solid rgba(0,207,255,0.3)"
+          }}>
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "radial-gradient(circle at center, transparent 40%, #0B0F1A 100%)",
+              pointerEvents: "none", zIndex: 400
+            }} />
+            
             <MapContainer 
               center={[-1.286389, 34.817223]} 
-              zoom={5} 
+              zoom={5.5} 
               scrollWheelZoom={false}
+              zoomControl={false}
               style={{ height: "100%", width: "100%", background: "#0B0F1A" }}
             >
               <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                attribution='&copy; <a href="https://carto.com/">CartoDB</a>'
+                url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+                attribution='&copy; CartoDB'
               />
-              {mapLocations.map((loc, i) => (
+              {mapLocations.flatMap((loc, i) => [
                 <CircleMarker
-                  key={i}
+                  key={`outer-${i}`}
                   center={loc.coordinates}
-                  radius={Math.max(8, loc.members / 3500)}
-                  pathOptions={{
-                    color: loc.color,
-                    fillColor: loc.color,
-                    fillOpacity: 0.6,
-                    weight: 2
-                  }}
+                  radius={Math.max(12, loc.members / 2500)}
+                  pathOptions={{ color: "transparent", fillColor: loc.color, fillOpacity: 0.15 }}
+                />,
+                <CircleMarker
+                  key={`inner-${i}`}
+                  center={loc.coordinates}
+                  radius={Math.max(4, loc.members / 8000)}
+                  pathOptions={{ color: loc.color, fillColor: "#FFF", fillOpacity: 0.9, weight: 2 }}
                 >
                   <Popup>
-                    <div style={{ background: "#121826", padding: "12px", borderRadius: "8px", border: `1px solid ${loc.color}40`, color: "#FFF", minWidth: "160px" }}>
-                      <h4 className="glm-headline" style={{ fontSize: "16px", color: loc.color, marginBottom: "8px" }}>{loc.name}</h4>
-                      <p className="glm-body" style={{ fontSize: "13px", marginBottom: "4px" }}><strong style={{color:"#FFF"}}>{loc.members.toLocaleString()}</strong> Members</p>
-                      <p className="glm-body" style={{ fontSize: "13px", marginBottom: "0" }}><strong style={{color:"#FFF"}}>{loc.groups}</strong> GlowGroups</p>
+                    <div style={{ background: "rgba(18,24,38,0.95)", backdropFilter: "blur(10px)", padding: "16px", borderRadius: "12px", border: `1px solid ${loc.color}60`, color: "#FFF", minWidth: "180px", boxShadow: `0 8px 32px ${loc.color}20` }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: loc.color, boxShadow: `0 0 10px ${loc.color}` }} />
+                        <h4 className="glm-headline" style={{ fontSize: "16px", color: loc.color, margin: 0 }}>{loc.name}</h4>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px", marginBottom: "8px" }}>
+                        <span className="glm-body" style={{ fontSize: "13px" }}>Members</span>
+                        <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.members.toLocaleString()}</strong>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span className="glm-body" style={{ fontSize: "13px" }}>GlowGroups</span>
+                        <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.groups}</strong>
+                      </div>
                     </div>
                   </Popup>
                 </CircleMarker>
-              ))}
+              ])}
             </MapContainer>
+            
+            {/* Map Legend Overlay */}
+            <div style={{
+              position: "absolute", bottom: "24px", right: "24px", zIndex: 500,
+              background: "rgba(11,15,26,0.85)", backdropFilter: "blur(12px)",
+              padding: "16px", borderRadius: "16px", border: "1px solid rgba(0,207,255,0.2)",
+              display: "flex", flexDirection: "column", gap: "12px"
+            }}>
+              <h4 className="glm-headline" style={{ fontSize: "13px", color: "#C8D0E0", letterSpacing: "0.05em", textTransform: "uppercase", margin: 0 }}>Activity Level</h4>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#00CFFF", boxShadow: "0 0 10px #00CFFF" }} />
+                <span className="glm-body" style={{ fontSize: "13px" }}>High Growth</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#FFD000", boxShadow: "0 0 10px #FFD000" }} />
+                <span className="glm-body" style={{ fontSize: "13px" }}>Accelerating</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#8A5CFF", boxShadow: "0 0 10px #8A5CFF" }} />
+                <span className="glm-body" style={{ fontSize: "13px" }}>Emerging</span>
+              </div>
+            </div>
           </div>
 
           <h3 className="glm-headline" style={{ fontSize: "28px", color: "#FFF", marginBottom: "32px" }}>Division Nations</h3>

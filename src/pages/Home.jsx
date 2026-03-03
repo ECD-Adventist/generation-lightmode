@@ -67,8 +67,8 @@ export default function Home() {
             objectFit: "cover", opacity: 0.6, pointerEvents: "none",
           }}
         >
-          {/* Dark room video */}
-          <source src="https://videos.pexels.com/video-files/1851190/1851190-uhd_2560_1440_25fps.mp4" type="video/mp4" />
+          {/* Dark abandoned house/room video */}
+          <source src="https://videos.pexels.com/video-files/6981410/6981410-uhd_2560_1440_25fps.mp4" type="video/mp4" />
         </video>
 
         {/* Dark overlay */}
@@ -100,12 +100,12 @@ export default function Home() {
           </span>
         </div>
 
-        {/* Logo — SUPER BIG */}
+        {/* Logo — GIGANTIC */}
         <div style={{ position: "relative", zIndex: 2, marginBottom: 40 }}>
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
             alt="Generation LightMode"
-            style={{ height: "clamp(260px, 40vw, 480px)", width: "auto", filter: "drop-shadow(0 0 60px rgba(0,207,255,0.9)) drop-shadow(0 0 120px rgba(255,208,0,0.5))" }}
+            style={{ height: "clamp(400px, 60vw, 800px)", width: "auto", filter: "drop-shadow(0 0 80px rgba(0,207,255,1)) drop-shadow(0 0 160px rgba(255,208,0,0.6))" }}
           />
         </div>
 
