@@ -255,10 +255,12 @@ export default function Home() {
              style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }}
              alt="Vision Background"
            />
-           <div style={{ position: "absolute", top: "45%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 3 }}>
-             <div style={{ width: 100, height: 100, borderRadius: "50%", background: "rgba(0,207,255,0.15)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(0,207,255,0.6)", animation: "pulse-glow 2.5s ease-in-out infinite", cursor: "pointer" }}>
-               <Play size={44} color="#00CFFF" style={{ marginLeft: 6 }} />
-             </div>
+           <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 3 }}>
+             <button onClick={() => alert("Video coming soon!")} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+               <div style={{ width: 110, height: 110, borderRadius: "50%", background: "rgba(0,207,255,0.15)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(0,207,255,0.6)", animation: "pulse-glow 2.5s ease-in-out infinite" }}>
+                 <Play size={48} color="#00CFFF" style={{ marginLeft: 8 }} />
+               </div>
+             </button>
            </div>
         </div>
 
@@ -271,10 +273,6 @@ export default function Home() {
 
         {/* Content at the bottom */}
         <div style={{ position: "relative", zIndex: 2, padding: "80px 24px 60px", maxWidth: 1000, margin: "0 auto", textAlign: "center" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.15)", border: "1px solid rgba(0,207,255,0.4)", borderRadius: 50, padding: "8px 20px", marginBottom: 24, backdropFilter: "blur(8px)" }}>
-              <Play size={14} color="#00CFFF" />
-              <span style={{ color: "#00CFFF", fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>Vision Video</span>
-            </div>
             <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24, textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>
               Watch the <span className="glm-gradient-text">Vision</span>
             </h2>
@@ -299,9 +297,9 @@ export default function Home() {
             <p className="glm-body" style={{ marginTop: 12, fontSize: 17 }}>Real impact. Real people. Real faith.</p>
           </div>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
-            <StatCard value={1000000} suffix="+" label="Youth Mobilized" icon={Users} color="#00CFFF" started={statsVisible} />
-            <StatCard value={10000000} suffix="+" label="Peers Reached" icon={Users} color="#FFD000" started={statsVisible} />
-            <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#1DA1FF" started={statsVisible} />
+            <StatCard value={1000000} suffix="+" label="Youth to be Mobilized" icon={Users} color="#00CFFF" started={statsVisible} />
+            <StatCard value={10000000} suffix="+" label="Peers to be Reached" icon={Users} color="#FFD000" started={statsVisible} />
+            <StatCard value={12} suffix="" label="ECD Nations" icon={null} color="#1DA1FF" started={statsVisible} africaMap={true} />
             <StatCard value={500} suffix="+" label="GlowGroups Active" icon={Star} color="#8A5CFF" started={statsVisible} />
           </div>
         </div>
@@ -309,8 +307,8 @@ export default function Home() {
 
       {/* GALLERIES */}
       <div style={{ background: "#0B0F1A", padding: "40px 0" }}>
-        <ScrollingGallery images={galleryImages1} direction="left" speed="80s" />
-        <ScrollingGallery images={galleryImages2} direction="right" speed="90s" />
+        <ScrollingGallery images={galleryImages1} direction="left" speed="160s" />
+        <ScrollingGallery images={galleryImages2} direction="right" speed="180s" />
       </div>
 
       <div className="section-divider" />
