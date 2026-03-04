@@ -101,11 +101,21 @@ function useCountUp(target, duration = 2000, start = false) {
   return count;
 }
 
-function StatCard({ value, suffix, label, icon: Icon, color, started }) {
+function AfricaMapIcon({ color, size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ margin: "0 auto", display: "block", filter: `drop-shadow(0 0 8px ${color})` }}>
+      <path d="M30 5 C20 5 12 12 10 22 L8 38 C6 48 10 55 8 65 C6 75 12 85 20 92 C28 99 38 108 42 115 C44 119 48 120 50 118 C52 120 56 119 58 115 C62 108 72 99 80 92 C88 85 94 75 92 65 C90 55 94 48 92 38 L90 22 C88 12 80 5 70 5 Z" fill={color} opacity="0.85"/>
+    </svg>
+  );
+}
+
+function StatCard({ value, suffix, label, icon: Icon, color, started, africaMap }) {
   const num = useCountUp(value, 2200, started);
   return (
     <div className="glm-card" style={{ textAlign: "center", flex: "1 1 180px" }}>
-      <div style={{ fontSize: 36, marginBottom: 8, filter: `drop-shadow(0 0 12px ${color})` }}>{Icon && <Icon size={36} color={color} style={{ margin: "0 auto" }} />}</div>
+      <div style={{ fontSize: 36, marginBottom: 8 }}>
+        {africaMap ? <AfricaMapIcon color={color} size={36} /> : Icon && <Icon size={36} color={color} style={{ margin: "0 auto", filter: `drop-shadow(0 0 12px ${color})` }} />}
+      </div>
       <div className="glm-headline" style={{ fontSize: 42, color }}>
         {num.toLocaleString()}{suffix}
       </div>
