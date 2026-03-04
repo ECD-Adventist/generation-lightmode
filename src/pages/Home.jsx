@@ -152,25 +152,18 @@ export default function Home() {
           </span>
         </div>
 
-        {/* Logo — GIGANTIC BLINKING */}
+        {/* Logo — GIGANTIC GLOW */}
         <style>{`
-          @keyframes neon-flicker {
-            0%, 100% { filter: drop-shadow(0 0 100px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1); opacity: 1; }
-            3% { opacity: 0.6; filter: drop-shadow(0 0 30px rgba(0,207,255,0.4)) brightness(0.8); }
-            6% { opacity: 1; filter: drop-shadow(0 0 100px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1); }
-            7% { opacity: 0.5; filter: none; }
-            8% { opacity: 1; filter: drop-shadow(0 0 100px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1); }
-            9% { opacity: 1; filter: drop-shadow(0 0 100px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1); }
-            10% { opacity: 0.8; filter: drop-shadow(0 0 50px rgba(0,207,255,0.6)) drop-shadow(0 0 100px rgba(255,208,0,0.3)) brightness(0.9); }
-            11% { opacity: 1; filter: drop-shadow(0 0 100px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1); }
-            50% { filter: drop-shadow(0 0 80px rgba(0,207,255,0.8)) drop-shadow(0 0 150px rgba(255,208,0,0.4)) brightness(0.9); opacity: 0.9; }
+          @keyframes logo-glow {
+            0%, 100% { filter: drop-shadow(0 0 80px rgba(0,207,255,0.8)) drop-shadow(0 0 150px rgba(255,208,0,0.4)) brightness(1); }
+            50% { filter: drop-shadow(0 0 120px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1.1); }
           }
         `}</style>
         <div style={{ position: "relative", zIndex: 2, marginBottom: 32, width: "100%", maxWidth: "600px" }}>
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/e51a96559_GENERATIONLIGHTMODE-LOGO.png"
             alt="Generation LightMode"
-            style={{ height: "auto", width: "100%", animation: "neon-flicker 5s infinite" }}
+            style={{ height: "auto", width: "100%", animation: "logo-glow 4s ease-in-out infinite" }}
           />
         </div>
 
@@ -356,12 +349,25 @@ export default function Home() {
       {/* PLEDGE & CTA */}
       <section id="join" style={{ padding: "120px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
         
-        {/* Background Scrolling Galleries */}
-        <div style={{ position: "absolute", top: "10%", left: 0, width: "100%", opacity: 0.15, pointerEvents: "none" }}>
-          <ScrollingGallery images={galleryImages2} direction="right" speed="60s" />
-        </div>
-        <div style={{ position: "absolute", bottom: "10%", left: 0, width: "100%", opacity: 0.15, pointerEvents: "none" }}>
-          <ScrollingGallery images={galleryImages1} direction="left" speed="60s" />
+        {/* Background Scrolling Image */}
+        <style>
+          {`
+            @keyframes scroll-bg-horizontal {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+          `}
+        </style>
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden", opacity: 0.2, pointerEvents: "none" }}>
+          <div style={{
+            display: "flex", width: "400%", height: "100%",
+            animation: "scroll-bg-horizontal 120s linear infinite"
+          }}>
+            <div style={{ flex: 1, backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg')", backgroundSize: "cover", backgroundPosition: "center" }} />
+            <div style={{ flex: 1, backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg')", backgroundSize: "cover", backgroundPosition: "center", transform: "scaleX(-1)" }} />
+            <div style={{ flex: 1, backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg')", backgroundSize: "cover", backgroundPosition: "center" }} />
+            <div style={{ flex: 1, backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg')", backgroundSize: "cover", backgroundPosition: "center", transform: "scaleX(-1)" }} />
+          </div>
         </div>
 
         <div style={{
