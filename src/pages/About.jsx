@@ -3,17 +3,18 @@ import { createPageUrl } from "@/utils";
 import { Heart, Globe, Zap, Users } from "lucide-react";
 
 const values = [
-  { icon: "💡", title: "Faith Made Visible", desc: "We believe every person's faith is a light waiting to be switched on for the world to see." },
-  { icon: "🌍", title: "Global & Diverse", desc: "LightMode crosses cultures, languages, and borders. The light belongs to every generation, every nation." },
-  { icon: "⚡", title: "Digitally Native", desc: "We meet youth where they are — online, on social media, in their screens — and we bring the Gospel there." },
-  { icon: "🤝", title: "Community First", desc: "GlowGroups are our backbone. No one should shine alone. We grow together." },
+  { icon: "💡", title: "Visibility", desc: "We don't dim our witness. We switch it on. We post, share, testify, and speak up for Christ." },
+  { icon: "💯", title: "Authenticity", desc: "We stay real with God, ourselves, and others. No fake faith. No filtered testimonies." },
+  { icon: "🤝", title: "Community", desc: "Faith is stronger in fellowship. We disciple each other through GlowGroups and mentorship." },
+  { icon: "🎨", title: "Creativity", desc: "We use memes, reels, art, and music to make the gospel beautiful and viral." },
+  { icon: "🌱", title: "Discipleship", desc: "We are not satisfied with personal faith. We disciple others to shine too. Every GlowGroup multiplies." },
 ];
 
 const team = [
-  { name: "Founder", role: "Visionary & Leader", initial: "G", color: "#00CFFF" },
-  { name: "Creative Director", role: "Brand & Design", initial: "C", color: "#8A5CFF" },
-  { name: "Tech Lead", role: "Digital Platforms", initial: "T", color: "#FFD000" },
-  { name: "Community Lead", role: "GlowGroups & People", initial: "L", color: "#00CFFF" },
+  { name: "Communication", role: "Message Strategy & PR", initial: "C", color: "#00CFFF" },
+  { name: "Media", role: "Creative Content & Branding", initial: "M", color: "#8A5CFF" },
+  { name: "IT", role: "Digital Infrastructure", initial: "IT", color: "#FFD000" },
+  { name: "Youth & Evangelism", role: "Mobilization & Reaping", initial: "Y", color: "#00CFFF" },
 ];
 
 export default function About() {
@@ -54,7 +55,7 @@ export default function About() {
               Our <span className="glm-gold-text">Mission</span>
             </h2>
             <p className="glm-body" style={{ fontSize: 17, marginBottom: 20 }}>
-              To mobilize 1 million young believers across the nations of the East-Central Africa Division — equipping them with the tools, community, and courage to live their faith publicly in a digital-first world.
+              To mobilize 1,000,000 Adventist young people in the 12 nations of the ECD to shine boldly in LightMode, each reaching at least 10 youth without the Adventist faith. Together, this will impact 10,000,000 young people.
             </p>
             <p className="glm-body" style={{ fontSize: 17, marginBottom: 32 }}>
               We create digital campaigns, faith challenges, accountability communities, and a global platform where young people discover that their faith is the most powerful force in their generation.
@@ -62,15 +63,15 @@ export default function About() {
             <div style={{ display: "flex", gap: 48, flexWrap: "wrap" }}>
               <div>
                 <div className="glm-headline" style={{ fontSize: 36, color: "#00CFFF" }}>1M+</div>
-                <div className="glm-body" style={{ fontSize: 14 }}>Youth Reached</div>
+                <div className="glm-body" style={{ fontSize: 14 }}>Missionaries</div>
               </div>
               <div>
-                <div className="glm-headline" style={{ fontSize: 36, color: "#FFD000" }}>12</div>
+                <div className="glm-headline" style={{ fontSize: 36, color: "#FFD000" }}>10M+</div>
+                <div className="glm-body" style={{ fontSize: 14 }}>Peers Reached</div>
+              </div>
+              <div>
+                <div className="glm-headline" style={{ fontSize: 36, color: "#8A5CFF" }}>12</div>
                 <div className="glm-body" style={{ fontSize: 14 }}>ECD Nations</div>
-              </div>
-              <div>
-                <div className="glm-headline" style={{ fontSize: 36, color: "#8A5CFF" }}>2024</div>
-                <div className="glm-body" style={{ fontSize: 14 }}>Founded</div>
               </div>
             </div>
           </div>
@@ -108,13 +109,13 @@ export default function About() {
 
       <div className="section-divider" />
 
-      {/* TEAM */}
+      {/* THE DEPARTMENTS */}
       <section style={{ padding: "100px 24px", background: "#121826" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
           <h2 className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>
-            The <span className="glm-gold-text">Team</span>
+            Partners in <span className="glm-gold-text">Mission</span>
           </h2>
-          <p className="glm-body" style={{ fontSize: 17, marginBottom: 56 }}>Dedicated people. One mission. Global light.</p>
+          <p className="glm-body" style={{ fontSize: 17, marginBottom: 56 }}>Collaboration across departments to drive the digital vision.</p>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
             {team.map(member => (
               <div key={member.name} className="glm-card" style={{ flex: "1 1 200px", maxWidth: 240, textAlign: "center" }}>
