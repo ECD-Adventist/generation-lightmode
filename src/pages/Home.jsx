@@ -4,19 +4,19 @@ import { createPageUrl } from "@/utils";
 import { Zap, Globe, Users, Star, ChevronDown, Play, X } from "lucide-react";
 
 const galleryImages1 = [
-  "https://images.unsplash.com/photo-1531123897727-8f129e1bf98c?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1513624954087-cca71cbd2628?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1506869640319-fea1a278e0fa?auto=format&fit=crop&w=800&q=80",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/8b7388f03_african-american-male-friends-standing-park-discussing-bible.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/b1de4c3f2_authentic-book-club-scene.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/c6ad94d7f_cinematic-style-view-parent-child-spending-time-together.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/4e00b099d_closeup-shot-couple-sitting-park-reading-bible-with-blurred-background.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/ee6c61c7a_diverse-group-friends-enjoying-quality-time-together-vibrant-outdoor-setting.jpg",
 ];
 
 const galleryImages2 = [
-  "https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1531123414708-rx031e8bc25?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/e83180081_group-diverse-people-sitting-table-reading-bible.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/69f11852d_group-people-are-sitting-ground-one-them-reads-book.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/38e68ed9e_medium-shot-students-reading-together.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/a890a8acd_men-doing-makeup-indoors.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/c0937858a_portrait-interracial-couple-reading-together.jpg",
 ];
 
 function ScrollingGallery({ images, direction = "left", speed = "40s" }) {
