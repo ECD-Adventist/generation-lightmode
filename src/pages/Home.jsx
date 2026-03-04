@@ -100,12 +100,25 @@ export default function Home() {
           </span>
         </div>
 
-        {/* Logo — GIGANTIC */}
-        <div style={{ position: "relative", zIndex: 2, marginBottom: 40 }}>
+        {/* Logo — GIGANTIC BLINKING */}
+        <style>{`
+          @keyframes neon-flicker {
+            0%, 100% { filter: drop-shadow(0 0 80px rgba(0,207,255,1)) drop-shadow(0 0 160px rgba(255,208,0,0.6)) brightness(1); opacity: 1; }
+            3% { opacity: 0.6; filter: drop-shadow(0 0 20px rgba(0,207,255,0.4)) brightness(0.8); }
+            6% { opacity: 1; filter: drop-shadow(0 0 80px rgba(0,207,255,1)) drop-shadow(0 0 160px rgba(255,208,0,0.6)) brightness(1); }
+            7% { opacity: 0.5; filter: none; }
+            8% { opacity: 1; filter: drop-shadow(0 0 80px rgba(0,207,255,1)) drop-shadow(0 0 160px rgba(255,208,0,0.6)) brightness(1); }
+            9% { opacity: 1; filter: drop-shadow(0 0 80px rgba(0,207,255,1)) drop-shadow(0 0 160px rgba(255,208,0,0.6)) brightness(1); }
+            10% { opacity: 0.8; filter: drop-shadow(0 0 40px rgba(0,207,255,0.6)) drop-shadow(0 0 80px rgba(255,208,0,0.3)) brightness(0.9); }
+            11% { opacity: 1; filter: drop-shadow(0 0 80px rgba(0,207,255,1)) drop-shadow(0 0 160px rgba(255,208,0,0.6)) brightness(1); }
+            50% { filter: drop-shadow(0 0 60px rgba(0,207,255,0.8)) drop-shadow(0 0 120px rgba(255,208,0,0.4)) brightness(0.9); opacity: 0.9; }
+          }
+        `}</style>
+        <div style={{ position: "relative", zIndex: 2, marginBottom: 40, width: "100%", maxWidth: "800px" }}>
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
             alt="Generation LightMode"
-            style={{ height: "clamp(400px, 60vw, 800px)", width: "auto", filter: "drop-shadow(0 0 80px rgba(0,207,255,1)) drop-shadow(0 0 160px rgba(255,208,0,0.6))" }}
+            style={{ height: "auto", width: "100%", animation: "neon-flicker 5s infinite" }}
           />
         </div>
 
@@ -115,8 +128,8 @@ export default function Home() {
           <br />The World Is Waiting For
         </h1>
 
-        <p className="glm-body" style={{ position: "relative", zIndex: 2, fontSize: "clamp(16px, 2vw, 20px)", maxWidth: 680, marginBottom: 24, color: "#E0E8F0" }}>
-          Join 1M+ young believers turning hidden faith into visible light — across the nations of the East-Central Africa Division.
+        <p className="glm-body" style={{ position: "relative", zIndex: 2, fontSize: "clamp(16px, 2vw, 20px)", maxWidth: 740, marginBottom: 24, color: "#E0E8F0" }}>
+          Join 1M+ young believers turning hidden faith into visible light — across the nations of the East-Central Africa Division to reach 10,000,000 peers with the gospel.
         </p>
 
         {/* Slogan */}
@@ -157,9 +170,9 @@ export default function Home() {
           </div>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
             <StatCard value={1000000} suffix="+" label="Youth Mobilized" icon={Users} color="#00CFFF" started={statsVisible} />
-            <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#FFD000" started={statsVisible} />
-            <StatCard value={50000} suffix="+" label="Challenges Completed" icon={Zap} color="#8A5CFF" started={statsVisible} />
-            <StatCard value={500} suffix="+" label="GlowGroups Active" icon={Star} color="#00CFFF" started={statsVisible} />
+            <StatCard value={10000000} suffix="+" label="Peers Reached" icon={Users} color="#FFD000" started={statsVisible} />
+            <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#1DA1FF" started={statsVisible} />
+            <StatCard value={500} suffix="+" label="GlowGroups Active" icon={Star} color="#8A5CFF" started={statsVisible} />
           </div>
         </div>
       </section>

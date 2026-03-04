@@ -66,9 +66,9 @@ export default function Impact() {
   }, []);
 
   const total = useCountUp(1000000, 2500, started);
+  const reach = useCountUp(10000000, 3000, started);
   const groups = useCountUp(500, 2000, started);
   const nationsCount = useCountUp(12, 1500, started);
-  const challenges = useCountUp(50000, 2200, started);
 
   return (
     <div style={{ background: "#0B0F1A" }}>
@@ -84,7 +84,7 @@ export default function Impact() {
             The Light Is <span className="glm-gradient-text">Everywhere</span>
           </h1>
           <p className="glm-body" style={{ fontSize: 17, maxWidth: 620, margin: "0 auto" }}>
-            Real numbers. Real lives. A movement growing across the East-Central Africa Division — one switched-on soul at a time. <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
+            Real numbers. Real lives. 1 Million Missionaries reaching 10 Million Peers across the East-Central Africa Division. <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
           </p>
         </div>
       </section>
@@ -96,9 +96,9 @@ export default function Impact() {
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24 }}>
           {[
             { value: total, suffix: "+", label: "Youth Mobilized", color: "#00CFFF" },
+            { value: reach, suffix: "+", label: "Peers Reached", color: "#FFD000" },
             { value: groups, suffix: "+", label: "GlowGroups Active", color: "#8A5CFF" },
-            { value: nationsCount, suffix: "", label: "Nations Reached", color: "#FFD000" },
-            { value: challenges, suffix: "+", label: "Challenges Done", color: "#1DA1FF" },
+            { value: nationsCount, suffix: "", label: "Nations", color: "#1DA1FF" },
           ].map(stat => (
             <div key={stat.label} className="glm-card" style={{ textAlign: "center" }}>
               <div className="glm-headline" style={{ fontSize: 52, color: stat.color, lineHeight: 1 }}>

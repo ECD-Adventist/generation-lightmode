@@ -54,7 +54,7 @@ export default function About() {
               Our <span className="glm-gold-text">Mission</span>
             </h2>
             <p className="glm-body" style={{ fontSize: 17, marginBottom: 20 }}>
-              To mobilize 1 million young believers across the nations of the East-Central Africa Division — equipping them with the tools, community, and courage to live their faith publicly in a digital-first world.
+              To mobilize 1,000,000 Adventist young people in the 12 nations of the ECD to shine boldly in LightMode, each reaching at least 10 youth without the Adventist faith. Together, this will impact 10,000,000 young people.
             </p>
             <p className="glm-body" style={{ fontSize: 17, marginBottom: 32 }}>
               We create digital campaigns, faith challenges, accountability communities, and a global platform where young people discover that their faith is the most powerful force in their generation.
@@ -62,15 +62,15 @@ export default function About() {
             <div style={{ display: "flex", gap: 48, flexWrap: "wrap" }}>
               <div>
                 <div className="glm-headline" style={{ fontSize: 36, color: "#00CFFF" }}>1M+</div>
-                <div className="glm-body" style={{ fontSize: 14 }}>Youth Reached</div>
+                <div className="glm-body" style={{ fontSize: 14 }}>Missionaries</div>
               </div>
               <div>
-                <div className="glm-headline" style={{ fontSize: 36, color: "#FFD000" }}>12</div>
+                <div className="glm-headline" style={{ fontSize: 36, color: "#FFD000" }}>10M+</div>
+                <div className="glm-body" style={{ fontSize: 14 }}>Peers Reached</div>
+              </div>
+              <div>
+                <div className="glm-headline" style={{ fontSize: 36, color: "#8A5CFF" }}>12</div>
                 <div className="glm-body" style={{ fontSize: 14 }}>ECD Nations</div>
-              </div>
-              <div>
-                <div className="glm-headline" style={{ fontSize: 36, color: "#8A5CFF" }}>2024</div>
-                <div className="glm-body" style={{ fontSize: 14 }}>Founded</div>
               </div>
             </div>
           </div>
