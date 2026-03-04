@@ -21,27 +21,55 @@ const galleryImages2 = [
 
 function ScrollingGallery({ images, direction = "left", speed = "40s" }) {
   const isLeft = direction === 'left';
+  const doubled = [...images, ...images];
   return (
-    <div style={{ display: "flex", overflow: "hidden", width: "100%", gap: 20, padding: "20px 0" }}>
-      <style>
-        {`
-          @keyframes scroll-gallery-${direction} {
-            0% { transform: translateX(${isLeft ? '0%' : 'calc(-50% - 10px)'}); }
-            100% { transform: translateX(${isLeft ? 'calc(-50% - 10px)' : '0%'}); }
-          }
-        `}
-      </style>
-      <div style={{ display: "flex", gap: 20, animation: `scroll-gallery-${direction} ${speed} linear infinite`, width: "max-content" }}>
-        <div style={{ display: "flex", gap: 20 }}>
-          {[...images, ...images].map((src, i) => (
-            <img key={i} src={src} style={{ height: 220, width: 340, objectFit: "cover", borderRadius: 16, border: "1px solid rgba(0,207,255,0.2)", filter: "grayscale(30%) contrast(1.1)", opacity: 0.7, transition: "all 0.3s" }} alt="Gallery" onMouseOver={e => { e.currentTarget.style.filter = "grayscale(0%) contrast(1.1)"; e.currentTarget.style.opacity = 1; }} onMouseOut={e => { e.currentTarget.style.filter = "grayscale(30%) contrast(1.1)"; e.currentTarget.style.opacity = 0.7; }} />
-          ))}
-        </div>
-        <div style={{ display: "flex", gap: 20 }}>
-          {[...images, ...images].map((src, i) => (
-            <img key={'dup'+i} src={src} style={{ height: 220, width: 340, objectFit: "cover", borderRadius: 16, border: "1px solid rgba(0,207,255,0.2)", filter: "grayscale(30%) contrast(1.1)", opacity: 0.7, transition: "all 0.3s" }} alt="Gallery" onMouseOver={e => { e.currentTarget.style.filter = "grayscale(0%) contrast(1.1)"; e.currentTarget.style.opacity = 1; }} onMouseOut={e => { e.currentTarget.style.filter = "grayscale(30%) contrast(1.1)"; e.currentTarget.style.opacity = 0.7; }} />
-          ))}
-        </div>
+    <div style={{ overflow: "hidden", width: "100%", padding: "12px 0" }}>
+      <style>{`
+        @keyframes scroll-left {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes scroll-right {
+          0% { transform: translateX(-50%); }
+          100% { transform: translateX(0); }
+        }
+      `}</style>
+      <div style={{
+        display: "flex",
+        gap: 16,
+        width: "max-content",
+        animation: `scroll-${isLeft ? 'left' : 'right'} ${speed} linear infinite`,
+      }}>
+        {doubled.map((src, i) => (
+          <img
+            key={i}
+            src={src}
+            alt="Gallery"
+            style={{
+              height: 220, width: 330, objectFit: "cover", borderRadius: 16,
+              border: "1px solid rgba(0,207,255,0.2)",
+              filter: "grayscale(30%) contrast(1.1)", opacity: 0.7,
+              transition: "all 0.3s", flexShrink: 0,
+            }}
+            onMouseOver={e => { e.currentTarget.style.filter = "grayscale(0%) contrast(1.1)"; e.currentTarget.style.opacity = "1"; }}
+            onMouseOut={e => { e.currentTarget.style.filter = "grayscale(30%) contrast(1.1)"; e.currentTarget.style.opacity = "0.7"; }}
+          />
+        ))}
+        {doubled.map((src, i) => (
+          <img
+            key={`r${i}`}
+            src={src}
+            alt="Gallery"
+            style={{
+              height: 220, width: 330, objectFit: "cover", borderRadius: 16,
+              border: "1px solid rgba(0,207,255,0.2)",
+              filter: "grayscale(30%) contrast(1.1)", opacity: 0.7,
+              transition: "all 0.3s", flexShrink: 0,
+            }}
+            onMouseOver={e => { e.currentTarget.style.filter = "grayscale(0%) contrast(1.1)"; e.currentTarget.style.opacity = "1"; }}
+            onMouseOut={e => { e.currentTarget.style.filter = "grayscale(30%) contrast(1.1)"; e.currentTarget.style.opacity = "0.7"; }}
+          />
+        ))}
       </div>
     </div>
   );
