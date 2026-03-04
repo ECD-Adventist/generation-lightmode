@@ -60,13 +60,22 @@ export default function Home() {
         position: "relative",
         overflow: "hidden",
       }}>
+        <style>
+          {`
+            @keyframes image-glow {
+              0%, 100% { filter: brightness(1) contrast(1.1); opacity: 0.35; }
+              50% { filter: brightness(1.3) contrast(1.2); opacity: 0.55; }
+            }
+          `}
+        </style>
         {/* Background image */}
         <img
-          src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop"
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/e1fbdf7f2_couch-light-dimly-lit-room-with-lamp-wall-it.jpg"
           alt="Dark room"
           style={{
             position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "cover", opacity: 0.4, pointerEvents: "none",
+            objectFit: "cover", opacity: 0.35, pointerEvents: "none",
+            animation: "image-glow 4s ease-in-out infinite"
           }}
         />
 
