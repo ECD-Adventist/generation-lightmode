@@ -45,7 +45,7 @@ export default function GlowGroups() {
             No One Shines <span className="glm-gradient-text">Alone</span>
           </h1>
           <p className="glm-body" style={{ fontSize: 17, maxWidth: 620, margin: "0 auto 40px" }}>
-            GlowGroups are micro discipleship pods (4–6 youth) that meet weekly online or in-person to share light, struggles, and prayer. Grow together and light up East-Central Africa. <span style={{ color: "#FFD000", fontWeight: 700 }}>Faith. Always On.</span>
+            GlowGroups are small accountability communities that grow together, challenge together, and light up East-Central Africa together. Find yours or start one today. <span style={{ color: "#FFD000", fontWeight: 700 }}>Faith. Always On.</span>
           </p>
           <div style={{ display: "flex", gap: 40, justifyContent: "center", flexWrap: "wrap" }}>
             {[{ label: "Active Groups", value: "500+", color: "#00CFFF" }, { label: "Nations", value: "12", color: "#FFD000" }, { label: "Members Worldwide", value: "28K+", color: "#8A5CFF" }].map(s => (

@@ -64,24 +64,24 @@ export default function Home() {
           autoPlay muted loop playsInline
           style={{
             position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "cover", opacity: 0.4, pointerEvents: "none",
+            objectFit: "cover", opacity: 0.6, pointerEvents: "none",
           }}
         >
-          {/* Dark room video */}
-          <source src="https://videos.pexels.com/video-files/1851190/1851190-uhd_2560_1440_25fps.mp4" type="video/mp4" />
+          {/* Dark abandoned house/room video */}
+          <source src="https://videos.pexels.com/video-files/6981410/6981410-uhd_2560_1440_25fps.mp4" type="video/mp4" />
         </video>
 
         {/* Dark overlay */}
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(180deg, rgba(11,15,26,0.65) 0%, rgba(11,15,26,0.35) 50%, rgba(11,15,26,0.95) 100%)",
+          background: "linear-gradient(180deg, rgba(11,15,26,0.65) 0%, rgba(11,15,26,0.45) 50%, rgba(11,15,26,0.95) 100%)",
           pointerEvents: "none",
         }} />
 
         {/* Glow orbs on top of video */}
         <div style={{
           position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
-          width: 800, height: 800, borderRadius: "50%",
+          width: 600, height: 600, borderRadius: "50%",
           background: "radial-gradient(circle, rgba(0,207,255,0.12) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
@@ -100,25 +100,12 @@ export default function Home() {
           </span>
         </div>
 
-        {/* Logo — GIGANTIC BLINKING */}
-        <style>{`
-          @keyframes neon-flicker {
-            0%, 100% { filter: drop-shadow(0 0 100px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1); opacity: 1; }
-            3% { opacity: 0.6; filter: drop-shadow(0 0 30px rgba(0,207,255,0.4)) brightness(0.8); }
-            6% { opacity: 1; filter: drop-shadow(0 0 100px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1); }
-            7% { opacity: 0.5; filter: none; }
-            8% { opacity: 1; filter: drop-shadow(0 0 100px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1); }
-            9% { opacity: 1; filter: drop-shadow(0 0 100px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1); }
-            10% { opacity: 0.8; filter: drop-shadow(0 0 50px rgba(0,207,255,0.6)) drop-shadow(0 0 100px rgba(255,208,0,0.3)) brightness(0.9); }
-            11% { opacity: 1; filter: drop-shadow(0 0 100px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1); }
-            50% { filter: drop-shadow(0 0 80px rgba(0,207,255,0.8)) drop-shadow(0 0 150px rgba(255,208,0,0.4)) brightness(0.9); opacity: 0.9; }
-          }
-        `}</style>
-        <div style={{ position: "relative", zIndex: 2, marginBottom: 40, width: "100%", maxWidth: "1100px" }}>
+        {/* Logo — GIGANTIC */}
+        <div style={{ position: "relative", zIndex: 2, marginBottom: 40 }}>
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
             alt="Generation LightMode"
-            style={{ height: "auto", width: "100%", animation: "neon-flicker 5s infinite" }}
+            style={{ height: "clamp(400px, 60vw, 800px)", width: "auto", filter: "drop-shadow(0 0 80px rgba(0,207,255,1)) drop-shadow(0 0 160px rgba(255,208,0,0.6))" }}
           />
         </div>
 
@@ -128,8 +115,8 @@ export default function Home() {
           <br />The World Is Waiting For
         </h1>
 
-        <p className="glm-body" style={{ position: "relative", zIndex: 2, fontSize: "clamp(16px, 2vw, 20px)", maxWidth: 740, marginBottom: 24, color: "#E0E8F0" }}>
-          Join 1M+ young believers turning hidden faith into visible light — across the nations of the East-Central Africa Division to reach 10,000,000 peers with the gospel.
+        <p className="glm-body" style={{ position: "relative", zIndex: 2, fontSize: "clamp(16px, 2vw, 20px)", maxWidth: 680, marginBottom: 24, color: "#E0E8F0" }}>
+          Join 1M+ young believers turning hidden faith into visible light — across the nations of the East-Central Africa Division.
         </p>
 
         {/* Slogan */}
@@ -170,9 +157,9 @@ export default function Home() {
           </div>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
             <StatCard value={1000000} suffix="+" label="Youth Mobilized" icon={Users} color="#00CFFF" started={statsVisible} />
-            <StatCard value={10000000} suffix="+" label="Peers Reached" icon={Users} color="#FFD000" started={statsVisible} />
-            <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#1DA1FF" started={statsVisible} />
-            <StatCard value={500} suffix="+" label="GlowGroups Active" icon={Star} color="#8A5CFF" started={statsVisible} />
+            <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#FFD000" started={statsVisible} />
+            <StatCard value={50000} suffix="+" label="Challenges Completed" icon={Zap} color="#8A5CFF" started={statsVisible} />
+            <StatCard value={500} suffix="+" label="GlowGroups Active" icon={Star} color="#00CFFF" started={statsVisible} />
           </div>
         </div>
       </section>
@@ -203,10 +190,10 @@ export default function Home() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             {[
-              { icon: "💧", title: "Glow Drops", desc: "Daily devotions on feeds" },
-              { icon: "🗣️", title: "Real Light Series", desc: "Weekly authentic talks" },
-              { icon: "🏆", title: "Monthly Challenges", desc: "Digital viral campaigns" },
-              { icon: "👥", title: "GlowGroups", desc: "Micro discipleship pods" },
+              { icon: "⚡", title: "Daily Challenges", desc: "Faith-activating missions" },
+              { icon: "👥", title: "GlowGroups", desc: "Community accountability" },
+              { icon: "🌍", title: "East-Central Africa", desc: "ECD nations, one glow" },
+              { icon: "🏆", title: "Rank System", desc: "Grow from Starter to Champion" },
             ].map(item => (
               <div key={item.title} className="glm-card" style={{ padding: 24 }}>
                 <div style={{ fontSize: 32, marginBottom: 12 }}>{item.icon}</div>
@@ -231,10 +218,10 @@ export default function Home() {
           </p>
           <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
             {[
-              { rank: "Glow Starter", color: "#00CFFF", icon: "💡", desc: "Posted 3 Glow Drops weekly" },
-              { rank: "Light Warrior", color: "#1DA1FF", icon: "⚔️", desc: "Leads a GlowGroup" },
-              { rank: "Trendsetter", color: "#8A5CFF", icon: "🌟", desc: "Reached 1,000+ engagements" },
-              { rank: "Glow Champion", color: "#FFD000", icon: "🏆", desc: "Mentors others + multiplies disciples" },
+              { rank: "Glow Starter", color: "#00CFFF", icon: "💡", desc: "Begin your journey" },
+              { rank: "Light Warrior", color: "#1DA1FF", icon: "⚔️", desc: "Fight for the light" },
+              { rank: "Trendsetter", color: "#8A5CFF", icon: "🌟", desc: "Inspire the world" },
+              { rank: "Glow Champion", color: "#FFD000", icon: "🏆", desc: "Lead the movement" },
             ].map(item => (
               <div key={item.rank} className="glm-card" style={{ flex: "1 1 200px", maxWidth: 240, border: `1px solid ${item.color}40`, textAlign: "center" }}>
                 <div style={{ fontSize: 40, marginBottom: 12 }}>{item.icon}</div>
@@ -249,7 +236,7 @@ export default function Home() {
 
       <div className="section-divider" />
 
-      {/* PLEDGE & CTA */}
+      {/* CTA */}
       <section id="join" style={{ padding: "120px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
         <div style={{
           position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
@@ -257,29 +244,17 @@ export default function Home() {
           background: "radial-gradient(circle, rgba(138,92,255,0.12) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 800, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1 }}>
           <div style={{ fontSize: 64, marginBottom: 24 }}>🔆</div>
-          <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24 }}>
-            Take The <span className="glm-gradient-text">Pledge</span>
+          <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 64px)", marginBottom: 24 }}>
+            Are You Ready To{" "}
+            <span className="glm-gradient-text">Switch On?</span>
           </h2>
           <p className="glm-body" style={{ fontSize: 18, maxWidth: 560, margin: "0 auto 48px" }}>
-            The world needs your light. Don't keep it hidden. Join Generation LightMode today by taking the pledge.
+            The world needs your light. Don't keep it hidden. Join Generation LightMode today and be part of the greatest faith movement of your generation.
           </p>
-
-          <div style={{ background: "#121826", border: "1px solid rgba(0,207,255,0.3)", borderRadius: 24, padding: "40px", marginBottom: 48, textAlign: "left" }}>
-            <p style={{ fontSize: 18, color: "#E0E8F0", marginBottom: 24, fontStyle: "italic", fontFamily: "Inter, sans-serif" }}>"As a member of Generation LightMode, I pledge to:</p>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 16 }}>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF" }}>1.</span> <span className="glm-body"><strong>LIVE VISIBLY</strong> → Keep my faith always on — unashamed and unhidden.</span></li>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF" }}>2.</span> <span className="glm-body"><strong>SHINE BOLDLY</strong> → Glow for Christ in every post, story, and real-life interaction.</span></li>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF" }}>3.</span> <span className="glm-body"><strong>SPEAK TRUTH</strong> → Share God's love with courage and compassion.</span></li>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF" }}>4.</span> <span className="glm-body"><strong>WALK WITH PURPOSE</strong> → Let my online and offline life reflect Jesus' light.</span></li>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF" }}>5.</span> <span className="glm-body"><strong>IGNITE OTHERS</strong> → Encourage fellow believers and guide seekers to the Light.</span></li>
-            </ul>
-            <p style={{ fontSize: 18, color: "#FFD000", marginTop: 32, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", textAlign: "center" }}>My light will not dim. My faith will not fade. I am Generation LightMode."</p>
-          </div>
-
           <a href="/app/dashboard" className="glm-btn-primary animate-pulse-glow" style={{ fontSize: 20, padding: "18px 52px" }}>
-            Sign The Pledge ⚡
+            Join The Movement ⚡
           </a>
           <p style={{ color: "#C8D0E0", fontSize: 14, marginTop: 20, fontFamily: "Inter, sans-serif" }}>
             Free to join · No credit card required · Start today
