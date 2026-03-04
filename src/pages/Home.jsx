@@ -60,17 +60,15 @@ export default function Home() {
         position: "relative",
         overflow: "hidden",
       }}>
-        {/* Background video */}
-        <video
-          autoPlay muted loop playsInline
+        {/* Background image */}
+        <img
+          src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop"
+          alt="Dark room"
           style={{
             position: "absolute", inset: 0, width: "100%", height: "100%",
             objectFit: "cover", opacity: 0.4, pointerEvents: "none",
           }}
-        >
-          {/* Dark room video */}
-          <source src="https://videos.pexels.com/video-files/1851190/1851190-uhd_2560_1440_25fps.mp4" type="video/mp4" />
-        </video>
+        />
 
         {/* Dark overlay */}
         <div style={{
@@ -115,9 +113,9 @@ export default function Home() {
             50% { filter: drop-shadow(0 0 80px rgba(0,207,255,0.8)) drop-shadow(0 0 150px rgba(255,208,0,0.4)) brightness(0.9); opacity: 0.9; }
           }
         `}</style>
-        <div style={{ position: "relative", zIndex: 2, marginBottom: 32, width: "100%", maxWidth: "450px" }}>
+        <div style={{ position: "relative", zIndex: 2, marginBottom: 32, width: "100%", maxWidth: "600px" }}>
           <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/e51a96559_GENERATIONLIGHTMODE-LOGO.png"
             alt="Generation LightMode"
             style={{ height: "auto", width: "100%", animation: "neon-flicker 5s infinite" }}
           />
