@@ -319,7 +319,7 @@ export default function Layout({ children, currentPageName }) {
             <p style={{ color: "#C8D0E0", fontSize: 13 }}>© 2026 Generation LightMode. All rights reserved.</p>
             <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
               <span className="glow-dot"></span>
-              <span style={{ color: "#C8D0E0", fontSize: 13 }}>Faith turned into light.</span>
+              <span style={{ color: "#C8D0E0", fontSize: 13 }}>Powered by Communication & Media Department</span>
             </div>
           </div>
         </div>

@@ -210,16 +210,18 @@ export default function Home() {
       {/* WATCH THE VISION (FULL WIDTH) */}
       <section id="vision-video-section" style={{ position: "relative", minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
         
-        {/* Background Video (Auto-playing without popup) */}
+        {/* Background Image with Play Button */}
         <div style={{ position: "absolute", inset: 0, zIndex: 0, background: "#000", overflow: "hidden" }}>
-           <iframe 
-             src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ&controls=0&showinfo=0&modestbranding=1" 
-             style={{ width: "100vw", height: "56.25vw", minHeight: "100vh", minWidth: "177.77vh", position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", pointerEvents: "none", opacity: 0.7 }}
-             frameBorder="0" 
-             allow="autoplay; encrypted-media" 
-             allowFullScreen
-             title="Vision Video Background"
-           ></iframe>
+           <img 
+             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg" 
+             style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }}
+             alt="Vision Background"
+           />
+           <div style={{ position: "absolute", top: "45%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 3 }}>
+             <div style={{ width: 100, height: 100, borderRadius: "50%", background: "rgba(0,207,255,0.15)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(0,207,255,0.6)", animation: "pulse-glow 2.5s ease-in-out infinite", cursor: "pointer" }}>
+               <Play size={44} color="#00CFFF" style={{ marginLeft: 6 }} />
+             </div>
+           </div>
         </div>
 
         {/* Dark overlay for text readability */}
