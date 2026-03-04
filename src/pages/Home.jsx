@@ -261,7 +261,7 @@ export default function Home() {
         {/* Background Image with Play Button */}
         <div style={{ position: "absolute", inset: 0, zIndex: 0, background: "#000", overflow: "hidden" }}>
            <img 
-             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg" 
+             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/787db261d_PrBlasiousRuguri-onthecoachcopy.png" 
              style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }}
              alt="Vision Background"
            />
