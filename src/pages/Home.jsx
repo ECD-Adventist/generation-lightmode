@@ -5,18 +5,18 @@ import { Zap, Globe, Users, Star, ChevronDown, Play, X } from "lucide-react";
 
 const galleryImages1 = [
   "https://images.unsplash.com/photo-1531123897727-8f129e1bf98c?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80",
   "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80",
   "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1513624954087-cca71cbd2628?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1506869640319-fea1a278e0fa?auto=format&fit=crop&w=800&q=80",
 ];
 
 const galleryImages2 = [
   "https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?auto=format&fit=crop&w=800&q=80",
   "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80",
   "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1543807535-eceef0bc6599?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1531123414708-rx031e8bc25?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80",
 ];
 
 function ScrollingGallery({ images, direction = "left", speed = "40s" }) {
@@ -191,9 +191,12 @@ export default function Home() {
           <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 18, padding: "16px 40px" }}>
             Switch It On ⚡
           </a>
-          <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 18, padding: "16px 40px" }}>
-            Our Story
-          </Link>
+          <button onClick={() => {
+            const el = document.getElementById('vision-video-section');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }} className="glm-btn-secondary" style={{ fontSize: 18, padding: "16px 40px" }}>
+            Watch Vision Video
+          </button>
         </div>
 
         {/* Scroll hint */}
@@ -204,51 +207,43 @@ export default function Home() {
 
       <div className="section-divider" />
 
-      {/* WATCH THE VISION */}
-      <section style={{ padding: "100px 24px", background: "#121826" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 60, alignItems: "center" }}>
-          
-          {/* LEFT SIDE: TEXT */}
-          <div style={{ textAlign: "left" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.3)", borderRadius: 50, padding: "8px 20px", marginBottom: 24 }}>
+      {/* WATCH THE VISION (FULL WIDTH) */}
+      <section id="vision-video-section" style={{ position: "relative", minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+        
+        {/* Background Video (Auto-playing without popup) */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 0, background: "#000", overflow: "hidden" }}>
+           <iframe 
+             src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ&controls=0&showinfo=0&modestbranding=1" 
+             style={{ width: "100vw", height: "56.25vw", minHeight: "100vh", minWidth: "177.77vh", position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", pointerEvents: "none", opacity: 0.7 }}
+             frameBorder="0" 
+             allow="autoplay; encrypted-media" 
+             allowFullScreen
+             title="Vision Video Background"
+           ></iframe>
+        </div>
+
+        {/* Dark overlay for text readability */}
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 1,
+          background: "linear-gradient(180deg, rgba(11,15,26,0.8) 0%, rgba(11,15,26,0.3) 50%, rgba(11,15,26,1) 100%)",
+          pointerEvents: "none",
+        }} />
+
+        {/* Content at the bottom */}
+        <div style={{ position: "relative", zIndex: 2, padding: "80px 24px 60px", maxWidth: 1000, margin: "0 auto", textAlign: "center" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.15)", border: "1px solid rgba(0,207,255,0.4)", borderRadius: 50, padding: "8px 20px", marginBottom: 24, backdropFilter: "blur(8px)" }}>
               <Play size={14} color="#00CFFF" />
               <span style={{ color: "#00CFFF", fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>Vision Video</span>
             </div>
-            <h2 className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 24 }}>
+            <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24, textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>
               Watch the <span className="glm-gradient-text">Vision</span>
             </h2>
-            <p className="glm-body" style={{ fontSize: 18, marginBottom: 40, lineHeight: 1.8 }}>
-              Generation LightMode was born from a simple belief — that the world changes when young believers stop hiding their faith and start living it out loud. We are moving from hidden faith to visible light, transforming the digital landscape. Our strategy is built on mobilizing the next generation to be authentic, creative, and unapologetic about their love for Christ.
+            <p className="glm-body" style={{ fontSize: 18, marginBottom: 40, lineHeight: 1.8, color: "#E0E8F0", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
+              Generation LightMode was born from a simple belief — that the world changes when young believers stop hiding their faith and start living it out loud. We are moving from hidden faith to visible light, transforming the digital landscape.
             </p>
-            <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 17 }}>
+            <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 17, background: "rgba(11,15,26,0.6)", backdropFilter: "blur(10px)" }}>
               Read More About the Vision →
             </Link>
-          </div>
-
-          {/* RIGHT SIDE: VIDEO */}
-          <div 
-            onClick={() => setShowVideo(true)}
-            style={{ 
-              position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: 20, 
-              overflow: "hidden", border: "1px solid rgba(0,207,255,0.3)", 
-              boxShadow: "0 0 40px rgba(0,207,255,0.15)", cursor: "pointer", 
-              display: "flex", alignItems: "center", justifyContent: "center", background: "#000",
-              transition: "transform 0.3s ease, box-shadow 0.3s ease"
-            }}
-            onMouseOver={e => {
-              e.currentTarget.style.transform = "translateY(-4px)";
-              e.currentTarget.style.boxShadow = "0 0 50px rgba(0,207,255,0.3)";
-            }}
-            onMouseOut={e => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 0 40px rgba(0,207,255,0.15)";
-            }}
-          >
-             <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} alt="Vision Cover" />
-             <div style={{ width: 88, height: 88, borderRadius: "50%", background: "rgba(0,207,255,0.2)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2, border: "2px solid rgba(0,207,255,0.6)", animation: "pulse-glow 2.5s ease-in-out infinite" }}>
-               <Play size={40} color="#00CFFF" style={{ marginLeft: 6 }} />
-             </div>
-          </div>
         </div>
       </section>
 
