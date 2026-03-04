@@ -3,6 +3,50 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, Globe, Users, Star, ChevronDown, Play, X } from "lucide-react";
 
+const galleryImages1 = [
+  "https://images.unsplash.com/photo-1523580846011-d3a5ce25c280?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1506869640319-fea1a278e0fa?auto=format&fit=crop&w=800&q=80",
+];
+
+const galleryImages2 = [
+  "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1526976663112-00a5252033bc?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1525683911571-081682cbac99?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=800&q=80",
+];
+
+function ScrollingGallery({ images, direction = "left", speed = "40s" }) {
+  const isLeft = direction === 'left';
+  return (
+    <div style={{ display: "flex", overflow: "hidden", width: "100%", gap: 20, padding: "20px 0" }}>
+      <style>
+        {\`
+          @keyframes scroll-gallery-\${direction} {
+            0% { transform: translateX(\${isLeft ? '0%' : 'calc(-50% - 10px)'}); }
+            100% { transform: translateX(\${isLeft ? 'calc(-50% - 10px)' : '0%'}); }
+          }
+        \`}
+      </style>
+      <div style={{ display: "flex", gap: 20, animation: \`scroll-gallery-\${direction} \${speed} linear infinite\`, width: "max-content" }}>
+        <div style={{ display: "flex", gap: 20 }}>
+          {[...images, ...images].map((src, i) => (
+            <img key={i} src={src} style={{ height: 220, width: 340, objectFit: "cover", borderRadius: 16, border: "1px solid rgba(0,207,255,0.2)", filter: "grayscale(30%) contrast(1.1)", opacity: 0.7, transition: "all 0.3s" }} alt="Gallery" onMouseOver={e => { e.currentTarget.style.filter = "grayscale(0%) contrast(1.1)"; e.currentTarget.style.opacity = 1; }} onMouseOut={e => { e.currentTarget.style.filter = "grayscale(30%) contrast(1.1)"; e.currentTarget.style.opacity = 0.7; }} />
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 20 }}>
+          {[...images, ...images].map((src, i) => (
+            <img key={'dup'+i} src={src} style={{ height: 220, width: 340, objectFit: "cover", borderRadius: 16, border: "1px solid rgba(0,207,255,0.2)", filter: "grayscale(30%) contrast(1.1)", opacity: 0.7, transition: "all 0.3s" }} alt="Gallery" onMouseOver={e => { e.currentTarget.style.filter = "grayscale(0%) contrast(1.1)"; e.currentTarget.style.opacity = 1; }} onMouseOut={e => { e.currentTarget.style.filter = "grayscale(30%) contrast(1.1)"; e.currentTarget.style.opacity = 0.7; }} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function useCountUp(target, duration = 2000, start = false) {
   const [count, setCount] = useState(0);
   useEffect(() => {
@@ -231,6 +275,12 @@ export default function Home() {
         </div>
       </section>
 
+      {/* GALLERIES */}
+      <div style={{ background: "#0B0F1A", padding: "40px 0" }}>
+        <ScrollingGallery images={galleryImages1} direction="left" speed="45s" />
+        <ScrollingGallery images={galleryImages2} direction="right" speed="50s" />
+      </div>
+
       <div className="section-divider" />
 
       {/* WHAT IS LIGHTMODE */}
@@ -305,13 +355,22 @@ export default function Home() {
 
       {/* PLEDGE & CTA */}
       <section id="join" style={{ padding: "120px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        
+        {/* Background Scrolling Galleries */}
+        <div style={{ position: "absolute", top: "10%", left: 0, width: "100%", opacity: 0.15, pointerEvents: "none" }}>
+          <ScrollingGallery images={galleryImages2} direction="right" speed="60s" />
+        </div>
+        <div style={{ position: "absolute", bottom: "10%", left: 0, width: "100%", opacity: 0.15, pointerEvents: "none" }}>
+          <ScrollingGallery images={galleryImages1} direction="left" speed="60s" />
+        </div>
+
         <div style={{
           position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
           width: 700, height: 700, borderRadius: "50%",
           background: "radial-gradient(circle, rgba(138,92,255,0.12) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 800, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 800, margin: "0 auto", background: "rgba(11,15,26,0.8)", padding: "40px", borderRadius: 32, backdropFilter: "blur(10px)", border: "1px solid rgba(0,207,255,0.1)" }}>
           <div style={{ fontSize: 64, marginBottom: 24 }}>🔆</div>
           <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24 }}>
             Take The <span className="glm-gradient-text">Pledge</span>
