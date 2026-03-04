@@ -9,6 +9,11 @@ const galleryImages1 = [
   "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/c6ad94d7f_cinematic-style-view-parent-child-spending-time-together.jpg",
   "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/4e00b099d_closeup-shot-couple-sitting-park-reading-bible-with-blurred-background.jpg",
   "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/ee6c61c7a_diverse-group-friends-enjoying-quality-time-together-vibrant-outdoor-setting.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/14079f808_4V5A9468.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/d7f1e55cf_4V5A9500.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/f0c6f3f3f_4V5A9524.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/84146e9e3_4V5A9625.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/6ecc10600_close-up-people-working-as-team.jpg",
 ];
 
 const galleryImages2 = [
@@ -17,6 +22,11 @@ const galleryImages2 = [
   "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/38e68ed9e_medium-shot-students-reading-together.jpg",
   "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/a890a8acd_men-doing-makeup-indoors.jpg",
   "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/c0937858a_portrait-interracial-couple-reading-together.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/db8f107d1_4V5A9685.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/6cd03ab20_4V5A9699.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/117e3c882_group-friends-gathering-together.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/478c205e6_medium-shot-community-members.jpg",
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9d1bba277_medium-shot-smiley-kids-playing-together.jpg",
 ];
 
 function ScrollingGallery({ images, direction = "left", speed = "40s" }) {
