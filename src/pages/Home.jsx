@@ -70,7 +70,7 @@ export default function Home() {
         </style>
         {/* Background image */}
         <img
-          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/e1fbdf7f2_couch-light-dimly-lit-room-with-lamp-wall-it.jpg"
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg"
           alt="Dark room"
           style={{
             position: "absolute", inset: 0, width: "100%", height: "100%",
@@ -157,10 +157,6 @@ export default function Home() {
           <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 18, padding: "16px 40px" }}>
             Our Story
           </Link>
-          <button onClick={() => setShowVideo(true)} className="glm-btn-secondary" style={{ fontSize: 18, padding: "16px 40px", display: "flex", alignItems: "center", gap: 8 }}>
-            <Play size={18} />
-            Watch the Vision
-          </button>
         </div>
 
         {/* Scroll hint */}
@@ -171,8 +167,54 @@ export default function Home() {
 
       <div className="section-divider" />
 
+      {/* WATCH THE VISION */}
+      <section style={{ padding: "100px 24px", background: "#121826" }}>
+        <div style={{ maxWidth: 1000, margin: "0 auto", textAlign: "center" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.3)", borderRadius: 50, padding: "8px 20px", marginBottom: 24 }}>
+            <Play size={14} color="#00CFFF" />
+            <span style={{ color: "#00CFFF", fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>Vision Video</span>
+          </div>
+          <h2 className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 24 }}>
+            Watch the <span className="glm-gradient-text">Vision</span>
+          </h2>
+          <p className="glm-body" style={{ fontSize: 18, marginBottom: 40, lineHeight: 1.8, maxWidth: 800, margin: "0 auto 40px" }}>
+            Generation LightMode was born from a simple belief — that the world changes when young believers stop hiding their faith and start living it out loud. We are moving from hidden faith to visible light, transforming the digital landscape. Our strategy is built on mobilizing the next generation to be authentic, creative, and unapologetic about their love for Christ.
+          </p>
+          
+          <div 
+            onClick={() => setShowVideo(true)}
+            style={{ 
+              position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: 20, 
+              overflow: "hidden", border: "1px solid rgba(0,207,255,0.3)", 
+              boxShadow: "0 0 40px rgba(0,207,255,0.15)", marginBottom: 40, cursor: "pointer", 
+              display: "flex", alignItems: "center", justifyContent: "center", background: "#000",
+              transition: "transform 0.3s ease, box-shadow 0.3s ease"
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow = "0 0 50px rgba(0,207,255,0.3)";
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 0 40px rgba(0,207,255,0.15)";
+            }}
+          >
+             <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} alt="Vision Cover" />
+             <div style={{ width: 88, height: 88, borderRadius: "50%", background: "rgba(0,207,255,0.2)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2, border: "2px solid rgba(0,207,255,0.6)", animation: "pulse-glow 2.5s ease-in-out infinite" }}>
+               <Play size={40} color="#00CFFF" style={{ marginLeft: 6 }} />
+             </div>
+          </div>
+          
+          <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 17 }}>
+            Read More About the Vision →
+          </Link>
+        </div>
+      </section>
+
+      <div className="section-divider" />
+
       {/* STATS */}
-      <section ref={statsRef} style={{ padding: "80px 24px", background: "#121826" }}>
+      <section ref={statsRef} style={{ padding: "80px 24px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)" }}>
