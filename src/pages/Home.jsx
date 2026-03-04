@@ -4,19 +4,19 @@ import { createPageUrl } from "@/utils";
 import { Zap, Globe, Users, Star, ChevronDown, Play, X } from "lucide-react";
 
 const galleryImages1 = [
-  "https://images.unsplash.com/photo-1523580846011-d3a5ce25c280?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1531123897727-8f129e1bf98c?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=800&q=80",
   "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1506869640319-fea1a278e0fa?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
 ];
 
 const galleryImages2 = [
-  "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1526976663112-00a5252033bc?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1543807535-eceef0bc6599?auto=format&fit=crop&w=800&q=80",
   "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1525683911571-081682cbac99?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=800&q=80",
 ];
 
 function ScrollingGallery({ images, direction = "left", speed = "40s" }) {
@@ -349,58 +349,56 @@ export default function Home() {
       {/* PLEDGE & CTA */}
       <section id="join" style={{ padding: "120px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
         
-        {/* Background Scrolling Image */}
-        <style>
-          {`
-            @keyframes scroll-bg-horizontal {
-              0% { transform: translateX(0); }
-              100% { transform: translateX(-50%); }
-            }
-          `}
-        </style>
-        <div style={{ position: "absolute", inset: 0, overflow: "hidden", opacity: 0.2, pointerEvents: "none" }}>
-          <div style={{
-            display: "flex", width: "400%", height: "100%",
-            animation: "scroll-bg-horizontal 120s linear infinite"
-          }}>
-            <div style={{ flex: 1, backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg')", backgroundSize: "cover", backgroundPosition: "center" }} />
-            <div style={{ flex: 1, backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg')", backgroundSize: "cover", backgroundPosition: "center", transform: "scaleX(-1)" }} />
-            <div style={{ flex: 1, backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg')", backgroundSize: "cover", backgroundPosition: "center" }} />
-            <div style={{ flex: 1, backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg')", backgroundSize: "cover", backgroundPosition: "center", transform: "scaleX(-1)" }} />
-          </div>
-        </div>
+        {/* Parallax Background Image */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/94eae4cde_couch-light-dimly-lit-room-with-lamp-wall-it.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+          opacity: 0.65,
+          zIndex: 0
+        }} />
+
+        {/* Dark overlay for readability (Hero-style) */}
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 0,
+          background: "linear-gradient(180deg, rgba(11,15,26,1) 0%, rgba(11,15,26,0.5) 50%, rgba(11,15,26,1) 100%)",
+          pointerEvents: "none",
+        }} />
 
         <div style={{
           position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
           width: 700, height: 700, borderRadius: "50%",
           background: "radial-gradient(circle, rgba(138,92,255,0.12) 0%, transparent 70%)",
-          pointerEvents: "none",
+          pointerEvents: "none", zIndex: 0
         }} />
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 800, margin: "0 auto", background: "rgba(11,15,26,0.8)", padding: "40px", borderRadius: 32, backdropFilter: "blur(10px)", border: "1px solid rgba(0,207,255,0.1)" }}>
-          <div style={{ fontSize: 64, marginBottom: 24 }}>🔆</div>
-          <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24 }}>
+        
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 800, margin: "0 auto", padding: "40px" }}>
+          <div style={{ fontSize: 64, marginBottom: 24, textShadow: "0 0 20px rgba(255,208,0,0.5)" }}>🔆</div>
+          <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24, textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
             Take The <span className="glm-gradient-text">Pledge</span>
           </h2>
-          <p className="glm-body" style={{ fontSize: 18, maxWidth: 560, margin: "0 auto 48px" }}>
+          <p className="glm-body" style={{ fontSize: 18, maxWidth: 560, margin: "0 auto 48px", color: "#E0E8F0", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
             The world needs your light. Don't keep it hidden. Join Generation LightMode today by taking the pledge.
           </p>
 
-          <div style={{ background: "#121826", border: "1px solid rgba(0,207,255,0.3)", borderRadius: 24, padding: "40px", marginBottom: 48, textAlign: "left" }}>
-            <p style={{ fontSize: 18, color: "#E0E8F0", marginBottom: 24, fontStyle: "italic", fontFamily: "Inter, sans-serif" }}>"As a member of Generation LightMode, I pledge to:</p>
+          <div style={{ marginBottom: 48, textAlign: "left", padding: "0 20px" }}>
+            <p style={{ fontSize: 18, color: "#E0E8F0", marginBottom: 24, fontStyle: "italic", fontFamily: "Inter, sans-serif", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>"As a member of Generation LightMode, I pledge to:</p>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 16 }}>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF" }}>1.</span> <span className="glm-body"><strong>LIVE VISIBLY</strong> → Keep my faith always on — unashamed and unhidden.</span></li>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF" }}>2.</span> <span className="glm-body"><strong>SHINE BOLDLY</strong> → Glow for Christ in every post, story, and real-life interaction.</span></li>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF" }}>3.</span> <span className="glm-body"><strong>SPEAK TRUTH</strong> → Share God's love with courage and compassion.</span></li>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF" }}>4.</span> <span className="glm-body"><strong>WALK WITH PURPOSE</strong> → Let my online and offline life reflect Jesus' light.</span></li>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF" }}>5.</span> <span className="glm-body"><strong>IGNITE OTHERS</strong> → Encourage fellow believers and guide seekers to the Light.</span></li>
+              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>1.</span> <span className="glm-body" style={{ textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}><strong>LIVE VISIBLY</strong> → Keep my faith always on — unashamed and unhidden.</span></li>
+              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>2.</span> <span className="glm-body" style={{ textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}><strong>SHINE BOLDLY</strong> → Glow for Christ in every post, story, and real-life interaction.</span></li>
+              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>3.</span> <span className="glm-body" style={{ textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}><strong>SPEAK TRUTH</strong> → Share God's love with courage and compassion.</span></li>
+              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>4.</span> <span className="glm-body" style={{ textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}><strong>WALK WITH PURPOSE</strong> → Let my online and offline life reflect Jesus' light.</span></li>
+              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>5.</span> <span className="glm-body" style={{ textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}><strong>IGNITE OTHERS</strong> → Encourage fellow believers and guide seekers to the Light.</span></li>
             </ul>
-            <p style={{ fontSize: 18, color: "#FFD000", marginTop: 32, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", textAlign: "center" }}>My light will not dim. My faith will not fade. I am Generation LightMode."</p>
+            <p style={{ fontSize: 18, color: "#FFD000", marginTop: 32, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", textAlign: "center", textShadow: "0 0 20px rgba(255,208,0,0.5)" }}>My light will not dim. My faith will not fade. I am Generation LightMode."</p>
           </div>
 
           <a href="/app/dashboard" className="glm-btn-primary animate-pulse-glow" style={{ fontSize: 20, padding: "18px 52px" }}>
             Sign The Pledge ⚡
           </a>
-          <p style={{ color: "#C8D0E0", fontSize: 14, marginTop: 20, fontFamily: "Inter, sans-serif" }}>
+          <p style={{ color: "#C8D0E0", fontSize: 14, marginTop: 20, fontFamily: "Inter, sans-serif", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
             Free to join · No credit card required · Start today
           </p>
         </div>
