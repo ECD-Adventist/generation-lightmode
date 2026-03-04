@@ -56,7 +56,7 @@ function ScrollingGallery({ images, direction = "left", speed = "40s" }) {
             src={src}
             alt="Gallery"
             style={{
-              height: 220, width: 330, objectFit: "cover", borderRadius: 16,
+              height: 260, width: "auto", maxWidth: 420, objectFit: "contain", borderRadius: 16,
               border: "1px solid rgba(0,207,255,0.2)",
               filter: "grayscale(30%) contrast(1.1)", opacity: 0.7,
               transition: "all 0.3s", flexShrink: 0,
@@ -71,7 +71,7 @@ function ScrollingGallery({ images, direction = "left", speed = "40s" }) {
             src={src}
             alt="Gallery"
             style={{
-              height: 220, width: 330, objectFit: "cover", borderRadius: 16,
+              height: 260, width: "auto", maxWidth: 420, objectFit: "contain", borderRadius: 16,
               border: "1px solid rgba(0,207,255,0.2)",
               filter: "grayscale(30%) contrast(1.1)", opacity: 0.7,
               transition: "all 0.3s", flexShrink: 0,
@@ -309,8 +309,8 @@ export default function Home() {
 
       {/* GALLERIES */}
       <div style={{ background: "#0B0F1A", padding: "40px 0" }}>
-        <ScrollingGallery images={galleryImages1} direction="left" speed="45s" />
-        <ScrollingGallery images={galleryImages2} direction="right" speed="50s" />
+        <ScrollingGallery images={galleryImages1} direction="left" speed="80s" />
+        <ScrollingGallery images={galleryImages2} direction="right" speed="90s" />
       </div>
 
       <div className="section-divider" />
