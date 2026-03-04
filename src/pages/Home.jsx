@@ -206,24 +206,32 @@ export default function Home() {
 
       {/* WATCH THE VISION */}
       <section style={{ padding: "100px 24px", background: "#121826" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto", textAlign: "center" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.3)", borderRadius: 50, padding: "8px 20px", marginBottom: 24 }}>
-            <Play size={14} color="#00CFFF" />
-            <span style={{ color: "#00CFFF", fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>Vision Video</span>
-          </div>
-          <h2 className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 24 }}>
-            Watch the <span className="glm-gradient-text">Vision</span>
-          </h2>
-          <p className="glm-body" style={{ fontSize: 18, marginBottom: 40, lineHeight: 1.8, maxWidth: 800, margin: "0 auto 40px" }}>
-            Generation LightMode was born from a simple belief — that the world changes when young believers stop hiding their faith and start living it out loud. We are moving from hidden faith to visible light, transforming the digital landscape. Our strategy is built on mobilizing the next generation to be authentic, creative, and unapologetic about their love for Christ.
-          </p>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 60, alignItems: "center" }}>
           
+          {/* LEFT SIDE: TEXT */}
+          <div style={{ textAlign: "left" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.3)", borderRadius: 50, padding: "8px 20px", marginBottom: 24 }}>
+              <Play size={14} color="#00CFFF" />
+              <span style={{ color: "#00CFFF", fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>Vision Video</span>
+            </div>
+            <h2 className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 24 }}>
+              Watch the <span className="glm-gradient-text">Vision</span>
+            </h2>
+            <p className="glm-body" style={{ fontSize: 18, marginBottom: 40, lineHeight: 1.8 }}>
+              Generation LightMode was born from a simple belief — that the world changes when young believers stop hiding their faith and start living it out loud. We are moving from hidden faith to visible light, transforming the digital landscape. Our strategy is built on mobilizing the next generation to be authentic, creative, and unapologetic about their love for Christ.
+            </p>
+            <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 17 }}>
+              Read More About the Vision →
+            </Link>
+          </div>
+
+          {/* RIGHT SIDE: VIDEO */}
           <div 
             onClick={() => setShowVideo(true)}
             style={{ 
               position: "relative", width: "100%", aspectRatio: "16/9", borderRadius: 20, 
               overflow: "hidden", border: "1px solid rgba(0,207,255,0.3)", 
-              boxShadow: "0 0 40px rgba(0,207,255,0.15)", marginBottom: 40, cursor: "pointer", 
+              boxShadow: "0 0 40px rgba(0,207,255,0.15)", cursor: "pointer", 
               display: "flex", alignItems: "center", justifyContent: "center", background: "#000",
               transition: "transform 0.3s ease, box-shadow 0.3s ease"
             }}
@@ -241,10 +249,6 @@ export default function Home() {
                <Play size={40} color="#00CFFF" style={{ marginLeft: 6 }} />
              </div>
           </div>
-          
-          <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 17 }}>
-            Read More About the Vision →
-          </Link>
         </div>
       </section>
 

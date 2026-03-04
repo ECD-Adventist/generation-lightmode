@@ -201,6 +201,13 @@ export default function Layout({ children, currentPageName }) {
         transition: "all 0.4s ease",
         padding: "0 24px",
       }}>
+        <div style={{
+          position: "absolute", inset: 0, zIndex: -1,
+          background: scrolled ? "none" : "linear-gradient(180deg, rgba(0,207,255,0.15) 0%, transparent 100%)",
+          transition: "opacity 0.4s ease",
+          opacity: scrolled ? 0 : 1,
+          pointerEvents: "none",
+        }} />
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 72 }}>
           {/* Logo */}
           <Link to={createPageUrl("Home")} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
