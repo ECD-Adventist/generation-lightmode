@@ -3,12 +3,11 @@ import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Menu, X, Zap } from "lucide-react";
 import LanguageSelector from "./components/LanguageSelector";
-import { LanguageProvider } from "./components/LanguageContext";
 
 const navLinks = [
   { label: "Home", page: "Home" },
   { label: "About", page: "About" },
-  { label: "Resources", page: "Resources" },
+  { label: "Media", page: "Media" },
   { label: "Challenges", page: "Challenges" },
   { label: "GlowGroups", page: "GlowGroups" },
   { label: "Impact", page: "Impact" },
@@ -26,7 +25,6 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   return (
-    <LanguageProvider>
     <div style={{ background: "#0B0F1A", minHeight: "100vh", fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
@@ -304,11 +302,11 @@ export default function Layout({ children, currentPageName }) {
             </div>
             <div>
               <h4 className="glm-headline" style={{ fontSize: 16, color: "#00CFFF", marginBottom: 16 }}>Connect</h4>
-              {[{ label: "Resources", page: "Resources" }, { label: "Assistant", page: "Assistant" }, { label: "Home", page: "Home" }].map(p => (
-                <Link key={p.page} to={createPageUrl(p.page)} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
+              {["Media", "Assistant", "Home"].map(p => (
+                <Link key={p} to={createPageUrl(p)} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
                   onMouseOver={e => e.target.style.color = "#00CFFF"}
                   onMouseOut={e => e.target.style.color = "#C8D0E0"}
-                >{p.label}</Link>
+                >{p}</Link>
               ))}
             </div>
             <div>
@@ -336,6 +334,5 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
     </div>
-    </LanguageProvider>
   );
 }

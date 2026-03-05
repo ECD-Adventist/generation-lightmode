@@ -69,7 +69,7 @@ export default function Impact() {
   const total = useCountUp(1000000, 2500, started);
   const groups = useCountUp(500, 2000, started);
   const nationsCount = useCountUp(12, 1500, started);
-  const challenges = useCountUp(10000000, 2200, started);
+  const challenges = useCountUp(50000, 2200, started);
 
   return (
     <div style={{ background: "#0B0F1A" }}>
@@ -79,13 +79,13 @@ export default function Impact() {
         <div style={{ position: "relative", zIndex: 1 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.3)", borderRadius: 50, padding: "8px 20px", marginBottom: 24 }}>
             <span className="glow-dot"></span>
-            <span style={{ color: "#00CFFF", fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>Division Impact</span>
+            <span style={{ color: "#00CFFF", fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>Global Impact</span>
           </div>
           <h1 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 64px)", marginBottom: 20 }}>
-            The Light Is <span className="glm-gradient-text">Spreading</span>
+            The Light Is <span className="glm-gradient-text">Everywhere</span>
           </h1>
           <p className="glm-body" style={{ fontSize: 17, maxWidth: 620, margin: "0 auto" }}>
-            Real numbers. Real lives. A movement growing across the 12 nations of the East-Central Africa Division — one switched-on soul at a time. <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
+            Real numbers. Real lives. A movement growing across the East-Central Africa Division — one switched-on soul at a time. <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
           </p>
         </div>
       </section>
@@ -96,10 +96,10 @@ export default function Impact() {
       <section ref={statsRef} style={{ padding: "80px 24px", background: "#121826" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24 }}>
           {[
-            { value: total, suffix: "+", label: "Youth to be Mobilized", color: "#00CFFF" },
+            { value: total, suffix: "+", label: "Youth Mobilized", color: "#00CFFF" },
             { value: groups, suffix: "+", label: "GlowGroups Active", color: "#8A5CFF" },
-            { value: nationsCount, suffix: "", label: "ECD Nations", color: "#FFD000" },
-            { value: challenges, suffix: "+", label: "Peers to be Reached", color: "#1DA1FF" },
+            { value: nationsCount, suffix: "", label: "Nations Reached", color: "#FFD000" },
+            { value: challenges, suffix: "+", label: "Challenges Done", color: "#1DA1FF" },
           ].map(stat => (
             <div key={stat.label} className="glm-card" style={{ textAlign: "center" }}>
               <div className="glm-headline" style={{ fontSize: 52, color: stat.color, lineHeight: 1 }}>
