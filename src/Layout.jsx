@@ -8,7 +8,7 @@ import { LanguageProvider } from "./components/LanguageContext";
 const navLinks = [
   { label: "Home", page: "Home" },
   { label: "About", page: "About" },
-  { label: "Media", page: "Media" },
+  { label: "Resources", page: "Resources" },
   { label: "Challenges", page: "Challenges" },
   { label: "GlowGroups", page: "GlowGroups" },
   { label: "Impact", page: "Impact" },
