@@ -48,7 +48,7 @@ export default function About() {
       <div className="section-divider" />
 
       {/* MISSION */}
-      <section style={{ padding: "100px 24px", background: "#121826" }}>
+      <section id="mission" style={{ padding: "100px 24px", background: "#121826" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 60, alignItems: "center" }}>
           <div>
             <h2 className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 24 }}>
