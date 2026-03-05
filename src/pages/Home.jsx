@@ -343,8 +343,8 @@ export default function Home() {
             <p className="glm-body" style={{ fontSize: 17, marginBottom: 32 }}>
               We believe faith is not meant to be hidden. It's meant to illuminate. Every challenge completed, every testimony shared, every group formed — is a light switched on.
             </p>
-            <Link to={createPageUrl("About")} className="glm-btn-secondary">
-              Learn More →
+            <Link to={createPageUrl("About") + "#faith-into-light"} className="glm-btn-secondary">
+              {t.learnMore}
             </Link>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
