@@ -336,5 +336,6 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
     </div>
+    </LanguageProvider>
   );
 }
