@@ -54,6 +54,7 @@ import Media from './pages/Media';
 import Impact from './pages/Impact';
 import About from './pages/About';
 import Home from './pages/Home';
+import Resources from './pages/Resources';
 import __Layout from './Layout.jsx';
 
 
@@ -65,6 +66,7 @@ export const PAGES = {
     "Impact": Impact,
     "About": About,
     "Home": Home,
+    "Resources": Resources,
 }
 
 export const pagesConfig = {
