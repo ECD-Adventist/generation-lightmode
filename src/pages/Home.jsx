@@ -398,13 +398,12 @@ export default function Home() {
       {/* PLEDGE & CTA */}
       <section id="join" style={{ padding: "120px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
         
-        {/* Parallax Background Image */}
+        {/* Background Image */}
         <div style={{
           position: "absolute", inset: 0,
           backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/94eae4cde_couch-light-dimly-lit-room-with-lamp-wall-it.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          backgroundAttachment: "fixed",
           opacity: 0.65,
           zIndex: 0
         }} />
