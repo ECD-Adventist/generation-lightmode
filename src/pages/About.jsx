@@ -21,7 +21,7 @@ export default function About() {
   return (
     <div style={{ background: "#0B0F1A" }}>
       {/* HERO */}
-      <section style={{ padding: "100px 24px 80px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+      <section id="faith-into-light" style={{ padding: "100px 24px 80px", textAlign: "center", position: "relative", overflow: "hidden" }}>
         <div style={{
           position: "absolute", top: "30%", left: "50%", transform: "translateX(-50%)",
           width: 500, height: 500, borderRadius: "50%",
