@@ -304,15 +304,15 @@ export default function Home() {
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)" }}>
-              The Light Is Spreading
+              {t.lightSpreading}
             </h2>
-            <p className="glm-body" style={{ marginTop: 12, fontSize: 17 }}>Real impact. Real people. Real faith.</p>
+            <p className="glm-body" style={{ marginTop: 12, fontSize: 17 }}>{t.realImpact}</p>
           </div>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
-            <StatCard value={1000000} suffix="+" label="Youth to be Mobilized" icon={Users} color="#00CFFF" started={statsVisible} />
-            <StatCard value={10000000} suffix="+" label="Peers to be Reached" icon={Users} color="#FFD000" started={statsVisible} />
-            <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#1DA1FF" started={statsVisible} />
-            <StatCard value={500} suffix="+" label="GlowGroups Active" icon={Star} color="#8A5CFF" started={statsVisible} />
+            <StatCard value={1000000} suffix="+" label={t.youthMobilized} icon={Users} color="#00CFFF" started={statsVisible} />
+            <StatCard value={10000000} suffix="+" label={t.peersReached} icon={Users} color="#FFD000" started={statsVisible} />
+            <StatCard value={12} suffix="" label={t.ecdNations} icon={Globe} color="#1DA1FF" started={statsVisible} />
+            <StatCard value={500} suffix="+" label={t.glowGroups} icon={Star} color="#8A5CFF" started={statsVisible} />
           </div>
         </div>
       </section>
