@@ -54,7 +54,6 @@ import GlowGroups from './pages/GlowGroups';
 import Home from './pages/Home';
 import Impact from './pages/Impact';
 import Media from './pages/Media';
-import Resources from './pages/Resources';
 import __Layout from './Layout.jsx';
 
 
@@ -66,7 +65,6 @@ export const PAGES = {
     "Home": Home,
     "Impact": Impact,
     "Media": Media,
-    "Resources": Resources,
 }
 
 export const pagesConfig = {

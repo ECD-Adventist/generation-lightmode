@@ -2,15 +2,15 @@ import { useState, useRef, useEffect } from "react";
 import { Globe } from "lucide-react";
 
 const LANGUAGES = [
-  { code: "en", label: "English", native: "English", flag: "🇰🇪" },
-  { code: "sw", label: "Kiswahili", native: "Kiswahili", flag: "🇹🇿" },
-  { code: "fr", label: "French", native: "Français", flag: "🇨🇩" },
+  { code: "en", label: "English", native: "English", flag: "🇬🇧" },
+  { code: "sw", label: "Kiswahili", native: "Kiswahili", flag: "🇰🇪" },
+  { code: "fr", label: "French", native: "Français", flag: "🇫🇷" },
   { code: "ln", label: "Lingala", native: "Lingála", flag: "🇨🇩" },
   { code: "rw", label: "Kinyarwanda", native: "Kinyarwanda", flag: "🇷🇼" },
-  { code: "ar", label: "Arabic", native: "العربية", flag: "🇸🇩" },
+  { code: "ar", label: "Arabic", native: "العربية", flag: "🇸🇦" },
   { code: "am", label: "Amharic", native: "አማርኛ", flag: "🇪🇹" },
   { code: "rn", label: "Kirundi", native: "Kirundi", flag: "🇧🇮" },
-  { code: "pt", label: "Português", native: "Português", flag: "🇲🇿" },
+  { code: "pt", label: "Português", native: "Português", flag: "🇵🇹" },
   { code: "so", label: "Somali", native: "Soomaali", flag: "🇸🇴" },
   { code: "ti", label: "Tigrinya", native: "ትግርኛ", flag: "🇪🇷" },
   { code: "nus", label: "Nuer", native: "Nuer", flag: "🇸🇸" },
@@ -35,19 +35,13 @@ export default function LanguageSelector() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  // Listen for language changes from context
-  useEffect(() => {
-    const handler = (e) => setSelected(e.detail);
-    window.addEventListener("languageChange", handler);
-    return () => window.removeEventListener("languageChange", handler);
-  }, []);
-
   const current = LANGUAGES.find(l => l.code === selected) || LANGUAGES[0];
 
   const handleSelect = (lang) => {
     setSelected(lang.code);
     localStorage.setItem(LANG_STORAGE_KEY, lang.code);
     setOpen(false);
+    // Dispatch event so other components can react
     window.dispatchEvent(new CustomEvent("languageChange", { detail: lang.code }));
   };
 
@@ -69,7 +63,7 @@ export default function LanguageSelector() {
       >
         <Globe size={14} />
         <span>{current.flag}</span>
-        <span style={{ maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{current.label}</span>
+        <span>{current.label}</span>
         <span style={{ fontSize: 10, opacity: 0.7 }}>▾</span>
       </button>
 
@@ -80,7 +74,7 @@ export default function LanguageSelector() {
           border: "1px solid rgba(0,207,255,0.2)", borderRadius: 16,
           padding: "8px", minWidth: 200, zIndex: 2000,
           boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-          maxHeight: 380, overflowY: "auto",
+          maxHeight: 360, overflowY: "auto",
         }}>
           {LANGUAGES.map(lang => (
             <button
