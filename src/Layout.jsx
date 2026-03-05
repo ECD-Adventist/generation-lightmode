@@ -304,11 +304,11 @@ export default function Layout({ children, currentPageName }) {
             </div>
             <div>
               <h4 className="glm-headline" style={{ fontSize: 16, color: "#00CFFF", marginBottom: 16 }}>Connect</h4>
-              {["Media", "Assistant", "Home"].map(p => (
-                <Link key={p} to={createPageUrl(p)} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
+              {[{ label: "Resources", page: "Resources" }, { label: "Assistant", page: "Assistant" }, { label: "Home", page: "Home" }].map(p => (
+                <Link key={p.page} to={createPageUrl(p.page)} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
                   onMouseOver={e => e.target.style.color = "#00CFFF"}
                   onMouseOut={e => e.target.style.color = "#C8D0E0"}
-                >{p}</Link>
+                >{p.label}</Link>
               ))}
             </div>
             <div>
