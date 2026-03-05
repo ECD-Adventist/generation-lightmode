@@ -286,13 +286,13 @@ export default function Home() {
         {/* Content at the bottom */}
         <div style={{ position: "relative", zIndex: 2, padding: "80px 24px 60px", maxWidth: 1000, margin: "0 auto", textAlign: "center" }}>
             <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24, textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>
-              Watch the <span className="glm-gradient-text">Vision</span>
+              {t.watchTitle} <span className="glm-gradient-text">{t.watchVisionText}</span>
             </h2>
             <p className="glm-body" style={{ fontSize: 18, marginBottom: 40, lineHeight: 1.8, color: "#E0E8F0", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
-              Generation LightMode was born from a simple belief — that the world changes when young believers stop hiding their faith and start living it out loud. We are moving from hidden faith to visible light, transforming the digital landscape.
+              {t.watchDesc}
             </p>
-            <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 17, background: "rgba(11,15,26,0.6)", backdropFilter: "blur(10px)" }}>
-              Read More About the Vision →
+            <Link to={createPageUrl("About") + "#mission"} className="glm-btn-secondary" style={{ fontSize: 17, background: "rgba(11,15,26,0.6)", backdropFilter: "blur(10px)" }}>
+              {t.readMore}
             </Link>
         </div>
       </section>
