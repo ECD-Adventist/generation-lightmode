@@ -218,34 +218,34 @@ export default function Home() {
         </div>
 
         <h1 className="glm-headline" style={{ position: "relative", zIndex: 2, fontSize: "clamp(30px, 5.5vw, 68px)", lineHeight: 1.1, marginBottom: 24, maxWidth: 900 }}>
-          Your Faith Is The{" "}
-          <span className="glm-gradient-text">Switch</span>
-          <br />The World Is Waiting For
+          {t.heroTitle1}{" "}
+          <span className="glm-gradient-text">{t.heroTitle2}</span>
+          <br />{t.heroTitle3}
         </h1>
 
         <p className="glm-body" style={{ position: "relative", zIndex: 2, fontSize: "clamp(16px, 2vw, 20px)", maxWidth: 680, marginBottom: 24, color: "#E0E8F0" }}>
-          Join 1M+ young believers turning hidden faith into visible light — across the nations of the East-Central Africa Division.
+          {t.heroSubtitle}
         </p>
 
         {/* Slogan */}
         <p style={{ position: "relative", zIndex: 2, fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, color: "#FFD000", fontSize: 18, marginBottom: 16, letterSpacing: "0.08em", textShadow: "0 0 20px rgba(255,208,0,0.5)" }}>
-          ⚡ Faith. Always On.
+          {t.faithAlwaysOn}
         </p>
 
         {/* Bible verse */}
         <p style={{ position: "relative", zIndex: 2, fontFamily: "Inter, sans-serif", fontStyle: "italic", color: "#8A5CFF", fontSize: 15, marginBottom: 48, letterSpacing: "0.05em" }}>
-          "You are the light of the world." — Matthew 5:14
+          {t.bibleVerse}
         </p>
 
         <div style={{ position: "relative", zIndex: 2, display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
           <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 18, padding: "16px 40px" }}>
-            Switch It On ⚡
+            {t.switchOn}
           </a>
           <button onClick={() => {
             const el = document.getElementById('vision-video-section');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }} className="glm-btn-secondary" style={{ fontSize: 18, padding: "16px 40px" }}>
-            Watch Vision Video
+            {t.watchVision}
           </button>
         </div>
 
