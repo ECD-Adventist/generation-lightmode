@@ -7,7 +7,6 @@ import LanguageSelector from "./components/LanguageSelector";
 const navLinks = [
   { label: "Home", page: "Home" },
   { label: "About", page: "About" },
-  { label: "Media", page: "Media" },
   { label: "Challenges", page: "Challenges" },
   { label: "GlowGroups", page: "GlowGroups" },
   { label: "Impact", page: "Impact" },
@@ -17,6 +16,7 @@ const navLinks = [
 export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -230,6 +230,37 @@ export default function Layout({ children, currentPageName }) {
                 {link.label}
               </Link>
             ))}
+            {/* Resources Dropdown */}
+            <div style={{ position: "relative" }}
+              onMouseEnter={() => setResourcesOpen(true)}
+              onMouseLeave={() => setResourcesOpen(false)}
+            >
+              <span className={`nav-link ${["Media","Resources"].includes(currentPageName) ? "active" : ""}`} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                Resources <span style={{ fontSize: 10, opacity: 0.7 }}>▾</span>
+              </span>
+              {resourcesOpen && (
+                <div style={{
+                  position: "absolute", top: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)",
+                  background: "rgba(18,24,38,0.98)", backdropFilter: "blur(20px)",
+                  border: "1px solid rgba(0,207,255,0.2)", borderRadius: 14,
+                  padding: "8px", minWidth: 200, zIndex: 2000,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+                }}>
+                  <Link to={createPageUrl("Resources")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
+                    onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
+                    onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
+                  >
+                    📺 Media & Content
+                  </Link>
+                  <Link to={createPageUrl("Resources") + "?tab=downloads"} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
+                    onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
+                    onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
+                  >
+                    📥 Downloads
+                  </Link>
+                </div>
+              )}
+            </div>
             <LanguageSelector />
             <a href="#join" className="glm-btn-primary" style={{ padding: "10px 24px", fontSize: 14 }}>
               Join Now ⚡
@@ -265,6 +296,12 @@ export default function Layout({ children, currentPageName }) {
                 {link.label}
               </Link>
             ))}
+            <Link to={createPageUrl("Resources")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
+              📺 Media & Content
+            </Link>
+            <Link to={createPageUrl("Resources") + "?tab=downloads"} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
+              📥 Downloads
+            </Link>
             <a href="#join" className="glm-btn-primary" style={{ display: "block", textAlign: "center", marginTop: 20 }}>
               Join Now ⚡
             </a>
@@ -301,13 +338,19 @@ export default function Layout({ children, currentPageName }) {
               ))}
             </div>
             <div>
-              <h4 className="glm-headline" style={{ fontSize: 16, color: "#00CFFF", marginBottom: 16 }}>Connect</h4>
-              {["Media", "Assistant", "Home"].map(p => (
-                <Link key={p} to={createPageUrl(p)} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
-                  onMouseOver={e => e.target.style.color = "#00CFFF"}
-                  onMouseOut={e => e.target.style.color = "#C8D0E0"}
-                >{p}</Link>
-              ))}
+              <h4 className="glm-headline" style={{ fontSize: 16, color: "#00CFFF", marginBottom: 16 }}>Resources</h4>
+              <Link to={createPageUrl("Resources")} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
+                onMouseOver={e => e.target.style.color = "#00CFFF"}
+                onMouseOut={e => e.target.style.color = "#C8D0E0"}
+              >Media & Content</Link>
+              <Link to={createPageUrl("Resources") + "?tab=downloads"} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
+                onMouseOver={e => e.target.style.color = "#00CFFF"}
+                onMouseOut={e => e.target.style.color = "#C8D0E0"}
+              >Downloads</Link>
+              <Link to={createPageUrl("Assistant")} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
+                onMouseOver={e => e.target.style.color = "#00CFFF"}
+                onMouseOut={e => e.target.style.color = "#C8D0E0"}
+              >Assistant</Link>
             </div>
             <div>
               <h4 className="glm-headline" style={{ fontSize: 16, color: "#FFD000", marginBottom: 16 }}>Join The Movement</h4>
