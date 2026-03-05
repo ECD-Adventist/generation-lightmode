@@ -164,9 +164,11 @@ export default function Home() {
         <img
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg"
           alt="Dark room"
+          loading="eager"
+          decoding="async"
           style={{
             position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "cover", opacity: 0.35, pointerEvents: "none",
+            objectFit: "cover", objectPosition: "center top", opacity: 0.35, pointerEvents: "none",
             animation: "image-glow 4s ease-in-out infinite"
           }}
         />
@@ -235,14 +237,14 @@ export default function Home() {
           "You are the light of the world." — Matthew 5:14
         </p>
 
-        <div style={{ position: "relative", zIndex: 2, display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
-          <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 18, padding: "16px 40px" }}>
+        <div style={{ position: "relative", zIndex: 2, display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center", width: "100%", maxWidth: 500, margin: "0 auto" }}>
+          <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 16, padding: "14px 28px", flex: "1 1 180px", textAlign: "center" }}>
             Switch It On ⚡
           </a>
           <button onClick={() => {
             const el = document.getElementById('vision-video-section');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }} className="glm-btn-secondary" style={{ fontSize: 18, padding: "16px 40px" }}>
+          }} className="glm-btn-secondary" style={{ fontSize: 16, padding: "14px 28px", flex: "1 1 180px", textAlign: "center" }}>
             Watch Vision Video
           </button>
         </div>
@@ -289,7 +291,7 @@ export default function Home() {
             <p className="glm-body" style={{ fontSize: 18, marginBottom: 40, lineHeight: 1.8, color: "#E0E8F0", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
               Generation LightMode was born from a simple belief — that the world changes when young believers stop hiding their faith and start living it out loud. We are moving from hidden faith to visible light, transforming the digital landscape.
             </p>
-            <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 17, background: "rgba(11,15,26,0.6)", backdropFilter: "blur(10px)" }}>
+            <Link to={createPageUrl("About") + "#our-mission"} className="glm-btn-secondary" style={{ fontSize: 17, background: "rgba(11,15,26,0.6)", backdropFilter: "blur(10px)" }}>
               Read More About the Vision →
             </Link>
         </div>
@@ -341,7 +343,7 @@ export default function Home() {
             <p className="glm-body" style={{ fontSize: 17, marginBottom: 32 }}>
               We believe faith is not meant to be hidden. It's meant to illuminate. Every challenge completed, every testimony shared, every group formed — is a light switched on.
             </p>
-            <Link to={createPageUrl("About")} className="glm-btn-secondary">
+            <Link to={createPageUrl("About") + "#faith-light"} className="glm-btn-secondary">
               Learn More →
             </Link>
           </div>
@@ -379,12 +381,26 @@ export default function Home() {
               { rank: "Light Warrior", color: "#1DA1FF", icon: "⚔️", desc: "Leads a GlowGroup" },
               { rank: "Trendsetter", color: "#8A5CFF", icon: "🌟", desc: "Reached 1,000+ engagements" },
               { rank: "Glow Champion", color: "#FFD000", icon: "🏆", desc: "Mentors others + multiplies disciples" },
-            ].map(item => (
-              <div key={item.rank} className="glm-card" style={{ flex: "1 1 200px", maxWidth: 240, border: `1px solid ${item.color}40`, textAlign: "center" }}>
-                <div style={{ fontSize: 40, marginBottom: 12 }}>{item.icon}</div>
-                <h3 className="glm-headline" style={{ fontSize: 18, color: item.color, marginBottom: 8 }}>{item.rank}</h3>
+            ].map((item, idx) => (
+              <div key={item.rank} className="glm-card" style={{ flex: "1 1 200px", maxWidth: 240, border: `1px solid ${item.color}40`, textAlign: "center", position: "relative", overflow: "hidden" }}>
+                <div style={{
+                  fontSize: 44, marginBottom: 12,
+                  filter: `drop-shadow(0 0 12px ${item.color}) drop-shadow(0 0 24px ${item.color}88)`,
+                  animation: `pulse-glow ${2 + idx * 0.4}s ease-in-out infinite`,
+                  display: "inline-block",
+                }}>{item.icon}</div>
+                <h3 className="glm-headline" style={{ fontSize: 18, color: item.color, marginBottom: 8, textShadow: `0 0 12px ${item.color}60` }}>{item.rank}</h3>
                 <p className="glm-body" style={{ fontSize: 14 }}>{item.desc}</p>
-                <div style={{ marginTop: 16, height: 3, borderRadius: 2, background: `linear-gradient(90deg, ${item.color}, transparent)` }} />
+                <style>{`
+                  @keyframes bar-grow-${idx} {
+                    from { width: 0; }
+                    to { width: 100%; }
+                  }
+                  .glow-bar-${idx} {
+                    animation: bar-grow-${idx} 1.8s ease-out ${0.3 + idx * 0.2}s both;
+                  }
+                `}</style>
+                <div className={`glow-bar-${idx}`} style={{ marginTop: 16, height: 3, borderRadius: 2, background: `linear-gradient(90deg, ${item.color}, transparent)` }} />
               </div>
             ))}
           </div>
@@ -396,13 +412,13 @@ export default function Home() {
       {/* PLEDGE & CTA */}
       <section id="join" style={{ padding: "120px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
         
-        {/* Parallax Background Image */}
+        {/* Background Image */}
         <div style={{
           position: "absolute", inset: 0,
           backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/94eae4cde_couch-light-dimly-lit-room-with-lamp-wall-it.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          backgroundAttachment: "fixed",
+          backgroundAttachment: "scroll",
           opacity: 0.65,
           zIndex: 0
         }} />
