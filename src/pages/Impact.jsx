@@ -69,7 +69,7 @@ export default function Impact() {
   const total = useCountUp(1000000, 2500, started);
   const groups = useCountUp(500, 2000, started);
   const nationsCount = useCountUp(12, 1500, started);
-  const challenges = useCountUp(50000, 2200, started);
+  const challenges = useCountUp(10000000, 2200, started);
 
   return (
     <div style={{ background: "#0B0F1A" }}>
