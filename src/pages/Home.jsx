@@ -334,8 +334,8 @@ export default function Home() {
               <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>{t.theMovement}</span>
             </div>
             <h2 className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 52px)", lineHeight: 1.15, marginBottom: 24 }}>
-              What Is{" "}
-              <span className="glm-gold-text">LightMode?</span>
+              {t.whatIsLightMode}{" "}
+              <span className="glm-gold-text">{t.lightModeWord}</span>
             </h2>
             <p className="glm-body" style={{ fontSize: 17, marginBottom: 20 }}>
               Generation LightMode is a global faith-based digital movement — mobilizing the next generation to live their faith openly, boldly, and publicly.
