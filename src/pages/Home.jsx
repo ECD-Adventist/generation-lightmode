@@ -425,7 +425,7 @@ export default function Home() {
         <div style={{ position: "relative", zIndex: 1, maxWidth: 800, margin: "0 auto", padding: "40px" }}>
           <div style={{ fontSize: 64, marginBottom: 24, textShadow: "0 0 20px rgba(255,208,0,0.5)" }}>🔆</div>
           <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24, textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
-            Take The <span className="glm-gradient-text">Pledge</span>
+            {t.takePledge} <span className="glm-gradient-text">{t.pledgeWord}</span>
           </h2>
           <p className="glm-body" style={{ fontSize: 18, maxWidth: 560, margin: "0 auto 48px", color: "#E0E8F0", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
             The world needs your light. Don't keep it hidden. Join Generation LightMode today by taking the pledge.
