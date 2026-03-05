@@ -31,7 +31,6 @@ const galleryImages2 = [
 
 function ScrollingGallery({ images, direction = "left", speed = "40s" }) {
   const isLeft = direction === 'left';
-  const doubled = [...images, ...images];
   return (
     <div style={{ overflow: "hidden", width: "100%", padding: "12px 0" }}>
       <style>{`
@@ -50,28 +49,17 @@ function ScrollingGallery({ images, direction = "left", speed = "40s" }) {
         width: "max-content",
         animation: `scroll-${isLeft ? 'left' : 'right'} ${speed} linear infinite`,
       }}>
-        {doubled.map((src, i) => (
+        {[...images, ...images].map((src, i) => (
           <img
             key={i}
             src={src}
             alt="Gallery"
+            loading="lazy"
+            decoding="async"
+            width="360"
+            height="240"
             style={{
-              height: 260, width: "auto", maxWidth: 420, objectFit: "contain", borderRadius: 16,
-              border: "1px solid rgba(0,207,255,0.2)",
-              filter: "grayscale(30%) contrast(1.1)", opacity: 0.7,
-              transition: "all 0.3s", flexShrink: 0,
-            }}
-            onMouseOver={e => { e.currentTarget.style.filter = "grayscale(0%) contrast(1.1)"; e.currentTarget.style.opacity = "1"; }}
-            onMouseOut={e => { e.currentTarget.style.filter = "grayscale(30%) contrast(1.1)"; e.currentTarget.style.opacity = "0.7"; }}
-          />
-        ))}
-        {doubled.map((src, i) => (
-          <img
-            key={`r${i}`}
-            src={src}
-            alt="Gallery"
-            style={{
-              height: 260, width: "auto", maxWidth: 420, objectFit: "contain", borderRadius: 16,
+              height: 240, width: 360, objectFit: "cover", borderRadius: 16,
               border: "1px solid rgba(0,207,255,0.2)",
               filter: "grayscale(30%) contrast(1.1)", opacity: 0.7,
               transition: "all 0.3s", flexShrink: 0,
