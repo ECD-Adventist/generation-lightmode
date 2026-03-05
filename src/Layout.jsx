@@ -230,6 +230,7 @@ export default function Layout({ children, currentPageName }) {
                 {link.label}
               </Link>
             ))}
+            <LanguageSelector />
             <a href="#join" className="glm-btn-primary" style={{ padding: "10px 24px", fontSize: 14 }}>
               Join Now ⚡
             </a>
