@@ -96,10 +96,10 @@ export default function Impact() {
       <section ref={statsRef} style={{ padding: "80px 24px", background: "#121826" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 24 }}>
           {[
-            { value: total, suffix: "+", label: "Youth Mobilized", color: "#00CFFF" },
+            { value: total, suffix: "+", label: "Youth to be Mobilized", color: "#00CFFF" },
             { value: groups, suffix: "+", label: "GlowGroups Active", color: "#8A5CFF" },
-            { value: nationsCount, suffix: "", label: "Nations Reached", color: "#FFD000" },
-            { value: challenges, suffix: "+", label: "Challenges Done", color: "#1DA1FF" },
+            { value: nationsCount, suffix: "", label: "ECD Nations", color: "#FFD000" },
+            { value: challenges, suffix: "+", label: "Peers to be Reached", color: "#1DA1FF" },
           ].map(stat => (
             <div key={stat.label} className="glm-card" style={{ textAlign: "center" }}>
               <div className="glm-headline" style={{ fontSize: 52, color: stat.color, lineHeight: 1 }}>
