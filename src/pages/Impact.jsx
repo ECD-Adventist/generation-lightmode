@@ -82,10 +82,10 @@ export default function Impact() {
             <span style={{ color: "#00CFFF", fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>Division Impact</span>
           </div>
           <h1 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 64px)", marginBottom: 20 }}>
-            The Light Is <span className="glm-gradient-text">Everywhere</span>
+            The Light Is <span className="glm-gradient-text">Spreading</span>
           </h1>
           <p className="glm-body" style={{ fontSize: 17, maxWidth: 620, margin: "0 auto" }}>
-            Real numbers. Real lives. A movement growing across the East-Central Africa Division — one switched-on soul at a time. <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
+            Real numbers. Real lives. A movement growing across the 12 nations of the East-Central Africa Division — one switched-on soul at a time. <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
           </p>
         </div>
       </section>
