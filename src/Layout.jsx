@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Menu, X, Zap } from "lucide-react";
+import LanguageSelector from "./components/LanguageSelector";
 
 const navLinks = [
   { label: "Home", page: "Home" },
