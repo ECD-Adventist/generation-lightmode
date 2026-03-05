@@ -444,7 +444,7 @@ export default function Home() {
           </div>
 
           <a href="/app/dashboard" className="glm-btn-primary animate-pulse-glow" style={{ fontSize: 20, padding: "18px 52px" }}>
-            Sign The Pledge ⚡
+            {t.signPledge}
           </a>
           <p style={{ color: "#C8D0E0", fontSize: 14, marginTop: 20, fontFamily: "Inter, sans-serif", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
             Free to join · No credit card required · Start today
