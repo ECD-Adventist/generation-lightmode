@@ -44,6 +44,7 @@ const nations = [
   { name: "Somalia", flag: "🇸🇴", members: 43000, groups: 40, color: "#8A5CFF" },
   { name: "Djibouti", flag: "🇩🇯", members: 36000, groups: 35, color: "#1DA1FF" },
   { name: "Eritrea", flag: "🇪🇷", members: 32000, groups: 25, color: "#FFD000" },
+  { name: "Sudan", flag: "🇸🇩", members: 28000, groups: 20, color: "#1DA1FF" },
 ];
 
 const testimonies = [
