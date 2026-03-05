@@ -152,6 +152,7 @@ export default function About() {
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
           <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 17 }}>Join Now ⚡</a>
           <Link to={createPageUrl("Challenges")} className="glm-btn-secondary" style={{ fontSize: 17 }}>See Challenges →</Link>
+          <a id="our-mission" style={{ display: "none" }}></a>
         </div>
       </section>
     </div>
