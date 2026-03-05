@@ -198,7 +198,7 @@ export default function Home() {
         }}>
           <span className="glow-dot"></span>
           <span style={{ color: "#00CFFF", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600 }}>
-            The Movement Has Begun
+            {t.movementBadge}
           </span>
         </div>
 
