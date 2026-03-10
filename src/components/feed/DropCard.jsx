@@ -62,9 +62,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         onDoubleClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name})}
       >
         {/* Gradient Overlays for readability */}
-        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-black/90 via-black/50 to-transparent pointer-events-none z-0" />
-        <div className="absolute inset-0 bg-black/10 pointer-events-none z-0" />
-        <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none z-0" />
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/70 to-transparent pointer-events-none z-0" />
+        <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
 
         {/* User Pill (Top Left) */}
         <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/10 rounded-full pr-4 pl-1 py-1 cursor-pointer hover:bg-black/50 transition">
@@ -78,20 +77,20 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
               {dropUser.full_name}
               {drop.status === 'approved' && <span className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center text-[7px] text-white shadow-[0_0_8px_rgba(59,130,246,0.8)]">✓</span>}
             </span>
-            <span className="text-[10px] text-gray-300 font-medium leading-none">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date), { addSuffix: true }) : 'Just now'}</span>
+            <span className="text-[10px] text-gray-300 font-medium leading-none">{formatDistanceToNow(new Date(drop.created_date), { addSuffix: true })}</span>
           </div>
         </div>
 
         {/* Text Content (if no media) */}
         {!drop.media_url && (
-          <div className="p-8 relative z-10 w-full h-full flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="p-8 relative z-10 w-full h-full flex flex-col items-center justify-center">
             {drop.verse && (
-              <h2 className="text-2xl sm:text-4xl font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-6 leading-tight drop-shadow-[0_2px_8px_rgba(0,207,255,0.4)]">
+              <h2 className="text-2xl sm:text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] mb-6 leading-tight drop-shadow-lg">
                 {drop.verse}
               </h2>
             )}
             {drop.reflection && (
-              <p className="text-lg sm:text-xl text-white font-['Inter'] leading-relaxed max-w-md drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-medium">
+              <p className="text-lg sm:text-xl text-white font-['Inter'] leading-relaxed max-w-md drop-shadow-md">
                 "{drop.reflection}"
               </p>
             )}
@@ -144,14 +143,10 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         {/* Text Content overlay for Media (Bottom Left) */}
         {drop.media_url && (drop.verse || drop.reflection) && (
           <div className="absolute bottom-4 left-4 right-16 z-20 text-left pointer-events-none">
-            <div className="pointer-events-auto bg-[#0B0F1A]/90 backdrop-blur-xl px-4 py-3 rounded-2xl border border-white/10 shadow-2xl w-full flex flex-col gap-2">
-              {drop.verse && (
-                <div className="font-bold text-[#00CFFF] text-sm sm:text-base leading-snug drop-shadow-sm">
-                  {drop.verse}
-                </div>
-              )}
+            <div className="pointer-events-auto">
+              {drop.verse && <div className="font-bold text-[#00CFFF] text-base drop-shadow-md mb-1">{drop.verse}</div>}
               {drop.reflection && (
-                <div className="text-sm text-gray-100 line-clamp-3 hover:line-clamp-none transition-all cursor-pointer leading-relaxed">
+                <div className="text-sm text-gray-100 drop-shadow-md line-clamp-2 hover:line-clamp-none transition-all cursor-pointer bg-black/20 backdrop-blur-sm p-2 rounded-xl border border-white/10 inline-block">
                   {drop.reflection}
                 </div>
               )}
@@ -169,7 +164,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 {drop.category}
               </span>
             )}
-            {drop.hashtags && typeof drop.hashtags === 'string' && (
+            {drop.hashtags && (
               <div className="text-[13px] text-[#00CFFF] font-medium opacity-90">
                 {drop.hashtags.split(' ').map(t => t.startsWith('#') ? t : `#${t}`).join(' ')}
               </div>
@@ -185,7 +180,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             {comments.map(c => (
               <div key={c.id} className="flex gap-3 text-sm">
                 <div className="w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center shrink-0 font-bold text-[10px] uppercase text-white shadow-md">
-                  {getCommentUser(c.user_email).profile_picture_url ? <img src={getCommentUser(c.user_email).profile_picture_url} className="w-full h-full rounded-full object-cover" /> : (getCommentUser(c.user_email).full_name || "U").charAt(0)}
+                  {getCommentUser(c.user_email).profile_picture_url ? <img src={getCommentUser(c.user_email).profile_picture_url} className="w-full h-full rounded-full object-cover" /> : getCommentUser(c.user_email).full_name.charAt(0)}
                 </div>
                 <div className="bg-[#121826]/80 backdrop-blur-md px-3.5 py-2.5 rounded-2xl rounded-tl-none border border-white/5 flex-1 shadow-sm">
                   <span className="font-bold text-[#00CFFF] text-xs block mb-1">{getCommentUser(c.user_email).full_name}</span>

@@ -22,22 +22,12 @@ export default function Feed() {
       try {
         const isAuth = await base44.auth.isAuthenticated();
         if (isAuth) {
-          try {
-            const me = await base44.auth.me();
-            if (me) {
-              setUser(me);
-            } else {
-              base44.auth.redirectToLogin(window.location.pathname);
-            }
-          } catch (meErr) {
-            base44.auth.redirectToLogin(window.location.pathname);
-          }
+          const me = await base44.auth.me();
+          setUser(me);
         } else {
           base44.auth.redirectToLogin(window.location.pathname);
         }
-      } catch (err) {
-        console.error("Auth check failed", err);
-      }
+      } catch (err) {}
     }
     checkAuth();
   }, []);
@@ -130,7 +120,7 @@ export default function Feed() {
            <Link to={createPageUrl("Resources")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><PlaySquare className="w-7 h-7" /> Resources</Link>
            <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition">
              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-xs uppercase font-bold text-white overflow-hidden">
-               {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : (user?.full_name || "U").charAt(0)}
+               {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
              </div>
              Profile
            </Link>
@@ -142,48 +132,21 @@ export default function Feed() {
           
           {/* Top Header Mobile */}
           <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A] border-b border-white/10 lg:hidden">
-            <h1 className="text-2xl font-bold font-['Space_Grotesk'] text-white" style={{ fontFamily: 'var(--font-cursive, cursive)'}}>LightMode</h1>
-            <div className="flex gap-4 items-center">
-              <div className="relative cursor-pointer">
-                <Heart className="w-6 h-6 text-white" />
-                {notifications.length > 0 && (
-                  <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-                )}
-              </div>
-              <MessageCircle className="w-6 h-6 text-white cursor-pointer" />
+          <h1 className="text-2xl font-bold font-['Space_Grotesk'] text-white" style={{ fontFamily: 'var(--font-cursive, cursive)'}}>LightMode</h1>
+          <div className="flex gap-4 items-center">
+            <div className="relative cursor-pointer">
+              <Heart className="w-6 h-6 text-white" />
+              {notifications.length > 0 && (
+                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+              )}
             </div>
+            <MessageCircle className="w-6 h-6 text-white cursor-pointer" />
           </div>
+        </div>
 
-          {/* Stories Bar */}
-          <div className="flex gap-4 overflow-x-auto px-4 py-3 border-b border-white/10 hide-scrollbar bg-[#0B0F1A]">
-            <div className="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
-              <div className="w-16 h-16 rounded-full border border-gray-600 flex items-center justify-center relative p-[2px]">
-                 <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-lg font-bold uppercase overflow-hidden">
-                   {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : (user?.full_name || "U").charAt(0)}
-                 </div>
-                 <div className="absolute bottom-0 right-0 bg-[#00CFFF] rounded-full p-0.5 border-2 border-[#0B0F1A]">
-                   <Plus className="w-3 h-3 text-black" />
-                 </div>
-              </div>
-              <span className="text-xs text-gray-400">Your story</span>
-            </div>
 
-            {/* Mock stories to replicate UI */}
-            {[1,2,3,4,5].map(i => (
-              <div key={i} className="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#FFD000] via-[#F50057] to-[#8A5CFF] p-[2px]">
-                   <div className="w-full h-full rounded-full bg-[#0B0F1A] p-[2px]">
-                     <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-sm font-bold uppercase text-white">
-                       G{i}
-                     </div>
-                   </div>
-                </div>
-                <span className="text-xs text-white">glow_{i}</span>
-              </div>
-            ))}
-          </div>
 
-          {/* Filter Bar */}
+        {/* Filter Bar */}
         <div className="flex gap-3 px-4 py-4 bg-[#0B0F1A] overflow-x-auto hide-scrollbar sticky top-[60px] lg:top-0 z-40 backdrop-blur-md bg-opacity-90 border-b border-white/5">
           {['All', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
             <button
@@ -250,7 +213,7 @@ export default function Feed() {
               <div key={u.id} className="flex items-center justify-between">
                  <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden flex items-center justify-center font-bold text-sm">
-                     {u.profile_picture_url ? <img src={u.profile_picture_url} className="w-full h-full object-cover" /> : (u.full_name || "U").charAt(0)}
+                      {u.profile_picture_url ? <img src={u.profile_picture_url} className="w-full h-full object-cover" /> : u.full_name?.charAt(0)}
                    </div>
                    <div className="text-sm">
                      <div className="font-bold text-white truncate max-w-[120px]">{u.full_name}</div>
@@ -280,7 +243,7 @@ export default function Feed() {
           <Link to={createPageUrl("Resources")}><PlaySquare className="w-6 h-6 text-white" /></Link>
           <Link to={createPageUrl("Profile")}>
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/20 flex items-center justify-center text-[10px] uppercase font-bold text-white overflow-hidden">
-              {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : (user?.full_name || "U").charAt(0)}
+              {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
             </div>
           </Link>
         </div>
