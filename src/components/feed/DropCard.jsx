@@ -63,8 +63,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       >
         {/* Gradient Overlays for readability */}
         <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-black/90 via-black/50 to-transparent pointer-events-none z-0" />
-        <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
-        <div className="absolute bottom-0 left-0 right-0 h-3/5 bg-gradient-to-t from-black/100 via-black/70 to-transparent pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-black/10 pointer-events-none z-0" />
+        <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none z-0" />
 
         {/* User Pill (Top Left) */}
         <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/10 rounded-full pr-4 pl-1 py-1 cursor-pointer hover:bg-black/50 transition">
@@ -144,15 +144,17 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         {/* Text Content overlay for Media (Bottom Left) */}
         {drop.media_url && (drop.verse || drop.reflection) && (
           <div className="absolute bottom-4 left-4 right-16 z-20 text-left pointer-events-none">
-            <div className="pointer-events-auto flex flex-col items-start gap-2">
+            <div className="pointer-events-auto flex flex-col items-start gap-2 w-full">
               {drop.verse && (
-                <div className="font-bold text-[#00CFFF] text-sm sm:text-base drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 shadow-lg">
+                <div className="font-bold text-[#00CFFF] text-sm sm:text-base bg-[#0B0F1A]/85 backdrop-blur-lg px-4 py-2.5 rounded-2xl border border-white/10 shadow-2xl leading-snug w-full">
                   {drop.verse}
                 </div>
               )}
               {drop.reflection && (
-                <div className="text-sm text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] line-clamp-3 hover:line-clamp-none transition-all cursor-pointer bg-black/60 backdrop-blur-md px-3 py-2.5 rounded-xl border border-white/10 shadow-lg inline-block font-medium">
-                  {drop.reflection}
+                <div className="bg-[#0B0F1A]/85 backdrop-blur-lg px-4 py-3 rounded-2xl border border-white/10 shadow-2xl w-full">
+                  <div className="text-sm text-gray-100 line-clamp-3 hover:line-clamp-none transition-all cursor-pointer leading-relaxed">
+                    {drop.reflection}
+                  </div>
                 </div>
               )}
             </div>
