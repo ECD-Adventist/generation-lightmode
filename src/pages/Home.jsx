@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, Globe, Users, Star, ChevronDown, Play, X } from "lucide-react";
+import { useAppLanguage } from "../components/i18n/useAppLanguage";
 
 const galleryImages1 = [
   "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/8b7388f03_african-american-male-friends-standing-park-discussing-bible.jpg",
@@ -116,6 +117,7 @@ export default function Home() {
   const statsRef = useRef(null);
   const [statsVisible, setStatsVisible] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const { t, isRTL } = useAppLanguage("home");
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -127,7 +129,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div style={{ background: "#0B0F1A" }}>
+    <div dir={isRTL ? "rtl" : "ltr"} style={{ background: "#0B0F1A" }}>
       {/* HERO */}
       <section style={{
         minHeight: "100vh",
@@ -186,7 +188,7 @@ export default function Home() {
         }}>
           <span className="glow-dot"></span>
           <span style={{ color: "#00CFFF", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600 }}>
-            The Movement Has Begun
+            {t("heroBadge")}
           </span>
         </div>
 
@@ -206,34 +208,34 @@ export default function Home() {
         </div>
 
         <h1 className="glm-headline" style={{ position: "relative", zIndex: 2, fontSize: "clamp(30px, 5.5vw, 68px)", lineHeight: 1.1, marginBottom: 24, maxWidth: 900 }}>
-          Your Faith Is The{" "}
-          <span className="glm-gradient-text">Switch</span>
-          <br />The World Is Waiting For
+          {t("heroTitleBefore")}{" "}
+          <span className="glm-gradient-text">{t("heroTitleHighlight")}</span>
+          <br />{t("heroTitleAfter")}
         </h1>
 
         <p className="glm-body" style={{ position: "relative", zIndex: 2, fontSize: "clamp(16px, 2vw, 20px)", maxWidth: 680, marginBottom: 24, color: "#E0E8F0" }}>
-          Join 1M+ young believers turning hidden faith into visible light — across the nations of the East-Central Africa Division.
+          {t("heroSubtitle")}
         </p>
 
         {/* Slogan */}
         <p style={{ position: "relative", zIndex: 2, fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, color: "#FFD000", fontSize: 18, marginBottom: 16, letterSpacing: "0.08em", textShadow: "0 0 20px rgba(255,208,0,0.5)" }}>
-          ⚡ Faith. Always On.
+          {t("slogan")}
         </p>
 
         {/* Bible verse */}
         <p style={{ position: "relative", zIndex: 2, fontFamily: "Inter, sans-serif", fontStyle: "italic", color: "#8A5CFF", fontSize: 15, marginBottom: 48, letterSpacing: "0.05em" }}>
-          "You are the light of the world." — Matthew 5:14
+          {t("verse")}
         </p>
 
         <div style={{ position: "relative", zIndex: 2, display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center", width: "100%", maxWidth: 500, margin: "0 auto" }}>
           <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 16, padding: "14px 28px", flex: "1 1 180px", textAlign: "center" }}>
-            Switch It On ⚡
+            {t("switchOn")}
           </a>
           <button onClick={() => {
             const el = document.getElementById('vision-video-section');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }} className="glm-btn-secondary" style={{ fontSize: 16, padding: "14px 28px", flex: "1 1 180px", textAlign: "center" }}>
-            Watch Vision Video
+            {t("watchVideo")}
           </button>
         </div>
 
@@ -274,13 +276,13 @@ export default function Home() {
         {/* Content at the bottom */}
         <div style={{ position: "relative", zIndex: 2, padding: "80px 24px 60px", maxWidth: 1000, margin: "0 auto", textAlign: "center" }}>
             <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24, textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>
-              Watch the <span className="glm-gradient-text">Vision</span>
+              {t("visionTitle").split(" ")[0]} <span className="glm-gradient-text">{t("visionTitle").split(" ").slice(1).join(" ")}</span>
             </h2>
             <p className="glm-body" style={{ fontSize: 18, marginBottom: 40, lineHeight: 1.8, color: "#E0E8F0", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
-              Generation LightMode was born from a simple belief — that the world changes when young believers stop hiding their faith and start living it out loud. We are moving from hidden faith to visible light, transforming the digital landscape.
+              {t("visionText")}
             </p>
             <Link to={createPageUrl("About") + "#our-mission"} className="glm-btn-secondary" style={{ fontSize: 17, background: "rgba(11,15,26,0.6)", backdropFilter: "blur(10px)" }}>
-              Read More About the Vision →
+              {t("readMore")}
             </Link>
         </div>
       </section>
@@ -292,15 +294,15 @@ export default function Home() {
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)" }}>
-              The Light Is Spreading
+              {t("statsTitle")}
             </h2>
-            <p className="glm-body" style={{ marginTop: 12, fontSize: 17 }}>Real impact. Real people. Real faith.</p>
+            <p className="glm-body" style={{ marginTop: 12, fontSize: 17 }}>{t("statsSubtitle")}</p>
           </div>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
-            <StatCard value={1000000} suffix="+" label="Youth to be Mobilized" icon={Users} color="#00CFFF" started={statsVisible} />
-            <StatCard value={10000000} suffix="+" label="Peers to be Reached" icon={Users} color="#FFD000" started={statsVisible} />
-            <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#1DA1FF" started={statsVisible} />
-            <StatCard value={500} suffix="+" label="GlowGroups Active" icon={Star} color="#8A5CFF" started={statsVisible} />
+            <StatCard value={1000000} suffix="+" label={t("youthMobilized")} icon={Users} color="#00CFFF" started={statsVisible} />
+            <StatCard value={10000000} suffix="+" label={t("peersReached")} icon={Users} color="#FFD000" started={statsVisible} />
+            <StatCard value={12} suffix="" label={t("nations")} icon={Globe} color="#1DA1FF" started={statsVisible} />
+            <StatCard value={500} suffix="+" label={t("groupsActive")} icon={Star} color="#8A5CFF" started={statsVisible} />
           </div>
         </div>
       </section>
@@ -319,20 +321,20 @@ export default function Home() {
           <div>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.1)", border: "1px solid rgba(255,208,0,0.3)", borderRadius: 50, padding: "6px 16px", marginBottom: 24 }}>
               <Zap size={14} color="#FFD000" />
-              <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>THE MOVEMENT</span>
+              <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>{t("movementBadge")}</span>
             </div>
             <h2 className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 52px)", lineHeight: 1.15, marginBottom: 24 }}>
-              What Is{" "}
-              <span className="glm-gold-text">LightMode?</span>
+              {t("whatIsBefore")}{" "}
+              <span className="glm-gold-text">{t("whatIsHighlight")}</span>
             </h2>
             <p className="glm-body" style={{ fontSize: 17, marginBottom: 20 }}>
-              Generation LightMode is a global faith-based digital movement — mobilizing the next generation to live their faith openly, boldly, and publicly.
+              {t("whatIsText1")}
             </p>
             <p className="glm-body" style={{ fontSize: 17, marginBottom: 32 }}>
-              We believe faith is not meant to be hidden. It's meant to illuminate. Every challenge completed, every testimony shared, every group formed — is a light switched on.
+              {t("whatIsText2")}
             </p>
             <Link to={createPageUrl("About") + "#faith-light"} className="glm-btn-secondary">
-              Learn More →
+              {t("learnMore")}
             </Link>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -358,10 +360,10 @@ export default function Home() {
       <section style={{ padding: "100px 24px", background: "#121826" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
           <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>
-            Your Glow Rank
+            {t("ranksTitle")}
           </h2>
           <p className="glm-body" style={{ fontSize: 17, marginBottom: 56, maxWidth: 600, margin: "0 auto 56px" }}>
-            Every step of faith levels you up. Where are you on the journey?
+            {t("ranksSubtitle")}
           </p>
           <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
             {[
@@ -428,10 +430,10 @@ export default function Home() {
         <div style={{ position: "relative", zIndex: 1, maxWidth: 800, margin: "0 auto", padding: "40px" }}>
           <div style={{ fontSize: 64, marginBottom: 24, textShadow: "0 0 20px rgba(255,208,0,0.5)" }}>🔆</div>
           <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24, textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
-            Take The <span className="glm-gradient-text">Pledge</span>
+            {t("pledgeTitle").split(" ").slice(0, -1).join(" ")} <span className="glm-gradient-text">{t("pledgeTitle").split(" ").slice(-1)}</span>
           </h2>
           <p className="glm-body" style={{ fontSize: 18, maxWidth: 560, margin: "0 auto 48px", color: "#E0E8F0", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
-            The world needs your light. Don't keep it hidden. Join Generation LightMode today by taking the pledge.
+            {t("pledgeText")}
           </p>
 
           <div style={{ marginBottom: 48, textAlign: "left", padding: "0 20px" }}>
@@ -447,10 +449,10 @@ export default function Home() {
           </div>
 
           <a href="/app/dashboard" className="glm-btn-primary animate-pulse-glow" style={{ fontSize: 20, padding: "18px 52px" }}>
-            Sign The Pledge ⚡
+            {t("signPledge")}
           </a>
           <p style={{ color: "#C8D0E0", fontSize: 14, marginTop: 20, fontFamily: "Inter, sans-serif", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
-            Free to join · No credit card required · Start today
+            {t("freeToJoin")}
           </p>
         </div>
       </section>
