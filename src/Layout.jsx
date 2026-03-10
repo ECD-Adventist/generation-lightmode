@@ -19,12 +19,25 @@ export default function Layout({ children, currentPageName }) {
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const { t, isRTL } = useAppLanguage("layout");
+  const location = useLocation();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (location.hash) {
+      requestAnimationFrame(() => {
+        const target = document.getElementById(location.hash.slice(1));
+        if (target) target.scrollIntoView({ behavior: "auto", block: "start" });
+      });
+      return;
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [location.pathname, location.search, location.hash]);
 
   return (
     <div dir={isRTL ? "rtl" : "ltr"} style={{ background: "#0B0F1A", minHeight: "100vh", fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
