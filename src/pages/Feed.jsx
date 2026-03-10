@@ -22,12 +22,22 @@ export default function Feed() {
       try {
         const isAuth = await base44.auth.isAuthenticated();
         if (isAuth) {
-          const me = await base44.auth.me();
-          setUser(me);
+          try {
+            const me = await base44.auth.me();
+            if (me) {
+              setUser(me);
+            } else {
+              base44.auth.redirectToLogin(window.location.pathname);
+            }
+          } catch (meErr) {
+            base44.auth.redirectToLogin(window.location.pathname);
+          }
         } else {
           base44.auth.redirectToLogin(window.location.pathname);
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error("Auth check failed", err);
+      }
     }
     checkAuth();
   }, []);
@@ -120,7 +130,7 @@ export default function Feed() {
            <Link to={createPageUrl("Resources")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><PlaySquare className="w-7 h-7" /> Resources</Link>
            <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition">
              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-xs uppercase font-bold text-white overflow-hidden">
-               {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
+               {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : (user?.full_name || "U").charAt(0)}
              </div>
              Profile
            </Link>
@@ -213,7 +223,7 @@ export default function Feed() {
               <div key={u.id} className="flex items-center justify-between">
                  <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden flex items-center justify-center font-bold text-sm">
-                      {u.profile_picture_url ? <img src={u.profile_picture_url} className="w-full h-full object-cover" /> : u.full_name?.charAt(0)}
+                     {u.profile_picture_url ? <img src={u.profile_picture_url} className="w-full h-full object-cover" /> : (u.full_name || "U").charAt(0)}
                    </div>
                    <div className="text-sm">
                      <div className="font-bold text-white truncate max-w-[120px]">{u.full_name}</div>
@@ -243,7 +253,7 @@ export default function Feed() {
           <Link to={createPageUrl("Resources")}><PlaySquare className="w-6 h-6 text-white" /></Link>
           <Link to={createPageUrl("Profile")}>
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/20 flex items-center justify-center text-[10px] uppercase font-bold text-white overflow-hidden">
-              {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
+              {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : (user?.full_name || "U").charAt(0)}
             </div>
           </Link>
         </div>

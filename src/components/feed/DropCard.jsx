@@ -164,7 +164,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 {drop.category}
               </span>
             )}
-            {drop.hashtags && (
+            {drop.hashtags && typeof drop.hashtags === 'string' && (
               <div className="text-[13px] text-[#00CFFF] font-medium opacity-90">
                 {drop.hashtags.split(' ').map(t => t.startsWith('#') ? t : `#${t}`).join(' ')}
               </div>
