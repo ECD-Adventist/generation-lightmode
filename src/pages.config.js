@@ -52,13 +52,13 @@ import Assistant from './pages/Assistant';
 import Challenges from './pages/Challenges';
 import Dashboard from './pages/Dashboard';
 import Feed from './pages/Feed';
+import GlobalReach from './pages/GlobalReach';
 import GlowGroups from './pages/GlowGroups';
 import Home from './pages/Home';
 import Impact from './pages/Impact';
 import Media from './pages/Media';
 import Profile from './pages/Profile';
 import Resources from './pages/Resources';
-import GlobalReach from './pages/GlobalReach';
 import __Layout from './Layout.jsx';
 
 
@@ -68,13 +68,13 @@ export const PAGES = {
     "Challenges": Challenges,
     "Dashboard": Dashboard,
     "Feed": Feed,
+    "GlobalReach": GlobalReach,
     "GlowGroups": GlowGroups,
     "Home": Home,
     "Impact": Impact,
     "Media": Media,
     "Profile": Profile,
     "Resources": Resources,
-    "GlobalReach": GlobalReach,
 }
 
 export const pagesConfig = {

@@ -54,106 +54,160 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   };
 
   return (
-    <div className="bg-[#0B0F1A] border-b border-white/10 sm:border sm:rounded-2xl sm:mb-6 overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between p-3">
-        <div className="flex items-center gap-3 cursor-pointer">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/20 flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
-            {dropUser.profile_picture_url ? <img src={dropUser.profile_picture_url} className="w-full h-full object-cover" /> : (dropUser.full_name?.charAt(0) || "?")}
-          </div>
-          <div>
-            <div className="font-bold font-['Inter'] text-sm flex items-center gap-1.5 text-white">
-              {dropUser.full_name}
-              {drop.status === 'approved' && <span className="w-3.5 h-3.5 bg-blue-500 rounded-full flex items-center justify-center text-[8px] text-white" title="Approved Drop">✓</span>}
-            </div>
-            <div className="text-xs text-gray-500 flex items-center gap-1">♫ Faith Always On • Original Audio</div>
-          </div>
-        </div>
-        <MoreHorizontal className="text-white w-5 h-5 cursor-pointer" />
-      </div>
-
-      {/* Content Image / Video area */}
+    <div className="bg-[#121826]/80 backdrop-blur-sm border border-white/10 rounded-[2rem] mb-8 p-3 shadow-2xl hover:border-[#00CFFF]/40 transition-all duration-300 group">
+      {/* Media / Content Area */}
       <div 
-        className="w-full aspect-[4/5] bg-gradient-to-br from-[#121826] to-[#0B0F1A] flex flex-col justify-center items-center text-center relative group"
+        className={`relative w-full rounded-[1.5rem] overflow-hidden ${drop.media_url ? 'aspect-[4/5] sm:aspect-[3/4]' : 'aspect-square sm:aspect-[4/5]'} bg-gradient-to-br from-[#1a1b26] via-[#0B0F1A] to-[#1a103c] flex flex-col justify-center items-center text-center shadow-inner`}
         style={drop.media_url ? { backgroundImage: `url(${drop.media_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
         onDoubleClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name})}
       >
-        {!drop.media_url && (
-          <div className="p-8 relative z-0">
-            <h2 className="text-2xl sm:text-3xl font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-6 leading-tight">
-              {drop.verse}
-            </h2>
-            <p className="text-base sm:text-lg text-white font-['Inter'] leading-relaxed max-w-sm">
-              "{drop.reflection}"
-            </p>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 pointer-events-none">
-          <Heart className="w-24 h-24 text-white drop-shadow-2xl transform scale-90 group-hover:scale-100 transition-transform duration-300" />
-        </div>
-      </div>
+        {/* Gradient Overlays for readability */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/70 to-transparent pointer-events-none z-0" />
+        <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
 
-      {/* Actions */}
-      <div className="p-3">
-        <div className="flex justify-between items-center mb-2 relative z-20">
-          <div className="flex gap-4 items-center">
-            <button onClick={(e) => { e.stopPropagation(); likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name}); }} className="hover:opacity-70 transition-opacity focus:outline-none p-1">
-              <Heart className={`w-6 h-6 ${drop.likes_count > 0 ? "text-red-500 fill-red-500" : "text-white"}`} />
-            </button>
-            <button onClick={(e) => { e.stopPropagation(); setShowComments(!showComments); }} className="hover:opacity-70 transition-opacity focus:outline-none p-1">
-              <MessageCircle className="w-6 h-6 text-white" />
-            </button>
-            <button onClick={(e) => { e.stopPropagation(); handleShare(drop); }} className="hover:opacity-70 transition-opacity focus:outline-none p-1">
-              <Share2 className="w-6 h-6 text-white" />
-            </button>
-          </div>
-          <button className="hover:opacity-70 transition-opacity focus:outline-none p-1">
-            <Bookmark className="w-6 h-6 text-white" />
-          </button>
-        </div>
-        
-        <div className="font-bold text-sm text-white mb-1">{drop.likes_count || 0} likes</div>
-        
-        <div className="text-sm text-white">
-          <span className="font-bold mr-2">{dropUser.full_name}</span>
-          {drop.media_url ? (
-            <span>{drop.verse} - {drop.reflection}</span>
-          ) : (
-            <span>#FaithAlwaysOn</span>
-          )}
-        </div>
-        
-        {drop.hashtags && (
-          <div className="text-sm mt-1 text-[#00CFFF]">
-            {drop.hashtags.split(' ').map(t => t.startsWith('#') ? t : `#${t}`).join(' ')}
-          </div>
-        )}
-
-        {showComments && (
-          <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
-            <div className="space-y-3 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
-              {comments.map(c => (
-                <div key={c.id} className="text-sm">
-                  <span className="font-bold text-white mr-2">{getCommentUser(c.user_email).full_name}</span>
-                  <span className="text-gray-300">{c.content}</span>
-                </div>
-              ))}
-              {comments.length === 0 && <div className="text-xs text-gray-500 italic">No comments yet. Be the first!</div>}
+        {/* User Pill (Top Left) */}
+        <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/10 rounded-full pr-4 pl-1 py-1 cursor-pointer hover:bg-black/50 transition">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
+            <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
+              {dropUser.profile_picture_url ? <img src={dropUser.profile_picture_url} className="w-full h-full object-cover" /> : (dropUser.full_name?.charAt(0) || "?")}
             </div>
-            <form onSubmit={submitComment} className="flex gap-2">
-              <Input 
-                value={newComment} 
-                onChange={(e) => setNewComment(e.target.value)} 
-                placeholder="Add a comment..." 
-                className="bg-black/20 border-white/10 text-white h-9 text-sm"
-              />
-              <Button type="submit" disabled={!newComment.trim() || commentMutation.isPending} size="sm" className="bg-[#00CFFF] text-black hover:bg-white h-9">
-                Post
-              </Button>
-            </form>
+          </div>
+          <div className="flex flex-col items-start justify-center">
+            <span className="font-bold font-['Inter'] text-xs text-white flex items-center gap-1 leading-none mb-0.5">
+              {dropUser.full_name}
+              {drop.status === 'approved' && <span className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center text-[7px] text-white shadow-[0_0_8px_rgba(59,130,246,0.8)]">✓</span>}
+            </span>
+            <span className="text-[10px] text-gray-300 font-medium leading-none">{formatDistanceToNow(new Date(drop.created_date), { addSuffix: true })}</span>
+          </div>
+        </div>
+
+        {/* Text Content (if no media) */}
+        {!drop.media_url && (
+          <div className="p-8 relative z-10 w-full h-full flex flex-col items-center justify-center">
+            {drop.verse && (
+              <h2 className="text-2xl sm:text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] mb-6 leading-tight drop-shadow-lg">
+                {drop.verse}
+              </h2>
+            )}
+            {drop.reflection && (
+              <p className="text-lg sm:text-xl text-white font-['Inter'] leading-relaxed max-w-md drop-shadow-md">
+                "{drop.reflection}"
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Double Tap Heart */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 pointer-events-none">
+          <Heart className="w-24 h-24 text-white/40 drop-shadow-2xl transform scale-90 group-hover:scale-100 transition-transform duration-300" />
+        </div>
+
+        {/* Floating Actions (Right Side Stack) */}
+        <div className="absolute right-3 bottom-6 z-20 flex flex-col items-center gap-5">
+          <div className="flex flex-col items-center gap-1.5">
+            <button 
+              onClick={(e) => { e.stopPropagation(); likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name}); }} 
+              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+            >
+              <Heart className={`w-6 h-6 transition-all ${drop.likes_count > 0 ? "text-red-500 fill-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "text-white hover:scale-110"}`} />
+            </button>
+            <span className="text-white text-xs font-bold drop-shadow-md">{drop.likes_count || 0}</span>
+          </div>
+
+          <div className="flex flex-col items-center gap-1.5">
+            <button 
+              onClick={(e) => { e.stopPropagation(); setShowComments(!showComments); }} 
+              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+            >
+              <MessageCircle className="w-6 h-6 text-white hover:scale-110 transition-transform" />
+            </button>
+            <span className="text-white text-xs font-bold drop-shadow-md">{comments.length || 0}</span>
+          </div>
+
+          <div className="flex flex-col items-center gap-1.5">
+            <button 
+              onClick={(e) => { e.stopPropagation(); handleShare(drop); }} 
+              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+            >
+              <Share2 className="w-6 h-6 text-white hover:scale-110 transition-transform" />
+            </button>
+          </div>
+          
+          <div className="flex flex-col items-center gap-1.5">
+            <button className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none">
+              <Bookmark className="w-6 h-6 text-white hover:scale-110 transition-transform" />
+            </button>
+          </div>
+        </div>
+
+        {/* Text Content overlay for Media (Bottom Left) */}
+        {drop.media_url && (drop.verse || drop.reflection) && (
+          <div className="absolute bottom-4 left-4 right-16 z-20 text-left pointer-events-none">
+            <div className="pointer-events-auto">
+              {drop.verse && <div className="font-bold text-[#00CFFF] text-base drop-shadow-md mb-1">{drop.verse}</div>}
+              {drop.reflection && (
+                <div className="text-sm text-gray-100 drop-shadow-md line-clamp-2 hover:line-clamp-none transition-all cursor-pointer bg-black/20 backdrop-blur-sm p-2 rounded-xl border border-white/10 inline-block">
+                  {drop.reflection}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
+
+      {/* Tags Row */}
+      {(drop.hashtags || drop.category) && (
+        <div className="px-2 pt-3 pb-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            {drop.category && (
+              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#8A5CFF]/20 to-[#00CFFF]/20 text-white text-[11px] font-bold border border-white/10 backdrop-blur-sm uppercase tracking-wider">
+                {drop.category}
+              </span>
+            )}
+            {drop.hashtags && (
+              <div className="text-[13px] text-[#00CFFF] font-medium opacity-90">
+                {drop.hashtags.split(' ').map(t => t.startsWith('#') ? t : `#${t}`).join(' ')}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Comments Drawer/Section */}
+      {showComments && (
+        <div className="mt-3 px-3 py-4 bg-[#0B0F1A]/60 rounded-2xl border border-white/5 space-y-4 shadow-inner">
+          <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+            {comments.map(c => (
+              <div key={c.id} className="flex gap-3 text-sm">
+                <div className="w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center shrink-0 font-bold text-[10px] uppercase text-white shadow-md">
+                  {getCommentUser(c.user_email).profile_picture_url ? <img src={getCommentUser(c.user_email).profile_picture_url} className="w-full h-full rounded-full object-cover" /> : getCommentUser(c.user_email).full_name.charAt(0)}
+                </div>
+                <div className="bg-[#121826]/80 backdrop-blur-md px-3.5 py-2.5 rounded-2xl rounded-tl-none border border-white/5 flex-1 shadow-sm">
+                  <span className="font-bold text-[#00CFFF] text-xs block mb-1">{getCommentUser(c.user_email).full_name}</span>
+                  <span className="text-gray-200 leading-snug">{c.content}</span>
+                </div>
+              </div>
+            ))}
+            {comments.length === 0 && <div className="text-xs text-gray-500 italic text-center py-6">No comments yet. Ignite the conversation! 🔥</div>}
+          </div>
+          <form onSubmit={submitComment} className="flex gap-2 relative mt-2">
+            <Input 
+              value={newComment} 
+              onChange={(e) => setNewComment(e.target.value)} 
+              placeholder="Add a comment..." 
+              className="bg-[#121826] border-white/10 text-white h-12 pl-4 pr-20 rounded-full text-sm focus-visible:ring-[#00CFFF]/50 shadow-inner"
+            />
+            <Button 
+              type="submit" 
+              disabled={!newComment.trim() || commentMutation.isPending} 
+              size="sm" 
+              className="absolute right-1 top-1 bottom-1 h-10 rounded-full bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black font-bold hover:opacity-90 px-4 transition-all"
+            >
+              Post
+            </Button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

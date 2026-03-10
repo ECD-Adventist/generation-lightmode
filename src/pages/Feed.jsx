@@ -144,45 +144,18 @@ export default function Feed() {
           </div>
         </div>
 
-        {/* Stories Bar */}
-        <div className="flex gap-4 overflow-x-auto px-4 py-3 border-b border-white/10 hide-scrollbar bg-[#0B0F1A]">
-          <div className="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
-            <div className="w-16 h-16 rounded-full border border-gray-600 flex items-center justify-center relative p-[2px]">
-               <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-lg font-bold uppercase overflow-hidden">
-                 {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
-               </div>
-               <div className="absolute bottom-0 right-0 bg-[#00CFFF] rounded-full p-0.5 border-2 border-[#0B0F1A]">
-                 <Plus className="w-3 h-3 text-black" />
-               </div>
-            </div>
-            <span className="text-xs text-gray-400">Your story</span>
-          </div>
-          
-          {/* Mock stories to replicate UI */}
-          {[1,2,3,4,5].map(i => (
-            <div key={i} className="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#FFD000] via-[#F50057] to-[#8A5CFF] p-[2px]">
-                 <div className="w-full h-full rounded-full bg-[#0B0F1A] p-[2px]">
-                   <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-sm font-bold uppercase">
-                     G{i}
-                   </div>
-                 </div>
-              </div>
-              <span className="text-xs text-white">glow_{i}</span>
-            </div>
-          ))}
-        </div>
+
 
         {/* Filter Bar */}
-        <div className="flex gap-2 px-4 py-3 border-b border-white/10 bg-[#0B0F1A] overflow-x-auto hide-scrollbar">
+        <div className="flex gap-3 px-4 py-4 bg-[#0B0F1A] overflow-x-auto hide-scrollbar sticky top-0 lg:top-0 z-40 backdrop-blur-md bg-opacity-90">
           {['All', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
+              className={`px-5 py-2 rounded-2xl text-sm font-bold whitespace-nowrap transition-all duration-300 ${
                 activeFilter === filter 
-                  ? 'bg-[#00CFFF] text-black' 
-                  : 'bg-[#121826] text-gray-400 border border-white/10 hover:text-white hover:border-white/30'
+                  ? 'bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black shadow-[0_0_15px_rgba(0,207,255,0.4)] transform scale-105' 
+                  : 'bg-[#121826] text-gray-400 border border-white/10 hover:text-white hover:border-white/30 hover:bg-[#1a2235]'
               }`}
             >
               {filter}
@@ -191,7 +164,7 @@ export default function Feed() {
         </div>
 
         {/* Feed */}
-        <div className="flex flex-col">
+        <div className="flex flex-col px-0 sm:px-4 py-4 max-w-2xl mx-auto w-full">
           {drops.filter(drop => {
             if (activeFilter === 'All') return true;
             if (activeFilter === 'Most Liked') return drop.likes_count >= 5;
