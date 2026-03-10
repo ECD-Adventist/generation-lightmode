@@ -14,6 +14,7 @@ import SubmitDropModal from "@/components/feed/SubmitDropModal";
 export default function Feed() {
   const [user, setUser] = useState(null);
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("All");
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -172,16 +173,51 @@ export default function Feed() {
           ))}
         </div>
 
+        {/* Filter Bar */}
+        <div className="flex gap-2 px-4 py-3 border-b border-white/10 bg-[#0B0F1A] overflow-x-auto hide-scrollbar">
+          {['All', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
+                activeFilter === filter 
+                  ? 'bg-[#00CFFF] text-black' 
+                  : 'bg-[#121826] text-gray-400 border border-white/10 hover:text-white hover:border-white/30'
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+
         {/* Feed */}
         <div className="flex flex-col">
-          {drops.length === 0 ? (
+          {drops.filter(drop => {
+            if (activeFilter === 'All') return true;
+            if (activeFilter === 'Most Liked') return drop.likes_count >= 5;
+            if (activeFilter === 'Devotional') return drop.category === 'Devotional';
+            if (activeFilter === 'Testimony') return drop.category === 'Testimony';
+            return drop.category === activeFilter;
+          }).sort((a, b) => {
+            if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
+            return new Date(b.created_date) - new Date(a.created_date);
+          }).length === 0 ? (
             <div className="text-center py-20 text-gray-500">
               <div className="text-4xl mb-4">✨</div>
-              <p>The feed is empty. Be the first to share your light!</p>
+              <p>No drops found for this filter. Be the first to share your light!</p>
               <button onClick={() => setIsDropModalOpen(true)} className="inline-block mt-4 text-[#00CFFF] hover:underline">Submit a Drop</button>
             </div>
           ) : (
-            drops.map(drop => (
+            drops.filter(drop => {
+              if (activeFilter === 'All') return true;
+              if (activeFilter === 'Most Liked') return drop.likes_count >= 1;
+              if (activeFilter === 'Devotional') return drop.category === 'Devotional';
+              if (activeFilter === 'Testimony') return drop.category === 'Testimony';
+              return drop.category === activeFilter;
+            }).sort((a, b) => {
+              if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
+              return new Date(b.created_date) - new Date(a.created_date);
+            }).map(drop => (
               <DropCard 
                 key={drop.id} 
                 drop={drop} 
