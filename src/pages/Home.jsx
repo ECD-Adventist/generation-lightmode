@@ -251,7 +251,7 @@ export default function Home() {
       <section style={{ padding: "88px 24px", background: "linear-gradient(180deg, #0B0F1A 0%, #121826 100%)", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 18% 28%, rgba(0,207,255,0.07), transparent 28%), radial-gradient(circle at 82% 78%, rgba(138,92,255,0.12), transparent 24%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.1fr) minmax(320px, 0.9fr)", gap: 36, alignItems: "center" }}>
+          <div className="why-lightmode-stack" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.1fr) minmax(320px, 0.9fr)", gap: 36, alignItems: "center" }}>
             <div style={{ maxWidth: 650 }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.24)", borderRadius: 999, padding: "7px 14px", marginBottom: 22 }}>
                 <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.04em" }}>WHY IT MATTERS</span>
