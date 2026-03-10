@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import DropCard from "@/components/feed/DropCard";
 
 export default function Feed() {
   const [user, setUser] = useState(null);
