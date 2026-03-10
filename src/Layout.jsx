@@ -335,9 +335,10 @@ export default function Layout({ children, currentPageName }) {
           </div>
         )}
       </nav>
+      )}
 
       {/* Page Content */}
-      <main style={{ paddingTop: 72 }}>
+      <main style={{ paddingTop: currentPageName === "Feed" ? 0 : 72 }}>
         {children}
       </main>
 
