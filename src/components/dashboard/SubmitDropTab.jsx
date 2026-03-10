@@ -68,26 +68,31 @@ export default function SubmitDropTab({ user }) {
         const uploadRes = await base44.integrations.Core.UploadFile({ file: file });
         uploadedMediaUrl = uploadRes.file_url;
 
-        // Extract metrics
-        const extractRes = await base44.integrations.Core.ExtractDataFromUploadedFile({
-          file_url: uploadedMediaUrl,
-          json_schema: {
-            type: "object",
-            properties: {
-              likes: { type: "number", description: "Number of likes shown in the screenshot. Default 0." },
-              shares: { type: "number", description: "Number of shares/retweets shown. Default 0." },
-              saves: { type: "number", description: "Number of saves/bookmarks shown. Default 0." },
-              views: { type: "number", description: "Number of views/impressions shown. Default 0." }
+        // Try extracting metrics if it looks like a screenshot (optional step)
+        try {
+          const extractRes = await base44.integrations.Core.ExtractDataFromUploadedFile({
+            file_url: uploadedMediaUrl,
+            json_schema: {
+              type: "object",
+              properties: {
+                likes: { type: "number", description: "Number of likes shown in the screenshot. Default 0." },
+                shares: { type: "number", description: "Number of shares/retweets shown. Default 0." },
+                saves: { type: "number", description: "Number of saves/bookmarks shown. Default 0." },
+                views: { type: "number", description: "Number of views/impressions shown. Default 0." }
+              }
             }
-          }
-        });
+          });
 
-        if (extractRes.status === "success" && extractRes.output) {
-          const { likes = 0, shares = 0, saves = 0, views = 0 } = extractRes.output;
-          // Calculate additional score
-          const engagementPoints = (likes * 1) + (shares * 2) + (saves * 2) + Math.floor(views / 10);
-          finalScore += Math.min(engagementPoints, 100); // Cap extra points at 100
+          if (extractRes.status === "success" && extractRes.output) {
+            const { likes = 0, shares = 0, saves = 0, views = 0 } = extractRes.output;
+            // Calculate additional score
+            const engagementPoints = (likes * 1) + (shares * 2) + (saves * 2) + Math.floor(views / 10);
+            finalScore += Math.min(engagementPoints, 100); // Cap extra points at 100
+          }
+        } catch (extractError) {
+          console.log("Could not extract metrics from image, continuing with base score");
         }
+        
         setAnalyzing(false);
       }
 

@@ -95,19 +95,19 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
       {/* Actions */}
       <div className="p-3">
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center mb-2 relative z-20">
           <div className="flex gap-4 items-center">
-            <button onClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name})} className="hover:opacity-70 transition-opacity focus:outline-none">
+            <button onClick={(e) => { e.stopPropagation(); likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name}); }} className="hover:opacity-70 transition-opacity focus:outline-none p-1">
               <Heart className={`w-6 h-6 ${drop.likes_count > 0 ? "text-red-500 fill-red-500" : "text-white"}`} />
             </button>
-            <button onClick={() => setShowComments(!showComments)} className="hover:opacity-70 transition-opacity focus:outline-none">
+            <button onClick={(e) => { e.stopPropagation(); setShowComments(!showComments); }} className="hover:opacity-70 transition-opacity focus:outline-none p-1">
               <MessageCircle className="w-6 h-6 text-white" />
             </button>
-            <button onClick={() => handleShare(drop)} className="hover:opacity-70 transition-opacity focus:outline-none">
+            <button onClick={(e) => { e.stopPropagation(); handleShare(drop); }} className="hover:opacity-70 transition-opacity focus:outline-none p-1">
               <Share2 className="w-6 h-6 text-white" />
             </button>
           </div>
-          <button className="hover:opacity-70 transition-opacity focus:outline-none">
+          <button className="hover:opacity-70 transition-opacity focus:outline-none p-1">
             <Bookmark className="w-6 h-6 text-white" />
           </button>
         </div>
