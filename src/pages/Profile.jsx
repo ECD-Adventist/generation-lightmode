@@ -14,6 +14,7 @@ import SubmitDropModal from "@/components/feed/SubmitDropModal";
 export default function Profile() {
   const [user, setUser] = useState(null);
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ full_name: "", country: "", profile_picture_url: "", cover_picture_url: "" });
   const [activeProfileTab, setActiveProfileTab] = useState("drops");
