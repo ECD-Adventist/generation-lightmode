@@ -248,59 +248,71 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* WHY LIGHTMODE EXISTS */}
-      <section style={{ padding: "80px 24px", background: "linear-gradient(180deg, #0B0F1A 0%, #121826 100%)", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 15% 30%, rgba(0,207,255,0.08), transparent 30%), radial-gradient(circle at 85% 75%, rgba(138,92,255,0.12), transparent 28%)", pointerEvents: "none" }} />
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 28, alignItems: "center", position: "relative", zIndex: 1 }}>
-          <div className="glm-card" style={{ border: "1px solid rgba(0,207,255,0.18)", background: "linear-gradient(135deg, rgba(0,207,255,0.05), rgba(18,24,38,0.98))", padding: 34, boxShadow: "0 0 40px rgba(0,207,255,0.08)" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.24)", borderRadius: 999, padding: "7px 14px", marginBottom: 20 }}>
-              <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.04em" }}>WHY IT MATTERS</span>
-            </div>
-            <h2 className="glm-headline" style={{ fontSize: "clamp(30px, 4vw, 48px)", lineHeight: 1.08, marginBottom: 14 }}>
-              {t("whyTitleBefore")} <span className="glm-gradient-text">{t("whyTitleHighlight")}</span>
-            </h2>
-            <p style={{ color: "#FFD000", fontSize: 14, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 20 }}>
-              {t("whySubtitle")}
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 26 }}>
-              <p className="glm-body" style={{ fontSize: 16 }}>{t("whyText1")}</p>
-              <p className="glm-body" style={{ fontSize: 16 }}>{t("whyText2")}</p>
-              <p className="glm-body" style={{ fontSize: 16, color: "#EAF2FF" }}>{t("whyText3")}</p>
-            </div>
-            <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 16 }}>
-              {t("learnMore")}
-            </Link>
-          </div>
-
-          <div style={{ position: "relative", minHeight: 470, borderRadius: 28, overflow: "hidden", border: "1px solid rgba(138,92,255,0.24)", boxShadow: "0 0 50px rgba(138,92,255,0.14)" }}>
-            <img
-              src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"
-              alt="Young person thinking while using technology"
-              loading="lazy"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.1) 0%, rgba(11,15,26,0.3) 45%, rgba(11,15,26,0.94) 100%)" }} />
-
-            <div style={{ position: "absolute", top: 20, left: 20, display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {["Screens", "Networks", "Connections"].map((item) => (
-                <span key={item} style={{ padding: "8px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.16)", background: "rgba(11,15,26,0.42)", backdropFilter: "blur(10px)", color: "#FFFFFF", fontSize: 12, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
-                  {item}
-                </span>
-              ))}
+      <section style={{ padding: "88px 24px", background: "linear-gradient(180deg, #0B0F1A 0%, #121826 100%)", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 18% 28%, rgba(0,207,255,0.07), transparent 28%), radial-gradient(circle at 82% 78%, rgba(138,92,255,0.12), transparent 24%)", pointerEvents: "none" }} />
+        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.1fr) minmax(320px, 0.9fr)", gap: 36, alignItems: "center" }}>
+            <div style={{ maxWidth: 650 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.24)", borderRadius: 999, padding: "7px 14px", marginBottom: 22 }}>
+                <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.04em" }}>WHY IT MATTERS</span>
+              </div>
+              <h2 className="glm-headline" style={{ fontSize: "clamp(34px, 5vw, 58px)", lineHeight: 1.02, marginBottom: 18 }}>
+                {t("whyTitleBefore")} <span className="glm-gradient-text">{t("whyTitleHighlight")}</span>
+              </h2>
+              <p style={{ color: "#FFD000", fontSize: 14, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 24 }}>
+                {t("whySubtitle")}
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 18, marginBottom: 30 }}>
+                <p className="glm-body" style={{ fontSize: 17 }}>{t("whyText1")}</p>
+                <p className="glm-body" style={{ fontSize: 17 }}>{t("whyText2")}</p>
+                <p className="glm-body" style={{ fontSize: 17, color: "#EAF2FF" }}>{t("whyText3")}</p>
+              </div>
+              <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 16 }}>
+                {t("learnMore")}
+              </Link>
             </div>
 
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: 28 }}>
-              <div className="glm-card" style={{ background: "rgba(8,12,20,0.72)", backdropFilter: "blur(14px)", border: "1px solid rgba(0,207,255,0.16)", padding: 24 }}>
-                <div className="glm-headline" style={{ fontSize: "clamp(22px, 3vw, 34px)", lineHeight: 1.14, marginBottom: 12 }}>
-                  The mission field is already in their hands.
+            <div style={{ position: "relative", minHeight: 520 }}>
+              <div style={{ position: "absolute", inset: 0, borderRadius: 30, overflow: "hidden", border: "1px solid rgba(138,92,255,0.24)", boxShadow: "0 0 50px rgba(138,92,255,0.14)" }}>
+                <img
+                  src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"
+                  alt="Young person thinking while using technology"
+                  loading="lazy"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.08) 0%, rgba(11,15,26,0.18) 38%, rgba(11,15,26,0.92) 100%)" }} />
+              </div>
+
+              <div style={{ position: "absolute", top: 22, left: 22, right: 22, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {["Screens", "Networks", "Connections"].map((item) => (
+                  <span key={item} style={{ padding: "8px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(11,15,26,0.42)", backdropFilter: "blur(10px)", color: "#FFFFFF", fontSize: 12, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+
+              <div style={{ position: "absolute", right: -12, bottom: 28, maxWidth: 320 }}>
+                <div className="glm-card" style={{ background: "rgba(8,12,20,0.82)", backdropFilter: "blur(16px)", border: "1px solid rgba(0,207,255,0.16)", padding: 24, boxShadow: "0 18px 45px rgba(0,0,0,0.35)" }}>
+                  <div className="glm-headline" style={{ fontSize: 24, lineHeight: 1.14, marginBottom: 10 }}>
+                    The mission field is already in their hands.
+                  </div>
+                  <p className="glm-body" style={{ fontSize: 15, marginBottom: 18 }}>
+                    LightMode equips young people to meet this moment with courage, clarity, and a visible faith that shines where the world is already looking.
+                  </p>
+                  <div style={{ height: 4, borderRadius: 999, background: "linear-gradient(90deg, #00CFFF 0%, #8A5CFF 55%, #FFD000 100%)", boxShadow: "0 0 20px rgba(0,207,255,0.25)" }} />
                 </div>
-                <p className="glm-body" style={{ fontSize: 15, marginBottom: 18 }}>
-                  LightMode equips young people to meet this moment with courage, clarity, and a visible faith that shines where the world is already looking.
-                </p>
-                <div style={{ height: 4, borderRadius: 999, background: "linear-gradient(90deg, #00CFFF 0%, #8A5CFF 55%, #FFD000 100%)", boxShadow: "0 0 20px rgba(0,207,255,0.25)" }} />
               </div>
             </div>
           </div>
         </div>
+
+        <style>{`
+          @media (max-width: 900px) {
+            .why-lightmode-stack {
+              grid-template-columns: 1fr;
+            }
+          }
+        `}</style>
       </section>
 
       <div className="section-divider" />
