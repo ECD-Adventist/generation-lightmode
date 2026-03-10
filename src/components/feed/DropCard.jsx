@@ -144,17 +144,15 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         {/* Text Content overlay for Media (Bottom Left) */}
         {drop.media_url && (drop.verse || drop.reflection) && (
           <div className="absolute bottom-4 left-4 right-16 z-20 text-left pointer-events-none">
-            <div className="pointer-events-auto flex flex-col items-start gap-2 w-full">
+            <div className="pointer-events-auto bg-[#0B0F1A]/90 backdrop-blur-xl px-4 py-3 rounded-2xl border border-white/10 shadow-2xl w-full flex flex-col gap-2">
               {drop.verse && (
-                <div className="font-bold text-[#00CFFF] text-sm sm:text-base bg-[#0B0F1A]/85 backdrop-blur-lg px-4 py-2.5 rounded-2xl border border-white/10 shadow-2xl leading-snug w-full">
+                <div className="font-bold text-[#00CFFF] text-sm sm:text-base leading-snug drop-shadow-sm">
                   {drop.verse}
                 </div>
               )}
               {drop.reflection && (
-                <div className="bg-[#0B0F1A]/85 backdrop-blur-lg px-4 py-3 rounded-2xl border border-white/10 shadow-2xl w-full">
-                  <div className="text-sm text-gray-100 line-clamp-3 hover:line-clamp-none transition-all cursor-pointer leading-relaxed">
-                    {drop.reflection}
-                  </div>
+                <div className="text-sm text-gray-100 line-clamp-3 hover:line-clamp-none transition-all cursor-pointer leading-relaxed">
+                  {drop.reflection}
                 </div>
               )}
             </div>
