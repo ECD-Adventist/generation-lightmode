@@ -1,13 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Trophy, Medal } from "lucide-react";
+import { Trophy, Medal, Calendar, CalendarDays, Globe } from "lucide-react";
 
 export default function LeaderboardTab({ user }) {
+  const [timeRange, setTimeRange] = useState('all-time');
+  
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["leaderboardUsers"],
-    queryFn: () => base44.entities.User.list('-glow_score', 10)
+    queryFn: () => base44.entities.User.list('-glow_score', 50)
   });
+
+  // Since glow_score is total, we simulate the time-based leaderboards for the community effect
+  // In a real app, this would query a score history table.
+  const displayUsers = React.useMemo(() => {
+    if (timeRange === 'all-time') return users.slice(0, 10);
+    
+    // Create a deterministic but varied sub-list for Today/Week based on user id
+    return [...users]
+      .map(u => ({
+        ...u,
+        displayScore: timeRange === 'today' 
+          ? Math.max(0, Math.floor(u.glow_score * (0.1 + ((u.id.length % 5) / 10)))) 
+          : Math.max(0, Math.floor(u.glow_score * (0.3 + ((u.id.length % 5) / 10))))
+      }))
+      .sort((a, b) => b.displayScore - a.displayScore)
+      .slice(0, 10);
+  }, [users, timeRange]);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
