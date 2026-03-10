@@ -56,8 +56,16 @@ export default function About() {
   const joinNowText = {
     en: "Join Now ⚡",
     sw: "Jiunge Sasa ⚡",
+    fr: "Rejoindre maintenant ⚡",
+    ln: "Kota sik’oyo ⚡",
+    rw: "Jyamo nonaha ⚡",
     ar: "انضم الآن ⚡",
+    am: "አሁን ተቀላቀል ⚡",
+    rn: "Injira ubu ⚡",
     pt: "Participe Agora ⚡",
+    so: "Ku biir hadda ⚡",
+    ti: "ሕጂ ተጸምብር ⚡",
+    nus: "Bɔth thin ⚡",
     lg: "Wegatteko Kati ⚡",
   }[language] || "Join Now ⚡";
 

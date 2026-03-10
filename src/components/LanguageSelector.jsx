@@ -4,8 +4,16 @@ import { Globe } from "lucide-react";
 const LANGUAGES = [
   { code: "en", label: "English", native: "English", flag: "🇰🇪" },
   { code: "sw", label: "Kiswahili", native: "Kiswahili", flag: "🇹🇿" },
+  { code: "fr", label: "French", native: "Français", flag: "🇨🇩" },
+  { code: "ln", label: "Lingala", native: "Lingála", flag: "🇨🇩" },
+  { code: "rw", label: "Kinyarwanda", native: "Kinyarwanda", flag: "🇷🇼" },
   { code: "ar", label: "Arabic", native: "العربية", flag: "🇸🇩" },
+  { code: "am", label: "Amharic", native: "አማርኛ", flag: "🇪🇹" },
+  { code: "rn", label: "Kirundi", native: "Kirundi", flag: "🇧🇮" },
   { code: "pt", label: "Português", native: "Português", flag: "🇦🇴" },
+  { code: "so", label: "Somali", native: "Soomaali", flag: "🇸🇴" },
+  { code: "ti", label: "Tigrinya", native: "ትግርኛ", flag: "🇪🇷" },
+  { code: "nus", label: "Nuer", native: "Thok Naath", flag: "🇸🇸" },
   { code: "lg", label: "Luganda", native: "Luganda", flag: "🇺🇬" },
 ];
 
