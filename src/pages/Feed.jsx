@@ -9,9 +9,11 @@ import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import DropCard from "@/components/feed/DropCard";
+import SubmitDropModal from "@/components/feed/SubmitDropModal";
 
 export default function Feed() {
   const [user, setUser] = useState(null);
+  const [isDropModalOpen, setIsDropModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -121,7 +123,7 @@ export default function Feed() {
              </div>
              Profile
            </Link>
-           <Link to={createPageUrl("Dashboard")}><Button className="mt-4 bg-[#00CFFF] text-black font-bold rounded-full w-full py-6 text-lg hover:bg-white transition-colors">Post Drop</Button></Link>
+           <Button onClick={() => setIsDropModalOpen(true)} className="mt-4 bg-[#00CFFF] text-black font-bold rounded-full w-full py-6 text-lg hover:bg-white transition-colors">Post Drop</Button>
         </div>
 
         {/* Center Feed */}
@@ -176,7 +178,7 @@ export default function Feed() {
             <div className="text-center py-20 text-gray-500">
               <div className="text-4xl mb-4">✨</div>
               <p>The feed is empty. Be the first to share your light!</p>
-              <Link to={createPageUrl("Dashboard")} className="inline-block mt-4 text-[#00CFFF] hover:underline">Submit a Drop</Link>
+              <button onClick={() => setIsDropModalOpen(true)} className="inline-block mt-4 text-[#00CFFF] hover:underline">Submit a Drop</button>
             </div>
           ) : (
             drops.map(drop => (
@@ -221,6 +223,8 @@ export default function Feed() {
           </div>
         </div>
         
+        <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
+
         {/* Bottom Mobile Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F1A] border-t border-white/10 flex justify-around items-center py-3 px-6 z-50 pb-safe sm:max-w-xl sm:mx-auto sm:border-x lg:hidden">
           <Link to={createPageUrl("Feed")}><Home className="w-6 h-6 text-white" fill="white" /></Link>

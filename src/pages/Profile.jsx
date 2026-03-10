@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
+import SubmitDropModal from "@/components/feed/SubmitDropModal";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
+  const [isDropModalOpen, setIsDropModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ full_name: "", country: "", profile_picture_url: "", cover_picture_url: "" });
   const [activeProfileTab, setActiveProfileTab] = useState("drops");
@@ -122,6 +124,7 @@ export default function Profile() {
           onCrop={handleCropComplete}
         />
       )}
+      <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
       <div className="max-w-4xl mx-auto px-4 relative z-10">
         <div className="flex items-center justify-between mb-8 py-4 bg-[#0B0F1A]">
           <Link to={createPageUrl("Feed")} className="text-gray-400 hover:text-white transition font-medium">← Feed</Link>
@@ -264,9 +267,9 @@ export default function Profile() {
               </div>
               <h2 className="text-2xl font-bold font-['Space_Grotesk'] mb-2">No Drops Yet</h2>
               <p className="text-gray-400 mb-6 text-center max-w-md">When you share verses and reflections, they will appear on your profile grid.</p>
-              <Link to={createPageUrl("Dashboard")} className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition">
+              <button onClick={() => setIsDropModalOpen(true)} className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition">
                 Share your first Drop
-              </Link>
+              </button>
             </div>
           )}
         </div>
