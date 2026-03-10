@@ -105,11 +105,29 @@ export default function Feed() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white pb-20 relative overflow-hidden font-['Inter']">
-      <div className="max-w-xl mx-auto sm:border-x border-white/10 min-h-screen relative z-10 bg-[#0B0F1A]">
+    <div className="min-h-screen bg-[#0B0F1A] text-white pb-20 lg:pb-0 relative overflow-hidden font-['Inter']">
+      <div className="max-w-6xl mx-auto min-h-screen relative z-10 bg-[#0B0F1A] grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        {/* Top Header */}
-        <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A] border-b border-white/10">
+        {/* Left Sidebar (Desktop) */}
+        <div className="hidden lg:flex flex-col gap-8 py-8 px-6 sticky top-[72px] h-[calc(100vh-72px)] border-r border-white/10">
+           <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><Home className="w-7 h-7" /> Home</Link>
+           <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><Search className="w-7 h-7" /> Explore</Link>
+           <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><PlusSquare className="w-7 h-7" /> Dashboard</Link>
+           <Link to={createPageUrl("Resources")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><PlaySquare className="w-7 h-7" /> Resources</Link>
+           <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition">
+             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-xs uppercase font-bold text-white overflow-hidden">
+               {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
+             </div>
+             Profile
+           </Link>
+           <Link to={createPageUrl("Dashboard")}><Button className="mt-4 bg-[#00CFFF] text-black font-bold rounded-full w-full py-6 text-lg hover:bg-white transition-colors">Post Drop</Button></Link>
+        </div>
+
+        {/* Center Feed */}
+        <div className="lg:col-span-2 sm:border-x border-white/10 min-h-screen lg:border-none">
+          
+          {/* Top Header Mobile */}
+          <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A] border-b border-white/10 lg:hidden">
           <h1 className="text-2xl font-bold font-['Space_Grotesk'] text-white" style={{ fontFamily: 'var(--font-cursive, cursive)'}}>LightMode</h1>
           <div className="flex gap-4 items-center">
             <div className="relative cursor-pointer">
@@ -126,8 +144,8 @@ export default function Feed() {
         <div className="flex gap-4 overflow-x-auto px-4 py-3 border-b border-white/10 hide-scrollbar bg-[#0B0F1A]">
           <div className="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
             <div className="w-16 h-16 rounded-full border border-gray-600 flex items-center justify-center relative p-[2px]">
-               <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-lg font-bold uppercase">
-                 {user?.full_name?.charAt(0)}
+               <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-lg font-bold uppercase overflow-hidden">
+                 {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
                </div>
                <div className="absolute bottom-0 right-0 bg-[#00CFFF] rounded-full p-0.5 border-2 border-[#0B0F1A]">
                  <Plus className="w-3 h-3 text-black" />
@@ -173,15 +191,44 @@ export default function Feed() {
           )}
         </div>
         
+        </div>
+
+        {/* Right Sidebar (Desktop) */}
+        <div className="hidden lg:block py-8 px-6 sticky top-[72px] h-[calc(100vh-72px)] border-l border-white/10">
+          <h3 className="font-bold text-lg mb-6 text-gray-400">Suggested Believers</h3>
+          <div className="space-y-6">
+            {users.filter(u => u.email !== user?.email).slice(0, 5).map(u => (
+              <div key={u.id} className="flex items-center justify-between">
+                 <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden flex items-center justify-center font-bold text-sm">
+                      {u.profile_picture_url ? <img src={u.profile_picture_url} className="w-full h-full object-cover" /> : u.full_name?.charAt(0)}
+                   </div>
+                   <div className="text-sm">
+                     <div className="font-bold text-white truncate max-w-[120px]">{u.full_name}</div>
+                     <div className="text-gray-500 text-xs">{u.country || 'Global'}</div>
+                   </div>
+                 </div>
+                 <button className="text-xs text-[#00CFFF] font-bold hover:text-white transition">Follow</button>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-10 p-5 bg-[#121826] rounded-2xl border border-white/5">
+            <h4 className="font-bold text-white mb-2">Daily Verse 📖</h4>
+            <p className="text-sm text-gray-400 italic">"I can do all things through Christ who strengthens me."</p>
+            <p className="text-xs text-[#00CFFF] mt-2">- Philippians 4:13</p>
+          </div>
+        </div>
+        
         {/* Bottom Mobile Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F1A] border-t border-white/10 flex justify-around items-center py-3 px-6 z-50 pb-safe sm:max-w-xl sm:mx-auto sm:border-x">
+        <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F1A] border-t border-white/10 flex justify-around items-center py-3 px-6 z-50 pb-safe sm:max-w-xl sm:mx-auto sm:border-x lg:hidden">
           <Link to={createPageUrl("Feed")}><Home className="w-6 h-6 text-white" fill="white" /></Link>
           <Link to={createPageUrl("GlowGroups")}><Search className="w-6 h-6 text-white" /></Link>
           <Link to={createPageUrl("Dashboard")}><PlusSquare className="w-6 h-6 text-white" /></Link>
           <Link to={createPageUrl("Resources")}><PlaySquare className="w-6 h-6 text-white" /></Link>
           <Link to={createPageUrl("Profile")}>
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/20 flex items-center justify-center text-[10px] uppercase font-bold text-white">
-              {user?.full_name?.charAt(0)}
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/20 flex items-center justify-center text-[10px] uppercase font-bold text-white overflow-hidden">
+              {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
             </div>
           </Link>
         </div>

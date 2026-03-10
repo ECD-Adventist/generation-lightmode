@@ -59,7 +59,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       <div className="flex items-center justify-between p-3">
         <div className="flex items-center gap-3 cursor-pointer">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/20 flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
-            {dropUser.full_name?.charAt(0) || "?"}
+            {dropUser.profile_picture_url ? <img src={dropUser.profile_picture_url} className="w-full h-full object-cover" /> : (dropUser.full_name?.charAt(0) || "?")}
           </div>
           <div>
             <div className="font-bold font-['Inter'] text-sm flex items-center gap-1.5 text-white">

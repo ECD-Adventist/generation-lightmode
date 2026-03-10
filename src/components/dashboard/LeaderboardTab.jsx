@@ -5,6 +5,7 @@ import { Trophy, Medal, Calendar, CalendarDays, Globe } from "lucide-react";
 
 export default function LeaderboardTab({ user }) {
   const [timeRange, setTimeRange] = useState('all-time');
+  const [region, setRegion] = useState('global');
   
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["leaderboardUsers"],
@@ -14,10 +15,15 @@ export default function LeaderboardTab({ user }) {
   // Since glow_score is total, we simulate the time-based leaderboards for the community effect
   // In a real app, this would query a score history table.
   const displayUsers = React.useMemo(() => {
-    if (timeRange === 'all-time') return users.slice(0, 10);
+    let filteredUsers = users;
+    if (region === 'regional' && user?.country) {
+      filteredUsers = users.filter(u => u.country === user.country);
+    }
+
+    if (timeRange === 'all-time') return filteredUsers.slice(0, 10);
     
     // Create a deterministic but varied sub-list for Today/Week based on user id
-    return [...users]
+    return [...filteredUsers]
       .map(u => ({
         ...u,
         displayScore: timeRange === 'today' 
@@ -47,8 +53,23 @@ export default function LeaderboardTab({ user }) {
             </div>
           </div>
           
-          <div className="flex bg-[#0B0F1A] p-1.5 rounded-xl border border-white/10 shrink-0">
-            <button 
+          <div className="flex flex-col sm:flex-row gap-4 shrink-0">
+            <div className="flex bg-[#0B0F1A] p-1.5 rounded-xl border border-white/10 shrink-0">
+              <button 
+                onClick={() => setRegion('global')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${region === 'global' ? 'bg-[#FFD000]/20 text-[#FFD000]' : 'text-gray-500 hover:text-gray-300'}`}
+              >
+                Global
+              </button>
+              <button 
+                onClick={() => setRegion('regional')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${region === 'regional' ? 'bg-[#FFD000]/20 text-[#FFD000]' : 'text-gray-500 hover:text-gray-300'}`}
+              >
+                Regional
+              </button>
+            </div>
+            <div className="flex bg-[#0B0F1A] p-1.5 rounded-xl border border-white/10 shrink-0">
+              <button 
               onClick={() => setTimeRange('today')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${timeRange === 'today' ? 'bg-gradient-to-r from-[#00CFFF]/20 to-[#8A5CFF]/20 text-white shadow-[0_0_15px_rgba(0,207,255,0.2)]' : 'text-gray-500 hover:text-gray-300'}`}
             >
@@ -66,6 +87,7 @@ export default function LeaderboardTab({ user }) {
             >
               <Globe className="w-4 h-4" /> All-Time
             </button>
+          </div>
           </div>
         </div>
 
@@ -103,8 +125,8 @@ export default function LeaderboardTab({ user }) {
                       </td>
                       <td className="py-5 px-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 border border-white/10 flex items-center justify-center text-white font-bold shadow-inner">
-                            {u.full_name.charAt(0)}
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 border border-white/10 flex items-center justify-center text-white font-bold shadow-inner overflow-hidden">
+                            {u.profile_picture_url ? <img src={u.profile_picture_url} className="w-full h-full object-cover" /> : u.full_name.charAt(0)}
                           </div>
                           <div>
                             <div className={`font-bold font-['Inter'] text-base flex items-center gap-2 ${isTop3 ? 'text-white' : 'text-gray-200'}`}>

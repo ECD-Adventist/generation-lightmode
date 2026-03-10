@@ -7,6 +7,7 @@ import LeaderboardTab from "../components/dashboard/LeaderboardTab";
 import SubmitDropTab from "../components/dashboard/SubmitDropTab";
 import ChallengesTab from "../components/dashboard/ChallengesTab";
 import GlowGroupsTab from "../components/dashboard/GlowGroupsTab";
+import PrayerRequestsTab from "../components/dashboard/PrayerRequestsTab";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -78,7 +79,8 @@ export default function Dashboard() {
               { id: 'drops', label: 'Submit Drop', icon: '✨' },
               { id: 'challenges', label: 'Challenges', icon: '🎯' },
               { id: 'glowgroups', label: 'GlowGroups', icon: '👥' },
-              { id: 'leaderboard', label: 'Leaderboard', icon: '🏆' }
+              { id: 'leaderboard', label: 'Leaderboard', icon: '🏆' },
+              { id: 'prayer', label: 'Prayer Requests', icon: '🙏' }
             ].map(tab => (
               <TabsTrigger 
                 key={tab.id}
@@ -104,6 +106,9 @@ export default function Dashboard() {
           </TabsContent>
           <TabsContent value="leaderboard">
             <LeaderboardTab user={user} />
+          </TabsContent>
+          <TabsContent value="prayer">
+            <PrayerRequestsTab user={user} />
           </TabsContent>
         </Tabs>
       </div>
