@@ -64,11 +64,7 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
     try {
       if (file) {
         setAnalyzing(true);
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        await new Promise(r => reader.onload = r);
-        
-        const uploadRes = await base44.integrations.Core.UploadFile({ file: reader.result });
+        const uploadRes = await base44.integrations.Core.UploadFile({ file: file });
         uploadedMediaUrl = uploadRes.file_url;
       }
 
@@ -137,7 +133,7 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
 
           <div className="space-y-2">
             <Label className="text-gray-300 font-semibold uppercase tracking-wider text-xs ml-1">Attach Media (Optional)</Label>
-            <Input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl focus-visible:ring-[#00CFFF]/50 focus-visible:border-[#00CFFF] transition-all file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
+            <Input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-white text-sm h-auto px-3 py-3 rounded-xl focus-visible:ring-[#00CFFF]/50 focus-visible:border-[#00CFFF] transition-all file:bg-[#121826] file:text-white file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
           </div>
           
           <Button type="submit" disabled={loading} className="w-full h-12 bg-[#00CFFF] hover:bg-white text-black font-bold text-lg rounded-xl transition-all hover:scale-[1.02]">
