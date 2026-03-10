@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Settings, Grid, Bookmark, Award, Heart, MessageCircle, Camera } from "lucide-react";
@@ -13,6 +13,9 @@ export default function Profile() {
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ full_name: "", country: "", profile_picture_url: "", cover_picture_url: "" });
+  const [activeProfileTab, setActiveProfileTab] = useState("drops");
+  const profileInputRef = useRef(null);
+  const coverInputRef = useRef(null);
 
   useEffect(() => {
     async function checkAuth() {
@@ -38,6 +41,12 @@ export default function Profile() {
   const { data: myDrops = [], isLoading: dropsLoading } = useQuery({
     queryKey: ["myGlowDropsProfile", user?.email],
     queryFn: () => base44.entities.GlowDrop.filter({ user_email: user.email }, '-created_date'),
+    enabled: !!user
+  });
+
+  const { data: mySupports = [] } = useQuery({
+    queryKey: ["mySupports", user?.email],
+    queryFn: () => base44.entities.PrayerSupport.filter({ user_email: user.email }),
     enabled: !!user
   });
 
@@ -119,7 +128,7 @@ export default function Profile() {
         <div 
           className="w-full h-48 sm:h-64 rounded-2xl mb-8 bg-[#121826] border border-white/5 overflow-hidden relative group cursor-pointer"
           style={user.cover_picture_url ? { backgroundImage: `url(${user.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-          onClick={() => document.getElementById('cover-upload-direct').click()}
+          onClick={() => coverInputRef.current?.click()}
         >
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
             <div className="flex items-center gap-2 text-white font-bold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
@@ -132,13 +141,13 @@ export default function Profile() {
             </div>
           )}
         </div>
-        <input type="file" id="cover-upload-direct" accept="image/*" className="hidden" onChange={e => handleImageUpload(e, "cover")} disabled={uploadingImage} />
+        <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={e => handleImageUpload(e, "cover")} disabled={uploadingImage} />
 
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-white/5 pb-12 -mt-20 sm:-mt-24 relative z-10 px-4">
           <div 
             className="w-32 h-32 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-1 flex-shrink-0 shadow-[0_0_30px_rgba(0,207,255,0.3)] overflow-hidden group cursor-pointer relative"
-            onClick={() => document.getElementById('profile-upload-direct').click()}
+            onClick={() => profileInputRef.current?.click()}
           >
             <div className="w-full h-full rounded-full bg-[#121826] border-4 border-[#0B0F1A] flex items-center justify-center text-5xl font-bold font-['Space_Grotesk'] uppercase overflow-hidden relative">
               {user.profile_picture_url ? (
@@ -152,7 +161,7 @@ export default function Profile() {
               </div>
             </div>
           </div>
-          <input type="file" id="profile-upload-direct" accept="image/*" className="hidden" onChange={e => handleImageUpload(e, "profile")} disabled={uploadingImage} />
+          <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={e => handleImageUpload(e, "profile")} disabled={uploadingImage} />
           
           <div className="flex-1 text-center md:text-left mt-4 md:mt-16">
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
@@ -209,18 +218,15 @@ export default function Profile() {
 
         {/* Tabs */}
         <div className="flex border-t border-white/10 mb-2">
-          <div className="flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] border-[#00CFFF] -mt-[2px] text-white font-bold tracking-widest text-xs cursor-pointer">
+          <div onClick={() => setActiveProfileTab("drops")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition ${activeProfileTab === "drops" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
             <Grid className="w-4 h-4" /> DROPS
           </div>
-          <div className="flex-1 py-4 flex items-center justify-center gap-2 text-gray-500 hover:text-gray-300 font-bold tracking-widest text-xs cursor-pointer transition">
-            <Bookmark className="w-4 h-4" /> SAVED
-          </div>
-          <div className="flex-1 py-4 flex items-center justify-center gap-2 text-gray-500 hover:text-gray-300 font-bold tracking-widest text-xs cursor-pointer transition">
+          <div onClick={() => setActiveProfileTab("badges")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition ${activeProfileTab === "badges" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
             <Award className="w-4 h-4" /> BADGES
           </div>
         </div>
 
-        {/* Grid (Instagram profile style) */}
+        {activeProfileTab === "drops" && (
         <div className="grid grid-cols-3 gap-1 sm:gap-2 md:gap-4">
           {myDrops.map(drop => (
             <div key={drop.id} className="aspect-square bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-white/5 relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-4 text-center rounded-sm sm:rounded-xl">
@@ -252,6 +258,32 @@ export default function Profile() {
             </div>
           )}
         </div>
+        )}
+
+        {activeProfileTab === "badges" && (
+           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 py-8">
+             {(() => {
+                const badges = [];
+                if (user.glow_score >= 100) badges.push({ id: 'gs100', name: 'Spark', desc: 'Reached 100 Glow Score', icon: '⚡' });
+                if (user.glow_score >= 500) badges.push({ id: 'gs500', name: 'Flame', desc: 'Reached 500 Glow Score', icon: '🔥' });
+                if (myDrops.some(d => {
+                  if (!d.created_date) return false;
+                  const h = new Date(d.created_date).getHours();
+                  return h >= 4 && h <= 7;
+                })) badges.push({ id: 'early', name: 'Early Riser', desc: 'Posted a drop between 4 AM and 7 AM', icon: '🌅' });
+                if (mySupports.length >= 50) badges.push({ id: 'warrior', name: 'Prayer Warrior', desc: 'Supported 50+ prayer requests', icon: '🛡️' });
+                if (user.role === 'GlowGroup Leader') badges.push({ id: 'pillar', name: 'Community Pillar', desc: 'Active community leader', icon: '🏛️' });
+                
+                return badges.length > 0 ? badges.map(b => (
+                  <div key={b.id} className="bg-[#121826]/80 p-6 rounded-2xl border border-[#00CFFF]/20 text-center flex flex-col items-center shadow-[0_0_15px_rgba(0,207,255,0.1)]">
+                    <div className="text-5xl mb-4 drop-shadow-md">{b.icon}</div>
+                    <div className="font-bold text-[#00CFFF] text-lg">{b.name}</div>
+                    <div className="text-sm text-gray-400 mt-2 leading-relaxed">{b.desc}</div>
+                  </div>
+                )) : <div className="col-span-full text-center text-gray-500 py-10 bg-[#121826]/50 rounded-2xl border border-white/5">Keep glowing to earn badges! Complete challenges and support prayers.</div>;
+             })()}
+           </div>
+        )}
       </div>
     </div>
   );

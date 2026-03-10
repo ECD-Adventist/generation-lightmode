@@ -9,6 +9,7 @@ import { formatDistanceToNow } from "date-fns";
 
 export default function PrayerRequestsTab({ user }) {
   const [content, setContent] = useState("");
+  const [category, setCategory] = useState("Other");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const queryClient = useQueryClient();
 
@@ -34,10 +35,12 @@ export default function PrayerRequestsTab({ user }) {
       await base44.entities.PrayerRequest.create({
         user_email: user.email,
         content,
+        category,
         is_anonymous: isAnonymous,
         answered: false
       });
       setContent("");
+      setCategory("Other");
       setIsAnonymous(false);
       toast.success("Prayer request posted!");
       queryClient.invalidateQueries({ queryKey: ["prayerRequests"] });
@@ -94,11 +97,20 @@ export default function PrayerRequestsTab({ user }) {
             placeholder="What can the community pray for?" 
             className="bg-[#0B0F1A] border-white/10 text-white min-h-[100px] text-lg rounded-xl p-4"
           />
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer hover:text-white transition">
-              <input type="checkbox" checked={isAnonymous} onChange={e => setIsAnonymous(e.target.checked)} className="rounded bg-[#0B0F1A] border-white/10 w-4 h-4" />
-              Post Anonymously
-            </label>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <select value={category} onChange={e => setCategory(e.target.value)} className="bg-[#0B0F1A] border border-white/10 text-white rounded-xl px-4 py-2 text-sm outline-none focus:border-[#00CFFF]">
+                <option value="Health">Health</option>
+                <option value="Family">Family</option>
+                <option value="Finance">Finance</option>
+                <option value="Guidance">Guidance</option>
+                <option value="Other">Other</option>
+              </select>
+              <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer hover:text-white transition">
+                <input type="checkbox" checked={isAnonymous} onChange={e => setIsAnonymous(e.target.checked)} className="rounded bg-[#0B0F1A] border-white/10 w-4 h-4 accent-[#00CFFF]" />
+                Post Anonymously
+              </label>
+            </div>
             <Button type="submit" disabled={!content.trim()} className="bg-[#00CFFF] text-black hover:bg-white font-bold rounded-xl px-6">Post Request</Button>
           </div>
         </form>
@@ -124,7 +136,10 @@ export default function PrayerRequestsTab({ user }) {
                       {req.is_anonymous ? 'Anonymous Believer' : reqUser?.full_name}
                       {req.answered && <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full flex items-center gap-1 font-medium"><CheckCircle2 className="w-3 h-3" /> Answered</span>}
                     </div>
-                    <div className="text-sm text-gray-500">{req.created_date ? formatDistanceToNow(new Date(req.created_date)) + ' ago' : 'Recently'}</div>
+                    <div className="text-sm text-gray-500 flex items-center gap-2">
+                      {req.created_date ? formatDistanceToNow(new Date(req.created_date)) + ' ago' : 'Recently'}
+                      {req.category && <span className="bg-white/10 text-xs px-2 py-0.5 rounded text-gray-300">{req.category}</span>}
+                    </div>
                   </div>
                 </div>
                 {(isMine || isLeader) && !req.answered && (
