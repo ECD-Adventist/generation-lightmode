@@ -7,9 +7,11 @@ import { Target, Star } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ChallengesTab({ user }) {
+  const [activeTab, setActiveTab] = React.useState("active");
+
   const { data: challenges = [] } = useQuery({
     queryKey: ["challenges"],
-    queryFn: () => base44.entities.Challenge.filter({ active: true })
+    queryFn: () => base44.entities.Challenge.list()
   });
 
   const { data: submissions = [], refetch } = useQuery({
@@ -35,26 +37,37 @@ export default function ChallengesTab({ user }) {
 
   const hasParticipated = (challengeId) => submissions.some(s => s.challenge_id === challengeId);
 
+  const activeChallenges = challenges.filter(c => c.active);
+  const historyChallenges = challenges.filter(c => hasParticipated(c.id));
+
+  const displayChallenges = activeTab === "active" ? activeChallenges : historyChallenges;
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 rounded-2xl bg-[#FFD000]/10 flex items-center justify-center border border-[#FFD000]/30 shadow-[0_0_15px_rgba(255,208,0,0.15)]">
-          <Target className="text-[#FFD000] w-6 h-6" />
+      <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-8 border-b border-white/5 pb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-[#FFD000]/10 flex items-center justify-center border border-[#FFD000]/30 shadow-[0_0_15px_rgba(255,208,0,0.15)]">
+            <Target className="text-[#FFD000] w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-bold font-['Space_Grotesk'] text-white">Campaigns</h2>
+            <p className="text-sm text-[#FFD000] font-medium font-['Inter'] mt-1">Join the global movement, earn points</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-3xl font-bold font-['Space_Grotesk'] text-white">Active Campaigns</h2>
-          <p className="text-sm text-[#FFD000] font-medium font-['Inter'] mt-1">Join the global movement, earn points</p>
+        <div className="flex bg-[#121826]/80 p-1 rounded-xl border border-white/10 shrink-0">
+          <button onClick={() => setActiveTab("active")} className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === "active" ? "bg-[#FFD000] text-black shadow-md" : "text-gray-400 hover:text-white"}`}>Active Missions</button>
+          <button onClick={() => setActiveTab("history")} className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === "history" ? "bg-[#FFD000] text-black shadow-md" : "text-gray-400 hover:text-white"}`}>Challenge History</button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {challenges.length === 0 ? (
+        {displayChallenges.length === 0 ? (
           <div className="col-span-full bg-[#121826]/50 border border-white/5 rounded-2xl p-12 text-center">
             <p className="text-gray-400 text-lg font-['Inter']">No active challenges right now.</p>
             <p className="text-[#00CFFF] mt-2 font-bold font-['Space_Grotesk']">Keep glowing daily!</p>
           </div>
         ) : (
-          challenges.map(c => {
+          displayChallenges.map(c => {
             const participated = hasParticipated(c.id);
             return (
               <div key={c.id} className="relative group overflow-hidden rounded-2xl bg-[#121826]/80 backdrop-blur-xl border border-white/10 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)] hover:border-[#8A5CFF]/40">

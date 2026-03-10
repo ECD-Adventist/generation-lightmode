@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Heart, MessageCircle, Share2, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -54,66 +54,77 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   };
 
   return (
-    <div className="bg-[#121826]/80 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-xl">
+    <div className="bg-[#0B0F1A] border-b border-white/10 sm:border sm:rounded-2xl sm:mb-6 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/5">
+      <div className="flex items-center justify-between p-3">
         <div className="flex items-center gap-3 cursor-pointer">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/20 flex items-center justify-center font-bold text-sm uppercase">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/20 flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
             {dropUser.full_name?.charAt(0) || "?"}
           </div>
           <div>
-            <div className="font-bold font-['Inter'] text-sm flex items-center gap-1.5">
+            <div className="font-bold font-['Inter'] text-sm flex items-center gap-1.5 text-white">
               {dropUser.full_name}
               {drop.status === 'approved' && <span className="w-3.5 h-3.5 bg-blue-500 rounded-full flex items-center justify-center text-[8px] text-white" title="Approved Drop">✓</span>}
             </div>
-            <div className="text-xs text-gray-500">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date), {addSuffix: true}) : 'Recently'}</div>
+            <div className="text-xs text-gray-500 flex items-center gap-1">♫ Faith Always On • Original Audio</div>
           </div>
         </div>
-        <MoreHorizontal className="text-gray-400 w-5 h-5 cursor-pointer" />
+        <MoreHorizontal className="text-white w-5 h-5 cursor-pointer" />
       </div>
 
-      {/* Content */}
+      {/* Content Image / Video area */}
       <div 
-        className="p-8 bg-gradient-to-br from-[#0B0F1A] to-[#121826] aspect-square flex flex-col justify-center items-center text-center relative group border-b border-white/5"
+        className="w-full aspect-[4/5] bg-gradient-to-br from-[#121826] to-[#0B0F1A] flex flex-col justify-center items-center text-center relative group"
         style={drop.media_url ? { backgroundImage: `url(${drop.media_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+        onDoubleClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name})}
       >
-        {drop.media_url && <div className="absolute inset-0 bg-black/50" />}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 cursor-pointer" onDoubleClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name})}>
-          <Heart className="w-20 h-20 text-white drop-shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300" />
+        {!drop.media_url && (
+          <div className="p-8 relative z-0">
+            <h2 className="text-2xl sm:text-3xl font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-6 leading-tight">
+              {drop.verse}
+            </h2>
+            <p className="text-base sm:text-lg text-white font-['Inter'] leading-relaxed max-w-sm">
+              "{drop.reflection}"
+            </p>
+          </div>
+        )}
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 pointer-events-none">
+          <Heart className="w-24 h-24 text-white drop-shadow-2xl transform scale-90 group-hover:scale-100 transition-transform duration-300" />
         </div>
-        <h2 className="text-2xl sm:text-3xl font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-6 relative z-0 leading-tight">
-          {drop.verse}
-        </h2>
-        <p className="text-base sm:text-lg text-white font-['Inter'] leading-relaxed relative z-0 max-w-sm">
-          "{drop.reflection}"
-        </p>
       </div>
 
       {/* Actions */}
-      <div className="p-4">
-        <div className="flex justify-between items-center mb-3">
-          <div className="flex gap-4">
-            <button onClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name})} className="hover:scale-110 transition-transform focus:outline-none">
+      <div className="p-3">
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex gap-4 items-center">
+            <button onClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name})} className="hover:opacity-70 transition-opacity focus:outline-none">
               <Heart className={`w-6 h-6 ${drop.likes_count > 0 ? "text-red-500 fill-red-500" : "text-white"}`} />
             </button>
-            <button onClick={() => setShowComments(!showComments)} className="hover:scale-110 transition-transform focus:outline-none">
+            <button onClick={() => setShowComments(!showComments)} className="hover:opacity-70 transition-opacity focus:outline-none">
               <MessageCircle className="w-6 h-6 text-white" />
             </button>
-            <button onClick={() => handleShare(drop)} className="hover:scale-110 transition-transform focus:outline-none">
+            <button onClick={() => handleShare(drop)} className="hover:opacity-70 transition-opacity focus:outline-none">
               <Share2 className="w-6 h-6 text-white" />
             </button>
           </div>
+          <button className="hover:opacity-70 transition-opacity focus:outline-none">
+            <Bookmark className="w-6 h-6 text-white" />
+          </button>
         </div>
         
-        <div className="font-bold text-sm mb-2">{drop.likes_count || 0} likes</div>
+        <div className="font-bold text-sm text-white mb-1">{drop.likes_count || 0} likes</div>
         
-        <div className="text-sm text-gray-300">
-          <span className="font-bold mr-2 text-white">{dropUser.full_name}</span>
-          <span className="text-gray-400">Faith always on! Check out my reflection.</span>
+        <div className="text-sm text-white">
+          <span className="font-bold mr-2">{dropUser.full_name}</span>
+          {drop.media_url ? (
+            <span>{drop.verse} - {drop.reflection}</span>
+          ) : (
+            <span>#FaithAlwaysOn</span>
+          )}
         </div>
         
         {drop.hashtags && (
-          <div className="text-sm mt-2 text-[#00CFFF]">
+          <div className="text-sm mt-1 text-[#00CFFF]">
             {drop.hashtags.split(' ').map(t => t.startsWith('#') ? t : `#${t}`).join(' ')}
           </div>
         )}

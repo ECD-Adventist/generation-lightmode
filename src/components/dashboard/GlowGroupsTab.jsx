@@ -7,11 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
+import GlowGroupChat from "./GlowGroupChat";
+import GlowGroupEvents from "./GlowGroupEvents";
 
 export default function GlowGroupsTab({ user }) {
   const [creating, setCreating] = useState(false);
   const [groupData, setGroupData] = useState({ name: "", country: "", description: "" });
   const [activeGroup, setActiveGroup] = useState(null);
+  const [groupTab, setGroupTab] = useState("feed");
 
   const { data: myGroups = [], refetch } = useQuery({
     queryKey: ["myGroups", user.email],
@@ -136,14 +139,20 @@ export default function GlowGroupsTab({ user }) {
       ) : (
         <div className="bg-[#121826]/50 border border-white/10 rounded-2xl overflow-hidden">
           <div className="flex border-b border-white/10">
-            <button className="flex-1 py-4 font-bold text-[#00CFFF] border-b-2 border-[#00CFFF]">Group Feed</button>
-            <button className="flex-1 py-4 font-bold text-gray-400 hover:text-white transition">Chat</button>
-            <button className="flex-1 py-4 font-bold text-gray-400 hover:text-white transition">Events</button>
+            <button onClick={() => setGroupTab('feed')} className={`flex-1 py-4 font-bold transition ${groupTab === 'feed' ? 'text-[#00CFFF] border-b-2 border-[#00CFFF]' : 'text-gray-400 hover:text-white'}`}>Group Feed</button>
+            <button onClick={() => setGroupTab('chat')} className={`flex-1 py-4 font-bold transition ${groupTab === 'chat' ? 'text-[#00CFFF] border-b-2 border-[#00CFFF]' : 'text-gray-400 hover:text-white'}`}>Chat</button>
+            <button onClick={() => setGroupTab('events')} className={`flex-1 py-4 font-bold transition ${groupTab === 'events' ? 'text-[#00CFFF] border-b-2 border-[#00CFFF]' : 'text-gray-400 hover:text-white'}`}>Events</button>
           </div>
-          <div className="p-8 text-center text-gray-400">
-            <div className="text-4xl mb-4">🌱</div>
-            <p>Your group's private feed is growing here. Share updates, prayers, and Glow Drops with your members.</p>
-            <Button className="mt-6 bg-[#00CFFF]/20 text-[#00CFFF] hover:bg-[#00CFFF]/30">Post to Group</Button>
+          <div className="p-6">
+            {groupTab === 'feed' && (
+              <div className="text-center text-gray-400 py-8">
+                <div className="text-4xl mb-4">🌱</div>
+                <p>Your group's private feed is growing here. Share updates, prayers, and Glow Drops with your members.</p>
+                <Button className="mt-6 bg-[#00CFFF]/20 text-[#00CFFF] hover:bg-[#00CFFF]/30">Post to Group</Button>
+              </div>
+            )}
+            {groupTab === 'chat' && <GlowGroupChat group={activeGroup} user={user} />}
+            {groupTab === 'events' && <GlowGroupEvents group={activeGroup} user={user} />}
           </div>
         </div>
       )}
