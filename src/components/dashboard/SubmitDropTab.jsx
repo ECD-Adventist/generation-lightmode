@@ -123,14 +123,31 @@ export default function SubmitDropTab({ user }) {
               className="bg-[#0B0F1A] border-white/10 text-[#FFD000] text-base py-6 px-4 rounded-xl focus-visible:ring-[#FFD000]/50 focus-visible:border-[#FFD000] transition-all" 
             />
           </div>
+
+          <div className="space-y-2">
+            <Label className="text-gray-300 font-semibold uppercase tracking-wider text-xs ml-1">Engagement Screenshot (Optional)</Label>
+            <p className="text-xs text-gray-400 ml-1 mb-2">Upload a screenshot showing likes, shares, or saves to earn extra impact points!</p>
+            <Input 
+              type="file" 
+              accept="image/*"
+              onChange={e => setFile(e.target.files[0])} 
+              className="bg-[#0B0F1A] border-white/10 text-white text-base py-3 px-4 rounded-xl focus-visible:ring-[#00CFFF]/50 focus-visible:border-[#00CFFF] transition-all file:bg-[#00CFFF]/20 file:text-[#00CFFF] file:border-0 file:rounded-lg file:px-4 file:py-1 file:mr-4 file:font-semibold hover:file:bg-[#00CFFF]/30" 
+            />
+          </div>
           
           <Button 
             type="submit" 
             disabled={loading} 
             className="w-full h-14 mt-4 bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] hover:opacity-90 text-[#0B0F1A] text-lg font-bold font-['Space_Grotesk'] rounded-xl border-none shadow-[0_0_20px_rgba(0,207,255,0.4)] transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(138,92,255,0.6)]"
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <span className="mr-2">⚡</span>}
-            Post Glow Drop
+            {loading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin mr-2" /> 
+                {analyzing ? "Analyzing Screenshot..." : "Posting..."}
+              </>
+            ) : (
+              <><span className="mr-2">⚡</span> Post Glow Drop</>
+            )}
           </Button>
         </form>
       </div>
