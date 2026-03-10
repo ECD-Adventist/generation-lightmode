@@ -56,7 +56,7 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-[#0B0F1A] text-white pt-8 pb-20 relative overflow-hidden">
       <div className="max-w-4xl mx-auto px-4 relative z-10">
-        <div className="flex items-center justify-between mb-8 sticky top-20 z-50 bg-[#0B0F1A]/80 backdrop-blur-md py-4">
+        <div className="flex items-center justify-between mb-8 py-4">
           <Link to={createPageUrl("Feed")} className="text-gray-400 hover:text-white transition font-medium">← Feed</Link>
           <div className="font-bold text-lg">{user.email}</div>
           <div className="flex gap-4">
