@@ -7,6 +7,9 @@ import { useAppLanguage } from "./components/i18n/useAppLanguage";
 
 const navLinks = [
   { key: "home", page: "Home" },
+  { key: "feed", page: "Feed" },
+  { key: "dashboard", page: "Dashboard" },
+  { key: "profile", page: "Profile" },
   { key: "about", page: "About" },
   { key: "challenges", page: "Challenges" },
   { key: "glowGroups", page: "GlowGroups" },
@@ -242,7 +245,7 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl(link.page)}
                 className={`nav-link ${currentPageName === link.page ? "active" : ""}`}
               >
-                {t(link.key)}
+                {t(link.key) || link.page}
               </Link>
             ))}
             {/* Resources Dropdown */}
@@ -281,7 +284,7 @@ export default function Layout({ children, currentPageName }) {
               )}
             </div>
             <LanguageSelector />
-            <a href="#join" className="glm-btn-primary" style={{ padding: "10px 24px", fontSize: 14 }}>
+            <a href={createPageUrl("Feed")} className="glm-btn-primary" style={{ padding: "10px 24px", fontSize: 14 }}>
               {t("joinNow")}
             </a>
           </div>
@@ -321,7 +324,7 @@ export default function Layout({ children, currentPageName }) {
             <Link to={createPageUrl("Resources") + "?tab=downloads"} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
               📥 {t("downloads")}
             </Link>
-            <a href="#join" className="glm-btn-primary" style={{ display: "block", textAlign: "center", marginTop: 20 }}>
+            <a href={createPageUrl("Feed")} className="glm-btn-primary" style={{ display: "block", textAlign: "center", marginTop: 20 }}>
               {t("joinNow")}
             </a>
           </div>
@@ -379,7 +382,7 @@ export default function Layout({ children, currentPageName }) {
             <div>
               <h4 className="glm-headline" style={{ fontSize: 16, color: "#FFD000", marginBottom: 16 }}>{t("joinMovement")}</h4>
               <p className="glm-body" style={{ fontSize: 14, marginBottom: 16 }}>{t("ready")}</p>
-              <a href={createPageUrl("Dashboard")} className="glm-btn-primary" style={{ fontSize: 14, padding: "12px 24px" }}>
+              <a href={createPageUrl("Feed")} className="glm-btn-primary" style={{ fontSize: 14, padding: "12px 24px" }}>
                 {t("getStarted")}
               </a>
             </div>
