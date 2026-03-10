@@ -62,8 +62,9 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         onDoubleClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name})}
       >
         {/* Gradient Overlays for readability */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/70 to-transparent pointer-events-none z-0" />
-        <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-black/90 via-black/50 to-transparent pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-black/20 pointer-events-none z-0" />
+        <div className="absolute bottom-0 left-0 right-0 h-3/5 bg-gradient-to-t from-black/100 via-black/70 to-transparent pointer-events-none z-0" />
 
         {/* User Pill (Top Left) */}
         <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/10 rounded-full pr-4 pl-1 py-1 cursor-pointer hover:bg-black/50 transition">
@@ -83,14 +84,14 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         {/* Text Content (if no media) */}
         {!drop.media_url && (
-          <div className="p-8 relative z-10 w-full h-full flex flex-col items-center justify-center">
+          <div className="p-8 relative z-10 w-full h-full flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
             {drop.verse && (
-              <h2 className="text-2xl sm:text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] mb-6 leading-tight drop-shadow-lg">
+              <h2 className="text-2xl sm:text-4xl font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-6 leading-tight drop-shadow-[0_2px_8px_rgba(0,207,255,0.4)]">
                 {drop.verse}
               </h2>
             )}
             {drop.reflection && (
-              <p className="text-lg sm:text-xl text-white font-['Inter'] leading-relaxed max-w-md drop-shadow-md">
+              <p className="text-lg sm:text-xl text-white font-['Inter'] leading-relaxed max-w-md drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-medium">
                 "{drop.reflection}"
               </p>
             )}
@@ -143,10 +144,14 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         {/* Text Content overlay for Media (Bottom Left) */}
         {drop.media_url && (drop.verse || drop.reflection) && (
           <div className="absolute bottom-4 left-4 right-16 z-20 text-left pointer-events-none">
-            <div className="pointer-events-auto">
-              {drop.verse && <div className="font-bold text-[#00CFFF] text-base drop-shadow-md mb-1">{drop.verse}</div>}
+            <div className="pointer-events-auto flex flex-col items-start gap-2">
+              {drop.verse && (
+                <div className="font-bold text-[#00CFFF] text-sm sm:text-base drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 shadow-lg">
+                  {drop.verse}
+                </div>
+              )}
               {drop.reflection && (
-                <div className="text-sm text-gray-100 drop-shadow-md line-clamp-2 hover:line-clamp-none transition-all cursor-pointer bg-black/20 backdrop-blur-sm p-2 rounded-xl border border-white/10 inline-block">
+                <div className="text-sm text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] line-clamp-3 hover:line-clamp-none transition-all cursor-pointer bg-black/60 backdrop-blur-md px-3 py-2.5 rounded-xl border border-white/10 shadow-lg inline-block font-medium">
                   {drop.reflection}
                 </div>
               )}
