@@ -266,7 +266,7 @@ export default function Home() {
               <p className="glm-body" style={{ fontSize: 16 }}>{t("whyText2")}</p>
               <p className="glm-body" style={{ fontSize: 16, color: "#EAF2FF" }}>{t("whyText3")}</p>
             </div>
-            <Link to={createPageUrl("About") + "#our-mission"} className="glm-btn-secondary" style={{ fontSize: 16 }}>
+            <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 16 }}>
               {t("learnMore")}
             </Link>
           </div>
