@@ -235,9 +235,9 @@ export default function Layout({ children, currentPageName }) {
               onMouseEnter={() => setResourcesOpen(true)}
               onMouseLeave={() => setResourcesOpen(false)}
             >
-              <span className={`nav-link ${["Media","Resources"].includes(currentPageName) ? "active" : ""}`} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+              <Link to={createPageUrl("Resources")} className={`nav-link ${["Media","Resources"].includes(currentPageName) ? "active" : ""}`} style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 Resources <span style={{ fontSize: 10, opacity: 0.7 }}>▾</span>
-              </span>
+              </Link>
               {resourcesOpen && (
                 <div style={{
                   position: "absolute", top: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)",

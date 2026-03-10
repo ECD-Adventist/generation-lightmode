@@ -47,25 +47,25 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import About from './pages/About';
 import Assistant from './pages/Assistant';
 import Challenges from './pages/Challenges';
 import GlowGroups from './pages/GlowGroups';
-import Media from './pages/Media';
-import Impact from './pages/Impact';
-import About from './pages/About';
 import Home from './pages/Home';
+import Impact from './pages/Impact';
+import Media from './pages/Media';
 import Resources from './pages/Resources';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "About": About,
     "Assistant": Assistant,
     "Challenges": Challenges,
     "GlowGroups": GlowGroups,
-    "Media": Media,
-    "Impact": Impact,
-    "About": About,
     "Home": Home,
+    "Impact": Impact,
+    "Media": Media,
     "Resources": Resources,
 }
 
