@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, X, Zap, Bell } from "lucide-react";
 import LanguageSelector from "./components/LanguageSelector";
 import { useAppLanguage } from "./components/i18n/useAppLanguage";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 
 const navLinks = [
   { key: "home", page: "Home" },
@@ -23,6 +26,33 @@ export default function Layout({ children, currentPageName }) {
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const { t, isRTL } = useAppLanguage("layout");
   const location = useLocation();
+  const queryClient = useQueryClient();
+  const [userEmail, setUserEmail] = useState(null);
+
+  useEffect(() => {
+    base44.auth.isAuthenticated().then(isAuth => {
+      if (isAuth) {
+        base44.auth.me().then(me => setUserEmail(me?.email));
+      }
+    });
+  }, []);
+
+  const { data: notifications = [] } = useQuery({
+    queryKey: ["notifications", userEmail],
+    queryFn: () => base44.entities.Notification.filter({ user_email: userEmail, read: false }),
+    enabled: !!userEmail
+  });
+
+  useEffect(() => {
+    if (!userEmail) return;
+    const unsubscribe = base44.entities.Notification.subscribe((event) => {
+      if (event.type === 'create' && event.data.user_email === userEmail && !event.data.read) {
+        toast(event.data.message, { icon: '🔔' });
+        queryClient.invalidateQueries({ queryKey: ["notifications", userEmail] });
+      }
+    });
+    return unsubscribe;
+  }, [userEmail, queryClient]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -292,6 +322,16 @@ export default function Layout({ children, currentPageName }) {
             <a href={createPageUrl("Feed")} className="glm-btn-primary" style={{ padding: "10px 24px", fontSize: 14, whiteSpace: "nowrap", flexShrink: 0 }}>
               {t("joinNow")}
             </a>
+            {userEmail && (
+              <div className="relative">
+                <button className="w-10 h-10 rounded-full bg-[#121826] border border-white/10 flex items-center justify-center hover:bg-white/5 transition relative">
+                  <Bell className="w-5 h-5 text-gray-300" />
+                  {notifications.length > 0 && (
+                    <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-[#0B0F1A] rounded-full"></span>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
