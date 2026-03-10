@@ -246,7 +246,7 @@ export default function Layout({ children, currentPageName }) {
               </Link>
             ))}
             {/* Resources Dropdown */}
-            <div style={{ position: "relative" }}
+            <div style={{ position: "relative", height: "100%", display: "flex", alignItems: "center" }}
               onMouseEnter={() => setResourcesOpen(true)}
               onMouseLeave={() => setResourcesOpen(false)}
             >
@@ -255,24 +255,28 @@ export default function Layout({ children, currentPageName }) {
               </Link>
               {resourcesOpen && (
                 <div style={{
-                  position: "absolute", top: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)",
-                  background: "rgba(18,24,38,0.98)", backdropFilter: "blur(20px)",
-                  border: "1px solid rgba(0,207,255,0.2)", borderRadius: 14,
-                  padding: "8px", minWidth: 200, zIndex: 2000,
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+                  position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)",
+                  paddingTop: "8px", zIndex: 2000,
                 }}>
-                  <Link to={createPageUrl("Resources")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
-                    onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
-                    onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
-                  >
-                    📺 {t("mediaContent") }
-                  </Link>
-                  <Link to={createPageUrl("Resources") + "?tab=downloads"} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
-                    onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
-                    onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
-                  >
-                    📥 {t("downloads") }
-                  </Link>
+                  <div style={{
+                    background: "rgba(18,24,38,0.98)", backdropFilter: "blur(20px)",
+                    border: "1px solid rgba(0,207,255,0.2)", borderRadius: 14,
+                    padding: "8px", minWidth: 200,
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+                  }}>
+                    <Link to={createPageUrl("Resources")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
+                      onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
+                      onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
+                    >
+                      📺 {t("mediaContent") }
+                    </Link>
+                    <Link to={createPageUrl("Resources") + "?tab=downloads"} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
+                      onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
+                      onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
+                    >
+                      📥 {t("downloads") }
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
