@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Settings, Grid, Bookmark, Award, Heart, MessageCircle } from "lucide-react";
+import { Loader2, Settings, Grid, Bookmark, Award, Heart, MessageCircle, Camera } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { toast } from "sonner";
 export default function Profile() {
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({ full_name: "", country: "" });
+  const [editData, setEditData] = useState({ full_name: "", country: "", profile_picture_url: "", cover_picture_url: "" });
 
   useEffect(() => {
     async function checkAuth() {
@@ -21,7 +21,12 @@ export default function Profile() {
         if (isAuth) {
           const me = await base44.auth.me();
           setUser(me);
-          setEditData({ full_name: me.full_name || "", country: me.country || "" });
+          setEditData({ 
+            full_name: me.full_name || "", 
+            country: me.country || "", 
+            profile_picture_url: me.profile_picture_url || "", 
+            cover_picture_url: me.cover_picture_url || "" 
+          });
         } else {
           base44.auth.redirectToLogin(window.location.pathname);
         }
@@ -36,16 +41,50 @@ export default function Profile() {
     enabled: !!user
   });
 
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      await base44.auth.updateMe({ full_name: editData.full_name, country: editData.country });
+      await base44.auth.updateMe({ 
+        full_name: editData.full_name, 
+        country: editData.country,
+        profile_picture_url: editData.profile_picture_url,
+        cover_picture_url: editData.cover_picture_url
+      });
       const updated = await base44.auth.me();
       setUser(updated);
       setIsEditing(false);
       toast.success("Profile updated successfully!");
     } catch (err) {
       toast.error("Failed to update profile");
+    }
+  };
+
+  const handleImageUpload = async (e, type) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const toastId = toast.loading(`Uploading ${type} photo...`);
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      await new Promise(r => reader.onload = r);
+      const base64File = reader.result;
+
+      const res = await base44.integrations.Core.UploadFile({ file: base64File });
+      
+      if (type === "profile") {
+        setEditData({ ...editData, profile_picture_url: res.file_url });
+      } else {
+        setEditData({ ...editData, cover_picture_url: res.file_url });
+      }
+      toast.success(`${type === 'profile' ? 'Profile' : 'Cover'} photo uploaded! Don't forget to save.`, { id: toastId });
+    } catch (err) {
+      toast.error(`Failed to upload ${type} photo`, { id: toastId });
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -69,15 +108,31 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Cover Photo */}
+        <div 
+          className="w-full h-48 sm:h-64 rounded-2xl mb-8 bg-[#121826] border border-white/5 overflow-hidden relative"
+          style={user.cover_picture_url ? { backgroundImage: `url(${user.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+        >
+          {!user.cover_picture_url && (
+            <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-gradient-to-br from-[#0B0F1A] to-[#121826]">
+              No Cover Photo
+            </div>
+          )}
+        </div>
+
         {/* Profile Header */}
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-white/5 pb-12">
-          <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-1 flex-shrink-0 shadow-[0_0_30px_rgba(0,207,255,0.3)]">
-            <div className="w-full h-full rounded-full bg-[#121826] border-4 border-[#0B0F1A] flex items-center justify-center text-5xl font-bold font-['Space_Grotesk'] uppercase">
-              {user.full_name?.charAt(0) || "U"}
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-white/5 pb-12 -mt-20 sm:-mt-24 relative z-10 px-4">
+          <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-1 flex-shrink-0 shadow-[0_0_30px_rgba(0,207,255,0.3)] overflow-hidden">
+            <div className="w-full h-full rounded-full bg-[#121826] border-4 border-[#0B0F1A] flex items-center justify-center text-5xl font-bold font-['Space_Grotesk'] uppercase overflow-hidden relative">
+              {user.profile_picture_url ? (
+                <img src={user.profile_picture_url} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                user.full_name?.charAt(0) || "U"
+              )}
             </div>
           </div>
           
-          <div className="flex-1 text-center md:text-left">
+          <div className="flex-1 text-center md:text-left mt-4 md:mt-16">
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
               <h1 className="text-3xl font-bold font-['Inter']">{user.full_name}</h1>
               {!isEditing && (
@@ -111,6 +166,16 @@ export default function Profile() {
               <div>
                 <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Country</Label>
                 <Input value={editData.country} onChange={e => setEditData({...editData, country: e.target.value})} className="bg-[#0B0F1A] border-white/10 h-12 text-lg rounded-xl" />
+              </div>
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Profile Picture</Label>
+                <Input type="file" accept="image/*" onChange={e => handleImageUpload(e, "profile")} disabled={uploadingImage} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
+                {editData.profile_picture_url && <img src={editData.profile_picture_url} alt="Profile preview" className="w-16 h-16 rounded-full mt-2 object-cover border border-white/10" />}
+              </div>
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Cover Photo</Label>
+                <Input type="file" accept="image/*" onChange={e => handleImageUpload(e, "cover")} disabled={uploadingImage} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
+                {editData.cover_picture_url && <img src={editData.cover_picture_url} alt="Cover preview" className="w-full h-24 rounded-xl mt-2 object-cover border border-white/10" />}
               </div>
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="ghost" onClick={() => setIsEditing(false)} className="h-12 px-6">Cancel</Button>
