@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Target, Star } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ChallengesTab({ user }) {
-  const [activeTab, setActiveTab] = React.useState("active");
+  const [activeTab, setActiveTab] = useState("active");
 
   const { data: challenges = [] } = useQuery({
     queryKey: ["challenges"],
