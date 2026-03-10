@@ -50,14 +50,14 @@
 import About from './pages/About';
 import Assistant from './pages/Assistant';
 import Challenges from './pages/Challenges';
+import Dashboard from './pages/Dashboard';
+import Feed from './pages/Feed';
 import GlowGroups from './pages/GlowGroups';
 import Home from './pages/Home';
 import Impact from './pages/Impact';
 import Media from './pages/Media';
-import Resources from './pages/Resources';
-import Dashboard from './pages/Dashboard';
-import Feed from './pages/Feed';
 import Profile from './pages/Profile';
+import Resources from './pages/Resources';
 import __Layout from './Layout.jsx';
 
 
@@ -65,14 +65,14 @@ export const PAGES = {
     "About": About,
     "Assistant": Assistant,
     "Challenges": Challenges,
+    "Dashboard": Dashboard,
+    "Feed": Feed,
     "GlowGroups": GlowGroups,
     "Home": Home,
     "Impact": Impact,
     "Media": Media,
-    "Resources": Resources,
-    "Dashboard": Dashboard,
-    "Feed": Feed,
     "Profile": Profile,
+    "Resources": Resources,
 }
 
 export const pagesConfig = {

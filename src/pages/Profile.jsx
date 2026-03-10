@@ -75,12 +75,19 @@ export default function Profile() {
 
       const res = await base44.integrations.Core.UploadFile({ file: base64File });
       
+      const updates = {};
       if (type === "profile") {
-        setEditData({ ...editData, profile_picture_url: res.file_url });
+        updates.profile_picture_url = res.file_url;
       } else {
-        setEditData({ ...editData, cover_picture_url: res.file_url });
+        updates.cover_picture_url = res.file_url;
       }
-      toast.success(`${type === 'profile' ? 'Profile' : 'Cover'} photo uploaded! Don't forget to save.`, { id: toastId });
+      
+      await base44.auth.updateMe(updates);
+      const updated = await base44.auth.me();
+      setUser(updated);
+      setEditData(prev => ({ ...prev, ...updates }));
+      
+      toast.success(`${type === 'profile' ? 'Profile' : 'Cover'} photo updated!`, { id: toastId });
     } catch (err) {
       toast.error(`Failed to upload ${type} photo`, { id: toastId });
     } finally {
@@ -110,27 +117,42 @@ export default function Profile() {
 
         {/* Cover Photo */}
         <div 
-          className="w-full h-48 sm:h-64 rounded-2xl mb-8 bg-[#121826] border border-white/5 overflow-hidden relative"
+          className="w-full h-48 sm:h-64 rounded-2xl mb-8 bg-[#121826] border border-white/5 overflow-hidden relative group cursor-pointer"
           style={user.cover_picture_url ? { backgroundImage: `url(${user.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+          onClick={() => document.getElementById('cover-upload-direct').click()}
         >
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
+            <div className="flex items-center gap-2 text-white font-bold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
+              <Camera className="w-5 h-5" /> Change Cover
+            </div>
+          </div>
           {!user.cover_picture_url && (
             <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-gradient-to-br from-[#0B0F1A] to-[#121826]">
               No Cover Photo
             </div>
           )}
         </div>
+        <input type="file" id="cover-upload-direct" accept="image/*" className="hidden" onChange={e => handleImageUpload(e, "cover")} disabled={uploadingImage} />
 
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-white/5 pb-12 -mt-20 sm:-mt-24 relative z-10 px-4">
-          <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-1 flex-shrink-0 shadow-[0_0_30px_rgba(0,207,255,0.3)] overflow-hidden">
+          <div 
+            className="w-32 h-32 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-1 flex-shrink-0 shadow-[0_0_30px_rgba(0,207,255,0.3)] overflow-hidden group cursor-pointer relative"
+            onClick={() => document.getElementById('profile-upload-direct').click()}
+          >
             <div className="w-full h-full rounded-full bg-[#121826] border-4 border-[#0B0F1A] flex items-center justify-center text-5xl font-bold font-['Space_Grotesk'] uppercase overflow-hidden relative">
               {user.profile_picture_url ? (
                 <img src={user.profile_picture_url} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 user.full_name?.charAt(0) || "U"
               )}
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10">
+                <Camera className="w-6 h-6 text-white mb-1" />
+                <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
+              </div>
             </div>
           </div>
+          <input type="file" id="profile-upload-direct" accept="image/*" className="hidden" onChange={e => handleImageUpload(e, "profile")} disabled={uploadingImage} />
           
           <div className="flex-1 text-center md:text-left mt-4 md:mt-16">
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
