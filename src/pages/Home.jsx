@@ -3,6 +3,17 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, Globe, Users, Star, ChevronDown, Play, X } from "lucide-react";
 import { useAppLanguage } from "../components/i18n/useAppLanguage";
+import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+
+const mapLocations = [
+  { name: "Nairobi, Kenya", coordinates: [-1.286389, 36.817223], members: 85000, groups: 120, color: "#00CFFF" },
+  { name: "Kampala, Uganda", coordinates: [0.347596, 32.582520], members: 62000, groups: 85, color: "#FFD000" },
+  { name: "Dar es Salaam, Tanzania", coordinates: [-6.792354, 39.208328], members: 58000, groups: 72, color: "#8A5CFF" },
+  { name: "Kigali, Rwanda", coordinates: [-1.944073, 30.061886], members: 45000, groups: 55, color: "#00CFFF" },
+  { name: "Bujumbura, Burundi", coordinates: [-3.382200, 29.364400], members: 32000, groups: 40, color: "#FFD000" },
+  { name: "Addis Ababa, Ethiopia", coordinates: [9.005401, 38.763611], members: 42000, groups: 60, color: "#8A5CFF" }
+];
 
 const galleryImages1 = [
   "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/8b7388f03_african-american-male-friends-standing-park-discussing-bible.jpg",
@@ -420,6 +431,76 @@ export default function Home() {
                 <div className={`glow-bar-${idx}`} style={{ marginTop: 16, height: 3, borderRadius: 2, background: `linear-gradient(90deg, ${item.color}, transparent)` }} />
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="section-divider" />
+
+      {/* GLOW MAP */}
+      <section style={{ padding: "100px 24px", background: "#0B0F1A" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
+          <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>
+            Global Light Map
+          </h2>
+          <p className="glm-body" style={{ fontSize: 17, marginBottom: 56, maxWidth: 600, margin: "0 auto 56px" }}>
+            Explore where GlowGroups and active members are illuminating the world.
+          </p>
+
+          <style>{`
+            .leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 8px; }
+            .leaflet-popup-tip { background: #121826; border: 1px solid rgba(0,207,255,0.4); }
+          `}</style>
+
+          <div style={{ 
+            height: "500px", width: "100%", borderRadius: "24px", overflow: "hidden", 
+            position: "relative", zIndex: 10, background: "#080C14",
+            boxShadow: "0 0 40px rgba(0,207,255,0.15), inset 0 0 40px rgba(0,207,255,0.1)",
+            border: "1px solid rgba(0,207,255,0.3)"
+          }}>
+            <MapContainer 
+              center={[-1.286389, 34.817223]} 
+              zoom={5} 
+              scrollWheelZoom={false}
+              zoomControl={false}
+              style={{ height: "100%", width: "100%", background: "#0B0F1A" }}
+            >
+              <TileLayer
+                url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+                attribution='&copy; CartoDB'
+              />
+              {mapLocations.flatMap((loc, i) => [
+                <CircleMarker
+                  key={`outer-${i}`}
+                  center={loc.coordinates}
+                  radius={Math.max(12, loc.members / 2500)}
+                  pathOptions={{ color: "transparent", fillColor: loc.color, fillOpacity: 0.15 }}
+                />,
+                <CircleMarker
+                  key={`inner-${i}`}
+                  center={loc.coordinates}
+                  radius={Math.max(4, loc.members / 8000)}
+                  pathOptions={{ color: loc.color, fillColor: "#FFF", fillOpacity: 0.9, weight: 2 }}
+                >
+                  <Popup>
+                    <div style={{ background: "rgba(18,24,38,0.95)", backdropFilter: "blur(10px)", padding: "16px", borderRadius: "12px", border: `1px solid ${loc.color}60`, color: "#FFF", minWidth: "180px", boxShadow: `0 8px 32px ${loc.color}20` }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: loc.color, boxShadow: `0 0 10px ${loc.color}` }} />
+                        <h4 className="glm-headline" style={{ fontSize: "16px", color: loc.color, margin: 0 }}>{loc.name}</h4>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px", marginBottom: "8px" }}>
+                        <span className="glm-body" style={{ fontSize: "13px" }}>Members</span>
+                        <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.members.toLocaleString()}</strong>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span className="glm-body" style={{ fontSize: "13px" }}>GlowGroups</span>
+                        <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.groups}</strong>
+                      </div>
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              ])}
+            </MapContainer>
           </div>
         </div>
       </section>

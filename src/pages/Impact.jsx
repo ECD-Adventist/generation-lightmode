@@ -223,6 +223,56 @@ export default function Impact() {
 
       <div className="section-divider" />
 
+      {/* GLOWGROUPS LEADERBOARD */}
+      <section style={{ padding: "100px 24px", background: "#0B0F1A" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
+            <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>GlowGroups Leaderboards</h2>
+            <p className="glm-body" style={{ fontSize: 17 }}>Top-performing groups based on challenges completed, member growth, and engagement.</p>
+          </div>
+          
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
+            {[
+              { title: "Highest Engagement", icon: "🔥", groups: [
+                { rank: 1, name: "Nairobi Radiant", points: 14500, color: "#FFD000" },
+                { rank: 2, name: "Lagos Light Warriors", points: 12200, color: "#C8D0E0" },
+                { rank: 3, name: "Dallas Glow Starters", points: 11800, color: "#CD7F32" }
+              ]},
+              { title: "Challenges Completed", icon: "⚡", groups: [
+                { rank: 1, name: "Kampala Beacons", points: 84, color: "#FFD000" },
+                { rank: 2, name: "UK Glow Collective", points: 79, color: "#C8D0E0" },
+                { rank: 3, name: "Kigali Sparks", points: 72, color: "#CD7F32" }
+              ]},
+              { title: "Fastest Growing", icon: "📈", groups: [
+                { rank: 1, name: "São Paulo Glow", points: "+45%", color: "#FFD000" },
+                { rank: 2, name: "Dar es Salaam Shine", points: "+38%", color: "#C8D0E0" },
+                { rank: 3, name: "Addis Ababa Lights", points: "+32%", color: "#CD7F32" }
+              ]}
+            ].map(board => (
+              <div key={board.title} className="glm-card" style={{ padding: 24, border: "1px solid rgba(0,207,255,0.15)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+                  <div style={{ fontSize: 24 }}>{board.icon}</div>
+                  <h3 className="glm-headline" style={{ fontSize: 20, color: "#FFF" }}>{board.title}</h3>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  {board.groups.map(group => (
+                    <div key={group.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px", background: "rgba(255,255,255,0.03)", borderRadius: 12, borderLeft: `3px solid ${group.color}` }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <span style={{ color: group.color, fontWeight: 800, fontSize: 18, width: 20 }}>#{group.rank}</span>
+                        <span className="glm-body" style={{ color: "#FFF", fontWeight: 600 }}>{group.name}</span>
+                      </div>
+                      <span style={{ color: "#00CFFF", fontFamily: "Space Grotesk", fontWeight: 700 }}>{group.points}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="section-divider" />
+
       {/* TESTIMONIES */}
       <section style={{ padding: "100px 24px", background: "#121826" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
