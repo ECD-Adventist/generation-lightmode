@@ -343,6 +343,7 @@ export default function Layout({ children, currentPageName }) {
       </main>
 
       {/* FOOTER */}
+      {currentPageName !== "Feed" && (
       <footer style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.1)", padding: "60px 24px 40px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 48, marginBottom: 48 }}>
