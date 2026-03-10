@@ -17,17 +17,27 @@ export default function Feed() {
   const [activeFilter, setActiveFilter] = useState("All");
   const queryClient = useQueryClient();
 
+  const [authChecked, setAuthChecked] = useState(false);
+
   useEffect(() => {
     async function checkAuth() {
       try {
         const isAuth = await base44.auth.isAuthenticated();
         if (isAuth) {
-          const me = await base44.auth.me();
-          setUser(me);
+          try {
+            const me = await base44.auth.me();
+            setUser(me);
+          } catch (e) {
+            console.error("Failed to fetch user:", e);
+          }
         } else {
           base44.auth.redirectToLogin(window.location.pathname);
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error("Auth check failed:", err);
+      } finally {
+        setAuthChecked(true);
+      }
     }
     checkAuth();
   }, []);
@@ -106,8 +116,12 @@ export default function Feed() {
     return users.find(u => u.email === email) || { full_name: "Glow Believer" };
   };
 
-  if (!user) {
+  if (!authChecked) {
     return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
+  }
+
+  if (authChecked && !user) {
+    return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A] text-white">Redirecting to login...</div>;
   }
 
   return (
