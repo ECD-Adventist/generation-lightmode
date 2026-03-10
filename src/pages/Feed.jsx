@@ -147,7 +147,7 @@ export default function Feed() {
 
 
         {/* Filter Bar */}
-        <div className="flex gap-3 px-4 py-4 bg-[#0B0F1A] overflow-x-auto hide-scrollbar sticky top-0 lg:top-0 z-40 backdrop-blur-md bg-opacity-90">
+        <div className="flex gap-3 px-4 py-4 bg-[#0B0F1A] overflow-x-auto hide-scrollbar sticky top-[60px] lg:top-0 z-40 backdrop-blur-md bg-opacity-90 border-b border-white/5">
           {['All', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
             <button
               key={filter}
