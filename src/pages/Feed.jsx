@@ -34,17 +34,20 @@ export default function Feed() {
 
   const { data: drops = [], isLoading: dropsLoading } = useQuery({
     queryKey: ["allGlowDrops"],
-    queryFn: () => base44.entities.GlowDrop.list('-created_date', 50)
+    queryFn: () => base44.entities.GlowDrop.list('-created_date', 50),
+    retry: 1
   });
 
   const { data: stories = [] } = useQuery({
     queryKey: ["stories"],
-    queryFn: () => base44.entities.Story.list('-created_date', 20)
+    queryFn: () => base44.entities.Story.list('-created_date', 20),
+    retry: 1
   });
 
   const { data: users = [], isLoading: usersLoading } = useQuery({
     queryKey: ["allUsers"],
-    queryFn: () => base44.entities.User.list()
+    queryFn: () => base44.entities.User.list(),
+    retry: false
   });
 
   const likeMutation = useMutation({
