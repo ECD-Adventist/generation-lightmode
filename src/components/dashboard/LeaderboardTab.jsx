@@ -121,7 +121,7 @@ export default function LeaderboardTab({ user }) {
                       </td>
                       <td className="py-5 px-6 text-right">
                         <span className={`font-black font-['Space_Grotesk'] text-xl ${isTop3 ? 'text-[#FFD000] drop-shadow-[0_0_8px_rgba(255,208,0,0.5)]' : 'text-white'}`}>
-                          {u.displayScore ?? u.glow_score || 0}
+                          {(u.displayScore ?? u.glow_score) || 0}
                         </span>
                       </td>
                     </tr>
