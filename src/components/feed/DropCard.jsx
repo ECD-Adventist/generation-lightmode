@@ -77,7 +77,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
               {dropUser.full_name}
               {drop.status === 'approved' && <span className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center text-[7px] text-white shadow-[0_0_8px_rgba(59,130,246,0.8)]">✓</span>}
             </span>
-            <span className="text-[10px] text-gray-300 font-medium leading-none">{formatDistanceToNow(new Date(drop.created_date), { addSuffix: true })}</span>
+            <span className="text-[10px] text-gray-300 font-medium leading-none">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date), { addSuffix: true }) : ''}</span>
           </div>
         </div>
 

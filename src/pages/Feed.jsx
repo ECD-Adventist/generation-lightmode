@@ -103,7 +103,7 @@ export default function Feed() {
     return users.find(u => u.email === email) || { full_name: "Glow Believer" };
   };
 
-  if (dropsLoading || usersLoading || !user) {
+  if (!user) {
     return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
   }
 
