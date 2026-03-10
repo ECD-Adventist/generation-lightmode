@@ -131,7 +131,7 @@ export default function SubmitDropTab({ user }) {
               type="file" 
               accept="image/*"
               onChange={e => setFile(e.target.files[0])} 
-              className="bg-[#0B0F1A] border-white/10 text-white text-base py-3 px-4 rounded-xl focus-visible:ring-[#00CFFF]/50 focus-visible:border-[#00CFFF] transition-all file:bg-[#00CFFF]/20 file:text-[#00CFFF] file:border-0 file:rounded-lg file:px-4 file:py-1 file:mr-4 file:font-semibold hover:file:bg-[#00CFFF]/30" 
+              className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl focus-visible:ring-[#00CFFF]/50 focus-visible:border-[#00CFFF] transition-all file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" 
             />
           </div>
           
