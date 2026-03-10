@@ -104,17 +104,17 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
           <DialogDescription className="text-[#00CFFF]">Submit a Glow Drop to inspire others and earn points</DialogDescription>
         </DialogHeader>
 
-        <div className="bg-[#0B0F1A]/50 p-4 rounded-xl border border-white/5 mb-4">
-          <Label className="text-gray-300 text-xs font-bold uppercase tracking-wider mb-2 block">✨ AI Draft Assistant</Label>
-          <div className="flex flex-col sm:flex-row gap-2">
+        <div className="bg-[#0B0F1A]/50 p-5 rounded-xl border border-white/5 mb-4 shadow-inner">
+          <Label className="text-gray-300 text-xs font-bold uppercase tracking-wider mb-3 block flex items-center gap-2"><Sparkles className="w-4 h-4 text-[#8A5CFF]" /> AI Draft Assistant</Label>
+          <div className="flex flex-col sm:flex-row gap-3">
             <Input 
               placeholder="How are you feeling today? (e.g. anxious, grateful)" 
               value={mood}
               onChange={e => setMood(e.target.value)}
-              className="bg-[#121826] border-white/10 text-white"
+              className="bg-[#121826] border-white/10 text-white h-12"
             />
-            <Button onClick={handleAIAssist} disabled={aiLoading} className="bg-gradient-to-r from-[#8A5CFF] to-[#00CFFF] text-white font-bold whitespace-nowrap hover:opacity-90">
-              {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Sparkles className="w-4 h-4 mr-2" /> Inspire Me</>}
+            <Button type="button" onClick={handleAIAssist} disabled={aiLoading} className="bg-gradient-to-r from-[#8A5CFF] to-[#00CFFF] text-white font-bold h-12 px-6 whitespace-nowrap hover:shadow-[0_0_15px_rgba(138,92,255,0.4)] transition-all">
+              {aiLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Inspire Me"}
             </Button>
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
 
           <div className="space-y-2">
             <Label className="text-gray-300 font-semibold uppercase tracking-wider text-xs ml-1">Attach Media (Optional)</Label>
-            <Input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} className="bg-[#0B0F1A] border-white/10 text-gray-400 cursor-pointer" />
+            <Input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl focus-visible:ring-[#00CFFF]/50 focus-visible:border-[#00CFFF] transition-all file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
           </div>
           
           <Button type="submit" disabled={loading} className="w-full h-12 bg-[#00CFFF] hover:bg-white text-black font-bold text-lg rounded-xl transition-all hover:scale-[1.02]">
