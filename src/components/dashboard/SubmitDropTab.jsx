@@ -146,9 +146,8 @@ export default function SubmitDropTab({ user }) {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-gray-300 font-semibold uppercase tracking-wider text-xs ml-1">Bible Verse</Label>
+            <Label className="text-gray-300 font-semibold uppercase tracking-wider text-xs ml-1">Bible Verse (Optional)</Label>
             <Input 
-              required 
               placeholder="e.g. Matthew 5:14" 
               value={formData.verse} 
               onChange={e => setFormData({...formData, verse: e.target.value})} 
@@ -157,9 +156,8 @@ export default function SubmitDropTab({ user }) {
           </div>
           
           <div className="space-y-2">
-            <Label className="text-gray-300 font-semibold uppercase tracking-wider text-xs ml-1">Reflection / Testimony</Label>
+            <Label className="text-gray-300 font-semibold uppercase tracking-wider text-xs ml-1">Reflection / Testimony (Optional)</Label>
             <Textarea 
-              required 
               placeholder="What does this verse mean to you? Share your testimony..." 
               value={formData.reflection} 
               onChange={e => setFormData({...formData, reflection: e.target.value})} 

@@ -121,13 +121,13 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label className="text-gray-300 font-semibold uppercase tracking-wider text-xs ml-1">Bible Verse</Label>
-            <Input required placeholder="e.g. Matthew 5:14" value={formData.verse} onChange={e => setFormData({...formData, verse: e.target.value})} className="bg-[#0B0F1A] border-white/10 text-white" />
+            <Label className="text-gray-300 font-semibold uppercase tracking-wider text-xs ml-1">Bible Verse (Optional)</Label>
+            <Input placeholder="e.g. Matthew 5:14" value={formData.verse} onChange={e => setFormData({...formData, verse: e.target.value})} className="bg-[#0B0F1A] border-white/10 text-white" />
           </div>
           
           <div className="space-y-2">
-            <Label className="text-gray-300 font-semibold uppercase tracking-wider text-xs ml-1">Reflection / Testimony</Label>
-            <Textarea required placeholder="Share your testimony..." value={formData.reflection} onChange={e => setFormData({...formData, reflection: e.target.value})} className="bg-[#0B0F1A] border-white/10 text-white min-h-[120px]" />
+            <Label className="text-gray-300 font-semibold uppercase tracking-wider text-xs ml-1">Reflection / Testimony (Optional)</Label>
+            <Textarea placeholder="Share your testimony..." value={formData.reflection} onChange={e => setFormData({...formData, reflection: e.target.value})} className="bg-[#0B0F1A] border-white/10 text-white min-h-[120px]" />
           </div>
           
           <div className="space-y-2">
