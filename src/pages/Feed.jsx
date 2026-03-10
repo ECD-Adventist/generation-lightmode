@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function Feed() {
   const [user, setUser] = useState(null);
