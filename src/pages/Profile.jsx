@@ -77,12 +77,7 @@ export default function Profile() {
     setUploadingImage(true);
     const toastId = toast.loading(`Uploading ${type} photo...`);
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      await new Promise(r => reader.onload = r);
-      const base64File = reader.result;
-
-      const res = await base44.integrations.Core.UploadFile({ file: base64File });
+      const res = await base44.integrations.Core.UploadFile({ file });
       
       const updates = {};
       if (type === "profile") {

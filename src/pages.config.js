@@ -58,6 +58,7 @@ import Impact from './pages/Impact';
 import Media from './pages/Media';
 import Profile from './pages/Profile';
 import Resources from './pages/Resources';
+import GlobalReach from './pages/GlobalReach';
 import __Layout from './Layout.jsx';
 
 
@@ -73,6 +74,7 @@ export const PAGES = {
     "Media": Media,
     "Profile": Profile,
     "Resources": Resources,
+    "GlobalReach": GlobalReach,
 }
 
 export const pagesConfig = {
