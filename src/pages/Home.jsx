@@ -247,6 +247,54 @@ export default function Home() {
 
       <div className="section-divider" />
 
+      {/* WHY LIGHTMODE EXISTS */}
+      <section style={{ padding: "72px 24px", background: "linear-gradient(180deg, #0B0F1A 0%, #121826 100%)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32, alignItems: "stretch" }}>
+          <div className="glm-card" style={{ border: "1px solid rgba(0,207,255,0.18)", background: "linear-gradient(135deg, rgba(0,207,255,0.06), rgba(18,24,38,0.98))", padding: 32 }}>
+            <h2 className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 46px)", lineHeight: 1.12, marginBottom: 14 }}>
+              {t("whyTitleBefore")} <span className="glm-gradient-text">{t("whyTitleHighlight")}</span>
+            </h2>
+            <p style={{ color: "#FFD000", fontSize: 14, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 22 }}>
+              {t("whySubtitle")}
+            </p>
+            <p className="glm-body" style={{ fontSize: 16, marginBottom: 18 }}>
+              {t("whyText1")}
+            </p>
+            <p className="glm-body" style={{ fontSize: 16, marginBottom: 18 }}>
+              {t("whyText2")}
+            </p>
+            <p className="glm-body" style={{ fontSize: 16, marginBottom: 28, color: "#E0E8F0" }}>
+              {t("whyText3")}
+            </p>
+            <Link to={createPageUrl("About") + "#our-mission"} className="glm-btn-secondary" style={{ fontSize: 16 }}>
+              {t("learnMore")}
+            </Link>
+          </div>
+
+          <div className="glm-card" style={{ position: "relative", overflow: "hidden", border: "1px solid rgba(138,92,255,0.2)", background: "linear-gradient(135deg, rgba(138,92,255,0.14), rgba(11,15,26,0.98) 55%)", padding: 32, display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 320 }}>
+            <div style={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.22), transparent 70%)", pointerEvents: "none" }} />
+            <div>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 22 }}>
+                {["Screens", "Networks", "Connections"].map((item) => (
+                  <span key={item} style={{ padding: "8px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "#EAF2FF", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600 }}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <div className="glm-headline" style={{ fontSize: "clamp(24px, 3.5vw, 38px)", lineHeight: 1.14, marginBottom: 16 }}>
+                The mission field is already in their hands.
+              </div>
+              <p className="glm-body" style={{ fontSize: 16 }}>
+                LightMode equips young people to meet this moment with courage, clarity, and a visible faith that shines where the world is already looking.
+              </p>
+            </div>
+            <div style={{ marginTop: 26, height: 4, borderRadius: 999, background: "linear-gradient(90deg, #00CFFF 0%, #8A5CFF 55%, #FFD000 100%)", boxShadow: "0 0 24px rgba(0,207,255,0.28)" }} />
+          </div>
+        </div>
+      </section>
+
+      <div className="section-divider" />
+
       {/* WATCH THE VISION (FULL WIDTH) */}
       <section id="vision-video-section" style={{ position: "relative", minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
         
@@ -312,47 +360,6 @@ export default function Home() {
         <ScrollingGallery images={galleryImages1} direction="left" speed="160s" />
         <ScrollingGallery images={galleryImages2} direction="right" speed="180s" />
       </div>
-
-      <div className="section-divider" />
-
-      {/* WHAT IS LIGHTMODE */}
-      <section style={{ padding: "100px 24px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 64, alignItems: "center" }}>
-          <div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.1)", border: "1px solid rgba(255,208,0,0.3)", borderRadius: 50, padding: "6px 16px", marginBottom: 24 }}>
-              <Zap size={14} color="#FFD000" />
-              <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>{t("movementBadge")}</span>
-            </div>
-            <h2 className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 52px)", lineHeight: 1.15, marginBottom: 24 }}>
-              {t("whatIsBefore")}{" "}
-              <span className="glm-gold-text">{t("whatIsHighlight")}</span>
-            </h2>
-            <p className="glm-body" style={{ fontSize: 17, marginBottom: 20 }}>
-              {t("whatIsText1")}
-            </p>
-            <p className="glm-body" style={{ fontSize: 17, marginBottom: 32 }}>
-              {t("whatIsText2")}
-            </p>
-            <Link to={createPageUrl("About") + "#faith-light"} className="glm-btn-secondary">
-              {t("learnMore")}
-            </Link>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            {[
-              { icon: "💧", title: "Glow Drops", desc: "Daily devotions on feeds" },
-              { icon: "🗣️", title: "Real Light Series", desc: "Weekly authentic talks" },
-              { icon: "🏆", title: "Monthly Challenges", desc: "Digital viral campaigns" },
-              { icon: "👥", title: "GlowGroups", desc: "Micro discipleship pods" },
-            ].map(item => (
-              <div key={item.title} className="glm-card" style={{ padding: 24 }}>
-                <div style={{ fontSize: 32, marginBottom: 12 }}>{item.icon}</div>
-                <h3 className="glm-headline" style={{ fontSize: 16, color: "#FFFFFF", marginBottom: 6 }}>{item.title}</h3>
-                <p className="glm-body" style={{ fontSize: 13 }}>{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <div className="section-divider" />
 
