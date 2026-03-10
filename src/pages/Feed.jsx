@@ -165,7 +165,9 @@ export default function Feed() {
 
         {/* Feed */}
         <div className="flex flex-col px-0 sm:px-4 py-4 max-w-2xl mx-auto w-full">
-          {drops.filter(drop => {
+          {dropsLoading ? (
+            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>
+          ) : drops.filter(drop => {
             if (activeFilter === 'All') return true;
             if (activeFilter === 'Most Liked') return drop.likes_count >= 5;
             if (activeFilter === 'Devotional') return drop.category === 'Devotional';
@@ -173,7 +175,7 @@ export default function Feed() {
             return drop.category === activeFilter;
           }).sort((a, b) => {
             if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
-            return new Date(b.created_date) - new Date(a.created_date);
+            return new Date(b.created_date || 0) - new Date(a.created_date || 0);
           }).length === 0 ? (
             <div className="text-center py-20 text-gray-500">
               <div className="text-4xl mb-4">✨</div>
@@ -189,7 +191,7 @@ export default function Feed() {
               return drop.category === activeFilter;
             }).sort((a, b) => {
               if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
-              return new Date(b.created_date) - new Date(a.created_date);
+              return new Date(b.created_date || 0) - new Date(a.created_date || 0);
             }).map(drop => (
               <DropCard 
                 key={drop.id} 
