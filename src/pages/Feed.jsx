@@ -154,7 +154,7 @@ export default function Feed() {
 
                   {/* Content (Instagram image equivalent) */}
                   <div className="p-8 bg-gradient-to-br from-[#0B0F1A] to-[#121826] aspect-square flex flex-col justify-center items-center text-center relative group border-b border-white/5">
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 cursor-pointer" onDoubleClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0})}>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 cursor-pointer" onDoubleClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name})}>
                       <Heart className="w-20 h-20 text-white drop-shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300" />
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-6 relative z-0 leading-tight">
@@ -169,13 +169,13 @@ export default function Feed() {
                   <div className="p-4">
                     <div className="flex justify-between items-center mb-3">
                       <div className="flex gap-4">
-                        <button onClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0})} className="hover:scale-110 transition-transform focus:outline-none">
+                        <button onClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name})} className="hover:scale-110 transition-transform focus:outline-none">
                           <Heart className={`w-6 h-6 ${drop.likes_count > 0 ? "text-red-500 fill-red-500" : "text-white"}`} />
                         </button>
                         <button className="hover:scale-110 transition-transform focus:outline-none">
                           <MessageCircle className="w-6 h-6 text-white" />
                         </button>
-                        <button className="hover:scale-110 transition-transform focus:outline-none">
+                        <button onClick={() => handleShare(drop)} className="hover:scale-110 transition-transform focus:outline-none">
                           <Share2 className="w-6 h-6 text-white" />
                         </button>
                       </div>
