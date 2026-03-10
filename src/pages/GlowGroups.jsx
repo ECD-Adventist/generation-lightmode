@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Users, MapPin, Globe, Search, ChevronRight } from "lucide-react";
+import { createPageUrl } from "@/utils";
 
 const groups = [
   { name: "Lagos Light Warriors", location: "Lagos, Nigeria", members: 48, region: "Africa", focus: "Campus Outreach", color: "#00CFFF", rank: "Champion" },
