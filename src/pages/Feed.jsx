@@ -103,7 +103,15 @@ export default function Feed() {
       <div className="max-w-xl mx-auto px-4 relative z-10">
         <div className="flex justify-between items-center mb-8 sticky top-0 z-50 bg-[#0B0F1A]/80 backdrop-blur-md py-4 border-b border-white/5">
           <h1 className="text-3xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF]">Light Feed</h1>
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
+            <div className="relative">
+              <button className="w-10 h-10 rounded-full bg-[#121826] border border-white/10 flex items-center justify-center hover:bg-white/5 transition relative">
+                <Bell className="w-5 h-5 text-gray-300" />
+                {notifications.length > 0 && (
+                  <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-[#0B0F1A] rounded-full"></span>
+                )}
+              </button>
+            </div>
             <Link to={createPageUrl("Dashboard")} className="w-10 h-10 rounded-full bg-[#121826] border border-white/10 flex items-center justify-center hover:bg-white/5 transition" title="Dashboard">
               📊
             </Link>
