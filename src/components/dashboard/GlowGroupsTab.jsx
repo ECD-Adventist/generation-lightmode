@@ -34,59 +34,85 @@ export default function GlowGroupsTab({ user }) {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Users className="text-[#00CFFF] w-6 h-6" />
-          <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-white">My GlowGroups</h2>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-[#00CFFF]/10 flex items-center justify-center border border-[#00CFFF]/30 shadow-[0_0_15px_rgba(0,207,255,0.15)]">
+            <Users className="text-[#00CFFF] w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-bold font-['Space_Grotesk'] text-white">My GlowGroups</h2>
+            <p className="text-sm text-[#00CFFF] font-medium font-['Inter'] mt-1">Micro discipleship pods</p>
+          </div>
         </div>
-        <Button onClick={() => setCreating(!creating)} className="bg-transparent border border-[#00CFFF] text-[#00CFFF] hover:bg-[#00CFFF]/10">
-          <Plus className="w-4 h-4 mr-2" /> New Group
+        <Button onClick={() => setCreating(!creating)} className="bg-white/5 border border-white/10 text-white hover:bg-gradient-to-r hover:from-[#00CFFF] hover:to-[#8A5CFF] hover:border-transparent hover:text-[#0B0F1A] font-bold font-['Space_Grotesk'] h-12 px-6 rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[0_0_20px_rgba(0,207,255,0.4)]">
+          {creating ? "Cancel" : <><Plus className="w-5 h-5 mr-2" /> Start New Group</>}
         </Button>
       </div>
 
       {creating && (
-        <Card className="bg-[#121826] border-[#00CFFF]/30 mb-8 text-white">
-          <CardContent className="pt-6">
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <Label>Group Name</Label>
-                <Input required value={groupData.name} onChange={e => setGroupData({...groupData, name: e.target.value})} className="bg-[#1A2033] border-gray-700 mt-1" />
+        <div className="bg-[#121826]/90 backdrop-blur-xl border border-[#00CFFF]/30 mb-10 text-white rounded-2xl p-8 shadow-[0_10px_40px_rgba(0,0,0,0.4)] relative overflow-hidden animate-in slide-in-from-top-4">
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, #00CFFF, #8A5CFF, #FFD000)" }} />
+          <h3 className="text-xl font-bold font-['Space_Grotesk'] mb-6">Create a Digital Campfire</h3>
+          <form onSubmit={handleCreate} className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <Label className="text-gray-300 text-xs font-bold uppercase tracking-wider ml-1">Group Name</Label>
+                <Input required placeholder="e.g. Nairobi Radiant" value={groupData.name} onChange={e => setGroupData({...groupData, name: e.target.value})} className="bg-[#0B0F1A] border-white/10 text-white h-12 rounded-xl focus-visible:ring-[#00CFFF]/50 focus-visible:border-[#00CFFF]" />
               </div>
-              <div>
-                <Label>Country/Region</Label>
-                <Input required value={groupData.country} onChange={e => setGroupData({...groupData, country: e.target.value})} className="bg-[#1A2033] border-gray-700 mt-1" />
+              <div className="space-y-2">
+                <Label className="text-gray-300 text-xs font-bold uppercase tracking-wider ml-1">City / Country</Label>
+                <Input required placeholder="e.g. Kigali, Rwanda" value={groupData.country} onChange={e => setGroupData({...groupData, country: e.target.value})} className="bg-[#0B0F1A] border-white/10 text-white h-12 rounded-xl focus-visible:ring-[#00CFFF]/50 focus-visible:border-[#00CFFF]" />
               </div>
-              <div>
-                <Label>Description</Label>
-                <Input required value={groupData.description} onChange={e => setGroupData({...groupData, description: e.target.value})} className="bg-[#1A2033] border-gray-700 mt-1" />
-              </div>
-              <div className="flex justify-end gap-3 pt-2">
-                <Button type="button" variant="ghost" onClick={() => setCreating(false)}>Cancel</Button>
-                <Button type="submit" className="bg-[#00CFFF] text-black hover:bg-[#00CFFF]/80">Create</Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-gray-300 text-xs font-bold uppercase tracking-wider ml-1">Mission Focus (Description)</Label>
+              <Input required placeholder="e.g. Campus outreach and weekly prayer..." value={groupData.description} onChange={e => setGroupData({...groupData, description: e.target.value})} className="bg-[#0B0F1A] border-white/10 text-white h-12 rounded-xl focus-visible:ring-[#00CFFF]/50 focus-visible:border-[#00CFFF]" />
+            </div>
+            <div className="flex justify-end pt-4">
+              <Button type="submit" className="bg-[#00CFFF] text-[#0B0F1A] hover:bg-white font-bold h-12 px-8 rounded-xl shadow-[0_0_20px_rgba(0,207,255,0.4)] transition-all">Launch Group ⚡</Button>
+            </div>
+          </form>
+        </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {myGroups.length === 0 && !creating ? (
-          <p className="text-gray-400 italic col-span-2">You haven't created any GlowGroups yet. Start one to disciple others!</p>
+          <div className="col-span-full bg-[#121826]/50 border border-white/5 rounded-2xl p-16 text-center cursor-pointer hover:bg-[#121826]/80 transition-all border-dashed hover:border-[#00CFFF]/30" onClick={() => setCreating(true)}>
+            <div className="w-20 h-20 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-4">
+              <Users className="w-10 h-10 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-bold font-['Space_Grotesk'] text-white mb-2">No Groups Yet</h3>
+            <p className="text-gray-400 font-['Inter'] mb-6 max-w-md mx-auto">GlowGroups are small accountability pods of 4-6 friends. Start one today to multiply the light!</p>
+            <span className="inline-block text-[#00CFFF] font-bold pb-1 border-b border-[#00CFFF]/30">Click to create your first group →</span>
+          </div>
         ) : (
           myGroups.map(g => (
-            <Card key={g.id} className="bg-[#1A2033] border-gray-800 text-white">
-              <CardHeader>
-                <CardTitle className="text-lg text-[#00CFFF]">{g.name}</CardTitle>
-                <p className="text-xs text-gray-400">{g.country}</p>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-300">{g.description}</p>
-                <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
-                  <Users className="w-4 h-4" /> You are the leader
+            <div key={g.id} className="bg-[#121826]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 relative overflow-hidden group hover:border-[#00CFFF]/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,207,255,0.15)]">
+              <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl group-hover:opacity-20 transition-opacity transform group-hover:rotate-12">✨</div>
+              
+              <div className="mb-4">
+                <h3 className="text-2xl font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-1">{g.name}</h3>
+                <div className="inline-flex items-center gap-1.5 text-xs text-gray-400 bg-white/5 px-2.5 py-1 rounded-md">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                  {g.country}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              
+              <p className="text-[15px] text-gray-300 mb-6 font-['Inter'] leading-relaxed min-h-[60px]">{g.description}</p>
+              
+              <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex -space-x-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] border-2 border-[#121826] flex items-center justify-center text-xs font-bold text-[#0B0F1A]">YOU</div>
+                    <div className="w-8 h-8 rounded-full bg-[#1A2033] border-2 border-[#121826] border-dashed flex items-center justify-center text-xs text-gray-400">+</div>
+                  </div>
+                </div>
+                <div className="text-xs font-semibold text-[#8A5CFF] uppercase tracking-wider bg-[#8A5CFF]/10 px-3 py-1.5 rounded-lg border border-[#8A5CFF]/20">
+                  Leader
+                </div>
+              </div>
+            </div>
           ))
         )}
       </div>

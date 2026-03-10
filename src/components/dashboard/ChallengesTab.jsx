@@ -36,40 +36,54 @@ export default function ChallengesTab({ user }) {
   const hasParticipated = (challengeId) => submissions.some(s => s.challenge_id === challengeId);
 
   return (
-    <div>
-      <div className="flex items-center gap-3 mb-6">
-        <Target className="text-[#FFD000] w-6 h-6" />
-        <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-white">Active Challenges</h2>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="w-12 h-12 rounded-2xl bg-[#FFD000]/10 flex items-center justify-center border border-[#FFD000]/30 shadow-[0_0_15px_rgba(255,208,0,0.15)]">
+          <Target className="text-[#FFD000] w-6 h-6" />
+        </div>
+        <div>
+          <h2 className="text-3xl font-bold font-['Space_Grotesk'] text-white">Active Campaigns</h2>
+          <p className="text-sm text-[#FFD000] font-medium font-['Inter'] mt-1">Join the global movement, earn points</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {challenges.length === 0 ? (
-          <p className="text-gray-400 italic">No active challenges right now. Keep glowing!</p>
+          <div className="col-span-full bg-[#121826]/50 border border-white/5 rounded-2xl p-12 text-center">
+            <p className="text-gray-400 text-lg font-['Inter']">No active challenges right now.</p>
+            <p className="text-[#00CFFF] mt-2 font-bold font-['Space_Grotesk']">Keep glowing daily!</p>
+          </div>
         ) : (
-          challenges.map(c => (
-            <Card key={c.id} className="bg-[#121826] border-gray-800 text-white flex flex-col justify-between">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg font-bold text-[#00CFFF]">{c.title}</CardTitle>
-                  <div className="flex items-center gap-1 bg-[#FFD000]/10 text-[#FFD000] px-2 py-1 rounded-md text-xs font-semibold">
-                    <Star className="w-3 h-3" /> {c.points_reward} pts
+          challenges.map(c => {
+            const participated = hasParticipated(c.id);
+            return (
+              <div key={c.id} className="relative group overflow-hidden rounded-2xl bg-[#121826]/80 backdrop-blur-xl border border-white/10 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)] hover:border-[#8A5CFF]/40">
+                <div style={{ position: "absolute", top: -50, right: -50, width: 150, height: 150, background: participated ? "radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)" : "radial-gradient(circle, rgba(138,92,255,0.15) 0%, transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
+                
+                <div className="p-6 relative z-10 flex-grow">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-bold font-['Space_Grotesk'] text-white leading-tight pr-4">{c.title}</h3>
+                    <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#FFD000]/20 to-[#FFD000]/5 border border-[#FFD000]/30 text-[#FFD000] px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap shadow-[0_0_10px_rgba(255,208,0,0.2)]">
+                      <Star className="w-3.5 h-3.5 fill-current" /> {c.points_reward} pts
+                    </div>
                   </div>
+                  <p className="text-[15px] text-gray-300 font-['Inter'] leading-relaxed">{c.description}</p>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-300 mb-6">{c.description}</p>
-                {hasParticipated(c.id) ? (
-                  <Button disabled variant="outline" className="w-full bg-green-500/10 text-green-400 border-green-500/20">
-                    Completed
-                  </Button>
-                ) : (
-                  <Button onClick={() => handleParticipate(c)} className="w-full bg-[#8A5CFF] hover:bg-[#8A5CFF]/80 text-white">
-                    Participate Now
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ))
+                
+                <div className="p-6 pt-0 relative z-10 mt-auto">
+                  {participated ? (
+                    <Button disabled className="w-full bg-green-500/10 text-green-400 border border-green-500/30 h-12 rounded-xl font-bold text-[15px] opacity-100">
+                      ✓ Challenge Completed
+                    </Button>
+                  ) : (
+                    <Button onClick={() => handleParticipate(c)} className="w-full bg-white/5 hover:bg-gradient-to-r hover:from-[#00CFFF] hover:to-[#8A5CFF] hover:text-[#0B0F1A] text-white border border-white/10 hover:border-transparent h-12 rounded-xl font-bold font-['Space_Grotesk'] text-[16px] transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[0_0_20px_rgba(138,92,255,0.5)]">
+                      Join Challenge
+                    </Button>
+                  )}
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
     </div>
