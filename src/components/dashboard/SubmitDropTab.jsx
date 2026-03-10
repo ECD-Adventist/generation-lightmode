@@ -10,25 +10,69 @@ import { useQueryClient } from "@tanstack/react-query";
 
 export default function SubmitDropTab({ user }) {
   const [loading, setLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [file, setFile] = useState(null);
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({ verse: "", reflection: "", hashtags: "", category: "Devotional" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
+    let finalScore = 5; // Base score
+    let uploadedMediaUrl = null;
+
     try {
+      if (file) {
+        setAnalyzing(true);
+        // Convert file to base64
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        await new Promise(r => reader.onload = r);
+        const base64File = reader.result;
+
+        // Upload file
+        const uploadRes = await base44.integrations.Core.UploadFile({ file: base64File });
+        uploadedMediaUrl = uploadRes.file_url;
+
+        // Extract metrics
+        const extractRes = await base44.integrations.Core.ExtractDataFromUploadedFile({
+          file_url: uploadedMediaUrl,
+          json_schema: {
+            type: "object",
+            properties: {
+              likes: { type: "number", description: "Number of likes shown in the screenshot. Default 0." },
+              shares: { type: "number", description: "Number of shares/retweets shown. Default 0." },
+              saves: { type: "number", description: "Number of saves/bookmarks shown. Default 0." },
+              views: { type: "number", description: "Number of views/impressions shown. Default 0." }
+            }
+          }
+        });
+
+        if (extractRes.status === "success" && extractRes.output) {
+          const { likes = 0, shares = 0, saves = 0, views = 0 } = extractRes.output;
+          // Calculate additional score
+          const engagementPoints = (likes * 1) + (shares * 2) + (saves * 2) + Math.floor(views / 10);
+          finalScore += Math.min(engagementPoints, 100); // Cap extra points at 100
+        }
+        setAnalyzing(false);
+      }
+
       await base44.entities.GlowDrop.create({
         user_email: user.email,
+        media_url: uploadedMediaUrl,
         ...formData
       });
-      await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
-      toast.success("Glow Drop submitted! +5 Points");
+      await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + finalScore });
+      toast.success(`Glow Drop submitted! +${finalScore} Points earned!`);
       setFormData({ verse: "", reflection: "", hashtags: "", category: "Devotional" });
+      setFile(null);
       queryClient.invalidateQueries(["myGlowDrops"]);
     } catch (err) {
       toast.error("Failed to submit Glow Drop");
     } finally {
       setLoading(false);
+      setAnalyzing(false);
     }
   };
 
