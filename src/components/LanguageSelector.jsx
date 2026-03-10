@@ -2,25 +2,19 @@ import { useState, useRef, useEffect } from "react";
 import { Globe } from "lucide-react";
 
 const LANGUAGES = [
-  { code: "en", label: "English", native: "English", flag: "🇰🇪" },       // Kenya (ECD HQ)
-  { code: "sw", label: "Kiswahili", native: "Kiswahili", flag: "🇹🇿" },   // Tanzania
-  { code: "fr", label: "French", native: "Français", flag: "🇨🇩" },       // DR Congo / Burundi / Djibouti
-  { code: "ln", label: "Lingala", native: "Lingála", flag: "🇨🇩" },       // DR Congo
-  { code: "rw", label: "Kinyarwanda", native: "Kinyarwanda", flag: "🇷🇼" }, // Rwanda
-  { code: "ar", label: "Arabic", native: "العربية", flag: "🇸🇩" },        // Sudan / Somalia / Eritrea / Djibouti
-  { code: "am", label: "Amharic", native: "አማርኛ", flag: "🇪🇹" },         // Ethiopia
-  { code: "rn", label: "Kirundi", native: "Kirundi", flag: "🇧🇮" },       // Burundi
-  { code: "pt", label: "Português", native: "Português", flag: "🇦🇴" },   // Angola (nearest ECD Portuguese)
-  { code: "so", label: "Somali", native: "Soomaali", flag: "🇸🇴" },       // Somalia
-  { code: "ti", label: "Tigrinya", native: "ትግርኛ", flag: "🇪🇷" },        // Eritrea
-  { code: "nus", label: "Nuer", native: "Nuer", flag: "🇸🇸" },            // South Sudan
-  { code: "lg", label: "Luganda", native: "Luganda", flag: "🇺🇬" },       // Uganda
+  { code: "en", label: "English", native: "English", flag: "🇰🇪" },
+  { code: "sw", label: "Kiswahili", native: "Kiswahili", flag: "🇹🇿" },
+  { code: "ar", label: "Arabic", native: "العربية", flag: "🇸🇩" },
+  { code: "pt", label: "Português", native: "Português", flag: "🇦🇴" },
+  { code: "lg", label: "Luganda", native: "Luganda", flag: "🇺🇬" },
 ];
 
 const LANG_STORAGE_KEY = "glm_language";
+const SUPPORTED_LANGUAGE_CODES = LANGUAGES.map(lang => lang.code);
 
 export function getLanguage() {
-  return localStorage.getItem(LANG_STORAGE_KEY) || "en";
+  const savedLanguage = localStorage.getItem(LANG_STORAGE_KEY);
+  return SUPPORTED_LANGUAGE_CODES.includes(savedLanguage) ? savedLanguage : "en";
 }
 
 export default function LanguageSelector() {
