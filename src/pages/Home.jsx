@@ -272,34 +272,32 @@ export default function Home() {
               </Link>
             </div>
 
-            <div style={{ position: "relative", minHeight: 520 }}>
-              <div style={{ position: "absolute", inset: 0, borderRadius: 30, overflow: "hidden", border: "1px solid rgba(138,92,255,0.24)", boxShadow: "0 0 50px rgba(138,92,255,0.14)" }}>
-                <img
-                  src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"
-                  alt="Young person thinking while using technology"
-                  loading="lazy"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.08) 0%, rgba(11,15,26,0.18) 38%, rgba(11,15,26,0.92) 100%)" }} />
-              </div>
+            <div style={{ position: "relative", minHeight: 520, borderRadius: 30, overflow: "hidden", border: "1px solid rgba(138,92,255,0.24)", boxShadow: "0 0 50px rgba(138,92,255,0.14)" }}>
+              <img
+                src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"
+                alt="Young person thinking while using technology"
+                loading="lazy"
+                style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.55 }}
+              />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.28) 0%, rgba(11,15,26,0.35) 36%, rgba(11,15,26,0.96) 100%)" }} />
 
-              <div style={{ position: "absolute", top: 22, left: 22, right: 22, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {["Screens", "Networks", "Connections"].map((item) => (
-                  <span key={item} style={{ padding: "8px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(11,15,26,0.42)", backdropFilter: "blur(10px)", color: "#FFFFFF", fontSize: 12, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
-                    {item}
-                  </span>
-                ))}
-              </div>
+              <div style={{ position: "absolute", inset: 0, padding: 24, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", opacity: 0.8 }}>
+                  {["Screens", "Networks", "Connections"].map((item) => (
+                    <span key={item} style={{ padding: "8px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(11,15,26,0.22)", backdropFilter: "blur(6px)", color: "#FFFFFF", fontSize: 12, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
 
-              <div style={{ position: "absolute", right: -12, bottom: 28, maxWidth: 320 }}>
-                <div className="glm-card" style={{ background: "rgba(8,12,20,0.82)", backdropFilter: "blur(16px)", border: "1px solid rgba(0,207,255,0.16)", padding: 24, boxShadow: "0 18px 45px rgba(0,0,0,0.35)" }}>
-                  <div className="glm-headline" style={{ fontSize: 24, lineHeight: 1.14, marginBottom: 10 }}>
+                <div style={{ maxWidth: 420 }}>
+                  <div className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.06, marginBottom: 12, textShadow: "0 8px 30px rgba(0,0,0,0.45)" }}>
                     The mission field is already in their hands.
                   </div>
-                  <p className="glm-body" style={{ fontSize: 15, marginBottom: 18 }}>
+                  <p className="glm-body" style={{ fontSize: 16, color: "#EAF2FF", marginBottom: 18, textShadow: "0 4px 18px rgba(0,0,0,0.45)" }}>
                     LightMode equips young people to meet this moment with courage, clarity, and a visible faith that shines where the world is already looking.
                   </p>
-                  <div style={{ height: 4, borderRadius: 999, background: "linear-gradient(90deg, #00CFFF 0%, #8A5CFF 55%, #FFD000 100%)", boxShadow: "0 0 20px rgba(0,207,255,0.25)" }} />
+                  <div style={{ width: 170, height: 4, borderRadius: 999, background: "linear-gradient(90deg, #00CFFF 0%, #8A5CFF 55%, #FFD000 100%)", boxShadow: "0 0 20px rgba(0,207,255,0.25)" }} />
                 </div>
               </div>
             </div>
