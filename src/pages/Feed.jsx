@@ -37,11 +37,56 @@ export default function Feed() {
   });
 
   const likeMutation = useMutation({
-    mutationFn: ({ id, likes }) => base44.entities.GlowDrop.update(id, { likes_count: likes + 1 }),
+    mutationFn: async ({ id, likes, authorEmail, authorName }) => {
+      await base44.entities.GlowDrop.update(id, { likes_count: likes + 1 });
+      if (authorEmail && authorEmail !== user?.email) {
+        await base44.entities.Notification.create({
+          user_email: authorEmail,
+          type: "like",
+          message: `${user?.full_name || 'Someone'} liked your Glow Drop!`,
+          link: `/Feed`
+        });
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
     }
   });
+
+  const { data: notifications = [] } = useQuery({
+    queryKey: ["notifications", user?.email],
+    queryFn: () => base44.entities.Notification.filter({ user_email: user.email, read: false }),
+    enabled: !!user
+  });
+
+  // Real-time subscription for notifications
+  useEffect(() => {
+    if (!user?.email) return;
+    const unsubscribe = base44.entities.Notification.subscribe((event) => {
+      if (event.type === 'create' && event.data.user_email === user.email && !event.data.read) {
+        toast(event.data.message, { icon: '🔔' });
+        queryClient.invalidateQueries({ queryKey: ["notifications", user.email] });
+      }
+    });
+    return unsubscribe;
+  }, [user?.email, queryClient]);
+
+  const handleShare = async (drop) => {
+    const shareText = `✨ Generation LightMode\n\n"${drop.verse}"\n\n${drop.reflection}\n\nJoin the movement at ${window.location.origin}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Glow Drop',
+          text: shareText,
+        });
+      } catch (err) {
+        console.log('Error sharing', err);
+      }
+    } else {
+      navigator.clipboard.writeText(shareText);
+      toast.success("Copied to clipboard!");
+    }
+  };
 
   const getUserInfo = (email) => {
     return users.find(u => u.email === email) || { full_name: "Glow Believer" };
