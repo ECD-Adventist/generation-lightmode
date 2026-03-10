@@ -53,6 +53,42 @@ export default function Profile() {
     enabled: !!user
   });
 
+  const { data: certificates = [] } = useQuery({
+    queryKey: ["myCerts", user?.email],
+    queryFn: () => base44.entities.Certificate.filter({ user_email: user.email }),
+    enabled: !!user
+  });
+
+  useEffect(() => {
+    async function checkCertificates() {
+      if (!user) return;
+      const myCerts = await base44.entities.Certificate.filter({ user_email: user.email });
+      const newCerts = [];
+      
+      if (!myCerts.find(c => c.title === '30 Days Consistent Posting')) {
+        const drops = await base44.entities.GlowDrop.filter({ user_email: user.email });
+        const uniqueDays = new Set(drops.map(d => d.created_date?.split('T')[0])).size;
+        if (uniqueDays >= 30) {
+          newCerts.push({ user_email: user.email, title: '30 Days Consistent Posting', description: 'Posted Glow Drops on 30 distinct days.', icon: '🏅' });
+        }
+      }
+      
+      if (!myCerts.find(c => c.title === 'Community Leader')) {
+        const groups = await base44.entities.GlowGroup.filter({ leader_email: user.email });
+        if (groups.length > 0) {
+          newCerts.push({ user_email: user.email, title: 'Community Leader', description: 'Led a GlowGroup for the first time.', icon: '👑' });
+        }
+      }
+
+      if (newCerts.length > 0) {
+        await base44.entities.Certificate.bulkCreate(newCerts);
+        queryClient.invalidateQueries({ queryKey: ["myCerts"] });
+        toast.success(`You earned ${newCerts.length} new Glow Certificate(s)!`);
+      }
+    }
+    checkCertificates();
+  }, [user, queryClient]);
+
   const [uploadingImage, setUploadingImage] = useState(false);
 
   const handleUpdateProfile = async (e) => {
@@ -237,7 +273,7 @@ export default function Profile() {
             <Grid className="w-4 h-4" /> DROPS
           </div>
           <div onClick={() => setActiveProfileTab("badges")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition ${activeProfileTab === "badges" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
-            <Award className="w-4 h-4" /> BADGES
+            <Award className="w-4 h-4" /> ACHIEVEMENTS
           </div>
         </div>
 
@@ -276,8 +312,28 @@ export default function Profile() {
         )}
 
         {activeProfileTab === "badges" && (
-           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 py-8">
-             {(() => {
+           <div className="py-8">
+             {certificates.length > 0 && (
+               <div className="mb-10">
+                 <h3 className="text-xl font-bold font-['Space_Grotesk'] text-[#FFD000] mb-4 flex items-center gap-2"><Award className="w-6 h-6" /> Glow Certificates</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   {certificates.map(cert => (
+                     <div key={cert.id} className="bg-gradient-to-r from-[#121826] to-[#0B0F1A] p-6 rounded-2xl border border-[#FFD000]/30 shadow-[0_0_20px_rgba(255,208,0,0.15)] flex items-center gap-6">
+                       <div className="text-5xl drop-shadow-lg bg-black/30 w-20 h-20 rounded-full flex items-center justify-center border-2 border-[#FFD000]/50">{cert.icon}</div>
+                       <div>
+                         <div className="text-xs text-[#FFD000] font-bold uppercase tracking-widest mb-1">Official Milestone</div>
+                         <h4 className="text-xl font-bold text-white font-['Space_Grotesk']">{cert.title}</h4>
+                         <p className="text-gray-400 text-sm mt-1">{cert.description}</p>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               </div>
+             )}
+             
+             <h3 className="text-xl font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-4 flex items-center gap-2"><Award className="w-6 h-6" /> Badges</h3>
+             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+               {(() => {
                 const badges = [];
                 if (user.glow_score >= 100) badges.push({ id: 'gs100', name: 'Spark', desc: 'Reached 100 Glow Score', icon: '⚡' });
                 if (user.glow_score >= 500) badges.push({ id: 'gs500', name: 'Flame', desc: 'Reached 500 Glow Score', icon: '🔥' });
@@ -297,6 +353,7 @@ export default function Profile() {
                   </div>
                 )) : <div className="col-span-full text-center text-gray-500 py-10 bg-[#121826]/50 rounded-2xl border border-white/5">Keep glowing to earn badges! Complete challenges and support prayers.</div>;
              })()}
+             </div>
            </div>
         )}
       </div>

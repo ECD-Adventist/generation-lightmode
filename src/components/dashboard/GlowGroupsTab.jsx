@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import GlowGroupChat from "./GlowGroupChat";
 import GlowGroupEvents from "./GlowGroupEvents";
+import GroupStudyPlanTab from "./GroupStudyPlanTab";
 
 export default function GlowGroupsTab({ user }) {
   const [creating, setCreating] = useState(false);
@@ -142,6 +143,7 @@ export default function GlowGroupsTab({ user }) {
             <button onClick={() => setGroupTab('feed')} className={`flex-1 py-4 font-bold transition ${groupTab === 'feed' ? 'text-[#00CFFF] border-b-2 border-[#00CFFF]' : 'text-gray-400 hover:text-white'}`}>Group Feed</button>
             <button onClick={() => setGroupTab('chat')} className={`flex-1 py-4 font-bold transition ${groupTab === 'chat' ? 'text-[#00CFFF] border-b-2 border-[#00CFFF]' : 'text-gray-400 hover:text-white'}`}>Chat</button>
             <button onClick={() => setGroupTab('events')} className={`flex-1 py-4 font-bold transition ${groupTab === 'events' ? 'text-[#00CFFF] border-b-2 border-[#00CFFF]' : 'text-gray-400 hover:text-white'}`}>Events</button>
+            <button onClick={() => setGroupTab('study')} className={`flex-1 py-4 font-bold transition ${groupTab === 'study' ? 'text-[#00CFFF] border-b-2 border-[#00CFFF]' : 'text-gray-400 hover:text-white'}`}>Study Plan</button>
           </div>
           <div className="p-6">
             {groupTab === 'feed' && (
@@ -153,6 +155,7 @@ export default function GlowGroupsTab({ user }) {
             )}
             {groupTab === 'chat' && <GlowGroupChat group={activeGroup} user={user} />}
             {groupTab === 'events' && <GlowGroupEvents group={activeGroup} user={user} />}
+            {groupTab === 'study' && <GroupStudyPlanTab group={activeGroup} user={user} />}
           </div>
         </div>
       )}

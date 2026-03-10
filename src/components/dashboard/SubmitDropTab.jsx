@@ -5,15 +5,53 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function SubmitDropTab({ user }) {
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [file, setFile] = useState(null);
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({ verse: "", reflection: "", hashtags: "", category: "Devotional" });
+  const [mood, setMood] = useState("");
+
+  const handleAIAssist = async () => {
+    if (!mood) {
+      toast.error("Please enter how you're feeling first");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const prompt = `The user is feeling: ${mood}. Suggest a comforting or relevant Bible verse and provide a gentle prompt to help them write a reflection about it.
+      Return JSON:
+      {
+        "verse": "The suggested Bible verse reference and text",
+        "prompt": "A gentle question or prompt for their reflection"
+      }`;
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            verse: { type: "string" },
+            prompt: { type: "string" }
+          }
+        }
+      });
+      setFormData(prev => ({
+        ...prev,
+        verse: res.verse,
+        reflection: `[AI Prompt: ${res.prompt}]\n\n`
+      }));
+      toast.success("AI suggested a verse and prompt!");
+    } catch (e) {
+      toast.error("AI Assist failed.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,6 +126,21 @@ export default function SubmitDropTab({ user }) {
           <div>
             <h2 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white">Share Your Light</h2>
             <p className="text-sm text-[#00CFFF] font-medium font-['Inter'] mt-1">Submit a Glow Drop to inspire others</p>
+          </div>
+        </div>
+        
+        <div className="bg-[#0B0F1A]/50 p-5 rounded-xl border border-white/5 mb-6 shadow-inner">
+          <Label className="text-gray-300 text-xs font-bold uppercase tracking-wider mb-3 block flex items-center gap-2"><Sparkles className="w-4 h-4 text-[#8A5CFF]" /> AI Draft Assistant</Label>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Input 
+              placeholder="How are you feeling today? (e.g. anxious, grateful, seeking guidance)" 
+              value={mood}
+              onChange={e => setMood(e.target.value)}
+              className="bg-[#121826] border-white/10 text-white h-12"
+            />
+            <Button type="button" onClick={handleAIAssist} disabled={aiLoading} className="bg-gradient-to-r from-[#8A5CFF] to-[#00CFFF] text-white font-bold h-12 px-6 whitespace-nowrap hover:shadow-[0_0_15px_rgba(138,92,255,0.4)] transition-all">
+              {aiLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Inspire Me"}
+            </Button>
           </div>
         </div>
 
