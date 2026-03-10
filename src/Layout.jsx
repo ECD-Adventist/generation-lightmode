@@ -299,10 +299,10 @@ export default function Layout({ children, currentPageName }) {
               </Link>
             ))}
             <Link to={createPageUrl("Resources")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
-              📺 Media & Content
+              📺 {t("mediaContent")}
             </Link>
             <Link to={createPageUrl("Resources") + "?tab=downloads"} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
-              📥 Downloads
+              📥 {t("downloads")}
             </Link>
             <a href="#join" className="glm-btn-primary" style={{ display: "block", textAlign: "center", marginTop: 20 }}>
               {t("joinNow")}
@@ -332,11 +332,16 @@ export default function Layout({ children, currentPageName }) {
             </div>
             <div>
               <h4 className="glm-headline" style={{ fontSize: 16, color: "#00CFFF", marginBottom: 16 }}>{t("movement")}</h4>
-              {["About", "Challenges", "GlowGroups", "Impact"].map(p => (
-                <Link key={p} to={createPageUrl(p)} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
+              {[
+               { key: "about", page: "About" },
+               { key: "challenges", page: "Challenges" },
+               { key: "glowGroups", page: "GlowGroups" },
+               { key: "impact", page: "Impact" },
+              ].map(p => (
+                <Link key={p.page} to={createPageUrl(p.page)} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
                   onMouseOver={e => e.target.style.color = "#00CFFF"}
                   onMouseOut={e => e.target.style.color = "#C8D0E0"}
-                >{p}</Link>
+                >{t(p.key)}</Link>
               ))}
             </div>
             <div>

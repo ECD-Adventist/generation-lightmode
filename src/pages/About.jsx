@@ -153,7 +153,7 @@ export default function About() {
           {t("storyText")}
           </p>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
-          <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 17 }}>Join Now ⚡</a>
+          <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 17 }}>{t("storyBadge") === "Our Story" ? "Join Now ⚡" : t("storyBadge") === "Hadithi Yetu" ? "Jiunge Sasa ⚡" : t("storyBadge") === "قصتنا" ? "انضم الآن ⚡" : t("storyBadge") === "Nossa História" ? "Participe Agora ⚡" : "Wegatteko Kati ⚡"}</a>
           <Link to={createPageUrl("Challenges")} className="glm-btn-secondary" style={{ fontSize: 17 }}>{t("seeChallenges")}</Link>
           <a id="our-mission" style={{ display: "none" }}></a>
         </div>
