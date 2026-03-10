@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Trophy, Medal, Calendar, CalendarDays, Globe } from "lucide-react";
@@ -36,13 +36,36 @@ export default function LeaderboardTab({ user }) {
         <div style={{ position: "absolute", top: 0, left: "20%", right: "20%", height: 1, background: "linear-gradient(90deg, transparent, rgba(255,208,0,0.8), transparent)" }} />
         <div style={{ position: "absolute", top: "-50%", left: "50%", transform: "translateX(-50%)", width: "60%", height: "100%", background: "radial-gradient(circle, rgba(255,208,0,0.05) 0%, transparent 60%)", pointerEvents: "none" }} />
 
-        <div className="flex items-center gap-4 mb-10 relative z-10">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FFD000]/20 to-[#FFD000]/5 flex items-center justify-center border border-[#FFD000]/30 shadow-[0_0_20px_rgba(255,208,0,0.2)]">
-            <Trophy className="text-[#FFD000] w-7 h-7" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FFD000]/20 to-[#FFD000]/5 flex items-center justify-center border border-[#FFD000]/30 shadow-[0_0_20px_rgba(255,208,0,0.2)]">
+              <Trophy className="text-[#FFD000] w-7 h-7" />
+            </div>
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold font-['Space_Grotesk'] text-white">Glow Score Wars</h2>
+              <p className="text-[15px] text-gray-400 font-medium font-['Inter'] mt-1">Global ranking of digital missionaries</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold font-['Space_Grotesk'] text-white">Glow Score Wars</h2>
-            <p className="text-[15px] text-gray-400 font-medium font-['Inter'] mt-1">Global ranking of digital missionaries</p>
+          
+          <div className="flex bg-[#0B0F1A] p-1.5 rounded-xl border border-white/10 shrink-0">
+            <button 
+              onClick={() => setTimeRange('today')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${timeRange === 'today' ? 'bg-gradient-to-r from-[#00CFFF]/20 to-[#8A5CFF]/20 text-white shadow-[0_0_15px_rgba(0,207,255,0.2)]' : 'text-gray-500 hover:text-gray-300'}`}
+            >
+              <Calendar className="w-4 h-4" /> Today
+            </button>
+            <button 
+              onClick={() => setTimeRange('week')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${timeRange === 'week' ? 'bg-gradient-to-r from-[#00CFFF]/20 to-[#8A5CFF]/20 text-white shadow-[0_0_15px_rgba(0,207,255,0.2)]' : 'text-gray-500 hover:text-gray-300'}`}
+            >
+              <CalendarDays className="w-4 h-4" /> This Week
+            </button>
+            <button 
+              onClick={() => setTimeRange('all-time')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${timeRange === 'all-time' ? 'bg-gradient-to-r from-[#00CFFF]/20 to-[#8A5CFF]/20 text-white shadow-[0_0_15px_rgba(0,207,255,0.2)]' : 'text-gray-500 hover:text-gray-300'}`}
+            >
+              <Globe className="w-4 h-4" /> All-Time
+            </button>
           </div>
         </div>
 
