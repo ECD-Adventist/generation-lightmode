@@ -91,24 +91,28 @@ export default function Layout({ children, currentPageName }) {
         }
 
         .glm-btn-primary {
-          background: linear-gradient(90deg, #00CFFF 0%, #8A5CFF 100%);
+          background: #00CFFF;
           color: #0B0F1A;
           font-family: 'Space Grotesk', sans-serif;
-          font-weight: 700;
+          font-weight: 800;
           padding: 14px 32px;
           border-radius: 50px;
           border: none;
           cursor: pointer;
           font-size: 16px;
           transition: all 0.3s ease;
-          box-shadow: 0 0 20px rgba(0, 207, 255, 0.4);
-          display: inline-block;
+          box-shadow: 0 0 20px rgba(0, 207, 255, 0.5);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           text-decoration: none;
+          white-space: nowrap;
         }
 
         .glm-btn-primary:hover {
           transform: translateY(-2px) scale(1.03);
-          box-shadow: 0 0 35px rgba(0, 207, 255, 0.7);
+          box-shadow: 0 0 35px rgba(0, 207, 255, 0.8);
+          background: #1ae0ff;
         }
 
         .glm-btn-secondary {
