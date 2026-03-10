@@ -3,20 +3,22 @@ import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Menu, X, Zap } from "lucide-react";
 import LanguageSelector from "./components/LanguageSelector";
+import { useAppLanguage } from "./components/i18n/useAppLanguage";
 
 const navLinks = [
-  { label: "Home", page: "Home" },
-  { label: "About", page: "About" },
-  { label: "Challenges", page: "Challenges" },
-  { label: "GlowGroups", page: "GlowGroups" },
-  { label: "Impact", page: "Impact" },
-  { label: "Assistant", page: "Assistant" },
+  { key: "home", page: "Home" },
+  { key: "about", page: "About" },
+  { key: "challenges", page: "Challenges" },
+  { key: "glowGroups", page: "GlowGroups" },
+  { key: "impact", page: "Impact" },
+  { key: "assistant", page: "Assistant" },
 ];
 
 export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
+  const { t, isRTL } = useAppLanguage("layout");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -25,7 +27,7 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   return (
-    <div style={{ background: "#0B0F1A", minHeight: "100vh", fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
+    <div dir={isRTL ? "rtl" : "ltr"} style={{ background: "#0B0F1A", minHeight: "100vh", fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
@@ -227,7 +229,7 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl(link.page)}
                 className={`nav-link ${currentPageName === link.page ? "active" : ""}`}
               >
-                {link.label}
+                {t(link.key)}
               </Link>
             ))}
             {/* Resources Dropdown */}
@@ -236,7 +238,7 @@ export default function Layout({ children, currentPageName }) {
               onMouseLeave={() => setResourcesOpen(false)}
             >
               <Link to={createPageUrl("Resources")} className={`nav-link ${["Media","Resources"].includes(currentPageName) ? "active" : ""}`} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                Resources <span style={{ fontSize: 10, opacity: 0.7 }}>▾</span>
+                {t("resources")} <span style={{ fontSize: 10, opacity: 0.7 }}>▾</span>
               </Link>
               {resourcesOpen && (
                 <div style={{
@@ -250,20 +252,20 @@ export default function Layout({ children, currentPageName }) {
                     onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
                     onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
                   >
-                    📺 Media & Content
+                    📺 {t("mediaContent") }
                   </Link>
                   <Link to={createPageUrl("Resources") + "?tab=downloads"} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
                     onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
                     onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
                   >
-                    📥 Downloads
+                    📥 {t("downloads") }
                   </Link>
                 </div>
               )}
             </div>
             <LanguageSelector />
             <a href="#join" className="glm-btn-primary" style={{ padding: "10px 24px", fontSize: 14 }}>
-              Join Now ⚡
+              {t("joinNow")}
             </a>
           </div>
 
@@ -293,7 +295,7 @@ export default function Layout({ children, currentPageName }) {
                 style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }}
                 onClick={() => setMenuOpen(false)}
               >
-                {link.label}
+                {t(link.key)}
               </Link>
             ))}
             <Link to={createPageUrl("Resources")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
@@ -303,7 +305,7 @@ export default function Layout({ children, currentPageName }) {
               📥 Downloads
             </Link>
             <a href="#join" className="glm-btn-primary" style={{ display: "block", textAlign: "center", marginTop: 20 }}>
-              Join Now ⚡
+              {t("joinNow")}
             </a>
           </div>
         )}
@@ -325,11 +327,11 @@ export default function Layout({ children, currentPageName }) {
                 style={{ height: 56, marginBottom: 16, filter: "drop-shadow(0 0 10px rgba(0,207,255,0.5))" }}
               />
               <p className="glm-body" style={{ fontSize: 14, maxWidth: 260 }}>
-                A faith-based digital movement across East-Central Africa turning hidden faith into visible light. <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
+                {t("footerText")} <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
               </p>
             </div>
             <div>
-              <h4 className="glm-headline" style={{ fontSize: 16, color: "#00CFFF", marginBottom: 16 }}>Movement</h4>
+              <h4 className="glm-headline" style={{ fontSize: 16, color: "#00CFFF", marginBottom: 16 }}>{t("movement")}</h4>
               {["About", "Challenges", "GlowGroups", "Impact"].map(p => (
                 <Link key={p} to={createPageUrl(p)} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
                   onMouseOver={e => e.target.style.color = "#00CFFF"}
@@ -338,25 +340,25 @@ export default function Layout({ children, currentPageName }) {
               ))}
             </div>
             <div>
-              <h4 className="glm-headline" style={{ fontSize: 16, color: "#00CFFF", marginBottom: 16 }}>Resources</h4>
+              <h4 className="glm-headline" style={{ fontSize: 16, color: "#00CFFF", marginBottom: 16 }}>{t("resources")}</h4>
               <Link to={createPageUrl("Resources")} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
                 onMouseOver={e => e.target.style.color = "#00CFFF"}
                 onMouseOut={e => e.target.style.color = "#C8D0E0"}
-              >Media & Content</Link>
+              >{t("mediaContent")}</Link>
               <Link to={createPageUrl("Resources") + "?tab=downloads"} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
                 onMouseOver={e => e.target.style.color = "#00CFFF"}
                 onMouseOut={e => e.target.style.color = "#C8D0E0"}
-              >Downloads</Link>
+              >{t("downloads")}</Link>
               <Link to={createPageUrl("Assistant")} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
                 onMouseOver={e => e.target.style.color = "#00CFFF"}
                 onMouseOut={e => e.target.style.color = "#C8D0E0"}
-              >Assistant</Link>
+              >{t("assistant")}</Link>
             </div>
             <div>
-              <h4 className="glm-headline" style={{ fontSize: 16, color: "#FFD000", marginBottom: 16 }}>Join The Movement</h4>
-              <p className="glm-body" style={{ fontSize: 14, marginBottom: 16 }}>Ready to switch on your light?</p>
+              <h4 className="glm-headline" style={{ fontSize: 16, color: "#FFD000", marginBottom: 16 }}>{t("joinMovement")}</h4>
+              <p className="glm-body" style={{ fontSize: 14, marginBottom: 16 }}>{t("ready")}</p>
               <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 14, padding: "12px 24px" }}>
-                Get Started ⚡
+                {t("getStarted")}
               </a>
             </div>
           </div>
@@ -364,7 +366,7 @@ export default function Layout({ children, currentPageName }) {
             <p style={{ color: "#C8D0E0", fontSize: 13 }}>© 2026 Generation LightMode. All rights reserved.</p>
             <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
               <span className="glow-dot"></span>
-              <span style={{ color: "#C8D0E0", fontSize: 13 }}>Powered by Communication & Media Department</span>
+              <span style={{ color: "#C8D0E0", fontSize: 13 }}>{t("poweredBy")}</span>
             </div>
           </div>
         </div>
