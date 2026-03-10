@@ -403,6 +403,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </div>
       </footer>
+      )}
 
       <style>{`
         @media (max-width: 768px) {
