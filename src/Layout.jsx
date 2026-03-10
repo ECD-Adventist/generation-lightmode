@@ -379,7 +379,7 @@ export default function Layout({ children, currentPageName }) {
             <div>
               <h4 className="glm-headline" style={{ fontSize: 16, color: "#FFD000", marginBottom: 16 }}>{t("joinMovement")}</h4>
               <p className="glm-body" style={{ fontSize: 14, marginBottom: 16 }}>{t("ready")}</p>
-              <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 14, padding: "12px 24px" }}>
+              <a href={createPageUrl("Dashboard")} className="glm-btn-primary" style={{ fontSize: 14, padding: "12px 24px" }}>
                 {t("getStarted")}
               </a>
             </div>

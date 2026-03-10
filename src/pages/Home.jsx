@@ -228,7 +228,7 @@ export default function Home() {
         </p>
 
         <div style={{ position: "relative", zIndex: 2, display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center", width: "100%", maxWidth: 500, margin: "0 auto" }}>
-          <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 16, padding: "14px 28px", flex: "1 1 180px", textAlign: "center" }}>
+          <a href={createPageUrl("Dashboard")} className="glm-btn-primary" style={{ fontSize: 16, padding: "14px 28px", flex: "1 1 180px", textAlign: "center" }}>
             {t("switchOn")}
           </a>
           <button onClick={() => {
@@ -475,7 +475,7 @@ export default function Home() {
             <p style={{ fontSize: 18, color: "#FFD000", marginTop: 32, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", textAlign: "center", textShadow: "0 0 20px rgba(255,208,0,0.5)" }}>My light will not dim. My faith will not fade. I am Generation LightMode."</p>
           </div>
 
-          <a href="/app/dashboard" className="glm-btn-primary animate-pulse-glow" style={{ fontSize: 20, padding: "18px 52px" }}>
+          <a href={createPageUrl("Dashboard")} className="glm-btn-primary animate-pulse-glow" style={{ fontSize: 20, padding: "18px 52px" }}>
             {t("signPledge")}
           </a>
           <p style={{ color: "#C8D0E0", fontSize: 14, marginTop: 20, fontFamily: "Inter, sans-serif", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>

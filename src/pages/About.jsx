@@ -89,7 +89,7 @@ export default function About() {
               "Let your light shine before others." — Matthew 5:16
             </p>
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-              <a href="/app/dashboard" className="glm-btn-primary">{joinNowText}</a>
+              <a href={createPageUrl("Dashboard")} className="glm-btn-primary">{joinNowText}</a>
               <Link to={createPageUrl("Challenges")} className="glm-btn-secondary">{t("seeChallenges")}</Link>
             </div>
           </div>
@@ -218,7 +218,7 @@ export default function About() {
           </h2>
           <p className="glm-body" style={{ fontSize: 18, maxWidth: 620, margin: "0 auto 34px" }}>{t("storyText")}</p>
           <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
-            <a href="/app/dashboard" className="glm-btn-primary">{joinNowText}</a>
+            <a href={createPageUrl("Dashboard")} className="glm-btn-primary">{joinNowText}</a>
             <Link to={createPageUrl("Challenges")} className="glm-btn-secondary" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
               {t("seeChallenges")} <ArrowRight size={16} />
             </Link>

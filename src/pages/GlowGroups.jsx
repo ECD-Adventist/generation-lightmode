@@ -146,7 +146,7 @@ export default function GlowGroups() {
                     </div>
                     <span className="glm-body" style={{ fontSize: 13 }}>{group.members} members</span>
                   </div>
-                  <a href="/app/dashboard" style={{ color: group.color, fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+                  <a href={createPageUrl("Dashboard")} style={{ color: group.color, fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
                     Join <ChevronRight size={14} />
                   </a>
                 </div>
@@ -160,7 +160,7 @@ export default function GlowGroups() {
               <div style={{ fontSize: 40, marginBottom: 16 }}>✨</div>
               <h3 className="glm-headline" style={{ fontSize: 18, color: "#00CFFF", marginBottom: 8 }}>Start a GlowGroup</h3>
               <p className="glm-body" style={{ fontSize: 14, marginBottom: 16 }}>Don't see one near you? Create your own and invite your people.</p>
-              <a href="/app/dashboard" className="glm-btn-primary" style={{ fontSize: 14, padding: "10px 24px" }}>Create Group ⚡</a>
+              <a href={createPageUrl("Dashboard")} className="glm-btn-primary" style={{ fontSize: 14, padding: "10px 24px" }}>Create Group ⚡</a>
             </div>
           </div>
         </div>
