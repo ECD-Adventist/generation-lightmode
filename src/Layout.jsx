@@ -217,7 +217,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* NAVBAR */}
       {currentPageName !== "Feed" && (
-      <nav style={{
+        <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
         background: scrolled ? "rgba(11,15,26,0.95)" : "transparent",
         backdropFilter: scrolled ? "blur(20px)" : "none",
