@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import ImageCropperModal from "@/components/ui/ImageCropperModal";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -70,14 +71,22 @@ export default function Profile() {
     }
   };
 
-  const handleImageUpload = async (e, type) => {
+  const [cropData, setCropData] = useState(null);
+
+  const handleImageSelect = (e, type) => {
     const file = e.target.files[0];
     if (!file) return;
+    setCropData({ file, type, aspectRatio: type === 'profile' ? 1 : 3 });
+    e.target.value = null; // reset input
+  };
 
+  const handleCropComplete = async (croppedFile) => {
+    const type = cropData.type;
+    setCropData(null);
     setUploadingImage(true);
     const toastId = toast.loading(`Uploading ${type} photo...`);
     try {
-      const res = await base44.integrations.Core.UploadFile({ file });
+      const res = await base44.integrations.Core.UploadFile({ file: croppedFile });
       
       const updates = {};
       if (type === "profile") {
@@ -105,6 +114,14 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-[#0B0F1A] text-white pt-8 pb-20 relative overflow-hidden">
+      {cropData && (
+        <ImageCropperModal
+          file={cropData.file}
+          aspectRatio={cropData.aspectRatio}
+          onCancel={() => setCropData(null)}
+          onCrop={handleCropComplete}
+        />
+      )}
       <div className="max-w-4xl mx-auto px-4 relative z-10">
         <div className="flex items-center justify-between mb-8 py-4 bg-[#0B0F1A]">
           <Link to={createPageUrl("Feed")} className="text-gray-400 hover:text-white transition font-medium">← Feed</Link>
@@ -136,7 +153,7 @@ export default function Profile() {
             </div>
           )}
         </div>
-        <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={e => handleImageUpload(e, "cover")} disabled={uploadingImage} />
+        <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "cover")} disabled={uploadingImage} />
 
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-white/5 pb-12 -mt-20 sm:-mt-24 relative z-10 px-4">
@@ -156,7 +173,7 @@ export default function Profile() {
               </div>
             </div>
           </div>
-          <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={e => handleImageUpload(e, "profile")} disabled={uploadingImage} />
+          <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "profile")} disabled={uploadingImage} />
           
           <div className="flex-1 text-center md:text-left mt-4 md:mt-16">
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
@@ -195,12 +212,12 @@ export default function Profile() {
               </div>
               <div>
                 <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Profile Picture</Label>
-                <Input type="file" accept="image/*" onChange={e => handleImageUpload(e, "profile")} disabled={uploadingImage} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
+                <Input type="file" accept="image/*" onChange={e => handleImageSelect(e, "profile")} disabled={uploadingImage} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
                 {editData.profile_picture_url && <img src={editData.profile_picture_url} alt="Profile preview" className="w-16 h-16 rounded-full mt-2 object-cover border border-white/10" />}
               </div>
               <div>
                 <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Cover Photo</Label>
-                <Input type="file" accept="image/*" onChange={e => handleImageUpload(e, "cover")} disabled={uploadingImage} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
+                <Input type="file" accept="image/*" onChange={e => handleImageSelect(e, "cover")} disabled={uploadingImage} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
                 {editData.cover_picture_url && <img src={editData.cover_picture_url} alt="Cover preview" className="w-full h-24 rounded-xl mt-2 object-cover border border-white/10" />}
               </div>
               <div className="flex justify-end gap-3 pt-4">
