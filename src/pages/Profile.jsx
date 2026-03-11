@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
-import DropViewerModal from "@/components/feed/DropViewerModal";
 import ProfileConnectionsModal from "@/components/profile/ProfileConnectionsModal";
 
 export default function Profile() {
@@ -22,7 +21,6 @@ export default function Profile() {
   const [editData, setEditData] = useState({ full_name: "", country: "", profile_picture_url: "", cover_picture_url: "" });
   const [activeProfileTab, setActiveProfileTab] = useState("drops");
   const [connectionsView, setConnectionsView] = useState(null);
-  const [viewingDrop, setViewingDrop] = useState(null);
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
@@ -299,15 +297,6 @@ export default function Profile() {
         />
       )}
       <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
-      {viewingDrop && (
-        <DropViewerModal
-          drop={viewingDrop}
-          drops={myDrops}
-          user={currentUser}
-          onClose={() => setViewingDrop(null)}
-          onNavigate={(d) => setViewingDrop(d)}
-        />
-      )}
       <ProfileConnectionsModal
         title={connectionsView}
         items={connectionsView === "Followers" ? myFollowers.map((item) => ({ email: item.follower_email })) : myFollowing.map((item) => ({ email: item.following_email }))}
@@ -493,33 +482,35 @@ export default function Profile() {
         </div>
 
         {activeProfileTab === "drops" && (
-        <div className="grid grid-cols-3 gap-1 sm:gap-2 md:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
           {myDrops.map(drop => (
-            <div key={drop.id} onClick={() => setViewingDrop(drop)} className="aspect-square bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-white/5 relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-4 text-center rounded-sm sm:rounded-xl">
+            <Link
+              key={drop.id}
+              to={`${createPageUrl("Post")}?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(profileEmail)}`}
+              className="aspect-[4/5] bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-white/5 relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-3 text-center rounded-2xl"
+            >
               {drop.media_url ? (
                 <>
-                  <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="absolute inset-0 w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10" />
+                  <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="absolute inset-0 w-full h-full object-contain bg-black" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-10" />
                 </>
               ) : (
-                <div className="relative z-10 w-full h-full flex items-center justify-center">
-                  <span className="text-[#00CFFF] font-bold font-['Space_Grotesk'] text-xs sm:text-base md:text-xl lg:text-2xl px-1 break-words line-clamp-4 leading-tight drop-shadow-md">
+                <div className="relative z-10 w-full h-full flex items-center justify-center px-3">
+                  <span className="text-[#00CFFF] font-bold font-['Space_Grotesk'] text-sm sm:text-lg md:text-2xl break-words line-clamp-5 leading-tight drop-shadow-md">
                     {drop.verse}
                   </span>
                 </div>
               )}
-              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
+              <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]">
                 <div className="flex items-center gap-2 font-bold text-lg md:text-2xl text-white">
-                  <Heart className="w-5 h-5 md:w-8 md:h-8 fill-white" /> {drop.likes_count || 0}
+                  <Heart className="w-5 h-5 md:w-7 md:h-7 fill-white" /> {drop.likes_count || 0}
                 </div>
-                <div className="flex items-center gap-2 font-bold text-lg md:text-2xl text-white">
-                  <MessageCircle className="w-5 h-5 md:w-8 md:h-8 fill-white" /> 0
-                </div>
+                <div className="text-sm text-white/90 font-medium">Open post</div>
               </div>
-            </div>
+            </Link>
           ))}
           {myDrops.length === 0 && (
-            <div className="col-span-3 py-32 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-2xl bg-white/[0.02]">
+            <div className="col-span-full py-32 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-2xl bg-white/[0.02]">
               <div className="w-20 h-20 rounded-full border-2 border-gray-600 flex items-center justify-center mb-6">
                 <Grid className="w-10 h-10 text-gray-500" />
               </div>

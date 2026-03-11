@@ -62,6 +62,7 @@ import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
 import Resources from './pages/Resources';
 import Saved from './pages/Saved';
+import Post from './pages/Post';
 import __Layout from './Layout.jsx';
 
 
@@ -81,6 +82,7 @@ export const PAGES = {
     "Profile": Profile,
     "Resources": Resources,
     "Saved": Saved,
+    "Post": Post,
 }
 
 export const pagesConfig = {
