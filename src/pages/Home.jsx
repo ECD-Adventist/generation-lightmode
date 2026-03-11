@@ -161,6 +161,15 @@ export default function Home() {
             }
           `}
         </style>
+        {/* Floating home nav logo */}
+        <Link to={createPageUrl("Home")} style={{ position: "absolute", top: 20, left: 24, zIndex: 10, display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+          <img
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
+            alt="LightMode"
+            style={{ height: 40, width: "auto", filter: "drop-shadow(0 0 8px rgba(0,207,255,0.5))" }}
+          />
+        </Link>
+
         {/* Background image */}
         <img
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg"
