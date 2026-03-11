@@ -230,31 +230,48 @@ export default function Profile() {
             0% { transform: translateX(-150%) skewX(-20deg); }
             100% { transform: translateX(300%) skewX(-20deg); }
           }
+          @keyframes spin-border {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+          }
         `}</style>
         <div 
-          className="w-full h-48 sm:h-64 rounded-2xl mb-8 bg-[#121826] border border-white/5 overflow-hidden relative group cursor-pointer"
-          style={user.cover_picture_url ? { backgroundImage: `url(${user.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+          className="w-full h-48 sm:h-64 rounded-2xl mb-8 relative group cursor-pointer p-[2px] overflow-hidden shadow-[0_0_30px_rgba(0,207,255,0.15)]"
           onClick={() => coverInputRef.current?.click()}
         >
-          {/* Sweeping Light Effect */}
+          {/* Rotating Edge Light */}
           <div style={{
-            position: "absolute", top: 0, bottom: 0, left: 0, width: "30%",
-            background: "linear-gradient(90deg, transparent, rgba(0,207,255,0.1), rgba(255,255,255,0.3), rgba(0,207,255,0.1), transparent)",
-            animation: "sweep-light 4s infinite ease-in-out",
-            zIndex: 1, pointerEvents: "none",
-            boxShadow: "0 0 20px rgba(0,207,255,0.4)"
+            position: "absolute", top: "50%", left: "50%", width: "200%", height: "200%",
+            background: "conic-gradient(from 0deg, transparent 60%, #00CFFF 80%, #8A5CFF 100%)",
+            animation: "spin-border 4s linear infinite",
+            zIndex: 0
           }} />
 
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-            <div className="flex items-center gap-2 text-white font-bold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
-              <Camera className="w-5 h-5" /> Change Cover
+          {/* Inner Content Wrapper */}
+          <div 
+            className="w-full h-full rounded-[14px] bg-[#121826] overflow-hidden relative z-10"
+            style={user.cover_picture_url ? { backgroundImage: `url(${user.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+          >
+            {/* Sweeping Light Effect */}
+            <div style={{
+              position: "absolute", top: 0, bottom: 0, left: 0, width: "30%",
+              background: "linear-gradient(90deg, transparent, rgba(0,207,255,0.1), rgba(255,255,255,0.3), rgba(0,207,255,0.1), transparent)",
+              animation: "sweep-light 4s infinite ease-in-out",
+              zIndex: 1, pointerEvents: "none",
+              boxShadow: "0 0 20px rgba(0,207,255,0.4)"
+            }} />
+
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
+              <div className="flex items-center gap-2 text-white font-bold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
+                <Camera className="w-5 h-5" /> Change Cover
+              </div>
             </div>
+            {!user.cover_picture_url && (
+              <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-gradient-to-br from-[#0B0F1A] to-[#121826]">
+                No Cover Photo
+              </div>
+            )}
           </div>
-          {!user.cover_picture_url && (
-            <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-gradient-to-br from-[#0B0F1A] to-[#121826]">
-              No Cover Photo
-            </div>
-          )}
         </div>
         <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "cover")} disabled={uploadingImage} />
 
