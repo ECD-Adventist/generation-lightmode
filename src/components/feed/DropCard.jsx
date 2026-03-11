@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark } from "lucide-react";
+import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, Flag } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -162,6 +162,23 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
               className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
             >
               <Bookmark className={`w-6 h-6 transition-transform hover:scale-110 ${isSaved ? "text-[#00CFFF] fill-[#00CFFF]" : "text-white"}`} />
+            </button>
+          </div>
+
+          <div className="flex flex-col items-center gap-1.5">
+            <button 
+              onClick={(e) => { 
+                e.stopPropagation();
+                if(!user) return toast.error("Please login to report");
+                const reason = window.prompt("Why are you reporting this content?");
+                if(reason) {
+                  base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason })
+                    .then(() => toast.success("Content reported to moderators."));
+                }
+              }}
+              className="w-10 h-10 mt-2 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-red-500 transition-all focus:outline-none"
+            >
+              <Flag className="w-4 h-4 text-gray-400 hover:text-red-500" />
             </button>
           </div>
         </div>

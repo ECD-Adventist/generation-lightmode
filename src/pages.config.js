@@ -60,6 +60,7 @@ import Media from './pages/Media';
 import Profile from './pages/Profile';
 import Resources from './pages/Resources';
 import Saved from './pages/Saved';
+import AdminReports from './pages/AdminReports';
 import __Layout from './Layout.jsx';
 
 
@@ -77,6 +78,7 @@ export const PAGES = {
     "Profile": Profile,
     "Resources": Resources,
     "Saved": Saved,
+    "AdminReports": AdminReports,
 }
 
 export const pagesConfig = {
