@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Home, Zap, Bell, User, Globe } from "lucide-react";
 import PrayerRequestCard from "@/components/prayer/PrayerRequestCard";
 
 export default function PrayerWall() {
