@@ -195,9 +195,7 @@ export default function GlowGroups() {
                   {/* Avatar */}
                   <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
                     <div className="w-full h-full rounded-full bg-[#121826] overflow-hidden flex items-center justify-center font-bold text-lg text-white">
-                      {u.profile_picture_url
-                        ? <img src={u.profile_picture_url} className="w-full h-full object-cover" />
-                        : u.full_name?.charAt(0)}
+                      <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                     </div>
                   </div>
                   {/* Info */}
@@ -305,9 +303,7 @@ export default function GlowGroups() {
                   </div>
                   {/* Avatar */}
                   <div className={`w-12 h-12 rounded-full overflow-hidden flex items-center justify-center font-bold text-base shrink-0 border-2 ${index < 3 ? "border-[#FFD000]" : "border-white/10"} bg-[#1a2235]`}>
-                    {u.profile_picture_url
-                      ? <img src={u.profile_picture_url} className="w-full h-full object-cover" />
-                      : <span className="text-white">{u.full_name?.charAt(0)}</span>}
+                    <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                   </div>
                   {/* Info */}
                   <div className="flex-1 min-w-0">
