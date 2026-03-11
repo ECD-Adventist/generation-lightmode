@@ -291,7 +291,7 @@ export default function GlowGroups() {
           {/* Leaders Grid */}
           {activeTab === "leaders" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16, paddingBottom: 100, maxWidth: 800, margin: "0 auto" }}>
-              {users.sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0)).slice(0, 50).map((u, index) => {
+              {[...users].sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0)).slice(0, 50).map((u, index) => {
                 const isFollowing = following.some(f => f.following_email === u.email);
                 return (
                   <div key={u.id} className="glm-card" style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 24px", border: index < 3 ? "1px solid rgba(255,208,0,0.4)" : "1px solid rgba(255,255,255,0.05)", background: index === 0 ? "rgba(255,208,0,0.05)" : "#121826" }}>
