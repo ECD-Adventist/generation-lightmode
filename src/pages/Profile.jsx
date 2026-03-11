@@ -297,7 +297,7 @@ export default function Profile() {
         <DropViewerModal
           drop={viewingDrop}
           drops={myDrops}
-          user={user}
+          user={currentUser}
           onClose={() => setViewingDrop(null)}
           onNavigate={(d) => setViewingDrop(d)}
         />
