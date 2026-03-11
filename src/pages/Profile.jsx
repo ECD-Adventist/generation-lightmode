@@ -420,7 +420,7 @@ export default function Profile() {
           </div>
         </div>
 
-        {isEditing && (
+        {isEditing && isOwnProfile && (
           <div className="bg-[#121826]/80 backdrop-blur-xl p-8 rounded-2xl border border-white/10 mb-12 animate-in fade-in slide-in-from-top-4 shadow-2xl">
             <h3 className="text-xl font-bold mb-6 font-['Space_Grotesk'] text-[#00CFFF]">Edit Your Details</h3>
             <form onSubmit={handleUpdateProfile} className="space-y-5">
@@ -489,9 +489,11 @@ export default function Profile() {
               </div>
               <h2 className="text-2xl font-bold font-['Space_Grotesk'] mb-2">No Drops Yet</h2>
               <p className="text-gray-400 mb-6 text-center max-w-md">When you share verses and reflections, they will appear on your profile grid.</p>
-              <button onClick={() => setIsDropModalOpen(true)} className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition">
-                Share your first Drop
-              </button>
+              {isOwnProfile && (
+                <button onClick={() => setIsDropModalOpen(true)} className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition">
+                  Share your first Drop
+                </button>
+              )}
             </div>
           )}
         </div>
