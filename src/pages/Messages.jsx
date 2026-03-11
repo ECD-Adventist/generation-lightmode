@@ -119,8 +119,19 @@ export default function Messages() {
     if (!user?.email || !targetEmail) return;
     const alreadyFollowing = following.some((entry) => entry.following_email === targetEmail);
     if (!alreadyFollowing) return;
-    ensureConversationMutation.mutate(targetEmail);
-  }, [targetEmail, user?.email, following.length]);
+
+    const existing = conversations.find((conversation) => {
+      const pair = [conversation.participant_a_email, conversation.participant_b_email].sort().join("::");
+      return pair === [user.email, targetEmail].sort().join("::");
+    });
+
+    if (existing) {
+      setSelectedConversationId(existing.id);
+      return;
+    }
+
+    if (!ensureConversationMutation.isPending) ensureConversationMutation.mutate(targetEmail);
+  }, [targetEmail, user?.email, following, conversations]);
 
   useEffect(() => {
     const conversationFromUrl = urlParams.get("conversation");
