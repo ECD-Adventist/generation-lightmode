@@ -58,7 +58,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     }
   });
 
-  const getCommentUser = (email) => users.find(u => u.email === email) || { full_name: "User" };
+  const getCommentUser = (email) => {
+    if (user?.email === email) return user;
+    if (dropUser?.email === email) return dropUser;
+    return users.find(u => u.email === email) || { full_name: "Glow Believer" };
+  };
 
   const commentMutation = useMutation({
     mutationFn: async (content) => {
