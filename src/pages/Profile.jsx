@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
+import DropViewerModal from "@/components/feed/DropViewerModal";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -18,6 +19,7 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ full_name: "", country: "", profile_picture_url: "", cover_picture_url: "" });
   const [activeProfileTab, setActiveProfileTab] = useState("drops");
+  const [viewingDrop, setViewingDrop] = useState(null);
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
@@ -216,6 +218,15 @@ export default function Profile() {
         />
       )}
       <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
+      {viewingDrop && (
+        <DropViewerModal
+          drop={viewingDrop}
+          drops={myDrops}
+          user={user}
+          onClose={() => setViewingDrop(null)}
+          onNavigate={(d) => setViewingDrop(d)}
+        />
+      )}
       <div className="max-w-4xl mx-auto px-4 relative z-10">
         <div className="flex items-center justify-between mb-8 py-4">
           <div className="font-bold text-lg text-gray-400">{user.email}</div>
@@ -367,7 +378,7 @@ export default function Profile() {
         {activeProfileTab === "drops" && (
         <div className="grid grid-cols-3 gap-1 sm:gap-2 md:gap-4">
           {myDrops.map(drop => (
-            <div key={drop.id} className="aspect-square bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-white/5 relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-4 text-center rounded-sm sm:rounded-xl">
+            <div key={drop.id} onClick={() => setViewingDrop(drop)} className="aspect-square bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-white/5 relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-4 text-center rounded-sm sm:rounded-xl">
               <div className="relative z-10 w-full h-full flex items-center justify-center">
                 <span className="text-[#00CFFF] font-bold font-['Space_Grotesk'] text-xs sm:text-base md:text-xl lg:text-2xl px-1 break-words line-clamp-4 leading-tight drop-shadow-md">
                   {drop.verse}
