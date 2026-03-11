@@ -299,33 +299,39 @@ export default function Home() {
               </Link>
             </div>
 
-            <div style={{ position: "relative", minHeight: 520, borderRadius: 30, overflow: "hidden", border: "1px solid rgba(138,92,255,0.24)", boxShadow: "0 0 50px rgba(138,92,255,0.14)" }}>
+            <div style={{ position: "relative", minHeight: 520, borderRadius: 30, overflow: "hidden", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 0 60px rgba(0,207,255,0.12)", background: "rgba(11,15,26,0.85)", backdropFilter: "blur(16px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 32px", gap: 32 }}>
+              {/* Glow orb behind logo */}
+              <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: 320, height: 320, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.13) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+              {/* Logo */}
               <img
-                src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"
-                alt="Young person thinking while using technology"
-                loading="lazy"
-                style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.55 }}
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/e51a96559_GENERATIONLIGHTMODE-LOGO.png"
+                alt="Generation LightMode"
+                style={{ width: "100%", maxWidth: 340, height: "auto", filter: "drop-shadow(0 0 40px rgba(0,207,255,0.6)) drop-shadow(0 0 80px rgba(255,208,0,0.25))", position: "relative", zIndex: 1 }}
               />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.28) 0%, rgba(11,15,26,0.35) 36%, rgba(11,15,26,0.96) 100%)" }} />
 
-              <div style={{ position: "absolute", inset: 0, padding: 24, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", opacity: 0.8 }}>
-                  {["Screens", "Networks", "Connections"].map((item) => (
-                    <span key={item} style={{ padding: "8px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(11,15,26,0.22)", backdropFilter: "blur(6px)", color: "#FFFFFF", fontSize: 12, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
-                      {item}
-                    </span>
-                  ))}
-                </div>
+              {/* Feature pills */}
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", position: "relative", zIndex: 1 }}>
+                {[
+                  { label: "Glow Drops", color: "#00CFFF" },
+                  { label: "GlowGroups", color: "#8A5CFF" },
+                  { label: "Challenges", color: "#FFD000" },
+                  { label: "AI Assistant", color: "#00CFFF" },
+                  { label: "Leaderboards", color: "#8A5CFF" },
+                  { label: "Prayer Wall", color: "#FFD000" },
+                ].map(f => (
+                  <span key={f.label} style={{ padding: "9px 18px", borderRadius: 999, border: `1px solid ${f.color}40`, background: `${f.color}10`, color: f.color, fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 700, letterSpacing: "0.02em" }}>
+                    {f.label}
+                  </span>
+                ))}
+              </div>
 
-                <div style={{ maxWidth: 420 }}>
-                  <div className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.06, marginBottom: 12, textShadow: "0 8px 30px rgba(0,0,0,0.45)" }}>
-                    The mission field is already in their hands.
-                  </div>
-                  <p className="glm-body" style={{ fontSize: 16, color: "#EAF2FF", marginBottom: 18, textShadow: "0 4px 18px rgba(0,0,0,0.45)" }}>
-                    LightMode equips young people to meet this moment with courage, clarity, and a visible faith that shines where the world is already looking.
-                  </p>
-                  <div style={{ width: 170, height: 4, borderRadius: 999, background: "linear-gradient(90deg, #00CFFF 0%, #8A5CFF 55%, #FFD000 100%)", boxShadow: "0 0 20px rgba(0,207,255,0.25)" }} />
-                </div>
+              {/* Bottom tagline + bar */}
+              <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+                <p className="glm-body" style={{ fontSize: 15, color: "#EAF2FF", marginBottom: 16 }}>
+                  LightMode equips young people to meet this moment with courage, clarity, and a visible faith that shines where the world is already looking.
+                </p>
+                <div style={{ width: 170, height: 4, borderRadius: 999, background: "linear-gradient(90deg, #00CFFF 0%, #8A5CFF 55%, #FFD000 100%)", boxShadow: "0 0 20px rgba(0,207,255,0.25)", margin: "0 auto" }} />
               </div>
             </div>
           </div>
