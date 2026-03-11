@@ -438,7 +438,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Page Content */}
-      <main style={{ paddingTop: (["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports"].includes(currentPageName) && userEmail) || currentPageName === "Feed" ? 0 : 72 }}>
+      <main style={{ paddingTop: ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Challenges","Assistant","Resources","GlobalReach"].includes(currentPageName) && userEmail ? 0 : 64 }}>
         {children}
       </main>
 
