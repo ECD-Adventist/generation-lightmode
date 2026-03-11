@@ -259,91 +259,44 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* WHY LIGHTMODE EXISTS */}
-      <section style={{ padding: "88px 24px", position: "relative", overflow: "hidden" }}>
-        {/* Scrolling background image */}
+      <section style={{ padding: "0", position: "relative", overflow: "hidden", minHeight: "80vh", display: "flex", alignItems: "center" }}>
+        {/* Full background image */}
+        <img
+          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/03e3bfc33_COVER02copy.jpg"
+          alt="Mission field"
+          loading="lazy"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", zIndex: 0 }}
+        />
+        {/* Dark overlay — heavier on left so text is readable */}
         <div style={{
-          position: "absolute", inset: 0,
-          backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/e88a5564f_COVER02.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "scroll",
-          opacity: 0.18,
-          zIndex: 0
-        }} />
-        {/* Dark overlay */}
-        <div style={{
-          position: "absolute", inset: 0, zIndex: 0,
-          background: "linear-gradient(180deg, rgba(11,15,26,0.92) 0%, rgba(11,15,26,0.75) 50%, rgba(11,15,26,0.92) 100%)",
+          position: "absolute", inset: 0, zIndex: 1,
+          background: "linear-gradient(90deg, rgba(11,15,26,0.96) 0%, rgba(11,15,26,0.80) 55%, rgba(11,15,26,0.30) 100%)",
           pointerEvents: "none",
         }} />
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 18% 28%, rgba(0,207,255,0.07), transparent 28%), radial-gradient(circle at 82% 78%, rgba(138,92,255,0.12), transparent 24%)", pointerEvents: "none", zIndex: 0 }} />
-        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 2 }}>
-          <div className="why-lightmode-stack" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.1fr) minmax(320px, 0.9fr)", gap: 36, alignItems: "center" }}>
-            <div style={{ maxWidth: 650 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.24)", borderRadius: 999, padding: "7px 14px", marginBottom: 22 }}>
-                <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.04em" }}>WHY IT MATTERS</span>
-              </div>
-              <h2 className="glm-headline" style={{ fontSize: "clamp(34px, 5vw, 58px)", lineHeight: 1.02, marginBottom: 18 }}>
-                {t("whyTitleBefore")} <span className="glm-gradient-text">{t("whyTitleHighlight")}</span>
-              </h2>
-              <p style={{ color: "#FFD000", fontSize: 14, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 24 }}>
-                {t("whySubtitle")}
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 18, marginBottom: 30 }}>
-                <p className="glm-body" style={{ fontSize: 17 }}>{t("whyText1")}</p>
-                <p className="glm-body" style={{ fontSize: 17 }}>{t("whyText2")}</p>
-                <p className="glm-body" style={{ fontSize: 17, color: "#EAF2FF" }}>{t("whyText3")}</p>
-              </div>
-              <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 16 }}>
-                {t("learnMore")}
-              </Link>
+        {/* Top/bottom fade */}
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(180deg, rgba(11,15,26,0.8) 0%, transparent 20%, transparent 80%, rgba(11,15,26,0.8) 100%)", pointerEvents: "none" }} />
+
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "100px 24px", position: "relative", zIndex: 2, width: "100%" }}>
+          <div style={{ maxWidth: 620 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.24)", borderRadius: 999, padding: "7px 14px", marginBottom: 22 }}>
+              <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.04em" }}>WHY IT MATTERS</span>
             </div>
-
-            <div style={{ position: "relative", minHeight: 520, borderRadius: 30, overflow: "hidden", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 0 60px rgba(0,207,255,0.12)", background: "rgba(11,15,26,0.85)", backdropFilter: "blur(16px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 32px", gap: 32 }}>
-              {/* Glow orb behind logo */}
-              <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translate(-50%,-50%)", width: 320, height: 320, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.13) 0%, transparent 70%)", pointerEvents: "none" }} />
-
-              {/* Logo */}
-              <img
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/e51a96559_GENERATIONLIGHTMODE-LOGO.png"
-                alt="Generation LightMode"
-                style={{ width: "100%", maxWidth: 340, height: "auto", filter: "drop-shadow(0 0 40px rgba(0,207,255,0.6)) drop-shadow(0 0 80px rgba(255,208,0,0.25))", position: "relative", zIndex: 1 }}
-              />
-
-              {/* Feature pills */}
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", position: "relative", zIndex: 1 }}>
-                {[
-                  { label: "Glow Drops", color: "#00CFFF" },
-                  { label: "GlowGroups", color: "#8A5CFF" },
-                  { label: "Challenges", color: "#FFD000" },
-                  { label: "AI Assistant", color: "#00CFFF" },
-                  { label: "Leaderboards", color: "#8A5CFF" },
-                  { label: "Prayer Wall", color: "#FFD000" },
-                ].map(f => (
-                  <span key={f.label} style={{ padding: "9px 18px", borderRadius: 999, border: `1px solid ${f.color}40`, background: `${f.color}10`, color: f.color, fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 700, letterSpacing: "0.02em" }}>
-                    {f.label}
-                  </span>
-                ))}
-              </div>
-
-              {/* Bottom tagline + bar */}
-              <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
-                <p className="glm-body" style={{ fontSize: 15, color: "#EAF2FF", marginBottom: 16 }}>
-                  LightMode equips young people to meet this moment with courage, clarity, and a visible faith that shines where the world is already looking.
-                </p>
-                <div style={{ width: 170, height: 4, borderRadius: 999, background: "linear-gradient(90deg, #00CFFF 0%, #8A5CFF 55%, #FFD000 100%)", boxShadow: "0 0 20px rgba(0,207,255,0.25)", margin: "0 auto" }} />
-              </div>
+            <h2 className="glm-headline" style={{ fontSize: "clamp(34px, 5vw, 58px)", lineHeight: 1.02, marginBottom: 18 }}>
+              {t("whyTitleBefore")} <span className="glm-gradient-text">{t("whyTitleHighlight")}</span>
+            </h2>
+            <p style={{ color: "#FFD000", fontSize: 14, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 24 }}>
+              {t("whySubtitle")}
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 18, marginBottom: 30 }}>
+              <p className="glm-body" style={{ fontSize: 17 }}>{t("whyText1")}</p>
+              <p className="glm-body" style={{ fontSize: 17 }}>{t("whyText2")}</p>
+              <p className="glm-body" style={{ fontSize: 17, color: "#EAF2FF" }}>{t("whyText3")}</p>
             </div>
+            <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 16 }}>
+              {t("learnMore")}
+            </Link>
           </div>
         </div>
-
-        <style>{`
-          @media (max-width: 900px) {
-            .why-lightmode-stack {
-              grid-template-columns: 1fr;
-            }
-          }
-        `}</style>
       </section>
 
       <div className="section-divider" />
