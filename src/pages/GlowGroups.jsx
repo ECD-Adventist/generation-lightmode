@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight, Home, Bell, User } from "lucide-react";
+import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight, Home, Bell, User, Video } from "lucide-react";
+import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -111,6 +112,7 @@ export default function GlowGroups() {
   const tabs = [
     { id: "people", label: "People", icon: Users },
     { id: "groups", label: "GlowGroups", icon: Globe },
+    { id: "sessions", label: "Sessions", icon: Video },
     { id: "leaders", label: "Light Leaders", icon: Star },
   ];
 
@@ -121,7 +123,7 @@ export default function GlowGroups() {
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
             <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
+              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7e2f8baa1_FAVICON.png"
               alt="LightMode"
               style={{ height: 32, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
             />
@@ -286,6 +288,10 @@ export default function GlowGroups() {
               );
             })}
           </div>
+        )}
+
+        {activeTab === "sessions" && (
+          <GroupSessionsPanel user={user} groups={realGroups} memberships={myMemberships} />
         )}
 
         {/* LIGHT LEADERS TAB */}

@@ -269,7 +269,7 @@ export default function Profile() {
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
             <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
+              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7e2f8baa1_FAVICON.png"
               alt="LightMode"
               style={{ height: 32, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
             />
