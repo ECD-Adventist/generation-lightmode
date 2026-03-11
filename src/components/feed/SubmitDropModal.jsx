@@ -73,10 +73,22 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
         media_url: uploadedMediaUrl,
         ...formData
       });
-      await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + finalScore });
-      toast.success(`Glow Drop submitted! +${finalScore} Points earned!`);
+      
+      const today = new Date().toISOString().split('T')[0];
+      const challenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: today });
+      let challengeBonus = 0;
+      let challengeMsg = "";
+      if (!challenges.some(c => c.challenge_id === 'share_verse')) {
+        await base44.entities.UserDailyChallenge.create({ user_email: user.email, date_string: today, challenge_id: 'share_verse' });
+        challengeBonus = 10;
+        challengeMsg = " + Challenge Completed! +10 XP ⚡";
+      }
+
+      await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + finalScore + challengeBonus });
+      toast.success(`Glow Drop submitted! +${finalScore} XP earned!${challengeMsg}`);
       
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+      queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });
       queryClient.invalidateQueries({ queryKey: ["myGlowDropsProfile"] });
       onClose();
       setFormData({ verse: "", reflection: "", hashtags: "", category: "Devotional" });
