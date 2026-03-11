@@ -15,8 +15,8 @@ export default function LeaderboardTab({ user }) {
   // Since glow_score is total, we simulate the time-based leaderboards for the community effect
   // In a real app, this would query a score history table.
   const displayUsers = React.useMemo(() => {
-    // Filter out users with no glow score (inactive/test accounts)
-    let filteredUsers = users.filter(u => u.glow_score > 0);
+    // Filter out the app owner account from public leaderboard
+    let filteredUsers = users.filter(u => u.full_name !== "NOTTA INNOVATIONS LTD");
     if (region === 'regional' && user?.country) {
       filteredUsers = filteredUsers.filter(u => u.country === user.country);
     }
