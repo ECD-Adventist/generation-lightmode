@@ -322,8 +322,8 @@ export default function Profile() {
           }
         `}</style>
         <div 
-          className="w-full h-48 sm:h-64 rounded-2xl mb-8 relative group cursor-pointer p-[2px] overflow-hidden shadow-[0_0_30px_rgba(0,207,255,0.15)]"
-          onClick={() => coverInputRef.current?.click()}
+          className={`w-full h-48 sm:h-64 rounded-2xl mb-8 relative group p-[2px] overflow-hidden shadow-[0_0_30px_rgba(0,207,255,0.15)] ${isOwnProfile ? 'cursor-pointer' : ''}`}
+          onClick={() => isOwnProfile && coverInputRef.current?.click()}
         >
           {/* Rotating Edge Light */}
           <div style={{
@@ -347,11 +347,13 @@ export default function Profile() {
               boxShadow: "0 0 20px rgba(0,207,255,0.4)"
             }} />
 
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-              <div className="flex items-center gap-2 text-white font-bold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
-                <Camera className="w-5 h-5" /> Change Cover
+            {isOwnProfile && (
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
+                <div className="flex items-center gap-2 text-white font-bold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
+                  <Camera className="w-5 h-5" /> Change Cover
+                </div>
               </div>
-            </div>
+            )}
             {!user.cover_picture_url && (
               <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-gradient-to-br from-[#0B0F1A] to-[#121826]">
                 No Cover Photo
@@ -364,15 +366,17 @@ export default function Profile() {
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-white/5 pb-12 -mt-20 sm:-mt-24 relative z-10 px-4">
           <div 
-            className="w-32 h-32 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-1 flex-shrink-0 shadow-[0_0_30px_rgba(0,207,255,0.3)] overflow-hidden group cursor-pointer relative"
-            onClick={() => profileInputRef.current?.click()}
+            className={`w-32 h-32 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-1 flex-shrink-0 shadow-[0_0_30px_rgba(0,207,255,0.3)] overflow-hidden group relative ${isOwnProfile ? 'cursor-pointer' : ''}`}
+            onClick={() => isOwnProfile && profileInputRef.current?.click()}
           >
             <div className="w-full h-full rounded-full bg-[#121826] border-4 border-[#0B0F1A] flex items-center justify-center text-5xl font-bold font-['Space_Grotesk'] uppercase overflow-hidden relative">
               <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="Profile" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10">
-                <Camera className="w-6 h-6 text-white mb-1" />
-                <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
-              </div>
+              {isOwnProfile && (
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10">
+                  <Camera className="w-6 h-6 text-white mb-1" />
+                  <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
+                </div>
+              )}
             </div>
           </div>
           <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "profile")} disabled={uploadingImage} />
@@ -380,17 +384,26 @@ export default function Profile() {
           <div className="flex-1 text-center md:text-left mt-4 md:mt-16">
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
               <h1 className="text-3xl font-bold font-['Inter']">{user.full_name}</h1>
-              {!isEditing && (
+              {isOwnProfile && !isEditing && (
                 <button onClick={() => setIsEditing(true)} className="px-5 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-semibold transition border border-white/5">
                   Edit Profile
+                </button>
+              )}
+              {!isOwnProfile && currentUser && (
+                <button 
+                  onClick={() => followMutation.mutate()} 
+                  className={`px-6 py-2 rounded-lg text-sm font-bold transition border ${isFollowingThisUser ? "bg-white/10 border-white/10 text-gray-300 hover:border-red-500 hover:text-red-400" : "bg-[#00CFFF] border-[#00CFFF] text-black hover:bg-[#00CFFF]/80"}`}
+                >
+                  {isFollowingThisUser ? "Following" : "Follow"}
                 </button>
               )}
             </div>
             
             <div className="flex gap-8 justify-center md:justify-start mb-6">
               <div className="text-center md:text-left"><span className="font-bold text-2xl">{myDrops.length}</span> <span className="text-gray-400 text-sm block md:inline">posts</span></div>
+              <div className="text-center md:text-left"><span className="font-bold text-2xl">{myFollowers.length}</span> <span className="text-gray-400 text-sm block md:inline">followers</span></div>
+              <div className="text-center md:text-left"><span className="font-bold text-2xl">{myFollowing.length}</span> <span className="text-gray-400 text-sm block md:inline">following</span></div>
               <div className="text-center md:text-left"><span className="font-bold text-2xl text-[#FFD000]">{user.glow_score || 0}</span> <span className="text-gray-400 text-sm block md:inline">XP</span></div>
-              <div className="text-center md:text-left"><span className="font-bold text-2xl text-[#00CFFF]">Lvl {Math.floor((user.glow_score || 0) / 50) + 1}</span> <span className="text-gray-400 text-sm block md:inline">rank</span></div>
             </div>
 
             <div className="w-full max-w-md mx-auto md:mx-0 mb-6 bg-white/5 h-2 rounded-full overflow-hidden">
