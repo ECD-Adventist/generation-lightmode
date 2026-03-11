@@ -203,7 +203,7 @@ export default function Feed() {
               <div className="flex items-center gap-3">
                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px]">
                    <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center text-xs uppercase font-bold text-white overflow-hidden">
-                     {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
+                     <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                    </div>
                  </div>
                  <div className="text-sm">
