@@ -17,7 +17,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   const { data: comments = [] } = useQuery({
     queryKey: ["comments", drop.id],
-    queryFn: () => base44.entities.GlowDropComment.filter({ drop_id: drop.id })
+    queryFn: () => base44.entities.GlowDropComment.filter({ drop_id: drop.id }),
+    enabled: !!drop.id
   });
 
   const { data: authorDrops = [] } = useQuery({
