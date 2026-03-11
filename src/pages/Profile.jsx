@@ -176,7 +176,37 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white pt-8 pb-20 relative overflow-hidden">
+    <div className="min-h-screen bg-[#0B0F1A] text-white pb-20 relative overflow-hidden">
+      {/* Top Nav Bar */}
+      <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
+            <img
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
+              alt="LightMode"
+              style={{ height: 32, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
+            />
+          </Link>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <Home className="w-4 h-4" /><span className="hidden sm:inline">Feed</span>
+            </Link>
+            <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <Users className="w-4 h-4" /><span className="hidden sm:inline">Groups</span>
+            </Link>
+            <Link to={createPageUrl("Notifications")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <Bell className="w-4 h-4" /><span className="hidden sm:inline">Alerts</span>
+            </Link>
+            <Link to={createPageUrl("Dashboard")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <Zap className="w-4 h-4" /><span className="hidden sm:inline">Dashboard</span>
+            </Link>
+            <Link to={createPageUrl("Home")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-[#00CFFF] hover:bg-white/5 transition text-sm font-medium border border-white/5">
+              <Globe className="w-4 h-4" /> Website
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {cropData && (
         <ImageCropperModal
           file={cropData.file}
