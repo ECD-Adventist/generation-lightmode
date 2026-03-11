@@ -186,6 +186,17 @@ export default function GlowGroups() {
               Members
               {activeTab === "members" && <div style={{ position: "absolute", bottom: -17, left: 0, right: 0, height: 2, background: "#00CFFF" }} />}
             </button>
+            <button 
+              onClick={() => setActiveTab("leaders")}
+              style={{
+                background: "transparent", border: "none", color: activeTab === "leaders" ? "#FFD000" : "#C8D0E0",
+                fontSize: 18, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", cursor: "pointer",
+                position: "relative"
+              }}
+            >
+              Light Leaders
+              {activeTab === "leaders" && <div style={{ position: "absolute", bottom: -17, left: 0, right: 0, height: 2, background: "#FFD000" }} />}
+            </button>
           </div>
 
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center", marginBottom: 32 }}>
@@ -274,6 +285,33 @@ export default function GlowGroups() {
               <a href={createPageUrl("Dashboard")} className="glm-btn-primary" style={{ fontSize: 14, padding: "10px 24px" }}>Create Group ⚡</a>
             </div>
           </div>
+          )}
+
+          {/* Leaders Grid */}
+          {activeTab === "leaders" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, paddingBottom: 100, maxWidth: 800, margin: "0 auto" }}>
+              {users.sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0)).slice(0, 50).map((u, index) => {
+                const isFollowing = following.some(f => f.following_email === u.email);
+                return (
+                  <div key={u.id} className="glm-card" style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 24px", border: index < 3 ? "1px solid rgba(255,208,0,0.4)" : "1px solid rgba(255,255,255,0.05)", background: index === 0 ? "rgba(255,208,0,0.05)" : "#121826" }}>
+                    <div style={{ fontSize: 24, fontWeight: "bold", color: index === 0 ? "#FFD000" : index === 1 ? "#C0C0C0" : index === 2 ? "#CD7F32" : "#8A5CFF", width: 40, textAlign: "center", fontFamily: "Space Grotesk, sans-serif" }}>
+                      #{index + 1}
+                    </div>
+                    <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#1a2235", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: index < 3 ? "2px solid #FFD000" : "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}>
+                      {u.profile_picture_url ? <img src={u.profile_picture_url} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: 20, fontWeight: "bold", color: "#C8D0E0" }}>{u.full_name?.charAt(0)}</span>}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h4 style={{ fontSize: 16, fontWeight: 600, color: "#FFF", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.full_name} {index === 0 && "👑"}</h4>
+                      <p style={{ fontSize: 12, color: "#8A5CFF" }}>{u.country || "Global Believer"}</p>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 20, fontWeight: "bold", color: "#FFD000", fontFamily: "Space Grotesk, sans-serif" }}>{u.glow_score || 0}</div>
+                      <div style={{ fontSize: 10, color: "#C8D0E0", textTransform: "uppercase", letterSpacing: 1 }}>XP</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
 
           {/* Members Grid */}
