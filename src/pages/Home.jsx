@@ -277,7 +277,7 @@ export default function Home() {
           pointerEvents: "none",
         }} />
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 18% 28%, rgba(0,207,255,0.07), transparent 28%), radial-gradient(circle at 82% 78%, rgba(138,92,255,0.12), transparent 24%)", pointerEvents: "none", zIndex: 0 }} />
-        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 2 }}>
           <div className="why-lightmode-stack" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.1fr) minmax(320px, 0.9fr)", gap: 36, alignItems: "center" }}>
             <div style={{ maxWidth: 650 }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.24)", borderRadius: 999, padding: "7px 14px", marginBottom: 22 }}>
