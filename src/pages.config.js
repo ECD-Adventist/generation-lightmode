@@ -66,6 +66,8 @@ import Post from './pages/Post';
 import Messages from './pages/Messages';
 import PrayerWall from './pages/PrayerWall';
 import Live from './pages/Live';
+import Milestones from './pages/Milestones';
+import GroupSession from './pages/GroupSession';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +91,8 @@ export const PAGES = {
     "Messages": Messages,
     "PrayerWall": PrayerWall,
     "Live": Live,
+    "Milestones": Milestones,
+    "GroupSession": GroupSession,
 }
 
 export const pagesConfig = {

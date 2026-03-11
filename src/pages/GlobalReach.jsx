@@ -1,14 +1,34 @@
-import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Globe, Home, Search, PlusSquare, PlaySquare, ArrowLeft } from "lucide-react";
-import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { base44 } from "@/api/base44Client";
+import { createPageUrl } from "@/utils";
 
-// Fix for default marker icons in react-leaflet
+const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
+
+const countryCoordinates = {
+  Kenya: [-1.286389, 36.817223],
+  Tanzania: [-6.369028, 34.888822],
+  Uganda: [1.373333, 32.290275],
+  Rwanda: [-1.940278, 29.873888],
+  Nigeria: [9.082, 8.6753],
+  Ghana: [7.9465, -1.0232],
+  SouthAfrica: [-30.5595, 22.9375],
+  "South Africa": [-30.5595, 22.9375],
+  USA: [37.0902, -95.7129],
+  Canada: [56.1304, -106.3468],
+  Brazil: [-14.235, -51.9253],
+  India: [20.5937, 78.9629],
+  Philippines: [12.8797, 121.774],
+  Australia: [-25.2744, 133.7751],
+  Global: [0, 0],
+};
+
+const addJitter = ([lat, lng], index = 1) => [lat + ((index % 5) - 2) * 0.8, lng + ((index % 7) - 3) * 0.8];
+
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
@@ -16,221 +36,161 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-const customGlowIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-const customEventIcon = new L.Icon({
+const prayerIcon = new L.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+  shadowSize: [41, 41],
 });
 
-// A simple helper to map countries to rough coordinates, since we only have 'country' strings for most things
-const countryCoordinates = {
-  "USA": [37.0902, -95.7129],
-  "UK": [55.3781, -3.4360],
-  "Kenya": [-1.2921, 36.8219],
-  "Nigeria": [-1.2921, 36.8219],
-  "Brazil": [9.0820, 8.6753],
-  "South Africa": [-14.2350, -51.9253],
-  "Australia": [-30.5595, 22.9375],
-  "Canada": [-25.2744, 133.7751],
-  "India": [20.5937, 78.9629],
-  "Philippines": [-12.2383, -38.9997],
-  "Germany": [56.1304, -106.3468],
-  "France": [46.2276, 2.2137],
-  "Japan": [20.5937, 78.9629],
-  "Mexico": [12.8797, 121.7740],
-  "Global": [0, 0]
-};
-
-// Add some random jitter so markers in the same country don't overlap perfectly
-const addJitter = (coord) => {
-  return [coord[0] + (Math.random() - 0.5) * 5, coord[1] + (Math.random() - 0.5) * 5];
-};
+const dropIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
 
 export default function GlobalReach() {
   const [user, setUser] = useState(null);
+  const [activeLayer, setActiveLayer] = useState("all");
 
   useEffect(() => {
-    async function checkAuth() {
-      const isAuth = await base44.auth.isAuthenticated();
-      if (isAuth) {
-        const me = await base44.auth.me();
-        setUser(me);
-      }
-    }
-    checkAuth();
+    base44.auth.isAuthenticated().then((isAuth) => {
+      if (isAuth) base44.auth.me().then(setUser);
+      else base44.auth.redirectToLogin(window.location.pathname);
+    });
   }, []);
 
-  const { data: users = [], isLoading: usersLoading } = useQuery({
+  const { data: users = [] } = useQuery({
     queryKey: ["allUsers"],
-    queryFn: () => base44.entities.User.list()
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicUsers", {});
+      return res.data;
+    },
+    enabled: !!user,
   });
 
-  const { data: groups = [], isLoading: groupsLoading } = useQuery({
-    queryKey: ["allGroups"],
-    queryFn: () => base44.entities.GlowGroup.list()
+  const { data: prayerRequests = [] } = useQuery({
+    queryKey: ["mapPrayerRequests"],
+    queryFn: () => base44.entities.PrayerRequest.list("-created_date", 100),
+    enabled: !!user,
   });
 
-  const { data: events = [], isLoading: eventsLoading } = useQuery({
-    queryKey: ["allEvents"],
-    queryFn: () => base44.entities.GlowGroupEvent.list()
+  const { data: glowDrops = [] } = useQuery({
+    queryKey: ["mapGlowDrops"],
+    queryFn: () => base44.entities.GlowDrop.list("-created_date", 100),
+    enabled: !!user,
   });
 
-  if (usersLoading || groupsLoading || eventsLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
-  }
+  const userByEmail = useMemo(() => Object.fromEntries(users.map((entry) => [entry.email, entry])), [users]);
 
-  // Generate markers for users, groups, and events based on their country/location
-  const userMarkers = users.map(u => {
-    const coord = countryCoordinates[u.country] || addJitter([20, 0]); // Default somewhere
-    return { ...u, type: 'user', position: addJitter(coord) };
+  const prayerMarkers = prayerRequests.map((request, index) => {
+    const owner = userByEmail[request.user_email] || {};
+    const country = owner.country || "Global";
+    const base = countryCoordinates[country] || countryCoordinates.Global;
+    return { ...request, owner, position: addJitter(base, index) };
   });
 
-  const groupMarkers = groups.map(g => {
-    const coord = countryCoordinates[g.country] || addJitter([10, 20]);
-    return { ...g, type: 'group', position: addJitter(coord) };
+  const dropMarkers = glowDrops.map((drop, index) => {
+    const owner = userByEmail[drop.user_email] || {};
+    const country = owner.country || "Global";
+    const base = countryCoordinates[country] || countryCoordinates.Global;
+    return { ...drop, owner, position: addJitter(base, index + 9) };
   });
 
-  const eventMarkers = events.map(e => {
-    // Try to guess from location string, or just randomize around Europe/Africa for demo
-    const pos = addJitter([30, 20]);
-    return { ...e, type: 'event', position: pos };
-  });
+  const localBelievers = users.filter((entry) => entry.email !== user?.email && entry.country && entry.country === user?.country).slice(0, 8);
+
+  if (!user) return <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center text-white">Loading global reach...</div>;
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white pb-20 lg:pb-0 relative overflow-hidden font-['Inter']">
-      <div className="max-w-6xl mx-auto min-h-screen relative z-10 bg-[#0B0F1A] grid grid-cols-1 lg:grid-cols-4 gap-6">
-        
-        {/* Left Sidebar (Desktop) - Replicated from Feed */}
-        <div className="hidden lg:flex flex-col gap-8 py-8 px-6 sticky top-[72px] h-[calc(100vh-72px)] border-r border-white/10">
-           <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><Home className="w-7 h-7" /> Home</Link>
-           <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><Search className="w-7 h-7" /> Explore</Link>
-           <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><PlusSquare className="w-7 h-7" /> Dashboard</Link>
-           <Link to={createPageUrl("Resources")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><PlaySquare className="w-7 h-7" /> Resources</Link>
-           <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-4 text-xl font-bold text-[#00CFFF] transition"><Globe className="w-7 h-7" /> Global Reach</Link>
-           <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition">
-             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-xs uppercase font-bold text-white overflow-hidden">
-               {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0) || "U"}
-             </div>
-             Profile
-           </Link>
-        </div>
-
-        {/* Center Content */}
-        <div className="lg:col-span-3 sm:border-x border-white/10 min-h-screen lg:border-none flex flex-col">
-          
-          <div className="p-6 border-b border-white/10 flex items-center gap-4 sticky top-0 z-20 bg-[#0B0F1A]/90 backdrop-blur-md lg:top-[72px]">
-            <Link to={createPageUrl("Feed")} className="lg:hidden"><ArrowLeft className="w-6 h-6 text-gray-400" /></Link>
-            <div>
-              <h1 className="text-3xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF]">Global Reach</h1>
-              <p className="text-gray-400 text-sm mt-1">Visualize the impact of Generation LightMode across the world.</p>
+    <div className="min-h-screen bg-[#0B0F1A] text-white px-4 py-6">
+      <div className="max-w-7xl mx-auto grid lg:grid-cols-[minmax(0,1fr)_340px] gap-4">
+        <div className="space-y-4">
+          <div className="bg-[#121826] border border-white/10 rounded-3xl p-6">
+            <h1 className="text-3xl font-bold">Global Reach</h1>
+            <p className="text-gray-400 mt-2">See prayer requests and public drops around the world, then connect with nearby believers.</p>
+            <div className="flex flex-wrap gap-2 mt-5">
+              {[
+                { key: "all", label: "All activity" },
+                { key: "prayers", label: "Prayer requests" },
+                { key: "drops", label: "Public drops" },
+              ].map((item) => (
+                <button key={item.key} onClick={() => setActiveLayer(item.key)} className={`px-4 py-2 rounded-full text-sm font-semibold ${activeLayer === item.key ? "bg-[#00CFFF] text-black" : "bg-white/10 text-gray-300"}`}>
+                  {item.label}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="p-6 flex-1 flex flex-col gap-6">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-[#121826] p-4 rounded-xl border border-white/10 text-center">
-                <div className="text-3xl font-bold text-[#00CFFF]">{users.length}</div>
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Missionaries</div>
-              </div>
-              <div className="bg-[#121826] p-4 rounded-xl border border-[#FFD000]/30 text-center">
-                <div className="text-3xl font-bold text-[#FFD000]">{groups.length}</div>
-                <div className="text-xs text-gray-400 uppercase tracking-wider">GlowGroups</div>
-              </div>
-              <div className="bg-[#121826] p-4 rounded-xl border border-[#8A5CFF]/30 text-center">
-                <div className="text-3xl font-bold text-[#8A5CFF]">{events.length}</div>
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Active Events</div>
-              </div>
-            </div>
+          <div className="h-[70vh] rounded-3xl overflow-hidden border border-white/10">
+            <MapContainer center={[3, 20]} zoom={3} style={{ height: "100%", width: "100%" }}>
+              <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution='&copy; OpenStreetMap &copy; CARTO' />
 
-            <div className="flex-1 min-h-[500px] rounded-2xl overflow-hidden border border-white/10 relative z-0">
-              <MapContainer center={[20, 0]} zoom={2} style={{ height: "100%", width: "100%", background: "#0B0F1A" }}>
-                <TileLayer
-                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                />
-                
-                {/* Users */}
-                {userMarkers.map(u => (
-                  <Marker key={`u-${u.id}`} position={u.position}>
-                    <Popup className="custom-popup">
-                      <div className="font-bold">{u.full_name}</div>
-                      <div className="text-xs text-gray-500">Missionary from {u.country || "Global"}</div>
-                    </Popup>
-                  </Marker>
-                ))}
+              {(activeLayer === "all" || activeLayer === "prayers") && prayerMarkers.map((request) => (
+                <Marker key={`prayer-${request.id}`} position={request.position} icon={prayerIcon}>
+                  <Popup>
+                    <div className="min-w-[200px]">
+                      <div className="font-bold mb-1">{request.is_anonymous ? "Anonymous prayer" : request.owner.full_name || "Prayer request"}</div>
+                      <div className="text-sm mb-2">{request.content}</div>
+                      <div className="text-xs text-gray-500 mb-2">{request.owner.country || "Global"}</div>
+                      {!request.is_anonymous && request.owner.email && (
+                        <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(request.owner.email)}`} className="text-sm text-[#00CFFF]">Connect</Link>
+                      )}
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
 
-                {/* Groups */}
-                {groupMarkers.map(g => (
-                  <Marker key={`g-${g.id}`} position={g.position} icon={customGlowIcon}>
-                    <Popup className="custom-popup">
-                      <div className="font-bold text-[#FFD000]">{g.name}</div>
-                      <div className="text-xs text-gray-500">GlowGroup in {g.country}</div>
-                    </Popup>
-                  </Marker>
-                ))}
-
-                {/* Events */}
-                {eventMarkers.map(e => (
-                  <Marker key={`e-${e.id}`} position={e.position} icon={customEventIcon}>
-                    <Popup className="custom-popup">
-                      <div className="font-bold text-[#8A5CFF]">{e.title}</div>
-                      <div className="text-xs text-gray-500">Event on {new Date(e.date).toLocaleDateString()}</div>
-                    </Popup>
-                  </Marker>
-                ))}
-              </MapContainer>
-            </div>
-            
-            <div className="flex gap-6 justify-center text-sm">
-               <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-blue-500"></div> Missionaries</div>
-               <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[#FFD000]"></div> GlowGroups</div>
-               <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[#8A5CFF]"></div> Events</div>
-            </div>
+              {(activeLayer === "all" || activeLayer === "drops") && dropMarkers.map((drop) => (
+                <Marker key={`drop-${drop.id}`} position={drop.position} icon={dropIcon}>
+                  <Popup>
+                    <div className="min-w-[200px]">
+                      <div className="font-bold mb-1">{drop.owner.full_name || "Glow Drop"}</div>
+                      <div className="text-sm mb-2">{drop.verse || drop.reflection || "Public drop"}</div>
+                      <div className="text-xs text-gray-500 mb-2">{drop.owner.country || "Global"}</div>
+                      <Link to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`} className="text-sm text-[#FFD000]">Open post</Link>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
           </div>
         </div>
-        
-        {/* Bottom Mobile Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F1A] border-t border-white/10 flex justify-around items-center py-3 px-6 z-50 pb-safe sm:max-w-xl sm:mx-auto sm:border-x lg:hidden">
-          <Link to={createPageUrl("Feed")}><Home className="w-6 h-6 text-white" fill="none" /></Link>
-          <Link to={createPageUrl("GlowGroups")}><Search className="w-6 h-6 text-white" /></Link>
-          <Link to={createPageUrl("Dashboard")}><PlusSquare className="w-6 h-6 text-white" /></Link>
-          <Link to={createPageUrl("Resources")}><PlaySquare className="w-6 h-6 text-white" /></Link>
-          <Link to={createPageUrl("GlobalReach")}><Globe className="w-6 h-6 text-[#00CFFF]" /></Link>
-          <Link to={createPageUrl("Profile")}>
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/20 flex items-center justify-center text-[10px] uppercase font-bold text-white overflow-hidden">
-              {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0) || "U"}
+
+        <div className="space-y-4">
+          <div className="bg-[#121826] border border-white/10 rounded-3xl p-5">
+            <div className="text-lg font-bold text-white">Local believers</div>
+            <div className="text-sm text-gray-400 mt-1">People near your area you can connect with.</div>
+            <div className="mt-4 space-y-3">
+              {localBelievers.map((person) => (
+                <Link key={person.email} to={createPageUrl("Profile") + `?user=${encodeURIComponent(person.email)}`} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/5 transition">
+                  <img src={person.profile_picture_url || defaultAvatar} alt={person.full_name} className="w-11 h-11 rounded-full object-cover border border-white/10" />
+                  <div className="min-w-0">
+                    <div className="font-semibold text-white truncate">{person.full_name}</div>
+                    <div className="text-xs text-gray-500 truncate">{person.country}</div>
+                  </div>
+                </Link>
+              ))}
+              {localBelievers.length === 0 && <div className="text-sm text-gray-500 mt-3">No nearby believers found yet.</div>}
             </div>
-          </Link>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-[#121826] border border-white/10 rounded-3xl p-4 text-center">
+              <div className="text-3xl font-black text-[#8A5CFF]">{prayerRequests.length}</div>
+              <div className="text-xs text-gray-500 uppercase tracking-wider mt-1">Prayer requests</div>
+            </div>
+            <div className="bg-[#121826] border border-white/10 rounded-3xl p-4 text-center">
+              <div className="text-3xl font-black text-[#FFD000]">{glowDrops.length}</div>
+              <div className="text-xs text-gray-500 uppercase tracking-wider mt-1">Public drops</div>
+            </div>
+          </div>
         </div>
       </div>
-      
-      <style>{`
-        .leaflet-container {
-          font-family: 'Inter', sans-serif;
-        }
-        .custom-popup .leaflet-popup-content-wrapper {
-          background: #121826;
-          color: white;
-          border: 1px solid rgba(0, 207, 255, 0.2);
-          border-radius: 12px;
-        }
-        .custom-popup .leaflet-popup-tip {
-          background: #121826;
-          border: 1px solid rgba(0, 207, 255, 0.2);
-        }
-      `}</style>
     </div>
   );
 }
