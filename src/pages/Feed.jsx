@@ -169,8 +169,8 @@ export default function Feed() {
   // No blocking loading state — render feed immediately, user loads in background
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white pb-20 lg:pb-0 relative overflow-hidden font-['Inter']">
-      <div className="max-w-6xl mx-auto min-h-screen relative z-10 bg-[#0B0F1A] grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div className="h-screen bg-[#0B0F1A] text-white relative overflow-hidden font-['Inter']">
+      <div className="h-screen relative z-10 bg-[#0B0F1A] grid grid-cols-1 lg:grid-cols-4 gap-6">
         
         {/* Left Sidebar (Desktop) */}
         <div className="hidden lg:flex flex-col py-8 px-6 sticky top-0 h-screen border-r border-white/5 bg-[#0B0F1A]">
