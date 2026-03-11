@@ -175,8 +175,11 @@ export default function Feed() {
              <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-lg font-bold bg-[#121826] text-[#00CFFF] px-4 py-3.5 rounded-2xl border border-white/5"><Home className="w-6 h-6" /> Home</Link>
              <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Search className="w-6 h-6" /> Explore</Link>
              <Link to={createPageUrl("Saved")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Bookmark className="w-6 h-6" /> Saved</Link>
-             <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Bell className="w-6 h-6" /> Notifications</Link>
-             <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><MessageSquare className="w-6 h-6" /> Messages</Link>
+             <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition relative">
+               <Bell className="w-6 h-6" /> Notifications
+               {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
+             </Link>
+             <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><MessageSquare className="w-6 h-6" /> Messages</Link>
              <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition">
                <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-[10px] uppercase text-white overflow-hidden">
                  {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
@@ -358,32 +361,35 @@ export default function Feed() {
             <button className="text-xs font-bold text-[#00CFFF] mt-5 hover:text-white transition">View More</button>
           </div>
 
-          {/* Suggested Creators */}
+          {/* People to Connect */}
           <div className="bg-[#121826] rounded-[24px] p-5 border border-white/5">
-            <h3 className="font-black text-xs text-[#FFD000] mb-4 tracking-widest uppercase">Suggested Creators</h3>
+            <h3 className="font-black text-xs text-[#FFD000] mb-4 tracking-widest uppercase">People to Connect</h3>
             
             <div className="space-y-4">
-              {users.filter(u => u.email !== user?.email).slice(0, 3).map((u, i) => {
+              {users.filter(u => u.email !== user?.email).map((u, i) => {
                 const isFollowing = following.some(f => f.following_email === u.email);
                 return (
                 <div key={u.id} className="flex items-center justify-between">
                    <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden flex items-center justify-center font-bold text-xs text-white border border-white/10">
+                     <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden flex items-center justify-center font-bold text-xs text-white border border-white/10 shrink-0">
                         {u.profile_picture_url ? <img src={u.profile_picture_url} className="w-full h-full object-cover" /> : u.full_name?.charAt(0)}
                      </div>
-                     <div className="text-xs">
-                       <div className="font-bold text-white truncate max-w-[80px]">{u.full_name}</div>
-                       <div className="text-gray-500 text-[9px]">{i === 0 ? "Followed by Friends" : i === 1 ? "Recommended" : "Trending Creator"}</div>
+                     <div className="text-xs min-w-0">
+                       <div className="font-bold text-white truncate max-w-[90px]">{u.full_name}</div>
+                       <div className="text-gray-500 text-[9px]">{u.country || "Global Believer"}</div>
                      </div>
                    </div>
                    <button 
                      onClick={() => followMutation.mutate(u.email)}
-                     className={`text-[9px] font-bold px-3 py-1.5 rounded-full border transition ${isFollowing ? "border-gray-500 text-gray-400 hover:border-red-500 hover:text-red-500" : "border-[#00CFFF] text-[#00CFFF] hover:bg-[#00CFFF]/10"}`}
+                     className={`text-[9px] font-bold px-3 py-1.5 rounded-full border transition shrink-0 ${isFollowing ? "border-gray-500 text-gray-400 hover:border-red-500 hover:text-red-500" : "border-[#00CFFF] text-[#00CFFF] hover:bg-[#00CFFF]/10"}`}
                    >
                      {isFollowing ? "UNFOLLOW" : "CONNECT"}
                    </button>
                 </div>
               )})}
+              {users.filter(u => u.email !== user?.email).length === 0 && (
+                <p className="text-xs text-gray-500 text-center py-2">No other members yet. Invite friends!</p>
+              )}
             </div>
           </div>
           

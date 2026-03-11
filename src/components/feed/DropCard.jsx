@@ -192,20 +192,15 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           </div>
         </div>
 
-        {/* Text Content overlay for Media (Bottom Left) */}
-        {drop.media_url && (drop.verse || drop.reflection) && (
-          <div className="absolute bottom-4 left-4 right-16 z-20 text-left pointer-events-none">
-            <div className="pointer-events-auto">
-              {drop.verse && <div className="font-bold text-[#00CFFF] text-base drop-shadow-md mb-1">{drop.verse}</div>}
-              {drop.reflection && (
-                <div className="text-sm text-gray-100 drop-shadow-md line-clamp-2 hover:line-clamp-none transition-all cursor-pointer bg-black/20 backdrop-blur-sm p-2 rounded-xl border border-white/10 inline-block">
-                  {drop.reflection}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Verse & Reflection — always shown BELOW the image */}
+      {(drop.verse || drop.reflection) && (
+        <div className="px-4 pt-3 pb-1">
+          {drop.verse && <div className="font-bold text-[#00CFFF] text-sm mb-1">{drop.verse}</div>}
+          {drop.reflection && <p className="text-gray-200 text-sm leading-relaxed">{drop.reflection}</p>}
+        </div>
+      )}
 
       {/* Tags Row */}
       {(drop.hashtags || drop.category) && (
