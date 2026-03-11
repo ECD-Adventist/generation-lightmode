@@ -152,11 +152,7 @@ export default function Feed() {
     return users.find(u => u.email === email) || { full_name: "Glow Believer" };
   };
 
-  if (!authChecked) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
-  }
-
-  // Removed the force redirect to allow public feed viewing
+  // No blocking loading state — render feed immediately, user loads in background
 
   return (
     <div className="min-h-screen bg-[#0B0F1A] text-white pb-20 lg:pb-0 relative overflow-hidden font-['Inter']">
