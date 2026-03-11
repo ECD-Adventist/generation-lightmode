@@ -8,8 +8,11 @@ export default function LeaderboardTab({ user }) {
   const [region, setRegion] = useState('global');
   
   const { data: users = [], isLoading } = useQuery({
-    queryKey: ["leaderboardUsers"],
-    queryFn: () => base44.entities.User.list('-glow_score', 50)
+    queryKey: ["allUsers"],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('listPublicUsers', {});
+      return res.data;
+    }
   });
 
   // Since glow_score is total, we simulate the time-based leaderboards for the community effect
