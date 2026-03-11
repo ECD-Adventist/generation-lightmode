@@ -178,7 +178,13 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-start justify-center">
             <span className="font-bold font-['Inter'] text-xs text-white flex items-center gap-1 leading-none mb-0.5">
               {dropUser.full_name}
-              {drop.status === 'approved' && <span className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center text-[7px] text-white shadow-[0_0_8px_rgba(59,130,246,0.8)]">✓</span>}
+              {isSuperCreator && (
+                <span className="flex items-center justify-center w-3.5 h-3.5 bg-gradient-to-br from-[#00CFFF] to-[#FFD000] rounded-sm rotate-45 shadow-[0_0_10px_rgba(0,207,255,0.6)] ml-0.5">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-2.5 h-2.5 -rotate-45 text-black">
+                    <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/>
+                  </svg>
+                </span>
+              )}
             </span>
             <span className="text-[10px] text-gray-300 font-medium leading-none">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date), { addSuffix: true }) : ''}</span>
           </div>
