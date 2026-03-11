@@ -247,14 +247,8 @@ export default function Layout({ children, currentPageName }) {
         ::-webkit-scrollbar-thumb { background: linear-gradient(#00CFFF, #8A5CFF); border-radius: 3px; }
       `}</style>
 
-      {/* NAVBAR — hide on app pages when user is logged in */}
-      {/* App pages have their own left sidebar navigation */}
-      {(() => {
-        const appPages = ["Feed", "Dashboard", "Profile", "Notifications", "Saved", "GlowGroups", "AdminReports"];
-        const isAppPage = appPages.includes(currentPageName);
-        if (isAppPage && userEmail) return null;
-        if (currentPageName === "Feed") return null;
-        return (
+      {/* NAVBAR — hidden for logged-in users on app pages (they use the sidebar) */}
+      {!["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports"].includes(currentPageName) || !userEmail ? (
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
         background: scrolled ? "rgba(11,15,26,0.95)" : "transparent",
