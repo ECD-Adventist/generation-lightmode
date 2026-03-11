@@ -408,22 +408,15 @@ export default function Layout({ children, currentPageName }) {
           </div>
         )}
       </nav>
-        );
-      })()}
+      ) : null}
 
       {/* Page Content */}
-      {(() => {
-        const appPages = ["Feed", "Dashboard", "Profile", "Notifications", "Saved", "GlowGroups", "AdminReports"];
-        const isAppPage = appPages.includes(currentPageName);
-        const noTopPad = currentPageName === "Feed" || (isAppPage && userEmail);
-        return <main style={{ paddingTop: noTopPad ? 0 : 72 }}>{children}</main>;
-      })()}
+      <main style={{ paddingTop: (["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports"].includes(currentPageName) && userEmail) || currentPageName === "Feed" ? 0 : 72 }}>
+        {children}
+      </main>
 
-      {/* FOOTER — hide on app pages for logged-in users */}
-      {(() => {
-        const appPages = ["Feed", "Dashboard", "Profile", "Notifications", "Saved", "GlowGroups", "AdminReports"];
-        if ((appPages.includes(currentPageName) && userEmail) || currentPageName === "Feed") return null;
-        return (
+      {/* FOOTER — hidden for logged-in users on app pages */}
+      {!["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports"].includes(currentPageName) || !userEmail ? (
       <footer style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.1)", padding: "60px 24px 40px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 48, marginBottom: 48 }}>
