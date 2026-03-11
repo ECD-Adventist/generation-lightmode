@@ -247,8 +247,35 @@ export default function Layout({ children, currentPageName }) {
         ::-webkit-scrollbar-thumb { background: linear-gradient(#00CFFF, #8A5CFF); border-radius: 3px; }
       `}</style>
 
-      {/* NAVBAR — hidden for logged-in users on app pages (they use the sidebar) */}
-      {!["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports"].includes(currentPageName) || !userEmail ? (
+      {/* NAVBAR */}
+      {userEmail && ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Challenges","Assistant","Resources","GlobalReach"].includes(currentPageName) ? null : userEmail ? (
+        /* Logged-in user on a non-app page (e.g. About, Impact) — show slim app nav */
+        <nav style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
+          background: "rgba(11,15,26,0.95)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(0,207,255,0.1)",
+          padding: "0 24px",
+        }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
+            <Link to={createPageUrl("Feed")} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png" alt="LightMode" style={{ height: 40, width: "auto" }} />
+            </Link>
+            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <Link to={createPageUrl("Feed")} className="nav-link" style={{ fontSize: 14 }}>🏠 Feed</Link>
+              <Link to={createPageUrl("Dashboard")} className="nav-link" style={{ fontSize: 14 }}>⚡ Dashboard</Link>
+              <Link to={createPageUrl("Notifications")} style={{ position: "relative", display: "flex", alignItems: "center", color: "#C8D0E0", textDecoration: "none" }}>
+                <Bell className="w-5 h-5" />
+                {notifications.length > 0 && <span style={{ position: "absolute", top: -2, right: -2, width: 8, height: 8, background: "#ef4444", borderRadius: "50%", border: "2px solid #0B0F1A" }} />}
+              </Link>
+              <Link to={createPageUrl("Profile")} style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg, #00CFFF, #8A5CFF)", padding: 2, display: "flex", textDecoration: "none" }}>
+                <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "#0B0F1A", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff", textTransform: "uppercase" }}>{userEmail.charAt(0)}</div>
+              </Link>
+            </div>
+          </div>
+        </nav>
+      ) : (
+        /* Public nav for non-logged-in users */
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
         background: scrolled ? "rgba(11,15,26,0.95)" : "transparent",
