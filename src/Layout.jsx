@@ -424,11 +424,12 @@ export default function Layout({ children, currentPageName }) {
         const noTopPad = currentPageName === "Feed" || (isAppPage && userEmail);
         return <main style={{ paddingTop: noTopPad ? 0 : 72 }}>{children}</main>;
       })()}
-        {children}
-      </main>
 
-      {/* FOOTER */}
-      {currentPageName !== "Feed" && (
+      {/* FOOTER — hide on app pages for logged-in users */}
+      {(() => {
+        const appPages = ["Feed", "Dashboard", "Profile", "Notifications", "Saved", "GlowGroups", "AdminReports"];
+        if ((appPages.includes(currentPageName) && userEmail) || currentPageName === "Feed") return null;
+        return (
       <footer style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.1)", padding: "60px 24px 40px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 48, marginBottom: 48 }}>
