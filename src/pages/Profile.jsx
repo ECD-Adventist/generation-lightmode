@@ -84,40 +84,73 @@ export default function Profile() {
 
   const isOwnProfile = !viewUserEmail || (currentUser && viewUserEmail === currentUser.email);
 
+  const profileEmail = viewUserEmail || currentUser?.email;
+
   const { data: myDrops = [], isLoading: dropsLoading } = useQuery({
-    queryKey: ["myGlowDropsProfile", user?.email],
-    queryFn: () => base44.entities.GlowDrop.filter({ user_email: user.email }, '-created_date'),
-    enabled: !!user
+    queryKey: ["myGlowDropsProfile", profileEmail],
+    queryFn: () => base44.entities.GlowDrop.filter({ user_email: profileEmail }, '-created_date'),
+    enabled: !!profileEmail
   });
 
   const { data: mySupports = [] } = useQuery({
-    queryKey: ["mySupports", user?.email],
-    queryFn: () => base44.entities.PrayerSupport.filter({ user_email: user.email }),
-    enabled: !!user
+    queryKey: ["mySupports", profileEmail],
+    queryFn: () => base44.entities.PrayerSupport.filter({ user_email: profileEmail }),
+    enabled: !!profileEmail
   });
 
   const { data: myFollowing = [] } = useQuery({
-    queryKey: ["myFollowing", user?.email],
-    queryFn: () => base44.entities.Follow.filter({ follower_email: user.email }),
-    enabled: !!user
+    queryKey: ["myFollowing", profileEmail],
+    queryFn: () => base44.entities.Follow.filter({ follower_email: profileEmail }),
+    enabled: !!profileEmail
+  });
+
+  const { data: myFollowers = [] } = useQuery({
+    queryKey: ["myFollowers", profileEmail],
+    queryFn: () => base44.entities.Follow.filter({ following_email: profileEmail }),
+    enabled: !!profileEmail
   });
 
   const { data: myMemberships = [] } = useQuery({
-    queryKey: ["myMemberships", user?.email],
-    queryFn: () => base44.entities.GlowGroupMember.filter({ user_email: user.email }),
-    enabled: !!user
+    queryKey: ["myMemberships", profileEmail],
+    queryFn: () => base44.entities.GlowGroupMember.filter({ user_email: profileEmail }),
+    enabled: !!profileEmail
   });
 
   const { data: certificates = [] } = useQuery({
-    queryKey: ["myCerts", user?.email],
-    queryFn: () => base44.entities.Certificate.filter({ user_email: user.email }),
-    enabled: !!user
+    queryKey: ["myCerts", profileEmail],
+    queryFn: () => base44.entities.Certificate.filter({ user_email: profileEmail }),
+    enabled: !!profileEmail
   });
 
   const { data: challengeSubmissions = [] } = useQuery({
-    queryKey: ["myChallengeSubmissions", user?.email],
-    queryFn: () => base44.entities.ChallengeSubmission.filter({ user_email: user.email }, '-created_date'),
-    enabled: !!user
+    queryKey: ["myChallengeSubmissions", profileEmail],
+    queryFn: () => base44.entities.ChallengeSubmission.filter({ user_email: profileEmail }, '-created_date'),
+    enabled: !!profileEmail
+  });
+
+  // Follow/unfollow for viewing other profiles
+  const { data: currentUserFollowing = [] } = useQuery({
+    queryKey: ["currentUserFollowing", currentUser?.email],
+    queryFn: () => base44.entities.Follow.filter({ follower_email: currentUser?.email }),
+    enabled: !!currentUser && !isOwnProfile
+  });
+
+  const isFollowingThisUser = currentUserFollowing.some(f => f.following_email === profileEmail);
+
+  const followMutation = useMutation({
+    mutationFn: async () => {
+      if (isFollowingThisUser) {
+        const record = currentUserFollowing.find(f => f.following_email === profileEmail);
+        await base44.entities.Follow.delete(record.id);
+      } else {
+        await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: profileEmail });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["currentUserFollowing"] });
+      queryClient.invalidateQueries({ queryKey: ["myFollowers", profileEmail] });
+      toast.success(isFollowingThisUser ? "Unfollowed" : "Following! ⚡");
+    }
   });
 
   const { data: allChallenges = [] } = useQuery({
