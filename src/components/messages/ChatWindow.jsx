@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Send } from "lucide-react";
+import { Send, Paperclip, Check, CheckCheck, Clock } from "lucide-react";
 import { createPageUrl } from "@/utils";
+import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
 export default function ChatWindow({ conversation, currentUser, otherUser, messages, onSend, isSending }) {
   const [draft, setDraft] = useState("");
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const fileInputRef = useRef(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -39,8 +43,24 @@ export default function ChatWindow({ conversation, currentUser, otherUser, messa
           const isMine = message.sender_email === currentUser?.email;
           return (
             <div key={message.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[78%] px-4 py-3 rounded-2xl text-sm ${isMine ? "bg-[#00CFFF] text-black" : "bg-white/10 text-white"}`}>
-                {message.content}
+              <div className={`max-w-[78%] ${isMine ? "text-right" : ""}`}>
+                <div className={`px-4 py-3 rounded-2xl text-sm ${isMine ? "bg-[#00CFFF] text-black" : "bg-white/10 text-white"}`}>
+                  {message.content}
+                  {message.file_url && (
+                    <div className="mt-2">
+                      <a href={message.file_url} target="_blank" rel="noopener noreferrer" className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold ${isMine ? "bg-black/20" : "bg-white/20"}`}>
+                        📎 View file
+                      </a>
+                    </div>
+                  )}
+                </div>
+                {isMine && (
+                  <div className="flex items-center justify-end gap-1 mt-1 text-xs text-gray-400">
+                    {message.status === "sent" && <Clock className="w-3 h-3" />}
+                    {message.status === "delivered" && <Check className="w-3 h-3" />}
+                    {message.status === "read" && <CheckCheck className="w-3 h-3 text-[#00CFFF]" />}
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -49,10 +69,10 @@ export default function ChatWindow({ conversation, currentUser, otherUser, messa
       </div>
 
       <form
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
           if (!draft.trim()) return;
-          onSend(draft);
+          onSend({ content: draft, file_url: null });
           setDraft("");
         }}
         className="px-4 py-3 border-t border-white/10 flex items-center gap-3"
@@ -63,7 +83,35 @@ export default function ChatWindow({ conversation, currentUser, otherUser, messa
           placeholder="Type your message..."
           className="flex-1 h-11 rounded-2xl bg-white/5 border border-white/10 px-4 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#00CFFF]/40"
         />
-        <button type="submit" disabled={!draft.trim() || isSending} className="w-11 h-11 rounded-2xl bg-[#00CFFF] text-black flex items-center justify-center disabled:opacity-50">
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploadingFile || isSending}
+          className="w-11 h-11 rounded-2xl bg-white/10 text-gray-400 hover:text-white flex items-center justify-center disabled:opacity-50 transition"
+        >
+          <Paperclip className="w-4 h-4" />
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          onChange={async (event) => {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            setUploadingFile(true);
+            try {
+              const res = await base44.integrations.Core.UploadFile({ file });
+              onSend({ content: draft || `Shared a file: ${file.name}`, file_url: res.file_url });
+              setDraft("");
+              fileInputRef.current.value = "";
+            } catch (err) {
+              toast.error("Failed to upload file");
+            } finally {
+              setUploadingFile(false);
+            }
+          }}
+          className="hidden"
+        />
+        <button type="submit" disabled={!draft.trim() || isSending || uploadingFile} className="w-11 h-11 rounded-2xl bg-[#00CFFF] text-black flex items-center justify-center disabled:opacity-50">
           <Send className="w-4 h-4" />
         </button>
       </form>

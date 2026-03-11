@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { createPageUrl } from "@/utils";
 import ConversationsList from "@/components/messages/ConversationsList";
 import ChatWindow from "@/components/messages/ChatWindow";
 
@@ -74,17 +77,26 @@ export default function Messages() {
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: async (content) => {
-      await base44.entities.DirectMessage.create({
+    mutationFn: async ({ content, file_url }) => {
+      const message = await base44.entities.DirectMessage.create({
         conversation_id: selectedConversation.id,
         sender_email: user.email,
         recipient_email: otherEmail,
         content,
+        file_url: file_url || undefined,
+        status: "sent",
       });
       await base44.entities.DirectConversation.update(selectedConversation.id, {
         last_message: content,
         last_message_at: new Date().toISOString(),
       });
+      await base44.entities.Notification.create({
+        user_email: otherEmail,
+        type: "message",
+        message: `${user.full_name} sent you a message`,
+        link: createPageUrl("Messages") + `?user=${encodeURIComponent(user.email)}`,
+      });
+      await base44.entities.DirectMessage.update(message.id, { status: "delivered" });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["directMessages", selectedConversationId] });
@@ -112,7 +124,9 @@ export default function Messages() {
   useEffect(() => {
     if (!user?.email || !selectedConversationId || messages.length === 0) return;
     const unread = messages.filter((message) => message.recipient_email === user.email && !message.read);
-    if (unread.length > 0) Promise.all(unread.map((message) => base44.entities.DirectMessage.update(message.id, { read: true })));
+    if (unread.length > 0) {
+      Promise.all(unread.map((message) => base44.entities.DirectMessage.update(message.id, { read: true, status: "read" })));
+    }
   }, [messages, selectedConversationId, user?.email]);
 
   useEffect(() => {
@@ -142,8 +156,19 @@ export default function Messages() {
   if (!user) return <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center text-white">Loading messages...</div>;
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white px-4 py-6">
-      <div className="max-w-6xl mx-auto grid lg:grid-cols-[320px_minmax(0,1fr)] gap-4">
+    <div className="min-h-screen bg-[#0B0F1A] text-white">
+      {/* Top Nav */}
+      <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5 px-4 py-3">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+          <Link to={createPageUrl("Feed")} className="flex items-center gap-2 shrink-0 lg:hidden">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <h1 className="text-xl font-bold">Messages</h1>
+          <div className="w-5" />
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto grid lg:grid-cols-[320px_minmax(0,1fr)] gap-4 px-4 py-6">
         <ConversationsList
           conversations={conversations}
           selectedConversationId={selectedConversationId}
@@ -158,7 +183,7 @@ export default function Messages() {
           currentUser={user}
           otherUser={otherUser}
           messages={messages}
-          onSend={(content) => sendMessageMutation.mutate(content)}
+          onSend={({ content, file_url }) => sendMessageMutation.mutate({ content, file_url })}
           isSending={sendMessageMutation.isPending}
         />
       </div>
