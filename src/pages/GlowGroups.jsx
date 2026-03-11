@@ -129,7 +129,7 @@ export default function GlowGroups() {
             {tabs.map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => { setActiveTab(tab.id); setSearch(""); }}
                 className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all ${
                   activeTab === tab.id
                     ? "border-[#00CFFF] text-[#00CFFF]"
