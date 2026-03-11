@@ -67,23 +67,55 @@ export default function ConversationsList({ conversations, selectedConversationI
         )}
       </div>
 
-      <div className="max-h-[72vh] overflow-y-auto">
-        {conversations.map((conversation) => {
+      <div className="max-h-[72vh] overflow-y-auto flex-1">
+        {filteredConversations.length === 0 && (
+          <div className="text-center py-8 text-gray-400">
+            <p className="text-sm">{showArchived ? "No archived conversations" : "No conversations found"}</p>
+          </div>
+        )}
+        {filteredConversations.map((conversation) => {
           const otherEmail = conversation.participant_a_email === currentUserEmail ? conversation.participant_b_email : conversation.participant_a_email;
           const otherUser = getUser(otherEmail);
+          const isOnline = Math.random() > 0.5; // Mock online status
 
           return (
-            <button
-              key={conversation.id}
-              onClick={() => onSelectConversation(conversation.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-left transition border-b border-white/5 ${selectedConversationId === conversation.id ? "bg-white/10" : "hover:bg-white/5"}`}
-            >
-              <img src={otherUser.profile_picture_url || defaultAvatar} alt={otherUser.full_name} className="w-11 h-11 rounded-full object-cover border border-white/10" />
-              <div className="min-w-0 flex-1">
-                <div className="font-semibold text-white truncate">{otherUser.full_name}</div>
-                <div className="text-sm text-gray-400 truncate">{conversation.last_message || "Start chatting"}</div>
+            <div key={conversation.id} className="relative group">
+              <button
+                onClick={() => onSelectConversation(conversation.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 text-left transition border-b border-white/5 ${selectedConversationId === conversation.id ? "bg-white/10" : "hover:bg-white/5"}`}
+              >
+                {/* Avatar with Online Status */}
+                <div className="relative w-11 h-11 flex-shrink-0">
+                  <img src={otherUser.profile_picture_url || defaultAvatar} alt={otherUser.full_name} className="w-11 h-11 rounded-full object-cover border border-white/10" />
+                  <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#121826] ${isOnline ? "bg-green-400 shadow-[0_0_5px_#4ade80]" : "bg-gray-500"}`} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold text-white truncate">{otherUser.full_name}</div>
+                  <div className="text-sm text-gray-400 truncate">{conversation.last_message || "Start chatting"}</div>
+                </div>
+              </button>
+              
+              {/* Archive Menu */}
+              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
+                <button 
+                  onClick={() => setActiveMenuId(activeMenuId === conversation.id ? null : conversation.id)}
+                  className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white"
+                >
+                  <MoreVertical className="w-4 h-4" />
+                </button>
+                
+                {activeMenuId === conversation.id && (
+                  <div className="absolute right-0 mt-1 bg-[#0B0F1A] border border-white/10 rounded-lg shadow-lg z-50 min-w-32">
+                    <button 
+                      onClick={(e) => handleArchive(conversation.id, e)}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-left text-sm text-gray-400 hover:text-white hover:bg-white/5 rounded-lg"
+                    >
+                      <Archive className="w-4 h-4" /> Archive
+                    </button>
+                  </div>
+                )}
               </div>
-            </button>
+            </div>
           );
         })}
 
