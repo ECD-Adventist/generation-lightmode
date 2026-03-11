@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search, PlusSquare, PlaySquare, Globe } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,27 @@ export default function Feed() {
     queryKey: ["allUsers"],
     queryFn: () => base44.entities.User.list(),
     retry: false
+  });
+
+  const { data: following = [] } = useQuery({
+    queryKey: ["following", user?.email],
+    queryFn: () => base44.entities.Follow.filter({ follower_email: user?.email }),
+    enabled: !!user
+  });
+
+  const followMutation = useMutation({
+    mutationFn: async (targetEmail) => {
+      const isFollowing = following.some(f => f.following_email === targetEmail);
+      if (isFollowing) {
+        const followRecord = following.find(f => f.following_email === targetEmail);
+        await base44.entities.Follow.delete(followRecord.id);
+      } else {
+        await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
+    }
   });
 
   const likeMutation = useMutation({
@@ -129,19 +150,50 @@ export default function Feed() {
       <div className="max-w-6xl mx-auto min-h-screen relative z-10 bg-[#0B0F1A] grid grid-cols-1 lg:grid-cols-4 gap-6">
         
         {/* Left Sidebar (Desktop) */}
-        <div className="hidden lg:flex flex-col gap-8 py-8 px-6 sticky top-[72px] h-[calc(100vh-72px)] border-r border-white/10">
-           <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><Home className="w-7 h-7" /> Home</Link>
-           <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><Search className="w-7 h-7" /> Explore</Link>
-           <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><PlusSquare className="w-7 h-7" /> Dashboard</Link>
-           <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><Globe className="w-7 h-7" /> Global Reach</Link>
-           <Link to={createPageUrl("Resources")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition"><PlaySquare className="w-7 h-7" /> Resources</Link>
-           <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-xl font-bold hover:text-[#00CFFF] transition">
-             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-xs uppercase font-bold text-white overflow-hidden">
-               {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
+        <div className="hidden lg:flex flex-col py-8 px-6 sticky top-0 h-screen border-r border-white/5 bg-[#0B0F1A]">
+           {/* Logo */}
+           <div className="flex items-center gap-3 mb-10 pl-2">
+             <div className="w-10 h-10 bg-[#00CFFF] rounded-xl flex items-center justify-center">
+               <Zap className="w-6 h-6 text-black" fill="currentColor" />
              </div>
-             Profile
-           </Link>
-           <Button onClick={() => setIsDropModalOpen(true)} className="mt-4 bg-[#00CFFF] text-black font-bold rounded-full w-full py-6 text-lg hover:bg-white transition-colors">Post Drop</Button>
+             <div>
+               <h1 className="text-xl font-black tracking-wider text-white leading-tight">LIGHTMODE</h1>
+               <span className="text-[10px] text-gray-400 font-bold tracking-widest">GEN-ALPHA CORE</span>
+             </div>
+           </div>
+
+           <div className="flex flex-col gap-2 flex-1">
+             <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-lg font-bold bg-[#121826] text-[#00CFFF] px-4 py-3.5 rounded-2xl border border-white/5"><Home className="w-6 h-6" /> Home</Link>
+             <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Search className="w-6 h-6" /> Explore</Link>
+             <Link to={createPageUrl("Saved")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Bookmark className="w-6 h-6" /> Saved</Link>
+             <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Bell className="w-6 h-6" /> Notifications</Link>
+             <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><MessageSquare className="w-6 h-6" /> Messages</Link>
+             <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition">
+               <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-[10px] uppercase text-white overflow-hidden">
+                 {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
+               </div>
+               Profile
+             </Link>
+           </div>
+           
+           <Button onClick={() => setIsDropModalOpen(true)} className="mt-8 bg-[#00CFFF] text-black font-black rounded-2xl w-full py-6 text-lg hover:bg-white transition-colors shadow-[0_0_20px_rgba(0,207,255,0.3)]">
+             <Plus className="w-5 h-5 mr-2" /> NEW VIBE
+           </Button>
+
+           <div className="mt-6 flex items-center justify-between bg-[#121826] p-3 rounded-2xl border border-white/5">
+              <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px]">
+                   <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center text-xs uppercase font-bold text-white overflow-hidden">
+                     {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
+                   </div>
+                 </div>
+                 <div className="text-sm">
+                   <div className="font-bold text-white truncate max-w-[120px]">{user?.full_name}</div>
+                   <div className="text-gray-500 text-[10px]">Pro Creator</div>
+                 </div>
+              </div>
+              <button className="text-gray-400 hover:text-white"><Settings className="w-5 h-5" /></button>
+           </div>
         </div>
 
         {/* Center Feed */}
