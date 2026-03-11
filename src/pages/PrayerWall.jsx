@@ -184,7 +184,7 @@ export default function PrayerWall() {
           })}
         </div>
         </div>
-      </div>
-    </div>
-  );
-}
+        </div>
+        </div>
+        );
+        }
