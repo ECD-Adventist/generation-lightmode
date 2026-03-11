@@ -21,6 +21,13 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     enabled: showComments
   });
 
+  const { data: authorDrops = [] } = useQuery({
+    queryKey: ["userDropsCount", dropUser.email],
+    queryFn: () => base44.entities.GlowDrop.filter({ user_email: dropUser.email })
+  });
+  
+  const isSuperCreator = authorDrops.length >= 9;
+
   const { data: users = [] } = useQuery({
     queryKey: ["allUsers"],
     queryFn: () => base44.entities.User.list()
