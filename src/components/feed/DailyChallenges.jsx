@@ -60,13 +60,9 @@ export default function DailyChallenges({ user }) {
                   {isCompleted ? (
                     <CheckCircle2 className="w-4 h-4 text-green-500" />
                   ) : (
-                    <button 
-                      disabled={claimMutation.isPending}
-                      onClick={() => claimMutation.mutate(challenge)}
-                      className="text-[9px] font-bold text-white bg-white/10 hover:bg-[#FFD000]/20 hover:text-[#FFD000] px-2 py-1 rounded transition"
-                    >
-                      CLAIM
-                    </button>
+                    <span className="text-[9px] font-bold text-gray-500 bg-white/5 px-2 py-1 rounded">
+                      PENDING
+                    </span>
                   )}
                 </div>
               </div>
