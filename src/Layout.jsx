@@ -327,11 +327,6 @@ export default function Layout({ children, currentPageName }) {
               </a>
             ) : (
               <div className="flex items-center gap-4">
-                {userRole === 'admin' && (
-                  <Link to={createPageUrl("AdminReports")} className="nav-link text-red-400" style={{ whiteSpace: "nowrap" }}>
-                    Moderation
-                  </Link>
-                )}
                 <Link to={createPageUrl("Dashboard")} className="nav-link" style={{ whiteSpace: "nowrap" }}>
                   {t("dashboard") || "Dashboard"}
                 </Link>
