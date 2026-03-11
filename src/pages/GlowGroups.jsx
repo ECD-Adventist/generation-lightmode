@@ -18,9 +18,10 @@ export default function GlowGroups() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: users = [] } = useQuery({
+  const { data: users = [], isError: usersError } = useQuery({
     queryKey: ["allUsers"],
     queryFn: () => base44.entities.User.list(),
+    retry: 2,
   });
 
   const { data: drops = [] } = useQuery({
