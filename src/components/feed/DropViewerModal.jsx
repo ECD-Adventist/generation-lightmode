@@ -1,19 +1,42 @@
-import React, { useState } from "react";
-import { X, Heart, MessageCircle, Share2, ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { X, Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, Bookmark, MoreHorizontal, Trash2, Flag, Send, Copy } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function DropViewerModal({ drop, drops, user, onClose, onNavigate }) {
   const [newComment, setNewComment] = useState("");
+  const [liked, setLiked] = useState(false);
+  const [showHeartAnim, setShowHeartAnim] = useState(false);
   const queryClient = useQueryClient();
+  const commentsEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const currentIndex = drops?.findIndex(d => d.id === drop.id) ?? -1;
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex < (drops?.length ?? 0) - 1;
+
+  // Reset liked state when drop changes
+  useEffect(() => { setLiked(false); }, [drop.id]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft" && hasPrev) onNavigate(drops[currentIndex - 1]);
+      if (e.key === "ArrowRight" && hasNext) onNavigate(drops[currentIndex + 1]);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [drop.id, hasPrev, hasNext]);
 
   const { data: comments = [] } = useQuery({
     queryKey: ["comments", drop.id],
@@ -21,7 +44,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
     enabled: !!drop.id
   });
 
-  const { data: users = [] } = useQuery({
+  const { data: allUsers = [] } = useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
       const res = await base44.functions.invoke("listPublicUsers", {});
@@ -29,14 +52,23 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
     }
   });
 
+  const { data: savedDrops = [] } = useQuery({
+    queryKey: ["savedDrops", drop.id, user?.email],
+    queryFn: () => base44.entities.SavedDrop.filter({ drop_id: drop.id, user_email: user?.email }),
+    enabled: !!user
+  });
+
+  const isSaved = savedDrops.length > 0;
+
   const getCommentUser = (email) => {
     if (user?.email === email) return user;
-    return users.find(u => u.email === email) || { full_name: "Glow Believer" };
+    return allUsers.find(u => u.email === email) || { full_name: "Glow Believer" };
   };
 
   const likeMutation = useMutation({
     mutationFn: async () => {
       if (!user) { toast.error("Please log in"); return; }
+      setLiked(true);
       await base44.entities.GlowDrop.update(drop.id, { likes_count: (drop.likes_count || 0) + 1 });
     },
     onSuccess: () => {
@@ -47,23 +79,50 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
 
   const commentMutation = useMutation({
     mutationFn: async (content) => {
-      await base44.entities.GlowDropComment.create({
-        drop_id: drop.id,
-        user_email: user.email,
-        content
-      });
+      await base44.entities.GlowDropComment.create({ drop_id: drop.id, user_email: user.email, content });
+      if (drop.user_email && drop.user_email !== user.email) {
+        await base44.entities.Notification.create({
+          user_email: drop.user_email, type: "reply",
+          message: `${user.full_name} commented on your Glow Drop!`, link: `/Feed`
+        });
+      }
     },
     onSuccess: () => {
       setNewComment("");
       queryClient.invalidateQueries({ queryKey: ["comments", drop.id] });
+      setTimeout(() => commentsEndRef.current?.scrollIntoView({ behavior: "smooth" }), 200);
     }
   });
 
-  const submitComment = (e) => {
-    e.preventDefault();
-    if (!newComment.trim() || !user) return;
-    commentMutation.mutate(newComment);
-  };
+  const deleteDropMutation = useMutation({
+    mutationFn: async () => { await base44.entities.GlowDrop.delete(drop.id); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myGlowDropsProfile"] });
+      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+      toast.success("Post deleted");
+      onClose();
+    }
+  });
+
+  const deleteCommentMutation = useMutation({
+    mutationFn: async (commentId) => { await base44.entities.GlowDropComment.delete(commentId); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", drop.id] });
+      toast.success("Comment deleted");
+    }
+  });
+
+  const toggleSaveMutation = useMutation({
+    mutationFn: async () => {
+      if (isSaved) { await base44.entities.SavedDrop.delete(savedDrops[0].id); }
+      else { await base44.entities.SavedDrop.create({ drop_id: drop.id, user_email: user.email }); }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["savedDrops", drop.id, user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["mySavedDrops"] });
+      toast.success(isSaved ? "Removed from saved" : "Saved!");
+    }
+  });
 
   const handleShare = async () => {
     const shareText = `✨ "${drop.verse}"\n\n${drop.reflection || ""}\n\n— Generation LightMode`;
@@ -75,135 +134,223 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
     }
   };
 
+  const handleDoubleTap = () => {
+    setShowHeartAnim(true);
+    likeMutation.mutate();
+    setTimeout(() => setShowHeartAnim(false), 800);
+  };
+
+  const submitComment = (e) => {
+    e.preventDefault();
+    if (!newComment.trim() || !user) return;
+    commentMutation.mutate(newComment);
+  };
+
+  const isOwner = user?.email === drop.user_email;
+  const dropAuthor = getCommentUser(drop.user_email);
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md" onClick={onClose}>
-      {/* Close Button */}
-      <button onClick={onClose} className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
-        <X className="w-6 h-6 text-white" />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95" onClick={onClose}>
+      {/* Close */}
+      <button onClick={onClose} className="absolute top-3 right-3 z-50 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+        <X className="w-5 h-5 text-white" />
       </button>
 
       {/* Nav Arrows */}
       {hasPrev && (
-        <button
-          onClick={(e) => { e.stopPropagation(); onNavigate(drops[currentIndex - 1]); }}
-          className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
-        >
-          <ChevronLeft className="w-6 h-6 text-white" />
+        <button onClick={(e) => { e.stopPropagation(); onNavigate(drops[currentIndex - 1]); }}
+          className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-50 w-9 h-9 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition shadow-lg">
+          <ChevronLeft className="w-5 h-5 text-black" />
         </button>
       )}
       {hasNext && (
-        <button
-          onClick={(e) => { e.stopPropagation(); onNavigate(drops[currentIndex + 1]); }}
-          className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
-        >
-          <ChevronRight className="w-6 h-6 text-white" />
+        <button onClick={(e) => { e.stopPropagation(); onNavigate(drops[currentIndex + 1]); }}
+          className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 z-50 w-9 h-9 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition shadow-lg">
+          <ChevronRight className="w-5 h-5 text-black" />
         </button>
       )}
 
-      {/* Main Content */}
-      <div
-        className="w-full max-w-4xl max-h-[90vh] mx-4 bg-[#121826] border border-white/10 rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Left — Media / Text */}
-        <div
-          className={`md:w-1/2 flex-shrink-0 relative flex items-center justify-center ${drop.media_url ? "" : "bg-gradient-to-br from-[#1a1b26] via-[#0B0F1A] to-[#1a103c]"}`}
-          style={drop.media_url ? { backgroundImage: `url(${drop.media_url})`, backgroundSize: "cover", backgroundPosition: "center", minHeight: 300 } : { minHeight: 300 }}
-          onDoubleClick={() => likeMutation.mutate()}
-        >
-          {!drop.media_url && (
-            <div className="p-8 text-center">
+      {/* Modal Container */}
+      <div className="w-full max-w-5xl max-h-[92vh] mx-2 sm:mx-4 bg-[#0B0F1A] border border-white/10 rounded-xl overflow-hidden flex flex-col md:flex-row shadow-2xl"
+        onClick={(e) => e.stopPropagation()}>
+
+        {/* LEFT — Full Image / Content */}
+        <div className="md:w-[55%] flex-shrink-0 relative bg-black flex items-center justify-center overflow-hidden"
+          onDoubleClick={handleDoubleTap}
+          style={{ minHeight: 280 }}>
+
+          {drop.media_url ? (
+            <img src={drop.media_url} alt="Drop" className="w-full h-full object-contain max-h-[92vh]" />
+          ) : (
+            <div className="w-full h-full min-h-[400px] bg-gradient-to-br from-[#1a1b26] via-[#0B0F1A] to-[#1a103c] flex flex-col items-center justify-center p-10 text-center">
               {drop.verse && (
-                <h2 className="text-2xl sm:text-3xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] leading-tight mb-4">
+                <h2 className="text-3xl sm:text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] leading-tight mb-5">
                   {drop.verse}
                 </h2>
               )}
               {drop.reflection && (
-                <p className="text-base text-white/80 font-['Inter'] leading-relaxed">"{drop.reflection}"</p>
+                <p className="text-lg text-white/80 font-['Inter'] leading-relaxed max-w-md">"{drop.reflection}"</p>
               )}
             </div>
           )}
-          {drop.media_url && (
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-              {drop.verse && <p className="text-sm font-bold text-[#00CFFF]">{drop.verse}</p>}
+
+          {/* Double-tap heart animation */}
+          {showHeartAnim && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+              <Heart className="w-24 h-24 text-red-500 fill-red-500 animate-ping" />
             </div>
           )}
         </div>
 
-        {/* Right — Details & Comments */}
-        <div className="md:w-1/2 flex flex-col bg-[#0B0F1A] max-h-[90vh] md:max-h-none">
+        {/* RIGHT — Details Panel */}
+        <div className="md:w-[45%] flex flex-col bg-[#0B0F1A] border-l border-white/5 max-h-[92vh]">
+
           {/* Author Header */}
-          <div className="flex items-center gap-3 p-4 border-b border-white/10">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
-              <div className="w-full h-full rounded-full bg-[#0B0F1A] overflow-hidden">
-                <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
+                <div className="w-full h-full rounded-full bg-[#0B0F1A] overflow-hidden">
+                  <img src={dropAuthor?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                </div>
+              </div>
+              <div>
+                <div className="font-bold text-white text-sm leading-tight">{dropAuthor?.full_name || "Unknown"}</div>
+                {drop.category && <span className="text-[10px] text-gray-500 font-medium">{drop.category}</span>}
               </div>
             </div>
-            <div>
-              <div className="font-bold text-white text-sm">{user?.full_name || "You"}</div>
-              <div className="text-xs text-gray-500">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date), { addSuffix: true }) : ""}</div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition">
+                  <MoreHorizontal className="w-5 h-5 text-gray-400" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-[#121826] border-white/10 text-white w-48">
+                {isOwner && (
+                  <DropdownMenuItem onClick={() => deleteDropMutation.mutate()} className="text-red-400 hover:bg-red-500/10 hover:text-red-400 cursor-pointer gap-2">
+                    <Trash2 className="w-4 h-4" /> Delete Post
+                  </DropdownMenuItem>
+                )}
+                {!isOwner && (
+                  <DropdownMenuItem onClick={() => {
+                    const reason = window.prompt("Why are you reporting this content?");
+                    if (reason) {
+                      base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason })
+                        .then(() => toast.success("Reported to moderators."));
+                    }
+                  }} className="hover:bg-white/10 cursor-pointer gap-2">
+                    <Flag className="w-4 h-4" /> Report
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={() => {
+                  navigator.clipboard.writeText(`${drop.verse || ""} ${drop.reflection || ""}`);
+                  toast.success("Text copied!");
+                }} className="hover:bg-white/10 cursor-pointer gap-2">
+                  <Copy className="w-4 h-4" /> Copy Text
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Caption / Verse + Reflection */}
+          <div className="px-4 py-3 border-b border-white/5 shrink-0">
+            <div className="flex gap-3">
+              <div className="w-7 h-7 rounded-full shrink-0 overflow-hidden mt-0.5">
+                <img src={dropAuthor?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+              </div>
+              <div className="text-sm leading-relaxed">
+                <span className="font-bold text-white mr-1.5">{dropAuthor?.full_name}</span>
+                {drop.verse && <span className="text-[#00CFFF] font-semibold">{drop.verse} </span>}
+                {drop.reflection && <span className="text-gray-300">{drop.reflection}</span>}
+                {drop.hashtags && (
+                  <div className="text-[#00CFFF] text-xs mt-1.5 font-medium">
+                    {drop.hashtags.split(" ").map(t => t.startsWith("#") ? t : `#${t}`).join(" ")}
+                  </div>
+                )}
+                <div className="text-[11px] text-gray-600 mt-1.5">
+                  {drop.created_date ? formatDistanceToNow(new Date(drop.created_date), { addSuffix: true }) : ""}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Caption */}
-          {(drop.reflection || drop.verse) && (
-            <div className="px-4 py-3 border-b border-white/5 text-sm text-gray-200">
-              {drop.media_url && drop.verse && <span className="text-[#00CFFF] font-bold mr-1">{drop.verse}</span>}
-              {drop.reflection && <span>{drop.reflection}</span>}
-            </div>
-          )}
-
-          {/* Comments List */}
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0">
+          {/* Comments */}
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 min-h-0">
             {comments.length === 0 && (
-              <div className="text-center py-10 text-gray-600 text-sm">No comments yet. Start the conversation!</div>
+              <div className="text-center py-12 text-gray-600 text-sm">No comments yet.</div>
             )}
-            {comments.map(c => (
-              <div key={c.id} className="flex gap-2.5">
-                <div className="w-7 h-7 rounded-full bg-gray-800 shrink-0 overflow-hidden">
-                  <img src={getCommentUser(c.user_email)?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+            {comments.map(c => {
+              const cu = getCommentUser(c.user_email);
+              const isCommentOwner = user?.email === c.user_email;
+              const canDelete = isCommentOwner || isOwner;
+              return (
+                <div key={c.id} className="flex gap-3 group/c">
+                  <div className="w-7 h-7 rounded-full shrink-0 overflow-hidden mt-0.5">
+                    <img src={cu?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm">
+                      <span className="font-bold text-white mr-1.5">{cu.full_name}</span>
+                      <span className="text-gray-300">{c.content}</span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-[11px] text-gray-600">
+                        {c.created_date ? formatDistanceToNow(new Date(c.created_date), { addSuffix: true }) : ""}
+                      </span>
+                      {canDelete && (
+                        <button onClick={() => deleteCommentMutation.mutate(c.id)}
+                          className="text-[11px] text-gray-600 hover:text-red-400 opacity-0 group-hover/c:opacity-100 transition font-semibold">
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-sm">
-                  <span className="font-bold text-white mr-1.5">{getCommentUser(c.user_email).full_name}</span>
-                  <span className="text-gray-300">{c.content}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
+            <div ref={commentsEndRef} />
           </div>
 
           {/* Action Bar */}
-          <div className="border-t border-white/10 px-4 py-3">
-            <div className="flex items-center gap-5 mb-3">
-              <button onClick={() => likeMutation.mutate()} className="hover:scale-110 transition-transform">
-                <Heart className={`w-6 h-6 ${(drop.likes_count || 0) > 0 ? "text-red-500 fill-red-500" : "text-white"}`} />
-              </button>
-              <button className="hover:scale-110 transition-transform">
-                <MessageCircle className="w-6 h-6 text-white" />
-              </button>
-              <button onClick={handleShare} className="hover:scale-110 transition-transform">
-                <Share2 className="w-6 h-6 text-white" />
+          <div className="border-t border-white/10 px-4 py-2.5 shrink-0">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-4">
+                <button onClick={() => likeMutation.mutate()} className="hover:scale-110 transition-transform active:scale-95">
+                  <Heart className={`w-6 h-6 transition-colors ${liked || (drop.likes_count || 0) > 0 ? "text-red-500 fill-red-500" : "text-white hover:text-gray-300"}`} />
+                </button>
+                <button onClick={() => inputRef.current?.focus()} className="hover:scale-110 transition-transform">
+                  <MessageCircle className="w-6 h-6 text-white hover:text-gray-300" />
+                </button>
+                <button onClick={handleShare} className="hover:scale-110 transition-transform">
+                  <Send className="w-6 h-6 text-white hover:text-gray-300" />
+                </button>
+              </div>
+              <button onClick={() => user && toggleSaveMutation.mutate()} className="hover:scale-110 transition-transform">
+                <Bookmark className={`w-6 h-6 transition-colors ${isSaved ? "text-white fill-white" : "text-white hover:text-gray-300"}`} />
               </button>
             </div>
-            <div className="text-sm font-bold text-white mb-2">{drop.likes_count || 0} likes</div>
+            <div className="text-sm font-bold text-white">{drop.likes_count || 0} likes</div>
+            <div className="text-[11px] text-gray-600 mt-0.5">
+              {drop.created_date ? formatDistanceToNow(new Date(drop.created_date), { addSuffix: true }).toUpperCase() : ""}
+            </div>
           </div>
 
           {/* Comment Input */}
           {user && (
-            <form onSubmit={submitComment} className="border-t border-white/10 px-4 py-3 flex gap-2">
-              <Input
+            <form onSubmit={submitComment} className="border-t border-white/10 px-4 py-3 flex items-center gap-2 shrink-0">
+              <div className="w-7 h-7 rounded-full shrink-0 overflow-hidden">
+                <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+              </div>
+              <input
+                ref={inputRef}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Add a comment..."
-                className="bg-transparent border-none text-white text-sm h-10 focus-visible:ring-0 placeholder:text-gray-500"
+                className="flex-1 bg-transparent text-white text-sm h-9 focus:outline-none placeholder:text-gray-600"
               />
-              <Button
-                type="submit"
-                disabled={!newComment.trim()}
-                variant="ghost"
-                className="text-[#00CFFF] font-bold text-sm hover:text-white disabled:opacity-30"
-              >
+              <button type="submit" disabled={!newComment.trim()} className="text-[#00CFFF] font-bold text-sm disabled:opacity-30 hover:text-white transition">
                 Post
-              </Button>
+              </button>
             </form>
           )}
         </div>
