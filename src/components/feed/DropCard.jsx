@@ -223,7 +223,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         {/* Text Content (if no media) */}
         {!drop.media_url && (
-          <div className="p-8 relative z-10 w-full h-full flex flex-col items-center justify-center">
+          <div className="p-8 pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center">
             {drop.verse && (
               <h2 className="text-2xl sm:text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] mb-6 leading-tight drop-shadow-lg">
                 {drop.verse}
