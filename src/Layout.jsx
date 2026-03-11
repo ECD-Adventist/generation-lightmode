@@ -414,10 +414,16 @@ export default function Layout({ children, currentPageName }) {
           </div>
         )}
       </nav>
-      )}
+        );
+      })()}
 
       {/* Page Content */}
-      <main style={{ paddingTop: currentPageName === "Feed" ? 0 : 72 }}>
+      {(() => {
+        const appPages = ["Feed", "Dashboard", "Profile", "Notifications", "Saved", "GlowGroups", "AdminReports"];
+        const isAppPage = appPages.includes(currentPageName);
+        const noTopPad = currentPageName === "Feed" || (isAppPage && userEmail);
+        return <main style={{ paddingTop: noTopPad ? 0 : 72 }}>{children}</main>;
+      })()}
         {children}
       </main>
 
