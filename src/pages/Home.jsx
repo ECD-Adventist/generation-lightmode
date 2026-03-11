@@ -267,14 +267,14 @@ export default function Home() {
           loading="lazy"
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", zIndex: 0 }}
         />
-        {/* Dark overlay — heavier on left so text is readable */}
+        {/* Dark overlay — heavy left for text, fully transparent right so image shows */}
         <div style={{
           position: "absolute", inset: 0, zIndex: 1,
-          background: "linear-gradient(90deg, rgba(11,15,26,0.96) 0%, rgba(11,15,26,0.80) 55%, rgba(11,15,26,0.30) 100%)",
+          background: "linear-gradient(90deg, rgba(11,15,26,0.95) 0%, rgba(11,15,26,0.85) 40%, rgba(11,15,26,0.40) 65%, rgba(11,15,26,0.0) 100%)",
           pointerEvents: "none",
         }} />
         {/* Top/bottom fade */}
-        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(180deg, rgba(11,15,26,0.8) 0%, transparent 20%, transparent 80%, rgba(11,15,26,0.8) 100%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(180deg, rgba(11,15,26,0.7) 0%, transparent 15%, transparent 85%, rgba(11,15,26,0.7) 100%)", pointerEvents: "none" }} />
 
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "100px 24px", position: "relative", zIndex: 2, width: "100%" }}>
           <div style={{ maxWidth: 620 }}>
