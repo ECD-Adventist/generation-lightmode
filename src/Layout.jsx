@@ -435,7 +435,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
         )}
       </nav>
-      ) : null}
+      )}
 
       {/* Page Content */}
       <main style={{ paddingTop: (["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports"].includes(currentPageName) && userEmail) || currentPageName === "Feed" ? 0 : 72 }}>
