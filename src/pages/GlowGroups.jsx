@@ -20,9 +20,45 @@ const howItWorks = [
   { step: "04", title: "Climb the Ranks", desc: "As a group grows in faith and activity, your collective rank rises.", icon: "🏆" },
 ];
 
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+
 export default function GlowGroups() {
   const [search, setSearch] = useState("");
   const [regionFilter, setRegionFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState("groups"); // "groups" | "members"
+  const queryClient = useQueryClient();
+
+  const { data: user } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const { data: users = [] } = useQuery({
+    queryKey: ["allUsers"],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const { data: following = [] } = useQuery({
+    queryKey: ["following", user?.email],
+    queryFn: () => base44.entities.Follow.filter({ follower_email: user?.email }),
+    enabled: !!user
+  });
+
+  const followMutation = useMutation({
+    mutationFn: async (targetEmail) => {
+      const isFollowing = following.some(f => f.following_email === targetEmail);
+      if (isFollowing) {
+        const followRecord = following.find(f => f.following_email === targetEmail);
+        await base44.entities.Follow.delete(followRecord.id);
+      } else {
+        await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
+    }
+  });
 
   const regions = ["all", ...new Set(groups.map(g => g.region))];
   const filtered = groups.filter(g => {
@@ -83,13 +119,40 @@ export default function GlowGroups() {
       {/* SEARCH & FILTER */}
       <section style={{ padding: "60px 24px 0" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          
+          {/* Tabs */}
+          <div style={{ display: "flex", gap: 16, marginBottom: 32, borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 16 }}>
+            <button 
+              onClick={() => setActiveTab("groups")}
+              style={{
+                background: "transparent", border: "none", color: activeTab === "groups" ? "#00CFFF" : "#C8D0E0",
+                fontSize: 18, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", cursor: "pointer",
+                position: "relative"
+              }}
+            >
+              Groups
+              {activeTab === "groups" && <div style={{ position: "absolute", bottom: -17, left: 0, right: 0, height: 2, background: "#00CFFF" }} />}
+            </button>
+            <button 
+              onClick={() => setActiveTab("members")}
+              style={{
+                background: "transparent", border: "none", color: activeTab === "members" ? "#00CFFF" : "#C8D0E0",
+                fontSize: 18, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", cursor: "pointer",
+                position: "relative"
+              }}
+            >
+              Members
+              {activeTab === "members" && <div style={{ position: "absolute", bottom: -17, left: 0, right: 0, height: 2, background: "#00CFFF" }} />}
+            </button>
+          </div>
+
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center", marginBottom: 32 }}>
             <div style={{ flex: "1 1 300px", position: "relative" }}>
               <Search size={18} color="#C8D0E0" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Search by name or location..."
+                placeholder={activeTab === "groups" ? "Search groups by name or location..." : "Search members by name..."}
                 style={{
                   width: "100%", padding: "14px 16px 14px 48px",
                   background: "#121826", border: "1px solid rgba(0,207,255,0.2)",
@@ -98,23 +161,26 @@ export default function GlowGroups() {
                 }}
               />
             </div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {regions.map(r => (
-                <button key={r} onClick={() => setRegionFilter(r)} style={{
-                  padding: "10px 20px", borderRadius: 50,
-                  border: `1px solid ${regionFilter === r ? "#8A5CFF" : "rgba(255,255,255,0.1)"}`,
-                  background: regionFilter === r ? "rgba(138,92,255,0.15)" : "transparent",
-                  color: regionFilter === r ? "#8A5CFF" : "#C8D0E0",
-                  cursor: "pointer", fontSize: 14, fontFamily: "Inter, sans-serif", fontWeight: 500, transition: "all 0.2s",
-                }}>
-                  {r.charAt(0).toUpperCase() + r.slice(1)}
-                </button>
-              ))}
-            </div>
+            {activeTab === "groups" && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {regions.map(r => (
+                  <button key={r} onClick={() => setRegionFilter(r)} style={{
+                    padding: "10px 20px", borderRadius: 50,
+                    border: `1px solid ${regionFilter === r ? "#8A5CFF" : "rgba(255,255,255,0.1)"}`,
+                    background: regionFilter === r ? "rgba(138,92,255,0.15)" : "transparent",
+                    color: regionFilter === r ? "#8A5CFF" : "#C8D0E0",
+                    cursor: "pointer", fontSize: 14, fontFamily: "Inter, sans-serif", fontWeight: 500, transition: "all 0.2s",
+                  }}>
+                    {r.charAt(0).toUpperCase() + r.slice(1)}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Groups Grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20, paddingBottom: 100 }}>
+          {activeTab === "groups" && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20, paddingBottom: 100 }}>
             {filtered.map(group => (
               <div key={group.name} className="glm-card" style={{ border: `1px solid ${group.color}25` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
@@ -163,7 +229,46 @@ export default function GlowGroups() {
               <p className="glm-body" style={{ fontSize: 14, marginBottom: 16 }}>Don't see one near you? Create your own and invite your people.</p>
               <a href={createPageUrl("Dashboard")} className="glm-btn-primary" style={{ fontSize: 14, padding: "10px 24px" }}>Create Group ⚡</a>
             </div>
-          </div>
+          )}
+
+          {/* Members Grid */}
+          {activeTab === "members" && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 20, paddingBottom: 100 }}>
+              {users.filter(u => u.full_name?.toLowerCase().includes(search.toLowerCase()) && u.email !== user?.email).map(u => {
+                const isFollowing = following.some(f => f.following_email === u.email);
+                return (
+                  <div key={u.id} className="glm-card" style={{ display: "flex", alignItems: "center", gap: 16, padding: "20px" }}>
+                    <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#1a2235", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}>
+                      {u.profile_picture_url ? <img src={u.profile_picture_url} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: 20, fontWeight: "bold", color: "#C8D0E0" }}>{u.full_name?.charAt(0)}</span>}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h4 style={{ fontSize: 16, fontWeight: 600, color: "#FFF", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.full_name}</h4>
+                      <p style={{ fontSize: 12, color: "#8A5CFF" }}>{u.country || "Global Believer"}</p>
+                    </div>
+                    <button 
+                      onClick={() => followMutation.mutate(u.email)}
+                      style={{
+                        padding: "8px 16px", borderRadius: 50,
+                        background: isFollowing ? "transparent" : "#00CFFF",
+                        border: isFollowing ? "1px solid #C8D0E0" : "none",
+                        color: isFollowing ? "#C8D0E0" : "#0B0F1A",
+                        fontSize: 12, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif",
+                        cursor: "pointer", transition: "all 0.2s"
+                      }}
+                    >
+                      {isFollowing ? "Unfollow" : "Follow"}
+                    </button>
+                  </div>
+                );
+              })}
+              {users.filter(u => u.full_name?.toLowerCase().includes(search.toLowerCase()) && u.email !== user?.email).length === 0 && (
+                <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px 0", color: "#C8D0E0" }}>
+                  <div style={{ fontSize: 40, marginBottom: 16 }}>🔍</div>
+                  <p>No members found matching "{search}"</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
     </div>
