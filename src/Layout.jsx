@@ -248,7 +248,7 @@ export default function Layout({ children, currentPageName }) {
       `}</style>
 
       {/* NAVBAR */}
-      {userEmail && ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Challenges","Assistant","Resources","GlobalReach"].includes(currentPageName) ? null : userEmail ? (
+      {userEmail && ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Challenges","Assistant","Resources","GlobalReach"].includes(currentPageName) ? null : (userEmail ? (
         /* Logged-in user on a non-app page (e.g. About, Impact) — show slim app nav */
         <nav style={{
           position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
