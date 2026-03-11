@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -197,7 +197,7 @@ export default function Feed() {
         </div>
 
         {/* Center Feed */}
-        <div className="lg:col-span-2 sm:border-x border-white/10 min-h-screen lg:border-none">
+        <div className="lg:col-span-2 sm:border-x border-white/10 min-h-screen lg:border-none flex flex-col pt-8">
           
           {/* Top Header Mobile */}
           <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A] border-b border-white/10 lg:hidden">
@@ -213,18 +213,50 @@ export default function Feed() {
           </div>
         </div>
 
+        {/* Center Header (Desktop) */}
+        <div className="hidden lg:flex items-center justify-between px-4 mb-6">
+           <h2 className="text-xl font-bold text-white">For You</h2>
+           <div className="relative w-64">
+             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+             <input type="text" placeholder="Search the nexus..." className="w-full bg-[#121826] border border-white/5 rounded-full py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-[#00CFFF]/50" />
+           </div>
+        </div>
 
+        {/* Stories / Vibes Row */}
+        <div className="flex gap-4 px-4 mb-8 overflow-x-auto hide-scrollbar pb-2">
+          {/* Own Story / Live */}
+          <div className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0">
+             <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-b from-[#00CFFF] to-transparent">
+                <div className="w-full h-full rounded-full border-[2px] border-[#0B0F1A] overflow-hidden bg-gray-800">
+                  {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center font-bold text-lg">{user?.full_name?.charAt(0)}</div>}
+                </div>
+             </div>
+             <span className="text-[10px] font-bold text-[#00CFFF] uppercase tracking-wider">LIVE</span>
+          </div>
 
-        {/* Filter Bar */}
-        <div className="flex gap-3 px-4 py-4 bg-[#0B0F1A] overflow-x-auto hide-scrollbar sticky top-[60px] lg:top-0 z-40 backdrop-blur-md bg-opacity-90 border-b border-white/5">
+          {/* Other users mock stories */}
+          {users.filter(u => u.email !== user?.email).slice(0, 5).map(u => (
+            <div key={u.id} className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0 opacity-80 hover:opacity-100 transition-opacity">
+               <div className="w-16 h-16 rounded-full bg-[#121826] border border-white/10 overflow-hidden p-1">
+                  <div className="w-full h-full rounded-full bg-gray-800 overflow-hidden">
+                    {u.profile_picture_url ? <img src={u.profile_picture_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center font-bold text-lg">{u.full_name?.charAt(0)}</div>}
+                  </div>
+               </div>
+               <span className="text-[10px] font-medium text-gray-400 truncate w-16 text-center">{u.full_name?.split(' ')[0]}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Filter Bar (kept for functionality but styled subtler) */}
+        <div className="flex gap-2 px-4 mb-6 overflow-x-auto hide-scrollbar">
           {['All', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-5 py-2 rounded-2xl text-sm font-bold whitespace-nowrap transition-all duration-300 ${
+              className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300 ${
                 activeFilter === filter 
-                  ? 'bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black shadow-[0_0_15px_rgba(0,207,255,0.4)] transform scale-105' 
-                  : 'bg-[#121826] text-gray-400 border border-white/10 hover:text-white hover:border-white/30 hover:bg-[#1a2235]'
+                  ? 'bg-white/10 text-white' 
+                  : 'text-gray-500 hover:text-gray-300'
               }`}
             >
               {filter}
@@ -277,29 +309,80 @@ export default function Feed() {
         </div>
 
         {/* Right Sidebar (Desktop) */}
-        <div className="hidden lg:block py-8 px-6 sticky top-[72px] h-[calc(100vh-72px)] border-l border-white/10">
-          <h3 className="font-bold text-lg mb-6 text-gray-400">Suggested Believers</h3>
-          <div className="space-y-6">
-            {users.filter(u => u.email !== user?.email).slice(0, 5).map(u => (
-              <div key={u.id} className="flex items-center justify-between">
-                 <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden flex items-center justify-center font-bold text-sm">
-                      {u.profile_picture_url ? <img src={u.profile_picture_url} className="w-full h-full object-cover" /> : u.full_name?.charAt(0)}
-                   </div>
-                   <div className="text-sm">
-                     <div className="font-bold text-white truncate max-w-[120px]">{u.full_name}</div>
-                     <div className="text-gray-500 text-xs">{u.country || 'Global'}</div>
-                   </div>
-                 </div>
-                 <button className="text-xs text-[#00CFFF] font-bold hover:text-white transition">Follow</button>
+        <div className="hidden lg:block py-8 px-6 sticky top-0 h-screen border-l border-white/5 bg-[#0B0F1A]">
+          
+          {/* Trending Vibes */}
+          <div className="bg-[#121826] rounded-[24px] p-5 mb-6 border border-white/5">
+            <h3 className="font-black text-xs text-[#00CFFF] mb-4 tracking-widest uppercase">Trending Vibes</h3>
+            
+            <div className="space-y-4">
+              <div className="group cursor-pointer">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Faith + Trending</span>
+                  <MoreHorizontal className="w-3 h-3 text-gray-600" />
+                </div>
+                <h4 className="font-bold text-sm text-white group-hover:text-[#00CFFF] transition">#MorningDevotional</h4>
+                <p className="text-[10px] text-gray-500 mt-0.5">42.5k Vibes</p>
               </div>
-            ))}
+
+              <div className="group cursor-pointer">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Testimony + Trending</span>
+                  <MoreHorizontal className="w-3 h-3 text-gray-600" />
+                </div>
+                <h4 className="font-bold text-sm text-white group-hover:text-[#00CFFF] transition">#HeHeals</h4>
+                <p className="text-[10px] text-gray-500 mt-0.5">18.2k Vibes</p>
+              </div>
+
+              <div className="group cursor-pointer">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Worship + Trending</span>
+                  <span className="w-1 h-1 bg-[#00CFFF] rounded-full shadow-[0_0_5px_#00CFFF]"></span>
+                </div>
+                <h4 className="font-bold text-sm text-white group-hover:text-[#00CFFF] transition">#SundayServiceLive</h4>
+                <p className="text-[10px] text-gray-500 mt-0.5">105k Vibes</p>
+              </div>
+            </div>
+            
+            <button className="text-xs font-bold text-[#00CFFF] mt-5 hover:text-white transition">View More</button>
+          </div>
+
+          {/* Suggested Creators */}
+          <div className="bg-[#121826] rounded-[24px] p-5 border border-white/5">
+            <h3 className="font-black text-xs text-[#FFD000] mb-4 tracking-widest uppercase">Suggested Creators</h3>
+            
+            <div className="space-y-4">
+              {users.filter(u => u.email !== user?.email).slice(0, 3).map((u, i) => {
+                const isFollowing = following.some(f => f.following_email === u.email);
+                return (
+                <div key={u.id} className="flex items-center justify-between">
+                   <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden flex items-center justify-center font-bold text-xs text-white border border-white/10">
+                        {u.profile_picture_url ? <img src={u.profile_picture_url} className="w-full h-full object-cover" /> : u.full_name?.charAt(0)}
+                     </div>
+                     <div className="text-xs">
+                       <div className="font-bold text-white truncate max-w-[80px]">{u.full_name}</div>
+                       <div className="text-gray-500 text-[9px]">{i === 0 ? "Followed by Friends" : i === 1 ? "Recommended" : "Trending Creator"}</div>
+                     </div>
+                   </div>
+                   <button 
+                     onClick={() => followMutation.mutate(u.email)}
+                     className={`text-[9px] font-bold px-3 py-1.5 rounded-full border transition ${isFollowing ? "border-gray-500 text-gray-400 hover:border-red-500 hover:text-red-500" : "border-[#00CFFF] text-[#00CFFF] hover:bg-[#00CFFF]/10"}`}
+                   >
+                     {isFollowing ? "UNFOLLOW" : "CONNECT"}
+                   </button>
+                </div>
+              )})}
+            </div>
           </div>
           
-          <div className="mt-10 p-5 bg-[#121826] rounded-2xl border border-white/5">
-            <h4 className="font-bold text-white mb-2">Daily Verse 📖</h4>
-            <p className="text-sm text-gray-400 italic">"I can do all things through Christ who strengthens me."</p>
-            <p className="text-xs text-[#00CFFF] mt-2">- Philippians 4:13</p>
+          <div className="mt-6 text-[9px] text-gray-600 flex flex-col gap-1">
+             <p>© 2026 GENERATION LIGHTMODE. ALL RIGHTS RESERVED.</p>
+             <div className="flex gap-2">
+               <a href="#" className="hover:text-gray-400">Privacy</a>
+               <a href="#" className="hover:text-gray-400">Terms</a>
+               <a href="#" className="hover:text-gray-400">Nexus Guide</a>
+             </div>
           </div>
         </div>
         
