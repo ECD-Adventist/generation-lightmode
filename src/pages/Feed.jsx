@@ -247,7 +247,7 @@ export default function Feed() {
           <div className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0">
              <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-b from-[#00CFFF] to-transparent">
                 <div className="w-full h-full rounded-full border-[2px] border-[#0B0F1A] overflow-hidden bg-gray-800">
-                  {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center font-bold text-lg">{user?.full_name?.charAt(0)}</div>}
+                  <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                 </div>
              </div>
              <span className="text-[10px] font-bold text-[#00CFFF] uppercase tracking-wider">LIVE</span>
