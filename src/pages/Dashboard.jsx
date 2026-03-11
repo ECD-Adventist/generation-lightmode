@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Loader2, Home, Zap, Users, Bell, User, Globe } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import OverviewTab from "../components/dashboard/OverviewTab";
 import LeaderboardTab from "../components/dashboard/LeaderboardTab";
 import SubmitDropTab from "../components/dashboard/SubmitDropTab";
