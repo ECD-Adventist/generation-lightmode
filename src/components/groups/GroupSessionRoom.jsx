@@ -17,6 +17,10 @@ export default function GroupSessionRoom({ user, session }) {
   const signalSubscriptionRef = useRef(null);
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
+
   const { data: messages = [] } = useQuery({
     queryKey: ["groupSessionMessages", session.id],
     queryFn: () => base44.entities.GroupSessionMessage.filter({ session_id: session.id }, "created_date"),
