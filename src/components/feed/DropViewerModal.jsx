@@ -5,6 +5,8 @@ import { base44 } from "@/api/base44Client";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -207,7 +209,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
 
           {/* Author Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
-            <div className="flex items-center gap-3">
+            <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} onClick={onClose} className="flex items-center gap-3 no-underline hover:opacity-80 transition">
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
                 <div className="w-full h-full rounded-full bg-[#0B0F1A] overflow-hidden">
                   <img src={dropAuthor?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
@@ -217,7 +219,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                 <div className="font-bold text-white text-sm leading-tight">{dropAuthor?.full_name || "Unknown"}</div>
                 {drop.category && <span className="text-[10px] text-gray-500 font-medium">{drop.category}</span>}
               </div>
-            </div>
+            </Link>
 
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>

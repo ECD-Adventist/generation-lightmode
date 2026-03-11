@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare }) {
   const [showComments, setShowComments] = useState(false);
@@ -201,7 +203,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
 
         {/* User Pill (Top Left) */}
-        <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/10 rounded-full pr-4 pl-1 py-1 cursor-pointer hover:bg-black/50 transition">
+        <Link 
+          to={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
+          onClick={(e) => e.stopPropagation()}
+          className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/10 rounded-full pr-4 pl-1 py-1 cursor-pointer hover:bg-black/50 transition no-underline"
+        >
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
             <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
               <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
@@ -220,7 +226,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             </span>
             <span className="text-[10px] text-gray-300 font-medium leading-none">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date), { addSuffix: true }) : ''}</span>
           </div>
-        </div>
+        </Link>
 
         {/* Text Content (if no media) */}
         {!drop.media_url && (
