@@ -147,6 +147,12 @@ export default function Profile() {
       }
 
       await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: targetEmail });
+      await base44.entities.Notification.create({
+        user_email: targetEmail,
+        type: "follow",
+        message: `${currentUser.full_name || "Someone"} started following you.`,
+        link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`
+      });
       return { targetEmail, action: "follow" };
     },
     onSuccess: ({ targetEmail, action }) => {

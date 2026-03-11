@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Bell, Heart, MessageCircle, Zap, Info, CheckCheck, Trash2, Loader2, Home, Users, User, Globe } from "lucide-react";
+import { Bell, Heart, MessageCircle, Zap, Info, CheckCheck, Trash2, Loader2, Home, Users, User, Globe, UserPlus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -11,6 +11,7 @@ const typeIcon = {
   reply: <MessageCircle className="w-4 h-4 text-[#00CFFF]" />,
   milestone: <Zap className="w-4 h-4 text-[#FFD000]" />,
   system: <Info className="w-4 h-4 text-[#8A5CFF]" />,
+  follow: <UserPlus className="w-4 h-4 text-green-400" />,
 };
 
 const typeBg = {
@@ -18,6 +19,7 @@ const typeBg = {
   reply: "bg-[#00CFFF]/10 border-[#00CFFF]/20",
   milestone: "bg-[#FFD000]/10 border-[#FFD000]/20",
   system: "bg-[#8A5CFF]/10 border-[#8A5CFF]/20",
+  follow: "bg-green-500/10 border-green-500/20",
 };
 
 export default function Notifications() {
