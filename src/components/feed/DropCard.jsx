@@ -155,6 +155,35 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     }
   });
 
+  const deleteDropMutation = useMutation({
+    mutationFn: async () => {
+      await base44.entities.GlowDrop.delete(drop.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+      toast.success("Post deleted");
+    }
+  });
+
+  const repostMutation = useMutation({
+    mutationFn: async () => {
+      await base44.entities.GlowDrop.create({
+        user_email: user.email,
+        verse: drop.verse,
+        reflection: `[Reposted from ${dropUser.full_name}]\n\n${drop.reflection || ""}`,
+        media_url: drop.media_url,
+        category: drop.category,
+        hashtags: drop.hashtags,
+        status: "approved"
+      });
+      await base44.entities.GlowDrop.update(drop.id, { reposts_count: (drop.reposts_count || 0) + 1 });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+      toast.success("Successfully reposted!");
+    }
+  });
+
   return (
     <div className="bg-[#121826]/80 backdrop-blur-sm border border-white/10 rounded-[2rem] mb-8 p-3 shadow-2xl hover:border-[#00CFFF]/40 transition-all duration-300 group">
       {/* Media / Content Area */}
@@ -239,6 +268,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             >
               <Share2 className="w-6 h-6 text-white hover:scale-110 transition-transform" />
             </button>
+            <span className="text-white text-xs font-bold drop-shadow-md">{drop.shares_count || 0}</span>
           </div>
           
           <div className="flex flex-col items-center gap-1.5">
@@ -250,21 +280,40 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             </button>
           </div>
 
-          <div className="flex flex-col items-center gap-1.5">
-            <button 
-              onClick={(e) => { 
-                e.stopPropagation();
-                if(!user) return toast.error("Please login to report");
-                const reason = window.prompt("Why are you reporting this content?");
-                if(reason) {
-                  base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason })
-                    .then(() => toast.success("Content reported to moderators."));
-                }
-              }}
-              className="w-10 h-10 mt-2 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-red-500 transition-all focus:outline-none"
-            >
-              <Flag className="w-4 h-4 text-gray-400 hover:text-red-500" />
-            </button>
+          <div className="flex flex-col items-center gap-1.5 mt-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+                >
+                  <MoreHorizontal className="w-4 h-4 text-white" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-[#121826] border-white/10 text-white w-40 z-50">
+                {user?.email === drop.user_email ? (
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); deleteDropMutation.mutate(); }} className="text-red-400 hover:bg-red-500/10 hover:text-red-400 cursor-pointer focus:bg-red-500/10 focus:text-red-400">
+                    Delete Post
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    if(!user) return toast.error("Please login to report");
+                    const reason = window.prompt("Why are you reporting this content?");
+                    if(reason) {
+                      base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason })
+                        .then(() => toast.success("Content reported to moderators."));
+                    }
+                  }} className="hover:bg-white/10 cursor-pointer focus:bg-white/10">
+                    Report Post
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); repostMutation.mutate(); }} className="hover:bg-white/10 cursor-pointer focus:bg-white/10">
+                  Repost
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {drop.reposts_count > 0 && <span className="text-white text-xs font-bold drop-shadow-md">{drop.reposts_count}</span>}
           </div>
         </div>
 

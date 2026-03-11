@@ -139,11 +139,15 @@ export default function Feed() {
           title: 'Glow Drop',
           text: shareText,
         });
+        await base44.entities.GlowDrop.update(drop.id, { shares_count: (drop.shares_count || 0) + 1 });
+        queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
       } catch (err) {
         console.log('Error sharing', err);
       }
     } else {
       navigator.clipboard.writeText(shareText);
+      await base44.entities.GlowDrop.update(drop.id, { shares_count: (drop.shares_count || 0) + 1 });
+      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
       toast.success("Copied to clipboard!");
     }
   };
@@ -376,14 +380,14 @@ export default function Feed() {
               {users.filter(u => u.email !== user?.email).map((u, i) => {
                 const isFollowing = following.some(f => f.following_email === u.email);
                 return (
-                <div key={u.id} className="flex items-center justify-between">
-                   <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden flex items-center justify-center font-bold text-xs text-white border border-white/10 shrink-0">
+                <div key={u.id} className="flex items-center gap-2">
+                   <div className="flex items-center gap-2 flex-1 min-w-0">
+                     <div className="w-9 h-9 rounded-full bg-gray-800 overflow-hidden flex items-center justify-center font-bold text-xs text-white border border-white/10 shrink-0">
                         <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                      </div>
-                     <div className="text-xs min-w-0">
-                       <div className="font-bold text-white truncate max-w-[90px]">{u.full_name}</div>
-                       <div className="text-gray-500 text-[9px]">{u.country || "Global Believer"}</div>
+                     <div className="flex flex-col min-w-0 flex-1">
+                       <span className="font-bold text-white text-xs truncate">{u.full_name}</span>
+                       <span className="text-gray-500 text-[9px] truncate">{u.country || "Global Believer"}</span>
                      </div>
                    </div>
                    <button 

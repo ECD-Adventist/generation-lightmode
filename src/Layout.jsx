@@ -327,8 +327,8 @@ export default function Layout({ children, currentPageName }) {
               </a>
             ) : (
               <div className="flex items-center gap-4">
-                <Link to={createPageUrl("Dashboard")} className="nav-link" style={{ whiteSpace: "nowrap" }}>
-                  {t("dashboard") || "Dashboard"}
+                <Link to={createPageUrl("Feed")} className="nav-link" style={{ whiteSpace: "nowrap" }}>
+                  Switch It On
                 </Link>
                 <Link to={createPageUrl("Notifications")} className="relative w-10 h-10 rounded-full bg-[#121826] border border-white/10 flex items-center justify-center hover:bg-white/5 transition">
                   <Bell className="w-5 h-5 text-gray-300" />
@@ -383,8 +383,8 @@ export default function Layout({ children, currentPageName }) {
             
             {userEmail ? (
               <>
-                <Link to={createPageUrl("Dashboard")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
-                  📊 {t("dashboard") || "Dashboard"}
+                <Link to={createPageUrl("Feed")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
+                  ⚡ Switch It On
                 </Link>
                 <Link to={createPageUrl("Profile")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
                   👤 {t("profile") || "Profile"}
