@@ -13,7 +13,8 @@ import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import DropViewerModal from "@/components/feed/DropViewerModal";
 
 export default function Profile() {
-  const [user, setUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null); // logged-in user
+  const [user, setUser] = useState(null); // profile being viewed
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
@@ -23,26 +24,65 @@ export default function Profile() {
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const viewUserEmail = urlParams.get("user");
+
+  const { data: allUsersForProfile = [] } = useQuery({
+    queryKey: ["allUsersForProfile"],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicUsers", {});
+      return res.data;
+    },
+    enabled: !!viewUserEmail
+  });
+
   useEffect(() => {
     async function checkAuth() {
       try {
         const isAuth = await base44.auth.isAuthenticated();
         if (isAuth) {
           const me = await base44.auth.me();
-          setUser(me);
-          setEditData({ 
-            full_name: me.full_name || "", 
-            country: me.country || "", 
-            profile_picture_url: me.profile_picture_url || "", 
-            cover_picture_url: me.cover_picture_url || "" 
-          });
+          setCurrentUser(me);
+          
+          // If viewing another user's profile
+          if (viewUserEmail && viewUserEmail !== me.email) {
+            // We'll set the viewed user from allUsersForProfile once loaded
+          } else {
+            setUser(me);
+            setEditData({ 
+              full_name: me.full_name || "", 
+              country: me.country || "", 
+              profile_picture_url: me.profile_picture_url || "", 
+              cover_picture_url: me.cover_picture_url || "" 
+            });
+          }
         } else {
           base44.auth.redirectToLogin(window.location.pathname);
         }
       } catch (err) {}
     }
     checkAuth();
-  }, []);
+  }, [viewUserEmail]);
+
+  // Set viewed user once allUsersForProfile loads
+  useEffect(() => {
+    if (viewUserEmail && currentUser && allUsersForProfile.length > 0) {
+      if (viewUserEmail === currentUser.email) {
+        setUser(currentUser);
+        setEditData({ 
+          full_name: currentUser.full_name || "", 
+          country: currentUser.country || "", 
+          profile_picture_url: currentUser.profile_picture_url || "", 
+          cover_picture_url: currentUser.cover_picture_url || "" 
+        });
+      } else {
+        const found = allUsersForProfile.find(u => u.email === viewUserEmail);
+        if (found) setUser(found);
+      }
+    }
+  }, [viewUserEmail, currentUser, allUsersForProfile]);
+
+  const isOwnProfile = !viewUserEmail || (currentUser && viewUserEmail === currentUser.email);
 
   const { data: myDrops = [], isLoading: dropsLoading } = useQuery({
     queryKey: ["myGlowDropsProfile", user?.email],
