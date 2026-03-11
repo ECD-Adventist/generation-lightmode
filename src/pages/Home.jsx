@@ -203,19 +203,15 @@ export default function Home() {
           </span>
         </div>
 
-        {/* Logo — GIGANTIC GLOW */}
-        <style>{`
-          @keyframes logo-glow {
-            0%, 100% { filter: drop-shadow(0 0 80px rgba(0,207,255,0.8)) drop-shadow(0 0 150px rgba(255,208,0,0.4)) brightness(1); }
-            50% { filter: drop-shadow(0 0 120px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1.1); }
-          }
-        `}</style>
-        <div style={{ position: "relative", zIndex: 2, marginBottom: 32, width: "100%", maxWidth: "600px" }}>
-          <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/e51a96559_GENERATIONLIGHTMODE-LOGO.png"
-            alt="Generation LightMode"
-            style={{ height: "auto", width: "100%", animation: "logo-glow 4s ease-in-out infinite" }}
-          />
+        {/* Logo — Feed Style */}
+        <div style={{ position: "relative", zIndex: 2, marginBottom: 32, display: "flex", alignItems: "center", gap: 14, justifyContent: "center" }}>
+          <div style={{ width: 56, height: 56, background: "#00CFFF", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 30px rgba(0,207,255,0.6)" }}>
+            <Zap size={32} color="#000" fill="#000" />
+          </div>
+          <div style={{ textAlign: "left" }}>
+            <div style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 900, fontSize: "clamp(28px, 5vw, 48px)", color: "#fff", letterSpacing: "0.04em", lineHeight: 1 }}>LIGHTMODE</div>
+            <div style={{ fontFamily: "Inter, sans-serif", fontWeight: 700, fontSize: 11, color: "#888", letterSpacing: "0.18em", textTransform: "uppercase" }}>GEN-ALPHA CORE</div>
+          </div>
         </div>
 
         <h1 className="glm-headline" style={{ position: "relative", zIndex: 2, fontSize: "clamp(30px, 5.5vw, 68px)", lineHeight: 1.1, marginBottom: 24, maxWidth: 900 }}>
