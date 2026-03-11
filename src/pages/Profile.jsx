@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import DropViewerModal from "@/components/feed/DropViewerModal";
+import ProfileConnectionsModal from "@/components/profile/ProfileConnectionsModal";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -20,6 +21,7 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ full_name: "", country: "", profile_picture_url: "", cover_picture_url: "" });
   const [activeProfileTab, setActiveProfileTab] = useState("drops");
+  const [connectionsView, setConnectionsView] = useState(null);
   const [viewingDrop, setViewingDrop] = useState(null);
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
@@ -33,7 +35,7 @@ export default function Profile() {
       const res = await base44.functions.invoke("listPublicUsers", {});
       return res.data;
     },
-    enabled: !!viewUserEmail
+    enabled: !!currentUser || !!viewUserEmail
   });
 
   useEffect(() => {
@@ -132,24 +134,29 @@ export default function Profile() {
   const { data: currentUserFollowing = [] } = useQuery({
     queryKey: ["currentUserFollowing", currentUser?.email],
     queryFn: () => base44.entities.Follow.filter({ follower_email: currentUser?.email }),
-    enabled: !!currentUser && !isOwnProfile
+    enabled: !!currentUser
   });
 
   const isFollowingThisUser = currentUserFollowing.some(f => f.following_email === profileEmail);
+  const isFollowingEmail = (email) => currentUserFollowing.some(f => f.following_email === email);
 
   const followMutation = useMutation({
-    mutationFn: async () => {
-      if (isFollowingThisUser) {
-        const record = currentUserFollowing.find(f => f.following_email === profileEmail);
-        await base44.entities.Follow.delete(record.id);
-      } else {
-        await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: profileEmail });
+    mutationFn: async (targetEmail) => {
+      const existingFollow = currentUserFollowing.find(f => f.following_email === targetEmail);
+
+      if (existingFollow) {
+        await base44.entities.Follow.delete(existingFollow.id);
+        return { targetEmail, action: "unfollow" };
       }
+
+      await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: targetEmail });
+      return { targetEmail, action: "follow" };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["currentUserFollowing"] });
-      queryClient.invalidateQueries({ queryKey: ["myFollowers", profileEmail] });
-      toast.success(isFollowingThisUser ? "Unfollowed" : "Following! ⚡");
+    onSuccess: ({ targetEmail, action }) => {
+      queryClient.invalidateQueries({ queryKey: ["currentUserFollowing", currentUser?.email] });
+      queryClient.invalidateQueries({ queryKey: ["myFollowing", currentUser?.email] });
+      queryClient.invalidateQueries({ queryKey: ["myFollowers", targetEmail] });
+      toast.success(action === "unfollow" ? "Unfollowed" : "Following! ⚡");
     }
   });
 
@@ -302,6 +309,15 @@ export default function Profile() {
           onNavigate={(d) => setViewingDrop(d)}
         />
       )}
+      <ProfileConnectionsModal
+        title={connectionsView}
+        items={connectionsView === "Followers" ? myFollowers.map((item) => ({ email: item.follower_email })) : myFollowing.map((item) => ({ email: item.following_email }))}
+        allUsers={allUsersForProfile}
+        currentUserEmail={currentUser?.email}
+        currentUserFollowing={currentUserFollowing}
+        onClose={() => setConnectionsView(null)}
+        onToggleFollow={(email) => followMutation.mutate(email)}
+      />
       <div className="max-w-4xl mx-auto px-4 relative z-10">
         <div className="flex items-center justify-between mb-8 py-4">
           <div className="font-bold text-lg text-gray-400">{user.full_name || user.email}</div>
@@ -393,7 +409,7 @@ export default function Profile() {
               )}
               {!isOwnProfile && currentUser && (
                 <button 
-                  onClick={() => followMutation.mutate()} 
+                  onClick={() => followMutation.mutate(profileEmail)} 
                   className={`px-6 py-2 rounded-lg text-sm font-bold transition border ${isFollowingThisUser ? "bg-white/10 border-white/10 text-gray-300 hover:border-red-500 hover:text-red-400" : "bg-[#00CFFF] border-[#00CFFF] text-black hover:bg-[#00CFFF]/80"}`}
                 >
                   {isFollowingThisUser ? "Following" : "Follow"}
@@ -401,11 +417,23 @@ export default function Profile() {
               )}
             </div>
             
-            <div className="flex gap-8 justify-center md:justify-start mb-6">
-              <div className="text-center md:text-left"><span className="font-bold text-2xl">{myDrops.length}</span> <span className="text-gray-400 text-sm block md:inline">posts</span></div>
-              <div className="text-center md:text-left"><span className="font-bold text-2xl">{myFollowers.length}</span> <span className="text-gray-400 text-sm block md:inline">followers</span></div>
-              <div className="text-center md:text-left"><span className="font-bold text-2xl">{myFollowing.length}</span> <span className="text-gray-400 text-sm block md:inline">following</span></div>
-              <div className="text-center md:text-left"><span className="font-bold text-2xl text-[#FFD000]">{user.glow_score || 0}</span> <span className="text-gray-400 text-sm block md:inline">XP</span></div>
+            <div className="flex flex-wrap gap-8 justify-center md:justify-start mb-6">
+              <div className="text-center md:text-left">
+                <span className="font-bold text-2xl">{myDrops.length}</span>
+                <span className="text-gray-400 text-sm block md:inline"> posts</span>
+              </div>
+              <button type="button" onClick={() => setConnectionsView("Followers")} className="text-center md:text-left transition hover:opacity-80">
+                <span className="font-bold text-2xl text-white">{myFollowers.length}</span>
+                <span className="text-gray-400 text-sm block md:inline"> followers</span>
+              </button>
+              <button type="button" onClick={() => setConnectionsView("Following")} className="text-center md:text-left transition hover:opacity-80">
+                <span className="font-bold text-2xl text-white">{myFollowing.length}</span>
+                <span className="text-gray-400 text-sm block md:inline"> following</span>
+              </button>
+              <div className="text-center md:text-left">
+                <span className="font-bold text-2xl text-[#FFD000]">{user.glow_score || 0}</span>
+                <span className="text-gray-400 text-sm block md:inline"> XP</span>
+              </div>
             </div>
 
             <div className="w-full max-w-md mx-auto md:mx-0 mb-6 bg-white/5 h-2 rounded-full overflow-hidden">
