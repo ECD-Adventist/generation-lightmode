@@ -23,6 +23,29 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     queryFn: () => base44.entities.User.list()
   });
 
+  const { data: savedDrops = [] } = useQuery({
+    queryKey: ["savedDrops", drop.id, user?.email],
+    queryFn: () => base44.entities.SavedDrop.filter({ drop_id: drop.id, user_email: user?.email }),
+    enabled: !!user
+  });
+
+  const isSaved = savedDrops.length > 0;
+
+  const toggleSaveMutation = useMutation({
+    mutationFn: async () => {
+      if (isSaved) {
+        await base44.entities.SavedDrop.delete(savedDrops[0].id);
+      } else {
+        await base44.entities.SavedDrop.create({ drop_id: drop.id, user_email: user.email });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["savedDrops", drop.id, user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["mySavedDrops"] });
+      toast.success(isSaved ? "Removed from Saved" : "Saved to your bookmarks");
+    }
+  });
+
   const getCommentUser = (email) => users.find(u => u.email === email) || { full_name: "User" };
 
   const commentMutation = useMutation({
@@ -134,8 +157,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           </div>
           
           <div className="flex flex-col items-center gap-1.5">
-            <button className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none">
-              <Bookmark className="w-6 h-6 text-white hover:scale-110 transition-transform" />
+            <button 
+              onClick={(e) => { e.stopPropagation(); toggleSaveMutation.mutate(); }}
+              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+            >
+              <Bookmark className={`w-6 h-6 transition-transform hover:scale-110 ${isSaved ? "text-[#00CFFF] fill-[#00CFFF]" : "text-white"}`} />
             </button>
           </div>
         </div>
