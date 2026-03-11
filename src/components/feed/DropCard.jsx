@@ -6,10 +6,13 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare }) {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editContent, setEditContent] = useState("");
   const queryClient = useQueryClient();
 
   const { data: comments = [] } = useQuery({
