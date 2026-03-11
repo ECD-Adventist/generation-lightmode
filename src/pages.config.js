@@ -63,6 +63,9 @@ import Profile from './pages/Profile';
 import Resources from './pages/Resources';
 import Saved from './pages/Saved';
 import Post from './pages/Post';
+import Messages from './pages/Messages';
+import PrayerWall from './pages/PrayerWall';
+import Live from './pages/Live';
 import __Layout from './Layout.jsx';
 
 
@@ -83,6 +86,9 @@ export const PAGES = {
     "Resources": Resources,
     "Saved": Saved,
     "Post": Post,
+    "Messages": Messages,
+    "PrayerWall": PrayerWall,
+    "Live": Live,
 }
 
 export const pagesConfig = {
