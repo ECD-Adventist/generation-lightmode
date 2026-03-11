@@ -1,19 +1,70 @@
-import React from "react";
+import React, { useState } from "react";
+import { Search, Archive, MoreVertical } from "lucide-react";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
-export default function ConversationsList({ conversations, selectedConversationId, currentUserEmail, allUsers, followingUsers, onSelectConversation, onStartConversation }) {
+export default function ConversationsList({ conversations, selectedConversationId, currentUserEmail, allUsers, followingUsers, onSelectConversation, onStartConversation, onArchiveConversation = () => {} }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
+  const [archivedConversationIds, setArchivedConversationIds] = useState(new Set());
+  const [activeMenuId, setActiveMenuId] = useState(null);
+
   const getUser = (email) => allUsers.find((user) => user.email === email) || { full_name: email?.split("@")[0] || "User", email };
+  
   const existingEmails = new Set(
     conversations.map((conversation) => conversation.participant_a_email === currentUserEmail ? conversation.participant_b_email : conversation.participant_a_email)
   );
   const newChatOptions = followingUsers.filter((email) => !existingEmails.has(email));
 
+  const filteredConversations = conversations.filter((conversation) => {
+    const otherEmail = conversation.participant_a_email === currentUserEmail ? conversation.participant_b_email : conversation.participant_a_email;
+    const otherUser = getUser(otherEmail);
+    const matchesSearch = otherUser.full_name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         (conversation.last_message || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const isArchived = archivedConversationIds.has(conversation.id);
+    return matchesSearch && (showArchived ? isArchived : !isArchived);
+  });
+
+  const handleArchive = (conversationId, e) => {
+    e.stopPropagation();
+    const newSet = new Set(archivedConversationIds);
+    newSet.add(conversationId);
+    setArchivedConversationIds(newSet);
+    setActiveMenuId(null);
+    onArchiveConversation(conversationId);
+  };
+
   return (
-    <div className="bg-[#121826] border border-white/10 rounded-3xl overflow-hidden">
+    <div className="bg-[#121826] border border-white/10 rounded-3xl overflow-hidden flex flex-col h-[72vh]">
       <div className="px-4 py-4 border-b border-white/10">
         <h2 className="text-lg font-bold text-white">Messages</h2>
         <p className="text-sm text-gray-400 mt-1">Chat with people you follow.</p>
+        
+        {/* Search Bar */}
+        <div className="mt-4 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input 
+            type="text" 
+            placeholder="Search conversations..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-[#0B0F1A] border border-white/10 rounded-lg py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-[#00CFFF]/50 placeholder-gray-500"
+          />
+        </div>
+
+        {/* Archived Tab */}
+        {archivedConversationIds.size > 0 && (
+          <button 
+            onClick={() => setShowArchived(!showArchived)}
+            className={`mt-3 text-xs font-bold px-3 py-1.5 rounded-full transition border ${
+              showArchived 
+                ? "bg-[#00CFFF]/10 border-[#00CFFF]/30 text-[#00CFFF]" 
+                : "bg-white/5 border-white/10 text-gray-400 hover:text-white"
+            }`}
+          >
+            {showArchived ? "Show Active" : `Archived (${archivedConversationIds.size})`}
+          </button>
+        )}
       </div>
 
       <div className="max-h-[72vh] overflow-y-auto">
