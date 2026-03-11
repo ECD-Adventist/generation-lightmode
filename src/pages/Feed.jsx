@@ -233,7 +233,7 @@ export default function Feed() {
         </div>
 
         {/* Center Feed */}
-        <div className="lg:col-span-2 sm:border-x border-white/10 h-screen lg:border-none flex flex-col overflow-y-auto pt-8">
+        <div className="lg:col-span-2 sm:border-x border-white/10 h-screen lg:border-none flex flex-col overflow-y-auto min-h-0 pt-8">
           
           {/* Top Header Mobile */}
           <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A] border-b border-white/10 lg:hidden">
@@ -250,7 +250,7 @@ export default function Feed() {
         </div>
 
         {/* Center Header (Desktop) */}
-        <div className="hidden lg:flex items-center justify-between px-4 mb-6">
+        <div className="hidden lg:flex items-center justify-between px-4 mb-6 shrink-0">
            <h2 className="text-xl font-bold text-white">For You</h2>
            <div className="relative w-64">
              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -259,7 +259,7 @@ export default function Feed() {
         </div>
 
         {/* Stories / Vibes Row */}
-        <div className="flex gap-4 px-4 mb-8 overflow-x-auto hide-scrollbar pb-2">
+        <div className="flex gap-4 px-4 mb-8 overflow-x-auto hide-scrollbar pb-2 shrink-0">
           {/* Own Story / Live */}
           <div className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0">
              <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-b from-[#00CFFF] to-transparent">
@@ -283,14 +283,14 @@ export default function Feed() {
           ))}
         </div>
 
-        <div className="flex gap-3 px-4 mb-6 overflow-x-auto hide-scrollbar">
+        <div className="flex gap-3 px-4 mb-6 overflow-x-auto hide-scrollbar shrink-0">
           <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Messages</Link>
           <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Prayer Wall</Link>
           <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-sm font-semibold text-[#00CFFF] hover:bg-[#00CFFF]/20 transition whitespace-nowrap">Live</Link>
           </div>
 
         {/* Filter Bar (kept for functionality but styled subtler) */}
-        <div className="flex gap-2 px-4 mb-6 overflow-x-auto hide-scrollbar">
+        <div className="flex gap-2 px-4 mb-6 overflow-x-auto hide-scrollbar shrink-0">
           {['All', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
             <button
               key={filter}
@@ -307,7 +307,7 @@ export default function Feed() {
         </div>
 
         {/* Feed */}
-        <div className="flex flex-col px-0 sm:px-4 py-4 max-w-2xl mx-auto w-full">
+        <div className="flex flex-col px-0 sm:px-4 py-4 pb-24 lg:pb-6 max-w-2xl mx-auto w-full flex-none">
           {dropsLoading ? (
             <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>
           ) : drops.filter(drop => {
