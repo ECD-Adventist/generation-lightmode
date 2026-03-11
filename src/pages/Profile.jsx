@@ -217,17 +217,11 @@ export default function Profile() {
       )}
       <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
       <div className="max-w-4xl mx-auto px-4 relative z-10">
-        <div className="flex items-center justify-between mb-8 py-4 bg-[#0B0F1A]">
-          <Link to={createPageUrl("Feed")} className="text-gray-400 hover:text-white transition font-medium">← Feed</Link>
-          <div className="font-bold text-lg">{user.email}</div>
-          <div className="flex gap-4">
-            <Link to={createPageUrl("Dashboard")} className="text-gray-400 hover:text-white transition">
-               Dashboard
-            </Link>
-            <button onClick={() => setIsEditing(!isEditing)} className="text-gray-400 hover:text-white transition">
-              <Settings className="w-6 h-6" />
-            </button>
-          </div>
+        <div className="flex items-center justify-between mb-8 py-4">
+          <div className="font-bold text-lg text-gray-400">{user.email}</div>
+          <button onClick={() => setIsEditing(!isEditing)} className="text-gray-400 hover:text-white transition">
+            <Settings className="w-6 h-6" />
+          </button>
         </div>
 
         {/* Cover Photo */}
