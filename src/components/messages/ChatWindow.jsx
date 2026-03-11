@@ -32,7 +32,10 @@ export default function ChatWindow({ conversation, currentUser, otherUser, messa
     <div className="bg-[#121826] border border-white/10 rounded-3xl min-h-[72vh] flex flex-col overflow-hidden">
       <div className="px-6 py-3 border-b border-white/10 flex items-center justify-between gap-4 bg-[#0F1524]">
         <div className="flex items-center gap-3 flex-1">
-          <img src={otherUser.profile_picture_url || defaultAvatar} alt={otherUser.full_name} className="w-10 h-10 rounded-full object-cover border border-white/10" />
+          <div className="relative w-10 h-10">
+            <img src={otherUser.profile_picture_url || defaultAvatar} alt={otherUser.full_name} className="w-10 h-10 rounded-full object-cover border border-white/10" />
+            <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#0F1524] bg-green-400 shadow-[0_0_5px_#4ade80]" />
+          </div>
           <div className="min-w-0">
             <div className="font-semibold text-white text-sm truncate">{otherUser.full_name}</div>
             <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(otherUser.email)}`} className="text-xs text-[#00CFFF] hover:text-white transition">View profile</Link>
