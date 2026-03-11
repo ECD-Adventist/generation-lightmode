@@ -9,10 +9,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Use service role to list all users (bypasses security rules)
     const allUsers = await base44.asServiceRole.entities.User.list();
 
-    // Return only public-safe fields
     const publicUsers = allUsers.map(u => ({
       id: u.id,
       full_name: u.full_name,
