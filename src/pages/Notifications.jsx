@@ -5,6 +5,7 @@ import { Bell, Heart, MessageCircle, Zap, Info, CheckCheck, Trash2, Loader2, Hom
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
 
 const typeIcon = {
   like: <Heart className="w-4 h-4 text-red-400" />,
@@ -38,6 +39,12 @@ export default function Notifications() {
     queryFn: () => base44.entities.Notification.filter({ user_email: user.email }),
     enabled: !!user,
     refetchInterval: 15000,
+  });
+
+  const { data: following = [] } = useQuery({
+    queryKey: ["following", user?.email],
+    queryFn: () => base44.entities.Follow.filter({ follower_email: user?.email }),
+    enabled: !!user,
   });
 
   // Real-time
@@ -76,8 +83,34 @@ export default function Notifications() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.email] })
   });
 
+  const followBackMutation = useMutation({
+    mutationFn: async (targetEmail) => {
+      const existingFollow = following.find(f => f.following_email === targetEmail);
+      if (existingFollow) return "already_following";
+
+      await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+      await base44.entities.Notification.create({
+        user_email: targetEmail,
+        type: "follow",
+        message: `${user.full_name || 'Someone'} followed you back.`,
+        link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
+      });
+      return "followed";
+    },
+    onSuccess: (status) => {
+      queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
+      if (status === "followed") toast.success("Followed back");
+    }
+  });
+
   const unreadCount = notifications.filter(n => !n.read).length;
   const sorted = [...notifications].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+  const getNotificationUserEmail = (notification) => {
+    if (!notification?.link) return null;
+    const query = notification.link.split("?")[1];
+    if (!query) return null;
+    return new URLSearchParams(query).get("user");
+  };
 
   if (!user) return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
 
@@ -176,23 +209,52 @@ export default function Notifications() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-1 shrink-0">
-                  {!n.read && (
-                    <button
-                      onClick={() => markReadMutation.mutate(n.id)}
-                      title="Mark as read"
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-gray-500 hover:text-[#00CFFF] hover:bg-[#00CFFF]/10 transition"
-                    >
-                      <CheckCheck className="w-3.5 h-3.5" />
-                    </button>
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  {n.type === "follow" && getNotificationUserEmail(n) && getNotificationUserEmail(n) !== user?.email && (
+                    following.some(f => f.following_email === getNotificationUserEmail(n)) ? (
+                      <Link
+                        to={n.link}
+                        onClick={() => !n.read && markReadMutation.mutate(n.id)}
+                        className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/10 text-gray-300 hover:bg-white/15 transition"
+                      >
+                        Following
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={() => followBackMutation.mutate(getNotificationUserEmail(n))}
+                        className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-[#00CFFF] text-black hover:bg-[#00CFFF]/80 transition"
+                      >
+                        Follow back
+                      </button>
+                    )
                   )}
-                  <button
-                    onClick={() => deleteMutation.mutate(n.id)}
-                    title="Delete"
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  {n.link && (
+                    <Link
+                      to={n.link}
+                      onClick={() => !n.read && markReadMutation.mutate(n.id)}
+                      className="text-[11px] font-bold text-[#00CFFF] hover:text-white transition"
+                    >
+                      View
+                    </Link>
+                  )}
+                  <div className="flex items-center gap-1">
+                    {!n.read && (
+                      <button
+                        onClick={() => markReadMutation.mutate(n.id)}
+                        title="Mark as read"
+                        className="w-7 h-7 rounded-full flex items-center justify-center text-gray-500 hover:text-[#00CFFF] hover:bg-[#00CFFF]/10 transition"
+                      >
+                        <CheckCheck className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => deleteMutation.mutate(n.id)}
+                      title="Delete"
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
