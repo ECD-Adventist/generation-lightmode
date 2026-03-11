@@ -97,6 +97,54 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     commentMutation.mutate(newComment);
   };
 
+  const deleteCommentMutation = useMutation({
+    mutationFn: async (commentId) => {
+      await base44.entities.GlowDropComment.delete(commentId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", drop.id] });
+      toast.success("Comment deleted");
+    }
+  });
+
+  const updateCommentMutation = useMutation({
+    mutationFn: async ({ id, content }) => {
+      await base44.entities.GlowDropComment.update(id, { content });
+    },
+    onSuccess: () => {
+      setEditingCommentId(null);
+      queryClient.invalidateQueries({ queryKey: ["comments", drop.id] });
+      toast.success("Comment updated");
+    }
+  });
+
+  const blockUserMutation = useMutation({
+    mutationFn: async (blockedEmail) => {
+      if (user?.email === blockedEmail) return toast.error("You cannot block yourself");
+      await base44.entities.BlockedUser.create({
+        blocker_email: user.email,
+        blocked_email: blockedEmail
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blockedUsers", user?.email] });
+      toast.success("User blocked");
+    }
+  });
+
+  const reportCommentMutation = useMutation({
+    mutationFn: async ({ commentId, reason }) => {
+      await base44.entities.ReportedComment.create({
+        comment_id: commentId,
+        reporter_email: user.email,
+        reason
+      });
+    },
+    onSuccess: () => {
+      toast.success("Comment reported to moderators");
+    }
+  });
+
   return (
     <div className="bg-[#121826]/80 backdrop-blur-sm border border-white/10 rounded-[2rem] mb-8 p-3 shadow-2xl hover:border-[#00CFFF]/40 transition-all duration-300 group">
       {/* Media / Content Area */}
