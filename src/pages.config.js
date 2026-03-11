@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import About from './pages/About';
+import AdminReports from './pages/AdminReports';
 import Assistant from './pages/Assistant';
 import Challenges from './pages/Challenges';
 import Dashboard from './pages/Dashboard';
@@ -57,16 +58,16 @@ import GlowGroups from './pages/GlowGroups';
 import Home from './pages/Home';
 import Impact from './pages/Impact';
 import Media from './pages/Media';
+import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
 import Resources from './pages/Resources';
 import Saved from './pages/Saved';
-import AdminReports from './pages/AdminReports';
-import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "About": About,
+    "AdminReports": AdminReports,
     "Assistant": Assistant,
     "Challenges": Challenges,
     "Dashboard": Dashboard,
@@ -76,11 +77,10 @@ export const PAGES = {
     "Home": Home,
     "Impact": Impact,
     "Media": Media,
+    "Notifications": Notifications,
     "Profile": Profile,
     "Resources": Resources,
     "Saved": Saved,
-    "AdminReports": AdminReports,
-    "Notifications": Notifications,
 }
 
 export const pagesConfig = {

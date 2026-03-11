@@ -10,7 +10,6 @@ import { toast } from "sonner";
 
 const navLinks = [
   { key: "home", page: "Home" },
-  { key: "feed", page: "Feed" },
   { key: "about", page: "About" },
   { key: "challenges", page: "Challenges" },
   { key: "glowGroups", page: "GlowGroups" },
