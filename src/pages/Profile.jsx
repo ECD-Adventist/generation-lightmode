@@ -138,7 +138,6 @@ export default function Profile() {
   });
 
   const isFollowingThisUser = currentUserFollowing.some(f => f.following_email === profileEmail);
-  const isFollowingEmail = (email) => currentUserFollowing.some(f => f.following_email === email);
 
   const followMutation = useMutation({
     mutationFn: async (targetEmail) => {
