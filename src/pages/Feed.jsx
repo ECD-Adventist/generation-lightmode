@@ -176,9 +176,11 @@ export default function Feed() {
         <div className="hidden lg:flex flex-col py-8 px-6 sticky top-0 h-screen border-r border-white/5 bg-[#0B0F1A]">
            {/* Logo */}
            <div className="flex items-center gap-3 mb-10 pl-2">
-             <div className="w-10 h-10 bg-[#00CFFF] rounded-xl flex items-center justify-center">
-               <Zap className="w-6 h-6 text-black" fill="currentColor" />
-             </div>
+             <img
+               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7e2f8baa1_FAVICON.png"
+               alt="LightMode"
+               className="w-11 h-11 rounded-2xl object-cover shadow-[0_0_20px_rgba(0,207,255,0.2)]"
+             />
              <div>
                <h1 className="text-xl font-black tracking-wider text-white leading-tight">LIGHTMODE</h1>
                <span className="text-[10px] text-gray-400 font-bold tracking-widest">GEN-ALPHA CORE</span>
@@ -194,6 +196,8 @@ export default function Feed() {
                {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
              </Link>
              <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Zap className="w-6 h-6" /> Dashboard</Link>
+             <Link to={createPageUrl("Milestones")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Zap className="w-6 h-6" /> Milestones</Link>
+             <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Globe className="w-6 h-6" /> Global Reach</Link>
              <Link to={createPageUrl("Challenges")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><PlaySquare className="w-6 h-6" /> Challenges</Link>
              <Link to={createPageUrl("Assistant")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><MessageSquare className="w-6 h-6" /> AI Assistant</Link>
              <Link to={createPageUrl("Resources")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Globe className="w-6 h-6" /> Resources</Link>
@@ -283,6 +287,8 @@ export default function Feed() {
           <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Messages</Link>
           <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Prayer Wall</Link>
           <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-sm font-semibold text-[#00CFFF] hover:bg-[#00CFFF]/20 transition whitespace-nowrap">Live</Link>
+          <Link to={createPageUrl("Milestones")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Milestones</Link>
+          <Link to={createPageUrl("GlobalReach")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Global Reach</Link>
         </div>
 
         {/* Filter Bar (kept for functionality but styled subtler) */}
