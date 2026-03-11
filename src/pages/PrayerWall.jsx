@@ -101,12 +101,43 @@ export default function PrayerWall() {
   if (!user) return <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center text-white">Loading prayer wall...</div>;
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white px-4 py-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Prayer Wall</h1>
-          <p className="text-gray-400 mt-2">Share requests, pray for others, and leave encouragement.</p>
+    <div className="min-h-screen bg-[#0B0F1A] text-white">
+      {/* Top Nav Bar */}
+      <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
+            <img
+              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7e2f8baa1_FAVICON.png"
+              alt="LightMode"
+              style={{ height: 32, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
+            />
+          </Link>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <Home className="w-4 h-4" /><span className="hidden sm:inline">Feed</span>
+            </Link>
+            <Link to={createPageUrl("Dashboard")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <Zap className="w-4 h-4" /><span className="hidden sm:inline">Dashboard</span>
+            </Link>
+            <Link to={createPageUrl("Notifications")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <Bell className="w-4 h-4" /><span className="hidden sm:inline">Alerts</span>
+            </Link>
+            <Link to={createPageUrl("Profile")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <User className="w-4 h-4" /><span className="hidden sm:inline">Profile</span>
+            </Link>
+            <Link to={createPageUrl("Home")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-[#00CFFF] hover:bg-white/5 transition text-sm font-medium border border-white/5">
+              <Globe className="w-4 h-4" /> Website
+            </Link>
+          </div>
         </div>
+      </div>
+
+      <div className="px-4 py-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold">Prayer Wall</h1>
+            <p className="text-gray-400 mt-2">Share requests, pray for others, and leave encouragement.</p>
+          </div>
 
         <div className="bg-[#121826] border border-white/10 rounded-3xl p-5 space-y-4">
           <textarea
