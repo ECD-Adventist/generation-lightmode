@@ -189,6 +189,9 @@ export default function Feed() {
                </div>
                Profile
              </Link>
+             <Link to={createPageUrl("Home")} className="flex items-center gap-4 text-sm font-bold text-gray-500 hover:bg-white/5 hover:text-[#00CFFF] px-4 py-3 rounded-2xl transition border border-white/5 mt-2">
+               <Globe className="w-5 h-5" /> Back to Website
+             </Link>
            </div>
            
            <Button onClick={() => setIsDropModalOpen(true)} className="mt-8 bg-[#00CFFF] text-black font-black rounded-2xl w-full py-6 text-lg hover:bg-white transition-colors shadow-[0_0_20px_rgba(0,207,255,0.3)]">
