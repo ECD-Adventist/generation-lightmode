@@ -20,7 +20,10 @@ export default function GlowGroups() {
 
   const { data: users = [], isError: usersError } = useQuery({
     queryKey: ["allUsers"],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: async () => {
+      const res = await base44.functions.invoke('listPublicUsers', {});
+      return res.data;
+    },
     retry: 2,
   });
 

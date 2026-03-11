@@ -29,7 +29,10 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   const { data: users = [] } = useQuery({
     queryKey: ["allUsers"],
-    queryFn: () => base44.entities.User.list()
+    queryFn: async () => {
+      const res = await base44.functions.invoke('listPublicUsers', {});
+      return res.data;
+    }
   });
 
   const { data: savedDrops = [] } = useQuery({

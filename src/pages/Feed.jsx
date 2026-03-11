@@ -55,7 +55,10 @@ export default function Feed() {
 
   const { data: users = [], isLoading: usersLoading } = useQuery({
     queryKey: ["allUsers"],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: async () => {
+      const res = await base44.functions.invoke('listPublicUsers', {});
+      return res.data;
+    },
     retry: false
   });
 
