@@ -1,33 +1,16 @@
 import { useState } from "react";
-import { Users, MapPin, Globe, Search, ChevronRight } from "lucide-react";
+import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
-
-const groups = [
-  { name: "Lagos Light Warriors", location: "Lagos, Nigeria", members: 48, region: "Africa", focus: "Campus Outreach", color: "#00CFFF", rank: "Champion" },
-  { name: "UK Glow Collective", location: "London, UK", members: 35, region: "Europe", focus: "Digital Evangelism", color: "#8A5CFF", rank: "Trendsetter" },
-  { name: "Dallas Glow Starters", location: "Dallas, USA", members: 62, region: "Americas", focus: "Youth Ministry", color: "#FFD000", rank: "Champion" },
-  { name: "Manila LightMode", location: "Manila, Philippines", members: 29, region: "Asia", focus: "Prayer & Worship", color: "#00CFFF", rank: "Warrior" },
-  { name: "Nairobi Radiant", location: "Nairobi, Kenya", members: 44, region: "Africa", focus: "Community Service", color: "#1DA1FF", rank: "Trendsetter" },
-  { name: "São Paulo Glow", location: "São Paulo, Brazil", members: 38, region: "Americas", focus: "Social Media Mission", color: "#8A5CFF", rank: "Warrior" },
-];
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+import { Link } from "react-router-dom";
 
 const rankColors = { Champion: "#FFD000", Trendsetter: "#8A5CFF", Warrior: "#1DA1FF", Starter: "#00CFFF" };
 
-const howItWorks = [
-  { step: "01", title: "Find or Create", desc: "Search for a GlowGroup in your city or start your own with just a few clicks.", icon: "🔍" },
-  { step: "02", title: "Connect & Commit", desc: "Join the group, meet your accountability partners, and commit to the mission.", icon: "🤝" },
-  { step: "03", title: "Complete Challenges", desc: "Do challenges together, support each other, and earn group XP.", icon: "⚡" },
-  { step: "04", title: "Climb the Ranks", desc: "As a group grows in faith and activity, your collective rank rises.", icon: "🏆" },
-];
-
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
-
 export default function GlowGroups() {
   const [search, setSearch] = useState("");
-  const [regionFilter, setRegionFilter] = useState("all");
-  const [activeTab, setActiveTab] = useState("groups"); // "groups" | "members"
+  const [activeTab, setActiveTab] = useState("people"); // "people" | "groups" | "leaders"
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -40,31 +23,15 @@ export default function GlowGroups() {
     queryFn: () => base44.entities.User.list(),
   });
 
+  const { data: drops = [] } = useQuery({
+    queryKey: ["allGlowDrops"],
+    queryFn: () => base44.entities.GlowDrop.list('-created_date', 50),
+  });
+
   const { data: following = [] } = useQuery({
     queryKey: ["following", user?.email],
     queryFn: () => base44.entities.Follow.filter({ follower_email: user?.email }),
     enabled: !!user
-  });
-
-  const followMutation = useMutation({
-    mutationFn: async (targetEmail) => {
-      if (!user) { toast.error("Please log in to follow"); throw new Error("Not logged in"); }
-      const isFollowing = following.some(f => f.following_email === targetEmail);
-      if (isFollowing) {
-        const followRecord = following.find(f => f.following_email === targetEmail);
-        await base44.entities.Follow.delete(followRecord.id);
-      } else {
-        await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
-        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
-      }
-      return isFollowing;
-    },
-    onSuccess: (wasFollowing) => {
-      queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
-      if (!wasFollowing) {
-        toast.success("Followed! +5 XP ⚡");
-      }
-    }
   });
 
   const { data: realGroups = [] } = useQuery({
@@ -78,13 +45,32 @@ export default function GlowGroups() {
     enabled: !!user
   });
 
+  const followMutation = useMutation({
+    mutationFn: async (targetEmail) => {
+      if (!user) { toast.error("Please log in to follow"); throw new Error("Not logged in"); }
+      const isFollowing = following.some(f => f.following_email === targetEmail);
+      if (isFollowing) {
+        const rec = following.find(f => f.following_email === targetEmail);
+        await base44.entities.Follow.delete(rec.id);
+      } else {
+        await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
+      }
+      return isFollowing;
+    },
+    onSuccess: (wasFollowing) => {
+      queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
+      if (!wasFollowing) toast.success("Connected! +5 XP ⚡");
+    }
+  });
+
   const joinMutation = useMutation({
     mutationFn: async (groupId) => {
-      if (!user) throw new Error("Not logged in");
+      if (!user) { toast.error("Please log in"); throw new Error("Not logged in"); }
       const isMember = myMemberships.some(m => m.group_id === groupId);
       if (isMember) {
-        const memberRecord = myMemberships.find(m => m.group_id === groupId);
-        await base44.entities.GlowGroupMember.delete(memberRecord.id);
+        const rec = myMemberships.find(m => m.group_id === groupId);
+        await base44.entities.GlowGroupMember.delete(rec.id);
       } else {
         await base44.entities.GlowGroupMember.create({ user_email: user.email, group_id: groupId });
         await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 20 });
@@ -93,268 +79,234 @@ export default function GlowGroups() {
     },
     onSuccess: (wasMember) => {
       queryClient.invalidateQueries({ queryKey: ["myMemberships", user?.email] });
-      if (!wasMember) {
-        toast.success("Joined group! +20 XP ⚡");
-      } else {
-        toast.success("Left group.");
-      }
+      toast.success(wasMember ? "Left group." : "Joined group! +20 XP ⚡");
     }
   });
 
-  const combinedGroups = [...realGroups.map(g => ({...g, members: g.members || 1, region: g.country || "Global", focus: g.description || "Community", color: "#00CFFF", rank: "Starter"})), ...groups.map(g => ({...g, id: g.name, isMock: true}))];
+  const filteredUsers = users.filter(u =>
+    u.email !== user?.email &&
+    (u.full_name?.toLowerCase().includes(search.toLowerCase()) || (u.country || "").toLowerCase().includes(search.toLowerCase()))
+  );
 
-  const regions = ["all", ...new Set(combinedGroups.map(g => g.region))];
-  const filtered = combinedGroups.filter(g => {
-    const matchSearch = g.name.toLowerCase().includes(search.toLowerCase()) || (g.location || g.country || "").toLowerCase().includes(search.toLowerCase());
-    const matchRegion = regionFilter === "all" || g.region === regionFilter;
-    return matchSearch && matchRegion;
-  });
+  const filteredGroups = realGroups.filter(g =>
+    g.name?.toLowerCase().includes(search.toLowerCase()) || (g.country || "").toLowerCase().includes(search.toLowerCase())
+  );
+
+  const sortedLeaders = [...users].sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0)).slice(0, 50);
+
+  // Get drop count per user
+  const dropCountByUser = {};
+  drops.forEach(d => { dropCountByUser[d.user_email] = (dropCountByUser[d.user_email] || 0) + 1; });
+
+  const tabs = [
+    { id: "people", label: "People", icon: Users },
+    { id: "groups", label: "GlowGroups", icon: Globe },
+    { id: "leaders", label: "Light Leaders", icon: Star },
+  ];
 
   return (
-    <div style={{ background: "#0B0F1A" }}>
-      {/* HERO */}
-      <section style={{ padding: "100px 24px 60px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: "20%", left: "20%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(138,92,255,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: "30%", right: "15%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(138,92,255,0.1)", border: "1px solid rgba(138,92,255,0.3)", borderRadius: 50, padding: "8px 20px", marginBottom: 24 }}>
-            <Users size={14} color="#8A5CFF" />
-            <span style={{ color: "#8A5CFF", fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif" }}>GlowGroups</span>
-          </div>
-          <h1 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 64px)", marginBottom: 20 }}>
-            No One Shines <span className="glm-gradient-text">Alone</span>
+    <div className="min-h-screen bg-[#0B0F1A] text-white">
+      {/* Header */}
+      <div className="border-b border-white/10 bg-[#0B0F1A] sticky top-0 z-10 px-4 pt-6 pb-0">
+        <div className="max-w-3xl mx-auto">
+          <h1 className="text-2xl font-black mb-4" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
+            Explore
           </h1>
-          <p className="glm-body" style={{ fontSize: 17, maxWidth: 620, margin: "0 auto 40px" }}>
-            GlowGroups are small accountability communities that grow together, challenge together, and light up East-Central Africa together. Find yours or start one today. <span style={{ color: "#FFD000", fontWeight: 700 }}>Faith. Always On.</span>
-          </p>
-          <div style={{ display: "flex", gap: 40, justifyContent: "center", flexWrap: "wrap" }}>
-            {[{ label: "Active Groups", value: "500+", color: "#00CFFF" }, { label: "Nations", value: "12", color: "#FFD000" }, { label: "Members Worldwide", value: "28K+", color: "#8A5CFF" }].map(s => (
-              <div key={s.label} style={{ textAlign: "center" }}>
-                <div className="glm-headline" style={{ fontSize: 32, color: s.color }}>{s.value}</div>
-                <div className="glm-body" style={{ fontSize: 13 }}>{s.label}</div>
-              </div>
-            ))}
+          {/* Search */}
+          <div className="relative mb-4">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder={activeTab === "groups" ? "Search communities..." : "Search people..."}
+              className="w-full bg-[#121826] border border-white/10 rounded-full py-3 pl-12 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00CFFF]/50 transition"
+            />
           </div>
-        </div>
-      </section>
 
-      <div className="section-divider" />
-
-      {/* HOW IT WORKS */}
-      <section style={{ padding: "80px 24px", background: "#121826" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
-          <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(24px, 3vw, 40px)", marginBottom: 48 }}>How GlowGroups Work</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 24 }}>
-            {howItWorks.map(step => (
-              <div key={step.step} className="glm-card" style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 36, marginBottom: 12 }}>{step.icon}</div>
-                <div style={{ color: "#00CFFF", fontSize: 12, fontFamily: "Inter, sans-serif", fontWeight: 700, letterSpacing: "0.1em", marginBottom: 10 }}>STEP {step.step}</div>
-                <h3 className="glm-headline" style={{ fontSize: 18, marginBottom: 10 }}>{step.title}</h3>
-                <p className="glm-body" style={{ fontSize: 14 }}>{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <div className="section-divider" />
-
-      {/* SEARCH & FILTER */}
-      <section style={{ padding: "60px 24px 0" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          
           {/* Tabs */}
-          <div style={{ display: "flex", gap: 16, marginBottom: 32, borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 16 }}>
-            <button 
-              onClick={() => setActiveTab("groups")}
-              style={{
-                background: "transparent", border: "none", color: activeTab === "groups" ? "#00CFFF" : "#C8D0E0",
-                fontSize: 18, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", cursor: "pointer",
-                position: "relative"
-              }}
-            >
-              Groups
-              {activeTab === "groups" && <div style={{ position: "absolute", bottom: -17, left: 0, right: 0, height: 2, background: "#00CFFF" }} />}
-            </button>
-            <button 
-              onClick={() => setActiveTab("members")}
-              style={{
-                background: "transparent", border: "none", color: activeTab === "members" ? "#00CFFF" : "#C8D0E0",
-                fontSize: 18, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", cursor: "pointer",
-                position: "relative"
-              }}
-            >
-              Members
-              {activeTab === "members" && <div style={{ position: "absolute", bottom: -17, left: 0, right: 0, height: 2, background: "#00CFFF" }} />}
-            </button>
-            <button 
-              onClick={() => setActiveTab("leaders")}
-              style={{
-                background: "transparent", border: "none", color: activeTab === "leaders" ? "#FFD000" : "#C8D0E0",
-                fontSize: 18, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", cursor: "pointer",
-                position: "relative"
-              }}
-            >
-              Light Leaders
-              {activeTab === "leaders" && <div style={{ position: "absolute", bottom: -17, left: 0, right: 0, height: 2, background: "#FFD000" }} />}
-            </button>
+          <div className="flex gap-0">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all ${
+                  activeTab === tab.id
+                    ? "border-[#00CFFF] text-[#00CFFF]"
+                    : "border-transparent text-gray-500 hover:text-gray-300"
+                }`}
+                style={{ fontFamily: "Inter, sans-serif" }}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
           </div>
+        </div>
+      </div>
 
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center", marginBottom: 32 }}>
-            <div style={{ flex: "1 1 300px", position: "relative" }}>
-              <Search size={18} color="#C8D0E0" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
-              <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder={activeTab === "groups" ? "Search groups by name or location..." : "Search members by name..."}
-                style={{
-                  width: "100%", padding: "14px 16px 14px 48px",
-                  background: "#121826", border: "1px solid rgba(0,207,255,0.2)",
-                  borderRadius: 50, color: "#FFFFFF", fontSize: 15, fontFamily: "Inter, sans-serif",
-                  outline: "none",
-                }}
-              />
-            </div>
-            {activeTab === "groups" && (
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {regions.map(r => (
-                  <button key={r} onClick={() => setRegionFilter(r)} style={{
-                    padding: "10px 20px", borderRadius: 50,
-                    border: `1px solid ${regionFilter === r ? "#8A5CFF" : "rgba(255,255,255,0.1)"}`,
-                    background: regionFilter === r ? "rgba(138,92,255,0.15)" : "transparent",
-                    color: regionFilter === r ? "#8A5CFF" : "#C8D0E0",
-                    cursor: "pointer", fontSize: 14, fontFamily: "Inter, sans-serif", fontWeight: 500, transition: "all 0.2s",
-                  }}>
-                    {r.charAt(0).toUpperCase() + r.slice(1)}
-                  </button>
-                ))}
+      {/* Content */}
+      <div className="max-w-3xl mx-auto px-4 py-6">
+
+        {/* PEOPLE TAB */}
+        {activeTab === "people" && (
+          <div className="space-y-3">
+            {filteredUsers.length === 0 && (
+              <div className="text-center py-20 text-gray-500">
+                <div className="text-4xl mb-3">🔍</div>
+                <p>No people found.</p>
               </div>
             )}
-          </div>
-
-          {/* Groups Grid */}
-          {activeTab === "groups" && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20, paddingBottom: 100 }}>
-            {filtered.map(group => (
-              <div key={group.name} className="glm-card" style={{ border: `1px solid ${group.color}25` }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-                  <div style={{
-                    width: 48, height: 48, borderRadius: 12,
-                    background: `linear-gradient(135deg, ${group.color}30, ${group.color}10)`,
-                    border: `1px solid ${group.color}40`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 22,
-                  }}>✨</div>
-                  <span style={{ background: `${rankColors[group.rank]}15`, color: rankColors[group.rank], fontSize: 11, fontWeight: 700, padding: "4px 12px", borderRadius: 50, fontFamily: "Inter, sans-serif", border: `1px solid ${rankColors[group.rank]}30` }}>
-                    {group.rank}
-                  </span>
-                </div>
-                <h3 className="glm-headline" style={{ fontSize: 19, color: "#FFFFFF", marginBottom: 8 }}>{group.name}</h3>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                  <MapPin size={13} color="#C8D0E0" />
-                  <span className="glm-body" style={{ fontSize: 13 }}>{group.location}</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16 }}>
-                  <Globe size={13} color={group.color} />
-                  <span style={{ color: group.color, fontSize: 13, fontFamily: "Inter, sans-serif" }}>{group.focus}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <div style={{ display: "flex" }}>
-                      {[...Array(Math.min(4, group.members))].map((_, i) => (
-                        <div key={i} style={{ width: 24, height: 24, borderRadius: "50%", background: `linear-gradient(135deg, ${group.color}60, ${group.color}30)`, border: "2px solid #0B0F1A", marginLeft: i > 0 ? -8 : 0, fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>👤</div>
-                      ))}
+            {filteredUsers.map(u => {
+              const isFollowing = following.some(f => f.following_email === u.email);
+              const userDrops = dropCountByUser[u.email] || 0;
+              return (
+                <div key={u.id} className="flex items-center gap-4 bg-[#121826] border border-white/5 rounded-2xl p-4 hover:border-[#00CFFF]/30 transition-all">
+                  {/* Avatar */}
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
+                    <div className="w-full h-full rounded-full bg-[#121826] overflow-hidden flex items-center justify-center font-bold text-lg text-white">
+                      {u.profile_picture_url
+                        ? <img src={u.profile_picture_url} className="w-full h-full object-cover" />
+                        : u.full_name?.charAt(0)}
                     </div>
-                    <span className="glm-body" style={{ fontSize: 13 }}>{group.members} members</span>
                   </div>
-                  <button 
-                    onClick={() => joinMutation.mutate(group.id)}
-                    style={{ color: group.color || "#00CFFF", background: "transparent", border: "none", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 4, cursor: "pointer" }}>
-                    {myMemberships.some(m => m.group_id === group.id) ? "Leave" : "Join"} <ChevronRight size={14} />
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-white text-sm truncate">{u.full_name}</div>
+                    <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
+                      {u.country && <><MapPin className="w-3 h-3 inline" /> {u.country}</>}
+                      {u.country && <span>·</span>}
+                      <span>{userDrops} drops</span>
+                      {(u.glow_score > 0) && <><span>·</span><Zap className="w-3 h-3 inline text-[#FFD000]" /><span className="text-[#FFD000] font-bold">{u.glow_score} XP</span></>}
+                    </div>
+                  </div>
+                  {/* Action */}
+                  <button
+                    onClick={() => followMutation.mutate(u.email)}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0 ${
+                      isFollowing
+                        ? "bg-white/10 text-gray-300 hover:bg-red-500/20 hover:text-red-400"
+                        : "bg-[#00CFFF] text-black hover:bg-white"
+                    }`}
+                  >
+                    {isFollowing ? <><UserCheck className="w-3.5 h-3.5" /> Following</> : <><UserPlus className="w-3.5 h-3.5" /> Connect</>}
                   </button>
                 </div>
-              </div>
-            ))}
-
-            {/* Create Group CTA */}
-            <div style={{ background: "rgba(0,207,255,0.03)", border: "2px dashed rgba(0,207,255,0.2)", borderRadius: 16, padding: 28, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", cursor: "pointer", transition: "all 0.3s", minHeight: 200 }}
-              onMouseOver={e => { e.currentTarget.style.borderColor = "rgba(0,207,255,0.5)"; e.currentTarget.style.background = "rgba(0,207,255,0.06)"; }}
-              onMouseOut={e => { e.currentTarget.style.borderColor = "rgba(0,207,255,0.2)"; e.currentTarget.style.background = "rgba(0,207,255,0.03)"; }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>✨</div>
-              <h3 className="glm-headline" style={{ fontSize: 18, color: "#00CFFF", marginBottom: 8 }}>Start a GlowGroup</h3>
-              <p className="glm-body" style={{ fontSize: 14, marginBottom: 16 }}>Don't see one near you? Create your own and invite your people.</p>
-              <a href={createPageUrl("Dashboard")} className="glm-btn-primary" style={{ fontSize: 14, padding: "10px 24px" }}>Create Group ⚡</a>
-            </div>
+              );
+            })}
           </div>
-          )}
+        )}
 
-          {/* Leaders Grid */}
-          {activeTab === "leaders" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 16, paddingBottom: 100, maxWidth: 800, margin: "0 auto" }}>
-              {[...users].sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0)).slice(0, 50).map((u, index) => {
-                const isFollowing = following.some(f => f.following_email === u.email);
-                return (
-                  <div key={u.id} className="glm-card" style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 24px", border: index < 3 ? "1px solid rgba(255,208,0,0.4)" : "1px solid rgba(255,255,255,0.05)", background: index === 0 ? "rgba(255,208,0,0.05)" : "#121826" }}>
-                    <div style={{ fontSize: 24, fontWeight: "bold", color: index === 0 ? "#FFD000" : index === 1 ? "#C0C0C0" : index === 2 ? "#CD7F32" : "#8A5CFF", width: 40, textAlign: "center", fontFamily: "Space Grotesk, sans-serif" }}>
-                      #{index + 1}
-                    </div>
-                    <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#1a2235", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: index < 3 ? "2px solid #FFD000" : "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}>
-                      {u.profile_picture_url ? <img src={u.profile_picture_url} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: 20, fontWeight: "bold", color: "#C8D0E0" }}>{u.full_name?.charAt(0)}</span>}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h4 style={{ fontSize: 16, fontWeight: 600, color: "#FFF", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.full_name} {index === 0 && "👑"}</h4>
-                      <p style={{ fontSize: 12, color: "#8A5CFF" }}>{u.country || "Global Believer"}</p>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 20, fontWeight: "bold", color: "#FFD000", fontFamily: "Space Grotesk, sans-serif" }}>{u.glow_score || 0}</div>
-                      <div style={{ fontSize: 10, color: "#C8D0E0", textTransform: "uppercase", letterSpacing: 1 }}>XP</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+        {/* GROUPS TAB */}
+        {activeTab === "groups" && (
+          <div className="space-y-4">
+            {/* Create Group CTA */}
+            <Link to={createPageUrl("Dashboard")} className="flex items-center gap-3 bg-[#00CFFF]/5 border border-dashed border-[#00CFFF]/30 rounded-2xl p-4 hover:border-[#00CFFF]/60 hover:bg-[#00CFFF]/10 transition-all group">
+              <div className="w-10 h-10 rounded-full bg-[#00CFFF]/10 flex items-center justify-center">
+                <Plus className="w-5 h-5 text-[#00CFFF]" />
+              </div>
+              <div>
+                <div className="font-bold text-[#00CFFF] text-sm">Start a GlowGroup</div>
+                <div className="text-xs text-gray-500">Create your own accountability community</div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-[#00CFFF] ml-auto" />
+            </Link>
 
-          {/* Members Grid */}
-          {activeTab === "members" && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 20, paddingBottom: 100 }}>
-              {users.filter(u => u.full_name?.toLowerCase().includes(search.toLowerCase()) && u.email !== user?.email).map(u => {
-                const isFollowing = following.some(f => f.following_email === u.email);
-                return (
-                  <div key={u.id} className="glm-card" style={{ display: "flex", alignItems: "center", gap: 16, padding: "20px" }}>
-                    <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#1a2235", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}>
-                      {u.profile_picture_url ? <img src={u.profile_picture_url} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: 20, fontWeight: "bold", color: "#C8D0E0" }}>{u.full_name?.charAt(0)}</span>}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h4 style={{ fontSize: 16, fontWeight: 600, color: "#FFF", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.full_name}</h4>
-                      <p style={{ fontSize: 12, color: "#8A5CFF" }}>{u.country || "Global Believer"}</p>
-                    </div>
-                    <button 
-                      onClick={() => followMutation.mutate(u.email)}
-                      style={{
-                        padding: "8px 16px", borderRadius: 50,
-                        background: isFollowing ? "transparent" : "#00CFFF",
-                        border: isFollowing ? "1px solid #C8D0E0" : "none",
-                        color: isFollowing ? "#C8D0E0" : "#0B0F1A",
-                        fontSize: 12, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif",
-                        cursor: "pointer", transition: "all 0.2s"
-                      }}
-                    >
-                      {isFollowing ? "Unfollow" : "Follow"}
-                    </button>
+            {filteredGroups.length === 0 && (
+              <div className="text-center py-16 text-gray-500">
+                <div className="text-4xl mb-3">👥</div>
+                <p>No groups found. Be the first to create one!</p>
+              </div>
+            )}
+
+            {filteredGroups.map(group => {
+              const isMember = myMemberships.some(m => m.group_id === group.id);
+              return (
+                <div key={group.id} className="flex items-center gap-4 bg-[#121826] border border-white/5 rounded-2xl p-4 hover:border-[#8A5CFF]/40 transition-all">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#8A5CFF]/30 to-[#00CFFF]/20 flex items-center justify-center text-2xl shrink-0 border border-white/10">
+                    ✨
                   </div>
-                );
-              })}
-              {users.filter(u => u.full_name?.toLowerCase().includes(search.toLowerCase()) && u.email !== user?.email).length === 0 && (
-                <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px 0", color: "#C8D0E0" }}>
-                  <div style={{ fontSize: 40, marginBottom: 16 }}>🔍</div>
-                  <p>No members found matching "{search}"</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-white text-sm truncate">{group.name}</div>
+                    <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+                      <MapPin className="w-3 h-3" /> {group.country || "Global"}
+                    </div>
+                    {group.description && (
+                      <div className="text-xs text-gray-400 mt-1 line-clamp-1">{group.description}</div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => joinMutation.mutate(group.id)}
+                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0 ${
+                      isMember
+                        ? "bg-white/10 text-gray-300 hover:bg-red-500/20 hover:text-red-400"
+                        : "bg-[#8A5CFF] text-white hover:bg-[#7a4de6]"
+                    }`}
+                  >
+                    {isMember ? "Leave" : "Join"}
+                  </button>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-      </section>
+              );
+            })}
+          </div>
+        )}
+
+        {/* LIGHT LEADERS TAB */}
+        {activeTab === "leaders" && (
+          <div className="space-y-3">
+            {sortedLeaders.map((u, index) => {
+              const isFollowing = following.some(f => f.following_email === u.email);
+              const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : null;
+              return (
+                <div
+                  key={u.id}
+                  className={`flex items-center gap-4 rounded-2xl p-4 border transition-all ${
+                    index === 0 ? "bg-[#FFD000]/5 border-[#FFD000]/30" :
+                    index < 3 ? "bg-[#121826] border-white/10" :
+                    "bg-[#121826] border-white/5"
+                  }`}
+                >
+                  {/* Rank */}
+                  <div className="w-8 text-center shrink-0">
+                    {medal
+                      ? <span className="text-xl">{medal}</span>
+                      : <span className="text-sm font-bold text-gray-500">#{index + 1}</span>
+                    }
+                  </div>
+                  {/* Avatar */}
+                  <div className={`w-12 h-12 rounded-full overflow-hidden flex items-center justify-center font-bold text-base shrink-0 border-2 ${index < 3 ? "border-[#FFD000]" : "border-white/10"} bg-[#1a2235]`}>
+                    {u.profile_picture_url
+                      ? <img src={u.profile_picture_url} className="w-full h-full object-cover" />
+                      : <span className="text-white">{u.full_name?.charAt(0)}</span>}
+                  </div>
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-white text-sm truncate">
+                      {u.full_name} {index === 0 && "👑"}
+                    </div>
+                    <div className="text-xs text-gray-500">{u.country || "Global Believer"}</div>
+                  </div>
+                  {/* XP */}
+                  <div className="text-right shrink-0 mr-2">
+                    <div className="text-lg font-black text-[#FFD000]" style={{ fontFamily: "Space Grotesk, sans-serif" }}>{u.glow_score || 0}</div>
+                    <div className="text-[9px] text-gray-500 uppercase tracking-widest">XP</div>
+                  </div>
+                  {/* Follow */}
+                  {u.email !== user?.email && (
+                    <button
+                      onClick={() => followMutation.mutate(u.email)}
+                      className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all shrink-0 ${
+                        isFollowing ? "bg-white/10 text-gray-400 hover:text-red-400" : "border border-[#00CFFF] text-[#00CFFF] hover:bg-[#00CFFF]/10"
+                      }`}
+                    >
+                      {isFollowing ? "Following" : "Connect"}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
