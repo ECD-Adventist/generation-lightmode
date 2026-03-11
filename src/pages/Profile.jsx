@@ -161,7 +161,7 @@ export default function Profile() {
 
   useEffect(() => {
     async function checkCertificates() {
-      if (!user) return;
+      if (!user || !isOwnProfile) return;
       const myCerts = await base44.entities.Certificate.filter({ user_email: user.email });
       const newCerts = [];
       
@@ -187,7 +187,7 @@ export default function Profile() {
       }
     }
     checkCertificates();
-  }, [user, queryClient]);
+  }, [user, queryClient, isOwnProfile]);
 
   const [uploadingImage, setUploadingImage] = useState(false);
 
@@ -302,10 +302,12 @@ export default function Profile() {
       )}
       <div className="max-w-4xl mx-auto px-4 relative z-10">
         <div className="flex items-center justify-between mb-8 py-4">
-          <div className="font-bold text-lg text-gray-400">{user.email}</div>
-          <button onClick={() => setIsEditing(!isEditing)} className="text-gray-400 hover:text-white transition">
-            <Settings className="w-6 h-6" />
-          </button>
+          <div className="font-bold text-lg text-gray-400">{user.full_name || user.email}</div>
+          {isOwnProfile && (
+            <button onClick={() => setIsEditing(!isEditing)} className="text-gray-400 hover:text-white transition">
+              <Settings className="w-6 h-6" />
+            </button>
+          )}
         </div>
 
         {/* Cover Photo */}
