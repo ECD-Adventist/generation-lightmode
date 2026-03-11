@@ -74,10 +74,15 @@ export default function Feed() {
         await base44.entities.Follow.delete(followRecord.id);
       } else {
         await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
       }
+      return isFollowing;
     },
-    onSuccess: () => {
+    onSuccess: (wasFollowing) => {
       queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
+      if (!wasFollowing) {
+        toast.success("Followed! +5 XP ⚡");
+      }
     }
   });
 

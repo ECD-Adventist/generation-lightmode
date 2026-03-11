@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Users, MapPin, Globe, Search, ChevronRight } from "lucide-react";
 import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
 
 const groups = [
   { name: "Lagos Light Warriors", location: "Lagos, Nigeria", members: 48, region: "Africa", focus: "Campus Outreach", color: "#00CFFF", rank: "Champion" },
@@ -53,16 +54,57 @@ export default function GlowGroups() {
         await base44.entities.Follow.delete(followRecord.id);
       } else {
         await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
       }
+      return isFollowing;
     },
-    onSuccess: () => {
+    onSuccess: (wasFollowing) => {
       queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
+      if (!wasFollowing) {
+        toast.success("Followed! +5 XP ⚡");
+      }
     }
   });
 
-  const regions = ["all", ...new Set(groups.map(g => g.region))];
-  const filtered = groups.filter(g => {
-    const matchSearch = g.name.toLowerCase().includes(search.toLowerCase()) || g.location.toLowerCase().includes(search.toLowerCase());
+  const { data: realGroups = [] } = useQuery({
+    queryKey: ["allGroups"],
+    queryFn: () => base44.entities.GlowGroup.list(),
+  });
+
+  const { data: myMemberships = [] } = useQuery({
+    queryKey: ["myMemberships", user?.email],
+    queryFn: () => base44.entities.GlowGroupMember.filter({ user_email: user?.email }),
+    enabled: !!user
+  });
+
+  const joinMutation = useMutation({
+    mutationFn: async (groupId) => {
+      if (!user) throw new Error("Not logged in");
+      const isMember = myMemberships.some(m => m.group_id === groupId);
+      if (isMember) {
+        const memberRecord = myMemberships.find(m => m.group_id === groupId);
+        await base44.entities.GlowGroupMember.delete(memberRecord.id);
+      } else {
+        await base44.entities.GlowGroupMember.create({ user_email: user.email, group_id: groupId });
+        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 20 });
+      }
+      return isMember;
+    },
+    onSuccess: (wasMember) => {
+      queryClient.invalidateQueries({ queryKey: ["myMemberships", user?.email] });
+      if (!wasMember) {
+        toast.success("Joined group! +20 XP ⚡");
+      } else {
+        toast.success("Left group.");
+      }
+    }
+  });
+
+  const combinedGroups = [...realGroups.map(g => ({...g, members: g.members || 1, region: g.country || "Global", focus: g.description || "Community", color: "#00CFFF", rank: "Starter"})), ...groups.map(g => ({...g, id: g.name, isMock: true}))];
+
+  const regions = ["all", ...new Set(combinedGroups.map(g => g.region))];
+  const filtered = combinedGroups.filter(g => {
+    const matchSearch = g.name.toLowerCase().includes(search.toLowerCase()) || (g.location || g.country || "").toLowerCase().includes(search.toLowerCase());
     const matchRegion = regionFilter === "all" || g.region === regionFilter;
     return matchSearch && matchRegion;
   });
@@ -213,9 +255,11 @@ export default function GlowGroups() {
                     </div>
                     <span className="glm-body" style={{ fontSize: 13 }}>{group.members} members</span>
                   </div>
-                  <a href={createPageUrl("Dashboard")} style={{ color: group.color, fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
-                    Join <ChevronRight size={14} />
-                  </a>
+                  <button 
+                    onClick={() => joinMutation.mutate(group.id)}
+                    style={{ color: group.color || "#00CFFF", background: "transparent", border: "none", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 4, cursor: "pointer" }}>
+                    {myMemberships.some(m => m.group_id === group.id) ? "Leave" : "Join"} <ChevronRight size={14} />
+                  </button>
                 </div>
               </div>
             ))}
