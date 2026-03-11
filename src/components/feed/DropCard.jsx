@@ -257,12 +257,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
           <div className="flex flex-col items-center gap-1.5">
             <button 
-              onClick={(e) => { e.stopPropagation(); setShowComments(!showComments); }} 
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); setShowComments(prev => !prev); }} 
               className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
             >
-              <MessageCircle className="w-6 h-6 text-white hover:scale-110 transition-transform" />
+              <MessageCircle className={`w-6 h-6 transition-transform hover:scale-110 ${showComments ? "text-[#00CFFF]" : "text-white"}`} />
             </button>
-            <span className="text-white text-xs font-bold drop-shadow-md">{comments.length || 0}</span>
+            <span className="text-white text-xs font-bold drop-shadow-md">{comments.length}</span>
           </div>
 
           <div className="flex flex-col items-center gap-1.5">
