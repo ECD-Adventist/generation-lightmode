@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Send, Paperclip, Check, CheckCheck, Clock } from "lucide-react";
+import { Send, Paperclip, Check, CheckCheck, Clock, Home, Zap, Bell, User, Globe } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -30,11 +30,30 @@ export default function ChatWindow({ conversation, currentUser, otherUser, messa
 
   return (
     <div className="bg-[#121826] border border-white/10 rounded-3xl min-h-[72vh] flex flex-col overflow-hidden">
-      <div className="px-4 py-4 border-b border-white/10 flex items-center gap-3">
-        <img src={otherUser.profile_picture_url || defaultAvatar} alt={otherUser.full_name} className="w-11 h-11 rounded-full object-cover border border-white/10" />
-        <div className="min-w-0 flex-1">
-          <div className="font-semibold text-white truncate">{otherUser.full_name}</div>
-          <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(otherUser.email)}`} className="text-xs text-[#00CFFF] hover:text-white transition">View profile</Link>
+      <div className="px-6 py-3 border-b border-white/10 flex items-center justify-between gap-4 bg-[#0F1524]">
+        <div className="flex items-center gap-3 flex-1">
+          <img src={otherUser.profile_picture_url || defaultAvatar} alt={otherUser.full_name} className="w-10 h-10 rounded-full object-cover border border-white/10" />
+          <div className="min-w-0">
+            <div className="font-semibold text-white text-sm truncate">{otherUser.full_name}</div>
+            <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(otherUser.email)}`} className="text-xs text-[#00CFFF] hover:text-white transition">View profile</Link>
+          </div>
+        </div>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-xs sm:text-sm font-medium">
+            <Home className="w-4 h-4" /><span className="hidden sm:inline">Feed</span>
+          </Link>
+          <Link to={createPageUrl("Dashboard")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-xs sm:text-sm font-medium">
+            <Zap className="w-4 h-4" /><span className="hidden sm:inline">Dashboard</span>
+          </Link>
+          <Link to={createPageUrl("Notifications")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-xs sm:text-sm font-medium">
+            <Bell className="w-4 h-4" /><span className="hidden sm:inline">Alerts</span>
+          </Link>
+          <Link to={createPageUrl("Profile")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-xs sm:text-sm font-medium">
+            <User className="w-4 h-4" /><span className="hidden sm:inline">Profile</span>
+          </Link>
+          <Link to={createPageUrl("Home")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-[#00CFFF] hover:bg-white/5 transition text-xs sm:text-sm font-medium border border-white/5">
+            <Globe className="w-4 h-4" /> Website
+          </Link>
         </div>
       </div>
 
