@@ -269,7 +269,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                 <img src={dropAuthor?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
               </div>
               <div className="text-sm leading-relaxed">
-                <span className="font-bold text-white mr-1.5">{dropAuthor?.full_name}</span>
+                <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} onClick={onClose} className="font-bold text-white mr-1.5 no-underline hover:underline">{dropAuthor?.full_name}</Link>
                 {drop.verse && <span className="text-[#00CFFF] font-semibold">{drop.verse} </span>}
                 {drop.reflection && <span className="text-gray-300">{drop.reflection}</span>}
                 {drop.hashtags && (
@@ -301,7 +301,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm">
-                      <span className="font-bold text-white mr-1.5">{cu.full_name}</span>
+                      <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.user_email)}`} onClick={onClose} className="font-bold text-white mr-1.5 no-underline hover:underline">{cu.full_name}</Link>
                       <span className="text-gray-300">{c.content}</span>
                     </div>
                     <div className="flex items-center gap-3 mt-1">
