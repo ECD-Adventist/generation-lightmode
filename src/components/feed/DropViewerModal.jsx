@@ -150,9 +150,9 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
   const dropAuthor = getCommentUser(drop.user_email);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       {/* Close */}
-      <button onClick={onClose} className="absolute top-3 right-3 z-50 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+      <button onClick={onClose} className="absolute top-3 right-3 z-[110] w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
         <X className="w-5 h-5 text-white" />
       </button>
 
@@ -219,35 +219,43 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
               </div>
             </div>
 
-            <DropdownMenu>
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
-                <button className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition">
+                <button className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition" onClick={(e) => e.stopPropagation()}>
                   <MoreHorizontal className="w-5 h-5 text-gray-400" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-[#121826] border-white/10 text-white w-48">
+              <DropdownMenuContent align="end" className="bg-[#121826] border-white/10 text-white w-48 z-[120]" onClick={(e) => e.stopPropagation()}>
                 {isOwner && (
-                  <DropdownMenuItem onClick={() => deleteDropMutation.mutate()} className="text-red-400 hover:bg-red-500/10 hover:text-red-400 cursor-pointer gap-2">
+                  <DropdownMenuItem onSelect={() => deleteDropMutation.mutate()} className="text-red-400 hover:bg-red-500/10 hover:text-red-400 cursor-pointer gap-2">
                     <Trash2 className="w-4 h-4" /> Delete Post
                   </DropdownMenuItem>
                 )}
-                {!isOwner && (
-                  <DropdownMenuItem onClick={() => {
+                {!isOwner && user && (
+                  <DropdownMenuItem onSelect={() => {
                     const reason = window.prompt("Why are you reporting this content?");
                     if (reason) {
                       base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason })
                         .then(() => toast.success("Reported to moderators."));
                     }
                   }} className="hover:bg-white/10 cursor-pointer gap-2">
-                    <Flag className="w-4 h-4" /> Report
+                    <Flag className="w-4 h-4" /> Report Post
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => {
+                <DropdownMenuItem onSelect={() => {
                   navigator.clipboard.writeText(`${drop.verse || ""} ${drop.reflection || ""}`);
                   toast.success("Text copied!");
                 }} className="hover:bg-white/10 cursor-pointer gap-2">
                   <Copy className="w-4 h-4" /> Copy Text
                 </DropdownMenuItem>
+                <DropdownMenuItem onSelect={handleShare} className="hover:bg-white/10 cursor-pointer gap-2">
+                  <Share2 className="w-4 h-4" /> Share
+                </DropdownMenuItem>
+                {user && (
+                  <DropdownMenuItem onSelect={() => toggleSaveMutation.mutate()} className="hover:bg-white/10 cursor-pointer gap-2">
+                    <Bookmark className="w-4 h-4" /> {isSaved ? "Unsave" : "Save"}
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -283,6 +291,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
               const cu = getCommentUser(c.user_email);
               const isCommentOwner = user?.email === c.user_email;
               const canDelete = isCommentOwner || isOwner;
+              const canReport = user && !isCommentOwner;
               return (
                 <div key={c.id} className="flex gap-3 group/c">
                   <div className="w-7 h-7 rounded-full shrink-0 overflow-hidden mt-0.5">
@@ -301,6 +310,18 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                         <button onClick={() => deleteCommentMutation.mutate(c.id)}
                           className="text-[11px] text-gray-600 hover:text-red-400 opacity-0 group-hover/c:opacity-100 transition font-semibold">
                           Delete
+                        </button>
+                      )}
+                      {canReport && (
+                        <button onClick={() => {
+                          const reason = window.prompt("Why are you reporting this comment?");
+                          if (reason) {
+                            base44.entities.ReportedComment.create({ comment_id: c.id, reporter_email: user.email, reason })
+                              .then(() => toast.success("Comment reported to moderators."));
+                          }
+                        }}
+                          className="text-[11px] text-gray-600 hover:text-red-400 opacity-0 group-hover/c:opacity-100 transition font-semibold">
+                          Report
                         </button>
                       )}
                     </div>
