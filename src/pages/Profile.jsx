@@ -346,6 +346,83 @@ export default function Profile() {
         </div>
         )}
 
+        {activeProfileTab === "missions" && (
+          <div className="py-6 space-y-6">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="bg-[#121826] rounded-2xl p-4 border border-white/5 text-center">
+                <div className="text-2xl font-black text-[#00CFFF] font-['Space_Grotesk']">{myDrops.length}</div>
+                <div className="text-xs text-gray-400 mt-1 uppercase tracking-wider">Drops Shared</div>
+              </div>
+              <div className="bg-[#121826] rounded-2xl p-4 border border-white/5 text-center">
+                <div className="text-2xl font-black text-[#FFD000] font-['Space_Grotesk']">{challengeSubmissions.length}</div>
+                <div className="text-xs text-gray-400 mt-1 uppercase tracking-wider">Challenges Done</div>
+              </div>
+              <div className="bg-[#121826] rounded-2xl p-4 border border-white/5 text-center">
+                <div className="text-2xl font-black text-[#8A5CFF] font-['Space_Grotesk']">{myMemberships.length}</div>
+                <div className="text-xs text-gray-400 mt-1 uppercase tracking-wider">Groups Joined</div>
+              </div>
+              <div className="bg-[#121826] rounded-2xl p-4 border border-white/5 text-center">
+                <div className="text-2xl font-black text-white font-['Space_Grotesk']">{user.glow_score || 0}</div>
+                <div className="text-xs text-gray-400 mt-1 uppercase tracking-wider flex items-center justify-center gap-1"><Zap className="w-3 h-3 text-[#FFD000]" />Total XP</div>
+              </div>
+            </div>
+
+            {/* Glow Drops Contributions */}
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-widest text-[#00CFFF] mb-3 flex items-center gap-2"><Grid className="w-4 h-4" /> Glow Drop Contributions</h3>
+              {myDrops.length === 0 ? (
+                <div className="text-center py-10 text-gray-500 bg-[#121826]/50 rounded-2xl border border-white/5">No drops submitted yet.</div>
+              ) : (
+                <div className="space-y-2">
+                  {myDrops.map(drop => (
+                    <div key={drop.id} className="bg-[#121826] rounded-xl px-5 py-4 border border-white/5 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${drop.status === 'approved' ? 'bg-green-400' : drop.status === 'rejected' ? 'bg-red-400' : 'bg-yellow-400'}`} />
+                        <p className="text-sm text-gray-200 truncate">{drop.verse || "(No verse)"}</p>
+                      </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <span className="flex items-center gap-1 text-xs text-[#FFD000] font-bold"><Heart className="w-3 h-3" />{drop.likes_count || 0}</span>
+                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide ${drop.status === 'approved' ? 'bg-green-500/20 text-green-400' : drop.status === 'rejected' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                          {drop.status || 'pending'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Challenge Submissions */}
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-widest text-[#FFD000] mb-3 flex items-center gap-2"><Target className="w-4 h-4" /> Challenge Submissions</h3>
+              {challengeSubmissions.length === 0 ? (
+                <div className="text-center py-10 text-gray-500 bg-[#121826]/50 rounded-2xl border border-white/5">No challenges submitted yet. Head to Challenges to earn XP!</div>
+              ) : (
+                <div className="space-y-2">
+                  {challengeSubmissions.map(sub => {
+                    const challenge = allChallenges.find(c => c.id === sub.challenge_id);
+                    return (
+                      <div key={sub.id} className="bg-[#121826] rounded-xl px-5 py-4 border border-white/5 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-white truncate">{challenge?.title || "Challenge"}</p>
+                            <p className="text-xs text-gray-500 truncate">{sub.submission_url}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 text-[#FFD000] font-black text-sm flex-shrink-0">
+                          <Zap className="w-3.5 h-3.5" />+{sub.points_awarded || challenge?.points_reward || 0} XP
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {activeProfileTab === "badges" && (
            <div className="py-8">
              {certificates.length > 0 && (
