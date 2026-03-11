@@ -469,11 +469,18 @@ export default function Profile() {
         <div className="grid grid-cols-3 gap-1 sm:gap-2 md:gap-4">
           {myDrops.map(drop => (
             <div key={drop.id} onClick={() => setViewingDrop(drop)} className="aspect-square bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-white/5 relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-4 text-center rounded-sm sm:rounded-xl">
-              <div className="relative z-10 w-full h-full flex items-center justify-center">
-                <span className="text-[#00CFFF] font-bold font-['Space_Grotesk'] text-xs sm:text-base md:text-xl lg:text-2xl px-1 break-words line-clamp-4 leading-tight drop-shadow-md">
-                  {drop.verse}
-                </span>
-              </div>
+              {drop.media_url ? (
+                <>
+                  <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10" />
+                </>
+              ) : (
+                <div className="relative z-10 w-full h-full flex items-center justify-center">
+                  <span className="text-[#00CFFF] font-bold font-['Space_Grotesk'] text-xs sm:text-base md:text-xl lg:text-2xl px-1 break-words line-clamp-4 leading-tight drop-shadow-md">
+                    {drop.verse}
+                  </span>
+                </div>
+              )}
               <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
                 <div className="flex items-center gap-2 font-bold text-lg md:text-2xl text-white">
                   <Heart className="w-5 h-5 md:w-8 md:h-8 fill-white" /> {drop.likes_count || 0}
