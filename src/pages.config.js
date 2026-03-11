@@ -55,19 +55,19 @@ import Dashboard from './pages/Dashboard';
 import Feed from './pages/Feed';
 import GlobalReach from './pages/GlobalReach';
 import GlowGroups from './pages/GlowGroups';
+import GroupSession from './pages/GroupSession';
 import Home from './pages/Home';
 import Impact from './pages/Impact';
+import Live from './pages/Live';
 import Media from './pages/Media';
+import Messages from './pages/Messages';
+import Milestones from './pages/Milestones';
 import Notifications from './pages/Notifications';
+import Post from './pages/Post';
+import PrayerWall from './pages/PrayerWall';
 import Profile from './pages/Profile';
 import Resources from './pages/Resources';
 import Saved from './pages/Saved';
-import Post from './pages/Post';
-import Messages from './pages/Messages';
-import PrayerWall from './pages/PrayerWall';
-import Live from './pages/Live';
-import Milestones from './pages/Milestones';
-import GroupSession from './pages/GroupSession';
 import __Layout from './Layout.jsx';
 
 
@@ -80,19 +80,19 @@ export const PAGES = {
     "Feed": Feed,
     "GlobalReach": GlobalReach,
     "GlowGroups": GlowGroups,
+    "GroupSession": GroupSession,
     "Home": Home,
     "Impact": Impact,
+    "Live": Live,
     "Media": Media,
+    "Messages": Messages,
+    "Milestones": Milestones,
     "Notifications": Notifications,
+    "Post": Post,
+    "PrayerWall": PrayerWall,
     "Profile": Profile,
     "Resources": Resources,
     "Saved": Saved,
-    "Post": Post,
-    "Messages": Messages,
-    "PrayerWall": PrayerWall,
-    "Live": Live,
-    "Milestones": Milestones,
-    "GroupSession": GroupSession,
 }
 
 export const pagesConfig = {
