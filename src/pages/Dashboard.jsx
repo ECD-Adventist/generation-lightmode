@@ -49,6 +49,36 @@ export default function Dashboard() {
       <div style={{ position: "absolute", top: "-10%", left: "-10%", width: "50%", height: "50%", borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.08) 0%, transparent 60%)", pointerEvents: "none" }} />
       <div style={{ position: "absolute", top: "20%", right: "-10%", width: "40%", height: "40%", borderRadius: "50%", background: "radial-gradient(circle, rgba(138,92,255,0.08) 0%, transparent 60%)", pointerEvents: "none" }} />
 
+      {/* Top Nav Bar */}
+      <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
+          <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
+            <img
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
+              alt="LightMode"
+              style={{ height: 32, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
+            />
+          </Link>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <Home className="w-4 h-4" /><span className="hidden sm:inline">Feed</span>
+            </Link>
+            <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <Users className="w-4 h-4" /><span className="hidden sm:inline">Groups</span>
+            </Link>
+            <Link to={createPageUrl("Notifications")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <Bell className="w-4 h-4" /><span className="hidden sm:inline">Alerts</span>
+            </Link>
+            <Link to={createPageUrl("Profile")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <User className="w-4 h-4" /><span className="hidden sm:inline">Profile</span>
+            </Link>
+            <Link to={createPageUrl("Home")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-[#00CFFF] hover:bg-white/5 transition text-sm font-medium border border-white/5">
+              <Globe className="w-4 h-4" /> Website
+            </Link>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-6xl mx-auto px-6 py-12 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-white/5 pb-8">
           <div>
