@@ -258,7 +258,7 @@ export default function Feed() {
             <div key={u.id} className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0 opacity-80 hover:opacity-100 transition-opacity">
                <div className="w-16 h-16 rounded-full bg-[#121826] border border-white/10 overflow-hidden p-1">
                   <div className="w-full h-full rounded-full bg-gray-800 overflow-hidden">
-                    {u.profile_picture_url ? <img src={u.profile_picture_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center font-bold text-lg">{u.full_name?.charAt(0)}</div>}
+                    <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                   </div>
                </div>
                <span className="text-[10px] font-medium text-gray-400 truncate w-16 text-center">{u.full_name?.split(' ')[0]}</span>
@@ -379,7 +379,7 @@ export default function Feed() {
                 <div key={u.id} className="flex items-center justify-between">
                    <div className="flex items-center gap-3">
                      <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden flex items-center justify-center font-bold text-xs text-white border border-white/10 shrink-0">
-                        {u.profile_picture_url ? <img src={u.profile_picture_url} className="w-full h-full object-cover" /> : u.full_name?.charAt(0)}
+                        <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                      </div>
                      <div className="text-xs min-w-0">
                        <div className="font-bold text-white truncate max-w-[90px]">{u.full_name}</div>
@@ -421,7 +421,7 @@ export default function Feed() {
           <Link to={createPageUrl("Resources")}><PlaySquare className="w-6 h-6 text-white" /></Link>
           <Link to={createPageUrl("Profile")}>
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/20 flex items-center justify-center text-[10px] uppercase font-bold text-white overflow-hidden">
-              {user?.profile_picture_url ? <img src={user.profile_picture_url} className="w-full h-full object-cover" /> : user?.full_name?.charAt(0)}
+              <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
             </div>
           </Link>
         </div>
