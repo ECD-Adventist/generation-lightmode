@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import DropCard from "@/components/feed/DropCard";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
+import DailyChallenges from "@/components/feed/DailyChallenges";
 
 export default function Feed() {
   const [user, setUser] = useState(null);
@@ -86,14 +87,24 @@ export default function Feed() {
 
   const likeMutation = useMutation({
     mutationFn: async ({ id, likes, authorEmail, authorName }) => {
+      if (!user) { toast.error("Please log in to like drops"); return; }
       await base44.entities.GlowDrop.update(id, { likes_count: likes + 1 });
-      if (authorEmail && authorEmail !== user?.email) {
+      if (authorEmail && authorEmail !== user.email) {
         await base44.entities.Notification.create({
           user_email: authorEmail,
           type: "like",
-          message: `${user?.full_name || 'Someone'} liked your Glow Drop!`,
+          message: `${user.full_name || 'Someone'} liked your Glow Drop!`,
           link: `/Feed`
         });
+      }
+      
+      const today = new Date().toISOString().split('T')[0];
+      const challenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: today });
+      if (!challenges.some(c => c.challenge_id === 'like_drops')) {
+        await base44.entities.UserDailyChallenge.create({ user_email: user.email, date_string: today, challenge_id: 'like_drops' });
+        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
+        toast.success("Challenge Completed: Spread the Light! +5 XP ⚡");
+        queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });
       }
     },
     onSuccess: () => {
@@ -310,8 +321,10 @@ export default function Feed() {
         </div>
 
         {/* Right Sidebar (Desktop) */}
-        <div className="hidden lg:block py-8 px-6 sticky top-0 h-screen border-l border-white/5 bg-[#0B0F1A]">
+        <div className="hidden lg:block py-8 px-6 sticky top-0 h-screen border-l border-white/5 bg-[#0B0F1A] overflow-y-auto hide-scrollbar">
           
+          <DailyChallenges user={user} />
+
           {/* Trending Vibes */}
           <div className="bg-[#121826] rounded-[24px] p-5 mb-6 border border-white/5">
             <h3 className="font-black text-xs text-[#00CFFF] mb-4 tracking-widest uppercase">Trending Vibes</h3>

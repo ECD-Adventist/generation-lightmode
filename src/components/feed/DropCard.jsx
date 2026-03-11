@@ -63,6 +63,15 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           link: `/Feed`
         });
       }
+      
+      const today = new Date().toISOString().split('T')[0];
+      const challenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: today });
+      if (!challenges.some(c => c.challenge_id === 'comment')) {
+        await base44.entities.UserDailyChallenge.create({ user_email: user.email, date_string: today, challenge_id: 'comment' });
+        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
+        toast.success("Challenge Completed: Encourage Someone! +5 XP ⚡");
+        queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });
+      }
     },
     onSuccess: () => {
       setNewComment("");
