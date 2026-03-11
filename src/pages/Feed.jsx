@@ -67,6 +67,7 @@ export default function Feed() {
 
   const followMutation = useMutation({
     mutationFn: async (targetEmail) => {
+      if (!user) { toast.error("Please log in to follow"); throw new Error("Not logged in"); }
       const isFollowing = following.some(f => f.following_email === targetEmail);
       if (isFollowing) {
         const followRecord = following.find(f => f.following_email === targetEmail);
