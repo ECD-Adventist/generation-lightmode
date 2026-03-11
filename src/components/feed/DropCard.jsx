@@ -366,7 +366,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 </div>
                 <div className="bg-[#121826]/80 backdrop-blur-md px-3.5 py-2.5 rounded-2xl rounded-tl-none border border-white/5 flex-1 shadow-sm relative">
                   <div className="flex justify-between items-start gap-2">
-                    <span className="font-bold text-[#00CFFF] text-xs block mb-1">{getCommentUser(c.user_email).full_name}</span>
+                    <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.user_email)}`} className="font-bold text-[#00CFFF] text-xs block mb-1 no-underline hover:underline">{getCommentUser(c.user_email).full_name}</Link>
                     
                     {user && (
                       <DropdownMenu>
