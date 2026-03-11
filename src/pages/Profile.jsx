@@ -237,6 +237,7 @@ export default function Profile() {
       await base44.auth.updateMe(updates);
       const updated = await base44.auth.me();
       setUser(updated);
+      setCurrentUser(updated);
       setEditData(prev => ({ ...prev, ...updates }));
       
       toast.success(`${type === 'profile' ? 'Profile' : 'Cover'} photo updated!`, { id: toastId });
