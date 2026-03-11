@@ -159,8 +159,34 @@ export default function Home() {
               0%, 100% { filter: brightness(1) contrast(1.1); opacity: 0.35; }
               50% { filter: brightness(1.3) contrast(1.2); opacity: 0.55; }
             }
+            @keyframes rotate-beam {
+              0%   { transform: translate(-50%, -50%) rotate(0deg); }
+              100% { transform: translate(-50%, -50%) rotate(360deg); }
+            }
+            @keyframes rotate-beam-reverse {
+              0%   { transform: translate(-50%, -50%) rotate(0deg); }
+              100% { transform: translate(-50%, -50%) rotate(-360deg); }
+            }
           `}
         </style>
+
+        {/* Rotating glow beams */}
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          width: "200%", height: "200%",
+          transform: "translate(-50%, -50%) rotate(0deg)",
+          animation: "rotate-beam 8s linear infinite",
+          pointerEvents: "none", zIndex: 1,
+          background: "conic-gradient(from 0deg, transparent 0deg, rgba(0,207,255,0.07) 20deg, transparent 40deg, transparent 180deg, rgba(255,208,0,0.05) 200deg, transparent 220deg, transparent 360deg)",
+        }} />
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          width: "180%", height: "180%",
+          transform: "translate(-50%, -50%) rotate(0deg)",
+          animation: "rotate-beam-reverse 12s linear infinite",
+          pointerEvents: "none", zIndex: 1,
+          background: "conic-gradient(from 90deg, transparent 0deg, rgba(138,92,255,0.06) 15deg, transparent 30deg, transparent 360deg)",
+        }} />
         {/* Background image */}
         <img
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg"
