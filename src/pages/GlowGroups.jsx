@@ -229,6 +229,7 @@ export default function GlowGroups() {
               <p className="glm-body" style={{ fontSize: 14, marginBottom: 16 }}>Don't see one near you? Create your own and invite your people.</p>
               <a href={createPageUrl("Dashboard")} className="glm-btn-primary" style={{ fontSize: 14, padding: "10px 24px" }}>Create Group ⚡</a>
             </div>
+          </div>
           )}
 
           {/* Members Grid */}
