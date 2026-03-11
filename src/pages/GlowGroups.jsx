@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight } from "lucide-react";
+import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight, Home, Bell, User } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
