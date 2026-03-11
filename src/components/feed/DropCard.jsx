@@ -32,6 +32,15 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     enabled: !!user
   });
 
+  const { data: blockedUsers = [] } = useQuery({
+    queryKey: ["blockedUsers", user?.email],
+    queryFn: () => base44.entities.BlockedUser.filter({ blocker_email: user?.email }),
+    enabled: !!user
+  });
+
+  const blockedEmails = blockedUsers.map(b => b.blocked_email);
+  const visibleComments = comments.filter(c => !blockedEmails.includes(c.user_email));
+
   const isSaved = savedDrops.length > 0;
 
   const toggleSaveMutation = useMutation({
