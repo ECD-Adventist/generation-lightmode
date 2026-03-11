@@ -54,6 +54,18 @@ export default function Profile() {
     enabled: !!user
   });
 
+  const { data: myFollowing = [] } = useQuery({
+    queryKey: ["myFollowing", user?.email],
+    queryFn: () => base44.entities.Follow.filter({ follower_email: user.email }),
+    enabled: !!user
+  });
+
+  const { data: myMemberships = [] } = useQuery({
+    queryKey: ["myMemberships", user?.email],
+    queryFn: () => base44.entities.GlowGroupMember.filter({ user_email: user.email }),
+    enabled: !!user
+  });
+
   const { data: certificates = [] } = useQuery({
     queryKey: ["myCerts", user?.email],
     queryFn: () => base44.entities.Certificate.filter({ user_email: user.email }),
@@ -227,8 +239,15 @@ export default function Profile() {
             
             <div className="flex gap-8 justify-center md:justify-start mb-6">
               <div className="text-center md:text-left"><span className="font-bold text-2xl">{myDrops.length}</span> <span className="text-gray-400 text-sm block md:inline">posts</span></div>
-              <div className="text-center md:text-left"><span className="font-bold text-2xl text-[#FFD000]">{user.glow_score || 0}</span> <span className="text-gray-400 text-sm block md:inline">score</span></div>
-              <div className="text-center md:text-left"><span className="font-bold text-2xl text-[#00CFFF]">{user.streak_count || 0}</span> <span className="text-gray-400 text-sm block md:inline">streak</span></div>
+              <div className="text-center md:text-left"><span className="font-bold text-2xl text-[#FFD000]">{user.glow_score || 0}</span> <span className="text-gray-400 text-sm block md:inline">XP</span></div>
+              <div className="text-center md:text-left"><span className="font-bold text-2xl text-[#00CFFF]">Lvl {Math.floor((user.glow_score || 0) / 50) + 1}</span> <span className="text-gray-400 text-sm block md:inline">rank</span></div>
+            </div>
+
+            <div className="w-full max-w-md mx-auto md:mx-0 mb-6 bg-white/5 h-2 rounded-full overflow-hidden">
+               <div className="h-full bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF]" style={{ width: `${(((user.glow_score || 0) % 50) / 50) * 100}%` }}></div>
+            </div>
+            <div className="text-xs text-gray-400 text-center md:text-left max-w-md mx-auto md:mx-0 mb-6 -mt-4">
+              {50 - ((user.glow_score || 0) % 50)} XP to Next Level
             </div>
             
             <div className="text-sm text-gray-300 max-w-md mx-auto md:mx-0 bg-white/5 p-4 rounded-xl border border-white/5">
@@ -336,8 +355,11 @@ export default function Profile() {
              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                {(() => {
                 const badges = [];
-                if (user.glow_score >= 100) badges.push({ id: 'gs100', name: 'Spark', desc: 'Reached 100 Glow Score', icon: '⚡' });
-                if (user.glow_score >= 500) badges.push({ id: 'gs500', name: 'Flame', desc: 'Reached 500 Glow Score', icon: '🔥' });
+                if (user.glow_score >= 100) badges.push({ id: 'gs100', name: 'Spark', desc: 'Reached 100 XP', icon: '⚡' });
+                if (user.glow_score >= 500) badges.push({ id: 'gs500', name: 'Flame', desc: 'Reached 500 XP', icon: '🔥' });
+                if (myDrops.length >= 1) badges.push({ id: 'creator', name: 'Creator', desc: 'Posted a Drop (+5 XP)', icon: '📝' });
+                if (myFollowing.length >= 5) badges.push({ id: 'social', name: 'Social Butterfly', desc: 'Followed 5+ people (+5 XP ea)', icon: '🦋' });
+                if (myMemberships.length >= 1) badges.push({ id: 'community', name: 'Community Member', desc: 'Joined a Group (+20 XP)', icon: '🤝' });
                 if (myDrops.some(d => {
                   if (!d.created_date) return false;
                   const h = new Date(d.created_date).getHours();
