@@ -282,11 +282,7 @@ export default function Profile() {
             onClick={() => profileInputRef.current?.click()}
           >
             <div className="w-full h-full rounded-full bg-[#121826] border-4 border-[#0B0F1A] flex items-center justify-center text-5xl font-bold font-['Space_Grotesk'] uppercase overflow-hidden relative">
-              {user.profile_picture_url ? (
-                <img src={user.profile_picture_url} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                user.full_name?.charAt(0) || "U"
-              )}
+              <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="Profile" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10">
                 <Camera className="w-6 h-6 text-white mb-1" />
                 <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
