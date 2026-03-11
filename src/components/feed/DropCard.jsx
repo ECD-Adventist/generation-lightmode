@@ -165,7 +165,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/10 rounded-full pr-4 pl-1 py-1 cursor-pointer hover:bg-black/50 transition">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
             <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
-              {dropUser.profile_picture_url ? <img src={dropUser.profile_picture_url} className="w-full h-full object-cover" /> : (dropUser.full_name?.charAt(0) || "?")}
+              <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
             </div>
           </div>
           <div className="flex flex-col items-start justify-center">
@@ -291,7 +291,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             {visibleComments.map(c => (
               <div key={c.id} className="flex gap-3 text-sm group/comment">
                 <div className="w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center shrink-0 font-bold text-[10px] uppercase text-white shadow-md">
-                  {getCommentUser(c.user_email).profile_picture_url ? <img src={getCommentUser(c.user_email).profile_picture_url} className="w-full h-full rounded-full object-cover" /> : getCommentUser(c.user_email).full_name.charAt(0)}
+                  <img src={getCommentUser(c.user_email)?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full rounded-full object-cover" />
                 </div>
                 <div className="bg-[#121826]/80 backdrop-blur-md px-3.5 py-2.5 rounded-2xl rounded-tl-none border border-white/5 flex-1 shadow-sm relative">
                   <div className="flex justify-between items-start gap-2">
