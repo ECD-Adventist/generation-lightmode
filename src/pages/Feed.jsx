@@ -175,7 +175,7 @@ export default function Feed() {
              <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-lg font-bold bg-[#121826] text-[#00CFFF] px-4 py-3.5 rounded-2xl border border-white/5"><Home className="w-6 h-6" /> Home</Link>
              <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Search className="w-6 h-6" /> Explore</Link>
              <Link to={createPageUrl("Saved")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Bookmark className="w-6 h-6" /> Saved</Link>
-             <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition relative">
+             <Link to={createPageUrl("Notifications")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition relative">
                <Bell className="w-6 h-6" /> Notifications
                {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
              </Link>

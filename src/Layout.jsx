@@ -335,14 +335,12 @@ export default function Layout({ children, currentPageName }) {
                 <Link to={createPageUrl("Dashboard")} className="nav-link" style={{ whiteSpace: "nowrap" }}>
                   {t("dashboard") || "Dashboard"}
                 </Link>
-                <div className="relative">
-                  <button className="w-10 h-10 rounded-full bg-[#121826] border border-white/10 flex items-center justify-center hover:bg-white/5 transition relative">
-                    <Bell className="w-5 h-5 text-gray-300" />
-                    {notifications.length > 0 && (
-                      <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-[#0B0F1A] rounded-full"></span>
-                    )}
-                  </button>
-                </div>
+                <Link to={createPageUrl("Notifications")} className="relative w-10 h-10 rounded-full bg-[#121826] border border-white/10 flex items-center justify-center hover:bg-white/5 transition">
+                  <Bell className="w-5 h-5 text-gray-300" />
+                  {notifications.length > 0 && (
+                    <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-[#0B0F1A] rounded-full"></span>
+                  )}
+                </Link>
                 <Link to={createPageUrl("Profile")} className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-[2px]" title="Profile">
                    <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center text-xs font-bold uppercase overflow-hidden text-white">
                      {userEmail.charAt(0)}
