@@ -1,16 +1,19 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 Deno.serve(async (req) => {
+  const base44 = createClientFromRequest(req);
+  
   try {
-    const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+  } catch (e) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
+  try {
     const allUsers = await base44.asServiceRole.entities.User.list();
-
     const publicUsers = allUsers.map(u => ({
       id: u.id,
       full_name: u.full_name,
@@ -21,9 +24,9 @@ Deno.serve(async (req) => {
       role: u.role,
       created_date: u.created_date
     }));
-
     return Response.json(publicUsers);
   } catch (error) {
+    console.error("Error listing users:", error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
