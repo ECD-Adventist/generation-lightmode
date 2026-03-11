@@ -149,6 +149,7 @@ export default function Feed() {
   };
 
   const getUserInfo = (email) => {
+    if (user?.email === email) return user;
     return users.find(u => u.email === email) || { full_name: "Glow Believer" };
   };
 
