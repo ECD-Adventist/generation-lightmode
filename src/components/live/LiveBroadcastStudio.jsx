@@ -11,6 +11,7 @@ export default function LiveBroadcastStudio({ user, onClose }) {
   const [isStarting, setIsStarting] = useState(false);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+  const sessionRef = useRef(null);
   const peerConnectionsRef = useRef({});
   const signalSubscriptionRef = useRef(null);
 
@@ -46,7 +47,8 @@ export default function LiveBroadcastStudio({ user, onClose }) {
     Object.values(peerConnectionsRef.current).forEach((peer) => peer.close());
     peerConnectionsRef.current = {};
     streamRef.current?.getTracks().forEach((track) => track.stop());
-    if (session?.id) await base44.entities.LiveSession.update(session.id, { is_active: false });
+    if (sessionRef.current?.id) await base44.entities.LiveSession.update(sessionRef.current.id, { is_active: false });
+    sessionRef.current = null;
     setSession(null);
     if (shouldClose) onClose();
   };
@@ -93,6 +95,7 @@ export default function LiveBroadcastStudio({ user, onClose }) {
       }
     });
 
+    sessionRef.current = liveSession;
     setSession(liveSession);
     setIsStarting(false);
   };

@@ -247,7 +247,7 @@ export default function Layout({ children, currentPageName }) {
       `}</style>
 
       {/* NAVBAR — hidden only on pure app pages (Feed, Dashboard, etc.) */}
-      {["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports"].includes(currentPageName) && userEmail ? null : (
+      {["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Messages","PrayerWall","Live"].includes(currentPageName) && userEmail ? null : (
         /* Public nav for non-logged-in users */
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
@@ -401,12 +401,12 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Page Content */}
-      <main style={{ paddingTop: ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports"].includes(currentPageName) && userEmail ? 0 : 72 }}>
+      <main style={{ paddingTop: ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Messages","PrayerWall","Live"].includes(currentPageName) && userEmail ? 0 : 72 }}>
         {children}
       </main>
 
       {/* FOOTER — hidden for logged-in users on app pages */}
-      {!["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports"].includes(currentPageName) || !userEmail ? (
+      {!["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Messages","PrayerWall","Live"].includes(currentPageName) || !userEmail ? (
       <footer style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.1)", padding: "60px 24px 40px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 48, marginBottom: 48 }}>

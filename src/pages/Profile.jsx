@@ -287,6 +287,9 @@ export default function Profile() {
             <Link to={createPageUrl("Dashboard")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
               <Zap className="w-4 h-4" /><span className="hidden sm:inline">Dashboard</span>
             </Link>
+            <Link to={createPageUrl("Messages")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
+              <MessageCircle className="w-4 h-4" /><span className="hidden sm:inline">Messages</span>
+            </Link>
             <Link to={createPageUrl("Home")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-[#00CFFF] hover:bg-white/5 transition text-sm font-medium border border-white/5">
               <Globe className="w-4 h-4" /> Website
             </Link>
@@ -402,12 +405,19 @@ export default function Profile() {
                 </button>
               )}
               {!isOwnProfile && currentUser && (
-                <button 
-                  onClick={() => followMutation.mutate(profileEmail)} 
-                  className={`px-6 py-2 rounded-lg text-sm font-bold transition border ${isFollowingThisUser ? "bg-white/10 border-white/10 text-gray-300 hover:border-red-500 hover:text-red-400" : "bg-[#00CFFF] border-[#00CFFF] text-black hover:bg-[#00CFFF]/80"}`}
-                >
-                  {isFollowingThisUser ? "Following" : "Follow"}
-                </button>
+                <div className="flex flex-wrap gap-3">
+                  <button 
+                    onClick={() => followMutation.mutate(profileEmail)} 
+                    className={`px-6 py-2 rounded-lg text-sm font-bold transition border ${isFollowingThisUser ? "bg-white/10 border-white/10 text-gray-300 hover:border-red-500 hover:text-red-400" : "bg-[#00CFFF] border-[#00CFFF] text-black hover:bg-[#00CFFF]/80"}`}
+                  >
+                    {isFollowingThisUser ? "Following" : "Follow"}
+                  </button>
+                  {isFollowingThisUser && (
+                    <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(profileEmail)}`} className="px-6 py-2 rounded-lg text-sm font-bold transition border border-white/10 bg-white/5 text-white hover:bg-white/10">
+                      Message
+                    </Link>
+                  )}
+                </div>
               )}
             </div>
             
