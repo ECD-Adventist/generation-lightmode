@@ -383,11 +383,6 @@ export default function Layout({ children, currentPageName }) {
             
             {userEmail ? (
               <>
-                {userRole === 'admin' && (
-                  <Link to={createPageUrl("AdminReports")} className="nav-link text-red-400" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
-                    🛡️ Moderation
-                  </Link>
-                )}
                 <Link to={createPageUrl("Dashboard")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
                   📊 {t("dashboard") || "Dashboard"}
                 </Link>
