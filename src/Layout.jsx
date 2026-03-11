@@ -338,7 +338,7 @@ export default function Layout({ children, currentPageName }) {
                 </Link>
                 <Link to={createPageUrl("Profile")} className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-[2px]" title="Profile">
                    <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center text-xs font-bold uppercase overflow-hidden text-white">
-                     {userEmail.charAt(0)}
+                     <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png" className="w-full h-full object-cover" />
                    </div>
                 </Link>
               </div>
