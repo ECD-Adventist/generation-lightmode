@@ -284,18 +284,70 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       {showComments && (
         <div className="mt-3 px-3 py-4 bg-[#0B0F1A]/60 rounded-2xl border border-white/5 space-y-4 shadow-inner">
           <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-            {comments.map(c => (
-              <div key={c.id} className="flex gap-3 text-sm">
+            {visibleComments.map(c => (
+              <div key={c.id} className="flex gap-3 text-sm group/comment">
                 <div className="w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center shrink-0 font-bold text-[10px] uppercase text-white shadow-md">
                   {getCommentUser(c.user_email).profile_picture_url ? <img src={getCommentUser(c.user_email).profile_picture_url} className="w-full h-full rounded-full object-cover" /> : getCommentUser(c.user_email).full_name.charAt(0)}
                 </div>
-                <div className="bg-[#121826]/80 backdrop-blur-md px-3.5 py-2.5 rounded-2xl rounded-tl-none border border-white/5 flex-1 shadow-sm">
-                  <span className="font-bold text-[#00CFFF] text-xs block mb-1">{getCommentUser(c.user_email).full_name}</span>
-                  <span className="text-gray-200 leading-snug">{c.content}</span>
+                <div className="bg-[#121826]/80 backdrop-blur-md px-3.5 py-2.5 rounded-2xl rounded-tl-none border border-white/5 flex-1 shadow-sm relative">
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="font-bold text-[#00CFFF] text-xs block mb-1">{getCommentUser(c.user_email).full_name}</span>
+                    
+                    {user && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="opacity-0 group-hover/comment:opacity-100 transition-opacity text-gray-500 hover:text-white">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40 bg-[#121826] border-white/10 text-white">
+                          {c.user_email === user.email && (
+                            <>
+                              <DropdownMenuItem onClick={() => { setEditingCommentId(c.id); setEditContent(c.content); }} className="hover:bg-white/10 cursor-pointer">
+                                Edit
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                          {(c.user_email === user.email || drop.user_email === user.email) && (
+                            <DropdownMenuItem onClick={() => deleteCommentMutation.mutate(c.id)} className="text-red-400 hover:bg-red-500/10 hover:text-red-400 cursor-pointer">
+                              Delete
+                            </DropdownMenuItem>
+                          )}
+                          {c.user_email !== user.email && (
+                            <>
+                              <DropdownMenuItem onClick={() => blockUserMutation.mutate(c.user_email)} className="hover:bg-white/10 cursor-pointer">
+                                Block User
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => {
+                                const reason = window.prompt("Why are you reporting this comment?");
+                                if (reason) reportCommentMutation.mutate({ commentId: c.id, reason });
+                              }} className="hover:bg-white/10 cursor-pointer">
+                                Report
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+
+                  {editingCommentId === c.id ? (
+                    <div className="mt-2 flex gap-2">
+                      <Input 
+                        value={editContent} 
+                        onChange={(e) => setEditContent(e.target.value)} 
+                        className="h-8 bg-[#0B0F1A] border-white/10 text-xs"
+                      />
+                      <Button size="sm" className="h-8 bg-[#00CFFF] text-black" onClick={() => updateCommentMutation.mutate({ id: c.id, content: editContent })}>Save</Button>
+                      <Button size="sm" variant="ghost" className="h-8" onClick={() => setEditingCommentId(null)}>Cancel</Button>
+                    </div>
+                  ) : (
+                    <span className="text-gray-200 leading-snug">{c.content}</span>
+                  )}
                 </div>
               </div>
             ))}
-            {comments.length === 0 && <div className="text-xs text-gray-500 italic text-center py-6">No comments yet. Ignite the conversation! 🔥</div>}
+            {visibleComments.length === 0 && <div className="text-xs text-gray-500 italic text-center py-6">No comments yet. Ignite the conversation! 🔥</div>}
           </div>
           <form onSubmit={submitComment} className="flex gap-2 relative mt-2">
             <Input 
