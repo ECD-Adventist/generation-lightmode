@@ -72,6 +72,18 @@ export default function Profile() {
     enabled: !!user
   });
 
+  const { data: challengeSubmissions = [] } = useQuery({
+    queryKey: ["myChallengeSubmissions", user?.email],
+    queryFn: () => base44.entities.ChallengeSubmission.filter({ user_email: user.email }, '-created_date'),
+    enabled: !!user
+  });
+
+  const { data: allChallenges = [] } = useQuery({
+    queryKey: ["allChallenges"],
+    queryFn: () => base44.entities.Challenge.list(),
+    enabled: !!user
+  });
+
   useEffect(() => {
     async function checkCertificates() {
       if (!user) return;
