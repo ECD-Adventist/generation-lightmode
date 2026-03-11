@@ -202,6 +202,7 @@ export default function Profile() {
       });
       const updated = await base44.auth.me();
       setUser(updated);
+      setCurrentUser(updated);
       setIsEditing(false);
       toast.success("Profile updated successfully!");
     } catch (err) {
