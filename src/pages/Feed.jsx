@@ -234,7 +234,7 @@ export default function Feed() {
                {isResourcesOpen && (
                  <div className="flex flex-col ml-12 mt-1 gap-3 border-l border-white/10 pl-4 py-2">
                    <Link to={createPageUrl("KeepIt100")} className="text-sm font-bold text-gray-400 hover:text-white transition">💯 Keep It 100</Link>
-                   <Link to={createPageUrl("Resources") + "?tab=codes-of-truth"} className="text-sm font-bold text-gray-400 hover:text-white transition">🔐 Codes of Truth</Link>
+                   <Link to={createPageUrl("CodesOfTruth")} className="text-sm font-bold text-gray-400 hover:text-white transition">🔐 Codes of Truth</Link>
                    <Link to={createPageUrl("Resources")} className="text-sm font-bold text-gray-400 hover:text-white transition">🌍 Other Resources</Link>
                  </div>
                )}

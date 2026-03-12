@@ -322,7 +322,7 @@ export default function Layout({ children, currentPageName }) {
                     >
                       💯 Keep It 100
                     </Link>
-                    <Link to={createPageUrl("Resources") + "?tab=codes-of-truth"} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
+                    <Link to={createPageUrl("CodesOfTruth")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
                       onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
                       onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
                     >
@@ -459,7 +459,7 @@ export default function Layout({ children, currentPageName }) {
             <Link to={createPageUrl("KeepIt100")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
               💯 Keep It 100
             </Link>
-            <Link to={createPageUrl("Resources") + "?tab=codes-of-truth"} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
+            <Link to={createPageUrl("CodesOfTruth")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
               🔐 Codes of Truth
             </Link>
             <Link to={createPageUrl("Resources")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
@@ -525,7 +525,7 @@ export default function Layout({ children, currentPageName }) {
                 onMouseOver={e => e.target.style.color = "#00CFFF"}
                 onMouseOut={e => e.target.style.color = "#C8D0E0"}
               >Keep It 100</Link>
-              <Link to={createPageUrl("Resources") + "?tab=codes-of-truth"} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
+              <Link to={createPageUrl("CodesOfTruth")} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
                 onMouseOver={e => e.target.style.color = "#00CFFF"}
                 onMouseOut={e => e.target.style.color = "#C8D0E0"}
               >Codes of Truth</Link>

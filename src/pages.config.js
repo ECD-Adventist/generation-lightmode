@@ -53,12 +53,14 @@ import AdminReports from './pages/AdminReports';
 import Assistant from './pages/Assistant';
 import Challenges from './pages/Challenges';
 import Dashboard from './pages/Dashboard';
+import FaithQuiz from './pages/FaithQuiz';
 import Feed from './pages/Feed';
 import GlobalReach from './pages/GlobalReach';
 import GlowGroups from './pages/GlowGroups';
 import GroupSession from './pages/GroupSession';
 import Home from './pages/Home';
 import Impact from './pages/Impact';
+import KeepIt100 from './pages/KeepIt100';
 import Live from './pages/Live';
 import Media from './pages/Media';
 import Messages from './pages/Messages';
@@ -69,8 +71,7 @@ import PrayerWall from './pages/PrayerWall';
 import Profile from './pages/Profile';
 import Resources from './pages/Resources';
 import Saved from './pages/Saved';
-import KeepIt100 from './pages/KeepIt100';
-import FaithQuiz from './pages/FaithQuiz';
+import CodesOfTruth from './pages/CodesOfTruth';
 import __Layout from './Layout.jsx';
 
 
@@ -81,12 +82,14 @@ export const PAGES = {
     "Assistant": Assistant,
     "Challenges": Challenges,
     "Dashboard": Dashboard,
+    "FaithQuiz": FaithQuiz,
     "Feed": Feed,
     "GlobalReach": GlobalReach,
     "GlowGroups": GlowGroups,
     "GroupSession": GroupSession,
     "Home": Home,
     "Impact": Impact,
+    "KeepIt100": KeepIt100,
     "Live": Live,
     "Media": Media,
     "Messages": Messages,
@@ -97,8 +100,7 @@ export const PAGES = {
     "Profile": Profile,
     "Resources": Resources,
     "Saved": Saved,
-    "KeepIt100": KeepIt100,
-    "FaithQuiz": FaithQuiz,
+    "CodesOfTruth": CodesOfTruth,
 }
 
 export const pagesConfig = {
