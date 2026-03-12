@@ -37,23 +37,34 @@ export default function CodeCard({ code, user }) {
 
   const handleShare = async () => {
     const text = `✨ ${code.slogan_text}\n\n${code.bible_reference || ''}\n\nJoin the movement at ${window.location.origin}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'Code of Truth', text });
+    try {
+      if (navigator.share && navigator.canShare?.({ text })) {
+        const shareData = { title: 'Code of Truth', text };
+        if (code.poster_image_url) {
+          const res = await fetch(code.poster_image_url);
+          const blob = await res.blob();
+          const file = new File([blob], `code-${code.id}.png`, { type: blob.type });
+          if (navigator.canShare({ files: [file] })) {
+            shareData.files = [file];
+          }
+        }
+        await navigator.share(shareData);
         await updateEngagement('shares_count');
-      } catch (err) {
-        console.log('Error sharing', err);
+        return;
       }
-    } else {
-      navigator.clipboard.writeText(text);
-      await updateEngagement('shares_count');
-      toast.success("Copied to clipboard!");
+    } catch (err) {
+      if (err.name === 'AbortError') return;
     }
+    // Fallback: copy to clipboard
+    try { await navigator.clipboard.writeText(text); } catch { /* ignore */ }
+    await updateEngagement('shares_count');
+    toast.success("Copied to clipboard!");
   };
 
   const handleWhatsApp = async () => {
     const title = code.title ? `*${code.title}*\n\n` : "";
-    const text = encodeURIComponent(`💯 ${title}"${code.slogan_text}"\n\n📖 ${code.bible_reference || ""}\n\n✝️ Generation LightMode — Keeping It 100\n${window.location.origin}`);
+    const imageLink = code.poster_image_url ? `\n🖼️ ${code.poster_image_url}` : "";
+    const text = encodeURIComponent(`💯 ${title}"${code.slogan_text}"\n\n📖 ${code.bible_reference || ""}\n\n✝️ Generation LightMode — Keeping It 100${imageLink}\n${window.location.origin}`);
     window.open(`https://wa.me/?text=${text}`, "_blank");
     await updateEngagement('shares_count');
   };
@@ -108,7 +119,7 @@ export default function CodeCard({ code, user }) {
   return (
     <div className="bg-[#121826] border border-white/10 rounded-2xl overflow-hidden flex flex-col group transition-all hover:border-[#00CFFF]/50 hover:shadow-[0_0_20px_rgba(0,207,255,0.1)]">
       {/* Poster Image / Content */}
-      <div className="aspect-[4/5] relative bg-gradient-to-br from-[#0B0F1A] to-[#121826] flex flex-col items-center justify-center p-6 text-center overflow-hidden">
+      <div className="aspect-square relative bg-gradient-to-br from-[#0B0F1A] to-[#121826] flex flex-col items-center justify-center p-6 text-center overflow-hidden">
         {code.poster_image_url ? (
           <img src={code.poster_image_url} alt={code.title || "Poster"} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
