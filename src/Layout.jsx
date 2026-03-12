@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Menu, X, Zap, Bell } from "lucide-react";
+import { Menu, X, Bell, LayoutDashboard, Users, Flag, BarChart3, MessageSquare, ShieldCheck, LogOut, User, Zap } from "lucide-react";
 import LanguageSelector from "./components/LanguageSelector";
 import { useAppLanguage } from "./components/i18n/useAppLanguage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
