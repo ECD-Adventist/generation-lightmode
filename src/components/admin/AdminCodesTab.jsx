@@ -333,6 +333,18 @@ export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
           <Button onClick={() => setModalCode("new")} className="bg-[#00CFFF] text-black hover:bg-[#00CFFF]/80 font-bold">
             <Plus className="w-4 h-4 mr-2" /> Add Poster
           </Button>
+          <Button
+            onClick={async () => {
+              if (!window.confirm(`Delete ALL ${codes.length} posters in this section? This cannot be undone.`)) return;
+              const toastId = toast.loading(`Deleting ${codes.length} posters...`);
+              await Promise.all(codes.map(c => base44.entities.CodeOfTruth.delete(c.id)));
+              queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth", sourceFilter] });
+              toast.success(`🗑️ All ${codes.length} posters deleted.`, { id: toastId });
+            }}
+            className="bg-red-500/15 text-red-400 hover:bg-red-500/25 border border-red-500/30 font-bold"
+          >
+            <Trash2 className="w-4 h-4 mr-2" /> Delete All
+          </Button>
         </div>
       </div>
 
