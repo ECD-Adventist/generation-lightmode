@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Flame, Trophy, Award, MapPin, PlusCircle, Target, MessageSquare, ListOrdered, Share2, Bookmark, Heart, MessageCircle, ChevronRight, Zap, Bell, Sparkles } from "lucide-react";
+import { Flame, Trophy, Award, MapPin, PlusCircle, Target, MessageSquare, ListOrdered, Share2, Bookmark, Heart, MessageCircle, ChevronRight, Zap, Bell, Sparkles, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
