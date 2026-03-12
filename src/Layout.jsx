@@ -384,7 +384,7 @@ export default function Layout({ children, currentPageName }) {
                       ))}
 
                       {/* Admin links — only for admin role */}
-                      {userRole === "admin" && (
+                      {(userRole === "admin" || userRole === "super_admin") && (
                         <>
                           <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "6px 4px" }} />
                           <div style={{ padding: "6px 10px 4px", fontSize: 10, color: "#FFD000", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Admin Panel</div>
