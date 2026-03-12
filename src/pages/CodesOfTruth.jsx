@@ -4,8 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Loader2, Search } from "lucide-react";
 import CodeCard from "@/components/resources/CodeCard";
 
-const CATEGORIES = ["Identity", "Faith", "Purpose", "Action", "Truth"];
-
 export default function CodesOfTruth() {
   const [user, setUser] = React.useState(null);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -21,6 +19,11 @@ export default function CodesOfTruth() {
     queryKey: ["codesOfTruthPage"],
     queryFn: () => base44.entities.CodeOfTruth.filter({ source_document: "codes_of_truth", status: "approved" }),
   });
+
+  const categories = useMemo(() => {
+    const cats = new Set(codes.map(c => c.category).filter(Boolean));
+    return [...cats].sort();
+  }, [codes]);
 
   const filteredCodes = useMemo(() => {
     return codes.filter(code => {
@@ -58,7 +61,7 @@ export default function CodesOfTruth() {
               <div style={{ fontSize: 11, color: "#8A9BB0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>Truth Codes</div>
             </div>
             <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 20px", textAlign: "center" }}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: "#8A5CFF", fontFamily: "Space Grotesk, sans-serif" }}>{CATEGORIES.length}</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: "#8A5CFF", fontFamily: "Space Grotesk, sans-serif" }}>{categories.length}</div>
               <div style={{ fontSize: 11, color: "#8A9BB0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>Categories</div>
             </div>
           </div>
@@ -70,7 +73,7 @@ export default function CodesOfTruth() {
         {/* Filters */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 40 }}>
           <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 8 }}>
-            {["All", ...CATEGORIES].map(cat => (
+            {["All", ...categories].map(cat => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
