@@ -171,7 +171,7 @@ export default function Feed() {
   // No blocking loading state — render feed immediately, user loads in background
 
   return (
-    <div className="h-screen bg-[#0B0F1A] text-white relative overflow-hidden font-['Inter']">
+    <div className="h-[100dvh] bg-[#0B0F1A] text-white relative overflow-hidden font-['Inter']">
       <style>{`
         @keyframes pan-map {
           0% { transform: translateX(0); }
