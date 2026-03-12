@@ -348,11 +348,76 @@ export default function Layout({ children, currentPageName }) {
                     <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-[#0B0F1A] rounded-full"></span>
                   )}
                 </Link>
-                <Link to={createPageUrl("Profile")} className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-[2px]" title="Profile">
-                   <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center text-xs font-bold uppercase overflow-hidden text-white">
-                     <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png" className="w-full h-full object-cover" />
-                   </div>
-                </Link>
+                <div className="relative" ref={profileMenuRef}>
+                  <button
+                    onClick={() => setProfileMenuOpen(v => !v)}
+                    className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-[2px] focus:outline-none"
+                    title="Profile"
+                  >
+                    <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center overflow-hidden">
+                      <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png" className="w-full h-full object-cover" />
+                    </div>
+                  </button>
+
+                  {profileMenuOpen && (
+                    <div style={{
+                      position: "absolute", top: "calc(100% + 10px)", right: 0,
+                      background: "rgba(18,24,38,0.98)", backdropFilter: "blur(20px)",
+                      border: "1px solid rgba(0,207,255,0.2)", borderRadius: 14,
+                      padding: "8px", minWidth: 220, zIndex: 3000,
+                      boxShadow: "0 8px 40px rgba(0,0,0,0.6)",
+                    }}>
+                      {/* Profile & Feed */}
+                      <div style={{ padding: "6px 10px 4px", fontSize: 10, color: "#8A9BB0", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>My Account</div>
+                      {[
+                        { icon: <User size={14} />, label: "My Profile", page: "Profile" },
+                        { icon: <Zap size={14} />, label: "Feed", page: "Feed" },
+                        { icon: <Bell size={14} />, label: "Notifications", page: "Notifications" },
+                      ].map(item => (
+                        <Link key={item.page} to={createPageUrl(item.page)} onClick={() => setProfileMenuOpen(false)}
+                          style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
+                          onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.08)"; e.currentTarget.style.color = "#fff"; }}
+                          onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
+                        >
+                          <span style={{ color: "#00CFFF" }}>{item.icon}</span> {item.label}
+                        </Link>
+                      ))}
+
+                      {/* Admin links — only for admin role */}
+                      {userRole === "admin" && (
+                        <>
+                          <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "6px 4px" }} />
+                          <div style={{ padding: "6px 10px 4px", fontSize: 10, color: "#FFD000", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Admin Panel</div>
+                          {[
+                            { icon: <LayoutDashboard size={14} />, label: "Dashboard", page: "Dashboard" },
+                            { icon: <Flag size={14} />, label: "Reports", page: "AdminReports" },
+                            { icon: <BarChart3 size={14} />, label: "Analytics", page: "Dashboard" },
+                            { icon: <Users size={14} />, label: "GlowGroups", page: "GlowGroups" },
+                            { icon: <MessageSquare size={14} />, label: "Prayer Wall", page: "PrayerWall" },
+                            { icon: <ShieldCheck size={14} />, label: "Milestones", page: "Milestones" },
+                          ].map(item => (
+                            <Link key={item.label} to={createPageUrl(item.page)} onClick={() => setProfileMenuOpen(false)}
+                              style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
+                              onMouseOver={e => { e.currentTarget.style.background = "rgba(255,208,0,0.08)"; e.currentTarget.style.color = "#FFD000"; }}
+                              onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
+                            >
+                              <span style={{ color: "#FFD000" }}>{item.icon}</span> {item.label}
+                            </Link>
+                          ))}
+                        </>
+                      )}
+
+                      <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "6px 4px" }} />
+                      <button onClick={() => { base44.auth.logout(); setProfileMenuOpen(false); }}
+                        style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, color: "#ef4444", background: "transparent", border: "none", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 14, width: "100%", transition: "all 0.15s" }}
+                        onMouseOver={e => e.currentTarget.style.background = "rgba(239,68,68,0.08)"}
+                        onMouseOut={e => e.currentTarget.style.background = "transparent"}
+                      >
+                        <LogOut size={14} /> Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
