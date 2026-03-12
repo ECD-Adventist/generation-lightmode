@@ -374,7 +374,7 @@ export default function Feed() {
         </div>
 
         {/* Right Sidebar (Desktop) */}
-        <div className="hidden lg:block py-8 px-6 sticky top-0 h-screen border-l border-white/5 bg-[#0B0F1A] overflow-y-auto hide-scrollbar">
+        <div className="hidden lg:block py-8 px-6 sticky top-0 h-screen border-l border-white/5 bg-transparent backdrop-blur-md overflow-y-auto hide-scrollbar">
           
           <DailyChallenges user={user} />
 
