@@ -80,9 +80,30 @@ export default function AdminCenter() {
   return (
     <div className="min-h-screen bg-[#0B0F1A] text-white flex flex-col md:flex-row">
       <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} />
-      <div className="flex-1 overflow-y-auto h-screen p-4 md:p-8 bg-[#080C14]">
-        <div className="max-w-7xl mx-auto pb-20 md:pb-0">
-          {renderTab()}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#080C14]">
+        {/* Top Nav Bar */}
+        <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5 shrink-0 hidden md:block">
+          <div className="px-6 py-3 flex items-center justify-end gap-4">
+            <div className="flex items-center gap-4">
+              <Link to={createPageUrl("Feed")} className="text-gray-300 hover:text-white transition font-medium text-sm">
+                Switch It On
+              </Link>
+              <Link to={createPageUrl("Notifications")} className="relative w-10 h-10 rounded-full bg-[#121826] border border-white/10 flex items-center justify-center hover:bg-white/5 transition">
+                <Bell className="w-5 h-5 text-gray-300" />
+              </Link>
+              <Link to={createPageUrl("Profile")} className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-[2px]" title="Profile">
+                <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center overflow-hidden">
+                  <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 md:p-8">
+          <div className="max-w-7xl mx-auto pb-20 md:pb-0">
+            {renderTab()}
+          </div>
         </div>
       </div>
     </div>
