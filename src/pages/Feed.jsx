@@ -275,8 +275,12 @@ export default function Feed() {
           
           {/* Top Header Mobile */}
           <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A]/80 backdrop-blur-xl border-b border-white/10 lg:hidden">
-          <h1 className="text-2xl font-bold font-['Space_Grotesk'] text-white" style={{ fontFamily: 'var(--font-cursive, cursive)'}}>LightMode</h1>
-          <div className="flex gap-4 items-center">
+          <img
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
+            alt="Generation LightMode"
+            className="h-6 sm:h-7 object-contain drop-shadow-[0_0_8px_rgba(0,207,255,0.4)]"
+          />
+          <div className="flex gap-4 items-center shrink-0">
             <div className="relative cursor-pointer">
               <Heart className="w-6 h-6 text-white" />
               {notifications.length > 0 && (
