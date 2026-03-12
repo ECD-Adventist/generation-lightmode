@@ -17,7 +17,7 @@ export default function CodesShowcase({ sourceDocument, title, description, cate
 
   const { data: codes = [], isLoading } = useQuery({
     queryKey: ["codesOfTruth", sourceDocument],
-    queryFn: () => base44.entities.CodeOfTruth.filter({ source_document: sourceDocument }),
+    queryFn: () => base44.entities.CodeOfTruth.filter({ source_document: sourceDocument, status: "approved" }),
   });
 
   const filteredCodes = useMemo(() => {
