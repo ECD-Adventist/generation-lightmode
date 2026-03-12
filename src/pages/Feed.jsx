@@ -349,7 +349,7 @@ export default function Feed() {
         </div>
 
         {/* Feed */}
-        <div className="flex flex-col px-0 sm:px-4 py-4 pb-24 lg:pb-6 max-w-2xl mx-auto w-full flex-none">
+        <div className="flex flex-col px-3 sm:px-4 py-4 pb-24 lg:pb-6 max-w-2xl mx-auto w-full flex-none">
           {dropsLoading ? (
             <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>
           ) : drops.filter(drop => {
