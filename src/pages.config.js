@@ -69,6 +69,8 @@ import PrayerWall from './pages/PrayerWall';
 import Profile from './pages/Profile';
 import Resources from './pages/Resources';
 import Saved from './pages/Saved';
+import KeepIt100 from './pages/KeepIt100';
+import FaithQuiz from './pages/FaithQuiz';
 import __Layout from './Layout.jsx';
 
 
@@ -95,6 +97,8 @@ export const PAGES = {
     "Profile": Profile,
     "Resources": Resources,
     "Saved": Saved,
+    "KeepIt100": KeepIt100,
+    "FaithQuiz": FaithQuiz,
 }
 
 export const pagesConfig = {
