@@ -256,6 +256,9 @@ export default function Layout({ children, currentPageName }) {
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0B0F1A; }
         ::-webkit-scrollbar-thumb { background: linear-gradient(#00CFFF, #8A5CFF); border-radius: 3px; }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
       {/* NAVBAR — hidden only on pure app pages (Feed, Dashboard, etc.) */}
