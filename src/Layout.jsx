@@ -521,14 +521,18 @@ export default function Layout({ children, currentPageName }) {
             </div>
             <div>
               <h4 className="glm-headline" style={{ fontSize: 16, color: "#00CFFF", marginBottom: 16 }}>{t("resources")}</h4>
+              <Link to={createPageUrl("KeepIt100")} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
+                onMouseOver={e => e.target.style.color = "#00CFFF"}
+                onMouseOut={e => e.target.style.color = "#C8D0E0"}
+              >Keep It 100</Link>
+              <Link to={createPageUrl("Resources") + "?tab=codes-of-truth"} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
+                onMouseOver={e => e.target.style.color = "#00CFFF"}
+                onMouseOut={e => e.target.style.color = "#C8D0E0"}
+              >Codes of Truth</Link>
               <Link to={createPageUrl("Resources")} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
                 onMouseOver={e => e.target.style.color = "#00CFFF"}
                 onMouseOut={e => e.target.style.color = "#C8D0E0"}
-              >{t("mediaContent")}</Link>
-              <Link to={createPageUrl("Resources") + "?tab=downloads"} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
-                onMouseOver={e => e.target.style.color = "#00CFFF"}
-                onMouseOut={e => e.target.style.color = "#C8D0E0"}
-              >{t("downloads")}</Link>
+              >Other Resources</Link>
               <Link to={createPageUrl("Assistant")} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
                 onMouseOver={e => e.target.style.color = "#00CFFF"}
                 onMouseOut={e => e.target.style.color = "#C8D0E0"}
