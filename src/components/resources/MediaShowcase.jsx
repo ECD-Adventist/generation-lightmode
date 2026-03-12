@@ -69,7 +69,7 @@ export default function MediaShowcase({ items, activeType, activeCategory, onTyp
             const Icon = typeIcon[item.type];
             const color = typeColor[item.type];
             return (
-              <div key={index} className="glm-card" onClick={() => setActiveMedia(item)} style={{ padding: 0, overflow: "hidden", borderRadius: 24, background: "#101625", cursor: "pointer" }}>
+              <div key={index} className="glm-card" onClick={() => { if (item.type === 'video') { alert('Video playback is temporarily disabled until further notice.'); } else { setActiveMedia(item); } }} style={{ padding: 0, overflow: "hidden", borderRadius: 24, background: "#101625", cursor: "pointer" }}>
                 <div style={{ position: "relative", height: 220 }}>
                   <img src={item.thumb} alt={item.title} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.12), rgba(11,15,26,0.88))" }} />
