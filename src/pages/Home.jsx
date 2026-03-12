@@ -303,7 +303,7 @@ export default function Home() {
         {/* Top/bottom fade */}
         <div style={{ position: "absolute", inset: 0, zIndex: 1, background: "linear-gradient(180deg, rgba(11,15,26,0.7) 0%, transparent 15%, transparent 85%, rgba(11,15,26,0.7) 100%)", pointerEvents: "none" }} />
 
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "100px 24px", position: "relative", zIndex: 2, width: "100%" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "clamp(60px, 10vw, 100px) 24px", position: "relative", zIndex: 2, width: "100%" }}>
           <div style={{ maxWidth: 620 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.24)", borderRadius: 999, padding: "7px 14px", marginBottom: 22 }}>
               <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.04em" }}>WHY IT MATTERS</span>
@@ -371,7 +371,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* STATS */}
-      <section ref={statsRef} style={{ padding: "80px 24px" }}>
+      <section ref={statsRef} style={{ padding: "clamp(60px, 8vw, 80px) 24px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)" }}>
@@ -397,7 +397,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* RANKS */}
-      <section style={{ padding: "100px 24px", background: "#121826" }}>
+      <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#121826" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
           <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>
             {t("ranksTitle")}
@@ -440,7 +440,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* GLOW MAP */}
-      <section style={{ padding: "100px 24px", background: "#0B0F1A" }}>
+      <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#0B0F1A" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
           <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>
             Global Light Map
@@ -455,7 +455,7 @@ export default function Home() {
           `}</style>
 
           <div style={{ 
-            height: "500px", width: "100%", borderRadius: "24px", overflow: "hidden", 
+            height: "clamp(350px, 60vh, 500px)", width: "100%", borderRadius: "24px", overflow: "hidden", 
             position: "relative", zIndex: 10, background: "#080C14",
             boxShadow: "0 0 40px rgba(0,207,255,0.15), inset 0 0 40px rgba(0,207,255,0.1)",
             border: "1px solid rgba(0,207,255,0.3)"
