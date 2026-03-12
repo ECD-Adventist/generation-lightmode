@@ -271,7 +271,7 @@ export default function Feed() {
         </div>
 
         {/* Center Feed */}
-        <div className="lg:col-span-2 sm:border-x border-white/10 h-screen lg:border-none flex flex-col overflow-y-auto min-h-0 pt-8">
+        <div className="lg:col-span-2 sm:border-x border-white/10 h-screen lg:border-none flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8">
           
           {/* Top Header Mobile */}
           <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A]/80 backdrop-blur-xl border-b border-white/10 lg:hidden">
