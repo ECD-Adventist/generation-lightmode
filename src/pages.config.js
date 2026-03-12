@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import About from './pages/About';
+import AdminCenter from './pages/AdminCenter';
 import AdminReports from './pages/AdminReports';
 import Assistant from './pages/Assistant';
 import Challenges from './pages/Challenges';
@@ -68,12 +69,12 @@ import PrayerWall from './pages/PrayerWall';
 import Profile from './pages/Profile';
 import Resources from './pages/Resources';
 import Saved from './pages/Saved';
-import AdminCenter from './pages/AdminCenter';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "About": About,
+    "AdminCenter": AdminCenter,
     "AdminReports": AdminReports,
     "Assistant": Assistant,
     "Challenges": Challenges,
@@ -94,7 +95,6 @@ export const PAGES = {
     "Profile": Profile,
     "Resources": Resources,
     "Saved": Saved,
-    "AdminCenter": AdminCenter,
 }
 
 export const pagesConfig = {
