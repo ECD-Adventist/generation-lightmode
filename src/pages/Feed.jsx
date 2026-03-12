@@ -17,6 +17,7 @@ export default function Feed() {
   const [user, setUser] = useState(null);
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [isResourcesOpen, setIsResourcesOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const [authChecked, setAuthChecked] = useState(false);
