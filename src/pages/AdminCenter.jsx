@@ -69,7 +69,7 @@ export default function AdminCenter() {
       case "challenges": return <AdminChallengesTab />;
       case "leaderboards": return <AdminPlaceholderTab title="Leaderboards Control" description="Adjust rankings and highlight champions." />;
       case "countries": return <AdminPlaceholderTab title="Country Management" description="Manage ECD regions and global reach stats." />;
-      case "codes": return <AdminCodesTab />;
+      case "codes": return <AdminCodesTab sourceFilter="codes_of_truth" title="Codes of Truth" />;
       case "keepit100": return <AdminCodesTab sourceFilter="keeping_it_100" title="Keep It 100" />;
       case "media": return <AdminPlaceholderTab title="Media Library" description="Upload and organize assets, videos, and images." />;
       case "badges": return <AdminPlaceholderTab title="Badges & Ranks" description="Configure gamification rules and create new badges." />;
