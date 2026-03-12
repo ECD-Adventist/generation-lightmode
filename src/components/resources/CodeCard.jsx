@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { Download, Share2, Repeat2, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
+import { Download, Share2, Repeat2, Loader2, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export default function CodeCard({ code, user }) {
@@ -49,6 +49,13 @@ export default function CodeCard({ code, user }) {
       await updateEngagement('shares_count');
       toast.success("Copied to clipboard!");
     }
+  };
+
+  const handleWhatsApp = async () => {
+    const title = code.title ? `*${code.title}*\n\n` : "";
+    const text = encodeURIComponent(`💯 ${title}"${code.slogan_text}"\n\n📖 ${code.bible_reference || ""}\n\n✝️ Generation LightMode — Keeping It 100\n${window.location.origin}`);
+    window.open(`https://wa.me/?text=${text}`, "_blank");
+    await updateEngagement('shares_count');
   };
 
   const handleDownload = async () => {
@@ -133,7 +140,7 @@ export default function CodeCard({ code, user }) {
           <span className="flex items-center gap-1.5"><Repeat2 size={14} className="text-[#8A5CFF]" /> {engagement.reposts_count || 0}</span>
         </div>
         
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2 mb-2">
           <button 
             onClick={handleShare}
             className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition"
@@ -145,6 +152,14 @@ export default function CodeCard({ code, user }) {
             className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition"
           >
             <Download size={16} /> Save
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <button 
+            onClick={handleWhatsApp}
+            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 text-[#25D366] text-xs font-bold transition"
+          >
+            <MessageCircle size={16} /> WhatsApp
           </button>
           <button 
             onClick={handleRepost}
