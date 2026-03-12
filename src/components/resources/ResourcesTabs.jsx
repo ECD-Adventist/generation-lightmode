@@ -2,6 +2,8 @@ export default function ResourcesTabs({ activeTab, onTabChange }) {
   const tabs = [
     { id: "media", label: "📺 Media & Content" },
     { id: "downloads", label: "📥 Downloads" },
+    { id: "keeping-it-100", label: "💯 Keeping It 100" },
+    { id: "codes-of-truth", label: "🔐 Codes of Truth" },
   ];
 
   return (
