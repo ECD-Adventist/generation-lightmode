@@ -26,14 +26,22 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin }) 
 
   return (
     <div className="w-full md:w-64 md:h-screen bg-[#121826] border-r border-white/5 flex flex-col shrink-0 md:sticky top-0 z-10">
-      <div className="p-5 md:p-6 border-b border-white/5 flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-bold font-['Space_Grotesk'] text-[#00CFFF]">Control Center</h2>
-          <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">LightMode Admin</p>
-        </div>
+      {/* Logo */}
+      <div className="p-5 border-b border-white/5 flex items-center justify-between">
+        <Link to={createPageUrl("Home")} className="flex items-center gap-3">
+          <img
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
+            alt="Generation LightMode"
+            style={{ height: 36, width: "auto", filter: "drop-shadow(0 0 8px rgba(0,207,255,0.5))" }}
+          />
+        </Link>
         <Link to={createPageUrl("Home")} className="md:hidden text-gray-400 hover:text-white">
           <Home size={20} />
         </Link>
+      </div>
+      <div className="px-5 py-3 border-b border-white/5">
+        <h2 className="text-base font-bold font-['Space_Grotesk'] text-[#00CFFF]">Control Center</h2>
+        <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">LightMode Admin</p>
       </div>
       
       <div className="flex-1 overflow-x-auto md:overflow-y-auto py-3 md:py-4 px-3 flex md:flex-col gap-2 md:gap-1 custom-scrollbar hide-scrollbar">
