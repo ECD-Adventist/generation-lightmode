@@ -43,7 +43,7 @@ export default function MediaShowcase({ items, activeType, activeCategory, onTyp
             <div style={{ flex: 1, padding: 40, display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <h2 className="glm-headline" style={{ fontSize: 32, color: "#FFFFFF", marginBottom: 16 }}>{featured.title}</h2>
               <p className="glm-body" style={{ fontSize: 16, marginBottom: 24 }}>Experience our top recommended content to fuel your faith journey today.</p>
-              <button onClick={() => setActiveMedia(featured)} className="glm-btn-primary" style={{ alignSelf: "flex-start", gap: 8 }}>
+              <button onClick={() => { if (featured.type === 'video') { alert('Video playback is temporarily disabled until further notice.'); } else { setActiveMedia(featured); } }} className="glm-btn-primary" style={{ alignSelf: "flex-start", gap: 8 }}>
                 <Play size={18} fill="#0B0F1A" /> Play Now
               </button>
             </div>
