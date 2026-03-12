@@ -338,13 +338,6 @@ export default function Home() {
              style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }}
              alt="Vision Background"
            />
-           <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 3 }}>
-             <button onClick={() => alert("Video coming soon!")} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-               <div style={{ width: 110, height: 110, borderRadius: "50%", background: "rgba(0,207,255,0.15)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(0,207,255,0.6)", animation: "pulse-glow 2.5s ease-in-out infinite" }}>
-                 <Play size={48} color="#00CFFF" style={{ marginLeft: 8 }} />
-               </div>
-             </button>
-           </div>
         </div>
 
         {/* Dark overlay for text readability */}

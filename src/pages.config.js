@@ -52,6 +52,7 @@ import AdminCenter from './pages/AdminCenter';
 import AdminReports from './pages/AdminReports';
 import Assistant from './pages/Assistant';
 import Challenges from './pages/Challenges';
+import CodesOfTruth from './pages/CodesOfTruth';
 import Dashboard from './pages/Dashboard';
 import FaithQuiz from './pages/FaithQuiz';
 import Feed from './pages/Feed';
@@ -71,7 +72,6 @@ import PrayerWall from './pages/PrayerWall';
 import Profile from './pages/Profile';
 import Resources from './pages/Resources';
 import Saved from './pages/Saved';
-import CodesOfTruth from './pages/CodesOfTruth';
 import __Layout from './Layout.jsx';
 
 
@@ -81,6 +81,7 @@ export const PAGES = {
     "AdminReports": AdminReports,
     "Assistant": Assistant,
     "Challenges": Challenges,
+    "CodesOfTruth": CodesOfTruth,
     "Dashboard": Dashboard,
     "FaithQuiz": FaithQuiz,
     "Feed": Feed,
@@ -100,7 +101,6 @@ export const PAGES = {
     "Profile": Profile,
     "Resources": Resources,
     "Saved": Saved,
-    "CodesOfTruth": CodesOfTruth,
 }
 
 export const pagesConfig = {
