@@ -1,0 +1,243 @@
+import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2, Plus, Edit2, Trash2, Image as ImageIcon } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+export default function AdminCodesTab() {
+  const queryClient = useQueryClient();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCode, setEditingCode] = useState(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    slogan_text: "",
+    bible_reference: "",
+    category: "",
+    source_document: "keeping_it_100",
+    poster_image_url: ""
+  });
+  const [isUploading, setIsUploading] = useState(false);
+
+  const { data: codes = [], isLoading } = useQuery({
+    queryKey: ["adminCodesOfTruth"],
+    queryFn: () => base44.entities.CodeOfTruth.list('-created_date'),
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: async (data) => {
+      if (editingCode) {
+        return base44.entities.CodeOfTruth.update(editingCode.id, data);
+      }
+      return base44.entities.CodeOfTruth.create(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth"] });
+      toast.success(editingCode ? "Code updated successfully" : "Code created successfully");
+      setIsModalOpen(false);
+      setEditingCode(null);
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.CodeOfTruth.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth"] });
+      toast.success("Code deleted successfully");
+    }
+  });
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const toastId = toast.loading("Uploading poster image...");
+    try {
+      const res = await base44.integrations.Core.UploadFile({ file });
+      setFormData(prev => ({ ...prev, poster_image_url: res.file_url }));
+      toast.success("Poster uploaded successfully!", { id: toastId });
+    } catch (err) {
+      toast.error("Failed to upload poster", { id: toastId });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleEdit = (code) => {
+    setEditingCode(code);
+    setFormData({
+      title: code.title || "",
+      slogan_text: code.slogan_text || "",
+      bible_reference: code.bible_reference || "",
+      category: code.category || "",
+      source_document: code.source_document || "keeping_it_100",
+      poster_image_url: code.poster_image_url || ""
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this code?")) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const openNewModal = () => {
+    setEditingCode(null);
+    setFormData({
+      title: "",
+      slogan_text: "",
+      bible_reference: "",
+      category: "",
+      source_document: "keeping_it_100",
+      poster_image_url: ""
+    });
+    setIsModalOpen(true);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center bg-[#121826] p-6 rounded-2xl border border-white/5">
+        <div>
+          <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-white">Codes of Truth</h2>
+          <p className="text-gray-400 text-sm mt-1">Manage truth slogans, posters, and their categories.</p>
+        </div>
+        <Button onClick={openNewModal} className="bg-[#00CFFF] text-black hover:bg-[#00CFFF]/80 font-bold">
+          <Plus className="w-4 h-4 mr-2" /> Add Code
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {codes.map(code => (
+            <div key={code.id} className="bg-[#121826] border border-white/5 rounded-2xl overflow-hidden flex flex-col">
+              <div className="aspect-[4/5] bg-[#0B0F1A] relative flex items-center justify-center p-4 text-center">
+                {code.poster_image_url ? (
+                  <img src={code.poster_image_url} alt={code.title} className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <div>
+                    <h3 className="text-xl font-bold font-['Space_Grotesk'] text-white mb-2 leading-tight">
+                      "{code.slogan_text}"
+                    </h3>
+                    {code.bible_reference && <p className="text-xs text-[#00CFFF]">{code.bible_reference}</p>}
+                  </div>
+                )}
+                <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md text-[10px] font-bold text-white uppercase">
+                  {code.source_document === 'keeping_it_100' ? '💯 KI100' : '🔐 Codes'}
+                </div>
+              </div>
+              <div className="p-4 flex-1 flex flex-col justify-between gap-4">
+                <div>
+                  <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">{code.category || "Uncategorized"}</div>
+                  <div className="text-sm font-semibold text-gray-300 truncate">{code.title || "Untitled"}</div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(code)} className="flex-1 bg-white/5 border-white/10 hover:bg-white/10">
+                    <Edit2 className="w-3 h-3 mr-2" /> Edit
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={() => handleDelete(code.id)} className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border-0">
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#121826] border border-white/10 rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-bold text-white mb-6">
+              {editingCode ? "Edit Code" : "Add New Code"}
+            </h3>
+            
+            <form onSubmit={(e) => { e.preventDefault(); saveMutation.mutate(formData); }} className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Source Document *</label>
+                <select 
+                  required
+                  value={formData.source_document}
+                  onChange={(e) => setFormData({...formData, source_document: e.target.value})}
+                  className="w-full bg-[#0B0F1A] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00CFFF]"
+                >
+                  <option value="keeping_it_100">Keeping It 100</option>
+                  <option value="codes_of_truth">Codes of Truth</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Title (Optional)</label>
+                <Input 
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  placeholder="E.g. Be a Light"
+                  className="bg-[#0B0F1A] border-white/10"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Slogan Text *</label>
+                <textarea 
+                  required
+                  value={formData.slogan_text}
+                  onChange={(e) => setFormData({...formData, slogan_text: e.target.value})}
+                  placeholder="Stand Out, Don’t Blend In."
+                  className="w-full bg-[#0B0F1A] border border-white/10 rounded-xl px-4 py-3 text-white min-h-[100px] focus:outline-none focus:border-[#00CFFF]"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Bible Reference</label>
+                <Input 
+                  value={formData.bible_reference}
+                  onChange={(e) => setFormData({...formData, bible_reference: e.target.value})}
+                  placeholder="Romans 12:14-16"
+                  className="bg-[#0B0F1A] border-white/10"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Category</label>
+                <Input 
+                  value={formData.category}
+                  onChange={(e) => setFormData({...formData, category: e.target.value})}
+                  placeholder="E.g. Identity"
+                  className="bg-[#0B0F1A] border-white/10"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Custom Poster Image (Optional)</label>
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition text-sm">
+                    <ImageIcon className="w-4 h-4" />
+                    {isUploading ? "Uploading..." : "Choose Image"}
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploading} />
+                  </label>
+                  {formData.poster_image_url && (
+                    <div className="h-12 w-10 relative rounded overflow-hidden">
+                      <img src={formData.poster_image_url} className="absolute inset-0 w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/5 mt-6">
+                <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                <Button type="submit" disabled={saveMutation.isPending || isUploading} className="bg-[#00CFFF] text-black hover:bg-[#00CFFF]/80">
+                  {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Save Code
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

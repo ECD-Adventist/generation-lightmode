@@ -1,5 +1,5 @@
 import React from "react";
-import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home } from "lucide-react";
+import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -12,6 +12,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin }) 
     { id: "challenges", label: "Challenges", icon: <Target size={18} /> },
     { id: "leaderboards", label: "Leaderboards", icon: <Trophy size={18} /> },
     { id: "countries", label: "Countries", icon: <Globe size={18} /> },
+    { id: "codes", label: "Codes of Truth", icon: <Hash size={18} /> },
     { id: "media", label: "Media Library", icon: <ImageIcon size={18} /> },
     { id: "badges", label: "Badges & Ranks", icon: <Award size={18} /> },
     { id: "analytics", label: "Analytics", icon: <BarChart3 size={18} /> },

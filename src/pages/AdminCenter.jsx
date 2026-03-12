@@ -9,6 +9,7 @@ import AdminUsersTab from "../components/admin/AdminUsersTab";
 import AdminGlowGroupsTab from "../components/admin/AdminGlowGroupsTab";
 import AdminGlowDropsTab from "../components/admin/AdminGlowDropsTab";
 import AdminChallengesTab from "../components/admin/AdminChallengesTab";
+import AdminCodesTab from "../components/admin/AdminCodesTab";
 import AdminSettingsTab from "../components/admin/AdminSettingsTab";
 import AdminPlaceholderTab from "../components/admin/AdminPlaceholderTab";
 
@@ -68,6 +69,7 @@ export default function AdminCenter() {
       case "challenges": return <AdminChallengesTab />;
       case "leaderboards": return <AdminPlaceholderTab title="Leaderboards Control" description="Adjust rankings and highlight champions." />;
       case "countries": return <AdminPlaceholderTab title="Country Management" description="Manage ECD regions and global reach stats." />;
+      case "codes": return <AdminCodesTab />;
       case "media": return <AdminPlaceholderTab title="Media Library" description="Upload and organize assets, videos, and images." />;
       case "badges": return <AdminPlaceholderTab title="Badges & Ranks" description="Configure gamification rules and create new badges." />;
       case "analytics": return <AdminPlaceholderTab title="Advanced Analytics" description="Deep dive into engagement metrics and exports." />;
