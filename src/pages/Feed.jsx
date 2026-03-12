@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import DropCard from "@/components/feed/DropCard";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import DailyChallenges from "@/components/feed/DailyChallenges";
+import DailyCodeWidget from "@/components/feed/DailyCodeWidget";
 
 export default function Feed() {
   const [user, setUser] = useState(null);
@@ -238,6 +239,8 @@ export default function Feed() {
            <Button onClick={() => setIsDropModalOpen(true)} className="mt-8 bg-[#00CFFF] text-black font-black rounded-2xl w-full py-6 text-lg hover:bg-white transition-colors shadow-[0_0_20px_rgba(0,207,255,0.3)]">
              <Plus className="w-5 h-5 mr-2" /> NEW VIBE
            </Button>
+
+           <DailyCodeWidget />
 
            <div className="mt-6 flex items-center justify-between bg-[#121826] p-3 rounded-2xl border border-white/5">
               <div className="flex items-center gap-3">
