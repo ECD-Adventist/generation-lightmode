@@ -259,7 +259,7 @@ export default function Layout({ children, currentPageName }) {
       `}</style>
 
       {/* NAVBAR — hidden only on pure app pages (Feed, Dashboard, etc.) */}
-      {["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) && userEmail ? null : (
+      {["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) && userEmail ? null : (
         /* Public nav for non-logged-in users */
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
@@ -389,14 +389,13 @@ export default function Layout({ children, currentPageName }) {
                           <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "6px 4px" }} />
                           <div style={{ padding: "6px 10px 4px", fontSize: 10, color: "#FFD000", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Admin Panel</div>
                           {[
-                            { icon: <LayoutDashboard size={14} />, label: "Dashboard", page: "Dashboard" },
-                            { icon: <Flag size={14} />, label: "Reports", page: "AdminReports" },
-                            { icon: <BarChart3 size={14} />, label: "Analytics", page: "Dashboard" },
-                            { icon: <Users size={14} />, label: "GlowGroups", page: "GlowGroups" },
-                            { icon: <MessageSquare size={14} />, label: "Prayer Wall", page: "PrayerWall" },
-                            { icon: <ShieldCheck size={14} />, label: "Milestones", page: "Milestones" },
+                            { icon: <LayoutDashboard size={14} />, label: "Control Center", tab: "dashboard" },
+                            { icon: <Users size={14} />, label: "User Management", tab: "users" },
+                            { icon: <Flag size={14} />, label: "Moderation", tab: "drops" },
+                            { icon: <BarChart3 size={14} />, label: "Analytics", tab: "analytics" },
+                            { icon: <ShieldCheck size={14} />, label: "Settings", tab: "settings" },
                           ].map(item => (
-                            <Link key={item.label} to={createPageUrl(item.page)} onClick={() => setProfileMenuOpen(false)}
+                            <Link key={item.label} to={`${createPageUrl("AdminCenter")}?tab=${item.tab}`} onClick={() => setProfileMenuOpen(false)}
                               style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
                               onMouseOver={e => { e.currentTarget.style.background = "rgba(255,208,0,0.08)"; e.currentTarget.style.color = "#FFD000"; }}
                               onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
@@ -483,7 +482,7 @@ export default function Layout({ children, currentPageName }) {
       </main>
 
       {/* FOOTER — hidden for logged-in users on app pages */}
-      {!["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) || !userEmail ? (
+      {!["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) || !userEmail ? (
       <footer style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.1)", padding: "60px 24px 40px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 48, marginBottom: 48 }}>
