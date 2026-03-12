@@ -225,9 +225,20 @@ export default function Feed() {
              <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Globe className="w-6 h-6" /> Global Reach</Link>
              <Link to={createPageUrl("Challenges")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><PlaySquare className="w-6 h-6" /> Challenges</Link>
              <Link to={createPageUrl("Assistant")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><MessageSquare className="w-6 h-6" /> AI Assistant</Link>
-             <Link to={createPageUrl("KeepIt100")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><span className="text-lg">💯</span> Keep It 100</Link>
              <Link to={createPageUrl("FaithQuiz")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><span className="text-lg">🏆</span> Faith Quiz</Link>
-             <Link to={createPageUrl("Resources")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Globe className="w-6 h-6" /> Resources</Link>
+             <div className="flex flex-col">
+               <button onClick={() => setIsResourcesOpen(!isResourcesOpen)} className="flex items-center justify-between w-full text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition cursor-pointer">
+                 <div className="flex items-center gap-4"><Globe className="w-6 h-6" /> Resources</div>
+                 <span className="text-sm opacity-50">{isResourcesOpen ? "▲" : "▼"}</span>
+               </button>
+               {isResourcesOpen && (
+                 <div className="flex flex-col ml-12 mt-1 gap-3 border-l border-white/10 pl-4 py-2">
+                   <Link to={createPageUrl("KeepIt100")} className="text-sm font-bold text-gray-400 hover:text-white transition">💯 Keep It 100</Link>
+                   <Link to={createPageUrl("Resources") + "?tab=codes-of-truth"} className="text-sm font-bold text-gray-400 hover:text-white transition">🔐 Codes of Truth</Link>
+                   <Link to={createPageUrl("Resources")} className="text-sm font-bold text-gray-400 hover:text-white transition">🌍 Other Resources</Link>
+                 </div>
+               )}
+             </div>
              <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition">
                <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-[10px] uppercase text-white overflow-hidden">
                  <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
