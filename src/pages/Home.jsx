@@ -514,7 +514,7 @@ export default function Home() {
       <div className="section-divider" />
 
       {/* PLEDGE & CTA */}
-      <section id="join" style={{ padding: "120px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+      <section id="join" style={{ padding: "clamp(60px, 12vw, 120px) 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
         
         {/* Background Image */}
         <div style={{
