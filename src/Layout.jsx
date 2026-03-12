@@ -456,11 +456,14 @@ export default function Layout({ children, currentPageName }) {
                 {t(link.key)}
               </Link>
             ))}
-            <Link to={createPageUrl("Resources")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
-              📺 {t("mediaContent")}
+            <Link to={createPageUrl("KeepIt100")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
+              💯 Keep It 100
             </Link>
-            <Link to={createPageUrl("Resources") + "?tab=downloads"} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
-              📥 {t("downloads")}
+            <Link to={createPageUrl("Resources") + "?tab=codes-of-truth"} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
+              🔐 Codes of Truth
+            </Link>
+            <Link to={createPageUrl("Resources")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
+              🌍 Other Resources
             </Link>
             
             {userEmail ? (
