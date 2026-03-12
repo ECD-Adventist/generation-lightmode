@@ -193,10 +193,10 @@ export default function Feed() {
       <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] bg-[#00CFFF] rounded-full blur-[120px] z-0 opacity-[0.08] pointer-events-none animate-[float-light_8s_ease-in-out_infinite]"></div>
       <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] bg-[#00CFFF] rounded-full blur-[140px] z-0 opacity-[0.06] pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]"></div>
 
-      <div className="h-screen relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 bg-[#0B0F1A]/70 backdrop-blur-[2px]">
+      <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 bg-[#0B0F1A]/70 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
-        <div className="hidden lg:flex flex-col py-8 px-6 sticky top-0 h-screen border-r border-white/5 bg-transparent backdrop-blur-md">
+        <div className="hidden lg:flex flex-col py-8 px-6 sticky top-0 h-[100dvh] border-r border-white/5 bg-transparent backdrop-blur-md">
            {/* Logo */}
            <div className="flex items-center gap-3 mb-10 pl-2">
              <img
@@ -271,7 +271,7 @@ export default function Feed() {
         </div>
 
         {/* Center Feed */}
-        <div className="lg:col-span-2 sm:border-x border-white/10 h-screen lg:border-none flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8">
+        <div className="lg:col-span-2 sm:border-x border-white/10 h-[100dvh] lg:border-none flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8">
           
           {/* Top Header Mobile */}
           <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A]/80 backdrop-blur-xl border-b border-white/10 lg:hidden">
@@ -389,7 +389,7 @@ export default function Feed() {
         </div>
 
         {/* Right Sidebar (Desktop) */}
-        <div className="hidden lg:block py-8 px-6 sticky top-0 h-screen border-l border-white/5 bg-transparent backdrop-blur-md overflow-y-auto hide-scrollbar">
+        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l border-white/5 bg-transparent backdrop-blur-md overflow-y-auto hide-scrollbar">
           
           <DailyChallenges user={user} />
 
