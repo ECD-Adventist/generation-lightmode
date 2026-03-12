@@ -48,6 +48,17 @@ export default function AdminCodesTab() {
     }
   });
 
+  const approveMutation = useMutation({
+    mutationFn: ({ id, status }) => base44.entities.CodeOfTruth.update(id, { status }),
+    onSuccess: (_, { status }) => {
+      queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth"] });
+      queryClient.invalidateQueries({ queryKey: ["codesOfTruth"] });
+      toast.success(status === "approved" ? "✅ Code approved — now visible to users!" : "Code rejected");
+    }
+  });
+
+  const [statusFilter, setStatusFilter] = useState("all");
+
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
