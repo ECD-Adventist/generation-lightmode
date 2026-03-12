@@ -115,9 +115,26 @@ export default function AdminCodesTab() {
           <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-white">Codes of Truth</h2>
           <p className="text-gray-400 text-sm mt-1">Manage truth slogans, posters, and their categories.</p>
         </div>
-        <Button onClick={openNewModal} className="bg-[#00CFFF] text-black hover:bg-[#00CFFF]/80 font-bold">
-          <Plus className="w-4 h-4 mr-2" /> Add Code
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => {
+              const pending = codes.filter(c => (c.status || "pending") === "pending");
+              if (pending.length === 0) { toast.info("No pending codes to approve."); return; }
+              if (!window.confirm(`Bulk approve all ${pending.length} pending codes?`)) return;
+              Promise.all(pending.map(c => base44.entities.CodeOfTruth.update(c.id, { status: "approved" }))).then(() => {
+                queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth"] });
+                queryClient.invalidateQueries({ queryKey: ["codesOfTruth"] });
+                toast.success(`✅ ${pending.length} codes approved and now visible to users!`);
+              });
+            }}
+            className="bg-green-500/20 text-green-400 hover:bg-green-500/30 border border-green-500/30 font-bold"
+          >
+            <CheckCircle className="w-4 h-4 mr-2" /> Approve All Pending
+          </Button>
+          <Button onClick={openNewModal} className="bg-[#00CFFF] text-black hover:bg-[#00CFFF]/80 font-bold">
+            <Plus className="w-4 h-4 mr-2" /> Add Code
+          </Button>
+        </div>
       </div>
 
       {/* Status Filter Tabs */}

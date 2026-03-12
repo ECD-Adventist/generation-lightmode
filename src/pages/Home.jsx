@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, Globe, Users, Star, ChevronDown, Play, X } from "lucide-react";
 import { useAppLanguage } from "../components/i18n/useAppLanguage";
+import DailyTruthWidget from "../components/home/DailyTruthWidget";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -505,6 +506,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <div className="section-divider" />
+
+      <DailyTruthWidget />
 
       <div className="section-divider" />
 
