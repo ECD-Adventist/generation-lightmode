@@ -264,6 +264,29 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-[#0B0F1A] text-white pb-20 relative overflow-hidden">
+      <style>{`
+        @keyframes pan-map {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes float-light {
+          0%, 100% { transform: translateY(0) scale(1); opacity: 0.15; }
+          50% { transform: translateY(-30px) scale(1.1); opacity: 0.35; }
+        }
+      `}</style>
+      
+      {/* Animated Map Background */}
+      <div className="absolute inset-0 z-0 opacity-30 mix-blend-screen pointer-events-none w-[200vw] flex" style={{ animation: "pan-map 180s linear infinite" }}>
+        <div className="h-full w-[100vw] bg-cover bg-center flex-shrink-0" style={{ backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7dea9e31b_digital-world-map-hologram-blue-background.jpg')" }} />
+        <div className="h-full w-[100vw] bg-cover bg-center flex-shrink-0" style={{ backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7dea9e31b_digital-world-map-hologram-blue-background.jpg')" }} />
+      </div>
+      
+      {/* Glowing yellow lights */}
+      <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] bg-[#FFD000] rounded-full blur-[100px] z-0 animate-[float-light_8s_ease-in-out_infinite] pointer-events-none mix-blend-screen"></div>
+      <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] bg-[#FFD000] rounded-full blur-[120px] z-0 animate-[float-light_12s_ease-in-out_infinite_2s] pointer-events-none mix-blend-screen"></div>
+      <div className="absolute top-[70%] left-[30%] w-[350px] h-[350px] bg-[#FFD000] rounded-full blur-[110px] z-0 animate-[float-light_10s_ease-in-out_infinite_1s] pointer-events-none mix-blend-screen"></div>
+      <div className="absolute top-[20%] right-[10%] w-[250px] h-[250px] bg-[#FFD000] rounded-full blur-[90px] z-0 animate-[float-light_14s_ease-in-out_infinite_3s] pointer-events-none mix-blend-screen"></div>
+
       {/* Top Nav Bar */}
       <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
