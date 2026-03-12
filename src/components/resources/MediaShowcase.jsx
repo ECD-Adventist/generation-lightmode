@@ -43,7 +43,7 @@ export default function MediaShowcase({ items, activeType, activeCategory, onTyp
             <div style={{ flex: 1, padding: 40, display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <h2 className="glm-headline" style={{ fontSize: 32, color: "#FFFFFF", marginBottom: 16 }}>{featured.title}</h2>
               <p className="glm-body" style={{ fontSize: 16, marginBottom: 24 }}>Experience our top recommended content to fuel your faith journey today.</p>
-              <button onClick={() => { if (featured.type === 'video') { alert('Video is coming soon'); } else { setActiveMedia(featured); } }} className="glm-btn-primary" style={{ alignSelf: "flex-start", gap: 8 }}>
+              <button onClick={() => { if (featured.type === 'video') { alert('Video is coming soon'); } else if (featured.type === 'podcast') { alert('Audio is coming soon'); } else { setActiveMedia(featured); } }} className="glm-btn-primary" style={{ alignSelf: "flex-start", gap: 8 }}>
                 <Play size={18} fill="#0B0F1A" /> Play Now
               </button>
             </div>
@@ -69,7 +69,7 @@ export default function MediaShowcase({ items, activeType, activeCategory, onTyp
             const Icon = typeIcon[item.type];
             const color = typeColor[item.type];
             return (
-              <div key={index} className="glm-card" onClick={() => { if (item.type === 'video') { alert('Video is coming soon'); } else { setActiveMedia(item); } }} style={{ padding: 0, overflow: "hidden", borderRadius: 24, background: "#101625", cursor: "pointer" }}>
+              <div key={index} className="glm-card" onClick={() => { if (item.type === 'video') { alert('Video is coming soon'); } else if (item.type === 'podcast') { alert('Audio is coming soon'); } else { setActiveMedia(item); } }} style={{ padding: 0, overflow: "hidden", borderRadius: 24, background: "#101625", cursor: "pointer" }}>
                 <div style={{ position: "relative", height: 220 }}>
                   <img src={item.thumb} alt={item.title} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.12), rgba(11,15,26,0.88))" }} />
