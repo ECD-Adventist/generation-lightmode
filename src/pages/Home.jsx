@@ -349,6 +349,11 @@ export default function Home() {
 
         {/* Content at the bottom */}
         <div style={{ position: "relative", zIndex: 2, padding: "80px 24px 60px", maxWidth: 1000, margin: "0 auto", textAlign: "center" }}>
+            <button onClick={() => alert("Video coming soon!")} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: "24px" }}>
+               <div style={{ width: 90, height: 90, borderRadius: "50%", background: "rgba(0,207,255,0.15)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(0,207,255,0.6)", animation: "pulse-glow 2.5s ease-in-out infinite", margin: "0 auto" }}>
+                 <Play size={40} color="#00CFFF" style={{ marginLeft: 6 }} />
+               </div>
+             </button>
             <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24, textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>
               {t("visionTitle").split(" ")[0]} <span className="glm-gradient-text">{t("visionTitle").split(" ").slice(1).join(" ")}</span>
             </h2>
