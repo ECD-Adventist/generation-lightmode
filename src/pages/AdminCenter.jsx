@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Loader2 } from "lucide-react";
+import { Loader2, Zap, Bell, User } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminDashboardTab from "../components/admin/AdminDashboardTab";
 import AdminUsersTab from "../components/admin/AdminUsersTab";
