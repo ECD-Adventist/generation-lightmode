@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export default function AdminCodesTab() {
+export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCode, setEditingCode] = useState(null);
@@ -21,8 +21,10 @@ export default function AdminCodesTab() {
   const [isUploading, setIsUploading] = useState(false);
 
   const { data: codes = [], isLoading } = useQuery({
-    queryKey: ["adminCodesOfTruth"],
-    queryFn: () => base44.entities.CodeOfTruth.list('-created_date'),
+    queryKey: ["adminCodesOfTruth", sourceFilter],
+    queryFn: () => sourceFilter
+      ? base44.entities.CodeOfTruth.filter({ source_document: sourceFilter }, '-created_date')
+      : base44.entities.CodeOfTruth.list('-created_date'),
   });
 
   const saveMutation = useMutation({
@@ -33,7 +35,7 @@ export default function AdminCodesTab() {
       return base44.entities.CodeOfTruth.create(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth"] });
+      queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth", sourceFilter] });
       toast.success(editingCode ? "Code updated successfully" : "Code created successfully");
       setIsModalOpen(false);
       setEditingCode(null);
@@ -43,7 +45,7 @@ export default function AdminCodesTab() {
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.CodeOfTruth.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth"] });
+      queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth", sourceFilter] });
       toast.success("Code deleted successfully");
     }
   });
@@ -51,7 +53,7 @@ export default function AdminCodesTab() {
   const approveMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.CodeOfTruth.update(id, { status }),
     onSuccess: (_, { status }) => {
-      queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth"] });
+      queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth", sourceFilter] });
       queryClient.invalidateQueries({ queryKey: ["codesOfTruth"] });
       toast.success(status === "approved" ? "✅ Code approved — now visible to users!" : "Code rejected");
     }
@@ -102,7 +104,7 @@ export default function AdminCodesTab() {
       slogan_text: "",
       bible_reference: "",
       category: "",
-      source_document: "keeping_it_100",
+      source_document: sourceFilter || "keeping_it_100",
       poster_image_url: ""
     });
     setIsModalOpen(true);
@@ -112,7 +114,7 @@ export default function AdminCodesTab() {
     <div className="space-y-6">
       <div className="flex justify-between items-center bg-[#121826] p-6 rounded-2xl border border-white/5">
         <div>
-          <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-white">Codes of Truth</h2>
+          <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-white">{tabTitle || "Codes of Truth"}</h2>
           <p className="text-gray-400 text-sm mt-1">Manage truth slogans, posters, and their categories.</p>
         </div>
         <div className="flex gap-2">
