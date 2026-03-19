@@ -196,7 +196,7 @@ export default function Feed() {
       <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 bg-[#0B0F1A]/70 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
-        <div className="hidden lg:flex flex-col py-8 px-6 sticky top-0 h-[100dvh] border-r border-white/5 bg-transparent backdrop-blur-md">
+        <div className="hidden lg:flex flex-col py-8 px-6 sticky top-0 h-[100dvh] border-r border-white/5 bg-transparent backdrop-blur-md overflow-y-auto hide-scrollbar pb-24">
            {/* Logo */}
            <div className="flex items-center gap-3 mb-10 pl-2">
              <img
@@ -243,12 +243,15 @@ export default function Feed() {
                </div>
                Profile
              </Link>
+             <a href="https://bible-school.base44.app" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition">
+               <BookOpen className="w-6 h-6" /> Bible School
+             </a>
              <Link to={createPageUrl("Home")} className="flex items-center gap-4 text-sm font-bold text-gray-500 hover:bg-white/5 hover:text-[#00CFFF] px-4 py-3 rounded-2xl transition border border-white/5 mt-2">
                <Globe className="w-5 h-5" /> Back to Website
              </Link>
            </div>
            
-           <Button onClick={() => setIsDropModalOpen(true)} className="mt-8 bg-[#00CFFF] text-black font-black rounded-2xl w-full py-6 text-lg hover:bg-white transition-colors shadow-[0_0_20px_rgba(0,207,255,0.3)]">
+           <Button onClick={() => setIsDropModalOpen(true)} className="mt-8 shrink-0 bg-[#00CFFF] text-black font-black rounded-2xl w-full py-6 text-lg hover:bg-white transition-colors shadow-[0_0_20px_rgba(0,207,255,0.3)]">
              <Plus className="w-5 h-5 mr-2" /> NEW VIBE
            </Button>
 
