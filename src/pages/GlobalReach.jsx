@@ -6,7 +6,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
-import { Users, Zap, Globe, MapPin, Heart, X, ExternalLink } from "lucide-react";
+import { Users, Zap, Globe, MapPin, Heart, X, ExternalLink, Home, Bell, User, Filter, TrendingUp } from "lucide-react";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
