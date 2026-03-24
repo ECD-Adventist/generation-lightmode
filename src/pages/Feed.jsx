@@ -204,7 +204,7 @@ export default function Feed() {
                alt="LightMode"
                className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]"
              />
-           </Link
+           </Link>
 
            <div className="flex flex-col gap-2 flex-1">
              <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-lg font-bold bg-[#121826] text-[#00CFFF] px-4 py-3.5 rounded-2xl border border-white/5"><Home className="w-6 h-6" /> Home</Link>
