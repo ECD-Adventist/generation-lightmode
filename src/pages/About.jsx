@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { ArrowRight, Sparkles, Users, Globe2, Radio, Shield, Smartphone } from "lucide-react";
+import { ArrowRight, Sparkles, Users, Globe2, Radio, Shield, Smartphone, Home, Zap, Bell, User, Globe } from "lucide-react";
 import { useAppLanguage } from "../components/i18n/useAppLanguage";
+import { useEffect } from "react";
 
 const values = [
   {
@@ -71,6 +72,38 @@ export default function About() {
 
   return (
     <div dir={isRTL ? "rtl" : "ltr"} style={{ background: "#0B0F1A" }}>
+      {/* Top Navigation */}
+      <div style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(11,15,26,0.9)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+          <Link to={createPageUrl("Home")} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", shrinkFlex: 0 }}>
+            <img
+              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
+              alt="LightMode"
+              style={{ height: 56, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
+            />
+          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginLeft: "auto", flexWrap: "wrap" }}>
+            <Link to={createPageUrl("Feed")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", borderRadius: "12px", color: "#A0A5B5", hover: { color: "white", background: "rgba(255,255,255,0.05)" }, transition: "all 0.15s", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>
+              <Home style={{ width: 16, height: 16 }} /><span style={{ display: "none", "@media (min-width: 640px)": { display: "inline" } }}>Feed</span>
+            </Link>
+            <Link to={createPageUrl("Dashboard")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", borderRadius: "12px", color: "#A0A5B5", transition: "all 0.15s", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>
+              <Zap style={{ width: 16, height: 16 }} /><span style={{ display: "none", "@media (min-width: 640px)": { display: "inline" } }}>Dashboard</span>
+            </Link>
+            <Link to={createPageUrl("GlobalReach")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", borderRadius: "12px", color: "#A0A5B5", transition: "all 0.15s", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>
+              <Globe style={{ width: 16, height: 16 }} /><span style={{ display: "none", "@media (min-width: 640px)": { display: "inline" } }}>Reach</span>
+            </Link>
+            <Link to={createPageUrl("Notifications")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", borderRadius: "12px", color: "#A0A5B5", transition: "all 0.15s", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>
+              <Bell style={{ width: 16, height: 16 }} /><span style={{ display: "none", "@media (min-width: 640px)": { display: "inline" } }}>Alerts</span>
+            </Link>
+            <Link to={createPageUrl("Profile")} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", borderRadius: "12px", color: "#A0A5B5", transition: "all 0.15s", textDecoration: "none", fontSize: 14, fontWeight: 500 }}>
+              <User style={{ width: 16, height: 16 }} /><span style={{ display: "none", "@media (min-width: 640px)": { display: "inline" } }}>Profile</span>
+            </Link>
+            <Link to={createPageUrl("Home")} style={{ display: "none", "@media (min-width: 640px)": { display: "flex" }, alignItems: "center", gap: 6, padding: "8px 12px", borderRadius: "12px", color: "#67717F", borderStyle: "solid", borderWidth: 1, borderColor: "rgba(255,255,255,0.05)", textDecoration: "none", fontSize: 14, fontWeight: 500, transition: "all 0.15s" }}>
+              <Globe style={{ width: 16, height: 16 }} /> Website
+            </Link>
+          </div>
+        </div>
+      </div>
       <section id="faith-light" style={{ padding: "92px 24px 72px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 20% 20%, rgba(0,207,255,0.08), transparent 30%), radial-gradient(circle at 80% 15%, rgba(138,92,255,0.12), transparent 26%)" }} />
         <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 36, alignItems: "center" }}>
