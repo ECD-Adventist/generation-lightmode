@@ -9,7 +9,6 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 
 const navLinks = [
-  { key: "home", page: "Home" },
   { key: "about", page: "About" },
   { key: "challenges", page: "Challenges" },
   { key: "glowGroups", page: "GlowGroups" },
@@ -279,13 +278,13 @@ export default function Layout({ children, currentPageName }) {
           opacity: scrolled ? 0 : 1,
           pointerEvents: "none",
         }} />
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 160 }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 100 }}>
           {/* Logo */}
           <Link to={createPageUrl("Home")} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
               alt="Generation LightMode"
-              style={{ height: 144, width: "auto", filter: "drop-shadow(0 0 12px rgba(0,207,255,0.6))" }}
+              style={{ height: 64, width: "auto", objectFit: "contain", filter: "drop-shadow(0 0 12px rgba(0,207,255,0.6))" }}
             />
           </Link>
 
@@ -489,7 +488,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Page Content */}
-      <main style={{ paddingTop: ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) && userEmail ? 0 : 160 }}>
+      <main style={{ paddingTop: ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) && userEmail ? 0 : 100 }}>
         {children}
       </main>
 
