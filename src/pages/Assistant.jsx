@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Zap, RefreshCw } from "lucide-react";
+import { Send, Zap, RefreshCw, Home, Bell, Globe, User } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 
 const suggestions = [

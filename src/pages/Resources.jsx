@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import ResourcesHero from "../components/resources/ResourcesHero";
 import ResourcesTabs from "../components/resources/ResourcesTabs";
 import MediaShowcase from "../components/resources/MediaShowcase";
