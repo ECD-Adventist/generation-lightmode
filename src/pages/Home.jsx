@@ -143,7 +143,7 @@ export default function Home() {
   return (
     <div dir={isRTL ? "rtl" : "ltr"} style={{ background: "#0B0F1A" }}>
       {/* HERO */}
-      <section className="pt-[150px] md:pt-[200px] lg:pt-[180px] px-6 pb-20" style={{
+      <section className="pt-[150px] md:pt-[240px] lg:pt-[180px] px-6 pb-20" style={{
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
