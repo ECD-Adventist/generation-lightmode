@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, Flag } from "lucide-react";
+import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, Flag, Share2 as ShareIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -358,6 +358,32 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           </div>
         </div>
       )}
+
+      {/* Engagement Metrics */}
+      <div className="px-4 pt-4 pb-2 flex items-center gap-6 text-xs text-gray-400 border-t border-white/5">
+        <div className="flex items-center gap-1.5 hover:text-[#00CFFF] transition cursor-default">
+          <Heart className="w-4 h-4" fill="currentColor" />
+          <span className="font-semibold">{drop.likes_count || 0}</span>
+          <span>Lights</span>
+        </div>
+        <div className="flex items-center gap-1.5 hover:text-[#00CFFF] transition cursor-default">
+          <MessageCircle className="w-4 h-4" />
+          <span className="font-semibold">{comments.length}</span>
+          <span>Comments</span>
+        </div>
+        <div className="flex items-center gap-1.5 hover:text-[#00CFFF] transition cursor-default">
+          <Share2 className="w-4 h-4" />
+          <span className="font-semibold">{drop.shares_count || 0}</span>
+          <span>Shares</span>
+        </div>
+        {drop.reposts_count > 0 && (
+          <div className="flex items-center gap-1.5 hover:text-[#FFD000] transition cursor-default ml-auto">
+            <span className="text-[#FFD000]">⚡</span>
+            <span className="font-semibold text-[#FFD000]">{drop.reposts_count}</span>
+            <span>Reposts</span>
+          </div>
+        )}
+      </div>
 
       {/* Comments Drawer/Section */}
       {showComments && (
