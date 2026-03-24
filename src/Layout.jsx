@@ -488,7 +488,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Page Content */}
-      <main className={["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) && userEmail ? "pt-0" : (currentPageName === "Home" ? "pt-0" : "pt-[110px] md:pt-[280px] lg:pt-[160px]")}>
+      <main className={["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) && userEmail ? "pt-0" : (currentPageName === "Home" ? "pt-0" : "pt-[110px] md:pt-[280px] lg:pt-[160px]")}>
         {children}
       </main>
 
