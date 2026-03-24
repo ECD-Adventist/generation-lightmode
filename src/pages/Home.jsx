@@ -237,7 +237,7 @@ export default function Home() {
             50% { filter: drop-shadow(0 0 120px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1.1); }
           }
         `}</style>
-        <div style={{ position: "relative", zIndex: 2, marginBottom: 32, width: "100%", maxWidth: "600px" }}>
+        <div style={{ position: "relative", zIndex: 2, marginBottom: 32, width: "100%", maxWidth: "1200px" }}>
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
             alt="Generation LightMode"
