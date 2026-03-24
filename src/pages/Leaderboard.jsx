@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Trophy, TrendingUp, MapPin, Zap, Home, Bell, User, Globe, ArrowUp, Flame } from "lucide-react";
+import { Trophy, TrendingUp, MapPin, Zap, Home, Bell, User, Globe, ArrowUp, Flame, ArrowLeft } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
+import { useNavigate } from "react-router-dom";
 import { differenceInDays } from "date-fns";
 
 export default function Leaderboard() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [timeFilter, setTimeFilter] = useState("all-time"); // "this-week" | "all-time" | "my-region"
 
@@ -77,13 +79,18 @@ export default function Leaderboard() {
       {/* Top Navigation */}
       <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
-          <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
-            <img
-              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
-              alt="LightMode"
-              style={{ height: 96, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
-            />
-          </Link>
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate(-1)} className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition" title="Go back">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
+              <img
+                src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
+                alt="LightMode"
+                style={{ height: 96, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
+              />
+            </Link>
+          </div>
           <div className="flex items-center gap-1 sm:gap-2 ml-auto">
             <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
               <Home className="w-4 h-4" /><span className="hidden sm:inline">Feed</span>
