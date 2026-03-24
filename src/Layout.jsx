@@ -502,7 +502,7 @@ export default function Layout({ children, currentPageName }) {
               <img
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
                 alt="Generation LightMode"
-                style={{ height: 112, marginBottom: 16, filter: "drop-shadow(0 0 10px rgba(0,207,255,0.5))" }}
+                style={{ height: 56, marginBottom: 16, filter: "drop-shadow(0 0 10px rgba(0,207,255,0.5))" }}
               />
               <p className="glm-body" style={{ fontSize: 14, maxWidth: 260 }}>
                 {t("footerText")} <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
