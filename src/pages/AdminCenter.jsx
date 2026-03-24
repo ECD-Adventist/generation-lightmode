@@ -81,7 +81,7 @@ export default function AdminCenter() {
   };
 
   return (
-    <div className="bg-[#0B0F1A] text-white flex flex-col md:flex-row" style={{ minHeight: "100vh", marginTop: "-72px", paddingTop: 0 }}>
+    <div className="bg-[#0B0F1A] text-white flex flex-col md:flex-row" style={{ minHeight: "100vh", marginTop: "-160px", paddingTop: 0 }}>
       <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} />
       <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#080C14]">
         {/* Top Nav Bar */}

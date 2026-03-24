@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Users, Zap, Target, Globe, Activity, Trophy, TrendingUp, ArrowUpRight } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Area, AreaChart } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Area, AreaChart } from "recharts";
 
 const StatCard = ({ label, value, icon: Icon, color, bg, border, trend }) => (
   <div className={`relative overflow-hidden rounded-2xl p-5 border ${border} ${bg} group hover:scale-[1.02] transition-transform duration-300`}>
