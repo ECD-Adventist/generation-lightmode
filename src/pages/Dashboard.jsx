@@ -11,6 +11,7 @@ import ChallengesTab from "../components/dashboard/ChallengesTab";
 import GlowGroupsTab from "../components/dashboard/GlowGroupsTab";
 import PrayerRequestsTab from "../components/dashboard/PrayerRequestsTab";
 import PrayerAnalyticsTab from "../components/dashboard/PrayerAnalyticsTab";
+import DashboardMapHero from "../components/dashboard/DashboardMapHero";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
