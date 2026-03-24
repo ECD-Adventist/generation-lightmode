@@ -284,7 +284,7 @@ export default function GlobalReach() {
           </div>
 
           {/* Map */}
-          <div className="rounded-3xl overflow-hidden border border-white/10" style={{ height: "65vh" }}>
+          <div className="rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_40px_rgba(0,207,255,0.1)]" style={{ height: "65vh" }}>
             <MapContainer center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>
               <TileLayer
                 url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
