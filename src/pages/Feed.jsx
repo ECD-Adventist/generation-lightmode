@@ -198,17 +198,13 @@ export default function Feed() {
         {/* Left Sidebar (Desktop) */}
         <div className="hidden lg:flex flex-col py-8 px-6 sticky top-0 h-[100dvh] border-r border-white/5 bg-transparent backdrop-blur-md overflow-y-auto hide-scrollbar pb-24">
            {/* Logo */}
-           <div className="flex items-center gap-3 mb-10 pl-2">
+           <Link to={createPageUrl("Home")} className="flex items-center mb-10 pl-2">
              <img
-               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7e2f8baa1_FAVICON.png"
+               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
                alt="LightMode"
-               className="w-11 h-11 rounded-2xl object-cover shadow-[0_0_20px_rgba(0,207,255,0.2)]"
+               className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]"
              />
-             <div>
-               <h1 className="text-xl font-black tracking-wider text-white leading-tight">LIGHTMODE</h1>
-               <span className="text-[10px] text-gray-400 font-bold tracking-widest">GEN-ALPHA CORE</span>
-             </div>
-           </div>
+           </Link
 
            <div className="flex flex-col gap-2 flex-1">
              <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-lg font-bold bg-[#121826] text-[#00CFFF] px-4 py-3.5 rounded-2xl border border-white/5"><Home className="w-6 h-6" /> Home</Link>
