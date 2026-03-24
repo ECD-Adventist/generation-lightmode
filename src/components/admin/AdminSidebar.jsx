@@ -25,7 +25,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin }) 
   }
 
   return (
-    <div className="w-full md:w-64 md:h-screen bg-[#121826] border-r border-white/5 flex flex-col shrink-0 md:sticky top-0 z-10">
+    <div className="w-full md:w-64 md:h-screen bg-[#121826] border-r border-white/5 flex flex-col shrink-0 md:sticky top-0 z-10 overflow-hidden">
       {/* Logo */}
       <div className="p-5 border-b border-white/5 flex items-center justify-between">
         <Link to={createPageUrl("Home")} className="flex items-center gap-3">
