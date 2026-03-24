@@ -150,7 +150,7 @@ export default function Home() {
         alignItems: "center",
         justifyContent: "center",
         textAlign: "center",
-        padding: "120px 24px 80px",
+        padding: "180px 24px 80px",
         position: "relative",
         overflow: "hidden",
       }}>
