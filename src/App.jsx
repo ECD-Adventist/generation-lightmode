@@ -11,7 +11,7 @@ import Leaderboard from './pages/Leaderboard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
-const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
+const MainPage = Pages[mainPageKey];
 
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
@@ -44,9 +44,9 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
+        MainPage ? <LayoutWrapper currentPageName={mainPageKey}>
           <MainPage />
-        </LayoutWrapper>
+        </LayoutWrapper> : <PageNotFound />
       } />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
