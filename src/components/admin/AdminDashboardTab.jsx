@@ -189,8 +189,8 @@ export default function AdminDashboardTab() {
             <Users size={22} className="text-[#00CFFF]" />
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">New Today</p>
-            <p className="text-2xl font-black text-white font-['Space_Grotesk']">{Math.max(1, Math.floor(users.length * 0.03))}</p>
+            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">New This Month</p>
+            <p className="text-2xl font-black text-white font-['Space_Grotesk']">{growthData[growthData.length - 1]?.users ?? 0}</p>
           </div>
         </div>
         <div className="bg-[#0D1117] border border-white/5 rounded-2xl p-5 flex items-center gap-4">
@@ -199,7 +199,7 @@ export default function AdminDashboardTab() {
           </div>
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Drops This Week</p>
-            <p className="text-2xl font-black text-white font-['Space_Grotesk']">{dropsData.reduce((a, b) => a + b.drops, 0).toLocaleString()}</p>
+            <p className="text-2xl font-black text-white font-['Space_Grotesk']">{recentDrops}</p>
           </div>
         </div>
         <div className="bg-gradient-to-r from-[#00CFFF]/10 to-[#8A5CFF]/10 border border-[#00CFFF]/20 rounded-2xl p-5 flex items-center gap-4">
