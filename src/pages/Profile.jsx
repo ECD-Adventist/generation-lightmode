@@ -169,35 +169,44 @@ export default function Profile() {
     enabled: !!user
   });
 
+  const hasCheckedCerts = useRef(false);
+
   useEffect(() => {
     async function checkCertificates() {
-      if (!user || !isOwnProfile) return;
-      const myCerts = await base44.entities.Certificate.filter({ user_email: user.email });
-      const newCerts = [];
-      
-      if (!myCerts.find(c => c.title === '30 Days Consistent Posting')) {
-        const drops = await base44.entities.GlowDrop.filter({ user_email: user.email });
-        const uniqueDays = new Set(drops.map(d => d.created_date?.split('T')[0])).size;
-        if (uniqueDays >= 30) {
-          newCerts.push({ user_email: user.email, title: '30 Days Consistent Posting', description: 'Posted Glow Drops on 30 distinct days.', icon: '🏅' });
-        }
-      }
-      
-      if (!myCerts.find(c => c.title === 'Community Leader')) {
-        const groups = await base44.entities.GlowGroup.filter({ leader_email: user.email });
-        if (groups.length > 0) {
-          newCerts.push({ user_email: user.email, title: 'Community Leader', description: 'Led a GlowGroup for the first time.', icon: '👑' });
-        }
-      }
+      if (!user || !isOwnProfile || hasCheckedCerts.current) return;
+      hasCheckedCerts.current = true;
 
-      if (newCerts.length > 0) {
-        await base44.entities.Certificate.bulkCreate(newCerts);
-        queryClient.invalidateQueries({ queryKey: ["myCerts"] });
-        toast.success(`You earned ${newCerts.length} new Glow Certificate(s)!`);
+      try {
+        const myCerts = await base44.entities.Certificate.filter({ user_email: user.email });
+        const newCerts = [];
+        
+        if (!myCerts.find(c => c.title === '30 Days Consistent Posting')) {
+          const drops = await base44.entities.GlowDrop.filter({ user_email: user.email });
+          const uniqueDays = new Set(drops.map(d => d.created_date?.split('T')[0])).size;
+          if (uniqueDays >= 30) {
+            newCerts.push({ user_email: user.email, title: '30 Days Consistent Posting', description: 'Posted Glow Drops on 30 distinct days.', icon: '🏅' });
+          }
+        }
+        
+        if (!myCerts.find(c => c.title === 'Community Leader')) {
+          const groups = await base44.entities.GlowGroup.filter({ leader_email: user.email });
+          if (groups.length > 0) {
+            newCerts.push({ user_email: user.email, title: 'Community Leader', description: 'Led a GlowGroup for the first time.', icon: '👑' });
+          }
+        }
+
+        if (newCerts.length > 0) {
+          await base44.entities.Certificate.bulkCreate(newCerts);
+          queryClient.invalidateQueries({ queryKey: ["myCerts"] });
+          toast.success(`You earned ${newCerts.length} new Glow Certificate(s)!`);
+        }
+      } catch (err) {
+        hasCheckedCerts.current = false;
+        console.error("Failed to check certificates:", err);
       }
     }
     checkCertificates();
-  }, [user, queryClient, isOwnProfile]);
+  }, [user?.email, isOwnProfile, queryClient]);
 
   const [uploadingImage, setUploadingImage] = useState(false);
 
