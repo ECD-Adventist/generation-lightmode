@@ -87,6 +87,16 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-12 relative z-10">
+        {/* Hero Map Section */}
+        <div className="mb-12 pb-8 border-b border-white/5">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 mb-4">
+            <span className="w-2 h-2 rounded-full bg-[#00CFFF] animate-pulse"></span>
+            <span className="text-[#00CFFF] text-xs font-bold tracking-wider font-['Inter']">GLOBAL WARRIOR MAP</span>
+          </div>
+          <h2 className="text-2xl font-bold font-['Space_Grotesk'] mb-6">Light Warriors Around the World</h2>
+          <DashboardMapHero userCountry={user?.country} />
+        </div>
+
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-white/5 pb-8">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 mb-4">
