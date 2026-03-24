@@ -219,6 +219,7 @@ export default function Feed() {
              <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Globe className="w-6 h-6" /> Global Reach</Link>
              <Link to={createPageUrl("Challenges")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><PlaySquare className="w-6 h-6" /> Challenges</Link>
              <Link to={createPageUrl("Assistant")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><MessageSquare className="w-6 h-6" /> AI Assistant</Link>
+             <Link to={createPageUrl("LightReflections")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><span className="text-lg">✨</span> Light Reflections</Link>
              <Link to={createPageUrl("FaithQuiz")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><span className="text-lg">🏆</span> Faith Quiz</Link>
              <div className="flex flex-col">
                <button onClick={() => setIsResourcesOpen(!isResourcesOpen)} className="flex items-center justify-between w-full text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition cursor-pointer">
