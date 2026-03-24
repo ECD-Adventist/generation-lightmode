@@ -30,9 +30,9 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin }) 
       <div className="p-5 border-b border-white/5 flex items-center justify-between">
         <Link to={createPageUrl("Home")} className="flex items-center gap-3">
           <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
+            src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
             alt="Generation LightMode"
-            style={{ height: 36, width: "auto", filter: "drop-shadow(0 0 8px rgba(0,207,255,0.5))" }}
+            style={{ height: 72, width: "auto", filter: "drop-shadow(0 0 8px rgba(0,207,255,0.5))" }}
           />
         </Link>
         <Link to={createPageUrl("Home")} className="md:hidden text-gray-400 hover:text-white">

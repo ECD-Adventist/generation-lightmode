@@ -202,7 +202,7 @@ export default function Feed() {
              <img
                src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
                alt="LightMode"
-               className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]"
+               className="h-20 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]"
              />
            </Link>
 
@@ -277,7 +277,7 @@ export default function Feed() {
           <img
             src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
             alt="Generation LightMode"
-            className="h-8 sm:h-9 object-contain drop-shadow-[0_0_8px_rgba(0,207,255,0.4)]"
+            className="h-16 sm:h-[72px] object-contain drop-shadow-[0_0_8px_rgba(0,207,255,0.4)]"
           />
           <div className="flex gap-4 items-center shrink-0">
             <div className="relative cursor-pointer">
