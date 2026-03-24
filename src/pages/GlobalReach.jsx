@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Popup, Marker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
+import { Users, Zap, Globe, MapPin, Heart, X, ExternalLink } from "lucide-react";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
@@ -24,10 +25,13 @@ const countryCoordinates = {
   India: [20.5937, 78.9629],
   Philippines: [12.8797, 121.774],
   Australia: [-25.2744, 133.7751],
-  Global: [0, 0],
+  Global: [0, 20],
 };
 
-const addJitter = ([lat, lng], index = 1) => [lat + ((index % 5) - 2) * 0.8, lng + ((index % 7) - 3) * 0.8];
+const addJitter = ([lat, lng], seed = 1) => [
+  lat + ((seed * 13 + 7) % 17 - 8) * 0.5,
+  lng + ((seed * 7 + 3) % 13 - 6) * 0.5,
+];
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -36,27 +40,64 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-const prayerIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
+// Impact Story Panel
+function ImpactStoryPanel({ drop, onClose }) {
+  if (!drop) return null;
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="bg-[#121826] border border-[#00CFFF]/30 rounded-3xl p-6 w-full max-w-md shadow-[0_0_60px_rgba(0,207,255,0.2)] animate-in slide-in-from-bottom-4"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <img src={drop.owner?.profile_picture_url || defaultAvatar} className="w-12 h-12 rounded-full object-cover border-2 border-[#00CFFF]/40" />
+            <div>
+              <div className="font-bold text-white">{drop.owner?.full_name || "Glow Believer"}</div>
+              <div className="text-xs text-gray-400 flex items-center gap-1">
+                <MapPin className="w-3 h-3" /> {drop.owner?.country || "Global"}
+              </div>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-white transition p-1">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-const dropIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
+        {drop.verse && (
+          <div className="bg-[#00CFFF]/8 border border-[#00CFFF]/20 rounded-2xl p-4 mb-3">
+            <div className="text-xs text-[#00CFFF] font-bold uppercase tracking-wider mb-2">📖 Verse</div>
+            <p className="text-white text-sm leading-relaxed font-medium italic">"{drop.verse}"</p>
+          </div>
+        )}
+
+        {drop.reflection && (
+          <div className="bg-[#8A5CFF]/8 border border-[#8A5CFF]/20 rounded-2xl p-4 mb-4">
+            <div className="text-xs text-[#8A5CFF] font-bold uppercase tracking-wider mb-2">💡 Reflection</div>
+            <p className="text-gray-300 text-sm leading-relaxed">{drop.reflection}</p>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-gray-400">
+            <Heart className="w-4 h-4 text-red-400" /> {drop.likes_count || 0} lights
+          </div>
+          <Link
+            to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
+            className="flex items-center gap-1.5 text-sm font-bold text-[#FFD000] hover:text-white transition"
+          >
+            Open post <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function GlobalReach() {
   const [user, setUser] = useState(null);
-  const [activeLayer, setActiveLayer] = useState("all");
+  const [mapMode, setMapMode] = useState("warriors"); // "warriors" | "drops"
+  const [selectedDrop, setSelectedDrop] = useState(null);
 
   useEffect(() => {
     base44.auth.isAuthenticated().then((isAuth) => {
@@ -74,119 +115,251 @@ export default function GlobalReach() {
     enabled: !!user,
   });
 
-  const { data: prayerRequests = [] } = useQuery({
-    queryKey: ["mapPrayerRequests"],
-    queryFn: () => base44.entities.PrayerRequest.list("-created_date", 100),
-    enabled: !!user,
-  });
-
   const { data: glowDrops = [] } = useQuery({
     queryKey: ["mapGlowDrops"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 100),
+    queryFn: () => base44.entities.GlowDrop.list("-created_date", 200),
     enabled: !!user,
   });
 
-  const userByEmail = useMemo(() => Object.fromEntries(users.map((entry) => [entry.email, entry])), [users]);
+  const userByEmail = useMemo(() => Object.fromEntries(users.map(u => [u.email, u])), [users]);
 
-  const prayerMarkers = prayerRequests.map((request, index) => {
-    const owner = userByEmail[request.user_email] || {};
-    const country = owner.country || "Global";
-    const base = countryCoordinates[country] || countryCoordinates.Global;
-    return { ...request, owner, position: addJitter(base, index) };
-  });
+  // Warriors: cluster users by country — one circle per country, radius = member count
+  const warriorClusters = useMemo(() => {
+    const clusters = {};
+    users.forEach(u => {
+      const country = u.country || "Global";
+      const coords = countryCoordinates[country] || countryCoordinates.Global;
+      if (!clusters[country]) clusters[country] = { country, coords, count: 0, members: [] };
+      clusters[country].count++;
+      clusters[country].members.push(u);
+    });
+    return Object.values(clusters);
+  }, [users]);
 
-  const dropMarkers = glowDrops.map((drop, index) => {
+  // Drops: each drop is a pin with jitter
+  const dropMarkers = useMemo(() => glowDrops.map((drop, i) => {
     const owner = userByEmail[drop.user_email] || {};
     const country = owner.country || "Global";
     const base = countryCoordinates[country] || countryCoordinates.Global;
-    return { ...drop, owner, position: addJitter(base, index + 9) };
-  });
+    return { ...drop, owner, position: addJitter(base, i + 1) };
+  }), [glowDrops, userByEmail]);
 
-  const localBelievers = users.filter((entry) => entry.email !== user?.email && entry.country && entry.country === user?.country).slice(0, 8);
+  const localBelievers = users.filter(u => u.email !== user?.email && u.country && u.country === user?.country).slice(0, 8);
 
-  if (!user) return <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center text-white">Loading global reach...</div>;
+  // Stats
+  const totalCountries = useMemo(() => new Set(users.map(u => u.country).filter(Boolean)).size, [users]);
+
+  if (!user) return (
+    <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center text-white">
+      <div className="flex flex-col items-center gap-3">
+        <Globe className="w-10 h-10 text-[#00CFFF] animate-pulse" />
+        <span className="text-gray-400">Loading global reach...</span>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white px-4 py-6">
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-[minmax(0,1fr)_340px] gap-4">
+    <div className="min-h-screen bg-[#0B0F1A] text-white">
+      {selectedDrop && <ImpactStoryPanel drop={selectedDrop} onClose={() => setSelectedDrop(null)} />}
+
+      <div className="max-w-7xl mx-auto px-4 py-6 grid lg:grid-cols-[1fr_320px] gap-4">
+
+        {/* LEFT: Map + Controls */}
         <div className="space-y-4">
+          {/* Header */}
           <div className="bg-[#121826] border border-white/10 rounded-3xl p-6">
-            <h1 className="text-3xl font-bold">Global Reach</h1>
-            <p className="text-gray-400 mt-2">See prayer requests and public drops around the world, then connect with nearby believers.</p>
-            <div className="flex flex-wrap gap-2 mt-5">
-              {[
-                { key: "all", label: "All activity" },
-                { key: "prayers", label: "Prayer requests" },
-                { key: "drops", label: "Public drops" },
-              ].map((item) => (
-                <button key={item.key} onClick={() => setActiveLayer(item.key)} className={`px-4 py-2 rounded-full text-sm font-semibold ${activeLayer === item.key ? "bg-[#00CFFF] text-black" : "bg-white/10 text-gray-300"}`}>
-                  {item.label}
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold font-['Space_Grotesk']">Global Reach</h1>
+                <p className="text-gray-400 mt-1 text-sm">
+                  {mapMode === "warriors"
+                    ? "Light Warriors density — see where believers are gathering."
+                    : "Glow Drop heatmap — explore faith stories from around the world."}
+                </p>
+              </div>
+
+              {/* Toggle */}
+              <div className="flex bg-[#0B0F1A] border border-white/10 rounded-2xl p-1 gap-1 shrink-0">
+                <button
+                  onClick={() => setMapMode("warriors")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${mapMode === "warriors" ? "bg-[#00CFFF] text-black shadow-[0_0_15px_rgba(0,207,255,0.4)]" : "text-gray-400 hover:text-white"}`}
+                >
+                  <Users className="w-4 h-4" /> Warriors
                 </button>
-              ))}
+                <button
+                  onClick={() => setMapMode("drops")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${mapMode === "drops" ? "bg-[#FFD000] text-black shadow-[0_0_15px_rgba(255,208,0,0.4)]" : "text-gray-400 hover:text-white"}`}
+                >
+                  <Zap className="w-4 h-4" /> Drops
+                </button>
+              </div>
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center gap-6 mt-4 text-xs text-gray-500">
+              {mapMode === "warriors" ? (
+                <>
+                  <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-[#00CFFF] opacity-50" /> Small circle = fewer members</div>
+                  <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-full bg-[#00CFFF] opacity-70" /> Large circle = more members</div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[#FFD000]" /> Click a drop pin to read the story</div>
+                  <div className="flex items-center gap-2"><Heart className="w-3 h-3 text-red-400" /> Liked drops glow brighter</div>
+                </>
+              )}
             </div>
           </div>
 
-          <div className="h-[70vh] rounded-3xl overflow-hidden border border-white/10">
-            <MapContainer center={[3, 20]} zoom={3} style={{ height: "100%", width: "100%" }}>
-              <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution='&copy; OpenStreetMap &copy; CARTO' />
+          {/* Map */}
+          <div className="rounded-3xl overflow-hidden border border-white/10" style={{ height: "65vh" }}>
+            <MapContainer center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>
+              <TileLayer
+                url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+                attribution='&copy; OpenStreetMap &copy; CARTO'
+              />
 
-              {(activeLayer === "all" || activeLayer === "prayers") && prayerMarkers.map((request) => (
-                <Marker key={`prayer-${request.id}`} position={request.position} icon={prayerIcon}>
-                  <Popup>
-                    <div className="min-w-[200px]">
-                      <div className="font-bold mb-1">{request.is_anonymous ? "Anonymous prayer" : request.owner.full_name || "Prayer request"}</div>
-                      <div className="text-sm mb-2">{request.content}</div>
-                      <div className="text-xs text-gray-500 mb-2">{request.owner.country || "Global"}</div>
-                      {!request.is_anonymous && request.owner.email && (
-                        <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(request.owner.email)}`} className="text-sm text-[#00CFFF]">Connect</Link>
-                      )}
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
+              {/* WARRIORS MODE: density circles */}
+              {mapMode === "warriors" && warriorClusters.map(cluster => {
+                const radius = Math.max(8, Math.min(40, cluster.count * 4));
+                const isLocal = cluster.country === user?.country;
+                return (
+                  <CircleMarker
+                    key={cluster.country}
+                    center={cluster.coords}
+                    radius={radius}
+                    pathOptions={{
+                      color: isLocal ? "#FFD000" : "#00CFFF",
+                      fillColor: isLocal ? "#FFD000" : "#00CFFF",
+                      fillOpacity: 0.25,
+                      weight: isLocal ? 2.5 : 1.5,
+                    }}
+                  >
+                    <Popup>
+                      <div style={{ background: "#121826", border: "1px solid rgba(0,207,255,0.3)", borderRadius: 12, padding: 16, minWidth: 200, color: "#fff", fontFamily: "Inter, sans-serif" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                          <div style={{ width: 8, height: 8, borderRadius: "50%", background: isLocal ? "#FFD000" : "#00CFFF", boxShadow: `0 0 8px ${isLocal ? "#FFD000" : "#00CFFF"}` }} />
+                          <strong style={{ color: isLocal ? "#FFD000" : "#00CFFF", fontSize: 15 }}>{cluster.country}</strong>
+                        </div>
+                        <div style={{ fontSize: 13, color: "#ccc", marginBottom: 12 }}>
+                          <strong style={{ color: "#fff", fontSize: 22, fontFamily: "Space Grotesk, sans-serif" }}>{cluster.count}</strong> Light Warrior{cluster.count !== 1 ? "s" : ""}
+                        </div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+                          {cluster.members.slice(0, 5).map(m => (
+                            <img key={m.email} src={m.profile_picture_url || defaultAvatar} title={m.full_name} style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(255,255,255,0.2)" }} />
+                          ))}
+                          {cluster.count > 5 && <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(0,207,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#00CFFF", fontWeight: "bold" }}>+{cluster.count - 5}</div>}
+                        </div>
+                        {isLocal && <div style={{ fontSize: 11, color: "#FFD000", fontWeight: 600 }}>⭐ Your region</div>}
+                      </div>
+                    </Popup>
+                  </CircleMarker>
+                );
+              })}
 
-              {(activeLayer === "all" || activeLayer === "drops") && dropMarkers.map((drop) => (
-                <Marker key={`drop-${drop.id}`} position={drop.position} icon={dropIcon}>
-                  <Popup>
-                    <div className="min-w-[200px]">
-                      <div className="font-bold mb-1">{drop.owner.full_name || "Glow Drop"}</div>
-                      <div className="text-sm mb-2">{drop.verse || drop.reflection || "Public drop"}</div>
-                      <div className="text-xs text-gray-500 mb-2">{drop.owner.country || "Global"}</div>
-                      <Link to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`} className="text-sm text-[#FFD000]">Open post</Link>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
+              {/* DROPS MODE: individual pins */}
+              {mapMode === "drops" && dropMarkers.map(drop => {
+                const intensity = Math.min(1, 0.3 + (drop.likes_count || 0) * 0.07);
+                return (
+                  <CircleMarker
+                    key={drop.id}
+                    center={drop.position}
+                    radius={6 + Math.min((drop.likes_count || 0), 8)}
+                    pathOptions={{
+                      color: "#FFD000",
+                      fillColor: "#FFD000",
+                      fillOpacity: intensity,
+                      weight: 1.5,
+                    }}
+                    eventHandlers={{ click: () => setSelectedDrop(drop) }}
+                  >
+                    <Popup>
+                      <div style={{ background: "#121826", border: "1px solid rgba(255,208,0,0.3)", borderRadius: 12, padding: 14, minWidth: 190, color: "#fff", fontFamily: "Inter, sans-serif", cursor: "pointer" }}
+                        onClick={() => setSelectedDrop(drop)}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                          <img src={drop.owner?.profile_picture_url || defaultAvatar} style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover" }} />
+                          <div>
+                            <div style={{ fontWeight: 700, fontSize: 13 }}>{drop.owner?.full_name || "Glow Believer"}</div>
+                            <div style={{ fontSize: 11, color: "#999" }}>{drop.owner?.country || "Global"}</div>
+                          </div>
+                        </div>
+                        <div style={{ fontSize: 12, color: "#ddd", marginBottom: 8, lineHeight: 1.5, maxWidth: 200, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
+                          {drop.verse || drop.reflection || "Glow Drop"}
+                        </div>
+                        <div style={{ fontSize: 11, color: "#FFD000", fontWeight: 700, cursor: "pointer" }}>
+                          📖 Read local story →
+                        </div>
+                      </div>
+                    </Popup>
+                  </CircleMarker>
+                );
+              })}
             </MapContainer>
           </div>
         </div>
 
+        {/* RIGHT: Sidebar */}
         <div className="space-y-4">
-          <div className="bg-[#121826] border border-white/10 rounded-3xl p-5">
-            <div className="text-lg font-bold text-white">Local believers</div>
-            <div className="text-sm text-gray-400 mt-1">People near your area you can connect with.</div>
-            <div className="mt-4 space-y-3">
-              {localBelievers.map((person) => (
-                <Link key={person.email} to={createPageUrl("Profile") + `?user=${encodeURIComponent(person.email)}`} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/5 transition">
-                  <img src={person.profile_picture_url || defaultAvatar} alt={person.full_name} className="w-11 h-11 rounded-full object-cover border border-white/10" />
-                  <div className="min-w-0">
-                    <div className="font-semibold text-white truncate">{person.full_name}</div>
-                    <div className="text-xs text-gray-500 truncate">{person.country}</div>
-                  </div>
-                </Link>
-              ))}
-              {localBelievers.length === 0 && <div className="text-sm text-gray-500 mt-3">No nearby believers found yet.</div>}
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-[#121826] border border-white/10 rounded-2xl p-3 text-center">
+              <div className="text-2xl font-black text-[#00CFFF] font-['Space_Grotesk']">{users.length}</div>
+              <div className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">Warriors</div>
+            </div>
+            <div className="bg-[#121826] border border-white/10 rounded-2xl p-3 text-center">
+              <div className="text-2xl font-black text-[#FFD000] font-['Space_Grotesk']">{glowDrops.length}</div>
+              <div className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">Drops</div>
+            </div>
+            <div className="bg-[#121826] border border-white/10 rounded-2xl p-3 text-center">
+              <div className="text-2xl font-black text-[#8A5CFF] font-['Space_Grotesk']">{totalCountries}</div>
+              <div className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">Nations</div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#121826] border border-white/10 rounded-3xl p-4 text-center">
-              <div className="text-3xl font-black text-[#8A5CFF]">{prayerRequests.length}</div>
-              <div className="text-xs text-gray-500 uppercase tracking-wider mt-1">Prayer requests</div>
+          {/* Local Believers */}
+          <div className="bg-[#121826] border border-white/10 rounded-3xl p-5">
+            <div className="text-sm font-bold text-[#FFD000] uppercase tracking-wider mb-1">Local Warriors</div>
+            <div className="text-xs text-gray-400 mb-4">Light Warriors near you in {user.country || "your region"}</div>
+            <div className="space-y-2">
+              {localBelievers.map(person => (
+                <Link key={person.email} to={createPageUrl("Profile") + `?user=${encodeURIComponent(person.email)}`}
+                  className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-white/5 transition group">
+                  <img src={person.profile_picture_url || defaultAvatar} className="w-10 h-10 rounded-full object-cover border border-white/10 group-hover:border-[#00CFFF]/40 transition" />
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-white text-sm truncate">{person.full_name}</div>
+                    <div className="text-xs text-gray-500">{person.glow_score || 0} XP</div>
+                  </div>
+                  <div className="text-[#00CFFF] opacity-0 group-hover:opacity-100 transition text-xs font-bold">→</div>
+                </Link>
+              ))}
+              {localBelievers.length === 0 && (
+                <div className="text-sm text-gray-500 py-4 text-center">
+                  <Globe className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                  No nearby warriors yet. You're pioneering your region!
+                </div>
+              )}
             </div>
-            <div className="bg-[#121826] border border-white/10 rounded-3xl p-4 text-center">
-              <div className="text-3xl font-black text-[#FFD000]">{glowDrops.length}</div>
-              <div className="text-xs text-gray-500 uppercase tracking-wider mt-1">Public drops</div>
+          </div>
+
+          {/* Recent Impact Stories */}
+          <div className="bg-[#121826] border border-white/10 rounded-3xl p-5">
+            <div className="text-sm font-bold text-[#00CFFF] uppercase tracking-wider mb-1">Recent Impact</div>
+            <div className="text-xs text-gray-400 mb-4">Latest Glow Drops from around the world</div>
+            <div className="space-y-3">
+              {glowDrops.slice(0, 5).map(drop => {
+                const owner = userByEmail[drop.user_email] || {};
+                return (
+                  <button key={drop.id} onClick={() => setSelectedDrop({ ...drop, owner })}
+                    className="w-full text-left flex items-start gap-3 p-3 rounded-2xl hover:bg-white/5 transition group">
+                    <img src={owner.profile_picture_url || defaultAvatar} className="w-9 h-9 rounded-full object-cover border border-white/10 shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-white truncate">{owner.full_name || "Glow Believer"}</div>
+                      <div className="text-xs text-gray-400 line-clamp-2 mt-0.5">{drop.verse || drop.reflection || "Shared a Glow Drop"}</div>
+                      <div className="text-[10px] text-[#FFD000] mt-1 opacity-0 group-hover:opacity-100 transition font-bold">Read story →</div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
