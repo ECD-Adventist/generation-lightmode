@@ -44,23 +44,56 @@ export default function AdminDashboardTab() {
   const { data: groups = [] } = useQuery({ queryKey: ["admin_groups"], queryFn: () => base44.entities.GlowGroup.list() });
   const { data: challenges = [] } = useQuery({ queryKey: ["admin_challenges"], queryFn: () => base44.entities.Challenge.list() });
 
+  // Real user growth: bucket registrations by month
+  const growthData = useMemo(() => {
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const counts = {};
+    users.forEach(u => {
+      if (!u.created_date) return;
+      const d = new Date(u.created_date);
+      const key = months[d.getMonth()] + " " + d.getFullYear();
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    // Get last 6 months
+    const now = new Date();
+    return Array.from({ length: 6 }, (_, i) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+      const key = months[d.getMonth()] + " " + d.getFullYear();
+      return { name: months[d.getMonth()], users: counts[key] || 0 };
+    });
+  }, [users]);
+
+  // Real drops: bucket by day of week
+  const dropsData = useMemo(() => {
+    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const counts = { Sun: 0, Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0 };
+    drops.forEach(d => {
+      if (!d.created_date) return;
+      const day = days[new Date(d.created_date).getDay()];
+      counts[day]++;
+    });
+    return ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(name => ({ name, drops: counts[name] }));
+  }, [drops]);
+
+  // Real unique countries from users
+  const uniqueCountries = useMemo(() => {
+    const set = new Set(users.map(u => u.country).filter(Boolean));
+    return set.size || 0;
+  }, [users]);
+
+  // Drops in last 7 days
+  const recentDrops = useMemo(() => {
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    return drops.filter(d => d.created_date && new Date(d.created_date) > cutoff).length;
+  }, [drops]);
+
   const stats = [
-    { label: "Total Users", value: users.length, icon: Users, color: "#00CFFF", bg: "bg-[#00CFFF]/5", border: "border-[#00CFFF]/15", trend: "+12% this week" },
-    { label: "Total Glow Drops", value: drops.length, icon: Zap, color: "#FFD000", bg: "bg-[#FFD000]/5", border: "border-[#FFD000]/15", trend: "+8% this week" },
+    { label: "Total Users", value: users.length, icon: Users, color: "#00CFFF", bg: "bg-[#00CFFF]/5", border: "border-[#00CFFF]/15" },
+    { label: "Total Glow Drops", value: drops.length, icon: Zap, color: "#FFD000", bg: "bg-[#FFD000]/5", border: "border-[#FFD000]/15", trend: `${recentDrops} this week` },
     { label: "Active Groups", value: groups.length, icon: Activity, color: "#8A5CFF", bg: "bg-[#8A5CFF]/5", border: "border-[#8A5CFF]/15" },
     { label: "Active Challenges", value: challenges.filter(c => c.active).length, icon: Target, color: "#ef4444", bg: "bg-red-500/5", border: "border-red-500/15" },
-    { label: "Countries", value: 12, icon: Globe, color: "#22c55e", bg: "bg-green-500/5", border: "border-green-500/15" },
-    { label: "Avg Engagement", value: "84%", icon: Trophy, color: "#f97316", bg: "bg-orange-500/5", border: "border-orange-500/15", trend: "+3% this month" },
-  ];
-
-  const growthData = [
-    { name: "Jan", users: 400 }, { name: "Feb", users: 600 }, { name: "Mar", users: 900 },
-    { name: "Apr", users: 1200 }, { name: "May", users: 1800 }, { name: "Jun", users: users.length || 2400 }
-  ];
-
-  const dropsData = [
-    { name: "Mon", drops: 120 }, { name: "Tue", drops: 200 }, { name: "Wed", drops: 150 },
-    { name: "Thu", drops: 280 }, { name: "Fri", drops: 320 }, { name: "Sat", drops: 450 }, { name: "Sun", drops: 600 }
+    { label: "Countries", value: uniqueCountries, icon: Globe, color: "#22c55e", bg: "bg-green-500/5", border: "border-green-500/15" },
+    { label: "Approved Drops", value: drops.filter(d => d.status === "approved").length, icon: Trophy, color: "#f97316", bg: "bg-orange-500/5", border: "border-orange-500/15" },
   ];
 
   return (
