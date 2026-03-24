@@ -143,7 +143,7 @@ export default function Home() {
   return (
     <div dir={isRTL ? "rtl" : "ltr"} style={{ background: "#0B0F1A" }}>
       {/* HERO */}
-      <section className="pt-[150px] md:pt-[300px] lg:pt-[180px] px-6 pb-20" style={{
+      <section className="pt-[140px] md:pt-[320px] lg:pt-[180px] px-6 pb-32 md:pb-48" style={{
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -236,11 +236,12 @@ export default function Home() {
             50% { filter: drop-shadow(0 0 120px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1.1); }
           }
         `}</style>
-        <div style={{ position: "relative", zIndex: 2, marginBottom: 32, width: "100%", maxWidth: "600px" }}>
+        <div className="w-full max-w-[280px] md:max-w-[480px] lg:max-w-[600px] mb-8 relative z-10">
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
             alt="Generation LightMode"
-            style={{ height: "auto", width: "100%", animation: "logo-glow 4s ease-in-out infinite" }}
+            className="w-full h-auto"
+            style={{ animation: "logo-glow 4s ease-in-out infinite" }}
           />
         </div>
 
