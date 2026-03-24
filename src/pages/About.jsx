@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { ArrowRight, Sparkles, Users, Globe2, Radio, Shield, Smartphone, Home, Zap, Bell, User, Globe } from "lucide-react";
 import { useAppLanguage } from "../components/i18n/useAppLanguage";
-import { useEffect } from "react";
 
 const values = [
   {
