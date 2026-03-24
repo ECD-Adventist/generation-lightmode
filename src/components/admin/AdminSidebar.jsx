@@ -32,7 +32,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin }) 
           <img
             src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
             alt="Generation LightMode"
-            style={{ height: 72, width: "auto", filter: "drop-shadow(0 0 8px rgba(0,207,255,0.5))" }}
+            style={{ height: 108, width: "auto", filter: "drop-shadow(0 0 8px rgba(0,207,255,0.5))" }}
           />
         </Link>
         <Link to={createPageUrl("Home")} className="md:hidden text-gray-400 hover:text-white">
