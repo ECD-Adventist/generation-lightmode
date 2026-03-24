@@ -278,13 +278,13 @@ export default function Layout({ children, currentPageName }) {
           opacity: scrolled ? 0 : 1,
           pointerEvents: "none",
         }} />
-        <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[90px] md:h-[200px] lg:h-[160px] w-full">
+        <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[90px] md:h-[250px] lg:h-[160px] w-full">
           {/* Logo */}
           <Link to={createPageUrl("Home")} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
               alt="Generation LightMode"
-              className="h-[60px] md:h-[170px] lg:h-[128px] w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.6)]"
+              className="h-[60px] md:h-[220px] lg:h-[128px] w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.6)]"
             />
           </Link>
 
@@ -488,7 +488,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Page Content */}
-      <main className={["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) && userEmail ? "pt-0" : (currentPageName === "Home" ? "pt-0" : "pt-[90px] md:pt-[200px] lg:pt-[160px]")}>
+      <main className={["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) && userEmail ? "pt-0" : (currentPageName === "Home" ? "pt-0" : "pt-[90px] md:pt-[250px] lg:pt-[160px]")}>
         {children}
       </main>
 
