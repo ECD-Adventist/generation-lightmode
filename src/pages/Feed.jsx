@@ -106,7 +106,10 @@ export default function Feed() {
 
   const likeMutation = useMutation({
     mutationFn: async ({ id, likes, authorEmail, authorName }) => {
-      if (!user) { toast.error("Please log in to like drops"); return; }
+      if (!user) { 
+        toast.error("Please log in to like drops"); 
+        return; 
+      }
       
       // Check if user already liked this drop
       const alreadyLiked = userLikes.some(like => like.drop_id === id);
@@ -115,31 +118,41 @@ export default function Feed() {
         return;
       }
       
-      // Record the like
-      await base44.entities.GlowDropLike.create({ drop_id: id, user_email: user.email });
-      await base44.entities.GlowDrop.update(id, { likes_count: likes + 1 });
-      
-      if (authorEmail && authorEmail !== user.email) {
-        await base44.entities.Notification.create({
-          user_email: authorEmail,
-          type: "like",
-          message: `${user.full_name || 'Someone'} liked your Glow Drop!`,
-          link: `/Feed`
-        });
-      }
-      
-      const today = new Date().toISOString().split('T')[0];
-      const challenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: today });
-      if (!challenges.some(c => c.challenge_id === 'like_drops')) {
-        await base44.entities.UserDailyChallenge.create({ user_email: user.email, date_string: today, challenge_id: 'like_drops' });
-        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
-        toast.success("Challenge Completed: Spread the Light! +5 XP ⚡");
-        queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });
+      try {
+        // Record the like first
+        await base44.entities.GlowDropLike.create({ drop_id: id, user_email: user.email });
+        // Then update the count
+        await base44.entities.GlowDrop.update(id, { likes_count: (likes || 0) + 1 });
+        
+        // Send notification
+        if (authorEmail && authorEmail !== user.email) {
+          await base44.entities.Notification.create({
+            user_email: authorEmail,
+            type: "like",
+            message: `${user.full_name || 'Someone'} liked your Glow Drop!`,
+            link: `/Feed`
+          });
+        }
+        
+        // Check daily challenge
+        const today = new Date().toISOString().split('T')[0];
+        const challenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: today });
+        if (!challenges.some(c => c.challenge_id === 'like_drops')) {
+          await base44.entities.UserDailyChallenge.create({ user_email: user.email, date_string: today, challenge_id: 'like_drops' });
+          await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
+          toast.success("Challenge Completed: Spread the Light! +5 XP ⚡");
+        }
+        
+        toast.success("❤️ Liked!");
+      } catch (error) {
+        toast.error("Failed to like - try again");
+        console.error("Like error:", error);
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
       queryClient.invalidateQueries({ queryKey: ["userLikes", user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });
     }
   });
 
