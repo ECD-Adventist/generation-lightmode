@@ -371,20 +371,23 @@ export default function GlobalReach() {
         </div>
 
         {/* RIGHT: Sidebar */}
-        <div className="space-y-4">
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="bg-[#121826] border border-white/10 rounded-2xl p-3 text-center">
-              <div className="text-2xl font-black text-[#00CFFF] font-['Space_Grotesk']">{users.length}</div>
-              <div className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">Warriors</div>
+        <div className="space-y-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-3 lg:grid-cols-1 gap-3">
+            <div className="bg-gradient-to-br from-[#00CFFF]/15 to-[#00CFFF]/5 border border-[#00CFFF]/30 rounded-2xl p-4 text-center shadow-[0_0_20px_rgba(0,207,255,0.1)]">
+              <div className="text-3xl font-black text-[#00CFFF] font-['Space_Grotesk'] mb-1">{users.length}</div>
+              <div className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Light Warriors</div>
+              <div className="text-[9px] text-gray-600 mt-2">Across {totalCountries} nations</div>
             </div>
-            <div className="bg-[#121826] border border-white/10 rounded-2xl p-3 text-center">
-              <div className="text-2xl font-black text-[#FFD000] font-['Space_Grotesk']">{glowDrops.length}</div>
-              <div className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">Drops</div>
+            <div className="bg-gradient-to-br from-[#FFD000]/15 to-[#FFD000]/5 border border-[#FFD000]/30 rounded-2xl p-4 text-center shadow-[0_0_20px_rgba(255,208,0,0.1)]">
+              <div className="text-3xl font-black text-[#FFD000] font-['Space_Grotesk'] mb-1">{glowDrops.length}</div>
+              <div className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Glow Drops</div>
+              <div className="text-[9px] text-gray-600 mt-2">Faith stories shared</div>
             </div>
-            <div className="bg-[#121826] border border-white/10 rounded-2xl p-3 text-center">
-              <div className="text-2xl font-black text-[#8A5CFF] font-['Space_Grotesk']">{totalCountries}</div>
-              <div className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">Nations</div>
+            <div className="bg-gradient-to-br from-[#8A5CFF]/15 to-[#8A5CFF]/5 border border-[#8A5CFF]/30 rounded-2xl p-4 text-center shadow-[0_0_20px_rgba(138,92,255,0.1)]">
+              <div className="text-3xl font-black text-[#8A5CFF] font-['Space_Grotesk'] mb-1">{totalCountries}</div>
+              <div className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Nations Active</div>
+              <div className="text-[9px] text-gray-600 mt-2">Spreading light</div>
             </div>
           </div>
 
