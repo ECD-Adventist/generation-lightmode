@@ -77,6 +77,7 @@ export default function Feed() {
       if (isFollowing) {
         const followRecord = following.find(f => f.following_email === targetEmail);
         await base44.entities.Follow.delete(followRecord.id);
+        return true;
       } else {
         await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
         await base44.entities.Notification.create({
@@ -86,8 +87,8 @@ export default function Feed() {
           link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
         });
         await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
+        return false;
       }
-      return isFollowing;
     },
     onSuccess: (wasFollowing) => {
       queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
@@ -97,10 +98,27 @@ export default function Feed() {
     }
   });
 
+  const { data: userLikes = [] } = useQuery({
+    queryKey: ["userLikes", user?.email],
+    queryFn: () => base44.entities.GlowDropLike.filter({ user_email: user?.email }),
+    enabled: !!user
+  });
+
   const likeMutation = useMutation({
     mutationFn: async ({ id, likes, authorEmail, authorName }) => {
       if (!user) { toast.error("Please log in to like drops"); return; }
+      
+      // Check if user already liked this drop
+      const alreadyLiked = userLikes.some(like => like.drop_id === id);
+      if (alreadyLiked) {
+        toast.error("You already liked this drop!");
+        return;
+      }
+      
+      // Record the like
+      await base44.entities.GlowDropLike.create({ drop_id: id, user_email: user.email });
       await base44.entities.GlowDrop.update(id, { likes_count: likes + 1 });
+      
       if (authorEmail && authorEmail !== user.email) {
         await base44.entities.Notification.create({
           user_email: authorEmail,
@@ -121,6 +139,7 @@ export default function Feed() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+      queryClient.invalidateQueries({ queryKey: ["userLikes", user?.email] });
     }
   });
 
@@ -143,6 +162,8 @@ export default function Feed() {
   }, [user?.email, queryClient]);
 
   const handleShare = async (drop) => {
+    if (!user) { toast.error("Please log in to share"); return; }
+    
     const shareText = `✨ Generation LightMode\n\n"${drop.verse}"\n\n${drop.reflection}\n\nJoin the movement at ${window.location.origin}`;
     if (navigator.share) {
       try {
@@ -152,6 +173,7 @@ export default function Feed() {
         });
         await base44.entities.GlowDrop.update(drop.id, { shares_count: (drop.shares_count || 0) + 1 });
         queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+        toast.success("Shared successfully!");
       } catch (err) {
         console.log('Error sharing', err);
       }
