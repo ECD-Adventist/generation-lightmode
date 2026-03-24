@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap, BookOpen } from "lucide-react";
+import { useState, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ export default function Feed() {
   const [user, setUser] = useState(null);
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
   const queryClient = useQueryClient();
 
