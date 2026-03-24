@@ -392,9 +392,12 @@ export default function GlobalReach() {
           </div>
 
           {/* Local Believers */}
-          <div className="bg-[#121826] border border-white/10 rounded-3xl p-5">
-            <div className="text-sm font-bold text-[#FFD000] uppercase tracking-wider mb-1">Local Warriors</div>
-            <div className="text-xs text-gray-400 mb-4">Light Warriors near you in {user.country || "your region"}</div>
+          <div className="bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-[#FFD000]/20 rounded-3xl p-6 shadow-[0_0_25px_rgba(255,208,0,0.08)]">
+            <div className="flex items-center gap-2 mb-1">
+              <MapPin className="w-4 h-4 text-[#FFD000]" />
+              <div className="text-sm font-bold text-[#FFD000] uppercase tracking-wider">Your Region</div>
+            </div>
+            <div className="text-xs text-gray-400 mb-4">{user.country || "Your location"} — {localBelievers.length} warriors nearby</div>
             <div className="space-y-2">
               {localBelievers.map(person => (
                 <Link key={person.email} to={createPageUrl("Profile") + `?user=${encodeURIComponent(person.email)}`}
