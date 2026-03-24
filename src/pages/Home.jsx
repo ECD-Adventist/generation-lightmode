@@ -239,7 +239,7 @@ export default function Home() {
         `}</style>
         <div style={{ position: "relative", zIndex: 2, marginBottom: 32, width: "100%", maxWidth: "600px" }}>
           <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/e51a96559_GENERATIONLIGHTMODE-LOGO.png"
+            src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
             alt="Generation LightMode"
             style={{ height: "auto", width: "100%", animation: "logo-glow 4s ease-in-out infinite" }}
           />
