@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useLocation, Link } from "react-router-dom";
+import { Home, Bell, Globe, User, Zap } from "lucide-react";
+import { createPageUrl } from "@/utils";
 import ResourcesHero from "../components/resources/ResourcesHero";
 import ResourcesTabs from "../components/resources/ResourcesTabs";
 import MediaShowcase from "../components/resources/MediaShowcase";

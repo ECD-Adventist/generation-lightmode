@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { Zap, Clock, Users, Star, CheckCircle } from "lucide-react";
+import React, { useState } from "react";
+import { Zap, Clock, Users, Star, CheckCircle, Home, Bell, Globe, User } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 const challenges = [
   {
@@ -18,7 +20,7 @@ const challenges = [
   },
   {
     id: 3, title: "#FaithOnFridays", category: "Testimony", difficulty: "Starter",
-    duration: "Weekly", participants: 45000, points: 50,
+    duration: "7 Days", participants: 45000, points: 50,
     description: "Every Friday, flood the internet with short, authentic testimonies of what God did this week.",
     color: "#FFD000", badge: "🔥",
     tasks: ["Reflect on your week", "Record a 30-sec testimony video", "Post with #FaithOnFridays"],
