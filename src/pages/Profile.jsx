@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Clock, XCircle, Zap, Home, Users, Bell, Globe } from "lucide-react";
+import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Clock, XCircle, Zap, Home, Users, Bell, Globe, Trash2 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -499,12 +499,26 @@ export default function Profile() {
               <div>
                 <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Profile Picture</Label>
                 <Input type="file" accept="image/*" onChange={e => handleImageSelect(e, "profile")} disabled={uploadingImage} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
-                {editData.profile_picture_url && <img src={editData.profile_picture_url} alt="Profile preview" className="w-16 h-16 rounded-full mt-2 object-cover border border-white/10" />}
+                {editData.profile_picture_url && (
+                  <div className="flex items-center gap-4 mt-2">
+                    <img src={editData.profile_picture_url} alt="Profile preview" className="w-16 h-16 rounded-full object-cover border border-white/10" />
+                    <Button type="button" variant="ghost" onClick={() => setEditData({...editData, profile_picture_url: ""})} className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 px-3 text-xs">
+                      <Trash2 className="w-3.5 h-3.5 mr-1" /> Remove
+                    </Button>
+                  </div>
+                )}
               </div>
               <div>
                 <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Cover Photo</Label>
                 <Input type="file" accept="image/*" onChange={e => handleImageSelect(e, "cover")} disabled={uploadingImage} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
-                {editData.cover_picture_url && <img src={editData.cover_picture_url} alt="Cover preview" className="w-full h-24 rounded-xl mt-2 object-cover border border-white/10" />}
+                {editData.cover_picture_url && (
+                  <div className="flex items-start gap-4 mt-2">
+                    <img src={editData.cover_picture_url} alt="Cover preview" className="w-full max-w-[200px] h-24 rounded-xl object-cover border border-white/10" />
+                    <Button type="button" variant="ghost" onClick={() => setEditData({...editData, cover_picture_url: ""})} className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 px-3 text-xs mt-1">
+                      <Trash2 className="w-3.5 h-3.5 mr-1" /> Remove
+                    </Button>
+                  </div>
+                )}
               </div>
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="ghost" onClick={() => setIsEditing(false)} className="h-12 px-6">Cancel</Button>
