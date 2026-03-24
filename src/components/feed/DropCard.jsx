@@ -10,12 +10,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
-export default function DropCard({ drop, user, dropUser, likeMutation, handleShare }) {
+export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [] }) {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
   const queryClient = useQueryClient();
+  
+  const userHasLiked = userLikes.some(like => like.drop_id === drop.id);
 
   const { data: comments = [] } = useQuery({
     queryKey: ["comments", drop.id],
@@ -254,9 +256,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1.5">
             <button 
               onClick={(e) => { e.stopPropagation(); likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name}); }} 
-              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+              disabled={userHasLiked}
+              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+              title={userHasLiked ? "You already liked this" : "Like this drop"}
             >
-              <Heart className={`w-6 h-6 transition-all ${drop.likes_count > 0 ? "text-red-500 fill-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "text-white hover:scale-110"}`} />
+              <Heart className={`w-6 h-6 transition-all ${userHasLiked ? "text-red-500 fill-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : drop.likes_count > 0 ? "text-red-500 fill-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "text-white hover:scale-110"}`} />
             </button>
             <span className="text-white text-xs font-bold drop-shadow-md">{drop.likes_count || 0}</span>
           </div>

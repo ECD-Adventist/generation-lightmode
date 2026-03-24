@@ -391,24 +391,25 @@ export default function Feed() {
             </div>
           ) : (
             drops.filter(drop => {
-              if (activeFilter === 'All') return true;
-              if (activeFilter === 'Most Liked') return drop.likes_count >= 1;
-              if (activeFilter === 'Devotional') return drop.category === 'Devotional';
-              if (activeFilter === 'Testimony') return drop.category === 'Testimony';
-              return drop.category === activeFilter;
-            }).sort((a, b) => {
-              if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
-              return new Date(b.created_date || 0) - new Date(a.created_date || 0);
-            }).map(drop => (
-              <DropCard 
-                key={drop.id} 
-                drop={drop} 
-                user={user} 
-                dropUser={getUserInfo(drop.user_email)}
-                likeMutation={likeMutation}
-                handleShare={handleShare}
-              />
-            ))
+               if (activeFilter === 'All') return true;
+               if (activeFilter === 'Most Liked') return drop.likes_count >= 1;
+               if (activeFilter === 'Devotional') return drop.category === 'Devotional';
+               if (activeFilter === 'Testimony') return drop.category === 'Testimony';
+               return drop.category === activeFilter;
+             }).sort((a, b) => {
+               if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
+               return new Date(b.created_date || 0) - new Date(a.created_date || 0);
+             }).map(drop => (
+               <DropCard 
+                 key={drop.id} 
+                 drop={drop} 
+                 user={user} 
+                 dropUser={getUserInfo(drop.user_email)}
+                 likeMutation={likeMutation}
+                 handleShare={handleShare}
+                 userLikes={userLikes}
+               />
+             ))
           )}
         </div>
         
