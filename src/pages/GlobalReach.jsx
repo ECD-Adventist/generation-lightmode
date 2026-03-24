@@ -195,30 +195,44 @@ export default function GlobalReach() {
       <div className="max-w-7xl mx-auto px-4 py-8 grid lg:grid-cols-[1fr_340px] gap-6">
 
         {/* LEFT: Map + Controls */}
-        <div className="space-y-4">
-          {/* Header */}
-          <div className="bg-[#121826] border border-white/10 rounded-3xl p-6">
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div className="space-y-6">
+          {/* Hero Section */}
+          <div className="bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-white/10 rounded-3xl p-8 shadow-[0_0_40px_rgba(0,207,255,0.08)]">
+            <div className="flex items-start justify-between mb-6">
               <div>
-                <h1 className="text-3xl font-bold font-['Space_Grotesk']">Global Reach</h1>
-                <p className="text-gray-400 mt-1 text-sm">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 mb-4">
+                  <span className="w-2 h-2 rounded-full bg-[#00CFFF] animate-pulse"></span>
+                  <span className="text-[#00CFFF] text-xs font-bold tracking-wider uppercase">Live Global Map</span>
+                </div>
+                <h1 className="text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] mb-2">
+                  Global Reach
+                </h1>
+                <p className="text-gray-400 text-sm max-w-md">
                   {mapMode === "warriors"
-                    ? "Light Warriors density — see where believers are gathering."
-                    : "Glow Drop heatmap — explore faith stories from around the world."}
+                    ? "Explore where Light Warriors are building faith communities worldwide."
+                    : "Discover inspiring Glow Drops shared by believers across nations."}
                 </p>
               </div>
 
-              {/* Toggle */}
-              <div className="flex bg-[#0B0F1A] border border-white/10 rounded-2xl p-1 gap-1 shrink-0">
+              {/* View Toggle */}
+              <div className="flex bg-[#0B0F1A] border border-white/10 rounded-2xl p-1.5 gap-1 shrink-0 shadow-[0_0_20px_rgba(0,207,255,0.1)]">
                 <button
                   onClick={() => setMapMode("warriors")}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${mapMode === "warriors" ? "bg-[#00CFFF] text-black shadow-[0_0_15px_rgba(0,207,255,0.4)]" : "text-gray-400 hover:text-white"}`}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                    mapMode === "warriors"
+                      ? "bg-gradient-to-r from-[#00CFFF] to-[#00CFFF] text-black shadow-[0_0_20px_rgba(0,207,255,0.5)]"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
                 >
                   <Users className="w-4 h-4" /> Warriors
                 </button>
                 <button
                   onClick={() => setMapMode("drops")}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${mapMode === "drops" ? "bg-[#FFD000] text-black shadow-[0_0_15px_rgba(255,208,0,0.4)]" : "text-gray-400 hover:text-white"}`}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                    mapMode === "drops"
+                      ? "bg-gradient-to-r from-[#FFD000] to-[#FFD000] text-black shadow-[0_0_20px_rgba(255,208,0,0.5)]"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
                 >
                   <Zap className="w-4 h-4" /> Drops
                 </button>
@@ -226,16 +240,44 @@ export default function GlobalReach() {
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-6 mt-4 text-xs text-gray-500">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[10px]">
               {mapMode === "warriors" ? (
                 <>
-                  <div className="flex items-center gap-2"><div className="w-4 h-4 rounded-full bg-[#00CFFF] opacity-50" /> Small circle = fewer members</div>
-                  <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-full bg-[#00CFFF] opacity-70" /> Large circle = more members</div>
+                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
+                    <div className="w-3 h-3 rounded-full bg-[#FFD000]" />
+                    <span className="text-gray-300">Your region</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
+                    <div className="w-3 h-3 rounded-full bg-[#00CFFF]" />
+                    <span className="text-gray-300">Other nations</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
+                    <div className="w-4 h-4 rounded-full bg-[#00CFFF]/40" />
+                    <span className="text-gray-300">Low density</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
+                    <div className="w-5 h-5 rounded-full bg-[#00CFFF]" />
+                    <span className="text-gray-300">High density</span>
+                  </div>
                 </>
               ) : (
                 <>
-                  <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[#FFD000]" /> Click a drop pin to read the story</div>
-                  <div className="flex items-center gap-2"><Heart className="w-3 h-3 text-red-400" /> Liked drops glow brighter</div>
+                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
+                    <Heart className="w-3 h-3 text-red-400" />
+                    <span className="text-gray-300">Few likes</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
+                    <Heart className="w-4 h-4 text-red-400" />
+                    <span className="text-gray-300">Popular</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
+                    <Zap className="w-3 h-3 text-[#FFD000]" />
+                    <span className="text-gray-300">Click to view</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
+                    <TrendingUp className="w-3 h-3 text-[#00CFFF]" />
+                    <span className="text-gray-300">Newest first</span>
+                  </div>
                 </>
               )}
             </div>
