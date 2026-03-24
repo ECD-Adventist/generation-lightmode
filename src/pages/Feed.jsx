@@ -331,7 +331,13 @@ export default function Feed() {
            <h2 className="text-xl font-bold text-white">For You</h2>
            <div className="relative w-64">
              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-             <input type="text" placeholder="Search the nexus..." className="w-full bg-[#121826] border border-white/5 rounded-full py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-[#00CFFF]/50" />
+             <input 
+               type="text" 
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               placeholder="Search Lights by verse, reflection..." 
+               className="w-full bg-[#121826] border border-white/5 rounded-full py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-[#00CFFF]/50" 
+             />
            </div>
         </div>
 
@@ -388,41 +394,53 @@ export default function Feed() {
           {dropsLoading ? (
             <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>
           ) : drops.filter(drop => {
-            if (activeFilter === 'All') return true;
-            if (activeFilter === 'Most Liked') return drop.likes_count >= 5;
-            if (activeFilter === 'Devotional') return drop.category === 'Devotional';
-            if (activeFilter === 'Testimony') return drop.category === 'Testimony';
-            return drop.category === activeFilter;
+            const matchesFilter = activeFilter === 'All' || 
+              (activeFilter === 'Most Liked' && drop.likes_count >= 5) ||
+              (activeFilter === 'Devotional' && drop.category === 'Devotional') ||
+              (activeFilter === 'Testimony' && drop.category === 'Testimony');
+
+            const matchesSearch = !searchQuery || 
+              drop.verse?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              drop.reflection?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              drop.hashtags?.toLowerCase().includes(searchQuery.toLowerCase());
+
+            return matchesFilter && matchesSearch;
           }).sort((a, b) => {
             if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
             return new Date(b.created_date || 0) - new Date(a.created_date || 0);
           }).length === 0 ? (
             <div className="text-center py-20 text-gray-500">
               <div className="text-4xl mb-4">✨</div>
-              <p>No drops found for this filter. Be the first to share your light!</p>
-              <button onClick={() => setIsDropModalOpen(true)} className="inline-block mt-4 text-[#00CFFF] hover:underline">Submit a Drop</button>
+              <p>{searchQuery ? 'No Lights found matching your search. Try different keywords!' : 'No Lights found for this filter. Be the first to share your light!'}</p>
+              <button onClick={() => setIsDropModalOpen(true)} className="inline-block mt-4 text-[#00CFFF] hover:underline">Submit a Light</button>
             </div>
           ) : (
             drops.filter(drop => {
-               if (activeFilter === 'All') return true;
-               if (activeFilter === 'Most Liked') return drop.likes_count >= 1;
-               if (activeFilter === 'Devotional') return drop.category === 'Devotional';
-               if (activeFilter === 'Testimony') return drop.category === 'Testimony';
-               return drop.category === activeFilter;
-             }).sort((a, b) => {
-               if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
-               return new Date(b.created_date || 0) - new Date(a.created_date || 0);
-             }).map(drop => (
-               <DropCard 
-                 key={drop.id} 
-                 drop={drop} 
-                 user={user} 
-                 dropUser={getUserInfo(drop.user_email)}
-                 likeMutation={likeMutation}
-                 handleShare={handleShare}
-                 userLikes={userLikes}
-               />
-             ))
+              const matchesFilter = activeFilter === 'All' || 
+                (activeFilter === 'Most Liked' && drop.likes_count >= 1) ||
+                (activeFilter === 'Devotional' && drop.category === 'Devotional') ||
+                (activeFilter === 'Testimony' && drop.category === 'Testimony');
+
+              const matchesSearch = !searchQuery || 
+                drop.verse?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                drop.reflection?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                drop.hashtags?.toLowerCase().includes(searchQuery.toLowerCase());
+
+              return matchesFilter && matchesSearch;
+            }).sort((a, b) => {
+              if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
+              return new Date(b.created_date || 0) - new Date(a.created_date || 0);
+            }).map(drop => (
+              <DropCard 
+                key={drop.id} 
+                drop={drop} 
+                user={user} 
+                dropUser={getUserInfo(drop.user_email)}
+                likeMutation={likeMutation}
+                handleShare={handleShare}
+                userLikes={userLikes}
+              />
+            ))
           )}
         </div>
         
