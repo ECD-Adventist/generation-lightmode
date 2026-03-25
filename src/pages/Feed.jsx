@@ -73,9 +73,7 @@ export default function Feed() {
   const { data: stories = [] } = useQuery({
     queryKey: ["activeStories"],
     queryFn: () => base44.entities.Story.list("-created_date", 50),
-    enabled: !!user,
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
+    enabled: !!user
   });
 
   const followMutation = useMutation({
@@ -250,6 +248,26 @@ export default function Feed() {
         return new Date(b.created_date || 0) - new Date(a.created_date || 0);
       });
   }, [drops, activeFilter, searchQuery]);
+
+  const trendingTopics = useMemo(() => {
+    const counts = new Map();
+
+    drops.forEach((drop) => {
+      const tags = (drop.hashtags || "")
+        .split(/[\s,]+/)
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.startsWith("#") && tag.length > 1);
+
+      tags.forEach((tag) => {
+        counts.set(tag, (counts.get(tag) || 0) + 1);
+      });
+    });
+
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([tag, count]) => ({ tag, count }));
+  }, [drops]);
 
   // No blocking loading state — render feed immediately, user loads in background
 
@@ -507,35 +525,19 @@ export default function Feed() {
             <h3 className="font-black text-xs text-[#00CFFF] mb-4 tracking-widest uppercase">Trending Vibes</h3>
             
             <div className="space-y-4">
-              <div className="group cursor-pointer">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Faith + Trending</span>
-                  <MoreHorizontal className="w-3 h-3 text-gray-600" />
+              {trendingTopics.length === 0 ? (
+                <p className="text-xs text-gray-500">No live hashtags yet.</p>
+              ) : trendingTopics.map((topic) => (
+                <div key={topic.tag} className="group">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Live hashtag</span>
+                    <MoreHorizontal className="w-3 h-3 text-gray-600" />
+                  </div>
+                  <h4 className="font-bold text-sm text-white group-hover:text-[#00CFFF] transition">{topic.tag}</h4>
+                  <p className="text-[10px] text-gray-500 mt-0.5">{topic.count} drop{topic.count === 1 ? '' : 's'}</p>
                 </div>
-                <h4 className="font-bold text-sm text-white group-hover:text-[#00CFFF] transition">#MorningDevotional</h4>
-                <p className="text-[10px] text-gray-500 mt-0.5">42.5k Vibes</p>
-              </div>
-
-              <div className="group cursor-pointer">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Testimony + Trending</span>
-                  <MoreHorizontal className="w-3 h-3 text-gray-600" />
-                </div>
-                <h4 className="font-bold text-sm text-white group-hover:text-[#00CFFF] transition">#HeHeals</h4>
-                <p className="text-[10px] text-gray-500 mt-0.5">18.2k Vibes</p>
-              </div>
-
-              <div className="group cursor-pointer">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Worship + Trending</span>
-                  <span className="w-1 h-1 bg-[#00CFFF] rounded-full shadow-[0_0_5px_#00CFFF]"></span>
-                </div>
-                <h4 className="font-bold text-sm text-white group-hover:text-[#00CFFF] transition">#SundayServiceLive</h4>
-                <p className="text-[10px] text-gray-500 mt-0.5">105k Vibes</p>
-              </div>
+              ))}
             </div>
-            
-            <button className="text-xs font-bold text-[#00CFFF] mt-5 hover:text-white transition">View More</button>
           </div>
 
           {/* People to Connect */}
