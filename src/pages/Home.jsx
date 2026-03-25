@@ -241,14 +241,7 @@ export default function Home() {
             50% { filter: drop-shadow(0 0 120px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1.1); }
           }
         `}</style>
-        <div className="w-full max-w-[280px] md:max-w-[480px] lg:max-w-[600px] mb-8 relative z-10">
-          <img
-            src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
-            alt="Generation LightMode"
-            className="w-full h-auto"
-            style={{ animation: "logo-glow 4s ease-in-out infinite" }}
-          />
-        </div>
+
 
         <h1 className="glm-headline" style={{ position: "relative", zIndex: 2, fontSize: "clamp(30px, 5.5vw, 68px)", lineHeight: 1.1, marginBottom: 24, maxWidth: 900 }}>
           {t("heroTitleBefore")}{" "}

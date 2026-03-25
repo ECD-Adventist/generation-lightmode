@@ -282,13 +282,13 @@ export default function Layout({ children, currentPageName }) {
           opacity: scrolled ? 0 : 1,
           pointerEvents: "none",
         }} />
-        <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[110px] md:h-[280px] lg:h-[160px] w-full">
+        <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[70px] md:h-[70px] lg:h-[80px] w-full mt-2">
           {/* Logo */}
           <Link to={createPageUrl("Home")} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
               alt="Generation LightMode"
-              className="h-[80px] md:h-[250px] lg:h-[128px] w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.6)]"
+              className="h-[40px] md:h-[48px] lg:h-[56px] w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.6)]"
             />
           </Link>
 
