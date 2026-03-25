@@ -213,7 +213,7 @@ export default function OverviewTab({ user }) {
               <div className="aspect-square rounded-xl bg-gradient-to-br from-[#00CFFF]/20 to-transparent border border-[#00CFFF]/30 flex flex-col items-center justify-center text-center p-1" title="Glow Starter">
                 <span className="text-xl mb-1 drop-shadow-md">💡</span>
               </div>
-              <div className={`aspect-square rounded-xl flex flex-col items-center justify-center text-center p-1 border ${streak >= 7 ? 'bg-gradient-to-br from-[#FFD000]/20 to-transparent border-[#FFD000]/30' : 'bg-white/5 border-white/5 opacity-40 grayscale'}`} title="7 Day Streak">
+              <div className={`aspect-square rounded-xl flex flex-col items-center justify-center text-center p-1 border ${(user.daily_checkin_streak || user.streak_count || 0) >= 7 ? 'bg-gradient-to-br from-[#FFD000]/20 to-transparent border-[#FFD000]/30' : 'bg-white/5 border-white/5 opacity-40 grayscale'}`} title="7 Day Streak">
                 <span className="text-xl mb-1 drop-shadow-md">🔥</span>
               </div>
               <div className={`aspect-square rounded-xl flex flex-col items-center justify-center text-center p-1 border ${glowDrops.length >= 10 ? 'bg-gradient-to-br from-[#1DA1FF]/20 to-transparent border-[#1DA1FF]/30' : 'bg-white/5 border-white/5 opacity-40 grayscale'}`} title="10 Drops">
