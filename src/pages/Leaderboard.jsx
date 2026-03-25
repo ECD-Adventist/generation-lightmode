@@ -10,7 +10,7 @@ import { differenceInDays } from "date-fns";
 export default function Leaderboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [timeFilter, setTimeFilter] = useState("all-time"); // "this-week" | "all-time" | "my-region"
+  const [timeFilter, setTimeFilter] = useState("all-time");
 
   useEffect(() => {
     base44.auth.isAuthenticated().then((isAuth) => {
@@ -28,33 +28,14 @@ export default function Leaderboard() {
     enabled: !!user,
   });
 
-  const { data: drops = [] } = useQuery({
-    queryKey: ["leaderboardDrops"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 500),
-    enabled: !!user,
-  });
-
-  // Compute leaderboard based on filter
   const leaderboard = useMemo(() => {
-    const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-    // Filter users by time period if needed
     let filteredUsers = users;
-    if (timeFilter === "this-week") {
-      // Only include users who have been active in the past week
-      filteredUsers = users.filter(u => {
-        const userDrops = drops.filter(d => d.user_email === u.email);
-        return userDrops.some(d => new Date(d.created_date) > sevenDaysAgo);
-      });
-    } else if (timeFilter === "my-region") {
-      // Only include users in the same region
+    if (timeFilter === "my-region") {
       filteredUsers = users.filter(u => u.country === user?.country);
     }
 
-    // Sort by glow_score descending
-    return filteredUsers.sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0));
-  }, [users, drops, timeFilter, user?.country]);
+    return [...filteredUsers].sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0));
+  }, [users, timeFilter, user?.country]);
 
   const getMedalEmoji = (index) => {
     if (index === 0) return "🥇";
@@ -130,7 +111,6 @@ export default function Leaderboard() {
             </div>
             <div className="flex gap-2">
               {[
-                { id: "this-week", label: "This Week", icon: TrendingUp },
                 { id: "all-time", label: "All Time", icon: Flame },
                 { id: "my-region", label: "My Region", icon: MapPin }
               ].map(filter => (
