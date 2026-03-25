@@ -23,6 +23,8 @@ export default function Feed() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [selectedStory, setSelectedStory] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -65,6 +67,12 @@ export default function Feed() {
   const { data: following = [] } = useQuery({
     queryKey: ["following", user?.email],
     queryFn: () => base44.entities.Follow.filter({ follower_email: user?.email }),
+    enabled: !!user
+  });
+
+  const { data: stories = [] } = useQuery({
+    queryKey: ["activeStories"],
+    queryFn: () => base44.entities.Story.list("-created_date", 50),
     enabled: !!user
   });
 
@@ -204,6 +212,21 @@ export default function Feed() {
     if (user?.email === email) return user;
     return users.find(u => u.email === email) || { full_name: "Glow Believer" };
   };
+
+  const activeStories = useMemo(() => {
+    const now = Date.now();
+    const latestByUser = new Map();
+
+    stories
+      .filter((story) => story.expires_at && new Date(story.expires_at).getTime() > now)
+      .forEach((story) => {
+        if (!latestByUser.has(story.user_email)) {
+          latestByUser.set(story.user_email, story);
+        }
+      });
+
+    return Array.from(latestByUser.values());
+  }, [stories]);
 
   const filteredDrops = useMemo(() => {
     return [...drops]
@@ -364,29 +387,56 @@ export default function Feed() {
            </div>
         </div>
 
-        {/* Stories / Vibes Row */}
-        <div className="flex gap-4 px-4 mb-8 overflow-x-auto hide-scrollbar pb-2 shrink-0">
-          {/* Own Story / Live */}
-          <div className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0">
-             <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-b from-[#00CFFF] to-transparent">
-                <div className="w-full h-full rounded-full border-[2px] border-[#0B0F1A] overflow-hidden bg-gray-800">
+        {/* Stories / Status Row */}
+        <div className="flex gap-4 px-4 mb-8 overflow-x-auto hide-scrollbar pb-2 shrink-0 items-start">
+          <button
+            onClick={() => user ? setIsStatusModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
+            className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0"
+          >
+             <div className="relative w-16 h-16 rounded-full p-[2px] bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF]">
+                <div className="w-full h-full rounded-full border-[2px] border-[#0B0F1A] overflow-hidden bg-[#121826] flex items-center justify-center">
                   <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                 </div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#00CFFF] text-black text-sm font-black flex items-center justify-center border-2 border-[#0B0F1A]">+</div>
              </div>
-             <span className="text-[10px] font-bold text-[#00CFFF] uppercase tracking-wider">LIVE</span>
-          </div>
+             <span className="text-[10px] font-bold text-[#00CFFF] uppercase tracking-wider">ADD STATUS</span>
+          </button>
 
-          {/* Other users mock stories */}
-          {users.filter(u => u.email !== user?.email).slice(0, 5).map(u => (
-            <div key={u.id} className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0 opacity-80 hover:opacity-100 transition-opacity">
-               <div className="w-16 h-16 rounded-full bg-[#121826] border border-white/10 overflow-hidden p-1">
-                  <div className="w-full h-full rounded-full bg-gray-800 overflow-hidden">
-                    <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+          {activeStories.map((story) => {
+            const storyUser = getUserInfo(story.user_email);
+            const themeClass = story.background_theme === "violet"
+              ? "from-[#8A5CFF] to-[#3B1E70]"
+              : story.background_theme === "sunrise"
+              ? "from-[#FFD000] to-[#F97316]"
+              : story.background_theme === "midnight"
+              ? "from-[#121826] to-[#0B0F1A]"
+              : "from-[#00CFFF] to-[#1DA1FF]";
+
+            return (
+              <button
+                key={story.id}
+                onClick={() => setSelectedStory(story)}
+                className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0 opacity-90 hover:opacity-100 transition-opacity"
+              >
+                <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-br from-[#FFD000] to-[#00CFFF]">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-[#121826] flex items-center justify-center">
+                    {story.story_type === "image" && story.media_url ? (
+                      <img src={story.media_url} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className={`w-full h-full rounded-full bg-gradient-to-br ${themeClass} flex items-center justify-center text-white font-black text-lg`}>
+                        Aa
+                      </div>
+                    )}
                   </div>
-               </div>
-               <span className="text-[10px] font-medium text-gray-400 truncate w-16 text-center">{u.full_name?.split(' ')[0]}</span>
-            </div>
-          ))}
+                </div>
+                <span className="text-[10px] font-medium text-gray-400 truncate w-16 text-center">{storyUser?.email === user?.email ? "You" : storyUser?.full_name?.split(' ')[0]}</span>
+              </button>
+            );
+          })}
+
+          {activeStories.length === 0 && (
+            <div className="flex items-center h-16 px-3 text-xs text-gray-500 whitespace-nowrap">No statuses yet. Be the first to post one.</div>
+          )}
         </div>
 
         <div className="flex gap-3 px-4 mb-6 overflow-x-auto hide-scrollbar shrink-0">
@@ -529,6 +579,13 @@ export default function Feed() {
         </div>
         
         <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
+        <StatusComposerModal isOpen={isStatusModalOpen} onClose={() => setIsStatusModalOpen(false)} user={user} />
+        <StatusViewerModal
+          story={selectedStory}
+          storyUser={selectedStory ? getUserInfo(selectedStory.user_email) : null}
+          isOpen={!!selectedStory}
+          onClose={() => setSelectedStory(null)}
+        />
 
         {/* Bottom Mobile Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F1A]/90 backdrop-blur-xl border-t border-white/10 flex justify-around items-center py-3 px-6 z-50 pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden">
