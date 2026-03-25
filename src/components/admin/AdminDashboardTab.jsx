@@ -1,30 +1,35 @@
 import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { createPageUrl } from "@/utils";
 import { Users, Zap, Target, Globe, Activity, Trophy, TrendingUp, ArrowUpRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Area, AreaChart } from "recharts";
 
-const StatCard = ({ label, value, icon: Icon, color, bg, border, trend }) => (
-  <div className={`relative overflow-hidden rounded-2xl p-5 border ${border} ${bg} group hover:scale-[1.02] transition-transform duration-300`}>
-    {/* Glow blob */}
-    <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full blur-2xl opacity-30 pointer-events-none" style={{ background: color }} />
-    <div className="flex items-start justify-between">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">{label}</p>
-        <h3 className="text-3xl font-black font-['Space_Grotesk'] text-white leading-none">{typeof value === "number" ? value.toLocaleString() : value}</h3>
-        {trend && (
-          <div className="flex items-center gap-1 mt-2">
-            <ArrowUpRight size={12} className="text-green-400" />
-            <span className="text-xs text-green-400 font-semibold">{trend}</span>
-          </div>
-        )}
-      </div>
-      <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${color}22`, border: `1px solid ${color}44` }}>
-        <Icon size={20} style={{ color }} />
+const StatCard = ({ label, value, icon: Icon, color, bg, border, trend, to }) => {
+  const content = (
+    <div className={`relative overflow-hidden rounded-2xl p-5 border ${border} ${bg} group hover:scale-[1.02] transition-transform duration-300 cursor-pointer`}>
+      <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full blur-2xl opacity-30 pointer-events-none" style={{ background: color }} />
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">{label}</p>
+          <h3 className="text-3xl font-black font-['Space_Grotesk'] text-white leading-none">{typeof value === "number" ? value.toLocaleString() : value}</h3>
+          {trend && (
+            <div className="flex items-center gap-1 mt-2">
+              <ArrowUpRight size={12} className="text-green-400" />
+              <span className="text-xs text-green-400 font-semibold">{trend}</span>
+            </div>
+          )}
+        </div>
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${color}22`, border: `1px solid ${color}44` }}>
+          <Icon size={20} style={{ color }} />
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+
+  return to ? <Link to={to}>{content}</Link> : content;
+};
 
 const CustomTooltip = ({ active, payload, label, color }) => {
   if (active && payload && payload.length) {
@@ -88,12 +93,12 @@ export default function AdminDashboardTab() {
   }, [drops]);
 
   const stats = [
-    { label: "Total Users", value: users.length, icon: Users, color: "#00CFFF", bg: "bg-[#00CFFF]/5", border: "border-[#00CFFF]/15" },
-    { label: "Total Glow Drops", value: drops.length, icon: Zap, color: "#FFD000", bg: "bg-[#FFD000]/5", border: "border-[#FFD000]/15", trend: `${recentDrops} this week` },
-    { label: "Active Groups", value: groups.length, icon: Activity, color: "#8A5CFF", bg: "bg-[#8A5CFF]/5", border: "border-[#8A5CFF]/15" },
-    { label: "Active Challenges", value: challenges.filter(c => c.active).length, icon: Target, color: "#ef4444", bg: "bg-red-500/5", border: "border-red-500/15" },
-    { label: "Countries", value: uniqueCountries, icon: Globe, color: "#22c55e", bg: "bg-green-500/5", border: "border-green-500/15" },
-    { label: "Approved Drops", value: drops.filter(d => d.status === "approved").length, icon: Trophy, color: "#f97316", bg: "bg-orange-500/5", border: "border-orange-500/15" },
+    { label: "Total Users", value: users.length, icon: Users, color: "#00CFFF", bg: "bg-[#00CFFF]/5", border: "border-[#00CFFF]/15", to: `${createPageUrl("AdminCenter")}?tab=users` },
+    { label: "Total Glow Drops", value: drops.length, icon: Zap, color: "#FFD000", bg: "bg-[#FFD000]/5", border: "border-[#FFD000]/15", trend: `${recentDrops} this week`, to: `${createPageUrl("AdminCenter")}?tab=drops` },
+    { label: "Active Groups", value: groups.length, icon: Activity, color: "#8A5CFF", bg: "bg-[#8A5CFF]/5", border: "border-[#8A5CFF]/15", to: `${createPageUrl("AdminCenter")}?tab=groups` },
+    { label: "Active Challenges", value: challenges.filter(c => c.active).length, icon: Target, color: "#ef4444", bg: "bg-red-500/5", border: "border-red-500/15", to: `${createPageUrl("AdminCenter")}?tab=challenges` },
+    { label: "Countries", value: uniqueCountries, icon: Globe, color: "#22c55e", bg: "bg-green-500/5", border: "border-green-500/15", to: `${createPageUrl("AdminCenter")}?tab=countries` },
+    { label: "Approved Drops", value: drops.filter(d => d.status === "approved").length, icon: Trophy, color: "#f97316", bg: "bg-orange-500/5", border: "border-orange-500/15", to: `${createPageUrl("AdminCenter")}?tab=drops` },
   ];
 
   return (
