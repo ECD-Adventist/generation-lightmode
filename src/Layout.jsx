@@ -492,7 +492,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Page Content */}
-      <main className={isAppShellPage || currentPageName === "Home" ? "pt-0" : "pt-[110px] md:pt-[280px] lg:pt-[160px]"}>
+      <main className={isAppShellPage || currentPageName === "Home" ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"}>
         {children}
       </main>
 
