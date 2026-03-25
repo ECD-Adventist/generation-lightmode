@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
 import { createPageUrl } from "@/utils";
 import { ArrowRight, Sparkles, Users, Globe2, Radio, Shield, Smartphone, Home, Zap, Bell, User, Globe } from "lucide-react";
 import { useAppLanguage } from "../components/i18n/useAppLanguage";
@@ -46,6 +47,12 @@ const partners = [
 
 export default function About() {
   const { t, isRTL, language } = useAppLanguage("about");
+  const { data: snapshot } = usePublicCommunitySnapshot();
+  const liveImpactStats = [
+    { value: snapshot.totalUsers || 0, label: "Public Members", color: "#00CFFF" },
+    { value: snapshot.totalDrops || 0, label: "Glow Drops", color: "#FFD000" },
+    { value: snapshot.totalCountries || 0, label: "Countries", color: "#8A5CFF" },
+  ];
 
   useEffect(() => {
     if (!window.location.hash) {
@@ -139,10 +146,10 @@ export default function About() {
             <div style={{ position: "absolute", left: 24, right: 24, bottom: 24 }}>
               <div className="glm-card" style={{ background: "rgba(8,12,20,0.78)", backdropFilter: "blur(14px)", border: "1px solid rgba(255,255,255,0.1)", padding: 24 }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16 }}>
-                  {impactStats.map((stat) => (
-                    <div key={stat.labelKey}>
+                  {liveImpactStats.map((stat) => (
+                    <div key={stat.label}>
                       <div className="glm-headline" style={{ fontSize: 32, color: stat.color, marginBottom: 6 }}>{stat.value}</div>
-                      <div className="glm-body" style={{ fontSize: 13 }}>{t(stat.labelKey)}</div>
+                      <div className="glm-body" style={{ fontSize: 13 }}>{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -179,10 +186,10 @@ export default function About() {
             </div>
             <div className="glm-card" style={{ background: "linear-gradient(135deg, rgba(138,92,255,0.14), rgba(11,15,26,0.98))", border: "1px solid rgba(138,92,255,0.2)" }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 14 }}>
-                {impactStats.map((stat) => (
-                  <div key={stat.labelKey}>
+                {liveImpactStats.map((stat) => (
+                  <div key={stat.label}>
                     <div className="glm-headline" style={{ fontSize: 30, color: stat.color }}>{stat.value}</div>
-                    <div className="glm-body" style={{ fontSize: 12 }}>{t(stat.labelKey)}</div>
+                    <div className="glm-body" style={{ fontSize: 12 }}>{stat.label}</div>
                   </div>
                 ))}
               </div>
