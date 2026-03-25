@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import ProfileConnectionsModal from "@/components/profile/ProfileConnectionsModal";
+import { isNotificationEnabled } from "@/lib/notifications";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -147,12 +148,15 @@ export default function Profile() {
       }
 
       await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: targetEmail });
-      await base44.entities.Notification.create({
-        user_email: targetEmail,
-        type: "follow",
-        message: `${currentUser.full_name || "Someone"} started following you.`,
-        link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`
-      });
+      const targetUser = allUsersForProfile.find(u => u.email === targetEmail);
+      if (isNotificationEnabled(targetUser, "follows")) {
+        await base44.entities.Notification.create({
+          user_email: targetEmail,
+          type: "follow",
+          message: `${currentUser.full_name || "Someone"} started following you.`,
+          link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`
+        });
+      }
       return { targetEmail, action: "follow" };
     },
     onSuccess: ({ targetEmail, action }) => {

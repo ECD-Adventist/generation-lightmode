@@ -6,6 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
+import { isNotificationEnabled } from "@/lib/notifications";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -93,7 +94,7 @@ export default function Post() {
   const commentMutation = useMutation({
     mutationFn: async (content) => {
       await base44.entities.GlowDropComment.create({ drop_id: drop.id, user_email: currentUser.email, content });
-      if (drop.user_email && drop.user_email !== currentUser.email) {
+      if (drop.user_email && drop.user_email !== currentUser.email && isNotificationEnabled(dropAuthor, "comments")) {
         await base44.entities.Notification.create({
           user_email: drop.user_email,
           type: "reply",

@@ -13,6 +13,9 @@ import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import DailyChallenges from "@/components/feed/DailyChallenges";
 import DailyCodeWidget from "@/components/feed/DailyCodeWidget";
 import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
+import { isNotificationEnabled } from "@/lib/notifications";
+import StatusComposerModal from "@/components/feed/StatusComposerModal";
+import StatusViewerModal from "@/components/feed/StatusViewerModal";
 
 export default function Feed() {
   const [user, setUser] = useState(null);
@@ -75,12 +78,15 @@ export default function Feed() {
         return true;
       } else {
         await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
-        await base44.entities.Notification.create({
-          user_email: targetEmail,
-          type: "follow",
-          message: `${user.full_name || 'Someone'} started following you.`,
-          link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
-        });
+        const targetUser = users.find(u => u.email === targetEmail);
+        if (isNotificationEnabled(targetUser, "follows")) {
+          await base44.entities.Notification.create({
+            user_email: targetEmail,
+            type: "follow",
+            message: `${user.full_name || 'Someone'} started following you.`,
+            link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
+          });
+        }
         await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
         return false;
       }
@@ -120,7 +126,8 @@ export default function Feed() {
         await base44.entities.GlowDrop.update(id, { likes_count: (likes || 0) + 1 });
         
         // Send notification
-        if (authorEmail && authorEmail !== user.email) {
+        const authorUser = users.find(entry => entry.email === authorEmail);
+        if (authorEmail && authorEmail !== user.email && isNotificationEnabled(authorUser, "likes")) {
           await base44.entities.Notification.create({
             user_email: authorEmail,
             type: "like",

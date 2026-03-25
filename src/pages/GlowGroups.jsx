@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
+import { isNotificationEnabled } from "@/lib/notifications";
 
 const rankColors = { Champion: "#FFD000", Trendsetter: "#8A5CFF", Warrior: "#1DA1FF", Starter: "#00CFFF" };
 
@@ -59,12 +60,15 @@ export default function GlowGroups() {
         await base44.entities.Follow.delete(rec.id);
       } else {
         await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
-        await base44.entities.Notification.create({
-          user_email: targetEmail,
-          type: "follow",
-          message: `${user.full_name || 'Someone'} started following you.`,
-          link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
-        });
+        const targetUser = users.find(u => u.email === targetEmail);
+        if (isNotificationEnabled(targetUser, "follows")) {
+          await base44.entities.Notification.create({
+            user_email: targetEmail,
+            type: "follow",
+            message: `${user.full_name || 'Someone'} started following you.`,
+            link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
+          });
+        }
         await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
       }
       return isFollowing;

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { isNotificationEnabled } from "@/lib/notifications";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [] }) {
   const [showComments, setShowComments] = useState(false);
@@ -85,7 +86,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         user_email: user.email,
         content
       });
-      if (drop.user_email && drop.user_email !== user.email) {
+      if (drop.user_email && drop.user_email !== user.email && isNotificationEnabled(dropUser, "comments")) {
         await base44.entities.Notification.create({
           user_email: drop.user_email,
           type: "reply",
