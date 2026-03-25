@@ -22,8 +22,6 @@ export default function Feed() {
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const [authChecked, setAuthChecked] = useState(false);
-
   useEffect(() => {
     async function checkAuth() {
       try {
@@ -38,8 +36,6 @@ export default function Feed() {
         }
       } catch (err) {
         console.error("Auth check failed:", err);
-      } finally {
-        setAuthChecked(true);
       }
     }
     checkAuth();
@@ -51,18 +47,15 @@ export default function Feed() {
     isError: dropsError,
   } = useGlowDropsFeed();
 
-  const { data: stories = [] } = useQuery({
-    queryKey: ["stories"],
-    queryFn: () => base44.entities.Story.list('-created_date', 20),
-    retry: 1
-  });
-
-  const { data: users = [], isLoading: usersLoading } = useQuery({
+  const { data: users = [] } = useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
       const res = await base44.functions.invoke('listPublicUsers', {});
       return res.data;
     },
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
     retry: false
   });
 
