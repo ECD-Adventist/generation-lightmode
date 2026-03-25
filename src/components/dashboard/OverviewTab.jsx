@@ -49,6 +49,18 @@ export default function OverviewTab({ user }) {
     queryFn: () => base44.entities.Notification.filter({ user_email: user.email, read: false }, '-created_date', 5)
   });
 
+  const { data: dailyCodes = [] } = useQuery({
+    queryKey: ["overviewDailyCodesLatest"],
+    queryFn: () => base44.entities.DailyCode.list('-date_published', 1),
+  });
+
+  const { data: dailyCodeEntries = [] } = useQuery({
+    queryKey: ["overviewCodeOfTruth", dailyCodes[0]?.code_id],
+    queryFn: () => base44.entities.CodeOfTruth.filter({ id: dailyCodes[0]?.code_id }),
+    enabled: !!dailyCodes[0]?.code_id,
+  });
+
+  const dailyCode = dailyCodeEntries[0];
   const myGroup = myMemberships.length > 0 ? allGroups.find(g => g.id === myMemberships[0].group_id) : null;
 
   // Rank calculation
@@ -138,28 +150,28 @@ export default function OverviewTab({ user }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT COLUMN: Daily Drop & Community Feed */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Daily Glow Drop Devotional */}
+          {/* Live Daily Truth */}
           <div className="bg-[#121826] border border-white/5 rounded-3xl p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
               <Zap size={120} />
             </div>
             <div className="flex items-center gap-2 mb-4">
-              <span className="bg-[#FFD000] text-black text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded">Daily Word</span>
-              <span className="text-gray-400 text-xs font-medium">Matthew 5:16</span>
+              <span className="bg-[#FFD000] text-black text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded">Daily Truth</span>
+              {dailyCode?.bible_reference && <span className="text-gray-400 text-xs font-medium">{dailyCode.bible_reference}</span>}
             </div>
             <h3 className="text-2xl font-bold font-['Space_Grotesk'] text-white mb-3 relative z-10 leading-snug">
-              "Let your light shine before others, that they may see your good deeds and glorify your Father in heaven."
+              {dailyCode?.title || dailyCode?.slogan_text || "No live daily truth yet."}
             </h3>
             <p className="text-gray-400 text-sm leading-relaxed mb-6 relative z-10">
-              Don't hide your faith today. Your actions online and offline are a reflection of God's love. How will you shine your light in your community today?
+              {dailyCode?.title ? `"${dailyCode.slogan_text}"` : dailyCode?.slogan_text || "Publish a Daily Code to show live truth here."}
             </p>
             <div className="flex flex-wrap gap-3 relative z-10">
               <Button onClick={() => setIsDropModalOpen(true)} className="bg-white text-black hover:bg-gray-200 font-bold text-xs">
                 <Share2 size={14} className="mr-2" /> Post as Glow Drop
               </Button>
-              <Button variant="outline" className="border-white/10 hover:bg-white/5 text-gray-300 text-xs">
-                <Bookmark size={14} className="mr-2" /> Save for later
-              </Button>
+              <Link to={createPageUrl("KeepIt100")} className="inline-flex items-center justify-center border border-white/10 hover:bg-white/5 text-gray-300 text-xs rounded-md px-3 py-2 font-medium">
+                <Bookmark size={14} className="mr-2" /> Open Truth Library
+              </Link>
             </div>
           </div>
 
