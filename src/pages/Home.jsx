@@ -241,7 +241,7 @@ export default function Home() {
             50% { filter: drop-shadow(0 0 120px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1.1); }
           }
         `}</style>
-        <div className="w-full max-w-[280px] md:max-w-[480px] lg:max-w-[600px] mb-8 relative z-10">
+        <div className="w-full max-w-[200px] md:max-w-[280px] lg:max-w-[340px] mb-8 relative z-10">
           <img
             src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
             alt="Generation LightMode"
