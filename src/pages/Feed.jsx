@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap, BookOpen } from "lucide-react";
@@ -12,6 +12,7 @@ import DropCard from "@/components/feed/DropCard";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import DailyChallenges from "@/components/feed/DailyChallenges";
 import DailyCodeWidget from "@/components/feed/DailyCodeWidget";
+import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
 
 export default function Feed() {
   const [user, setUser] = useState(null);
@@ -44,11 +45,11 @@ export default function Feed() {
     checkAuth();
   }, []);
 
-  const { data: drops = [], isLoading: dropsLoading } = useQuery({
-    queryKey: ["allGlowDrops"],
-    queryFn: () => base44.entities.GlowDrop.list('-created_date', 50),
-    retry: 1
-  });
+  const {
+    data: drops = [],
+    isLoading: dropsLoading,
+    isError: dropsError,
+  } = useGlowDropsFeed();
 
   const { data: stories = [] } = useQuery({
     queryKey: ["stories"],
@@ -203,6 +204,27 @@ export default function Feed() {
     if (user?.email === email) return user;
     return users.find(u => u.email === email) || { full_name: "Glow Believer" };
   };
+
+  const filteredDrops = useMemo(() => {
+    return [...drops]
+      .filter((drop) => {
+        const matchesFilter = activeFilter === 'All' || 
+          (activeFilter === 'Most Liked' && (drop.likes_count || 0) >= 1) ||
+          (activeFilter === 'Devotional' && drop.category === 'Devotional') ||
+          (activeFilter === 'Testimony' && drop.category === 'Testimony');
+
+        const matchesSearch = !searchQuery || 
+          drop.verse?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          drop.reflection?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          drop.hashtags?.toLowerCase().includes(searchQuery.toLowerCase());
+
+        return matchesFilter && matchesSearch;
+      })
+      .sort((a, b) => {
+        if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
+        return new Date(b.created_date || 0) - new Date(a.created_date || 0);
+      });
+  }, [drops, activeFilter, searchQuery]);
 
   // No blocking loading state — render feed immediately, user loads in background
 
@@ -392,46 +414,22 @@ export default function Feed() {
 
         {/* Feed */}
         <div className="flex flex-col px-3 sm:px-4 py-4 pb-24 lg:pb-6 max-w-2xl mx-auto w-full flex-none">
-          {dropsLoading ? (
+          {dropsLoading && drops.length === 0 ? (
             <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>
-          ) : drops.filter(drop => {
-            const matchesFilter = activeFilter === 'All' || 
-              (activeFilter === 'Most Liked' && drop.likes_count >= 5) ||
-              (activeFilter === 'Devotional' && drop.category === 'Devotional') ||
-              (activeFilter === 'Testimony' && drop.category === 'Testimony');
-
-            const matchesSearch = !searchQuery || 
-              drop.verse?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              drop.reflection?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              drop.hashtags?.toLowerCase().includes(searchQuery.toLowerCase());
-
-            return matchesFilter && matchesSearch;
-          }).sort((a, b) => {
-            if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
-            return new Date(b.created_date || 0) - new Date(a.created_date || 0);
-          }).length === 0 ? (
+          ) : dropsError && filteredDrops.length === 0 ? (
+            <div className="text-center py-20 text-gray-500">
+              <div className="text-4xl mb-4">↻</div>
+              <p>We’re refreshing the feed. Please try again in a moment.</p>
+              <button onClick={() => queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] })} className="inline-block mt-4 text-[#00CFFF] hover:underline">Refresh feed</button>
+            </div>
+          ) : filteredDrops.length === 0 ? (
             <div className="text-center py-20 text-gray-500">
               <div className="text-4xl mb-4">✨</div>
               <p>{searchQuery ? 'No Lights found matching your search. Try different keywords!' : 'No Lights found for this filter. Be the first to share your light!'}</p>
               <button onClick={() => setIsDropModalOpen(true)} className="inline-block mt-4 text-[#00CFFF] hover:underline">Submit a Light</button>
             </div>
           ) : (
-            drops.filter(drop => {
-              const matchesFilter = activeFilter === 'All' || 
-                (activeFilter === 'Most Liked' && drop.likes_count >= 1) ||
-                (activeFilter === 'Devotional' && drop.category === 'Devotional') ||
-                (activeFilter === 'Testimony' && drop.category === 'Testimony');
-
-              const matchesSearch = !searchQuery || 
-                drop.verse?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                drop.reflection?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                drop.hashtags?.toLowerCase().includes(searchQuery.toLowerCase());
-
-              return matchesFilter && matchesSearch;
-            }).sort((a, b) => {
-              if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
-              return new Date(b.created_date || 0) - new Date(a.created_date || 0);
-            }).map(drop => (
+            filteredDrops.map(drop => (
               <DropCard 
                 key={drop.id} 
                 drop={drop} 

@@ -16,8 +16,11 @@ const navLinks = [
   { key: "assistant", page: "Assistant" },
 ];
 
+const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"];
+
 export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const isAppShellPage = appShellPages.includes(currentPageName);
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -260,8 +263,8 @@ export default function Layout({ children, currentPageName }) {
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      {/* NAVBAR — hidden only on pure app pages (Feed, Dashboard, etc.) */}
-      {["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) && userEmail ? null : (
+      {/* NAVBAR — public-site only */}
+      {isAppShellPage ? null : (
         /* Public nav for non-logged-in users */
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
@@ -488,12 +491,12 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Page Content */}
-      <main className={["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) && userEmail ? "pt-0" : (currentPageName === "Home" ? "pt-0" : "pt-[110px] md:pt-[280px] lg:pt-[160px]")}>
+      <main className={isAppShellPage || currentPageName === "Home" ? "pt-0" : "pt-[110px] md:pt-[280px] lg:pt-[160px]"}>
         {children}
       </main>
 
-      {/* FOOTER — hidden for logged-in users on app pages */}
-      {!["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"].includes(currentPageName) || !userEmail ? (
+      {/* FOOTER — public-site only */}
+      {!isAppShellPage ? (
       <footer style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.1)", padding: "60px 24px 40px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 48, marginBottom: 48 }}>
