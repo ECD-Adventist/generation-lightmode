@@ -238,7 +238,7 @@ export default function Home() {
         `}</style>
         <div className="w-full max-w-[280px] md:max-w-[480px] lg:max-w-[600px] mb-8 relative z-10">
           <img
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_692b64307296ee339e64b660/c20e0f05a_GENERATIONLIGHTMODE-LOGO.png"
+            src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
             alt="Generation LightMode"
             className="w-full h-auto"
             style={{ animation: "logo-glow 4s ease-in-out infinite" }}

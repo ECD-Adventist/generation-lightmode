@@ -112,7 +112,7 @@ export default function Saved() {
            {/* Logo */}
            <Link to={createPageUrl("Home")} className="flex items-center mb-10 pl-2">
              <img
-               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
+               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
                alt="LightMode"
                className="h-28 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]"
              />

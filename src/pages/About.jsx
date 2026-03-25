@@ -76,7 +76,7 @@ export default function About() {
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
           <Link to={createPageUrl("Home")} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", shrinkFlex: 0 }}>
             <img
-              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
+              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
               alt="LightMode"
               style={{ height: 56, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
             />

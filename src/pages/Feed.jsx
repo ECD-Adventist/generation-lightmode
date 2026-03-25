@@ -251,7 +251,7 @@ export default function Feed() {
            {/* Logo */}
            <Link to={createPageUrl("Home")} className="flex items-center mb-10 pl-2">
              <img
-               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
+               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
                alt="LightMode"
                className="h-28 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]"
              />
@@ -327,7 +327,7 @@ export default function Feed() {
           {/* Top Header Mobile */}
           <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A]/80 backdrop-blur-xl border-b border-white/10 lg:hidden">
           <img
-            src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/f58fb7f4b_LOGO02ALL.png"
+            src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
             alt="Generation LightMode"
             className="h-20 sm:h-[96px] object-contain drop-shadow-[0_0_8px_rgba(0,207,255,0.4)]"
           />
