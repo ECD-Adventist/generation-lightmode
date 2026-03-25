@@ -42,6 +42,7 @@ export default function Layout({ children, currentPageName }) {
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
+    if (isAppShellPage) return;
     base44.auth.isAuthenticated().then(isAuth => {
       if (isAuth) {
         base44.auth.me().then(me => {
@@ -50,7 +51,7 @@ export default function Layout({ children, currentPageName }) {
         });
       }
     });
-  }, []);
+  }, [isAppShellPage]);
 
   const { data: notifications = [] } = useQuery({
     queryKey: ["notifications", userEmail],
