@@ -1,6 +1,30 @@
 const isNode = typeof window === 'undefined';
-const windowObj = isNode ? { localStorage: new Map() } : window;
-const storage = windowObj.localStorage;
+
+const createMemoryStorage = () => {
+	const store = new Map();
+	return {
+		getItem: (key) => (store.has(key) ? store.get(key) : null),
+		setItem: (key, value) => store.set(key, String(value)),
+		removeItem: (key) => store.delete(key),
+	};
+};
+
+const getSafeStorage = () => {
+	if (isNode) {
+		return createMemoryStorage();
+	}
+
+	try {
+		const testKey = '__base44_storage_test__';
+		window.localStorage.setItem(testKey, '1');
+		window.localStorage.removeItem(testKey);
+		return window.localStorage;
+	} catch {
+		return createMemoryStorage();
+	}
+};
+
+const storage = getSafeStorage();
 
 const toSnakeCase = (str) => {
 	return str.replace(/([A-Z])/g, '_$1').toLowerCase();
