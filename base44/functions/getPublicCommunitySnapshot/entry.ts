@@ -14,12 +14,18 @@ Deno.serve(async (req) => {
     ]);
 
     const hiddenEmails = new Set(['nottainnovation@gmail.com']);
+    const normalizeCountry = (countryName) => {
+      const value = (countryName || 'Global').trim();
+      if (value === 'DR Congo' || value === 'Democratic Republic of the Congo' || value === 'République Démocratique du Congo') return 'République Démocratique du Congo';
+      return value || 'Global';
+    };
+
     const publicUsers = users.filter((user) => !hiddenEmails.has(user.email));
-    const userCountryByEmail = new Map(publicUsers.map((user) => [user.email, user.country || 'Global']));
+    const userCountryByEmail = new Map(publicUsers.map((user) => [user.email, normalizeCountry(user.country)]));
 
     const countryStatsMap = new Map();
     const ensureCountry = (countryName) => {
-      const country = countryName || 'Global';
+      const country = normalizeCountry(countryName);
       if (!countryStatsMap.has(country)) {
         countryStatsMap.set(country, { country, users: 0, groups: 0, drops: 0 });
       }
