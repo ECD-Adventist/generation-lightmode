@@ -4,7 +4,6 @@ import { base44 } from "@/api/base44Client";
 import { Trophy, Medal, Calendar, CalendarDays, Globe } from "lucide-react";
 
 export default function LeaderboardTab({ user }) {
-  const [timeRange, setTimeRange] = useState('all-time');
   const [region, setRegion] = useState('global');
   
   const { data: users = [], isLoading } = useQuery({
@@ -15,27 +14,16 @@ export default function LeaderboardTab({ user }) {
     }
   });
 
-  // Since glow_score is total, we simulate the time-based leaderboards for the community effect
-  // In a real app, this would query a score history table.
   const displayUsers = React.useMemo(() => {
     let filteredUsers = [...users];
     if (region === 'regional' && user?.country) {
       filteredUsers = filteredUsers.filter(u => u.country === user.country);
     }
 
-    if (timeRange === 'all-time') return filteredUsers.slice(0, 10);
-    
-    // Create a deterministic but varied sub-list for Today/Week based on user id
-    return [...filteredUsers]
-      .map(u => ({
-        ...u,
-        displayScore: timeRange === 'today' 
-          ? Math.max(0, Math.floor(u.glow_score * (0.1 + ((u.id.length % 5) / 10)))) 
-          : Math.max(0, Math.floor(u.glow_score * (0.3 + ((u.id.length % 5) / 10))))
-      }))
-      .sort((a, b) => b.displayScore - a.displayScore)
+    return filteredUsers
+      .sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0))
       .slice(0, 10);
-  }, [users, timeRange]);
+  }, [users, region, user?.country]);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -71,26 +59,9 @@ export default function LeaderboardTab({ user }) {
                 Regional
               </button>
             </div>
-            <div className="flex bg-[#0B0F1A] p-1.5 rounded-xl border border-white/10 shrink-0">
-              <button 
-              onClick={() => setTimeRange('today')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${timeRange === 'today' ? 'bg-gradient-to-r from-[#00CFFF]/20 to-[#8A5CFF]/20 text-white shadow-[0_0_15px_rgba(0,207,255,0.2)]' : 'text-gray-500 hover:text-gray-300'}`}
-            >
-              <Calendar className="w-4 h-4" /> Today
-            </button>
-            <button 
-              onClick={() => setTimeRange('week')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${timeRange === 'week' ? 'bg-gradient-to-r from-[#00CFFF]/20 to-[#8A5CFF]/20 text-white shadow-[0_0_15px_rgba(0,207,255,0.2)]' : 'text-gray-500 hover:text-gray-300'}`}
-            >
-              <CalendarDays className="w-4 h-4" /> This Week
-            </button>
-            <button 
-              onClick={() => setTimeRange('all-time')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${timeRange === 'all-time' ? 'bg-gradient-to-r from-[#00CFFF]/20 to-[#8A5CFF]/20 text-white shadow-[0_0_15px_rgba(0,207,255,0.2)]' : 'text-gray-500 hover:text-gray-300'}`}
-            >
-              <Globe className="w-4 h-4" /> All-Time
-            </button>
-          </div>
+            <div className="flex bg-[#0B0F1A] p-1.5 rounded-xl border border-white/10 shrink-0 text-sm text-gray-400 items-center px-4">
+              Live all-time glow scores
+            </div>
           </div>
         </div>
 
