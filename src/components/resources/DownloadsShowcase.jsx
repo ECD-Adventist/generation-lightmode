@@ -4,7 +4,10 @@ export default function DownloadsShowcase({ sections }) {
   return (
     <section style={{ padding: "28px 24px 96px" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        {sections.map((section) => (
+        {sections
+          .map((section) => ({ ...section, items: section.items.filter((item) => !!item.url) }))
+          .filter((section) => section.items.length > 0)
+          .map((section) => (
           <div key={section.category} style={{ marginBottom: 42 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
               <span style={{ fontSize: 28 }}>{section.icon}</span>
@@ -19,15 +22,9 @@ export default function DownloadsShowcase({ sections }) {
                   </div>
                   <h3 className="glm-headline" style={{ fontSize: 18, color: "#FFFFFF", lineHeight: 1.25 }}>{item.title}</h3>
                   <p className="glm-body" style={{ fontSize: 14, flexGrow: 1 }}>{item.desc}</p>
-                  {item.url ? (
-                    <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, textDecoration: "none", background: `${section.color}18`, border: `1px solid ${section.color}44`, color: section.color, padding: "12px 18px", borderRadius: 999, fontWeight: 700 }}>
-                      <Download size={14} /> Download Asset
-                    </a>
-                  ) : (
-                    <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, background: "rgba(255,255,255,0.05)", color: "#C8D0E0", padding: "12px 18px", borderRadius: 999, fontWeight: 700 }}>
-                      🔜 Coming Soon
-                    </div>
-                  )}
+                  <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, textDecoration: "none", background: `${section.color}18`, border: `1px solid ${section.color}44`, color: section.color, padding: "12px 18px", borderRadius: 999, fontWeight: 700 }}>
+                    <Download size={14} /> Download Asset
+                  </a>
                 </div>
               ))}
             </div>

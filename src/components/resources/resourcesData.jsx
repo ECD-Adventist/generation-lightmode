@@ -1,15 +1,6 @@
 import { Play, Headphones, BookOpen } from "lucide-react";
 
-export const mediaItems = [
-  { type: "video", title: "Switch On Summit 2025 Highlights", duration: "8:42", category: "events", thumb: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80" },
-  { type: "video", title: "GlowChallenge: 7 Days of Light", duration: "3:15", category: "challenges", thumb: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=80" },
-  { type: "podcast", title: "Faith in the Digital Age", duration: "42 min", category: "devotional", thumb: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=1200&q=80" },
-  { type: "video", title: "Testimonies: When Faith Goes Public", duration: "12:08", category: "testimonies", thumb: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&q=80" },
-  { type: "devotional", title: "Light Drops: Morning Devotional Series", duration: "5 min read", category: "devotional", thumb: "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&q=80" },
-  { type: "podcast", title: "GlowTalks: Gen Z & Faith", duration: "55 min", category: "podcast", thumb: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1200&q=80" },
-  { type: "video", title: "Nations Lighting Up: Africa Report", duration: "6:30", category: "events", thumb: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&q=80" },
-  { type: "devotional", title: "The Glow Drop: Weekly Verse", duration: "3 min read", category: "devotional", thumb: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80" },
-];
+export const mediaItems = [];
 
 export const downloads = [
   {
@@ -82,4 +73,4 @@ export const downloads = [
 
 export const typeIcon = { video: Play, podcast: Headphones, devotional: BookOpen };
 export const typeColor = { video: "#00CFFF", podcast: "#8A5CFF", devotional: "#FFD000" };
-export const categories = ["all", "events", "challenges", "devotional", "testimonies", "podcast"];
+export const categories = ["all"];

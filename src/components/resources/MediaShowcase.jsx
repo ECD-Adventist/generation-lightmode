@@ -15,16 +15,16 @@ export default function MediaShowcase({ items, activeType, activeCategory, onTyp
             <X size={24} />
           </button>
           <div style={{ width: "100%", maxWidth: 1000, background: "#000", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(0,207,255,0.3)" }}>
-            {activeMedia.type === "video" ? (
-              <video src={activeMedia.url || "https://www.w3schools.com/html/mov_bbb.mp4"} controls autoPlay style={{ width: "100%", maxHeight: "80vh" }} />
-            ) : activeMedia.type === "podcast" ? (
+            {activeMedia.type === "video" && activeMedia.url ? (
+              <video src={activeMedia.url} controls autoPlay style={{ width: "100%", maxHeight: "80vh" }} />
+            ) : activeMedia.type === "podcast" && activeMedia.url ? (
               <div style={{ padding: 40, textAlign: "center" }}>
                 <img src={activeMedia.thumb} alt={activeMedia.title} style={{ width: 200, height: 200, borderRadius: 16, marginBottom: 20, objectFit: "cover" }} />
                 <h3 className="glm-headline" style={{ fontSize: 24, color: "#FFF", marginBottom: 20 }}>{activeMedia.title}</h3>
-                <audio src={activeMedia.url || "https://www.w3schools.com/html/horse.mp3"} controls autoPlay style={{ width: "100%" }} />
+                <audio src={activeMedia.url} controls autoPlay style={{ width: "100%" }} />
               </div>
             ) : (
-              <div style={{ padding: 40, color: "#FFF" }}>Playback not supported for this media type.</div>
+              <div style={{ padding: 40, color: "#FFF" }}>No live media file available.</div>
             )}
           </div>
         </div>
@@ -43,7 +43,7 @@ export default function MediaShowcase({ items, activeType, activeCategory, onTyp
             <div style={{ flex: 1, padding: 40, display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <h2 className="glm-headline" style={{ fontSize: 32, color: "#FFFFFF", marginBottom: 16 }}>{featured.title}</h2>
               <p className="glm-body" style={{ fontSize: 16, marginBottom: 24 }}>Experience our top recommended content to fuel your faith journey today.</p>
-              <button onClick={() => { if (featured.type === 'video') { alert('Video is coming soon'); } else if (featured.type === 'podcast') { alert('Audio is coming soon'); } else { setActiveMedia(featured); } }} className="glm-btn-primary" style={{ alignSelf: "flex-start", gap: 8 }}>
+              <button onClick={() => featured.url && setActiveMedia(featured)} className="glm-btn-primary" style={{ alignSelf: "flex-start", gap: 8, opacity: featured.url ? 1 : 0.6, pointerEvents: featured.url ? 'auto' : 'none' }}>
                 <Play size={18} fill="#0B0F1A" /> Play Now
               </button>
             </div>
@@ -69,7 +69,7 @@ export default function MediaShowcase({ items, activeType, activeCategory, onTyp
             const Icon = typeIcon[item.type];
             const color = typeColor[item.type];
             return (
-              <div key={index} className="glm-card" onClick={() => { if (item.type === 'video') { alert('Video is coming soon'); } else if (item.type === 'podcast') { alert('Audio is coming soon'); } else { setActiveMedia(item); } }} style={{ padding: 0, overflow: "hidden", borderRadius: 24, background: "#101625", cursor: "pointer" }}>
+              <div key={index} className="glm-card" onClick={() => item.url && setActiveMedia(item)} style={{ padding: 0, overflow: "hidden", borderRadius: 24, background: "#101625", cursor: item.url ? "pointer" : "default", opacity: item.url ? 1 : 0.7 }}>
                 <div style={{ position: "relative", height: 220 }}>
                   <img src={item.thumb} alt={item.title} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.12), rgba(11,15,26,0.88))" }} />
