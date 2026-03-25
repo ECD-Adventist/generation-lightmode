@@ -429,7 +429,7 @@ export default function Feed() {
                     )}
                   </div>
                 </div>
-                <span className="text-[10px] font-medium text-gray-400 truncate w-16 text-center">{storyUser?.email === user?.email ? "You" : storyUser?.full_name?.split(' ')[0]}</span>
+                <span className="text-[10px] font-medium text-gray-400 truncate w-16 text-center">{storyUser?.email === user?.email ? "You" : storyUser?.full_name?.split(' ')[0] || "Status"}</span>
               </button>
             );
           })}
