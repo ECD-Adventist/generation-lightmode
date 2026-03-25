@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
+import { countryCoordinates } from "@/lib/countryCoordinates";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, Globe, Users, Star, ChevronDown, Play, X } from "lucide-react";
@@ -130,6 +132,9 @@ export default function Home() {
   const [statsVisible, setStatsVisible] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
   const { t, isRTL } = useAppLanguage("home");
+  const { data: snapshot } = usePublicCommunitySnapshot();
+  const liveCountries = snapshot.countryStats || [];
+  const liveTopGroups = snapshot.topGroups || [];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -378,10 +383,10 @@ export default function Home() {
             <p className="glm-body" style={{ marginTop: 12, fontSize: 17 }}>{t("statsSubtitle")}</p>
           </div>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
-            <StatCard value={1000000} suffix="+" label={t("youthMobilized")} icon={Users} color="#00CFFF" started={statsVisible} />
-            <StatCard value={10000000} suffix="+" label={t("peersReached")} icon={Users} color="#FFD000" started={statsVisible} />
-            <StatCard value={12} suffix="" label={t("nations")} icon={Globe} color="#1DA1FF" started={statsVisible} />
-            <StatCard value={500} suffix="+" label={t("groupsActive")} icon={Star} color="#8A5CFF" started={statsVisible} />
+            <StatCard value={snapshot.totalUsers || 0} suffix="" label="Public Members" icon={Users} color="#00CFFF" started={statsVisible} />
+            <StatCard value={snapshot.totalDrops || 0} suffix="" label="Glow Drops" icon={Zap} color="#FFD000" started={statsVisible} />
+            <StatCard value={snapshot.totalCountries || 0} suffix="" label="Countries Represented" icon={Globe} color="#1DA1FF" started={statsVisible} />
+            <StatCard value={snapshot.totalGroups || 0} suffix="" label="GlowGroups" icon={Star} color="#8A5CFF" started={statsVisible} />
           </div>
         </div>
       </section>
@@ -404,33 +409,26 @@ export default function Home() {
             {t("ranksSubtitle")}
           </p>
           <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
-            {[
-              { rank: "Glow Starter", color: "#00CFFF", icon: "💡", desc: "Posted 3 Glow Drops weekly" },
-              { rank: "Light Warrior", color: "#1DA1FF", icon: "⚔️", desc: "Leads a GlowGroup" },
-              { rank: "Trendsetter", color: "#8A5CFF", icon: "🌟", desc: "Reached 1,000+ engagements" },
-              { rank: "Glow Champion", color: "#FFD000", icon: "🏆", desc: "Mentors others + multiplies disciples" },
-            ].map((item, idx) => (
-              <div key={item.rank} className="glm-card" style={{ flex: "1 1 200px", maxWidth: 240, border: `1px solid ${item.color}40`, textAlign: "center", position: "relative", overflow: "hidden" }}>
-                <div style={{
-                  fontSize: 44, marginBottom: 12,
-                  filter: `drop-shadow(0 0 12px ${item.color}) drop-shadow(0 0 24px ${item.color}88)`,
-                  animation: `pulse-glow ${2 + idx * 0.4}s ease-in-out infinite`,
-                  display: "inline-block",
-                }}>{item.icon}</div>
-                <h3 className="glm-headline" style={{ fontSize: 18, color: item.color, marginBottom: 8, textShadow: `0 0 12px ${item.color}60` }}>{item.rank}</h3>
-                <p className="glm-body" style={{ fontSize: 14 }}>{item.desc}</p>
-                <style>{`
-                  @keyframes bar-grow-${idx} {
-                    from { width: 0; }
-                    to { width: 100%; }
-                  }
-                  .glow-bar-${idx} {
-                    animation: bar-grow-${idx} 1.8s ease-out ${0.3 + idx * 0.2}s both;
-                  }
-                `}</style>
-                <div className={`glow-bar-${idx}`} style={{ marginTop: 16, height: 3, borderRadius: 2, background: `linear-gradient(90deg, ${item.color}, transparent)` }} />
+            {liveTopGroups.length === 0 ? (
+              <div className="glm-card" style={{ maxWidth: 520, textAlign: "center" }}>
+                <p className="glm-body" style={{ fontSize: 14 }}>No live GlowGroup rankings yet.</p>
               </div>
-            ))}
+            ) : liveTopGroups.slice(0, 4).map((item, idx) => {
+              const color = idx === 0 ? "#FFD000" : idx === 1 ? "#00CFFF" : idx === 2 ? "#8A5CFF" : "#1DA1FF";
+              return (
+                <div key={item.id} className="glm-card" style={{ flex: "1 1 200px", maxWidth: 240, border: `1px solid ${color}40`, textAlign: "center", position: "relative", overflow: "hidden" }}>
+                  <div style={{
+                    fontSize: 44, marginBottom: 12,
+                    filter: `drop-shadow(0 0 12px ${color}) drop-shadow(0 0 24px ${color}88)`,
+                    animation: `pulse-glow ${2 + idx * 0.4}s ease-in-out infinite`,
+                    display: "inline-block",
+                  }}>{idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : "✨"}</div>
+                  <h3 className="glm-headline" style={{ fontSize: 18, color, marginBottom: 8, textShadow: `0 0 12px ${color}60` }}>{item.name}</h3>
+                  <p className="glm-body" style={{ fontSize: 14 }}>{item.membersCount} members • {item.country}</p>
+                  <div style={{ marginTop: 16, height: 3, borderRadius: 2, background: `linear-gradient(90deg, ${color}, transparent)` }} />
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -459,8 +457,8 @@ export default function Home() {
             border: "1px solid rgba(0,207,255,0.3)"
           }}>
             <MapContainer 
-              center={[-1.286389, 34.817223]} 
-              zoom={5} 
+              center={[5, 25]} 
+              zoom={3} 
               scrollWheelZoom={false}
               zoomControl={false}
               style={{ height: "100%", width: "100%", background: "#0B0F1A" }}
@@ -469,37 +467,45 @@ export default function Home() {
                 url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
                 attribution='&copy; CartoDB'
               />
-              {mapLocations.flatMap((loc, i) => [
-                <CircleMarker
-                  key={`outer-${i}`}
-                  center={loc.coordinates}
-                  radius={Math.max(12, loc.members / 2500)}
-                  pathOptions={{ color: "transparent", fillColor: loc.color, fillOpacity: 0.15 }}
-                />,
-                <CircleMarker
-                  key={`inner-${i}`}
-                  center={loc.coordinates}
-                  radius={Math.max(4, loc.members / 8000)}
-                  pathOptions={{ color: loc.color, fillColor: "#FFF", fillOpacity: 0.9, weight: 2 }}
-                >
-                  <Popup>
-                    <div style={{ background: "rgba(18,24,38,0.95)", backdropFilter: "blur(10px)", padding: "16px", borderRadius: "12px", border: `1px solid ${loc.color}60`, color: "#FFF", minWidth: "180px", boxShadow: `0 8px 32px ${loc.color}20` }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-                        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: loc.color, boxShadow: `0 0 10px ${loc.color}` }} />
-                        <h4 className="glm-headline" style={{ fontSize: "16px", color: loc.color, margin: 0 }}>{loc.name}</h4>
+              {liveCountries.flatMap((loc, i) => {
+                const coordinates = countryCoordinates[loc.country] || countryCoordinates.Global;
+                const color = i % 3 === 0 ? "#00CFFF" : i % 3 === 1 ? "#FFD000" : "#8A5CFF";
+                return [
+                  <CircleMarker
+                    key={`outer-${i}`}
+                    center={coordinates}
+                    radius={Math.max(12, loc.users * 2 + loc.groups * 3 + loc.drops)}
+                    pathOptions={{ color: "transparent", fillColor: color, fillOpacity: 0.15 }}
+                  />,
+                  <CircleMarker
+                    key={`inner-${i}`}
+                    center={coordinates}
+                    radius={Math.max(4, loc.users + loc.groups)}
+                    pathOptions={{ color, fillColor: "#FFF", fillOpacity: 0.9, weight: 2 }}
+                  >
+                    <Popup>
+                      <div style={{ background: "rgba(18,24,38,0.95)", backdropFilter: "blur(10px)", padding: "16px", borderRadius: "12px", border: `1px solid ${color}60`, color: "#FFF", minWidth: "180px", boxShadow: `0 8px 32px ${color}20` }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: color, boxShadow: `0 0 10px ${color}` }} />
+                          <h4 className="glm-headline" style={{ fontSize: "16px", color, margin: 0 }}>{loc.country}</h4>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px", marginBottom: "8px" }}>
+                          <span className="glm-body" style={{ fontSize: "13px" }}>Members</span>
+                          <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.users.toLocaleString()}</strong>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px", marginBottom: "8px" }}>
+                          <span className="glm-body" style={{ fontSize: "13px" }}>GlowGroups</span>
+                          <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.groups}</strong>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <span className="glm-body" style={{ fontSize: "13px" }}>Glow Drops</span>
+                          <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.drops}</strong>
+                        </div>
                       </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px", marginBottom: "8px" }}>
-                        <span className="glm-body" style={{ fontSize: "13px" }}>Members</span>
-                        <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.members.toLocaleString()}</strong>
-                      </div>
-                      <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span className="glm-body" style={{ fontSize: "13px" }}>GlowGroups</span>
-                        <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.groups}</strong>
-                      </div>
-                    </div>
-                  </Popup>
-                </CircleMarker>
-              ])}
+                    </Popup>
+                  </CircleMarker>
+                ];
+              })}
             </MapContainer>
           </div>
         </div>
