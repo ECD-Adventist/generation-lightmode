@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bell, Heart, MessageCircle, Zap, Info, CheckCheck, Trash2, Loader2, Home, Users, User, Globe, UserPlus } from "lucide-react";
@@ -6,6 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
+import { getNotificationCategory, notificationCategoryLabels, isNotificationEnabled } from "@/lib/notifications";
 
 const typeIcon = {
   like: <Heart className="w-4 h-4 text-red-400" />,
@@ -25,6 +26,7 @@ const typeBg = {
 
 export default function Notifications() {
   const [user, setUser] = useState(null);
+  const [activeCategory, setActiveCategory] = useState("all");
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -47,7 +49,15 @@ export default function Notifications() {
     enabled: !!user,
   });
 
-  // Real-time
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ["notificationUsers"],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicUsers", {});
+      return res.data;
+    },
+    enabled: !!user,
+  });
+
   useEffect(() => {
     if (!user?.email) return;
     const unsub = base44.entities.Notification.subscribe((event) => {
@@ -83,18 +93,32 @@ export default function Notifications() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.email] })
   });
 
+  const togglePreferenceMutation = useMutation({
+    mutationFn: async (field) => {
+      await base44.auth.updateMe({ [field]: !user[field] });
+      return await base44.auth.me();
+    },
+    onSuccess: (updatedUser) => {
+      setUser(updatedUser);
+      toast.success("Notification preference updated");
+    }
+  });
+
   const followBackMutation = useMutation({
     mutationFn: async (targetEmail) => {
       const existingFollow = following.find(f => f.following_email === targetEmail);
       if (existingFollow) return "already_following";
 
       await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
-      await base44.entities.Notification.create({
-        user_email: targetEmail,
-        type: "follow",
-        message: `${user.full_name || 'Someone'} followed you back.`,
-        link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
-      });
+      const targetUser = allUsers.find(entry => entry.email === targetEmail);
+      if (isNotificationEnabled(targetUser, "follows")) {
+        await base44.entities.Notification.create({
+          user_email: targetEmail,
+          type: "follow",
+          message: `${user.full_name || 'Someone'} followed you back.`,
+          link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
+        });
+      }
       return "followed";
     },
     onSuccess: (status) => {
@@ -105,6 +129,17 @@ export default function Notifications() {
 
   const unreadCount = notifications.filter(n => !n.read).length;
   const sorted = [...notifications].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+  const filteredNotifications = activeCategory === "all"
+    ? sorted
+    : sorted.filter((notification) => getNotificationCategory(notification.type) === activeCategory);
+
+  const categoryCounts = useMemo(() => ({
+    all: sorted.length,
+    social: sorted.filter((item) => getNotificationCategory(item.type) === "social").length,
+    community: sorted.filter((item) => getNotificationCategory(item.type) === "community").length,
+    system: sorted.filter((item) => getNotificationCategory(item.type) === "system").length,
+  }), [sorted]);
+
   const getNotificationUserEmail = (notification) => {
     if (!notification?.link) return null;
     const query = notification.link.split("?")[1];
@@ -112,13 +147,18 @@ export default function Notifications() {
     return new URLSearchParams(query).get("user");
   };
 
+  const preferenceItems = [
+    { field: "notify_likes", label: "Likes", description: "When someone lights up your drop." },
+    { field: "notify_follows", label: "Follows", description: "When someone follows or follows back." },
+    { field: "notify_comments", label: "Comments", description: "When someone comments on your drop." },
+  ];
+
   if (!user) return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
 
   return (
     <div className="min-h-screen bg-[#0B0F1A] text-white">
-      {/* Top Nav Bar */}
       <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
@@ -146,120 +186,164 @@ export default function Notifications() {
         </div>
       </div>
 
-      {/* Header */}
-      <div className="bg-[#0B0F1A] border-b border-white/10 px-4 py-4">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Bell className="w-5 h-5 text-[#00CFFF]" />
-            <h1 className="text-xl font-black" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
-              Notifications
-            </h1>
-            {unreadCount > 0 && (
-              <span className="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                {unreadCount}
-              </span>
-            )}
+      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        <div className="bg-[#121826] border border-white/10 rounded-3xl p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <Bell className="w-5 h-5 text-[#00CFFF]" />
+              <h1 className="text-2xl font-black" style={{ fontFamily: "Space Grotesk, sans-serif" }}>Notification Center</h1>
+              {unreadCount > 0 && (
+                <span className="bg-red-500 text-white text-xs font-bold rounded-full min-w-6 h-6 px-2 flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-gray-400">Manage what reaches you and browse alerts by category for a cleaner inbox.</p>
           </div>
           {unreadCount > 0 && (
             <button
               onClick={() => markAllReadMutation.mutate()}
               disabled={markAllReadMutation.isPending}
-              className="flex items-center gap-2 text-xs font-bold text-[#00CFFF] hover:text-white transition px-3 py-1.5 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 hover:bg-[#00CFFF]/20"
+              className="flex items-center gap-2 text-xs font-bold text-[#00CFFF] hover:text-white transition px-4 py-2 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 hover:bg-[#00CFFF]/20"
             >
               <CheckCheck className="w-3.5 h-3.5" />
               Mark all read
             </button>
           )}
         </div>
-      </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-4">
-        {isLoading ? (
-          <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>
-        ) : sorted.length === 0 ? (
-          <div className="text-center py-24 text-gray-500">
-            <Bell className="w-12 h-12 mx-auto mb-4 opacity-30" />
-            <p className="font-bold text-lg">You're all caught up!</p>
-            <p className="text-sm mt-1">No notifications yet.</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {sorted.map(n => (
-              <div
-                key={n.id}
-                className={`flex items-start gap-3 p-4 rounded-2xl border transition-all ${
-                  n.read
-                    ? "bg-[#121826]/50 border-white/5 opacity-60"
-                    : "bg-[#121826] border-white/10 hover:border-white/20"
-                }`}
-              >
-                {/* Icon */}
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 border ${typeBg[n.type] || "bg-white/5 border-white/10"}`}>
-                  {typeIcon[n.type] || <Bell className="w-4 h-4 text-gray-400" />}
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm leading-snug ${n.read ? "text-gray-400" : "text-white font-medium"}`}>
-                    {n.message}
-                  </p>
-                  <p className="text-[11px] text-gray-600 mt-1">
-                    {n.created_date ? formatDistanceToNow(new Date(n.created_date), { addSuffix: true }) : "just now"}
-                  </p>
-                </div>
-
-                {/* Actions */}
-                <div className="flex flex-col items-end gap-2 shrink-0">
-                  {n.type === "follow" && getNotificationUserEmail(n) && getNotificationUserEmail(n) !== user?.email && (
-                    following.some(f => f.following_email === getNotificationUserEmail(n)) ? (
-                      <Link
-                        to={n.link}
-                        onClick={() => !n.read && markReadMutation.mutate(n.id)}
-                        className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/10 text-gray-300 hover:bg-white/15 transition"
-                      >
-                        Following
-                      </Link>
-                    ) : (
-                      <button
-                        onClick={() => followBackMutation.mutate(getNotificationUserEmail(n))}
-                        className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-[#00CFFF] text-black hover:bg-[#00CFFF]/80 transition"
-                      >
-                        Follow back
-                      </button>
-                    )
-                  )}
-                  {n.link && (
-                    <Link
-                      to={n.link}
-                      onClick={() => !n.read && markReadMutation.mutate(n.id)}
-                      className="text-[11px] font-bold text-[#00CFFF] hover:text-white transition"
-                    >
-                      View
-                    </Link>
-                  )}
-                  <div className="flex items-center gap-1">
-                    {!n.read && (
-                      <button
-                        onClick={() => markReadMutation.mutate(n.id)}
-                        title="Mark as read"
-                        className="w-7 h-7 rounded-full flex items-center justify-center text-gray-500 hover:text-[#00CFFF] hover:bg-[#00CFFF]/10 transition"
-                      >
-                        <CheckCheck className="w-3.5 h-3.5" />
-                      </button>
-                    )}
+        <div className="grid lg:grid-cols-[320px_minmax(0,1fr)] gap-6">
+          <div className="space-y-4">
+            <div className="bg-[#121826] border border-white/10 rounded-3xl p-5">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-gray-300 mb-4">Alert Preferences</h2>
+              <div className="space-y-3">
+                {preferenceItems.map((item) => {
+                  const enabled = user[item.field] !== false;
+                  return (
                     <button
-                      onClick={() => deleteMutation.mutate(n.id)}
-                      title="Delete"
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition"
+                      key={item.field}
+                      onClick={() => togglePreferenceMutation.mutate(item.field)}
+                      className="w-full rounded-2xl border border-white/10 bg-[#0B0F1A] px-4 py-3 text-left hover:border-white/20 transition"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <div className="font-bold text-white text-sm">{item.label}</div>
+                          <div className="text-xs text-gray-500 mt-1">{item.description}</div>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${enabled ? "bg-[#00CFFF]/20 text-[#00CFFF]" : "bg-white/5 text-gray-400"}`}>
+                          {enabled ? "On" : "Off"}
+                        </span>
+                      </div>
                     </button>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
-            ))}
+            </div>
+
+            <div className="bg-[#121826] border border-white/10 rounded-3xl p-5">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-gray-300 mb-4">Categories</h2>
+              <div className="space-y-2">
+                {Object.keys(notificationCategoryLabels).map((categoryKey) => (
+                  <button
+                    key={categoryKey}
+                    onClick={() => setActiveCategory(categoryKey)}
+                    className={`w-full flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition ${activeCategory === categoryKey ? "bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-[#00CFFF]" : "bg-[#0B0F1A] border border-white/10 text-gray-300 hover:border-white/20"}`}
+                  >
+                    <span>{notificationCategoryLabels[categoryKey]}</span>
+                    <span className="text-xs text-gray-500">{categoryCounts[categoryKey]}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        )}
+
+          <div>
+            {isLoading ? (
+              <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>
+            ) : filteredNotifications.length === 0 ? (
+              <div className="text-center py-24 text-gray-500 bg-[#121826] border border-white/10 rounded-3xl">
+                <Bell className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                <p className="font-bold text-lg">No {notificationCategoryLabels[activeCategory].toLowerCase()} alerts right now.</p>
+                <p className="text-sm mt-1">Your inbox is looking clean.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredNotifications.map((n) => {
+                  const category = getNotificationCategory(n.type);
+                  const targetEmail = getNotificationUserEmail(n);
+                  return (
+                    <div
+                      key={n.id}
+                      className={`flex items-start gap-3 p-4 rounded-2xl border transition-all ${n.read ? "bg-[#121826]/50 border-white/5 opacity-70" : "bg-[#121826] border-white/10 hover:border-white/20"}`}
+                    >
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border ${typeBg[n.type] || "bg-white/5 border-white/10"}`}>
+                        {typeIcon[n.type] || <Bell className="w-4 h-4 text-gray-400" />}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <p className={`text-sm leading-snug ${n.read ? "text-gray-400" : "text-white font-medium"}`}>{n.message}</p>
+                          <span className="px-2 py-0.5 rounded-full bg-white/5 text-[10px] uppercase tracking-wider text-gray-400">{notificationCategoryLabels[category]}</span>
+                        </div>
+                        <p className="text-[11px] text-gray-600 mt-1">
+                          {n.created_date ? formatDistanceToNow(new Date(n.created_date), { addSuffix: true }) : "just now"}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-2 shrink-0">
+                        {n.type === "follow" && targetEmail && targetEmail !== user?.email && (
+                          following.some(f => f.following_email === targetEmail) ? (
+                            <Link
+                              to={n.link}
+                              onClick={() => !n.read && markReadMutation.mutate(n.id)}
+                              className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-white/10 text-gray-300 hover:bg-white/15 transition"
+                            >
+                              Following
+                            </Link>
+                          ) : (
+                            <button
+                              onClick={() => followBackMutation.mutate(targetEmail)}
+                              className="px-3 py-1.5 rounded-full text-[11px] font-bold bg-[#00CFFF] text-black hover:bg-[#00CFFF]/80 transition"
+                            >
+                              Follow back
+                            </button>
+                          )
+                        )}
+                        {n.link && (
+                          <Link
+                            to={n.link}
+                            onClick={() => !n.read && markReadMutation.mutate(n.id)}
+                            className="text-[11px] font-bold text-[#00CFFF] hover:text-white transition"
+                          >
+                            View
+                          </Link>
+                        )}
+                        <div className="flex items-center gap-1">
+                          {!n.read && (
+                            <button
+                              onClick={() => markReadMutation.mutate(n.id)}
+                              title="Mark as read"
+                              className="w-7 h-7 rounded-full flex items-center justify-center text-gray-500 hover:text-[#00CFFF] hover:bg-[#00CFFF]/10 transition"
+                            >
+                              <CheckCheck className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => deleteMutation.mutate(n.id)}
+                            title="Delete"
+                            className="w-7 h-7 rounded-full flex items-center justify-center text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
