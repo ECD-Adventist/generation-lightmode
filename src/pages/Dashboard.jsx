@@ -12,6 +12,7 @@ import GlowGroupsTab from "../components/dashboard/GlowGroupsTab";
 import PrayerRequestsTab from "../components/dashboard/PrayerRequestsTab";
 import PrayerAnalyticsTab from "../components/dashboard/PrayerAnalyticsTab";
 import DashboardMapHero from "../components/dashboard/DashboardMapHero";
+import { applyDailyCheckIn } from "@/lib/gamification";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -26,7 +27,8 @@ export default function Dashboard() {
           return;
         }
         const me = await base44.auth.me();
-        setUser(me);
+        const checkedInUser = await applyDailyCheckIn(base44, me);
+        setUser(checkedInUser);
       } catch (err) {
         console.error(err);
       } finally {

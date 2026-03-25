@@ -27,7 +27,10 @@ Deno.serve(async (req) => {
         country: u.country,
         glow_score: u.glow_score || 0,
         role: u.role,
-        created_date: u.created_date
+        created_date: u.created_date,
+        notify_likes: u.notify_likes,
+        notify_follows: u.notify_follows,
+        notify_comments: u.notify_comments
       }));
     return Response.json(publicUsers);
   } catch (error) {

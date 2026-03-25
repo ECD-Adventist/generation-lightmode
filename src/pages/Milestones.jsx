@@ -5,6 +5,7 @@ import { createPageUrl } from "@/utils";
 import MilestoneCard from "@/components/milestones/MilestoneCard";
 import { Link } from "react-router-dom";
 import { Home, Zap, Globe, Bell, User } from "lucide-react";
+import LifetimeAchievementBoard from "@/components/milestones/LifetimeAchievementBoard";
 
 export default function Milestones() {
   const [user, setUser] = useState(null);
@@ -79,6 +80,57 @@ export default function Milestones() {
     },
   ], [prayerSupports.length, uniquePostingDays, glowDrops.length, following.length]);
 
+  const lifetimeAchievements = useMemo(() => [
+    {
+      key: "prayer_warrior",
+      title: "Prayer Warrior",
+      description: "Support 250 prayer requests over your lifetime.",
+      value: prayerSupports.length,
+      target: 250,
+      icon: "🙏",
+    },
+    {
+      key: "consistent_light",
+      title: "Consistent Light",
+      description: "Post on 30 different days.",
+      value: uniquePostingDays,
+      target: 30,
+      icon: "💡",
+    },
+    {
+      key: "social_builder",
+      title: "Social Builder",
+      description: "Follow 50 believers.",
+      value: following.length,
+      target: 50,
+      icon: "🤝",
+    },
+    {
+      key: "master_publisher",
+      title: "Master Publisher",
+      description: "Share 100 Glow Drops.",
+      value: glowDrops.length,
+      target: 100,
+      icon: "✨",
+    },
+    {
+      key: "checkin_flame",
+      title: "Check-in Flame",
+      description: "Reach a 30 day daily check-in streak.",
+      value: user?.daily_checkin_streak || 0,
+      target: 30,
+      icon: "🔥",
+    },
+    {
+      key: "posting_streak",
+      title: "Posting Streak Legend",
+      description: "Keep a 14 day posting streak alive.",
+      value: user?.posting_streak_count || 0,
+      target: 14,
+      icon: "🚀",
+    },
+  ], [prayerSupports.length, uniquePostingDays, following.length, glowDrops.length, user?.daily_checkin_streak, user?.posting_streak_count]);
+
   useEffect(() => {
     if (!user || isAwarding) return;
     const earnedKeys = new Set(earnedMilestones.map((milestone) => milestone.milestone_key));
@@ -123,7 +175,7 @@ export default function Milestones() {
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
               alt="LightMode"
-              style={{ height: 56, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
+              style={{ height: 96, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
             />
           </Link>
           <div className="flex items-center gap-1 sm:gap-2 ml-auto">
@@ -172,6 +224,8 @@ export default function Milestones() {
             <MilestoneCard key={milestone.key} milestone={milestone} earned={earnedKeys.has(milestone.key)} />
           ))}
         </div>
+
+        <LifetimeAchievementBoard achievements={lifetimeAchievements} />
       </div>
     </div>
   );

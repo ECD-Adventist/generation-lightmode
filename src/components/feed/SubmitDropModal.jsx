@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Loader2, Sparkles } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
+import { updatePostingStreak } from "@/lib/gamification";
 
 export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [loading, setLoading] = useState(false);
@@ -84,7 +85,8 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
         challengeMsg = " + Challenge Completed! +10 XP ⚡";
       }
 
-      await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + finalScore + challengeBonus });
+      const streakUser = await updatePostingStreak(base44, user);
+      await base44.auth.updateMe({ glow_score: (streakUser.glow_score || user.glow_score || 0) + finalScore + challengeBonus });
       toast.success(`Glow Drop submitted! +${finalScore} XP earned!${challengeMsg}`);
       
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });

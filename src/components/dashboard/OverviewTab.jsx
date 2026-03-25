@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Flame, Trophy, Award, MapPin, PlusCircle, Target, MessageSquare, ListOrdered, Share2, Bookmark, Heart, MessageCircle, ChevronRight, Zap, Bell, Sparkles, Globe } from "lucide-react";
+import { Trophy, Award, MapPin, PlusCircle, Target, MessageSquare, ListOrdered, Share2, Bookmark, Heart, MessageCircle, ChevronRight, Zap, Bell, Sparkles, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import SubmitDropModal from "../feed/SubmitDropModal";
+import LevelProgressCard from "./LevelProgressCard";
+import StreakSummaryCard from "./StreakSummaryCard";
 
 export default function OverviewTab({ user }) {
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
@@ -48,8 +50,6 @@ export default function OverviewTab({ user }) {
   });
 
   const myGroup = myMemberships.length > 0 ? allGroups.find(g => g.id === myMemberships[0].group_id) : null;
-  const streak = user.streak_count || 1;
-  const longestStreak = Math.max(streak, 7);
 
   // Rank calculation
   let rank = "Glow Starter";
@@ -104,17 +104,7 @@ export default function OverviewTab({ user }) {
           </div>
         </div>
 
-        {/* Daily Streak Card */}
-        <div className="bg-gradient-to-br from-[#1A1500] to-[#121826] border border-[#FFD000]/20 rounded-3xl p-6 shadow-[0_0_30px_rgba(255,208,0,0.1)] relative overflow-hidden flex flex-col justify-center items-center text-center group">
-          <div className="absolute inset-0 bg-[#FFD000]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <Flame size={48} className="text-[#FFD000] mb-3 drop-shadow-[0_0_15px_rgba(255,208,0,0.5)] animate-pulse" />
-          <h3 className="text-4xl font-black font-['Space_Grotesk'] text-white mb-1">{streak} <span className="text-xl text-gray-400">Days</span></h3>
-          <p className="text-sm text-[#FFD000] font-bold tracking-wide uppercase mb-3">Light Streak</p>
-          <p className="text-xs text-gray-400">Longest: {longestStreak} days</p>
-          <div className="mt-4 px-4 py-2 rounded-full bg-[#FFD000]/10 border border-[#FFD000]/20 text-[#FFD000] text-xs font-semibold">
-            Keep shining! You're on fire. 🔥
-          </div>
-        </div>
+        <StreakSummaryCard user={user} />
       </div>
 
       {/* QUICK ACTION PANEL */}
@@ -210,20 +200,7 @@ export default function OverviewTab({ user }) {
         {/* RIGHT COLUMN: Badges, Leaderboard, Groups, Challenges */}
         <div className="space-y-6">
           
-          {/* Leaderboard Progress */}
-          <div className="bg-[#121826] border border-white/5 rounded-3xl p-6">
-            <h3 className="text-sm font-bold font-['Space_Grotesk'] text-gray-300 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <Trophy size={16} className="text-[#FFD000]" /> Rank Progress
-            </h3>
-            <div className="flex justify-between items-end mb-2">
-              <span className="text-2xl font-black text-white">{score} <span className="text-sm text-gray-500 font-medium">XP</span></span>
-              <span className="text-xs text-gray-400 font-bold uppercase">{rank}</span>
-            </div>
-            <div className="w-full h-2 bg-[#0B0F1A] rounded-full overflow-hidden mb-2 border border-white/5">
-              <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${progressPercent}%`, background: rankColor }}></div>
-            </div>
-            <p className="text-[10px] text-gray-500 text-right">{nextRankScore - score} XP to next rank</p>
-          </div>
+          <LevelProgressCard user={user} />
 
           {/* Badges & Achievements */}
           <div className="bg-[#121826] border border-white/5 rounded-3xl p-6">
