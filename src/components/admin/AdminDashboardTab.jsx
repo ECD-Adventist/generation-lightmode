@@ -28,7 +28,7 @@ const StatCard = ({ label, value, icon: Icon, color, bg, border, trend, to }) =>
     </div>
   );
 
-  return to ? <Link to={to}>{content}</Link> : content;
+  return to ? <Link to={to} className="block">{content}</Link> : content;
 };
 
 const CustomTooltip = ({ active, payload, label, color }) => {
