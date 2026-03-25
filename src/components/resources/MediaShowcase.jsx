@@ -54,7 +54,7 @@ export default function MediaShowcase({ items, activeType, activeCategory, onTyp
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <div className="glm-card" style={{ marginBottom: 28, padding: 20, borderRadius: 22, background: "linear-gradient(135deg, rgba(0,207,255,0.06), rgba(18,24,38,0.96))" }}>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
-            {["all", "video", "podcast", "devotional"].map((type) => (
+            {["all", ...new Set(items.map((item) => item.type))].map((type) => (
               <button key={type} onClick={() => onTypeChange(type)} style={{ padding: "8px 16px", borderRadius: 999, border: `1px solid ${activeType === type ? "#00CFFF" : "rgba(255,255,255,0.12)"}`, background: activeType === type ? "rgba(0,207,255,0.16)" : "transparent", color: activeType === type ? "#00CFFF" : "#C8D0E0", fontSize: 13, cursor: "pointer" }}>{type.charAt(0).toUpperCase() + type.slice(1)}</button>
             ))}
           </div>
