@@ -73,7 +73,9 @@ export default function Feed() {
   const { data: stories = [] } = useQuery({
     queryKey: ["activeStories"],
     queryFn: () => base44.entities.Story.list("-created_date", 50),
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
   });
 
   const followMutation = useMutation({

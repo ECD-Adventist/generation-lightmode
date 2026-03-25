@@ -56,6 +56,8 @@ export default function Notifications() {
       return res.data;
     },
     enabled: !!user,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
