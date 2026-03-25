@@ -95,7 +95,8 @@ export default function Notifications() {
 
   const togglePreferenceMutation = useMutation({
     mutationFn: async (field) => {
-      await base44.auth.updateMe({ [field]: !user[field] });
+      const currentEnabled = user[field] !== false;
+      await base44.auth.updateMe({ [field]: !currentEnabled });
       return await base44.auth.me();
     },
     onSuccess: (updatedUser) => {
