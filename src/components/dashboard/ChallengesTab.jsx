@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Target, Star } from "lucide-react";
 import { toast } from "sonner";
+import { createPageUrl } from "@/utils";
 
 export default function ChallengesTab({ user }) {
   const [activeTab, setActiveTab] = useState("active");
@@ -24,7 +25,7 @@ export default function ChallengesTab({ user }) {
       await base44.entities.ChallengeSubmission.create({
         challenge_id: challenge.id,
         user_email: user.email,
-        submission_url: "Participated",
+        submission_url: `${window.location.origin}${createPageUrl("Challenges")}?challenge=${challenge.id}`,
         points_awarded: challenge.points_reward
       });
       await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + challenge.points_reward });
