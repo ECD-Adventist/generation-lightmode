@@ -229,7 +229,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 </span>
               )}
             </span>
-            <span className="text-[10px] text-gray-300 font-medium leading-none">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date), { addSuffix: true }) : ''}</span>
+            <span className="text-[10px] text-gray-300 font-medium leading-none">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
           </div>
         </Link>
 
