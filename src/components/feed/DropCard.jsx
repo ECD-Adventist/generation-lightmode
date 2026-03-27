@@ -199,7 +199,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     <div className="bg-[#121826]/80 backdrop-blur-sm border border-white/10 rounded-[2rem] mb-8 p-3 shadow-2xl hover:border-[#00CFFF]/40 transition-all duration-300 group">
       {/* Media / Content Area */}
       <div 
-        className={`relative w-full rounded-[1.5rem] overflow-hidden ${drop.media_url ? 'aspect-auto max-h-[600px]' : 'min-h-[400px]'} bg-gradient-to-br from-[#1a1b26] via-[#0B0F1A] to-[#1a103c] flex flex-col justify-center items-center text-center shadow-inner`}
+        className={`relative w-full rounded-[1.5rem] overflow-hidden ${drop.media_url ? 'aspect-auto max-h-[600px]' : 'min-h-[480px]'} bg-gradient-to-br from-[#1a1b26] via-[#0B0F1A] to-[#1a103c] flex flex-col justify-center items-center text-center shadow-inner`}
         style={drop.media_url ? {} : {}}
         onDoubleClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name})}
       >
