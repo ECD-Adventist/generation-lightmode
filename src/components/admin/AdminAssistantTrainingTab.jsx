@@ -30,8 +30,67 @@ function KnowledgeForm({ onSave, saving }) {
   );
 }
 
+function PreviewModal({ pairs, onConfirm, onCancel }) {
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-[#121826] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b border-white/5">
+          <h2 className="text-white font-bold font-['Space_Grotesk']">Review Extracted Q&As</h2>
+          <button onClick={onCancel} className="text-gray-400 hover:text-white text-2xl">×</button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {pairs.map((p, i) => (
+            <div key={i} className="rounded-lg bg-[#0B0F1A] p-4 border border-white/5">
+              <div className="flex items-start gap-3 mb-2">
+                <span className="text-[#00CFFF] font-bold text-sm flex-shrink-0">Q{i + 1}:</span>
+                <p className="text-white text-sm">{p.question}</p>
+              </div>
+              <div className="flex items-start gap-3 ml-0">
+                <span className="text-[#FFD000] font-bold text-sm flex-shrink-0 mt-1">A:</span>
+                <p className="text-gray-300 text-sm">{p.answer}</p>
+              </div>
+              <div className="text-[10px] text-gray-500 mt-3">
+                Category: <span className="text-[#00CFFF]">{p.category || "General"}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="border-t border-white/5 p-6 flex gap-3 justify-end">
+          <button onClick={onCancel} className="px-4 py-2 rounded-lg bg-white/5 text-gray-300 hover:bg-white/10 font-semibold text-sm">
+            Cancel
+          </button>
+          <button onClick={onConfirm} className="px-6 py-2 rounded-lg bg-[#00CFFF] text-black font-bold text-sm hover:bg-[#00CFFF]/90">
+            Save {pairs.length} Q&As
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function UploadQaCard({ onImporting }) {
   const queryClient = useQueryClient();
+  const [previewPairs, setPreviewPairs] = useState(null);
+
+  const handleConfirmImport = async () => {
+    if (!previewPairs) return;
+    try {
+      await base44.entities.AssistantKnowledge.bulkCreate(
+        previewPairs.map(p => ({
+          question: p.question,
+          answer: p.answer,
+          category: p.category || "General",
+          status: "active",
+          source: "upload",
+        }))
+      );
+      queryClient.invalidateQueries({ queryKey: ["assistant_knowledge"] });
+      toast.success(`✅ Saved ${previewPairs.length} Q&As to knowledge base!`);
+      setPreviewPairs(null);
+    } catch (err) {
+      toast.error("Failed to save Q&As: " + err.message);
+    }
+  };
 
   const handleFile = async (e) => {
     const file = e.target.files?.[0];
@@ -99,24 +158,15 @@ function UploadQaCard({ onImporting }) {
         pairs = llmResult?.items || [];
       }
 
+      toast.dismiss(toastId);
+
       if (!pairs.length) {
-        toast.warning("No Q&A pairs found in the file. Check the format.", { id: toastId });
+        toast.warning("No Q&A pairs found in the file. Check the format.");
         return;
       }
 
-      // Step 3: save all extracted Q&As
-      await base44.entities.AssistantKnowledge.bulkCreate(
-        pairs.map(p => ({
-          question: p.question,
-          answer: p.answer,
-          category: p.category || "General",
-          status: "active",
-          source: "upload",
-        }))
-      );
-
-      queryClient.invalidateQueries({ queryKey: ["assistant_knowledge"] });
-      toast.success(`✅ Imported ${pairs.length} Q&A pairs successfully!`, { id: toastId });
+      // Show preview before saving
+      setPreviewPairs(pairs);
     } catch (err) {
       toast.error(`Import failed: ${err.message}`, { id: toastId });
     } finally {
@@ -126,20 +176,29 @@ function UploadQaCard({ onImporting }) {
   };
 
   return (
-    <div className="bg-[#121826] border border-white/5 rounded-2xl p-5 space-y-4">
-      <div className="flex items-center gap-2 text-white font-bold font-['Space_Grotesk']">
-        <Upload className="w-4 h-4 text-[#FFD000]" /> Upload Q&A file
+    <>
+      <div className="bg-[#121826] border border-white/5 rounded-2xl p-5 space-y-4">
+        <div className="flex items-center gap-2 text-white font-bold font-['Space_Grotesk']">
+          <Upload className="w-4 h-4 text-[#FFD000]" /> Upload Q&A file
+        </div>
+        <p className="text-sm text-gray-400">
+          Upload a CSV, JSON, TXT, PDF, or Word document. Q&A pairs will be extracted and shown for review before saving.
+        </p>
+        <label className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-[#0B0F1A] px-4 py-8 text-gray-300 hover:border-[#00CFFF]/40 hover:bg-[#00CFFF]/5 cursor-pointer transition-colors">
+          <FileText className="w-6 h-6 text-[#FFD000]" />
+          <span className="font-semibold">Choose file to import</span>
+          <span className="text-xs text-gray-500">CSV, JSON, TXT, PDF, DOCX supported</span>
+          <input type="file" accept=".csv,.json,.txt,.pdf,.docx,.doc" className="hidden" onChange={handleFile} />
+        </label>
       </div>
-      <p className="text-sm text-gray-400">
-        Upload a CSV, JSON, TXT, PDF, or Word document. Q&A pairs will be automatically extracted and added to the knowledge base.
-      </p>
-      <label className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-[#0B0F1A] px-4 py-8 text-gray-300 hover:border-[#00CFFF]/40 hover:bg-[#00CFFF]/5 cursor-pointer transition-colors">
-        <FileText className="w-6 h-6 text-[#FFD000]" />
-        <span className="font-semibold">Choose file to import</span>
-        <span className="text-xs text-gray-500">CSV, JSON, TXT, PDF, DOCX supported</span>
-        <input type="file" accept=".csv,.json,.txt,.pdf,.docx,.doc" className="hidden" onChange={handleFile} />
-      </label>
-    </div>
+      {previewPairs && (
+        <PreviewModal
+          pairs={previewPairs}
+          onConfirm={handleConfirmImport}
+          onCancel={() => setPreviewPairs(null)}
+        />
+      )}
+    </>
   );
 }
 
