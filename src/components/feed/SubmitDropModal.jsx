@@ -113,6 +113,18 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
       const streakUser = await updatePostingStreak(base44, user);
       await base44.auth.updateMe({ glow_score: (streakUser.glow_score || user.glow_score || 0) + 5 + challengeBonus });
 
+      // Notify followers about new post (fire and forget)
+      base44.entities.Follow.filter({ following_email: user.email }).then(followers => {
+        followers.forEach(f => {
+          base44.entities.Notification.create({
+            user_email: f.follower_email,
+            type: "system",
+            message: `${user.full_name || "Someone you follow"} just posted a new Glow Drop!`,
+            link: `/Feed`
+          }).catch(() => {});
+        });
+      }).catch(() => {});
+
       toast.success(`Glow Drop posted! +${5 + challengeBonus} XP ⚡`);
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
       queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });

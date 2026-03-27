@@ -116,7 +116,7 @@ export default function TruthCardComments({ dropId, user }) {
                       </div>
                       <div className="flex items-center gap-3 mt-1 px-1">
                         <span className="text-[10px] text-gray-600">
-                          {c.created_date ? formatDistanceToNow(new Date(c.created_date), { addSuffix: true }) : "just now"}
+                          {c.created_date ? formatDistanceToNow(new Date(c.created_date.endsWith('Z') ? c.created_date : c.created_date + 'Z'), { addSuffix: true }) : "just now"}
                         </span>
                         {user?.email === c.user_email && (
                           <button

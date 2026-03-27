@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, ArrowLeft, BookOpen, Hash, Share2, MoreVertical } from "lucide-react";
+import { Loader2, ArrowLeft, BookOpen, Hash, Share2, MoreVertical, Heart, MessageCircle, Bookmark, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
@@ -123,7 +123,7 @@ export default function DailyDrops() {
 }
 
 function TruthCard({ drop, onShare, user, featured }) {
-  const postedDate = drop.created_date ? new Date(drop.created_date + (drop.created_date.endsWith('Z') ? '' : 'Z')) : null;
+  const postedDate = drop.created_date ? new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z') : null;
   const queryClient = useQueryClient();
   
   const isSystemPost = drop.user_email === "system@lightmode.com";
@@ -167,8 +167,8 @@ function TruthCard({ drop, onShare, user, featured }) {
       <div className="p-5">
          {isSystemPost ? (
            <div className="flex items-center gap-2 mb-4 pb-4 border-b border-white/5">
-             <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden border border-[#FFD000]/30">
-               <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" className="w-full h-full object-cover bg-[#0B0F1A]" />
+             <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden border border-[#FFD000]/30 bg-[#0B0F1A]">
+               <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" className="w-full h-full object-cover" />
              </div>
              <div className="flex-1 min-w-0">
                <div className="text-sm font-bold text-[#FFD000] truncate">Generation LightMode</div>
@@ -227,6 +227,24 @@ function TruthCard({ drop, onShare, user, featured }) {
         {drop.hashtags && (
           <div className="mt-2 text-xs text-[#8A5CFF] font-medium">{drop.hashtags}</div>
         )}
+
+        {/* Engagement Stats */}
+        <div className="flex items-center gap-5 mt-3 pt-3 border-t border-white/5 text-xs text-gray-400">
+          <div className="flex items-center gap-1.5">
+            <Heart className="w-3.5 h-3.5" fill="currentColor" />
+            <span className="font-semibold">{drop.likes_count || 0}</span>
+            <span>Lights</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <MessageCircle className="w-3.5 h-3.5" />
+            <span>Comments</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Share2 className="w-3.5 h-3.5" />
+            <span className="font-semibold">{drop.shares_count || 0}</span>
+            <span>Shares</span>
+          </div>
+        </div>
 
         <TruthCardComments dropId={drop.id} user={user} />
       </div>

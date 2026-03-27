@@ -188,30 +188,42 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
 
         {/* User Pill (Top Left) */}
-        <Link 
-          to={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
-          onClick={(e) => e.stopPropagation()}
-          className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/10 rounded-full pr-4 pl-1 py-1 cursor-pointer hover:bg-black/50 transition no-underline"
-        >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
-            <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
-              <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+        {drop.user_email === "system@lightmode.com" ? (
+          <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-[#FFD000]/30 rounded-full pr-4 pl-1 py-1">
+            <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden bg-[#0B0F1A]">
+              <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" className="w-full h-full object-cover" />
+            </div>
+            <div className="flex flex-col items-start justify-center">
+              <span className="font-bold font-['Inter'] text-xs text-[#FFD000] leading-none mb-0.5">Generation LightMode</span>
+              <span className="text-[10px] text-gray-300 font-medium leading-none">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
             </div>
           </div>
-          <div className="flex flex-col items-start justify-center">
-            <span className="font-bold font-['Inter'] text-xs text-white flex items-center gap-1 leading-none mb-0.5">
-              {dropUser.full_name || dropUser.email?.split('@')[0] || "Glow Believer"}
-              {isSuperCreator && (
-                <span className="flex items-center justify-center w-3.5 h-3.5 bg-gradient-to-br from-[#00CFFF] to-[#FFD000] rounded-sm rotate-45 shadow-[0_0_10px_rgba(0,207,255,0.6)] ml-0.5">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-2.5 h-2.5 -rotate-45 text-black">
-                    <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/>
-                  </svg>
-                </span>
-              )}
-            </span>
-            <span className="text-[10px] text-gray-300 font-medium leading-none">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
-          </div>
-        </Link>
+        ) : (
+          <Link 
+            to={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
+            onClick={(e) => e.stopPropagation()}
+            className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/10 rounded-full pr-4 pl-1 py-1 cursor-pointer hover:bg-black/50 transition no-underline"
+          >
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
+              <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
+                <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+              </div>
+            </div>
+            <div className="flex flex-col items-start justify-center">
+              <span className="font-bold font-['Inter'] text-xs text-white flex items-center gap-1 leading-none mb-0.5">
+                {dropUser.full_name || dropUser.email?.split('@')[0] || "Glow Believer"}
+                {isSuperCreator && (
+                  <span className="flex items-center justify-center w-3.5 h-3.5 bg-gradient-to-br from-[#00CFFF] to-[#FFD000] rounded-sm rotate-45 shadow-[0_0_10px_rgba(0,207,255,0.6)] ml-0.5">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-2.5 h-2.5 -rotate-45 text-black">
+                      <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/>
+                    </svg>
+                  </span>
+                )}
+              </span>
+              <span className="text-[10px] text-gray-300 font-medium leading-none">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
+            </div>
+          </Link>
+        )}
 
         {/* Media Image */}
         {drop.media_url && (
