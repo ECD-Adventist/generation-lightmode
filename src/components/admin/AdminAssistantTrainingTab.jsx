@@ -37,12 +37,88 @@ function UploadQaCard({ onImporting }) {
     const file = e.target.files?.[0];
     if (!file) return;
     onImporting(true);
-    const toastId = toast.loading("Uploading Q&A file...");
+    const toastId = toast.loading("Uploading and extracting Q&As...");
     try {
-      await base44.integrations.Core.UploadFile({ file });
-      toast.success("File uploaded. Bulk import setup is next; for now you can add Q&A manually below.", { id: toastId });
-    } catch {
-      toast.error("Upload failed. Please use CSV or JSON with question and answer columns.", { id: toastId });
+      // Step 1: upload the file
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+
+      const ext = file.name.split(".").pop().toLowerCase();
+
+      let pairs = [];
+
+      if (ext === "csv" || ext === "json") {
+        // Step 2a: structured extraction
+        const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+          file_url,
+          json_schema: {
+            type: "object",
+            properties: {
+              items: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    question: { type: "string" },
+                    answer: { type: "string" },
+                    category: { type: "string" },
+                  },
+                  required: ["question", "answer"],
+                },
+              },
+            },
+          },
+        });
+        if (result.status === "success") {
+          const raw = result.output;
+          pairs = Array.isArray(raw) ? raw : (raw?.items || []);
+        } else {
+          throw new Error(result.details || "Extraction failed");
+        }
+      } else {
+        // Step 2b: LLM-based extraction for txt/docx/pdf/etc.
+        const llmResult = await base44.integrations.Core.InvokeLLM({
+          prompt: `The following file URL contains a document with Q&A training content. Extract all question-answer pairs from it and return them as JSON. File URL: ${file_url}\n\nReturn a JSON array of objects with fields: question (string), answer (string), category (string, optional - default to "General").`,
+          file_urls: [file_url],
+          response_json_schema: {
+            type: "object",
+            properties: {
+              items: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    question: { type: "string" },
+                    answer: { type: "string" },
+                    category: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+        });
+        pairs = llmResult?.items || [];
+      }
+
+      if (!pairs.length) {
+        toast.warning("No Q&A pairs found in the file. Check the format.", { id: toastId });
+        return;
+      }
+
+      // Step 3: save all extracted Q&As
+      await base44.entities.AssistantKnowledge.bulkCreate(
+        pairs.map(p => ({
+          question: p.question,
+          answer: p.answer,
+          category: p.category || "General",
+          status: "active",
+          source: "upload",
+        }))
+      );
+
+      queryClient.invalidateQueries({ queryKey: ["assistant_knowledge"] });
+      toast.success(`✅ Imported ${pairs.length} Q&A pairs successfully!`, { id: toastId });
+    } catch (err) {
+      toast.error(`Import failed: ${err.message}`, { id: toastId });
     } finally {
       onImporting(false);
       e.target.value = "";
@@ -54,10 +130,14 @@ function UploadQaCard({ onImporting }) {
       <div className="flex items-center gap-2 text-white font-bold font-['Space_Grotesk']">
         <Upload className="w-4 h-4 text-[#FFD000]" /> Upload Q&A file
       </div>
-      <p className="text-sm text-gray-400">Upload is ready, and manual Q&A entry works now; bulk import will be connected next.</p>
-      <label className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-[#0B0F1A] px-4 py-6 text-gray-300 hover:border-[#00CFFF]/40 cursor-pointer">
-        <FileText className="w-4 h-4" /> Choose file
-        <input type="file" accept=".csv,.json" className="hidden" onChange={handleFile} />
+      <p className="text-sm text-gray-400">
+        Upload a CSV, JSON, TXT, PDF, or Word document. Q&A pairs will be automatically extracted and added to the knowledge base.
+      </p>
+      <label className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-[#0B0F1A] px-4 py-8 text-gray-300 hover:border-[#00CFFF]/40 hover:bg-[#00CFFF]/5 cursor-pointer transition-colors">
+        <FileText className="w-6 h-6 text-[#FFD000]" />
+        <span className="font-semibold">Choose file to import</span>
+        <span className="text-xs text-gray-500">CSV, JSON, TXT, PDF, DOCX supported</span>
+        <input type="file" accept=".csv,.json,.txt,.pdf,.docx,.doc" className="hidden" onChange={handleFile} />
       </label>
     </div>
   );

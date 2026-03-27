@@ -566,13 +566,15 @@ export default function Home() {
                 url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
                 attribution='&copy; CartoDB'
               />
-              {liveCountries.flatMap((loc, i) => {
-                const coordinates = countryCoordinates[loc.country] || countryCoordinates.Global;
+              {liveCountries.filter(loc => loc.country !== "Global" && countryCoordinates[loc.country]).flatMap((loc, i) => {
+                const coordinates = countryCoordinates[loc.country];
                 const color = i % 3 === 0 ? "#00CFFF" : i % 3 === 1 ? "#FFD000" : "#8A5CFF";
-                const outerR = Math.min(50, Math.max(14, (loc.users || 0) * 3 + (loc.groups || 0) * 4 + (loc.drops || 0) * 0.5));
-                const innerR = Math.min(12, Math.max(5, (loc.users || 0) + (loc.groups || 0)));
+                // Scale radii to be visible even with small numbers
+                const totalActivity = (loc.users || 0) + (loc.drops || 0) * 0.3 + (loc.groups || 0) * 2;
+                const outerR = Math.min(60, Math.max(20, totalActivity * 1.5 + 15));
+                const innerR = Math.min(14, Math.max(8, (loc.users || 0) * 0.5 + 8));
                 return [
-                  <CircleMarker key={`outer-${i}`} center={coordinates} radius={outerR} pathOptions={{ color: "transparent", fillColor: color, fillOpacity: 0.12 }} />,
+                  <CircleMarker key={`outer-${i}`} center={coordinates} radius={outerR} pathOptions={{ color: "transparent", fillColor: color, fillOpacity: 0.15 }} />,
                   <CircleMarker key={`inner-${i}`} center={coordinates} radius={innerR} pathOptions={{ color, fillColor: "#FFF", fillOpacity: 0.95, weight: 2 }}>
                     <Popup>
                       <div style={{ background: "rgba(18,24,38,0.96)", backdropFilter: "blur(12px)", padding: "16px", borderRadius: "12px", border: `1px solid ${color}60`, color: "#FFF", minWidth: "180px", boxShadow: `0 8px 32px ${color}20` }}>
