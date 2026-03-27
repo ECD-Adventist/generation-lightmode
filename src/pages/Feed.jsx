@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap, BookOpen, Trophy } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap, BookOpen, Trophy } from "lucide-react";
+import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,8 +24,10 @@ export default function Feed() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
+  
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedStory, setSelectedStory] = useState(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -331,7 +334,8 @@ export default function Feed() {
 
            <div className="flex flex-col gap-2 flex-1">
              <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-lg font-bold bg-[#121826] text-[#00CFFF] px-4 py-3.5 rounded-2xl border border-white/5"><Home className="w-6 h-6" /> Home</Link>
-             <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Search className="w-6 h-6" /> Explore</Link>
+             <button onClick={() => setIsSearchOpen(true)} className="w-full flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><SearchIcon className="w-6 h-6" /> Search</button>
+             <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Globe className="w-6 h-6" /> Explore</Link>
              <Link to={createPageUrl("Discover")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Zap className="w-6 h-6" /> Discover</Link>
              <Link to={createPageUrl("Saved")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Bookmark className="w-6 h-6" /> Saved</Link>
              <Link to={createPageUrl("DailyDevotion")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><BookOpen className="w-6 h-6" /> Daily Devotion</Link>
@@ -422,16 +426,13 @@ export default function Feed() {
         {/* Center Header (Desktop) */}
         <div className="hidden lg:flex items-center justify-between px-4 mb-6 shrink-0">
            <h2 className="text-xl font-bold text-white">For You</h2>
-           <div className="relative w-64">
-             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-             <input 
-               type="text" 
-               value={searchQuery}
-               onChange={(e) => setSearchQuery(e.target.value)}
-               placeholder="Search Lights by verse, reflection..." 
-               className="w-full bg-[#121826] border border-white/5 rounded-full py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-[#00CFFF]/50" 
-             />
-           </div>
+           <button
+             onClick={() => setIsSearchOpen(true)}
+             className="relative w-64 flex items-center gap-2 bg-[#121826] border border-white/5 rounded-full py-2.5 pl-10 pr-4 text-sm text-gray-500 hover:border-[#00CFFF]/30 transition cursor-pointer text-left"
+           >
+             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+             Search people, drops, groups...
+           </button>
         </div>
 
         {/* Stories / Status Row */}
@@ -631,12 +632,16 @@ export default function Feed() {
           storyUser={selectedStory ? getUserInfo(selectedStory.user_email) : null}
           isOpen={!!selectedStory}
           onClose={() => setSelectedStory(null)}
+          allStories={stories}
+          allUsers={users}
+          getUserInfo={getUserInfo}
         />
+        {isSearchOpen && <GlobalSearchBar onClose={() => setIsSearchOpen(false)} />}
 
         {/* Bottom Mobile Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F1A]/90 backdrop-blur-xl border-t border-white/10 flex justify-around items-center py-3 px-6 z-50 pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden">
           <Link to={createPageUrl("Feed")}><Home className="w-6 h-6 text-white" fill="white" /></Link>
-          <Link to={createPageUrl("GlowGroups")}><Search className="w-6 h-6 text-white" /></Link>
+          <button onClick={() => setIsSearchOpen(true)}><SearchIcon className="w-6 h-6 text-white" /></button>
           <Link to={createPageUrl("Dashboard")}><PlusSquare className="w-6 h-6 text-white" /></Link>
           <Link to={createPageUrl("GlobalReach")}><Globe className="w-6 h-6 text-white" /></Link>
           <Link to={createPageUrl("Resources")}><PlaySquare className="w-6 h-6 text-white" /></Link>

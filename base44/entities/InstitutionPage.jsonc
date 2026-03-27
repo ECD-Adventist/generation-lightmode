@@ -1,0 +1,70 @@
+{
+  "name": "InstitutionPage",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Institution or organization name"
+    },
+    "slug": {
+      "type": "string",
+      "description": "URL-friendly unique identifier"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Email of the account that owns this page"
+    },
+    "banner_url": {
+      "type": "string",
+      "description": "Cover/banner image URL"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Logo/avatar image URL"
+    },
+    "mission_statement": {
+      "type": "string",
+      "description": "Mission or about text"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "church",
+        "ministry",
+        "nonprofit",
+        "school",
+        "community",
+        "other"
+      ],
+      "default": "ministry"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "website_url": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "team_members": {
+      "type": "string",
+      "description": "JSON string of team member objects"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "followers_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "name",
+    "owner_email"
+  ]
+}
