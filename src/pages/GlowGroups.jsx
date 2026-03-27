@@ -207,22 +207,23 @@ export default function GlowGroups() {
               const userDrops = dropCountByUser[u.email] || 0;
               return (
                 <div key={u.id} className="flex items-center gap-4 bg-[#121826] border border-white/5 rounded-2xl p-4 hover:border-[#00CFFF]/30 transition-all">
-                  {/* Avatar */}
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
-                    <div className="w-full h-full rounded-full bg-[#121826] overflow-hidden flex items-center justify-center font-bold text-lg text-white">
-                      <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                  {/* Avatar + Info — clickable to profile */}
+                  <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-4 flex-1 min-w-0 no-underline">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
+                      <div className="w-full h-full rounded-full bg-[#121826] overflow-hidden flex items-center justify-center font-bold text-lg text-white">
+                        <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                      </div>
                     </div>
-                  </div>
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-white text-sm truncate">{u.full_name}</div>
-                    <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
-                      {u.country && <><MapPin className="w-3 h-3 inline" /> {u.country}</>}
-                      {u.country && <span>·</span>}
-                      <span>{userDrops} drops</span>
-                      {(u.glow_score > 0) && <><span>·</span><Zap className="w-3 h-3 inline text-[#FFD000]" /><span className="text-[#FFD000] font-bold">{u.glow_score} XP</span></>}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-white text-sm truncate">{u.full_name}</div>
+                      <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
+                        {u.country && <><MapPin className="w-3 h-3 inline" /> {u.country}</>}
+                        {u.country && <span>·</span>}
+                        <span>{userDrops} drops</span>
+                        {(u.glow_score > 0) && <><span>·</span><Zap className="w-3 h-3 inline text-[#FFD000]" /><span className="text-[#FFD000] font-bold">{u.glow_score} XP</span></>}
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                   {/* Action */}
                   <button
                     onClick={() => followMutation.mutate(u.email)}
@@ -320,17 +321,18 @@ export default function GlowGroups() {
                       : <span className="text-sm font-bold text-gray-500">#{index + 1}</span>
                     }
                   </div>
-                  {/* Avatar */}
-                  <div className={`w-12 h-12 rounded-full overflow-hidden flex items-center justify-center font-bold text-base shrink-0 border-2 ${index < 3 ? "border-[#FFD000]" : "border-white/10"} bg-[#1a2235]`}>
-                    <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-                  </div>
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-white text-sm truncate">
-                      {u.full_name} {index === 0 && "👑"}
+                  {/* Avatar + Info — clickable to profile */}
+                  <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-4 flex-1 min-w-0 no-underline">
+                    <div className={`w-12 h-12 rounded-full overflow-hidden flex items-center justify-center font-bold text-base shrink-0 border-2 ${index < 3 ? "border-[#FFD000]" : "border-white/10"} bg-[#1a2235]`}>
+                      <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                     </div>
-                    <div className="text-xs text-gray-500">{u.country || "Global Believer"}</div>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-white text-sm truncate">
+                        {u.full_name} {index === 0 && "👑"}
+                      </div>
+                      <div className="text-xs text-gray-500">{u.country || "Global Believer"}</div>
+                    </div>
+                  </Link>
                   {/* XP */}
                   <div className="text-right shrink-0 mr-2">
                     <div className="text-lg font-black text-[#FFD000]" style={{ fontFamily: "Space Grotesk, sans-serif" }}>{u.glow_score || 0}</div>

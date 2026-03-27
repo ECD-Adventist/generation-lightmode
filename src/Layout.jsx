@@ -10,8 +10,6 @@ import { toast } from "sonner";
 
 const navLinks = [
   { key: "about", page: "About" },
-  { key: "challenges", page: "Challenges" },
-  { key: "glowGroups", page: "GlowGroups" },
   { key: "impact", page: "Impact" },
   { key: "assistant", page: "Assistant" },
 ];
@@ -531,8 +529,6 @@ export default function Layout({ children, currentPageName }) {
               <h4 className="glm-headline" style={{ fontSize: 16, color: "#00CFFF", marginBottom: 16 }}>{t("movement")}</h4>
               {[
                { key: "about", page: "About" },
-               { key: "challenges", page: "Challenges" },
-               { key: "glowGroups", page: "GlowGroups" },
                { key: "impact", page: "Impact" },
               ].map(p => (
                 <Link key={p.page} to={createPageUrl(p.page)} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}

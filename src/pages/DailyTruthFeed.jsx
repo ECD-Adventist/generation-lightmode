@@ -22,10 +22,10 @@ export default function DailyDrops() {
     });
   }, []);
 
-  // Fetch approved drops for daily content
+  // Fetch ONLY system-published daily drops
   const { data: drops = [], isLoading } = useQuery({
     queryKey: ["dailySystemDrops"],
-    queryFn: () => base44.entities.GlowDrop.filter({ status: "approved" }, '-created_date', 100),
+    queryFn: () => base44.entities.GlowDrop.filter({ user_email: "system@lightmode.com", status: "approved" }, '-created_date', 100),
   });
 
   // Filter by category (reliable) — hashtags may be null on older drops
@@ -126,13 +126,15 @@ function TruthCard({ drop, onShare, user, featured }) {
   const postedDate = drop.created_date ? new Date(drop.created_date + (drop.created_date.endsWith('Z') ? '' : 'Z')) : null;
   const queryClient = useQueryClient();
   
+  const isSystemPost = drop.user_email === "system@lightmode.com";
+
   const { data: creatorUser } = useQuery({
     queryKey: ["userProfile", drop.user_email],
     queryFn: async () => {
       const res = await base44.functions.invoke("listPublicUsers", {});
       return res.data?.find(u => u.email === drop.user_email);
     },
-    enabled: Boolean(drop.user_email && drop.user_email !== "system@lightmode.com")
+    enabled: Boolean(drop.user_email && !isSystemPost)
   });
   
   const repostMutation = useMutation({
@@ -163,7 +165,17 @@ function TruthCard({ drop, onShare, user, featured }) {
         <img src={drop.media_url} alt="" className="w-full max-h-80 object-contain bg-black" />
       )}
       <div className="p-5">
-         {creatorUser && drop.user_email !== "system@lightmode.com" && (
+         {isSystemPost ? (
+           <div className="flex items-center gap-2 mb-4 pb-4 border-b border-white/5">
+             <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden border border-[#FFD000]/30">
+               <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" className="w-full h-full object-cover bg-[#0B0F1A]" />
+             </div>
+             <div className="flex-1 min-w-0">
+               <div className="text-sm font-bold text-[#FFD000] truncate">Generation LightMode</div>
+               <div className="text-[10px] text-gray-500">Official Daily Drop</div>
+             </div>
+           </div>
+         ) : creatorUser && (
            <Link to={`${createPageUrl("Profile")}?user=${encodeURIComponent(drop.user_email)}`} className="flex items-center gap-2 mb-4 pb-4 border-b border-white/5 hover:opacity-80 transition">
              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
                <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center overflow-hidden text-xs font-bold">

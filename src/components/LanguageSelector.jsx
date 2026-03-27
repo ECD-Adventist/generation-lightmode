@@ -53,21 +53,19 @@ export default function LanguageSelector() {
       <button
         onClick={() => setOpen(!open)}
         style={{
-          display: "flex", alignItems: "center", gap: 6,
-          background: "rgba(0,207,255,0.08)",
-          border: "1px solid rgba(0,207,255,0.3)",
-          borderRadius: 50, padding: "7px 14px",
-          color: "#00CFFF", cursor: "pointer",
-          fontFamily: "Inter, sans-serif", fontSize: 13, fontWeight: 600,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          width: 36, height: 36,
+          background: "rgba(255,255,255,0.06)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: "50%",
+          color: "#C8D0E0", cursor: "pointer",
           transition: "all 0.2s",
         }}
-        onMouseOver={e => e.currentTarget.style.background = "rgba(0,207,255,0.18)"}
-        onMouseOut={e => e.currentTarget.style.background = "rgba(0,207,255,0.08)"}
+        onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.15)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.4)"; e.currentTarget.style.color = "#00CFFF"; }}
+        onMouseOut={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#C8D0E0"; }}
+        title={current.native}
       >
-        <Globe size={14} />
-        <span>{current.flag}</span>
-        <span>{current.label}</span>
-        <span style={{ fontSize: 10, opacity: 0.7 }}>▾</span>
+        <span style={{ fontSize: 18 }}>{current.flag}</span>
       </button>
 
       {open && (
