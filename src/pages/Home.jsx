@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, Globe, Users, Star, ChevronDown, Play, X } from "lucide-react";
 import { useAppLanguage } from "../components/i18n/useAppLanguage";
-import DailyTruthWidget from "../components/home/DailyTruthWidget";
+import DailyDropsSection from "../components/home/DailyDropsSection";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -392,36 +392,35 @@ export default function Home() {
 
       <div className="section-divider" />
 
-      {/* RANKS */}
+      {/* GLOW RANKS — 4 Tier System */}
       <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#121826" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
           <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>
-            {t("ranksTitle")}
+            The 4 Glow Tiers
           </h2>
           <p className="glm-body" style={{ fontSize: 17, marginBottom: 56, maxWidth: 600, margin: "0 auto 56px" }}>
-            {t("ranksSubtitle")}
+            Join one of the 4 mobilization tiers and help reach 1,000,000 youth across 12 nations.
           </p>
           <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
-            {liveTopGroups.length === 0 ? (
-              <div className="glm-card" style={{ maxWidth: 520, textAlign: "center" }}>
-                <p className="glm-body" style={{ fontSize: 14 }}>No live GlowGroup rankings yet.</p>
+            {[
+              { tier: "Bronze", emoji: "🥉", color: "#CD7F32", desc: "100,000 Youth", detail: "Core mobilizers in local communities" },
+              { tier: "Silver", emoji: "🥈", color: "#C0C0C0", desc: "500,000 Youth", detail: "Regional influencers and leaders" },
+              { tier: "Gold", emoji: "🥇", color: "#FFD000", desc: "750,000 Youth", detail: "National movement ambassadors" },
+              { tier: "Platinum", emoji: "✨", color: "#E5E4E2", desc: "1,000,000 Youth", detail: "Global digital missionaries" },
+            ].map((item, idx) => (
+              <div key={item.tier} className="glm-card" style={{ flex: "1 1 200px", maxWidth: 240, border: `1px solid ${item.color}40`, textAlign: "center", position: "relative", overflow: "hidden" }}>
+                <div style={{
+                  fontSize: 44, marginBottom: 12,
+                  filter: `drop-shadow(0 0 12px ${item.color}) drop-shadow(0 0 24px ${item.color}88)`,
+                  animation: `pulse-glow ${2 + idx * 0.4}s ease-in-out infinite`,
+                  display: "inline-block",
+                }}>{item.emoji}</div>
+                <h3 className="glm-headline" style={{ fontSize: 18, color: item.color, marginBottom: 8, textShadow: `0 0 12px ${item.color}60` }}>{item.tier}</h3>
+                <p className="glm-body" style={{ fontSize: 14, fontWeight: 700, color: item.color, marginBottom: 4 }}>{item.desc}</p>
+                <p className="glm-body" style={{ fontSize: 12 }}>{item.detail}</p>
+                <div style={{ marginTop: 16, height: 3, borderRadius: 2, background: `linear-gradient(90deg, ${item.color}, transparent)` }} />
               </div>
-            ) : liveTopGroups.slice(0, 4).map((item, idx) => {
-              const color = idx === 0 ? "#FFD000" : idx === 1 ? "#00CFFF" : idx === 2 ? "#8A5CFF" : "#1DA1FF";
-              return (
-                <div key={item.id} className="glm-card" style={{ flex: "1 1 200px", maxWidth: 240, border: `1px solid ${color}40`, textAlign: "center", position: "relative", overflow: "hidden" }}>
-                  <div style={{
-                    fontSize: 44, marginBottom: 12,
-                    filter: `drop-shadow(0 0 12px ${color}) drop-shadow(0 0 24px ${color}88)`,
-                    animation: `pulse-glow ${2 + idx * 0.4}s ease-in-out infinite`,
-                    display: "inline-block",
-                  }}>{idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : "✨"}</div>
-                  <h3 className="glm-headline" style={{ fontSize: 18, color, marginBottom: 8, textShadow: `0 0 12px ${color}60` }}>{item.name}</h3>
-                  <p className="glm-body" style={{ fontSize: 14 }}>{item.membersCount} members • {item.country}</p>
-                  <div style={{ marginTop: 16, height: 3, borderRadius: 2, background: `linear-gradient(90deg, ${color}, transparent)` }} />
-                </div>
-              );
-            })}
+            ))}
           </div>
         </div>
       </section>
@@ -511,20 +510,8 @@ export default function Home() {
 
       <div className="section-divider" />
 
-      {/* DAILY TRUTH DROPS */}
-      <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#121826" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
-          <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>
-            Daily Truth Drops
-          </h2>
-          <p className="glm-body" style={{ fontSize: 17, marginBottom: 32, maxWidth: 600, margin: "0 auto 32px" }}>
-            Explore system-posted scriptures and reflections that guide the movement.
-          </p>
-          <Link to="/DailyTruthFeed" className="glm-btn-primary" style={{ fontSize: 16 }}>
-            View Daily Drops ⚡
-          </Link>
-        </div>
-      </section>
+      {/* DAILY TRUTH DROPS — Live Feed */}
+      <DailyDropsSection />
 
       <div className="section-divider" />
 
