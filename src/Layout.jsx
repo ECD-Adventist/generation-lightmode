@@ -284,7 +284,7 @@ export default function Layout({ children, currentPageName }) {
         }} />
         <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[76px] md:h-[76px] lg:h-[86px] w-full">
           {/* Logo */}
-          <Link to={createPageUrl("Home")} style={{ textDecoration: "none", display: "flex", alignItems: "flex-end", paddingBottom: "6px", gap: 10 }}>
+          <Link to={createPageUrl("Home")} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
               alt="Generation LightMode"
