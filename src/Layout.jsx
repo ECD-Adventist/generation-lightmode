@@ -16,7 +16,7 @@ const navLinks = [
   { key: "assistant", page: "Assistant" },
 ];
 
-const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession"];
+const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession","DailyDevotion","Discover","Leaderboard"];
 
 export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);

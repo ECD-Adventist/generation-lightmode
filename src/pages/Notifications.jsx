@@ -11,6 +11,7 @@ import { getNotificationCategory, notificationCategoryLabels, isNotificationEnab
 const typeIcon = {
   like: <Heart className="w-4 h-4 text-red-400" />,
   reply: <MessageCircle className="w-4 h-4 text-[#00CFFF]" />,
+  message: <MessageCircle className="w-4 h-4 text-[#00CFFF]" />,
   milestone: <Zap className="w-4 h-4 text-[#FFD000]" />,
   system: <Info className="w-4 h-4 text-[#8A5CFF]" />,
   follow: <UserPlus className="w-4 h-4 text-green-400" />,
@@ -19,6 +20,7 @@ const typeIcon = {
 const typeBg = {
   like: "bg-red-500/10 border-red-500/20",
   reply: "bg-[#00CFFF]/10 border-[#00CFFF]/20",
+  message: "bg-[#00CFFF]/10 border-[#00CFFF]/20",
   milestone: "bg-[#FFD000]/10 border-[#FFD000]/20",
   system: "bg-[#8A5CFF]/10 border-[#8A5CFF]/20",
   follow: "bg-green-500/10 border-green-500/20",
@@ -166,7 +168,7 @@ export default function Notifications() {
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
               alt="LightMode"
-              style={{ height: 96, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
+              style={{ height: 56, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
             />
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">

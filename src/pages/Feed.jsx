@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap, BookOpen } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap, BookOpen, Trophy } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -175,13 +175,19 @@ export default function Feed() {
   // Real-time subscription for notifications
   useEffect(() => {
     if (!user?.email) return;
-    const unsubscribe = base44.entities.Notification.subscribe((event) => {
+    const unsubNotifs = base44.entities.Notification.subscribe((event) => {
       if (event.type === 'create' && event.data.user_email === user.email && !event.data.read) {
         toast(event.data.message, { icon: '🔔' });
         queryClient.invalidateQueries({ queryKey: ["notifications", user.email] });
       }
     });
-    return unsubscribe;
+    // Real-time DM alerts
+    const unsubDMs = base44.entities.DirectMessage.subscribe((event) => {
+      if (event.type === 'create' && event.data.recipient_email === user.email) {
+        toast(`New message from ${event.data.sender_email?.split('@')[0]}`, { icon: '💬' });
+      }
+    });
+    return () => { unsubNotifs(); unsubDMs(); };
   }, [user?.email, queryClient]);
 
   const handleShare = async (drop) => {
@@ -314,12 +320,14 @@ export default function Feed() {
              <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Search className="w-6 h-6" /> Explore</Link>
              <Link to={createPageUrl("Discover")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Zap className="w-6 h-6" /> Discover</Link>
              <Link to={createPageUrl("Saved")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Bookmark className="w-6 h-6" /> Saved</Link>
+             <Link to={createPageUrl("DailyDevotion")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><BookOpen className="w-6 h-6" /> Daily Devotion</Link>
              <Link to={createPageUrl("Notifications")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition relative">
                <Bell className="w-6 h-6" /> Notifications
                {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
              </Link>
              <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Zap className="w-6 h-6" /> Dashboard</Link>
              <Link to={createPageUrl("Milestones")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Zap className="w-6 h-6" /> Milestones</Link>
+             <Link to={createPageUrl("Leaderboard")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Trophy className="w-6 h-6" /> Leaderboard</Link>
              <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Globe className="w-6 h-6" /> Global Reach</Link>
              <Link to={createPageUrl("Challenges")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><PlaySquare className="w-6 h-6" /> Challenges</Link>
              <Link to={createPageUrl("Assistant")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><MessageSquare className="w-6 h-6" /> AI Assistant</Link>
@@ -382,7 +390,7 @@ export default function Feed() {
           <img
             src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
             alt="Generation LightMode"
-            className="h-20 sm:h-[96px] object-contain drop-shadow-[0_0_8px_rgba(0,207,255,0.4)]"
+            className="h-14 object-contain drop-shadow-[0_0_8px_rgba(0,207,255,0.4)]"
           />
           <div className="flex gap-4 items-center shrink-0">
             <div className="relative cursor-pointer">

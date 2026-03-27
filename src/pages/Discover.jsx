@@ -101,7 +101,7 @@ export default function Discover() {
           <div className="flex items-center gap-3">
             <button onClick={() => navigate(-1)} className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition"><ArrowLeft className="w-5 h-5" /></button>
             <Link to={createPageUrl("Home")} className="shrink-0">
-              <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="LightMode" className="h-10 w-auto object-contain" style={{ filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }} />
+              <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="LightMode" className="h-14 w-auto object-contain" style={{ filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }} />
             </Link>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">

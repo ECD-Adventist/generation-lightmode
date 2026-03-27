@@ -175,7 +175,7 @@ export default function GlobalReach() {
               <img
                 src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
                 alt="LightMode"
-                style={{ height: 96, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
+                style={{ height: 56, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
               />
             </Link>
           </div>

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Clock, XCircle, Zap, Home, Users, Bell, Globe, Trash2 } from "lucide-react";
+import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Clock, XCircle, Zap, Home, Users, Bell, Globe, Trash2, Bookmark } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -122,6 +122,22 @@ export default function Profile() {
     queryFn: () => base44.entities.Certificate.filter({ user_email: profileEmail }),
     enabled: !!profileEmail
   });
+
+  const { data: savedRecords = [] } = useQuery({
+    queryKey: ["mySavedDropsProfile", profileEmail],
+    queryFn: () => base44.entities.SavedDrop.filter({ user_email: profileEmail }),
+    enabled: !!profileEmail && isOwnProfile
+  });
+
+  const { data: allDrops = [] } = useQuery({
+    queryKey: ["allGlowDrops"],
+    queryFn: () => base44.entities.GlowDrop.list('-created_date', 500),
+  });
+
+  const savedDrops = useMemo(() => {
+    const ids = new Set(savedRecords.map(r => r.drop_id));
+    return allDrops.filter(d => ids.has(d.id));
+  }, [savedRecords, allDrops]);
 
   const { data: challengeSubmissions = [] } = useQuery({
     queryKey: ["myChallengeSubmissions", profileEmail],
@@ -305,7 +321,7 @@ export default function Profile() {
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
               alt="LightMode"
-              style={{ height: 96, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
+              style={{ height: 56, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
             />
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
@@ -531,14 +547,17 @@ export default function Profile() {
         )}
 
         {/* Tabs */}
-        <div className="flex border-t border-white/10 mb-2">
-          <div onClick={() => setActiveProfileTab("drops")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition ${activeProfileTab === "drops" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
+        <div className="flex border-t border-white/10 mb-2 overflow-x-auto hide-scrollbar">
+          <div onClick={() => setActiveProfileTab("drops")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "drops" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
             <Grid className="w-4 h-4" /> DROPS
           </div>
-          <div onClick={() => setActiveProfileTab("missions")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition ${activeProfileTab === "missions" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
-            <Target className="w-4 h-4" /> MY MISSIONS
+          <div onClick={() => setActiveProfileTab("saved")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "saved" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
+            <Bookmark className="w-4 h-4" /> SAVED
           </div>
-          <div onClick={() => setActiveProfileTab("badges")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition ${activeProfileTab === "badges" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
+          <div onClick={() => setActiveProfileTab("missions")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "missions" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
+            <Target className="w-4 h-4" /> MISSIONS
+          </div>
+          <div onClick={() => setActiveProfileTab("badges")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "badges" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
             <Award className="w-4 h-4" /> ACHIEVEMENTS
           </div>
         </div>
@@ -586,6 +605,48 @@ export default function Profile() {
             </div>
           )}
         </div>
+        )}
+
+        {activeProfileTab === "saved" && isOwnProfile && (
+          <div className="py-6">
+            {savedDrops.length === 0 ? (
+              <div className="text-center py-20 text-gray-500 bg-[#121826]/50 rounded-2xl border border-white/5">
+                <Bookmark className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                <p className="font-bold text-lg">No saved drops yet.</p>
+                <p className="text-sm mt-1">Bookmark posts you love and they'll appear here.</p>
+                <Link to={createPageUrl("Feed")} className="inline-block mt-4 text-[#00CFFF] font-bold hover:underline">Explore Feed</Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+                {savedDrops.map(drop => (
+                  <Link
+                    key={drop.id}
+                    to={`${createPageUrl("Post")}?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
+                    className="aspect-[4/5] bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-white/5 relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-3 text-center rounded-2xl"
+                  >
+                    {drop.media_url ? (
+                      <>
+                        <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="absolute inset-0 w-full h-full object-contain bg-black" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-10" />
+                      </>
+                    ) : (
+                      <div className="relative z-10 w-full h-full flex items-center justify-center px-3">
+                        <span className="text-[#00CFFF] font-bold font-['Space_Grotesk'] text-sm sm:text-lg md:text-2xl break-words line-clamp-5 leading-tight drop-shadow-md">
+                          {drop.verse}
+                        </span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]">
+                      <div className="flex items-center gap-2 font-bold text-lg text-white">
+                        <Heart className="w-5 h-5 fill-white" /> {drop.likes_count || 0}
+                      </div>
+                      <div className="text-sm text-white/90 font-medium">View post</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         {activeProfileTab === "missions" && (

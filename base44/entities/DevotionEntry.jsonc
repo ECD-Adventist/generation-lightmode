@@ -1,0 +1,33 @@
+{
+  "name": "DevotionEntry",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "plan_id": {
+      "type": "string"
+    },
+    "day_number": {
+      "type": "number"
+    },
+    "verse": {
+      "type": "string"
+    },
+    "reflection": {
+      "type": "string"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "date_string": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_email",
+    "plan_id",
+    "day_number"
+  ]
+}
