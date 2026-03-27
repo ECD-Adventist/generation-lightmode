@@ -10,6 +10,7 @@ import LightReflections from './pages/LightReflections';
 import Leaderboard from './pages/Leaderboard';
 import Discover from './pages/Discover';
 import DailyDevotion from './pages/DailyDevotion';
+import DailyTruthFeed from './pages/DailyTruthFeed';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -65,6 +66,7 @@ const AuthenticatedApp = () => {
       <Route path="/Leaderboard" element={<LayoutWrapper currentPageName="Leaderboard"><Leaderboard /></LayoutWrapper>} />
       <Route path="/Discover" element={<LayoutWrapper currentPageName="Discover"><Discover /></LayoutWrapper>} />
       <Route path="/DailyDevotion" element={<LayoutWrapper currentPageName="DailyDevotion"><DailyDevotion /></LayoutWrapper>} />
+      <Route path="/DailyTruthFeed" element={<LayoutWrapper currentPageName="DailyTruthFeed"><DailyTruthFeed /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

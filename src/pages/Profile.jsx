@@ -34,7 +34,7 @@ export default function Profile() {
       const res = await base44.functions.invoke("listPublicUsers", {});
       return res.data;
     },
-    enabled: !!currentUser || !!viewUserEmail
+    enabled: true
   });
 
   useEffect(() => {
@@ -57,8 +57,9 @@ export default function Profile() {
               cover_picture_url: me.cover_picture_url || "" 
             });
           }
-        } else {
-          base44.auth.redirectToLogin(window.location.pathname);
+        } else if (!viewUserEmail) {
+          // Only redirect to login if viewing own profile
+          base44.auth.redirectToLogin(window.location.pathname + window.location.search);
         }
       } catch (err) {}
     }
@@ -67,8 +68,8 @@ export default function Profile() {
 
   // Set viewed user once allUsersForProfile loads
   useEffect(() => {
-    if (viewUserEmail && currentUser && allUsersForProfile.length > 0) {
-      if (viewUserEmail === currentUser.email) {
+    if (viewUserEmail && allUsersForProfile.length > 0) {
+      if (currentUser && viewUserEmail === currentUser.email) {
         setUser(currentUser);
         setEditData({ 
           full_name: currentUser.full_name || "", 
@@ -83,7 +84,7 @@ export default function Profile() {
     }
   }, [viewUserEmail, currentUser, allUsersForProfile]);
 
-  const isOwnProfile = !viewUserEmail || (currentUser && viewUserEmail === currentUser.email);
+  const isOwnProfile = currentUser && (!viewUserEmail || viewUserEmail === currentUser.email);
 
   const profileEmail = viewUserEmail || currentUser?.email;
 
