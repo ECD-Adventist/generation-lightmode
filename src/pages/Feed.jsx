@@ -485,6 +485,7 @@ export default function Feed() {
         </div>
 
         <div className="flex gap-3 px-4 mb-6 overflow-x-auto hide-scrollbar shrink-0">
+          <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-4 py-2 rounded-full bg-gradient-to-r from-[#00CFFF]/20 to-[#8A5CFF]/20 border border-[#00CFFF]/30 text-sm font-semibold text-[#00CFFF] hover:from-[#00CFFF]/30 hover:to-[#8A5CFF]/30 transition whitespace-nowrap flex items-center gap-1.5"><Plus className="w-4 h-4" />Post</button>
           <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Messages</Link>
           <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Prayer Wall</Link>
           <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-sm font-semibold text-[#00CFFF] hover:bg-[#00CFFF]/20 transition whitespace-nowrap">Live</Link>
