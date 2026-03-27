@@ -288,7 +288,7 @@ export default function Layout({ children, currentPageName }) {
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
               alt="Generation LightMode"
-              style={{ height: 48, width: "auto", objectFit: "contain", filter: "drop-shadow(0 0 12px rgba(0,207,255,0.6))" }}
+              style={{ height: 56, width: "auto", objectFit: "contain", filter: "drop-shadow(0 0 12px rgba(0,207,255,0.6))" }}
             />
           </Link>
 
@@ -351,8 +351,24 @@ export default function Layout({ children, currentPageName }) {
               </a>
             ) : (
               <div className="flex items-center gap-4">
-                <Link to={createPageUrl("Feed")} className="nav-link" style={{ whiteSpace: "nowrap" }}>
-                  Switch It On
+                <Link to={createPageUrl("Feed")} style={{
+                  background: "linear-gradient(90deg, #00CFFF, #8A5CFF)",
+                  color: "#0B0F1A",
+                  fontFamily: "Space Grotesk, sans-serif",
+                  fontWeight: 800,
+                  fontSize: 14,
+                  padding: "10px 24px",
+                  borderRadius: 50,
+                  textDecoration: "none",
+                  whiteSpace: "nowrap",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  boxShadow: "0 0 20px rgba(0,207,255,0.4)",
+                  transition: "all 0.3s ease",
+                  flexShrink: 0,
+                }}>
+                  ⚡ Switch It On
                 </Link>
                 <Link to={createPageUrl("Notifications")} className="relative w-10 h-10 rounded-full bg-[#121826] border border-white/10 flex items-center justify-center hover:bg-white/5 transition">
                   <Bell className="w-5 h-5 text-gray-300" />
