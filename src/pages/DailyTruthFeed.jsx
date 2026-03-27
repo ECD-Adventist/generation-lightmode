@@ -131,7 +131,7 @@ function TruthCard({ drop, onShare, user, featured }) {
       const res = await base44.functions.invoke("listPublicUsers", {});
       return res.data?.find(u => u.email === drop.user_email);
     },
-    enabled: !!drop.user_email && drop.user_email !== "system@lightmode.com"
+    enabled: Boolean(drop.user_email && drop.user_email !== "system@lightmode.com")
   });
   
   const repostMutation = useMutation({
