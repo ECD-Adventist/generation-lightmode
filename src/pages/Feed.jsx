@@ -110,59 +110,64 @@ export default function Feed() {
   const { data: userLikes = [] } = useQuery({
     queryKey: ["userLikes", user?.email],
     queryFn: () => base44.entities.GlowDropLike.filter({ user_email: user?.email }),
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 1000 * 60 * 2,
+  });
+
+  const { data: savedDropRecords = [] } = useQuery({
+    queryKey: ["savedDrops", user?.email],
+    queryFn: () => base44.entities.SavedDrop.filter({ user_email: user?.email }),
+    enabled: !!user,
+    staleTime: 1000 * 60 * 2,
   });
 
   const likeMutation = useMutation({
-    mutationFn: async ({ id, likes, authorEmail, authorName }) => {
-      if (!user) { 
-        toast.error("Please log in to like drops"); 
-        return; 
-      }
-      
-      // Check if user already liked this drop
+    mutationFn: async ({ id, likes, authorEmail }) => {
+      if (!user) { toast.error("Please log in to like drops"); return; }
       const alreadyLiked = userLikes.some(like => like.drop_id === id);
-      if (alreadyLiked) {
-        toast.error("You already liked this drop!");
-        return;
-      }
+      if (alreadyLiked) { toast.error("You already liked this drop!"); return; }
       
-      try {
-        // Record the like first
-        await base44.entities.GlowDropLike.create({ drop_id: id, user_email: user.email });
-        // Then update the count
-        await base44.entities.GlowDrop.update(id, { likes_count: (likes || 0) + 1 });
-        
-        // Send notification
+      // Do the like
+      await base44.entities.GlowDropLike.create({ drop_id: id, user_email: user.email });
+      await base44.entities.GlowDrop.update(id, { likes_count: (likes || 0) + 1 });
+      
+      // Fire and forget notification
+      if (authorEmail && authorEmail !== user.email) {
         const authorUser = users.find(entry => entry.email === authorEmail);
-        if (authorEmail && authorEmail !== user.email && isNotificationEnabled(authorUser, "likes")) {
-          await base44.entities.Notification.create({
-            user_email: authorEmail,
-            type: "like",
+        if (isNotificationEnabled(authorUser, "likes")) {
+          base44.entities.Notification.create({
+            user_email: authorEmail, type: "like",
             message: `${user.full_name || 'Someone'} liked your Glow Drop!`,
             link: `/Feed`
-          });
+          }).catch(() => {});
         }
-        
-        // Check daily challenge
-        const today = new Date().toISOString().split('T')[0];
-        const challenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: today });
-        if (!challenges.some(c => c.challenge_id === 'like_drops')) {
-          await base44.entities.UserDailyChallenge.create({ user_email: user.email, date_string: today, challenge_id: 'like_drops' });
-          await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
-          toast.success("Challenge Completed: Spread the Light! +5 XP ⚡");
-        }
-        
-        toast.success("❤️ Liked!");
-      } catch (error) {
-        toast.error("Failed to like - try again");
-        console.error("Like error:", error);
       }
+      toast.success("❤️ Liked!");
     },
-    onSuccess: () => {
+    // Optimistic update
+    onMutate: async ({ id, likes }) => {
+      await queryClient.cancelQueries({ queryKey: ["allGlowDrops"] });
+      await queryClient.cancelQueries({ queryKey: ["userLikes", user?.email] });
+      
+      const prevDrops = queryClient.getQueryData(["allGlowDrops"]);
+      const prevLikes = queryClient.getQueryData(["userLikes", user?.email]);
+      
+      queryClient.setQueryData(["allGlowDrops"], old => 
+        (old || []).map(d => d.id === id ? { ...d, likes_count: (d.likes_count || 0) + 1 } : d)
+      );
+      queryClient.setQueryData(["userLikes", user?.email], old => 
+        [...(old || []), { drop_id: id, user_email: user?.email }]
+      );
+      
+      return { prevDrops, prevLikes };
+    },
+    onError: (err, vars, context) => {
+      if (context?.prevDrops) queryClient.setQueryData(["allGlowDrops"], context.prevDrops);
+      if (context?.prevLikes) queryClient.setQueryData(["userLikes", user?.email], context.prevLikes);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
       queryClient.invalidateQueries({ queryKey: ["userLikes", user?.email] });
-      queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });
     }
   });
 
@@ -191,26 +196,32 @@ export default function Feed() {
   }, [user?.email, queryClient]);
 
   const handleShare = async (drop) => {
-    if (!user) { toast.error("Please log in to share"); return; }
+    const postUrl = `${window.location.origin}/Post?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`;
+    const shareText = `✨ Generation LightMode\n\n"${drop.verse || ''}"\n\n${drop.reflection || ''}\n\nJoin the movement!`;
     
-    const shareText = `✨ Generation LightMode\n\n"${drop.verse}"\n\n${drop.reflection}\n\nJoin the movement at ${window.location.origin}`;
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Glow Drop',
+          title: 'Glow Drop - Generation LightMode',
           text: shareText,
+          url: postUrl,
         });
-        await base44.entities.GlowDrop.update(drop.id, { shares_count: (drop.shares_count || 0) + 1 });
+        base44.entities.GlowDrop.update(drop.id, { shares_count: (drop.shares_count || 0) + 1 }).catch(() => {});
         queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
         toast.success("Shared successfully!");
       } catch (err) {
-        console.log('Error sharing', err);
+        if (err.name !== 'AbortError') console.log('Share cancelled');
       }
     } else {
-      navigator.clipboard.writeText(shareText);
-      await base44.entities.GlowDrop.update(drop.id, { shares_count: (drop.shares_count || 0) + 1 });
-      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
-      toast.success("Copied to clipboard!");
+      // Fallback: copy link to clipboard
+      try {
+        await navigator.clipboard.writeText(`${shareText}\n\n${postUrl}`);
+        base44.entities.GlowDrop.update(drop.id, { shares_count: (drop.shares_count || 0) + 1 }).catch(() => {});
+        queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+        toast.success("Link copied to clipboard! Share it anywhere.");
+      } catch {
+        toast.error("Could not copy link");
+      }
     }
   };
 
@@ -236,10 +247,13 @@ export default function Feed() {
     return Array.from(latestByUser.values());
   }, [stories]);
 
+  const followingEmails = useMemo(() => new Set(following.map(f => f.following_email)), [following]);
+
   const filteredDrops = useMemo(() => {
     return [...drops]
       .filter((drop) => {
         const matchesFilter = activeFilter === 'All' || 
+          (activeFilter === 'Following' && followingEmails.has(drop.user_email)) ||
           (activeFilter === 'Most Liked' && (drop.likes_count || 0) >= 1) ||
           (activeFilter === 'Devotional' && drop.category === 'Devotional') ||
           (activeFilter === 'Testimony' && drop.category === 'Testimony');
@@ -255,7 +269,7 @@ export default function Feed() {
         if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
         return new Date(b.created_date || 0) - new Date(a.created_date || 0);
       });
-  }, [drops, activeFilter, searchQuery]);
+  }, [drops, activeFilter, searchQuery, followingEmails]);
 
   const trendingTopics = useMemo(() => {
     const counts = new Map();
@@ -476,15 +490,15 @@ export default function Feed() {
           <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-sm font-semibold text-[#00CFFF] hover:bg-[#00CFFF]/20 transition whitespace-nowrap">Live</Link>
           </div>
 
-        {/* Filter Bar (kept for functionality but styled subtler) */}
+        {/* Filter Bar */}
         <div className="flex gap-2 px-4 mb-6 overflow-x-auto hide-scrollbar shrink-0">
-          {['All', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
+          {['All', 'Following', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
               className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300 ${
                 activeFilter === filter 
-                  ? 'bg-white/10 text-white' 
+                  ? filter === 'Following' ? 'bg-[#00CFFF]/20 text-[#00CFFF] border border-[#00CFFF]/30' : 'bg-white/10 text-white' 
                   : 'text-gray-500 hover:text-gray-300'
               }`}
             >
@@ -505,9 +519,16 @@ export default function Feed() {
             </div>
           ) : filteredDrops.length === 0 ? (
             <div className="text-center py-20 text-gray-500">
-              <div className="text-4xl mb-4">✨</div>
-              <p>{searchQuery ? 'No Lights found matching your search. Try different keywords!' : 'No Lights found for this filter. Be the first to share your light!'}</p>
-              <button onClick={() => setIsDropModalOpen(true)} className="inline-block mt-4 text-[#00CFFF] hover:underline">Submit a Light</button>
+              <div className="text-4xl mb-4">{activeFilter === 'Following' ? '👥' : '✨'}</div>
+              <p>{activeFilter === 'Following' 
+                ? 'No posts from people you follow yet. Start following creators to see their content here!'
+                : searchQuery ? 'No Lights found matching your search. Try different keywords!' 
+                : 'No Lights found for this filter. Be the first to share your light!'}</p>
+              {activeFilter === 'Following' ? (
+                <button onClick={() => setActiveFilter('All')} className="inline-block mt-4 text-[#00CFFF] hover:underline">Explore all posts</button>
+              ) : (
+                <button onClick={() => setIsDropModalOpen(true)} className="inline-block mt-4 text-[#00CFFF] hover:underline">Submit a Light</button>
+              )}
             </div>
           ) : (
             filteredDrops.map(drop => (
@@ -519,6 +540,8 @@ export default function Feed() {
                 likeMutation={likeMutation}
                 handleShare={handleShare}
                 userLikes={userLikes}
+                allUsers={users}
+                savedDropRecords={savedDropRecords}
               />
             ))
           )}

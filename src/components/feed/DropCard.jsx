@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, Flag, Share2 as ShareIcon } from "lucide-react";
+import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { isNotificationEnabled } from "@/lib/notifications";
 
-export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [] }) {
+export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [] }) {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
@@ -20,54 +20,34 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   
   const userHasLiked = userLikes.some(like => like.drop_id === drop.id);
 
+  // Only fetch comments when the comment section is opened
   const { data: comments = [] } = useQuery({
     queryKey: ["comments", drop.id],
     queryFn: () => base44.entities.GlowDropComment.filter({ drop_id: drop.id }),
-    enabled: !!drop.id
+    enabled: showComments
   });
 
-  const { data: authorDrops = [] } = useQuery({
-    queryKey: ["userDropsCount", dropUser.email],
-    queryFn: () => base44.entities.GlowDrop.filter({ user_email: dropUser.email })
-  });
-  
-  const isSuperCreator = authorDrops.length >= 9;
+  const isSuperCreator = (dropUser.drop_count || 0) >= 9;
 
-  const { data: users = [] } = useQuery({
-    queryKey: ["allUsers"],
-    queryFn: async () => {
-      const res = await base44.functions.invoke('listPublicUsers', {});
-      return res.data;
-    }
-  });
+  // Use allUsers passed from parent instead of refetching
+  const users = allUsers;
 
-  const { data: savedDrops = [] } = useQuery({
-    queryKey: ["savedDrops", drop.id, user?.email],
-    queryFn: () => base44.entities.SavedDrop.filter({ drop_id: drop.id, user_email: user?.email }),
-    enabled: !!user
-  });
+  // Use saved records passed from parent
+  const savedForThisDrop = savedDropRecords.filter(s => s.drop_id === drop.id);
+  const isSaved = savedForThisDrop.length > 0;
 
-  const { data: blockedUsers = [] } = useQuery({
-    queryKey: ["blockedUsers", user?.email],
-    queryFn: () => base44.entities.BlockedUser.filter({ blocker_email: user?.email }),
-    enabled: !!user
-  });
-
-  const blockedEmails = blockedUsers.map(b => b.blocked_email);
-  const visibleComments = comments.filter(c => !blockedEmails.includes(c.user_email));
-
-  const isSaved = savedDrops.length > 0;
+  const visibleComments = comments;
 
   const toggleSaveMutation = useMutation({
     mutationFn: async () => {
       if (isSaved) {
-        await base44.entities.SavedDrop.delete(savedDrops[0].id);
+        await base44.entities.SavedDrop.delete(savedForThisDrop[0].id);
       } else {
         await base44.entities.SavedDrop.create({ drop_id: drop.id, user_email: user.email });
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["savedDrops", drop.id, user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["savedDrops", user?.email] });
       queryClient.invalidateQueries({ queryKey: ["mySavedDrops"] });
       toast.success(isSaved ? "Removed from Saved" : "Saved to your bookmarks");
     }
@@ -83,38 +63,38 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   const commentMutation = useMutation({
     mutationFn: async (content) => {
+      if (!user) { toast.error("Please log in to comment"); return; }
+      if (!content.trim()) return;
+      
       await base44.entities.GlowDropComment.create({
         drop_id: drop.id,
         user_email: user.email,
-        content
+        content: content.trim()
       });
+      
+      // Notification (fire and forget, don't block)
       if (drop.user_email && drop.user_email !== user.email && isNotificationEnabled(dropUser, "comments")) {
-        await base44.entities.Notification.create({
+        base44.entities.Notification.create({
           user_email: drop.user_email,
           type: "reply",
           message: `${user.full_name} commented on your Glow Drop!`,
           link: `/Feed`
-        });
-      }
-      
-      const today = new Date().toISOString().split('T')[0];
-      const challenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: today });
-      if (!challenges.some(c => c.challenge_id === 'comment')) {
-        await base44.entities.UserDailyChallenge.create({ user_email: user.email, date_string: today, challenge_id: 'comment' });
-        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
-        toast.success("Challenge Completed: Encourage Someone! +5 XP ⚡");
-        queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });
+        }).catch(() => {});
       }
     },
     onSuccess: () => {
       setNewComment("");
       queryClient.invalidateQueries({ queryKey: ["comments", drop.id] });
+      toast.success("Comment posted!");
+    },
+    onError: () => {
+      toast.error("Failed to post comment. Try again.");
     }
   });
 
   const submitComment = (e) => {
     e.preventDefault();
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || !user) return;
     commentMutation.mutate(newComment);
   };
 
