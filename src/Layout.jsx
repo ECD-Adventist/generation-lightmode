@@ -344,6 +344,7 @@ export default function Layout({ children, currentPageName }) {
                 </div>
               )}
             </div>
+            <LanguageSelector />
             {!userEmail ? (
               <a href={createPageUrl("Feed")} className="glm-btn-primary" style={{ padding: "10px 24px", fontSize: 14, whiteSpace: "nowrap", flexShrink: 0 }}>
                 {t("joinNow")}

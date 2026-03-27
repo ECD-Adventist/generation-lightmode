@@ -376,10 +376,10 @@ export default function Home() {
             <p className="glm-body" style={{ marginTop: 12, fontSize: 17 }}>{t("statsSubtitle")}</p>
           </div>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
-            <StatCard value={snapshot.totalUsers || 0} suffix="" label="Public Members" icon={Users} color="#00CFFF" started={statsVisible} />
-            <StatCard value={snapshot.totalDrops || 0} suffix="" label="Glow Drops" icon={Zap} color="#FFD000" started={statsVisible} />
-            <StatCard value={snapshot.totalCountries || 0} suffix="" label="Countries Represented" icon={Globe} color="#1DA1FF" started={statsVisible} />
-            <StatCard value={snapshot.totalGroups || 0} suffix="" label="GlowGroups" icon={Star} color="#8A5CFF" started={statsVisible} />
+            <StatCard value={1000000} suffix="+" label="Youth to be Mobilized" icon={Users} color="#00CFFF" started={statsVisible} />
+            <StatCard value={10000000} suffix="+" label="Peers to be Reached" icon={Users} color="#FFD000" started={statsVisible} />
+            <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#1DA1FF" started={statsVisible} />
+            <StatCard value={500} suffix="+" label="GlowGroups Active" icon={Star} color="#8A5CFF" started={statsVisible} />
           </div>
         </div>
       </section>
