@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap, BookOpen, Trophy } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import DropCard from "@/components/feed/DropCard";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import DailyChallenges from "@/components/feed/DailyChallenges";
-import DailyCodeWidget from "@/components/feed/DailyCodeWidget";
+// DailyCodeWidget removed - moved to Settings
 import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
 import { isNotificationEnabled } from "@/lib/notifications";
 import StatusComposerModal from "@/components/feed/StatusComposerModal";
@@ -23,8 +23,6 @@ export default function Feed() {
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isResourcesOpen, setIsResourcesOpen] = useState(false);
-  
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedStory, setSelectedStory] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -332,72 +330,30 @@ export default function Feed() {
              />
            </Link>
 
-           <div className="flex flex-col gap-2 flex-1">
-             <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-lg font-bold bg-[#121826] text-[#00CFFF] px-4 py-3.5 rounded-2xl border border-white/5"><Home className="w-6 h-6" /> Home</Link>
-             <button onClick={() => setIsSearchOpen(true)} className="w-full flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><SearchIcon className="w-6 h-6" /> Search</button>
-             <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Globe className="w-6 h-6" /> Explore</Link>
-             <Link to={createPageUrl("Discover")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Zap className="w-6 h-6" /> Discover</Link>
-             <Link to={createPageUrl("Saved")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Bookmark className="w-6 h-6" /> Saved</Link>
-             <Link to={createPageUrl("DailyDevotion")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><BookOpen className="w-6 h-6" /> Daily Devotion</Link>
-             <Link to={createPageUrl("Notifications")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition relative">
-               <Bell className="w-6 h-6" /> Notifications
-               {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
-             </Link>
-             <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Zap className="w-6 h-6" /> Dashboard</Link>
-             <Link to={createPageUrl("Milestones")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Zap className="w-6 h-6" /> Milestones</Link>
-             <Link to={createPageUrl("Leaderboard")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Trophy className="w-6 h-6" /> Leaderboard</Link>
-             <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Globe className="w-6 h-6" /> Global Reach</Link>
-             <Link to={createPageUrl("Challenges")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><PlaySquare className="w-6 h-6" /> Challenges</Link>
-             <Link to={createPageUrl("Assistant")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><MessageSquare className="w-6 h-6" /> AI Assistant</Link>
-             <Link to={createPageUrl("LightReflections")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><span className="text-lg">✨</span> Light Reflections</Link>
-             <Link to={createPageUrl("FaithQuiz")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><span className="text-lg">🏆</span> Faith Quiz</Link>
-             <div className="flex flex-col">
-               <button onClick={() => setIsResourcesOpen(!isResourcesOpen)} className="flex items-center justify-between w-full text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition cursor-pointer">
-                 <div className="flex items-center gap-4"><Globe className="w-6 h-6" /> Resources</div>
-                 <span className="text-sm opacity-50">{isResourcesOpen ? "▲" : "▼"}</span>
-               </button>
-               {isResourcesOpen && (
-                 <div className="flex flex-col ml-12 mt-1 gap-3 border-l border-white/10 pl-4 py-2">
-                   <Link to={createPageUrl("KeepIt100")} className="text-sm font-bold text-gray-400 hover:text-white transition">💯 Keep It 100</Link>
-                   <Link to={createPageUrl("CodesOfTruth")} className="text-sm font-bold text-gray-400 hover:text-white transition">🔐 Codes of Truth</Link>
-                   <Link to={createPageUrl("Resources")} className="text-sm font-bold text-gray-400 hover:text-white transition">🌍 Other Resources</Link>
-                 </div>
-               )}
-             </div>
-             <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition">
-               <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-[10px] uppercase text-white overflow-hidden">
-                 <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-               </div>
-               Profile
-             </Link>
-             <a href="https://bible-school.base44.app" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition">
-               <BookOpen className="w-6 h-6" /> Bible School
-             </a>
-             <Link to={createPageUrl("Home")} className="flex items-center gap-4 text-sm font-bold text-gray-500 hover:bg-white/5 hover:text-[#00CFFF] px-4 py-3 rounded-2xl transition border border-white/5 mt-2">
-               <Globe className="w-5 h-5" /> Back to Website
-             </Link>
-           </div>
+           <div className="flex flex-col gap-1.5 flex-1">
+              <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-base font-bold bg-[#121826] text-[#00CFFF] px-4 py-3 rounded-2xl border border-white/5"><Home className="w-5 h-5" /> Home</Link>
+              <button onClick={() => setIsSearchOpen(true)} className="w-full flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><SearchIcon className="w-5 h-5" /> Search</button>
+              <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Globe className="w-5 h-5" /> Explore</Link>
+              <Link to={createPageUrl("Discover")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Zap className="w-5 h-5" /> Discover</Link>
+              <Link to={createPageUrl("Notifications")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition relative">
+                <Bell className="w-5 h-5" /> Notifications
+                {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
+              </Link>
+              <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Zap className="w-5 h-5" /> Dashboard</Link>
+              <Link to={createPageUrl("Messages")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><MessageSquare className="w-5 h-5" /> Messages</Link>
+              <Link to={createPageUrl("PrayerWall")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🙏</span> Prayer Wall</Link>
+              <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
+                <div className="w-5 h-5 rounded-full bg-gray-700 flex items-center justify-center text-[10px] uppercase text-white overflow-hidden">
+                  <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                </div>
+                Profile
+              </Link>
+              <Link to="/Settings" className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Settings className="w-5 h-5" /> More</Link>
+            </div>
            
-           <Button onClick={() => setIsDropModalOpen(true)} className="mt-8 shrink-0 bg-[#00CFFF] text-black font-black rounded-2xl w-full py-6 text-lg hover:bg-white transition-colors shadow-[0_0_20px_rgba(0,207,255,0.3)]">
+           <Button onClick={() => setIsDropModalOpen(true)} className="mt-6 shrink-0 bg-[#00CFFF] text-black font-black rounded-2xl w-full py-5 text-base hover:bg-white transition-colors shadow-[0_0_20px_rgba(0,207,255,0.3)]">
              <Plus className="w-5 h-5 mr-2" /> NEW VIBE
            </Button>
-
-           <DailyCodeWidget />
-
-           <Link to={createPageUrl("Profile")} className="mt-6 flex items-center justify-between bg-[#121826] p-3 rounded-2xl border border-white/5 hover:border-white/10 transition no-underline">
-              <div className="flex items-center gap-3">
-                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px]">
-                   <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center text-xs uppercase font-bold text-white overflow-hidden">
-                     <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-                   </div>
-                 </div>
-                 <div className="text-sm">
-                   <div className="font-bold text-white truncate max-w-[120px]">{user?.full_name}</div>
-                   <div className="text-gray-500 text-[10px]">⚡ {user?.glow_score || 0} XP</div>
-                 </div>
-              </div>
-              <Settings className="w-5 h-5 text-gray-400" />
-           </Link>
         </div>
 
         {/* Center Feed */}
