@@ -210,7 +210,9 @@ export default function Feed() {
 
   const getUserInfo = (email) => {
     if (user?.email === email) return user;
-    return users.find(u => u.email === email) || { full_name: "Glow Believer" };
+    const found = users.find(u => u.email === email);
+    if (found) return found;
+    return { full_name: email?.split('@')[0] || "Glow Believer", email };
   };
 
   const activeStories = useMemo(() => {
@@ -303,7 +305,7 @@ export default function Feed() {
              <img
                src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
                alt="LightMode"
-               className="h-28 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]"
+               className="h-14 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]"
              />
            </Link>
 

@@ -76,7 +76,9 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   const getCommentUser = (email) => {
     if (user?.email === email) return user;
     if (dropUser?.email === email) return dropUser;
-    return users.find(u => u.email === email) || { full_name: "Glow Believer" };
+    const found = users.find(u => u.email === email);
+    if (found) return found;
+    return { full_name: email?.split('@')[0] || "Glow Believer", email };
   };
 
   const commentMutation = useMutation({
@@ -218,7 +220,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           </div>
           <div className="flex flex-col items-start justify-center">
             <span className="font-bold font-['Inter'] text-xs text-white flex items-center gap-1 leading-none mb-0.5">
-              {dropUser.full_name}
+              {dropUser.full_name || dropUser.email?.split('@')[0] || "Glow Believer"}
               {isSuperCreator && (
                 <span className="flex items-center justify-center w-3.5 h-3.5 bg-gradient-to-br from-[#00CFFF] to-[#FFD000] rounded-sm rotate-45 shadow-[0_0_10px_rgba(0,207,255,0.6)] ml-0.5">
                   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-2.5 h-2.5 -rotate-45 text-black">
