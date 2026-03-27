@@ -24,11 +24,12 @@ export default function DailyDrops() {
   // Fetch all daily system drops (Code of Truth + Keep It 100)
   const { data: drops = [], isLoading } = useQuery({
     queryKey: ["dailySystemDrops"],
-    queryFn: () => base44.entities.GlowDrop.filter({ user_email: "system@lightmode.com" }, '-created_date', 100),
+    queryFn: () => base44.entities.GlowDrop.list('-created_date', 100),
   });
 
-  const codeTruthDrops = useMemo(() => drops.filter(d => d.category === "Code of Truth"), [drops]);
-  const keepIt100Drops = useMemo(() => drops.filter(d => d.category === "Keep It 100"), [drops]);
+  // Filter by hashtag since category varies
+  const codeTruthDrops = useMemo(() => drops.filter(d => d.hashtags?.includes("#CodesOfTruth")), [drops]);
+  const keepIt100Drops = useMemo(() => drops.filter(d => d.hashtags?.includes("#KeepIt100")), [drops]);
 
   const activeDrops = activeTab === "codes_of_truth" ? codeTruthDrops : keepIt100Drops;
 
@@ -124,6 +125,15 @@ function TruthCard({ drop, onShare, user, featured }) {
   const postedDate = drop.created_date ? new Date(drop.created_date + (drop.created_date.endsWith('Z') ? '' : 'Z')) : null;
   const queryClient = useQueryClient();
   
+  const { data: creatorUser } = useQuery({
+    queryKey: ["userProfile", drop.user_email],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicUsers", {});
+      return res.data?.find(u => u.email === drop.user_email);
+    },
+    enabled: !!drop.user_email && drop.user_email !== "system@lightmode.com"
+  });
+  
   const repostMutation = useMutation({
     mutationFn: async () => {
       if (!user) { toast.error("Please log in to repost"); return; }
@@ -152,16 +162,29 @@ function TruthCard({ drop, onShare, user, featured }) {
         <img src={drop.media_url} alt="" className="w-full max-h-80 object-contain bg-black" />
       )}
       <div className="p-5">
-        {drop.verse && (
-          <div className="flex items-center gap-2 mb-2">
-            <BookOpen className="w-4 h-4 text-[#00CFFF] shrink-0" />
-            <span className="text-sm font-bold text-[#00CFFF]">{drop.verse}</span>
-          </div>
-        )}
-        {drop.reflection && (
-          <p className="text-white text-base leading-relaxed font-['Inter'] whitespace-pre-line">{drop.reflection}</p>
-        )}
-        <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
+         {creatorUser && drop.user_email !== "system@lightmode.com" && (
+           <Link to={`${createPageUrl("Profile")}?user=${encodeURIComponent(drop.user_email)}`} className="flex items-center gap-2 mb-4 pb-4 border-b border-white/5 hover:opacity-80 transition">
+             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
+               <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center overflow-hidden text-xs font-bold">
+                 <img src={creatorUser.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+               </div>
+             </div>
+             <div className="flex-1 min-w-0">
+               <div className="text-sm font-bold text-white truncate">{creatorUser.full_name}</div>
+               <div className="text-[10px] text-gray-500">View profile</div>
+             </div>
+           </Link>
+         )}
+         {drop.verse && (
+           <div className="flex items-center gap-2 mb-2">
+             <BookOpen className="w-4 h-4 text-[#00CFFF] shrink-0" />
+             <span className="text-sm font-bold text-[#00CFFF]">{drop.verse}</span>
+           </div>
+         )}
+         {drop.reflection && (
+           <p className="text-white text-base leading-relaxed font-['Inter'] whitespace-pre-line">{drop.reflection}</p>
+         )}
+         <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
           <span className="text-[10px] text-gray-500">
             {postedDate ? format(postedDate, "MMM d, yyyy 'at' h:mm a") : ""}
           </span>
