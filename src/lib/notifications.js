@@ -3,6 +3,7 @@ export function isNotificationEnabled(targetUser, preferenceType) {
   if (preferenceType === "likes") return targetUser.notify_likes !== false;
   if (preferenceType === "follows") return targetUser.notify_follows !== false;
   if (preferenceType === "comments") return targetUser.notify_comments !== false;
+  if (preferenceType === "messages") return targetUser.notify_messages !== false;
   return true;
 }
 

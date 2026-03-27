@@ -77,8 +77,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         base44.entities.Notification.create({
           user_email: drop.user_email,
           type: "reply",
-          message: `${user.full_name} commented on your Glow Drop!`,
-          link: `/Feed`
+          message: `${user.full_name || 'Someone'} commented on your Glow Drop: "${content.trim().slice(0, 50)}${content.trim().length > 50 ? '...' : ''}"`,
+          link: `/Post?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`
         }).catch(() => {});
       }
     },

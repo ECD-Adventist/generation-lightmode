@@ -138,7 +138,7 @@ export default function Feed() {
           base44.entities.Notification.create({
             user_email: authorEmail, type: "like",
             message: `${user.full_name || 'Someone'} liked your Glow Drop!`,
-            link: `/Feed`
+            link: `/Post?id=${encodeURIComponent(id)}&user=${encodeURIComponent(authorEmail)}`
           }).catch(() => {});
         }
       }
@@ -189,7 +189,8 @@ export default function Feed() {
     // Real-time DM alerts
     const unsubDMs = base44.entities.DirectMessage.subscribe((event) => {
       if (event.type === 'create' && event.data.recipient_email === user.email) {
-        toast(`New message from ${event.data.sender_email?.split('@')[0]}`, { icon: '💬' });
+        const senderName = users.find(u => u.email === event.data.sender_email)?.full_name || event.data.sender_email?.split('@')[0];
+        toast(`New message from ${senderName}`, { icon: '💬' });
       }
     });
     return () => { unsubNotifs(); unsubDMs(); };

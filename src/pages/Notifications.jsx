@@ -156,6 +156,7 @@ export default function Notifications() {
     { field: "notify_likes", label: "Likes", description: "When someone lights up your drop." },
     { field: "notify_follows", label: "Follows", description: "When someone follows or follows back." },
     { field: "notify_comments", label: "Comments", description: "When someone comments on your drop." },
+    { field: "notify_messages", label: "Messages", description: "When someone sends you a direct message." },
   ];
 
   if (!user) return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;

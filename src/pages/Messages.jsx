@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import ConversationsList from "@/components/messages/ConversationsList";
 import ChatWindow from "@/components/messages/ChatWindow";
+import { isNotificationEnabled } from "@/lib/notifications";
 
 export default function Messages() {
   const [user, setUser] = useState(null);
@@ -90,12 +91,16 @@ export default function Messages() {
         last_message: content,
         last_message_at: new Date().toISOString(),
       });
-      await base44.entities.Notification.create({
-        user_email: otherEmail,
-        type: "message",
-        message: `${user.full_name} sent you a message`,
-        link: createPageUrl("Messages") + `?user=${encodeURIComponent(user.email)}`,
-      });
+      // Send notification if recipient has messages enabled
+      const recipientUser = allUsers.find(u => u.email === otherEmail);
+      if (isNotificationEnabled(recipientUser, "messages")) {
+        base44.entities.Notification.create({
+          user_email: otherEmail,
+          type: "message",
+          message: `${user.full_name || 'Someone'} sent you a message: "${content.slice(0, 60)}${content.length > 60 ? '...' : ''}"`,
+          link: `/Messages?user=${encodeURIComponent(user.email)}`,
+        }).catch(() => {});
+      }
       await base44.entities.DirectMessage.update(message.id, { status: "delivered" });
     },
     onSuccess: () => {
