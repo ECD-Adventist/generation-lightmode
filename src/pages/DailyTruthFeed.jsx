@@ -27,8 +27,8 @@ export default function DailyDrops() {
     queryFn: () => base44.entities.GlowDrop.filter({ user_email: "system@lightmode.com" }, '-created_date', 100),
   });
 
-  const codeTruthDrops = useMemo(() => drops.filter(d => d.category?.includes("Truth")), [drops]);
-  const keepIt100Drops = useMemo(() => drops.filter(d => d.category?.includes("100")), [drops]);
+  const codeTruthDrops = useMemo(() => drops.filter(d => d.category === "Code of Truth"), [drops]);
+  const keepIt100Drops = useMemo(() => drops.filter(d => d.category === "Keep It 100"), [drops]);
 
   const activeDrops = activeTab === "codes_of_truth" ? codeTruthDrops : keepIt100Drops;
 
@@ -152,22 +152,19 @@ function TruthCard({ drop, onShare, user, featured }) {
         <img src={drop.media_url} alt="" className="w-full max-h-80 object-contain bg-black" />
       )}
       <div className="p-5">
-         {drop.verse && (
-           <div className="flex items-center gap-2 mb-2">
-             <BookOpen className="w-4 h-4 text-[#00CFFF] shrink-0" />
-             <span className="text-sm font-bold text-[#00CFFF]">{drop.verse}</span>
-           </div>
-         )}
-         {drop.reflection && (
-           <p className="text-white text-base leading-relaxed font-['Inter'] whitespace-pre-line">{drop.reflection}</p>
-         )}
-         <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
-           <Link 
-             to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`}
-             className="text-[10px] text-gray-500 hover:text-[#00CFFF] transition no-underline"
-           >
-             {postedDate ? format(postedDate, "MMM d, yyyy 'at' h:mm a") : ""}
-           </Link>
+        {drop.verse && (
+          <div className="flex items-center gap-2 mb-2">
+            <BookOpen className="w-4 h-4 text-[#00CFFF] shrink-0" />
+            <span className="text-sm font-bold text-[#00CFFF]">{drop.verse}</span>
+          </div>
+        )}
+        {drop.reflection && (
+          <p className="text-white text-base leading-relaxed font-['Inter'] whitespace-pre-line">{drop.reflection}</p>
+        )}
+        <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
+          <span className="text-[10px] text-gray-500">
+            {postedDate ? format(postedDate, "MMM d, yyyy 'at' h:mm a") : ""}
+          </span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-1.5 text-xs font-bold text-[#00CFFF] hover:text-white transition bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg">
