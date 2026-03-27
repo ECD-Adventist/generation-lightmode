@@ -1,0 +1,87 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "country": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "bio": {
+      "type": "string",
+      "description": "Short bio/about text"
+    },
+    "website_url": {
+      "type": "string",
+      "description": "Personal website or link"
+    },
+    "glow_score": {
+      "type": "number",
+      "default": 0
+    },
+    "streak_count": {
+      "type": "number",
+      "default": 0
+    },
+    "daily_checkin_streak": {
+      "type": "number",
+      "default": 0
+    },
+    "longest_checkin_streak": {
+      "type": "number",
+      "default": 0
+    },
+    "last_checkin_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "posting_streak_count": {
+      "type": "number",
+      "default": 0
+    },
+    "longest_posting_streak": {
+      "type": "number",
+      "default": 0
+    },
+    "last_post_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notify_likes": {
+      "type": "boolean",
+      "default": true
+    },
+    "notify_follows": {
+      "type": "boolean",
+      "default": true
+    },
+    "notify_comments": {
+      "type": "boolean",
+      "default": true
+    },
+    "notify_messages": {
+      "type": "boolean",
+      "default": true
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "user",
+        "admin",
+        "super_admin"
+      ],
+      "default": "user"
+    },
+    "profile_picture_url": {
+      "type": "string"
+    },
+    "cover_picture_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "country",
+    "city"
+  ]
+}

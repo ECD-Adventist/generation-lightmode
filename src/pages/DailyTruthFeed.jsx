@@ -7,6 +7,7 @@ import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import TruthCardComments from "@/components/daily-drops/TruthCardComments";
 
 export default function DailyDrops() {
   const [user, setUser] = useState(null);
@@ -21,15 +22,15 @@ export default function DailyDrops() {
     });
   }, []);
 
-  // Fetch all daily system drops (Code of Truth + Keep It 100)
+  // Fetch approved drops for daily content
   const { data: drops = [], isLoading } = useQuery({
     queryKey: ["dailySystemDrops"],
-    queryFn: () => base44.entities.GlowDrop.list('-created_date', 100),
+    queryFn: () => base44.entities.GlowDrop.filter({ status: "approved" }, '-created_date', 100),
   });
 
-  // Filter by hashtag since category varies
-  const codeTruthDrops = useMemo(() => drops.filter(d => d.hashtags?.includes("#CodesOfTruth")), [drops]);
-  const keepIt100Drops = useMemo(() => drops.filter(d => d.hashtags?.includes("#KeepIt100")), [drops]);
+  // Filter by category (reliable) — hashtags may be null on older drops
+  const codeTruthDrops = useMemo(() => drops.filter(d => d.category === "Code of Truth"), [drops]);
+  const keepIt100Drops = useMemo(() => drops.filter(d => d.category === "Keep It 100"), [drops]);
 
   const activeDrops = activeTab === "codes_of_truth" ? codeTruthDrops : keepIt100Drops;
 
@@ -214,6 +215,8 @@ function TruthCard({ drop, onShare, user, featured }) {
         {drop.hashtags && (
           <div className="mt-2 text-xs text-[#8A5CFF] font-medium">{drop.hashtags}</div>
         )}
+
+        <TruthCardComments dropId={drop.id} user={user} />
       </div>
     </div>
   );

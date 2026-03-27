@@ -19,7 +19,7 @@ export default function Profile() {
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({ full_name: "", country: "", profile_picture_url: "", cover_picture_url: "" });
+  const [editData, setEditData] = useState({ full_name: "", country: "", bio: "", website_url: "", profile_picture_url: "", cover_picture_url: "" });
   const [activeProfileTab, setActiveProfileTab] = useState("drops");
   const [connectionsView, setConnectionsView] = useState(null);
   const profileInputRef = useRef(null);
@@ -53,6 +53,8 @@ export default function Profile() {
             setEditData({ 
               full_name: me.full_name || "", 
               country: me.country || "", 
+              bio: me.bio || "",
+              website_url: me.website_url || "",
               profile_picture_url: me.profile_picture_url || "", 
               cover_picture_url: me.cover_picture_url || "" 
             });
@@ -74,6 +76,8 @@ export default function Profile() {
         setEditData({ 
           full_name: currentUser.full_name || "", 
           country: currentUser.country || "", 
+          bio: currentUser.bio || "",
+          website_url: currentUser.website_url || "",
           profile_picture_url: currentUser.profile_picture_url || "", 
           cover_picture_url: currentUser.cover_picture_url || "" 
         });
@@ -237,6 +241,8 @@ export default function Profile() {
       await base44.auth.updateMe({ 
         full_name: editData.full_name, 
         country: editData.country,
+        bio: editData.bio,
+        website_url: editData.website_url,
         profile_picture_url: editData.profile_picture_url,
         cover_picture_url: editData.cover_picture_url
       });
@@ -496,9 +502,24 @@ export default function Profile() {
               {50 - ((user.glow_score || 0) % 50)} XP to Next Level
             </div>
             
-            <div className="text-sm text-gray-300 max-w-md mx-auto md:mx-0 bg-white/5 p-4 rounded-xl border border-white/5">
-              <p className="font-bold text-white mb-1 uppercase tracking-wider text-xs">{user.country || "Global Citizen"}</p>
-              <p className="leading-relaxed">Digital Missionary ⚡ Spreading light through faith in the online world. Join me on the LightMode movement!</p>
+            <div className="text-sm text-gray-300 max-w-md mx-auto md:mx-0 space-y-2">
+              <p className="font-bold text-white uppercase tracking-wider text-xs">{user.country || "Global Citizen"}</p>
+              <p className="leading-relaxed whitespace-pre-line">
+                {user.bio || "Digital Missionary ⚡ Spreading light through faith in the online world."}
+              </p>
+              {user.website_url && (
+                <a
+                  href={user.website_url.startsWith("http") ? user.website_url : `https://${user.website_url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[#00CFFF] font-bold text-xs hover:underline break-all"
+                >
+                  🔗 {user.website_url.replace(/^https?:\/\//, "")}
+                </a>
+              )}
+              <div className="flex items-center gap-2 text-[10px] text-gray-500 mt-1">
+                <span>Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -514,6 +535,26 @@ export default function Profile() {
               <div>
                 <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Country</Label>
                 <Input value={editData.country} onChange={e => setEditData({...editData, country: e.target.value})} className="bg-[#0B0F1A] border-white/10 h-12 text-lg rounded-xl" />
+              </div>
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Bio</Label>
+                <textarea
+                  value={editData.bio}
+                  onChange={e => setEditData({...editData, bio: e.target.value})}
+                  maxLength={150}
+                  placeholder="Tell people about yourself..."
+                  className="w-full bg-[#0B0F1A] border border-white/10 rounded-xl px-3 py-3 text-white text-base resize-none min-h-[80px] focus:outline-none focus:ring-1 focus:ring-[#00CFFF]/50"
+                />
+                <span className="text-[10px] text-gray-500 ml-1">{editData.bio?.length || 0}/150</span>
+              </div>
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Website / Link</Label>
+                <Input
+                  value={editData.website_url}
+                  onChange={e => setEditData({...editData, website_url: e.target.value})}
+                  placeholder="https://your-link.com"
+                  className="bg-[#0B0F1A] border-white/10 h-12 text-lg rounded-xl"
+                />
               </div>
               <div>
                 <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Profile Picture</Label>
