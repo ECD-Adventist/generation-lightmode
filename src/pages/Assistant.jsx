@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Zap, RefreshCw } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 
 const suggestions = [
   "What is Generation LightMode?",
@@ -22,6 +23,12 @@ export default function Assistant() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
+  const { data: knowledgeBase = [] } = useQuery({
+    queryKey: ["assistant_knowledge_runtime"],
+    queryFn: () => base44.entities.AssistantKnowledge.filter({ status: "active" }, "-created_date", 100),
+    initialData: [],
+  });
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -38,6 +45,10 @@ export default function Assistant() {
     const conversationHistory = newMessages
       .map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
       .join("\n\n");
+
+    const knowledgeContext = knowledgeBase.length
+      ? knowledgeBase.map((item, index) => `Q${index + 1}: ${item.question}\nA${index + 1}: ${item.answer}`).join("\n\n")
+      : "";
 
     const response = await base44.integrations.Core.InvokeLLM({
       prompt: `You are the LightMode Assistant — an AI for Generation LightMode, a global faith-based digital movement for youth in the East-Central Africa Division (ECD).
@@ -59,6 +70,10 @@ About Generation LightMode:
 Conversation so far:
 ${conversationHistory}
 
+Approved training Q&A:
+${knowledgeContext || "No custom Q&A added yet."}
+
+When a user's question matches or is clearly related to the approved training Q&A, prioritize that answer first and stay consistent with it.
 Respond helpfully, inspirationally, and in a way that aligns with the LightMode brand. Keep responses concise but impactful. If asked about Bible verses, provide one from the NKJV translation relevant to light, faith, or courage. Answer questions about Glow Drops, GlowGroups, Switch It On Summit, and Challenges directly using the Core Activities info.`,
     });
 

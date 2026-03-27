@@ -133,8 +133,8 @@ export default function Home() {
   const [showVideo, setShowVideo] = useState(false);
   const { t, isRTL } = useAppLanguage("home");
   const { data: snapshot } = usePublicCommunitySnapshot();
-  const liveCountries = snapshot.countryStats || [];
-  const liveTopGroups = snapshot.topGroups || [];
+  const liveCountries = snapshot?.countryStats || [];
+  const liveTopGroups = snapshot?.topGroups || [];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -398,27 +398,27 @@ export default function Home() {
           <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>
             The 4 Glow Tiers
           </h2>
-          <p className="glm-body" style={{ fontSize: 17, marginBottom: 56, maxWidth: 600, margin: "0 auto 56px" }}>
+          <p className="glm-body" style={{ fontSize: 17, maxWidth: 620, margin: "0 auto 56px" }}>
             Join one of the 4 mobilization tiers and help reach 1,000,000 youth across 12 nations.
           </p>
-          <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
             {[
-              { tier: "Bronze", emoji: "🥉", color: "#CD7F32", desc: "100,000 Youth", detail: "Core mobilizers in local communities" },
-              { tier: "Silver", emoji: "🥈", color: "#C0C0C0", desc: "500,000 Youth", detail: "Regional influencers and leaders" },
-              { tier: "Gold", emoji: "🥇", color: "#FFD000", desc: "750,000 Youth", detail: "National movement ambassadors" },
-              { tier: "Platinum", emoji: "✨", color: "#E5E4E2", desc: "1,000,000 Youth", detail: "Global digital missionaries" },
-            ].map((item, idx) => (
-              <div key={item.tier} className="glm-card" style={{ flex: "1 1 200px", maxWidth: 240, border: `1px solid ${item.color}40`, textAlign: "center", position: "relative", overflow: "hidden" }}>
-                <div style={{
-                  fontSize: 44, marginBottom: 12,
-                  filter: `drop-shadow(0 0 12px ${item.color}) drop-shadow(0 0 24px ${item.color}88)`,
-                  animation: `pulse-glow ${2 + idx * 0.4}s ease-in-out infinite`,
-                  display: "inline-block",
-                }}>{item.emoji}</div>
-                <h3 className="glm-headline" style={{ fontSize: 18, color: item.color, marginBottom: 8, textShadow: `0 0 12px ${item.color}60` }}>{item.tier}</h3>
-                <p className="glm-body" style={{ fontSize: 14, fontWeight: 700, color: item.color, marginBottom: 4 }}>{item.desc}</p>
-                <p className="glm-body" style={{ fontSize: 12 }}>{item.detail}</p>
-                <div style={{ marginTop: 16, height: 3, borderRadius: 2, background: `linear-gradient(90deg, ${item.color}, transparent)` }} />
+              { tier: "Bronze", number: "3", color: "#C77A2B", desc: "100,000 Youth", detail: "Core mobilizers in local communities" },
+              { tier: "Silver", number: "2", color: "#C7CEDB", desc: "500,000 Youth", detail: "Regional influencers and leaders" },
+              { tier: "Gold", number: "1", color: "#FFD000", desc: "750,000 Youth", detail: "National movement ambassadors" },
+              { tier: "Platinum", number: "✦", color: "#F5F7FB", desc: "1,000,000 Youth", detail: "Global digital missionaries" },
+            ].map((item) => (
+              <div key={item.tier} style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(11,15,26,0.98))", border: `1px solid ${item.color}30`, borderRadius: 18, padding: "28px 20px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at top center, ${item.color}18, transparent 45%)`, pointerEvents: "none" }} />
+                <div style={{ position: "relative", zIndex: 1 }}>
+                  <div style={{ width: 54, height: 72, margin: "0 auto 16px", borderRadius: 8, background: "linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03))", border: `1px solid ${item.color}35`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 30px ${item.color}30` }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 999, background: item.color, color: item.tier === "Platinum" ? "#0B0F1A" : "#0B0F1A", fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk, sans-serif", boxShadow: `0 0 22px ${item.color}` }}>{item.number}</div>
+                  </div>
+                  <h3 className="glm-headline" style={{ fontSize: 22, color: item.color, marginBottom: 8 }}>{item.tier}</h3>
+                  <p style={{ fontSize: 15, fontWeight: 800, color: item.color, marginBottom: 8, fontFamily: "Inter, sans-serif" }}>{item.desc}</p>
+                  <p className="glm-body" style={{ fontSize: 13, minHeight: 40 }}>{item.detail}</p>
+                  <div style={{ width: "70%", margin: "18px auto 0", height: 2, borderRadius: 999, background: `linear-gradient(90deg, transparent, ${item.color}, transparent)` }} />
+                </div>
               </div>
             ))}
           </div>
@@ -445,15 +445,15 @@ export default function Home() {
 
         <div style={{ position: "relative", zIndex: 10 }}>
           {/* Stats overlay */}
-          <div style={{ position: "absolute", top: 20, right: 20, zIndex: 1000, background: "rgba(11,15,26,0.85)", backdropFilter: "blur(10px)", borderRadius: 16, padding: "16px 20px", border: "1px solid rgba(0,207,255,0.2)", minWidth: 180 }}>
+          <div style={{ position: "absolute", top: 20, right: 20, zIndex: 1000, background: "rgba(11,15,26,0.92)", backdropFilter: "blur(14px)", borderRadius: 18, padding: "16px 18px", border: "1px solid rgba(0,207,255,0.2)", minWidth: 180 }}>
             <div style={{ fontSize: 10, fontWeight: 800, color: "#00CFFF", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>Live Statistics</div>
             {[
-              { label: "Members", value: liveCountries.reduce((s, c) => s + c.users, 0), color: "#00CFFF" },
+              { label: "Members", value: liveCountries.reduce((s, c) => s + (c.users || 0), 0), color: "#00CFFF" },
               { label: "Countries", value: liveCountries.length, color: "#FFD000" },
-              { label: "GlowGroups", value: liveCountries.reduce((s, c) => s + c.groups, 0), color: "#8A5CFF" },
-              { label: "Glow Drops", value: liveCountries.reduce((s, c) => s + c.drops, 0), color: "#1DA1FF" },
-            ].map(stat => (
-              <div key={stat.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+              { label: "GlowGroups", value: liveCountries.reduce((s, c) => s + (c.groups || 0), 0), color: "#8A5CFF" },
+              { label: "Glow Drops", value: liveCountries.reduce((s, c) => s + (c.drops || 0), 0), color: "#1DA1FF" },
+            ].map((stat, index, arr) => (
+              <div key={stat.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: index === arr.length - 1 ? "none" : "1px solid rgba(255,255,255,0.04)" }}>
                 <span style={{ fontSize: 12, color: "#8A9BB0" }}>{stat.label}</span>
                 <strong style={{ color: stat.color, fontFamily: "Space Grotesk, sans-serif", fontSize: 16 }}>{stat.value.toLocaleString()}</strong>
               </div>
@@ -463,7 +463,7 @@ export default function Home() {
           <div style={{ height: "70vh", minHeight: 450, width: "100%", background: "#080C14" }}>
             <MapContainer 
               center={[2, 30]} 
-              zoom={3} 
+              zoom={liveCountries.length > 0 ? 3 : 2}
               scrollWheelZoom={false}
               zoomControl={false}
               style={{ height: "100%", width: "100%", background: "#0B0F1A" }}
@@ -475,28 +475,28 @@ export default function Home() {
               {liveCountries.flatMap((loc, i) => {
                 const coordinates = countryCoordinates[loc.country] || countryCoordinates.Global;
                 const color = i % 3 === 0 ? "#00CFFF" : i % 3 === 1 ? "#FFD000" : "#8A5CFF";
-                const outerR = Math.min(50, Math.max(14, loc.users * 3 + loc.groups * 4 + loc.drops * 0.5));
-                const innerR = Math.min(12, Math.max(5, loc.users + loc.groups));
+                const outerR = Math.min(50, Math.max(14, (loc.users || 0) * 3 + (loc.groups || 0) * 4 + (loc.drops || 0) * 0.5));
+                const innerR = Math.min(12, Math.max(5, (loc.users || 0) + (loc.groups || 0)));
                 return [
                   <CircleMarker key={`outer-${i}`} center={coordinates} radius={outerR} pathOptions={{ color: "transparent", fillColor: color, fillOpacity: 0.12 }} />,
-                  <CircleMarker key={`inner-${i}`} center={coordinates} radius={innerR} pathOptions={{ color, fillColor: "#FFF", fillOpacity: 0.9, weight: 2 }}>
+                  <CircleMarker key={`inner-${i}`} center={coordinates} radius={innerR} pathOptions={{ color, fillColor: "#FFF", fillOpacity: 0.95, weight: 2 }}>
                     <Popup>
-                      <div style={{ background: "rgba(18,24,38,0.95)", backdropFilter: "blur(10px)", padding: "16px", borderRadius: "12px", border: `1px solid ${color}60`, color: "#FFF", minWidth: "180px", boxShadow: `0 8px 32px ${color}20` }}>
+                      <div style={{ background: "rgba(18,24,38,0.96)", backdropFilter: "blur(12px)", padding: "16px", borderRadius: "12px", border: `1px solid ${color}60`, color: "#FFF", minWidth: "180px", boxShadow: `0 8px 32px ${color}20` }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
                           <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: color, boxShadow: `0 0 10px ${color}` }} />
                           <h4 className="glm-headline" style={{ fontSize: "16px", color, margin: 0 }}>{loc.country}</h4>
                         </div>
                         <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px", marginBottom: "8px" }}>
                           <span className="glm-body" style={{ fontSize: "13px" }}>Members</span>
-                          <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.users.toLocaleString()}</strong>
+                          <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{(loc.users || 0).toLocaleString()}</strong>
                         </div>
                         <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px", marginBottom: "8px" }}>
                           <span className="glm-body" style={{ fontSize: "13px" }}>GlowGroups</span>
-                          <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.groups}</strong>
+                          <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.groups || 0}</strong>
                         </div>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                           <span className="glm-body" style={{ fontSize: "13px" }}>Glow Drops</span>
-                          <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.drops}</strong>
+                          <strong style={{color:"#FFF", fontFamily: "Space Grotesk, sans-serif"}}>{loc.drops || 0}</strong>
                         </div>
                       </div>
                     </Popup>

@@ -1,0 +1,35 @@
+{
+  "name": "AssistantKnowledge",
+  "type": "object",
+  "properties": {
+    "question": {
+      "type": "string"
+    },
+    "answer": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "upload"
+      ],
+      "default": "manual"
+    }
+  },
+  "required": [
+    "question",
+    "answer"
+  ]
+}

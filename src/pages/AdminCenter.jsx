@@ -12,6 +12,7 @@ import AdminChallengesTab from "../components/admin/AdminChallengesTab";
 import AdminCodesTab from "../components/admin/AdminCodesTab";
 import AdminSettingsTab from "../components/admin/AdminSettingsTab";
 import AdminPlaceholderTab from "../components/admin/AdminPlaceholderTab";
+import AdminAssistantTrainingTab from "../components/admin/AdminAssistantTrainingTab";
 
 export default function AdminCenter() {
   const [user, setUser] = useState(null);
@@ -75,6 +76,7 @@ export default function AdminCenter() {
       case "badges": return <AdminPlaceholderTab title="Badges & Ranks" description="Configure gamification rules and create new badges." />;
       case "analytics": return <AdminPlaceholderTab title="Advanced Analytics" description="Deep dive into engagement metrics and exports." />;
       case "notifications": return <AdminPlaceholderTab title="Push Notifications" description="Send platform-wide alerts and updates." />;
+      case "assistant-training": return <AdminAssistantTrainingTab />;
       case "settings": return isSuperAdmin ? <AdminSettingsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view system settings.</div>;
       default: return <AdminDashboardTab />;
     }

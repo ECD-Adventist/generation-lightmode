@@ -14,6 +14,11 @@ export default function DailyDropsSection() {
 
   const displayDrops = drops.slice(0, 3);
   const postedDate = (drop) => drop.created_date ? format(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), "MMM d, yyyy") : "";
+  const cardColors = [
+    { accent: "#00CFFF", glow: "rgba(0,207,255,0.18)", bg: "linear-gradient(180deg, rgba(0,207,255,0.06), rgba(11,15,26,0.96))" },
+    { accent: "#FFD000", glow: "rgba(255,208,0,0.18)", bg: "linear-gradient(180deg, rgba(255,208,0,0.06), rgba(11,15,26,0.96))" },
+    { accent: "#8A5CFF", glow: "rgba(138,92,255,0.18)", bg: "linear-gradient(180deg, rgba(138,92,255,0.08), rgba(11,15,26,0.96))" },
+  ];
 
   return (
     <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#121826" }}>
@@ -40,55 +45,44 @@ export default function DailyDropsSection() {
             </Link>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 20, marginBottom: 32 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginBottom: 32 }}>
             {displayDrops.map((drop, idx) => {
-              const colors = ["#00CFFF", "#FFD000", "#8A5CFF"];
-              const color = colors[idx % colors.length];
+              const theme = cardColors[idx % cardColors.length];
               return (
                 <div key={drop.id} style={{
-                  background: `linear-gradient(135deg, ${color}08, rgba(11,15,26,0.98))`,
-                  border: `1px solid ${color}20`,
-                  borderRadius: 20,
+                  background: theme.bg,
+                  border: `1px solid ${theme.accent}24`,
+                  borderRadius: 22,
                   padding: 24,
+                  minHeight: 250,
                   position: "relative",
                   overflow: "hidden",
-                  transition: "all 0.3s",
-                  cursor: "pointer"
-                }} onMouseOver={e => e.currentTarget.style.borderColor = `${color}50`} onMouseOut={e => e.currentTarget.style.borderColor = `${color}20`}>
-                  {/* Accent line */}
-                  <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 3, background: `linear-gradient(90deg, ${color}, transparent)` }} />
-                  
-                  {/* Content */}
-                  <div style={{ paddingTop: 8 }}>
-                    {drop.verse && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                        <BookOpen style={{ width: 16, height: 16, color, flexShrink: 0 }} />
-                        <span style={{ fontSize: 12, fontWeight: 700, color, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                          Scripture
-                        </span>
-                      </div>
-                    )}
+                  boxShadow: `0 0 0 1px rgba(255,255,255,0.02), 0 24px 60px ${theme.glow}`
+                }}>
+                  <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at top left, ${theme.glow}, transparent 42%)`, pointerEvents: "none" }} />
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${theme.accent}, transparent 70%)` }} />
 
-                    {drop.verse && (
-                      <p style={{ fontSize: 16, fontWeight: 700, color: "#FFFFFF", marginBottom: 14, lineHeight: 1.5 }}>
-                        "{drop.verse}"
-                      </p>
-                    )}
+                  <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", height: "100%" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                      <BookOpen style={{ width: 14, height: 14, color: theme.accent, flexShrink: 0 }} />
+                      <span style={{ fontSize: 11, fontWeight: 800, color: theme.accent, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                        Scripture
+                      </span>
+                    </div>
 
-                    {drop.reflection && (
-                      <p style={{ fontSize: 14, color: "#C8D0E0", marginBottom: 14, lineHeight: 1.6, fontStyle: "italic" }}>
-                        {drop.reflection}
-                      </p>
-                    )}
+                    <p style={{ fontSize: 15, fontWeight: 800, color: "#FFFFFF", marginBottom: 14, lineHeight: 1.45 }}>
+                      "{drop.verse || "Daily truth"}"
+                    </p>
 
-                    {/* Footer */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 12, borderTop: `1px solid ${color}15` }}>
+                    <p style={{ fontSize: 14, color: "#C8D0E0", marginBottom: 18, lineHeight: 1.7, fontStyle: "italic", flex: 1 }}>
+                      {drop.reflection || "A daily truth to guide the movement."}
+                    </p>
+
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 14, borderTop: `1px solid ${theme.accent}15` }}>
                       <div style={{ fontSize: 11, color: "#8A9BB0" }}>{postedDate(drop)}</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, color: "#A0A5B5" }}>
-                          <Heart style={{ width: 12, height: 12 }} /> {drop.likes_count || 0}
-                        </div>
-                        <Share2 style={{ width: 12, height: 12, color: "#A0A5B5", cursor: "pointer" }} />
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#A0A5B5", fontSize: 11 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}><Heart style={{ width: 12, height: 12 }} /> {drop.likes_count || 0}</div>
+                        <Share2 style={{ width: 12, height: 12 }} />
                       </div>
                     </div>
                   </div>
