@@ -127,7 +127,7 @@ export default function Profile() {
   const { data: savedRecords = [] } = useQuery({
     queryKey: ["mySavedDropsProfile", profileEmail],
     queryFn: () => base44.entities.SavedDrop.filter({ user_email: profileEmail }),
-    enabled: !!profileEmail && isOwnProfile
+    enabled: Boolean(profileEmail && isOwnProfile)
   });
 
   const { data: allDrops = [] } = useQuery({
