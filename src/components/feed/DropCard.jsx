@@ -263,15 +263,17 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             <span className="text-white text-xs font-bold drop-shadow-md">{comments.length}</span>
           </div>
 
-          <div className="flex flex-col items-center gap-1.5">
-            <button 
-              onClick={(e) => { e.stopPropagation(); handleShare(drop); }} 
-              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
-            >
-              <Share2 className="w-6 h-6 text-white hover:scale-110 transition-transform" />
-            </button>
-            <span className="text-white text-xs font-bold drop-shadow-md">{drop.shares_count || 0}</span>
-          </div>
+          {drop.user_email !== "system@lightmode.com" && (
+            <div className="flex flex-col items-center gap-1.5">
+              <button 
+                onClick={(e) => { e.stopPropagation(); handleShare(drop); }} 
+                className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+              >
+                <Share2 className="w-6 h-6 text-white hover:scale-110 transition-transform" />
+              </button>
+              <span className="text-white text-xs font-bold drop-shadow-md">{drop.shares_count || 0}</span>
+            </div>
+          )}
           
           <div className="flex flex-col items-center gap-1.5">
             <button 

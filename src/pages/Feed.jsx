@@ -492,8 +492,7 @@ export default function Feed() {
           <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Messages</Link>
           <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Prayer Wall</Link>
           <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-sm font-semibold text-[#00CFFF] hover:bg-[#00CFFF]/20 transition whitespace-nowrap">Live</Link>
-          <Link to={createPageUrl("CodesOfTruth")} className="px-4 py-2 rounded-full bg-[#8A5CFF]/10 border border-[#8A5CFF]/20 text-sm font-semibold text-[#8A5CFF] hover:bg-[#8A5CFF]/20 transition whitespace-nowrap flex items-center gap-1.5">🔐 Codes of Truth</Link>
-          <Link to={createPageUrl("KeepIt100")} className="px-4 py-2 rounded-full bg-[#FFD000]/10 border border-[#FFD000]/20 text-sm font-semibold text-[#FFD000] hover:bg-[#FFD000]/20 transition whitespace-nowrap flex items-center gap-1.5">💯 Keep It 100</Link>
+          <Link to={createPageUrl("DailyDrops")} className="px-4 py-2 rounded-full bg-[#8A5CFF]/10 border border-[#8A5CFF]/20 text-sm font-semibold text-[#8A5CFF] hover:bg-[#8A5CFF]/20 transition whitespace-nowrap flex items-center gap-1.5">📌 Daily Drops</Link>
           </div>
 
         {/* Filter Bar */}
