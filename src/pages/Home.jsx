@@ -394,33 +394,127 @@ export default function Home() {
 
       {/* GLOW RANKS — 4 Tier System */}
       <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#121826" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
-          <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>
-            The 4 Glow Tiers
-          </h2>
-          <p className="glm-body" style={{ fontSize: 17, maxWidth: 620, margin: "0 auto 56px" }}>
-            Join one of the 4 mobilization tiers and help reach 1,000,000 youth across 12 nations.
-          </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 56 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.1)", border: "1px solid rgba(255,208,0,0.25)", borderRadius: 999, padding: "6px 16px", marginBottom: 18 }}>
+              <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>Recognition System</span>
+            </div>
+            <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 14 }}>
+              The 4 Glow Pins
+            </h2>
+            <p className="glm-body" style={{ fontSize: 17, maxWidth: 620, margin: "0 auto" }}>
+              Just as Pathfinders earn honors and Literature Evangelists receive pins, LightMode missionaries are celebrated for their faith in action.
+            </p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20 }}>
             {[
-              { tier: "Bronze", number: "3", color: "#C77A2B", desc: "100,000 Youth", detail: "Core mobilizers in local communities" },
-              { tier: "Silver", number: "2", color: "#C7CEDB", desc: "500,000 Youth", detail: "Regional influencers and leaders" },
-              { tier: "Gold", number: "1", color: "#FFD000", desc: "750,000 Youth", detail: "National movement ambassadors" },
-              { tier: "Platinum", number: "✦", color: "#F5F7FB", desc: "1,000,000 Youth", detail: "Global digital missionaries" },
-            ].map((item) => (
-              <div key={item.tier} style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.02), rgba(11,15,26,0.98))", border: `1px solid ${item.color}30`, borderRadius: 18, padding: "28px 20px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at top center, ${item.color}18, transparent 45%)`, pointerEvents: "none" }} />
+              {
+                tier: "Bronze",
+                label: "Starter Missionary",
+                icon: "🥉",
+                color: "#C77A2B",
+                glow: "rgba(199,122,43,0.22)",
+                requirement: "Complete the LightMode Pledge + post your first 30 Glow Drops",
+                milestone: "First 30 Glow Drops"
+              },
+              {
+                tier: "Silver",
+                label: "Consistent Missionary",
+                icon: "🥈",
+                color: "#C7CEDB",
+                glow: "rgba(199,206,219,0.18)",
+                requirement: "Share 60 Glow Drops + 60 Real Light Talks in one month",
+                milestone: "60 Drops + 60 Talks"
+              },
+              {
+                tier: "Gold",
+                label: "Multiplying Missionary",
+                icon: "🥇",
+                color: "#FFD000",
+                glow: "rgba(255,208,0,0.22)",
+                requirement: "Recruit 5 new youth + start or strengthen a GlowGroup",
+                milestone: "Recruit 5 + GlowGroup"
+              },
+              {
+                tier: "Platinum",
+                label: "Ambassador Missionary",
+                icon: "💎",
+                color: "#E8EFFE",
+                glow: "rgba(232,239,254,0.15)",
+                requirement: "Mentor others + lead a LightMode Challenge + submit Glow Logs",
+                milestone: "Mentor · Lead · Report"
+              },
+            ].map((item, idx) => (
+              <div key={item.tier} style={{
+                background: "linear-gradient(160deg, rgba(255,255,255,0.03) 0%, rgba(11,15,26,0.98) 100%)",
+                border: `1px solid ${item.color}28`,
+                borderRadius: 24,
+                padding: "32px 24px",
+                textAlign: "center",
+                position: "relative",
+                overflow: "hidden",
+                transition: "transform 0.3s, box-shadow 0.3s",
+              }}
+                onMouseOver={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = `0 20px 60px ${item.glow}`; }}
+                onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+              >
+                {/* Background glow */}
+                <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at top center, ${item.glow}, transparent 55%)`, pointerEvents: "none" }} />
+                {/* Top accent line */}
+                <div style={{ position: "absolute", top: 0, left: "15%", right: "15%", height: 2, background: `linear-gradient(90deg, transparent, ${item.color}, transparent)`, borderRadius: 999 }} />
+
                 <div style={{ position: "relative", zIndex: 1 }}>
-                  <div style={{ width: 54, height: 72, margin: "0 auto 16px", borderRadius: 8, background: "linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03))", border: `1px solid ${item.color}35`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 30px ${item.color}30` }}>
-                    <div style={{ width: 28, height: 28, borderRadius: 999, background: item.color, color: item.tier === "Platinum" ? "#0B0F1A" : "#0B0F1A", fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk, sans-serif", boxShadow: `0 0 22px ${item.color}` }}>{item.number}</div>
+                  {/* Icon badge */}
+                  <div style={{
+                    width: 72, height: 72, margin: "0 auto 20px",
+                    borderRadius: "50%",
+                    background: `radial-gradient(circle, ${item.color}22, rgba(11,15,26,0.8))`,
+                    border: `2px solid ${item.color}40`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 34,
+                    boxShadow: `0 0 28px ${item.glow}, inset 0 0 20px ${item.color}10`,
+                  }}>
+                    {item.icon}
                   </div>
-                  <h3 className="glm-headline" style={{ fontSize: 22, color: item.color, marginBottom: 8 }}>{item.tier}</h3>
-                  <p style={{ fontSize: 15, fontWeight: 800, color: item.color, marginBottom: 8, fontFamily: "Inter, sans-serif" }}>{item.desc}</p>
-                  <p className="glm-body" style={{ fontSize: 13, minHeight: 40 }}>{item.detail}</p>
-                  <div style={{ width: "70%", margin: "18px auto 0", height: 2, borderRadius: 999, background: `linear-gradient(90deg, transparent, ${item.color}, transparent)` }} />
+
+                  {/* Step indicator */}
+                  <div style={{ fontSize: 10, fontWeight: 800, color: item.color, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 6, opacity: 0.8 }}>
+                    Tier {idx + 1}
+                  </div>
+
+                  <h3 className="glm-headline" style={{ fontSize: 22, color: "#FFFFFF", marginBottom: 4, lineHeight: 1.15 }}>{item.tier}</h3>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: item.color, marginBottom: 18, fontFamily: "Inter, sans-serif" }}>
+                    {item.label}
+                  </div>
+
+                  {/* Milestone pill */}
+                  <div style={{
+                    display: "inline-block",
+                    background: `${item.color}14`,
+                    border: `1px solid ${item.color}30`,
+                    borderRadius: 999,
+                    padding: "4px 14px",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: item.color,
+                    marginBottom: 16,
+                    letterSpacing: "0.04em",
+                  }}>
+                    {item.milestone}
+                  </div>
+
+                  <p className="glm-body" style={{ fontSize: 13, lineHeight: 1.6, color: "#A0A8BC" }}>{item.requirement}</p>
+
+                  <div style={{ width: "60%", margin: "20px auto 0", height: 1, background: `linear-gradient(90deg, transparent, ${item.color}50, transparent)` }} />
                 </div>
               </div>
             ))}
+          </div>
+          {/* Bottom note */}
+          <div style={{ textAlign: "center", marginTop: 40 }}>
+            <p className="glm-body" style={{ fontSize: 14, maxWidth: 560, margin: "0 auto", opacity: 0.7 }}>
+              Digital badges appear on your LightMode Dashboard profile as you level up. Physical pins are awarded at GlowGroup Bootcamps and the annual Switch On Summit.
+            </p>
           </div>
         </div>
       </section>

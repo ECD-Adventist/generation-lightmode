@@ -2,9 +2,35 @@ import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
-import { BookOpen, Share2, Heart, Loader2, ArrowRight } from "lucide-react";
+import { BookOpen, Heart, Share2, Loader2, ArrowRight, Zap } from "lucide-react";
 import { format } from "date-fns";
+
+const themes = [
+  {
+    accent: "#00CFFF",
+    accentSoft: "rgba(0,207,255,0.12)",
+    glow: "rgba(0,207,255,0.2)",
+    gradientBg: "linear-gradient(145deg, rgba(0,207,255,0.07) 0%, rgba(11,15,26,0.97) 100%)",
+    borderColor: "rgba(0,207,255,0.2)",
+    label: "Glow Drop",
+  },
+  {
+    accent: "#FFD000",
+    accentSoft: "rgba(255,208,0,0.1)",
+    glow: "rgba(255,208,0,0.18)",
+    gradientBg: "linear-gradient(145deg, rgba(255,208,0,0.07) 0%, rgba(11,15,26,0.97) 100%)",
+    borderColor: "rgba(255,208,0,0.2)",
+    label: "Glow Drop",
+  },
+  {
+    accent: "#8A5CFF",
+    accentSoft: "rgba(138,92,255,0.1)",
+    glow: "rgba(138,92,255,0.2)",
+    gradientBg: "linear-gradient(145deg, rgba(138,92,255,0.08) 0%, rgba(11,15,26,0.97) 100%)",
+    borderColor: "rgba(138,92,255,0.2)",
+    label: "Glow Drop",
+  },
+];
 
 export default function DailyDropsSection() {
   const { data: drops = [], isLoading } = useQuery({
@@ -13,76 +39,129 @@ export default function DailyDropsSection() {
   });
 
   const displayDrops = drops.slice(0, 3);
-  const postedDate = (drop) => drop.created_date ? format(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), "MMM d, yyyy") : "";
-  const cardColors = [
-    { accent: "#00CFFF", glow: "rgba(0,207,255,0.18)", bg: "linear-gradient(180deg, rgba(0,207,255,0.06), rgba(11,15,26,0.96))" },
-    { accent: "#FFD000", glow: "rgba(255,208,0,0.18)", bg: "linear-gradient(180deg, rgba(255,208,0,0.06), rgba(11,15,26,0.96))" },
-    { accent: "#8A5CFF", glow: "rgba(138,92,255,0.18)", bg: "linear-gradient(180deg, rgba(138,92,255,0.08), rgba(11,15,26,0.96))" },
-  ];
+  const postedDate = (drop) => drop.created_date
+    ? format(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), "MMM d, yyyy")
+    : "";
 
   return (
-    <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#121826" }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 44 }}>
-          <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 12 }}>
+    <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#0B0F1A", position: "relative", overflow: "hidden" }}>
+      {/* Ambient background blobs */}
+      <div style={{ position: "absolute", top: "10%", left: "-5%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.05), transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: "5%", right: "-5%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(138,92,255,0.06), transparent 70%)", pointerEvents: "none" }} />
+
+      <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: 52 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.25)", borderRadius: 999, padding: "6px 18px", marginBottom: 18 }}>
+            <Zap style={{ width: 13, height: 13, color: "#00CFFF" }} />
+            <span style={{ color: "#00CFFF", fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>Live from the Movement</span>
+          </div>
+          <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 52px)", marginBottom: 14 }}>
             Daily Truth Drops
           </h2>
-          <p className="glm-body" style={{ fontSize: 17, maxWidth: 600, margin: "0 auto" }}>
-            System-posted scriptures and reflections that guide the movement.
+          <p className="glm-body" style={{ fontSize: 17, maxWidth: 580, margin: "0 auto", lineHeight: 1.7 }}>
+            Scripture-rooted reflections posted daily to flood your feed with the light of Christ.
           </p>
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" />
+          <div style={{ display: "flex", justifyContent: "center", padding: "60px 0" }}>
+            <Loader2 style={{ width: 36, height: 36, color: "#00CFFF", animation: "spin 1s linear infinite" }} />
           </div>
         ) : displayDrops.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px 24px", background: "#0B0F1A", borderRadius: 20, border: "1px solid rgba(255,255,255,0.05)" }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>📚</div>
-            <p className="glm-body" style={{ fontSize: 16, marginBottom: 20 }}>Daily drops coming soon. Stay tuned for inspiring truth.</p>
-            <Link to="/DailyTruthFeed" className="glm-btn-primary" style={{ fontSize: 14, padding: "10px 20px", display: "inline-block" }}>
+          <div style={{ textAlign: "center", padding: "48px 32px", background: "#121826", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>📖</div>
+            <p className="glm-body" style={{ fontSize: 16, marginBottom: 24 }}>Daily drops coming soon — stay tuned for inspiring truth.</p>
+            <Link to="/DailyTruthFeed" style={{ display: "inline-block", padding: "12px 28px", borderRadius: 50, background: "#00CFFF", color: "#0B0F1A", fontWeight: 800, fontFamily: "Space Grotesk, sans-serif", textDecoration: "none", fontSize: 14 }}>
               View All Drops
             </Link>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginBottom: 32 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24, marginBottom: 40 }}>
             {displayDrops.map((drop, idx) => {
-              const theme = cardColors[idx % cardColors.length];
+              const theme = themes[idx % themes.length];
               return (
-                <div key={drop.id} style={{
-                  background: theme.bg,
-                  border: `1px solid ${theme.accent}24`,
-                  borderRadius: 22,
-                  padding: 24,
-                  minHeight: 250,
-                  position: "relative",
-                  overflow: "hidden",
-                  boxShadow: `0 0 0 1px rgba(255,255,255,0.02), 0 24px 60px ${theme.glow}`
-                }}>
-                  <div style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at top left, ${theme.glow}, transparent 42%)`, pointerEvents: "none" }} />
-                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${theme.accent}, transparent 70%)` }} />
+                <div key={drop.id}
+                  style={{
+                    background: theme.gradientBg,
+                    border: `1px solid ${theme.borderColor}`,
+                    borderRadius: 26,
+                    padding: "28px 26px",
+                    minHeight: 280,
+                    position: "relative",
+                    overflow: "hidden",
+                    transition: "transform 0.3s, box-shadow 0.3s",
+                    cursor: "default",
+                  }}
+                  onMouseOver={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = `0 24px 60px ${theme.glow}`; }}
+                  onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+                >
+                  {/* Corner glow */}
+                  <div style={{ position: "absolute", top: 0, left: 0, width: 180, height: 180, background: `radial-gradient(circle at top left, ${theme.accentSoft}, transparent 60%)`, pointerEvents: "none" }} />
+                  {/* Accent top bar */}
+                  <div style={{ position: "absolute", top: 0, left: 24, right: 24, height: 2, background: `linear-gradient(90deg, ${theme.accent}, transparent)`, borderRadius: 999 }} />
 
                   <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", height: "100%" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                      <BookOpen style={{ width: 14, height: 14, color: theme.accent, flexShrink: 0 }} />
-                      <span style={{ fontSize: 11, fontWeight: 800, color: theme.accent, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                        Scripture
-                      </span>
+                    {/* Label row */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, background: theme.accentSoft, borderRadius: 999, padding: "4px 12px" }}>
+                        <BookOpen style={{ width: 12, height: 12, color: theme.accent }} />
+                        <span style={{ fontSize: 10, fontWeight: 900, color: theme.accent, textTransform: "uppercase", letterSpacing: "0.1em" }}>Scripture</span>
+                      </div>
+                      <span style={{ fontSize: 11, color: "#5A6478", fontFamily: "Inter, sans-serif" }}>{postedDate(drop)}</span>
                     </div>
 
-                    <p style={{ fontSize: 15, fontWeight: 800, color: "#FFFFFF", marginBottom: 14, lineHeight: 1.45 }}>
+                    {/* Verse */}
+                    <p style={{
+                      fontSize: 15,
+                      fontWeight: 800,
+                      color: "#FFFFFF",
+                      marginBottom: 16,
+                      lineHeight: 1.5,
+                      fontFamily: "Space Grotesk, sans-serif",
+                      flex: 1,
+                    }}>
                       "{drop.verse || "Daily truth"}"
                     </p>
 
-                    <p style={{ fontSize: 14, color: "#C8D0E0", marginBottom: 18, lineHeight: 1.7, fontStyle: "italic", flex: 1 }}>
-                      {drop.reflection || "A daily truth to guide the movement."}
-                    </p>
+                    {/* Reflection */}
+                    {drop.reflection && (
+                      <p style={{
+                        fontSize: 13,
+                        color: "#A0AABB",
+                        marginBottom: 22,
+                        lineHeight: 1.75,
+                        fontStyle: "italic",
+                        fontFamily: "Inter, sans-serif",
+                        borderLeft: `2px solid ${theme.accent}50`,
+                        paddingLeft: 12,
+                      }}>
+                        {drop.reflection}
+                      </p>
+                    )}
 
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 14, borderTop: `1px solid ${theme.accent}15` }}>
-                      <div style={{ fontSize: 11, color: "#8A9BB0" }}>{postedDate(drop)}</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#A0A5B5", fontSize: 11 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}><Heart style={{ width: 12, height: 12 }} /> {drop.likes_count || 0}</div>
-                        <Share2 style={{ width: 12, height: 12 }} />
+                    {/* Footer */}
+                    <div style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      paddingTop: 14,
+                      borderTop: `1px solid ${theme.accent}18`,
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 5, color: "#6A7288", fontSize: 12 }}>
+                          <Heart style={{ width: 13, height: 13 }} />
+                          <span>{drop.likes_count || 0}</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 5, color: "#6A7288", fontSize: 12 }}>
+                          <Share2 style={{ width: 13, height: 13 }} />
+                          <span>{drop.shares_count || 0}</span>
+                        </div>
+                      </div>
+                      <div style={{
+                        fontSize: 10, fontWeight: 800, color: theme.accent,
+                        background: theme.accentSoft, borderRadius: 999,
+                        padding: "3px 10px", letterSpacing: "0.06em"
+                      }}>
+                        #GlowDrop
                       </div>
                     </div>
                   </div>
@@ -94,25 +173,23 @@ export default function DailyDropsSection() {
 
         {!isLoading && displayDrops.length > 0 && (
           <div style={{ textAlign: "center" }}>
-            <Link to="/DailyTruthFeed" style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "12px 24px",
-              borderRadius: 12,
-              background: "rgba(0,207,255,0.1)",
-              border: "1px solid rgba(0,207,255,0.3)",
-              color: "#00CFFF",
-              textDecoration: "none",
-              fontSize: 15,
-              fontWeight: 600,
-              transition: "all 0.3s",
-              cursor: "pointer"
-            }}
-            onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.2)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.5)"; }}
-            onMouseOut={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.3)"; }}
+            <Link
+              to="/DailyTruthFeed"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 10,
+                padding: "14px 32px", borderRadius: 999,
+                background: "rgba(0,207,255,0.08)",
+                border: "1px solid rgba(0,207,255,0.3)",
+                color: "#00CFFF",
+                textDecoration: "none",
+                fontSize: 15, fontWeight: 700,
+                fontFamily: "Space Grotesk, sans-serif",
+                transition: "all 0.3s",
+              }}
+              onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.18)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.6)"; e.currentTarget.style.boxShadow = "0 0 28px rgba(0,207,255,0.25)"; }}
+              onMouseOut={e => { e.currentTarget.style.background = "rgba(0,207,255,0.08)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.3)"; e.currentTarget.style.boxShadow = "none"; }}
             >
-              Explore All Daily Drops <ArrowRight style={{ width: 16, height: 16 }} />
+              Explore All Daily Drops <ArrowRight style={{ width: 17, height: 17 }} />
             </Link>
           </div>
         )}
