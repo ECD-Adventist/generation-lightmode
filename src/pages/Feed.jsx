@@ -381,7 +381,7 @@ export default function Feed() {
 
            <DailyCodeWidget />
 
-           <div className="mt-6 flex items-center justify-between bg-[#121826] p-3 rounded-2xl border border-white/5">
+           <Link to={createPageUrl("Profile")} className="mt-6 flex items-center justify-between bg-[#121826] p-3 rounded-2xl border border-white/5 hover:border-white/10 transition no-underline">
               <div className="flex items-center gap-3">
                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px]">
                    <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center text-xs uppercase font-bold text-white overflow-hidden">
@@ -390,11 +390,11 @@ export default function Feed() {
                  </div>
                  <div className="text-sm">
                    <div className="font-bold text-white truncate max-w-[120px]">{user?.full_name}</div>
-                   <div className="text-gray-500 text-[10px]">Pro Creator</div>
+                   <div className="text-gray-500 text-[10px]">⚡ {user?.glow_score || 0} XP</div>
                  </div>
               </div>
-              <button className="text-gray-400 hover:text-white"><Settings className="w-5 h-5" /></button>
-           </div>
+              <Settings className="w-5 h-5 text-gray-400" />
+           </Link>
         </div>
 
         {/* Center Feed */}
@@ -408,13 +408,15 @@ export default function Feed() {
             className="h-14 object-contain drop-shadow-[0_0_8px_rgba(0,207,255,0.4)]"
           />
           <div className="flex gap-4 items-center shrink-0">
-            <div className="relative cursor-pointer">
+            <Link to={createPageUrl("Notifications")} className="relative">
               <Heart className="w-6 h-6 text-white" />
               {notifications.length > 0 && (
                 <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
               )}
-            </div>
-            <MessageCircle className="w-6 h-6 text-white cursor-pointer" />
+            </Link>
+            <Link to={createPageUrl("Messages")}>
+              <MessageCircle className="w-6 h-6 text-white" />
+            </Link>
           </div>
         </div>
 
@@ -564,14 +566,18 @@ export default function Feed() {
               {trendingTopics.length === 0 ? (
                 <p className="text-xs text-gray-500">No live hashtags yet.</p>
               ) : trendingTopics.map((topic) => (
-                <div key={topic.tag} className="group">
+                <button
+                  key={topic.tag}
+                  onClick={() => { setSearchQuery(topic.tag); setActiveFilter("All"); }}
+                  className="group text-left w-full"
+                >
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Live hashtag</span>
                     <MoreHorizontal className="w-3 h-3 text-gray-600" />
                   </div>
                   <h4 className="font-bold text-sm text-white group-hover:text-[#00CFFF] transition">{topic.tag}</h4>
                   <p className="text-[10px] text-gray-500 mt-0.5">{topic.count} drop{topic.count === 1 ? '' : 's'}</p>
-                </div>
+                </button>
               ))}
             </div>
           </div>
