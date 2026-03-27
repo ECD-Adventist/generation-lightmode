@@ -428,29 +428,42 @@ export default function Home() {
 
       <div className="section-divider" />
 
-      {/* GLOW MAP */}
-      <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#0B0F1A" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
-          <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>
+      {/* GLOW MAP — Full Width */}
+      <section style={{ padding: "clamp(60px, 10vw, 80px) 0 0", background: "#0B0F1A" }}>
+        <div style={{ textAlign: "center", padding: "0 24px", marginBottom: 40 }}>
+          <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 12 }}>
             Global Light Map
           </h2>
-          <p className="glm-body" style={{ fontSize: 17, marginBottom: 56, maxWidth: 600, margin: "0 auto 56px" }}>
-            Explore where GlowGroups and active members are illuminating the world.
+          <p className="glm-body" style={{ fontSize: 17, maxWidth: 600, margin: "0 auto" }}>
+            Real-time data showing where our members, GlowGroups, and Glow Drops are illuminating the world.
           </p>
+        </div>
 
-          <style>{`
-            .leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 8px; }
-            .leaflet-popup-tip { background: #121826; border: 1px solid rgba(0,207,255,0.4); }
-          `}</style>
+        <style>{`
+          .leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 8px; }
+          .leaflet-popup-tip { background: #121826; border: 1px solid rgba(0,207,255,0.4); }
+        `}</style>
 
-          <div style={{ 
-            height: "clamp(350px, 60vh, 500px)", width: "100%", borderRadius: "24px", overflow: "hidden", 
-            position: "relative", zIndex: 10, background: "#080C14",
-            boxShadow: "0 0 40px rgba(0,207,255,0.15), inset 0 0 40px rgba(0,207,255,0.1)",
-            border: "1px solid rgba(0,207,255,0.3)"
-          }}>
+        <div style={{ position: "relative", zIndex: 10 }}>
+          {/* Stats overlay */}
+          <div style={{ position: "absolute", top: 20, right: 20, zIndex: 1000, background: "rgba(11,15,26,0.85)", backdropFilter: "blur(10px)", borderRadius: 16, padding: "16px 20px", border: "1px solid rgba(0,207,255,0.2)", minWidth: 180 }}>
+            <div style={{ fontSize: 10, fontWeight: 800, color: "#00CFFF", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>Live Statistics</div>
+            {[
+              { label: "Members", value: liveCountries.reduce((s, c) => s + c.users, 0), color: "#00CFFF" },
+              { label: "Countries", value: liveCountries.length, color: "#FFD000" },
+              { label: "GlowGroups", value: liveCountries.reduce((s, c) => s + c.groups, 0), color: "#8A5CFF" },
+              { label: "Glow Drops", value: liveCountries.reduce((s, c) => s + c.drops, 0), color: "#1DA1FF" },
+            ].map(stat => (
+              <div key={stat.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                <span style={{ fontSize: 12, color: "#8A9BB0" }}>{stat.label}</span>
+                <strong style={{ color: stat.color, fontFamily: "Space Grotesk, sans-serif", fontSize: 16 }}>{stat.value.toLocaleString()}</strong>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ height: "70vh", minHeight: 450, width: "100%", background: "#080C14" }}>
             <MapContainer 
-              center={[5, 25]} 
+              center={[2, 30]} 
               zoom={3} 
               scrollWheelZoom={false}
               zoomControl={false}
@@ -463,19 +476,11 @@ export default function Home() {
               {liveCountries.flatMap((loc, i) => {
                 const coordinates = countryCoordinates[loc.country] || countryCoordinates.Global;
                 const color = i % 3 === 0 ? "#00CFFF" : i % 3 === 1 ? "#FFD000" : "#8A5CFF";
+                const outerR = Math.min(50, Math.max(14, loc.users * 3 + loc.groups * 4 + loc.drops * 0.5));
+                const innerR = Math.min(12, Math.max(5, loc.users + loc.groups));
                 return [
-                  <CircleMarker
-                    key={`outer-${i}`}
-                    center={coordinates}
-                    radius={Math.max(12, loc.users * 2 + loc.groups * 3 + loc.drops)}
-                    pathOptions={{ color: "transparent", fillColor: color, fillOpacity: 0.15 }}
-                  />,
-                  <CircleMarker
-                    key={`inner-${i}`}
-                    center={coordinates}
-                    radius={Math.max(4, loc.users + loc.groups)}
-                    pathOptions={{ color, fillColor: "#FFF", fillOpacity: 0.9, weight: 2 }}
-                  >
+                  <CircleMarker key={`outer-${i}`} center={coordinates} radius={outerR} pathOptions={{ color: "transparent", fillColor: color, fillOpacity: 0.12 }} />,
+                  <CircleMarker key={`inner-${i}`} center={coordinates} radius={innerR} pathOptions={{ color, fillColor: "#FFF", fillOpacity: 0.9, weight: 2 }}>
                     <Popup>
                       <div style={{ background: "rgba(18,24,38,0.95)", backdropFilter: "blur(10px)", padding: "16px", borderRadius: "12px", border: `1px solid ${color}60`, color: "#FFF", minWidth: "180px", boxShadow: `0 8px 32px ${color}20` }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
@@ -506,7 +511,20 @@ export default function Home() {
 
       <div className="section-divider" />
 
-      <DailyTruthWidget />
+      {/* DAILY TRUTH DROPS */}
+      <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#121826" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
+          <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 16 }}>
+            Daily Truth Drops
+          </h2>
+          <p className="glm-body" style={{ fontSize: 17, marginBottom: 32, maxWidth: 600, margin: "0 auto 32px" }}>
+            Explore system-posted scriptures and reflections that guide the movement.
+          </p>
+          <Link to="/DailyTruthFeed" className="glm-btn-primary" style={{ fontSize: 16 }}>
+            View Daily Drops ⚡
+          </Link>
+        </div>
+      </section>
 
       <div className="section-divider" />
 
