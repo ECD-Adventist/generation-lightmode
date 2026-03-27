@@ -1,16 +1,25 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
-import { Loader2, ArrowLeft, BookOpen, Hash, Share2 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2, ArrowLeft, BookOpen, Hash, Share2, MoreVertical } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-export default function DailyTruthFeed() {
+export default function DailyDrops() {
+  const [user, setUser] = useState(null);
   const urlParams = new URLSearchParams(window.location.search);
   const initialTab = urlParams.get("tab") || "codes_of_truth";
   const [activeTab, setActiveTab] = useState(initialTab);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    base44.auth.isAuthenticated().then(isAuth => {
+      if (isAuth) base44.auth.me().then(setUser);
+    });
+  }, []);
 
   // Fetch all daily system drops (Code of Truth + Keep It 100)
   const { data: drops = [], isLoading } = useQuery({
@@ -46,7 +55,7 @@ export default function DailyTruthFeed() {
           <Link to={createPageUrl("Feed")} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition">
             <ArrowLeft className="w-5 h-5 text-white" />
           </Link>
-          <h1 className="text-lg font-black font-['Space_Grotesk']">Daily Truth</h1>
+          <h1 className="text-lg font-black font-['Space_Grotesk']">Daily Drops</h1>
         </div>
       </div>
 
@@ -82,7 +91,7 @@ export default function DailyTruthFeed() {
               <div className={`w-2 h-2 rounded-full ${activeTab === "codes_of_truth" ? "bg-[#8A5CFF]" : "bg-[#FFD000]"} animate-pulse`}></div>
               <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Today's Pick</span>
             </div>
-            <TruthCard drop={activeDrops[0]} onShare={handleShare} featured />
+            <TruthCard drop={activeDrops[0]} onShare={handleShare} user={user} featured />
           </div>
         )}
 
@@ -96,7 +105,7 @@ export default function DailyTruthFeed() {
             <h3 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-4">Previous Posts</h3>
             <div className="space-y-4 pb-24">
               {activeDrops.slice(1).map(drop => (
-                <TruthCard key={drop.id} drop={drop} onShare={handleShare} />
+                <TruthCard key={drop.id} drop={drop} onShare={handleShare} user={user} />
               ))}
             </div>
           </div>
@@ -111,8 +120,27 @@ export default function DailyTruthFeed() {
   );
 }
 
-function TruthCard({ drop, onShare, featured }) {
+function TruthCard({ drop, onShare, user, featured }) {
   const postedDate = drop.created_date ? new Date(drop.created_date + (drop.created_date.endsWith('Z') ? '' : 'Z')) : null;
+  const queryClient = useQueryClient();
+  
+  const repostMutation = useMutation({
+    mutationFn: async () => {
+      if (!user) { toast.error("Please log in to repost"); return; }
+      await base44.entities.GlowDrop.create({
+        user_email: user.email,
+        verse: drop.verse,
+        reflection: drop.reflection || "",
+        category: drop.category,
+        hashtags: drop.hashtags || "",
+        status: "approved"
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+      toast.success("Posted to your profile! ⚡");
+    }
+  });
 
   return (
     <div className={`rounded-3xl overflow-hidden border transition-all ${
@@ -137,12 +165,28 @@ function TruthCard({ drop, onShare, featured }) {
           <span className="text-[10px] text-gray-500">
             {postedDate ? format(postedDate, "MMM d, yyyy 'at' h:mm a") : ""}
           </span>
-          <button
-            onClick={() => onShare(drop)}
-            className="flex items-center gap-1.5 text-xs font-bold text-[#00CFFF] hover:text-white transition bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg"
-          >
-            <Share2 className="w-3.5 h-3.5" /> Share
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-1.5 text-xs font-bold text-[#00CFFF] hover:text-white transition bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg">
+                <Share2 className="w-3.5 h-3.5" /> Share
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-[#121826] border-white/10 text-white w-48">
+              <DropdownMenuItem 
+                onClick={() => repostMutation.mutate()}
+                disabled={repostMutation.isPending}
+                className="hover:bg-white/10 cursor-pointer flex items-center gap-2"
+              >
+                <span className="text-base">⚡</span> Post to LightMode
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => onShare(drop)}
+                className="hover:bg-white/10 cursor-pointer flex items-center gap-2"
+              >
+                <Share2 className="w-4 h-4" /> Share on Social Media
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         {drop.hashtags && (
           <div className="mt-2 text-xs text-[#8A5CFF] font-medium">{drop.hashtags}</div>
