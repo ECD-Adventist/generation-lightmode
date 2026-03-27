@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import LightReflections from './pages/LightReflections';
 import Leaderboard from './pages/Leaderboard';
+import Discover from './pages/Discover';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -61,6 +62,7 @@ const AuthenticatedApp = () => {
       ))}
       <Route path="/LightReflections" element={<LayoutWrapper currentPageName="LightReflections"><LightReflections /></LayoutWrapper>} />
       <Route path="/Leaderboard" element={<LayoutWrapper currentPageName="Leaderboard"><Leaderboard /></LayoutWrapper>} />
+      <Route path="/Discover" element={<LayoutWrapper currentPageName="Discover"><Discover /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

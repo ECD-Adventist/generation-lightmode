@@ -199,8 +199,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     <div className="bg-[#121826]/80 backdrop-blur-sm border border-white/10 rounded-[2rem] mb-8 p-3 shadow-2xl hover:border-[#00CFFF]/40 transition-all duration-300 group">
       {/* Media / Content Area */}
       <div 
-        className={`relative w-full rounded-[1.5rem] overflow-hidden ${drop.media_url ? 'aspect-[4/5] sm:aspect-[3/4]' : 'min-h-[280px] sm:min-h-[320px]'} bg-gradient-to-br from-[#1a1b26] via-[#0B0F1A] to-[#1a103c] flex flex-col justify-center items-center text-center shadow-inner`}
-        style={drop.media_url ? { backgroundImage: `url(${drop.media_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+        className={`relative w-full rounded-[1.5rem] overflow-hidden ${drop.media_url ? 'aspect-auto max-h-[600px]' : 'min-h-[220px] sm:min-h-[260px]'} bg-gradient-to-br from-[#1a1b26] via-[#0B0F1A] to-[#1a103c] flex flex-col justify-center items-center text-center shadow-inner`}
+        style={drop.media_url ? {} : {}}
         onDoubleClick={() => likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name})}
       >
         {/* Gradient Overlays for readability */}
@@ -232,6 +232,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             <span className="text-[10px] text-gray-300 font-medium leading-none">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date), { addSuffix: true }) : ''}</span>
           </div>
         </Link>
+
+        {/* Media Image */}
+        {drop.media_url && (
+          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="w-full h-auto max-h-[600px] object-contain" />
+        )}
 
         {/* Text Content (if no media) */}
         {!drop.media_url && (

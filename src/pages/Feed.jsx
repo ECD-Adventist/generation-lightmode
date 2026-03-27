@@ -312,6 +312,7 @@ export default function Feed() {
            <div className="flex flex-col gap-2 flex-1">
              <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-lg font-bold bg-[#121826] text-[#00CFFF] px-4 py-3.5 rounded-2xl border border-white/5"><Home className="w-6 h-6" /> Home</Link>
              <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Search className="w-6 h-6" /> Explore</Link>
+             <Link to={createPageUrl("Discover")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Zap className="w-6 h-6" /> Discover</Link>
              <Link to={createPageUrl("Saved")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition"><Bookmark className="w-6 h-6" /> Saved</Link>
              <Link to={createPageUrl("Notifications")} className="flex items-center gap-4 text-lg font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3.5 rounded-2xl transition relative">
                <Bell className="w-6 h-6" /> Notifications

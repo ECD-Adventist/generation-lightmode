@@ -131,8 +131,6 @@ export default function Messages() {
 
   useEffect(() => {
     if (!user?.email || !targetEmail) return;
-    const alreadyFollowing = following.some((entry) => entry.following_email === targetEmail);
-    if (!alreadyFollowing) return;
 
     const existing = conversations.find((conversation) => {
       const pair = [conversation.participant_a_email, conversation.participant_b_email].sort().join("::");
@@ -145,7 +143,7 @@ export default function Messages() {
     }
 
     if (!ensureConversationMutation.isPending) ensureConversationMutation.mutate(targetEmail);
-  }, [targetEmail, user?.email, following, conversations]);
+  }, [targetEmail, user?.email, conversations]);
 
   useEffect(() => {
     const conversationFromUrl = urlParams.get("conversation");

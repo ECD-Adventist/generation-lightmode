@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Trophy, TrendingUp, MapPin, Zap, Home, Bell, User, Globe, ArrowUp, Flame, ArrowLeft } from "lucide-react";
+import { Trophy, TrendingUp, MapPin, Zap, Home, Bell, User, Globe, ArrowUp, Flame, ArrowLeft, Heart } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { useNavigate } from "react-router-dom";
@@ -28,14 +28,29 @@ export default function Leaderboard() {
     enabled: !!user,
   });
 
+  const { data: drops = [] } = useQuery({
+    queryKey: ["allGlowDrops"],
+    queryFn: () => base44.entities.GlowDrop.list('-created_date', 500),
+    enabled: !!user,
+  });
+
+  // Calculate total likes per user
+  const likesPerUser = useMemo(() => {
+    const map = {};
+    drops.forEach(d => { map[d.user_email] = (map[d.user_email] || 0) + (d.likes_count || 0); });
+    return map;
+  }, [drops]);
+
   const leaderboard = useMemo(() => {
     let filteredUsers = users;
     if (timeFilter === "my-region") {
       filteredUsers = users.filter(u => u.country === user?.country);
+    } else if (timeFilter === "top-liked") {
+      return [...filteredUsers].sort((a, b) => (likesPerUser[b.email] || 0) - (likesPerUser[a.email] || 0));
     }
 
     return [...filteredUsers].sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0));
-  }, [users, timeFilter, user?.country]);
+  }, [users, timeFilter, user?.country, likesPerUser]);
 
   const getMedalEmoji = (index) => {
     if (index === 0) return "🥇";
@@ -112,6 +127,7 @@ export default function Leaderboard() {
             <div className="flex gap-2">
               {[
                 { id: "all-time", label: "All Time", icon: Flame },
+                { id: "top-liked", label: "Top Liked", icon: TrendingUp },
                 { id: "my-region", label: "My Region", icon: MapPin }
               ].map(filter => (
                 <button
@@ -201,9 +217,16 @@ export default function Leaderboard() {
                   {/* Score */}
                   <div className="text-right shrink-0">
                     <div className={`text-3xl font-black font-['Space_Grotesk'] ${isCurrentUser ? "text-[#FFD000]" : "text-white"}`}>
-                      {warrior.glow_score || 0}
+                      {timeFilter === "top-liked" ? (likesPerUser[warrior.email] || 0) : (warrior.glow_score || 0)}
                     </div>
-                    <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold">XP</div>
+                    <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                      {timeFilter === "top-liked" ? "LIKES" : "XP"}
+                    </div>
+                    {timeFilter !== "top-liked" && (likesPerUser[warrior.email] || 0) > 0 && (
+                      <div className="text-[10px] text-red-400 mt-0.5 flex items-center gap-0.5 justify-end">
+                        ❤️ {likesPerUser[warrior.email]} likes
+                      </div>
+                    )}
                   </div>
 
                   {/* Hover Arrow */}

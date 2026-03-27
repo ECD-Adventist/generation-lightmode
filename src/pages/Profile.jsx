@@ -446,11 +446,9 @@ export default function Profile() {
                   >
                     {isFollowingThisUser ? "Following" : "Follow"}
                   </button>
-                  {isFollowingThisUser && (
-                    <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(profileEmail)}`} className="px-6 py-2 rounded-lg text-sm font-bold transition border border-white/10 bg-white/5 text-white hover:bg-white/10">
-                      Message
-                    </Link>
-                  )}
+                  <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(profileEmail)}`} className="px-6 py-2 rounded-lg text-sm font-bold transition border border-white/10 bg-white/5 text-white hover:bg-white/10">
+                    Message
+                  </Link>
                 </div>
               )}
             </div>
