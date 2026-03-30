@@ -12,6 +12,7 @@ import GlowGroupsTab from "../components/dashboard/GlowGroupsTab";
 import PrayerRequestsTab from "../components/dashboard/PrayerRequestsTab";
 import PrayerAnalyticsTab from "../components/dashboard/PrayerAnalyticsTab";
 import DashboardMapHero from "../components/dashboard/DashboardMapHero";
+import ConsentModal from "../components/dashboard/ConsentModal";
 import { applyDailyCheckIn } from "@/lib/gamification";
 
 export default function Dashboard() {
@@ -46,8 +47,14 @@ export default function Dashboard() {
     return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A] text-white">Redirecting to login...</div>;
   }
 
+  const needsConsent = !user.privacy_consent_given;
+
   return (
     <div className="min-h-screen text-white relative overflow-hidden" style={{ background: "linear-gradient(180deg, #0B0F1A 0%, #121826 100%)" }}>
+      <ConsentModal
+        isOpen={needsConsent}
+        onAccepted={() => setUser(prev => ({ ...prev, privacy_consent_given: true }))}
+      />
       {/* Background Glows */}
       <div style={{ position: "absolute", top: "-10%", left: "-10%", width: "50%", height: "50%", borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.08) 0%, transparent 60%)", pointerEvents: "none" }} />
       <div style={{ position: "absolute", top: "20%", right: "-10%", width: "40%", height: "40%", borderRadius: "50%", background: "radial-gradient(circle, rgba(138,92,255,0.08) 0%, transparent 60%)", pointerEvents: "none" }} />
