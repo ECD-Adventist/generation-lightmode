@@ -17,6 +17,7 @@ import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
 import { isNotificationEnabled } from "@/lib/notifications";
 import StatusComposerModal from "@/components/feed/StatusComposerModal";
 import StatusViewerModal from "@/components/feed/StatusViewerModal";
+import ConsentModal from "@/components/dashboard/ConsentModal";
 
 export default function Feed() {
   const [user, setUser] = useState(null);
@@ -296,6 +297,10 @@ export default function Feed() {
 
   return (
     <div className="h-[100dvh] bg-[#0B0F1A] text-white relative overflow-hidden font-['Inter']">
+      <ConsentModal
+        isOpen={!!user && !user.privacy_consent_given}
+        onAccepted={() => setUser(prev => ({ ...prev, privacy_consent_given: true }))}
+      />
       <style>{`
         @keyframes pan-map {
           0% { transform: translateX(0); }
