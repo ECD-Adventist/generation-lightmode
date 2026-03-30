@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap, Menu } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,7 @@ export default function Feed() {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedStory, setSelectedStory] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -366,14 +367,20 @@ export default function Feed() {
           
           {/* Top Header Mobile */}
           <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A]/80 backdrop-blur-xl border-b border-white/10 lg:hidden">
-          <img
-            src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
-            alt="Generation LightMode"
-            className="h-14 object-contain drop-shadow-[0_0_8px_rgba(0,207,255,0.4)]"
-          />
+          <div className="flex items-center gap-3">
+            <button onClick={() => setIsMobileNavOpen(true)} className="text-gray-400 hover:text-white transition">
+              <Menu className="w-6 h-6" />
+            </button>
+            <img
+              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
+              alt="Generation LightMode"
+              className="h-14 object-contain drop-shadow-[0_0_8px_rgba(0,207,255,0.4)]"
+            />
+          </div>
           <div className="flex gap-4 items-center shrink-0">
             <Link to={createPageUrl("Notifications")} className="relative">
               <Heart className="w-6 h-6 text-white" />
+
               {notifications.length > 0 && (
                 <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
               )}
@@ -598,6 +605,39 @@ export default function Feed() {
           getUserInfo={getUserInfo}
         />
         {isSearchOpen && <GlobalSearchBar onClose={() => setIsSearchOpen(false)} />}
+
+        {/* Mobile Sidebar Drawer */}
+        {isMobileNavOpen && (
+          <div className="fixed inset-0 z-[100] lg:hidden">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMobileNavOpen(false)} />
+            <div className="absolute left-0 top-0 bottom-0 w-72 bg-[#0B0F1A] border-r border-white/10 flex flex-col py-8 px-6 overflow-y-auto">
+              <Link to={createPageUrl("Home")} className="flex items-center mb-10">
+                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="LightMode" className="h-12 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]" />
+              </Link>
+              <div className="flex flex-col gap-1.5 flex-1">
+                <Link to={createPageUrl("Feed")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold bg-[#121826] text-[#00CFFF] px-4 py-3 rounded-2xl border border-white/5"><Home className="w-5 h-5" /> Home</Link>
+                <button onClick={() => { setIsSearchOpen(true); setIsMobileNavOpen(false); }} className="w-full flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><SearchIcon className="w-5 h-5" /> Search</button>
+                <Link to={createPageUrl("GlowGroups")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Globe className="w-5 h-5" /> Explore</Link>
+                <Link to={createPageUrl("Discover")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Zap className="w-5 h-5" /> Discover</Link>
+                <Link to={createPageUrl("Notifications")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition relative">
+                  <Bell className="w-5 h-5" /> Notifications
+                  {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
+                </Link>
+                <Link to={createPageUrl("Dashboard")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Zap className="w-5 h-5" /> Dashboard</Link>
+                <Link to={createPageUrl("Messages")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><MessageSquare className="w-5 h-5" /> Messages</Link>
+                <Link to={createPageUrl("PrayerWall")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🙏</span> Prayer Wall</Link>
+                <Link to={createPageUrl("Profile")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
+                  <div className="w-5 h-5 rounded-full bg-gray-700 overflow-hidden"><img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" /></div>
+                  Profile
+                </Link>
+                <Link to="/Settings" onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Settings className="w-5 h-5" /> More</Link>
+              </div>
+              <Button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 bg-[#00CFFF] text-black font-black rounded-2xl w-full py-5 text-base hover:bg-white transition-colors">
+                <Plus className="w-5 h-5 mr-2" /> NEW VIBE
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Bottom Mobile Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F1A]/90 backdrop-blur-xl border-t border-white/10 flex justify-around items-center py-3 px-6 z-50 pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden">
