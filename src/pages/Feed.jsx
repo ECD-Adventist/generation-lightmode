@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ export default function Feed() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isResourcesOpen, setIsResourcesOpen] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -341,7 +342,6 @@ export default function Feed() {
                <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-base font-bold bg-[#121826] text-[#00CFFF] px-4 py-3 rounded-2xl border border-white/5"><Home className="w-5 h-5" /> Home</Link>
                <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Globe className="w-5 h-5" /> Explore</Link>
                <Link to={createPageUrl("Discover")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Zap className="w-5 h-5" /> Discover</Link>
-               <Link to={createPageUrl("Saved")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Bookmark className="w-5 h-5" /> Saved</Link>
                <Link to={createPageUrl("Notifications")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition relative">
                  <Bell className="w-5 h-5" /> Notifications
                  {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
@@ -354,7 +354,17 @@ export default function Feed() {
                  Profile
                </Link>
                <Link to={createPageUrl("Assistant")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><MessageSquare className="w-5 h-5" /> AI Assistant</Link>
-               <Link to={createPageUrl("Resources")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">📚</span> Resources</Link>
+               {/* Resources dropdown */}
+               <button onClick={() => setIsResourcesOpen(v => !v)} className="w-full flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
+                 <span className="text-base">📚</span> Resources {isResourcesOpen ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
+               </button>
+               {isResourcesOpen && (
+                 <div className="flex flex-col gap-1 pl-2">
+                   <Link to={createPageUrl("KeepIt100")} className="flex items-center gap-3 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>💯</span> Keep It 100</Link>
+                   <Link to={createPageUrl("CodesOfTruth")} className="flex items-center gap-3 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🔐</span> Codes of Truth</Link>
+                   <Link to={createPageUrl("Resources")} className="flex items-center gap-3 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🌍</span> Other Resources</Link>
+                 </div>
+               )}
                <Link to={createPageUrl("DailyDevotion")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">📖</span> Bible School</Link>
                <Link to={createPageUrl("Home")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🔗</span> Back to Website</Link>
 
@@ -637,7 +647,6 @@ export default function Feed() {
                 <Link to={createPageUrl("Feed")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold bg-[#121826] text-[#00CFFF] px-4 py-3 rounded-2xl border border-white/5"><Home className="w-5 h-5" /> Home</Link>
                 <Link to={createPageUrl("GlowGroups")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Globe className="w-5 h-5" /> Explore</Link>
                 <Link to={createPageUrl("Discover")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Zap className="w-5 h-5" /> Discover</Link>
-                <Link to={createPageUrl("Saved")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Bookmark className="w-5 h-5" /> Saved</Link>
                 <Link to={createPageUrl("Notifications")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition relative">
                   <Bell className="w-5 h-5" /> Notifications
                   {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
@@ -648,7 +657,17 @@ export default function Feed() {
                   Profile
                 </Link>
                 <Link to={createPageUrl("Assistant")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><MessageSquare className="w-5 h-5" /> AI Assistant</Link>
-                <Link to={createPageUrl("Resources")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span>📚</span> Resources</Link>
+                {/* Resources dropdown */}
+                <button onClick={() => setIsResourcesOpen(v => !v)} className="w-full flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
+                  <span>📚</span> Resources {isResourcesOpen ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
+                </button>
+                {isResourcesOpen && (
+                  <div className="flex flex-col gap-1 pl-2">
+                    <Link to={createPageUrl("KeepIt100")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-3 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>💯</span> Keep It 100</Link>
+                    <Link to={createPageUrl("CodesOfTruth")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-3 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🔐</span> Codes of Truth</Link>
+                    <Link to={createPageUrl("Resources")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-3 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🌍</span> Other Resources</Link>
+                  </div>
+                )}
                 <Link to={createPageUrl("DailyDevotion")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span>📖</span> Bible School</Link>
                 <Link to={createPageUrl("Home")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span>🔗</span> Back to Website</Link>
 
