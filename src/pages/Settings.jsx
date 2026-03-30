@@ -74,6 +74,10 @@ export default function Settings() {
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-gray-600" />
         <span className="text-white font-bold text-sm">Settings</span>
+        <div className="flex-1" />
+        <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 text-[#00CFFF] text-sm font-bold hover:opacity-80 transition">
+          ← Back to Feed
+        </Link>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
