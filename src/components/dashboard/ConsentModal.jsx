@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 export default function ConsentModal({ isOpen, onAccepted }) {
   const [consent1, setConsent1] = useState(false);
@@ -73,14 +74,14 @@ export default function ConsentModal({ isOpen, onAccepted }) {
             <p className="text-sm font-bold text-white mb-1">Privacy Policy Consent</p>
             <p className="text-xs text-gray-400 mb-3 leading-relaxed">
               I have read and agreed with the{" "}
-              <a
-                href="https://generationlightmode.org/privacy"
+              <Link
+                to="/Privacy"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#00CFFF] underline hover:text-[#00CFFF]/80"
               >
                 Privacy Policy
-              </a>{" "}
+              </Link>{" "}
               of Generation LightMode.
             </p>
             <label className="flex items-center gap-3 cursor-pointer group">

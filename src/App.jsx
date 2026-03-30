@@ -13,6 +13,7 @@ import DailyDevotion from './pages/DailyDevotion';
 import DailyTruthFeed from './pages/DailyTruthFeed';
 import InstitutionPageView from './pages/InstitutionPage';
 import About from './pages/About';
+import Privacy from './pages/Privacy';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -71,6 +72,7 @@ const AuthenticatedApp = () => {
       <Route path="/DailyTruthFeed" element={<LayoutWrapper currentPageName="DailyTruthFeed"><DailyTruthFeed /></LayoutWrapper>} />
       <Route path="/InstitutionPage" element={<LayoutWrapper currentPageName="InstitutionPage"><InstitutionPageView /></LayoutWrapper>} />
       <Route path="/About" element={<LayoutWrapper currentPageName="About"><About /></LayoutWrapper>} />
+      <Route path="/Privacy" element={<LayoutWrapper currentPageName="Privacy"><Privacy /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

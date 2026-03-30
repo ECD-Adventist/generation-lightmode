@@ -13,6 +13,7 @@ import PrayerRequestsTab from "../components/dashboard/PrayerRequestsTab";
 import PrayerAnalyticsTab from "../components/dashboard/PrayerAnalyticsTab";
 import DashboardMapHero from "../components/dashboard/DashboardMapHero";
 import ConsentModal from "../components/dashboard/ConsentModal";
+import AICoachingTab from "../components/dashboard/AICoachingTab";
 import { applyDailyCheckIn } from "@/lib/gamification";
 
 export default function Dashboard() {
@@ -140,7 +141,8 @@ export default function Dashboard() {
               { id: 'glowgroups', label: 'GlowGroups', icon: '👥' },
               { id: 'leaderboard', label: 'Leaderboard', icon: '🏆' },
               { id: 'prayer', label: 'Prayer Requests', icon: '🙏' },
-              { id: 'prayer-analytics', label: 'Prayer Analytics', icon: '📈' }
+              { id: 'prayer-analytics', label: 'Prayer Analytics', icon: '📈' },
+              { id: 'ai-coach', label: 'AI Coach', icon: '🧠' }
             ].map(tab => (
               <TabsTrigger 
                 key={tab.id}
@@ -172,6 +174,9 @@ export default function Dashboard() {
           </TabsContent>
           <TabsContent value="prayer-analytics">
             <PrayerAnalyticsTab />
+          </TabsContent>
+          <TabsContent value="ai-coach">
+            <AICoachingTab user={user} />
           </TabsContent>
         </Tabs>
       </div>
