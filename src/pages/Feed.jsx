@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap, Menu } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, Bookmark, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,7 @@ export default function Feed() {
   const [selectedStory, setSelectedStory] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -346,21 +347,33 @@ export default function Feed() {
                  {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
                </Link>
                <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Zap className="w-5 h-5" /> Dashboard</Link>
-               <Link to={createPageUrl("Milestones")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🏆</span> Milestones</Link>
-               <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🌍</span> Global Reach</Link>
-               <Link to={createPageUrl("Challenges")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🎯</span> Challenges</Link>
-               <Link to={createPageUrl("Assistant")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><MessageSquare className="w-5 h-5" /> AI Assistant</Link>
-               <Link to={createPageUrl("LightReflections")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">✨</span> Light Reflections</Link>
-               <Link to={createPageUrl("FaithQuiz")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🏅</span> Faith Quiz</Link>
-               <Link to={createPageUrl("Resources")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">📚</span> Resources</Link>
                <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
                  <div className="w-5 h-5 rounded-full bg-gray-700 flex items-center justify-center text-[10px] uppercase text-white overflow-hidden">
                    <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                  </div>
                  Profile
                </Link>
+               <Link to={createPageUrl("Assistant")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><MessageSquare className="w-5 h-5" /> AI Assistant</Link>
+               <Link to={createPageUrl("Resources")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">📚</span> Resources</Link>
                <Link to={createPageUrl("DailyDevotion")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">📖</span> Bible School</Link>
                <Link to={createPageUrl("Home")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🔗</span> Back to Website</Link>
+
+               {/* More toggle */}
+               <button onClick={() => setIsMoreOpen(v => !v)} className="w-full flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
+                 <Settings className="w-5 h-5" /> More {isMoreOpen ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
+               </button>
+               {isMoreOpen && (
+                 <div className="flex flex-col gap-1 pl-2">
+                   <Link to={createPageUrl("Milestones")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🏆</span> Milestones</Link>
+                   <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🌍</span> Global Reach</Link>
+                   <Link to={createPageUrl("Challenges")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🎯</span> Challenges</Link>
+                   <Link to={createPageUrl("LightReflections")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>✨</span> Light Reflections</Link>
+                   <Link to={createPageUrl("FaithQuiz")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🏅</span> Faith Quiz</Link>
+                   <Link to={createPageUrl("Messages")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><MessageSquare className="w-4 h-4" /> Messages</Link>
+                   <Link to={createPageUrl("PrayerWall")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🙏</span> Prayer Wall</Link>
+                   <Link to="/Settings" className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><Settings className="w-4 h-4" /> Settings</Link>
+                 </div>
+               )}
              </div>
            
            <Button onClick={() => setIsDropModalOpen(true)} className="mt-6 shrink-0 bg-[#00CFFF] text-black font-black rounded-2xl w-full py-5 text-base hover:bg-white transition-colors shadow-[0_0_20px_rgba(0,207,255,0.3)]">
@@ -630,19 +643,31 @@ export default function Feed() {
                   {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
                 </Link>
                 <Link to={createPageUrl("Dashboard")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Zap className="w-5 h-5" /> Dashboard</Link>
-                <Link to={createPageUrl("Milestones")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🏆</span> Milestones</Link>
-                <Link to={createPageUrl("GlobalReach")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🌍</span> Global Reach</Link>
-                <Link to={createPageUrl("Challenges")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🎯</span> Challenges</Link>
-                <Link to={createPageUrl("Assistant")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><MessageSquare className="w-5 h-5" /> AI Assistant</Link>
-                <Link to={createPageUrl("LightReflections")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">✨</span> Light Reflections</Link>
-                <Link to={createPageUrl("FaithQuiz")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🏅</span> Faith Quiz</Link>
-                <Link to={createPageUrl("Resources")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">📚</span> Resources</Link>
                 <Link to={createPageUrl("Profile")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
                   <div className="w-5 h-5 rounded-full bg-gray-700 overflow-hidden"><img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" /></div>
                   Profile
                 </Link>
-                <Link to={createPageUrl("DailyDevotion")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">📖</span> Bible School</Link>
-                <Link to={createPageUrl("Home")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🔗</span> Back to Website</Link>
+                <Link to={createPageUrl("Assistant")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><MessageSquare className="w-5 h-5" /> AI Assistant</Link>
+                <Link to={createPageUrl("Resources")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span>📚</span> Resources</Link>
+                <Link to={createPageUrl("DailyDevotion")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span>📖</span> Bible School</Link>
+                <Link to={createPageUrl("Home")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span>🔗</span> Back to Website</Link>
+
+                {/* More toggle */}
+                <button onClick={() => setIsMoreOpen(v => !v)} className="w-full flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
+                  <Settings className="w-5 h-5" /> More {isMoreOpen ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
+                </button>
+                {isMoreOpen && (
+                  <div className="flex flex-col gap-1 pl-2">
+                    <Link to={createPageUrl("Milestones")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🏆</span> Milestones</Link>
+                    <Link to={createPageUrl("GlobalReach")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🌍</span> Global Reach</Link>
+                    <Link to={createPageUrl("Challenges")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🎯</span> Challenges</Link>
+                    <Link to={createPageUrl("LightReflections")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>✨</span> Light Reflections</Link>
+                    <Link to={createPageUrl("FaithQuiz")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🏅</span> Faith Quiz</Link>
+                    <Link to={createPageUrl("Messages")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><MessageSquare className="w-4 h-4" /> Messages</Link>
+                    <Link to={createPageUrl("PrayerWall")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🙏</span> Prayer Wall</Link>
+                    <Link to="/Settings" onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><Settings className="w-4 h-4" /> Settings</Link>
+                  </div>
+                )}
               </div>
               <Button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 bg-[#00CFFF] text-black font-black rounded-2xl w-full py-5 text-base hover:bg-white transition-colors">
                 <Plus className="w-5 h-5 mr-2" /> NEW VIBE
