@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map, Target, Sparkles, Medal, Handshake, ChevronRight } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,33 @@ import { isNotificationEnabled } from "@/lib/notifications";
 import StatusComposerModal from "@/components/feed/StatusComposerModal";
 import StatusViewerModal from "@/components/feed/StatusViewerModal";
 import ConsentModal from "@/components/dashboard/ConsentModal";
+
+function SidebarLink({ to, icon, label, active, badge, accent }) {
+  return (
+    <Link
+      to={to}
+      className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+        active
+          ? "bg-[#00CFFF]/10 text-[#00CFFF] border border-[#00CFFF]/20"
+          : accent
+          ? "text-[#8A5CFF] hover:bg-[#8A5CFF]/10 hover:text-[#8A5CFF]"
+          : "text-gray-400 hover:bg-white/5 hover:text-white"
+      }`}
+    >
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition ${
+        active ? "bg-[#00CFFF]/15" : accent ? "bg-[#8A5CFF]/10 group-hover:bg-[#8A5CFF]/15" : "bg-[#1a2235] group-hover:bg-white/5"
+      }`}>
+        {icon}
+      </div>
+      <span className="text-sm font-semibold flex-1">{label}</span>
+      {badge && (
+        <span className="bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+          {badge}
+        </span>
+      )}
+    </Link>
+  );
+}
 
 export default function Feed() {
   const [user, setUser] = useState(null);
@@ -328,67 +355,88 @@ export default function Feed() {
       <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 bg-[#0B0F1A]/70 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
-        <div className="hidden lg:flex flex-col py-8 px-6 sticky top-0 h-[100dvh] border-r border-white/5 bg-transparent backdrop-blur-md overflow-y-auto hide-scrollbar pb-24">
+        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r border-white/5 bg-[#080C14]/80 backdrop-blur-md overflow-y-auto hide-scrollbar">
            {/* Logo */}
-           <Link to={createPageUrl("Home")} className="flex items-center mb-10 pl-2">
+           <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
              <img
                src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
                alt="LightMode"
-               className="h-14 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]"
+               className="h-12 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]"
              />
            </Link>
 
-           <div className="flex flex-col gap-1.5 flex-1">
-               <Link to={createPageUrl("Feed")} className="flex items-center gap-4 text-base font-bold bg-[#121826] text-[#00CFFF] px-4 py-3 rounded-2xl border border-white/5"><Home className="w-5 h-5" /> Home</Link>
-               <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Globe className="w-5 h-5" /> Explore</Link>
-               <Link to={createPageUrl("Discover")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Zap className="w-5 h-5" /> Discover</Link>
-               <Link to={createPageUrl("Notifications")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition relative">
-                 <Bell className="w-5 h-5" /> Notifications
-                 {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
-               </Link>
-               <Link to={createPageUrl("Dashboard")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Zap className="w-5 h-5" /> Dashboard</Link>
-               <Link to={createPageUrl("Profile")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
-                 <div className="w-5 h-5 rounded-full bg-gray-700 flex items-center justify-center text-[10px] uppercase text-white overflow-hidden">
-                   <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-                 </div>
-                 Profile
-               </Link>
-               <Link to={createPageUrl("Assistant")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><MessageSquare className="w-5 h-5" /> AI Assistant</Link>
-               {/* Resources dropdown */}
-               <button onClick={() => setIsResourcesOpen(v => !v)} className="w-full flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
-                 <span className="text-base">📚</span> Resources {isResourcesOpen ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
-               </button>
-               {isResourcesOpen && (
-                 <div className="flex flex-col gap-1 pl-2">
-                   <Link to={createPageUrl("KeepIt100")} className="flex items-center gap-3 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>💯</span> Keep It 100</Link>
-                   <Link to={createPageUrl("CodesOfTruth")} className="flex items-center gap-3 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🔐</span> Codes of Truth</Link>
-                   <Link to={createPageUrl("Resources")} className="flex items-center gap-3 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🌍</span> Other Resources</Link>
-                 </div>
-               )}
-               <Link to={createPageUrl("DailyDevotion")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">📖</span> Bible School</Link>
-               <Link to={createPageUrl("Home")} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span className="text-base">🔗</span> Back to Website</Link>
+           {/* Main Nav */}
+           <nav className="flex flex-col gap-1 flex-1">
+             {/* Section: Main */}
+             <p className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-600 px-3 mb-1">Main</p>
 
-               {/* More toggle */}
-               <button onClick={() => setIsMoreOpen(v => !v)} className="w-full flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
-                 <Settings className="w-5 h-5" /> More {isMoreOpen ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
-               </button>
-               {isMoreOpen && (
-                 <div className="flex flex-col gap-1 pl-2">
-                   <Link to={createPageUrl("Milestones")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🏆</span> Milestones</Link>
-                   <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🌍</span> Global Reach</Link>
-                   <Link to={createPageUrl("Challenges")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🎯</span> Challenges</Link>
-                   <Link to={createPageUrl("LightReflections")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>✨</span> Light Reflections</Link>
-                   <Link to={createPageUrl("FaithQuiz")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🏅</span> Faith Quiz</Link>
-                   <Link to={createPageUrl("Messages")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><MessageSquare className="w-4 h-4" /> Messages</Link>
-                   <Link to={createPageUrl("PrayerWall")} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🙏</span> Prayer Wall</Link>
-                   <Link to="/Settings" className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><Settings className="w-4 h-4" /> Settings</Link>
-                 </div>
-               )}
-             </div>
+             <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
+             <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
+             <SidebarLink to={createPageUrl("Discover")} icon={<Compass className="w-[18px] h-[18px]" />} label="Discover" />
+             <SidebarLink to={createPageUrl("Notifications")} icon={<Bell className="w-[18px] h-[18px]" />} label="Notifications" badge={notifications.length > 0 ? notifications.length : null} />
+             <SidebarLink to={createPageUrl("Dashboard")} icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
+             <SidebarLink to={createPageUrl("Profile")} icon={
+               <div className="w-[18px] h-[18px] rounded-full overflow-hidden border border-white/20 shrink-0">
+                 <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+               </div>
+             } label="Profile" />
+
+             {/* Section: Tools */}
+             <p className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-600 px-3 mt-4 mb-1">Tools</p>
+
+             <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
+
+             {/* Resources dropdown */}
+             <button
+               onClick={() => setIsResourcesOpen(v => !v)}
+               className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all duration-200 w-full text-left"
+             >
+               <div className="w-8 h-8 rounded-lg bg-[#1a2235] flex items-center justify-center shrink-0 group-hover:bg-[#00CFFF]/10 transition text-sm">📚</div>
+               <span className="text-sm font-semibold flex-1">Resources</span>
+               <ChevronRight className={`w-3.5 h-3.5 text-gray-600 transition-transform ${isResourcesOpen ? "rotate-90" : ""}`} />
+             </button>
+             {isResourcesOpen && (
+               <div className="flex flex-col gap-0.5 ml-3 pl-3 border-l border-white/5">
+                 <Link to={createPageUrl("KeepIt100")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><span>💯</span> Keep It 100</Link>
+                 <Link to={createPageUrl("CodesOfTruth")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><span>🔐</span> Codes of Truth</Link>
+                 <Link to={createPageUrl("Resources")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><span>🌍</span> Other Resources</Link>
+               </div>
+             )}
+
+             <SidebarLink to={createPageUrl("DailyDevotion")} icon={<BookOpen className="w-[18px] h-[18px]" />} label="Bible School" />
+             <SidebarLink to={createPageUrl("Home")} icon={<ExternalLink className="w-[18px] h-[18px]" />} label="Back to Website" />
+
+             {/* Section: More */}
+             <button
+               onClick={() => setIsMoreOpen(v => !v)}
+               className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all duration-200 w-full text-left mt-4"
+             >
+               <div className="w-8 h-8 rounded-lg bg-[#1a2235] flex items-center justify-center shrink-0 group-hover:bg-white/5 transition">
+                 <Settings className="w-[16px] h-[16px]" />
+               </div>
+               <span className="text-sm font-semibold flex-1">More</span>
+               <ChevronRight className={`w-3.5 h-3.5 text-gray-600 transition-transform ${isMoreOpen ? "rotate-90" : ""}`} />
+             </button>
+             {isMoreOpen && (
+               <div className="flex flex-col gap-0.5 ml-3 pl-3 border-l border-white/5">
+                 <Link to={createPageUrl("Milestones")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Trophy className="w-3.5 h-3.5 text-[#FFD000]" /> Milestones</Link>
+                 <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Map className="w-3.5 h-3.5 text-[#00CFFF]" /> Global Reach</Link>
+                 <Link to={createPageUrl("Challenges")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Target className="w-3.5 h-3.5 text-[#8A5CFF]" /> Challenges</Link>
+                 <Link to={createPageUrl("LightReflections")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Sparkles className="w-3.5 h-3.5 text-[#FFD000]" /> Light Reflections</Link>
+                 <Link to={createPageUrl("FaithQuiz")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Medal className="w-3.5 h-3.5 text-[#00CFFF]" /> Faith Quiz</Link>
+                 <Link to={createPageUrl("Messages")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><MessageSquare className="w-3.5 h-3.5" /> Messages</Link>
+                 <Link to={createPageUrl("PrayerWall")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Handshake className="w-3.5 h-3.5 text-[#8A5CFF]" /> Prayer Wall</Link>
+                 <Link to="/Settings" className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Settings className="w-3.5 h-3.5" /> Settings</Link>
+               </div>
+             )}
+           </nav>
            
-           <Button onClick={() => setIsDropModalOpen(true)} className="mt-6 shrink-0 bg-[#00CFFF] text-black font-black rounded-2xl w-full py-5 text-base hover:bg-white transition-colors shadow-[0_0_20px_rgba(0,207,255,0.3)]">
-             <Plus className="w-5 h-5 mr-2" /> NEW VIBE
-           </Button>
+           <button
+             onClick={() => setIsDropModalOpen(true)}
+             className="mt-6 shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black font-black rounded-2xl w-full py-3.5 text-sm hover:opacity-90 transition-opacity shadow-[0_0_24px_rgba(0,207,255,0.35)]"
+           >
+             <Plus className="w-4 h-4" /> NEW DROP
+           </button>
         </div>
 
         {/* Center Feed */}
@@ -425,9 +473,9 @@ export default function Feed() {
            <h2 className="text-xl font-bold text-white">For You</h2>
            <button
              onClick={() => setIsSearchOpen(true)}
-             className="relative w-64 flex items-center gap-2 bg-[#121826] border border-white/5 rounded-full py-2.5 pl-10 pr-4 text-sm text-gray-500 hover:border-[#00CFFF]/30 transition cursor-pointer text-left"
+             className="relative w-64 flex items-center gap-2 bg-[#121826] border border-white/10 rounded-full py-2.5 pl-10 pr-4 text-sm text-gray-500 hover:border-[#00CFFF]/40 hover:text-gray-300 transition cursor-pointer text-left"
            >
-             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00CFFF] w-4 h-4" />
              Search people, drops, groups...
            </button>
         </div>
@@ -643,54 +691,62 @@ export default function Feed() {
               <Link to={createPageUrl("Home")} className="flex items-center mb-10">
                 <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="LightMode" className="h-12 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]" />
               </Link>
-              <div className="flex flex-col gap-1.5 flex-1">
-                <Link to={createPageUrl("Feed")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold bg-[#121826] text-[#00CFFF] px-4 py-3 rounded-2xl border border-white/5"><Home className="w-5 h-5" /> Home</Link>
-                <Link to={createPageUrl("GlowGroups")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Globe className="w-5 h-5" /> Explore</Link>
-                <Link to={createPageUrl("Discover")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Zap className="w-5 h-5" /> Discover</Link>
-                <Link to={createPageUrl("Notifications")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition relative">
-                  <Bell className="w-5 h-5" /> Notifications
-                  {notifications.length > 0 && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{notifications.length}</span>}
-                </Link>
-                <Link to={createPageUrl("Dashboard")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><Zap className="w-5 h-5" /> Dashboard</Link>
-                <Link to={createPageUrl("Profile")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
-                  <div className="w-5 h-5 rounded-full bg-gray-700 overflow-hidden"><img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" /></div>
-                  Profile
-                </Link>
-                <Link to={createPageUrl("Assistant")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><MessageSquare className="w-5 h-5" /> AI Assistant</Link>
+              <nav className="flex flex-col gap-1 flex-1">
+                <p className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-600 px-3 mb-1">Main</p>
+                <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
+                <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
+                <SidebarLink to={createPageUrl("Discover")} icon={<Compass className="w-[18px] h-[18px]" />} label="Discover" />
+                <SidebarLink to={createPageUrl("Notifications")} icon={<Bell className="w-[18px] h-[18px]" />} label="Notifications" badge={notifications.length > 0 ? notifications.length : null} />
+                <SidebarLink to={createPageUrl("Dashboard")} icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
+                <SidebarLink to={createPageUrl("Profile")} icon={
+                  <div className="w-[18px] h-[18px] rounded-full overflow-hidden border border-white/20 shrink-0">
+                    <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                  </div>
+                } label="Profile" />
+
+                <p className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-600 px-3 mt-4 mb-1">Tools</p>
+                <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
+
                 {/* Resources dropdown */}
-                <button onClick={() => setIsResourcesOpen(v => !v)} className="w-full flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
-                  <span>📚</span> Resources {isResourcesOpen ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
+                <button onClick={() => setIsResourcesOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition w-full text-left">
+                  <div className="w-8 h-8 rounded-lg bg-[#1a2235] flex items-center justify-center shrink-0 text-sm">📚</div>
+                  <span className="text-sm font-semibold flex-1">Resources</span>
+                  <ChevronRight className={`w-3.5 h-3.5 text-gray-600 transition-transform ${isResourcesOpen ? "rotate-90" : ""}`} />
                 </button>
                 {isResourcesOpen && (
-                  <div className="flex flex-col gap-1 pl-2">
-                    <Link to={createPageUrl("KeepIt100")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-3 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>💯</span> Keep It 100</Link>
-                    <Link to={createPageUrl("CodesOfTruth")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-3 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🔐</span> Codes of Truth</Link>
-                    <Link to={createPageUrl("Resources")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-3 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🌍</span> Other Resources</Link>
+                  <div className="flex flex-col gap-0.5 ml-3 pl-3 border-l border-white/5">
+                    <Link to={createPageUrl("KeepIt100")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><span>💯</span> Keep It 100</Link>
+                    <Link to={createPageUrl("CodesOfTruth")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><span>🔐</span> Codes of Truth</Link>
+                    <Link to={createPageUrl("Resources")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><span>🌍</span> Other Resources</Link>
                   </div>
                 )}
-                <Link to={createPageUrl("DailyDevotion")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span>📖</span> Bible School</Link>
-                <Link to={createPageUrl("Home")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition"><span>🔗</span> Back to Website</Link>
+                <SidebarLink to={createPageUrl("DailyDevotion")} icon={<BookOpen className="w-[18px] h-[18px]" />} label="Bible School" />
+                <SidebarLink to={createPageUrl("Home")} icon={<ExternalLink className="w-[18px] h-[18px]" />} label="Back to Website" />
 
                 {/* More toggle */}
-                <button onClick={() => setIsMoreOpen(v => !v)} className="w-full flex items-center gap-4 text-base font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-3 rounded-2xl transition">
-                  <Settings className="w-5 h-5" /> More {isMoreOpen ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
+                <button onClick={() => setIsMoreOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition w-full text-left mt-4">
+                  <div className="w-8 h-8 rounded-lg bg-[#1a2235] flex items-center justify-center shrink-0">
+                    <Settings className="w-[16px] h-[16px]" />
+                  </div>
+                  <span className="text-sm font-semibold flex-1">More</span>
+                  <ChevronRight className={`w-3.5 h-3.5 text-gray-600 transition-transform ${isMoreOpen ? "rotate-90" : ""}`} />
                 </button>
                 {isMoreOpen && (
-                  <div className="flex flex-col gap-1 pl-2">
-                    <Link to={createPageUrl("Milestones")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🏆</span> Milestones</Link>
-                    <Link to={createPageUrl("GlobalReach")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🌍</span> Global Reach</Link>
-                    <Link to={createPageUrl("Challenges")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🎯</span> Challenges</Link>
-                    <Link to={createPageUrl("LightReflections")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>✨</span> Light Reflections</Link>
-                    <Link to={createPageUrl("FaithQuiz")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🏅</span> Faith Quiz</Link>
-                    <Link to={createPageUrl("Messages")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><MessageSquare className="w-4 h-4" /> Messages</Link>
-                    <Link to={createPageUrl("PrayerWall")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><span>🙏</span> Prayer Wall</Link>
-                    <Link to="/Settings" onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-4 text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white px-4 py-2.5 rounded-2xl transition"><Settings className="w-4 h-4" /> Settings</Link>
+                  <div className="flex flex-col gap-0.5 ml-3 pl-3 border-l border-white/5">
+                    <Link to={createPageUrl("Milestones")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Trophy className="w-3.5 h-3.5 text-[#FFD000]" /> Milestones</Link>
+                    <Link to={createPageUrl("GlobalReach")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Map className="w-3.5 h-3.5 text-[#00CFFF]" /> Global Reach</Link>
+                    <Link to={createPageUrl("Challenges")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Target className="w-3.5 h-3.5 text-[#8A5CFF]" /> Challenges</Link>
+                    <Link to={createPageUrl("LightReflections")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Sparkles className="w-3.5 h-3.5 text-[#FFD000]" /> Light Reflections</Link>
+                    <Link to={createPageUrl("FaithQuiz")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Medal className="w-3.5 h-3.5 text-[#00CFFF]" /> Faith Quiz</Link>
+                    <Link to={createPageUrl("Messages")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><MessageSquare className="w-3.5 h-3.5" /> Messages</Link>
+                    <Link to={createPageUrl("PrayerWall")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Handshake className="w-3.5 h-3.5 text-[#8A5CFF]" /> Prayer Wall</Link>
+                    <Link to="/Settings" onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Settings className="w-3.5 h-3.5" /> Settings</Link>
                   </div>
                 )}
-              </div>
-              <Button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 bg-[#00CFFF] text-black font-black rounded-2xl w-full py-5 text-base hover:bg-white transition-colors">
-                <Plus className="w-5 h-5 mr-2" /> NEW VIBE
-              </Button>
+              </nav>
+              <button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black font-black rounded-2xl w-full py-4 text-sm hover:opacity-90 transition-opacity shadow-[0_0_24px_rgba(0,207,255,0.35)]">
+                <Plus className="w-4 h-4" /> NEW DROP
+              </button>
             </div>
           </div>
         )}
