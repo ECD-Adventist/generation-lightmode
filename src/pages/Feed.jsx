@@ -473,7 +473,7 @@ export default function Feed() {
            <h2 className="text-xl font-bold text-white">For You</h2>
            <button
              onClick={() => setIsSearchOpen(true)}
-             className="relative w-64 flex items-center gap-2 bg-[#121826] border border-white/10 rounded-full py-2.5 pl-10 pr-4 text-sm text-gray-500 hover:border-[#00CFFF]/40 hover:text-gray-300 transition cursor-pointer text-left"
+             className="relative w-72 flex items-center gap-2 bg-[#121826] border border-white/10 rounded-full py-2.5 pl-9 pr-4 text-sm text-gray-500 hover:border-[#00CFFF]/40 hover:text-gray-300 transition cursor-pointer text-left whitespace-nowrap overflow-hidden"
            >
              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00CFFF] w-4 h-4" />
              Search people, drops, groups...
