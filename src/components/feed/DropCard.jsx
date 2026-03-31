@@ -227,7 +227,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         {/* Media Image */}
         {drop.media_url && (
-          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="w-full h-auto object-contain" />
+          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="w-full h-auto object-contain max-h-[600px]" />
         )}
 
         {/* Text Content (if no media) */}

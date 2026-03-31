@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera, X } from "lucide-react";
@@ -57,7 +57,9 @@ export default function Feed() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
+  const [displayCount, setDisplayCount] = useState(10);
   const queryClient = useQueryClient();
+  const feedEndRef = useRef(null);
 
   useEffect(() => {
     async function checkAuth() {
@@ -333,6 +335,21 @@ export default function Feed() {
       .slice(0, 3)
       .map(([tag, count]) => ({ tag, count }));
   }, [drops]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && displayCount < filteredDrops.length) {
+          setDisplayCount(prev => prev + 10);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (feedEndRef.current) observer.observe(feedEndRef.current);
+    return () => observer.disconnect();
+  }, [displayCount, filteredDrops.length]);
 
   // No blocking loading state — render feed immediately, user loads in background
 
@@ -620,19 +637,24 @@ export default function Feed() {
               )}
             </div>
           ) : (
-            filteredDrops.map(drop => (
-              <DropCard 
-                key={drop.id} 
-                drop={drop} 
-                user={user} 
-                dropUser={getUserInfo(drop.user_email)}
-                likeMutation={likeMutation}
-                handleShare={handleShare}
-                userLikes={userLikes}
-                allUsers={users}
-                savedDropRecords={savedDropRecords}
-              />
-            ))
+            <>
+              {filteredDrops.slice(0, displayCount).map(drop => (
+                <DropCard 
+                  key={drop.id} 
+                  drop={drop} 
+                  user={user} 
+                  dropUser={getUserInfo(drop.user_email)}
+                  likeMutation={likeMutation}
+                  handleShare={handleShare}
+                  userLikes={userLikes}
+                  allUsers={users}
+                  savedDropRecords={savedDropRecords}
+                />
+              ))}
+              <div ref={feedEndRef} className="py-6 text-center text-gray-500 text-sm">
+                {displayCount < filteredDrops.length ? "Loading more..." : filteredDrops.length === 0 ? "" : "No more posts"}
+              </div>
+            </>
           )}
         </div>
         
