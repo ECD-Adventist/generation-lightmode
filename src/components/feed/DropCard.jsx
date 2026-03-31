@@ -255,9 +255,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         <div className="absolute right-3 bottom-6 z-20 flex flex-col items-center gap-5">
           <div className="flex flex-col items-center gap-1.5">
             <button 
-              onClick={(e) => { e.stopPropagation(); likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name}); }} 
-              disabled={userHasLiked}
-              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+              onClick={(e) => { e.stopPropagation(); if (!userHasLiked) likeMutation.mutate({id: drop.id, likes: drop.likes_count || 0, authorEmail: drop.user_email, authorName: dropUser.full_name}); }} 
+              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
               title={userHasLiked ? "You already liked this" : "Like this drop"}
             >
               <Heart className={`w-6 h-6 transition-all ${userHasLiked ? "text-red-500 fill-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : drop.likes_count > 0 ? "text-red-500 fill-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "text-white hover:scale-110"}`} />
