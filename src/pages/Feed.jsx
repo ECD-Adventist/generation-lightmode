@@ -154,21 +154,22 @@ export default function Feed() {
   });
 
   const likeMutation = useMutation({
-    mutationFn: async ({ id, likes, authorEmail, authorName }) => {
+    mutationFn: async ({ id, likes, authorEmail, authorName, action = 'like' }) => {
       if (!user) { toast.error("Please log in to like drops"); return; }
       
       // Call backend function for atomic like operation
       const response = await base44.functions.invoke('handleLikeDrop', {
         drop_id: id,
         author_email: authorEmail,
-        author_name: authorName
+        author_name: authorName,
+        action: action
       });
 
       if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to like drop');
+        throw new Error(response.data.error || 'Failed to ' + action + ' drop');
       }
 
-      toast.success("❤️ Liked!");
+      toast.success(action === 'unlike' ? "❤️ Unliked!" : "❤️ Liked!");
       return response.data;
     },
     // Optimistic update
