@@ -1,9 +1,80 @@
 import React, { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Search, Edit2, Trash2, Shield, Loader2, Calendar, Users, Activity, Filter, MapPin, Zap, AlertCircle, Mail } from "lucide-react";
+import { Search, Edit2, Trash2, Shield, Loader2, Calendar, Users, Activity, Filter, MapPin, Zap, AlertCircle, Mail, X, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+
+const ROLES = ["user", "admin", "super_admin"];
+
+function EditRoleModal({ targetUser, onClose, onSave }) {
+  const [role, setRole] = useState(targetUser.role || "user");
+  const [saving, setSaving] = useState(false);
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div className="bg-[#121826] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-white text-lg">Edit Role</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-white transition"><X size={18} /></button>
+        </div>
+        <p className="text-sm text-gray-400 mb-4">Changing role for <span className="text-white font-semibold">{targetUser.full_name || targetUser.email}</span></p>
+        <div className="space-y-2 mb-6">
+          {ROLES.map(r => (
+            <button key={r} onClick={() => setRole(r)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition ${role === r ? "bg-[#00CFFF]/15 border-[#00CFFF]/40 text-[#00CFFF]" : "border-white/8 text-gray-400 hover:border-white/20 hover:text-white"}`}>
+              <Shield size={14} />
+              <span className="capitalize">{r.replace("_", " ")}</span>
+              {role === r && <Check size={14} className="ml-auto" />}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-white/10 text-sm text-gray-400 hover:text-white transition">Cancel</button>
+          <button
+            disabled={saving}
+            onClick={async () => {
+              setSaving(true);
+              await onSave(targetUser.email, role);
+              setSaving(false);
+              onClose();
+            }}
+            className="flex-1 py-2.5 rounded-xl bg-[#00CFFF] text-black text-sm font-bold hover:bg-[#00CFFF]/80 transition flex items-center justify-center gap-2"
+          >
+            {saving ? <Loader2 size={14} className="animate-spin" /> : null}
+            Save Role
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeleteConfirmModal({ targetUser, onClose, onConfirm }) {
+  const [deleting, setDeleting] = useState(false);
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div className="bg-[#121826] border border-red-500/20 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-red-400 text-lg">Remove User</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-white transition"><X size={18} /></button>
+        </div>
+        <p className="text-sm text-gray-300 mb-2">Are you sure you want to remove <span className="text-white font-semibold">{targetUser.full_name || targetUser.email}</span> from the platform?</p>
+        <p className="text-xs text-gray-500 mb-6">This action cannot be undone. All their data will remain but access will be revoked.</p>
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-white/10 text-sm text-gray-400 hover:text-white transition">Cancel</button>
+          <button
+            disabled={deleting}
+            onClick={async () => { setDeleting(true); await onConfirm(); setDeleting(false); onClose(); }}
+            className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition flex items-center justify-center gap-2"
+          >
+            {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminUsersTab({ user }) {
   const [search, setSearch] = useState("");
@@ -11,6 +82,9 @@ export default function AdminUsersTab({ user }) {
   const [timeFilter, setTimeFilter] = useState("all");
   const [filterIncomplete, setFilterIncomplete] = useState(false);
   const [sendingReminders, setSendingReminders] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [deletingUser, setDeletingUser] = useState(null);
+  const queryClient = useQueryClient();
   
   const { data: users = [], isLoading } = useQuery({ 
     queryKey: ["admin_users_full"], 
@@ -67,16 +141,36 @@ export default function AdminUsersTab({ user }) {
     return { total: users.length, last7Days, last30Days };
   }, [users]);
 
-  const handleEditRole = (targetUser) => {
-    toast.info(`Edit role for ${targetUser.email} feature is restricted. Real role changes require explicit backend logic.`);
+  const handleSaveRole = async (email, newRole) => {
+    try {
+      const allUsers = await base44.entities.User.filter({ email });
+      if (allUsers.length > 0) {
+        await base44.entities.User.update(allUsers[0].id, { role: newRole });
+        toast.success(`Role updated to "${newRole}" for ${email}`);
+        queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
+      }
+    } catch {
+      toast.error("Failed to update role.");
+    }
   };
 
-  const handleSuspend = (targetUser) => {
-    toast.error(`Suspension action for ${targetUser.email} logged.`);
+  const handleDeleteUser = async (targetUser) => {
+    try {
+      const allUsers = await base44.entities.User.filter({ email: targetUser.email });
+      if (allUsers.length > 0) {
+        await base44.entities.User.delete(allUsers[0].id);
+        toast.success(`${targetUser.full_name || targetUser.email} removed.`);
+        queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
+      }
+    } catch {
+      toast.error("Failed to remove user.");
+    }
   };
 
   return (
     <div className="space-y-6">
+      {editingUser && <EditRoleModal targetUser={editingUser} onClose={() => setEditingUser(null)} onSave={handleSaveRole} />}
+      {deletingUser && <DeleteConfirmModal targetUser={deletingUser} onClose={() => setDeletingUser(null)} onConfirm={() => handleDeleteUser(deletingUser)} />}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white">Users Directory</h1>
@@ -233,10 +327,10 @@ export default function AdminUsersTab({ user }) {
                       {u.created_date ? new Date(u.created_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'}
                     </td>
                     <td className="p-4 text-right">
-                      <button onClick={() => handleEditRole(u)} className="p-2 text-gray-400 hover:text-[#00CFFF] transition rounded-lg hover:bg-[#00CFFF]/10 mr-1" title="Edit Role">
+                      <button onClick={() => setEditingUser(u)} className="p-2 text-gray-400 hover:text-[#00CFFF] transition rounded-lg hover:bg-[#00CFFF]/10 mr-1" title="Edit Role">
                         <Edit2 size={16} />
                       </button>
-                      <button onClick={() => handleSuspend(u)} className="p-2 text-gray-400 hover:text-red-400 transition rounded-lg hover:bg-red-500/10" title="Suspend User">
+                      <button onClick={() => setDeletingUser(u)} className="p-2 text-gray-400 hover:text-red-400 transition rounded-lg hover:bg-red-500/10" title="Remove User">
                         <Trash2 size={16} />
                       </button>
                     </td>

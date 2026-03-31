@@ -13,6 +13,8 @@ import AdminCodesTab from "../components/admin/AdminCodesTab";
 import AdminSettingsTab from "../components/admin/AdminSettingsTab";
 import AdminPlaceholderTab from "../components/admin/AdminPlaceholderTab";
 import AdminAssistantTrainingTab from "../components/admin/AdminAssistantTrainingTab";
+import AdminCountriesTab from "../components/admin/AdminCountriesTab";
+import AdminActivityFeedTab from "../components/admin/AdminActivityFeedTab";
 
 export default function AdminCenter() {
   const [user, setUser] = useState(null);
@@ -69,7 +71,8 @@ export default function AdminCenter() {
       case "drops": return <AdminGlowDropsTab />;
       case "challenges": return <AdminChallengesTab />;
       case "leaderboards": return <AdminPlaceholderTab title="Leaderboards Control" description="Adjust rankings and highlight champions." />;
-      case "countries": return <AdminPlaceholderTab title="Country Management" description="Manage ECD regions and global reach stats." />;
+      case "countries": return <AdminCountriesTab />;
+      case "activity": return <AdminActivityFeedTab currentUser={user} />;
       case "codes": return <AdminCodesTab sourceFilter="codes_of_truth" title="Codes of Truth" />;
       case "keepit100": return <AdminCodesTab sourceFilter="keeping_it_100" title="Keep It 100" />;
       case "media": return <AdminPlaceholderTab title="Media Library" description="Upload and organize assets, videos, and images." />;

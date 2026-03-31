@@ -12,6 +12,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin }) 
     { id: "challenges", label: "Challenges", icon: <Target size={18} /> },
     { id: "leaderboards", label: "Leaderboards", icon: <Trophy size={18} /> },
     { id: "countries", label: "Countries", icon: <Globe size={18} /> },
+    { id: "activity", label: "Activity Feed", icon: <span style={{fontSize:16}}>⚡</span> },
     { id: "codes", label: "Codes of Truth", icon: <Hash size={18} /> },
     { id: "keepit100", label: "Keep It 100", icon: <span style={{fontSize:16}}>💯</span> },
     { id: "media", label: "Media Library", icon: <ImageIcon size={18} /> },
