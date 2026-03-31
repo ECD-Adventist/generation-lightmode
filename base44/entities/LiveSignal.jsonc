@@ -31,16 +31,7 @@
     "payload"
   ],
   "rls": {
-    "create": {
-      "$or": [
-        {
-          "data.sender_email": "{{user.email}}"
-        },
-        {
-          "data.recipient_email": "{{user.email}}"
-        }
-      ]
-    },
+    "create": true,
     "read": {
       "$or": [
         {
@@ -52,6 +43,15 @@
       ]
     },
     "update": false,
-    "delete": false
+    "delete": {
+      "$or": [
+        {
+          "data.sender_email": "{{user.email}}"
+        },
+        {
+          "data.recipient_email": "{{user.email}}"
+        }
+      ]
+    }
   }
 }
