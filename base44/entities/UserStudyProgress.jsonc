@@ -26,8 +26,27 @@
     "plan_id"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
     "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "GlowGroup Leader"
+          }
+        }
+      ]
+    },
+    "update": {
       "$or": [
         {
           "data.user_email": "{{user.email}}"
@@ -39,11 +58,17 @@
         }
       ]
     },
-    "update": {
-      "data.user_email": "{{user.email}}"
-    },
     "delete": {
-      "data.user_email": "{{user.email}}"
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     }
   }
 }
