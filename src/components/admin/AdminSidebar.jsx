@@ -1,5 +1,5 @@
 import React from "react";
-import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone } from "lucide-react";
+import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map, UserCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -13,6 +13,8 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
     { id: "challenges", label: "Challenges", icon: <Target size={18} /> },
     { id: "leaderboards", label: "Leaderboards", icon: <Trophy size={18} /> },
     { id: "countries", label: "Countries", icon: <Globe size={18} /> },
+    { id: "territory-map", label: "Territory Map", icon: <Map size={18} /> },
+    { id: "territory-assign", label: "Territory Assign", icon: <UserCheck size={18} /> },
     { id: "activity", label: "Activity Feed", icon: <span style={{fontSize:16}}>⚡</span> },
     { id: "codes", label: "Codes of Truth", icon: <Hash size={18} /> },
     { id: "keepit100", label: "Keep It 100", icon: <span style={{fontSize:16}}>💯</span> },

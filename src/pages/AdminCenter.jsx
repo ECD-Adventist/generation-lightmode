@@ -22,13 +22,21 @@ import AdminNotificationsTab from "../components/admin/AdminNotificationsTab";
 import AdminBadgesTab from "../components/admin/AdminBadgesTab";
 import AdminMediaTab from "../components/admin/AdminMediaTab";
 import AdminAnnouncementsTab from "../components/admin/AdminAnnouncementsTab";
+import AdminTerritoryMapTab from "../components/admin/AdminTerritoryMapTab";
+import AdminTerritoryAssignTab from "../components/admin/AdminTerritoryAssignTab";
 
 export default function AdminCenter() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
   const urlParams = new URLSearchParams(window.location.search);
-  const initialTab = urlParams.get("tab") || "dashboard";
+  // Role-based default tab: regional admins land on territory-map, others on dashboard
+  const REGIONAL_ROLES = ["church_admin", "conference_field_admin", "union_admin", "country_admin", "ecd_admin"];
+  const getDefaultTab = (role) => {
+    if (REGIONAL_ROLES.includes(role)) return "territory-map";
+    return "dashboard";
+  };
+  const initialTab = urlParams.get("tab") || "dashboard"; // will be overridden after auth
   const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
@@ -40,6 +48,10 @@ export default function AdminCenter() {
       }
       const me = await base44.auth.me();
       setUser(me);
+      // Set role-based default tab if no tab param in URL
+      if (!urlParams.get("tab") && REGIONAL_ROLES.includes(me?.role)) {
+        setActiveTab("territory-map");
+      }
       setLoading(false);
     }
     checkAuth();
@@ -142,6 +154,8 @@ export default function AdminCenter() {
       case "challenges": return <AdminChallengesTab />;
       case "leaderboards": return <AdminLeaderboardsTab />;
       case "countries": return <AdminCountriesTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "territory-map": return <AdminTerritoryMapTab currentUser={user} />;
+      case "territory-assign": return <AdminTerritoryAssignTab />;
       case "activity": return <AdminActivityFeedTab currentUser={user} />;
       case "codes": return <AdminCodesTab sourceFilter="codes_of_truth" title="Codes of Truth" />;
       case "keepit100": return <AdminCodesTab sourceFilter="keeping_it_100" title="Keep It 100" />;
