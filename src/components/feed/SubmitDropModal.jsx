@@ -8,7 +8,7 @@ import { Loader2, Sparkles, ImagePlus, X, Zap, Hash, BookOpen, ChevronRight } fr
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
-import ImageCropperModal from "@/components/ui/ImageCropperModal";
+import ImageCropperModal from "@/components/feed/ImageCropperModal";
 
 // Compress image to max 150KB
 async function compressImage(file) {
@@ -69,7 +69,7 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [aiLoading, setAiLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [cropData, setCropData] = useState(null);
+  const [cropSrc, setCropSrc] = useState(null);
   const [mood, setMood] = useState("");
   const [showSuggestion, setShowSuggestion] = useState(true);
   const fileInputRef = useRef(null);
@@ -96,16 +96,20 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
       toast.error("File size must be under 10MB");
       return;
     }
-    setCropData({ file: selected, type: "post", aspectRatio: 0.75 });
+    // Open cropper
+    const reader = new FileReader();
+    reader.onload = (ev) => setCropSrc(ev.target.result);
+    reader.readAsDataURL(selected);
     e.target.value = null;
   };
 
-  const handleCropComplete = (croppedFile) => {
-    setCropData(null);
+  const handleCropDone = async (blob) => {
+    const croppedFile = new File([blob], "cropped.jpg", { type: "image/jpeg" });
     setFile(croppedFile);
     const reader = new FileReader();
     reader.onload = (ev) => setPreview(ev.target.result);
     reader.readAsDataURL(croppedFile);
+    setCropSrc(null);
   };
 
   const clearFile = () => {
@@ -201,6 +205,7 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
     setFormData({ verse: "", reflection: "", hashtags: "#FaithAlwaysOn", category: "Devotional" });
     setFile(null);
     setPreview(null);
+    setCropSrc(null);
     setMood("");
     setShowSuggestion(true);
     onClose();
@@ -208,15 +213,14 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
 
   return (
     <>
-      {cropData && (
-        <ImageCropperModal
-          file={cropData.file}
-          aspectRatio={cropData.aspectRatio}
-          onCancel={() => setCropData(null)}
-          onCrop={handleCropComplete}
-        />
-      )}
-      <Dialog open={isOpen} onOpenChange={resetAndClose}>
+    {cropSrc && (
+      <ImageCropperModal
+        src={cropSrc}
+        onCrop={handleCropDone}
+        onCancel={() => setCropSrc(null)}
+      />
+    )}
+    <Dialog open={isOpen} onOpenChange={resetAndClose}>
       <DialogContent className="sm:max-w-lg bg-[#0B0F1A] text-white border border-[#00CFFF]/20 max-h-[92vh] overflow-y-auto z-[2000] p-0 rounded-3xl shadow-[0_0_60px_rgba(0,207,255,0.15)] [&>button]:text-white [&>button]:hover:text-[#00CFFF]">
         {/* Header */}
         <div className="relative px-6 pt-6 pb-4">
