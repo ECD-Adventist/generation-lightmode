@@ -203,7 +203,7 @@ export default function OnboardingModal({ isOpen, onCompleted }) {
                   value={dob}
                   onChange={e => setDob(e.target.value)}
                   max={new Date().toISOString().split("T")[0]}
-                  className="w-full bg-[#121826] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00CFFF]/40 text-sm [color-scheme:dark]"
+                  className="w-full bg-[#121826] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00CFFF]/40 text-sm [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:brightness-200 [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:scale-125"
                 />
               </div>
             </>
