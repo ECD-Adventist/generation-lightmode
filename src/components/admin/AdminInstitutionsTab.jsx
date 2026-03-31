@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Clock, Building2, Mail, Phone, Globe, MapPin, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Building2, Mail, Phone, Globe, MapPin } from "lucide-react";
 
 export default function AdminInstitutionsTab() {
   const [filter, setFilter] = useState("pending");
-  const [updatingId, setUpdatingId] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: applications = [], isLoading } = useQuery({
@@ -16,25 +15,10 @@ export default function AdminInstitutionsTab() {
       : base44.entities.Institution.filter({ status: filter }, "-submitted_at")
   });
 
-  const updateStatus = async (id, status, applicantEmail, institutionName) => {
-    try {
-      setUpdatingId(id);
-      await base44.entities.Institution.update(id, { status });
-      
-      // Send notification email
-      await base44.functions.invoke('notifyInstitutionApplicationDecision', {
-        applicant_email: applicantEmail,
-        institution_name: institutionName,
-        status: status
-      });
-      
-      queryClient.invalidateQueries({ queryKey: ["institutions"] });
-      toast.success(`Application ${status} and email sent`);
-    } catch (error) {
-      toast.error(`Failed: ${error.message}`);
-    } finally {
-      setUpdatingId(null);
-    }
+  const updateStatus = async (id, status) => {
+    await base44.entities.Institution.update(id, { status });
+    queryClient.invalidateQueries({ queryKey: ["institutions"] });
+    toast.success(`Application ${status}`);
   };
 
   const statusColors = {
@@ -127,18 +111,16 @@ export default function AdminInstitutionsTab() {
                 {app.status === "pending" && (
                   <div className="flex gap-2 shrink-0">
                     <button
-                      disabled={updatingId === app.id}
-                      onClick={() => updateStatus(app.id, "approved", app.applicant_email, app.institution_name)}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-green-500/15 border border-green-500/30 text-green-400 text-sm font-bold hover:bg-green-500/25 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => updateStatus(app.id, "approved")}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-green-500/15 border border-green-500/30 text-green-400 text-sm font-bold hover:bg-green-500/25 transition"
                     >
-                      {updatingId === app.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />} Approve
+                      <CheckCircle className="w-4 h-4" /> Approve
                     </button>
                     <button
-                      disabled={updatingId === app.id}
-                      onClick={() => updateStatus(app.id, "rejected", app.applicant_email, app.institution_name)}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-sm font-bold hover:bg-red-500/25 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => updateStatus(app.id, "rejected")}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-sm font-bold hover:bg-red-500/25 transition"
                     >
-                      {updatingId === app.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />} Reject
+                      <XCircle className="w-4 h-4" /> Reject
                     </button>
                   </div>
                 )}

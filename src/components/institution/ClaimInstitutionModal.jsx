@@ -57,11 +57,7 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
         toast.error("Please fill in procedures and commitment");
         return;
       }
-      setStep(3);
-      return;
-    }
 
-    if (step === 3) {
       setLoading(true);
       try {
         let logoUrl = "";
@@ -123,7 +119,7 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
         <DialogContent className="bg-[#121826] border-white/10 text-white max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-[#00CFFF]">
-              {step === 1 ? "Institution Details" : step === 2 ? "Commitment & Procedures" : "Acknowledge & Submit"}
+              {step === 1 ? "Institution Details" : "Commitment & Procedures"}
             </DialogTitle>
           </DialogHeader>
 
@@ -220,7 +216,7 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                   <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoSelect} />
                 </div>
               </>
-            ) : step === 2 ? (
+            ) : (
               <>
                 <div>
                   <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Procedures & Guidelines *</label>
@@ -252,51 +248,14 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                   </p>
                 </div>
               </>
-            ) : step === 3 ? (
-              <>
-                <div className="space-y-4">
-                  <div className="bg-gradient-to-r from-[#00CFFF]/10 to-[#8A5CFF]/10 border border-[#00CFFF]/20 rounded-xl p-5">
-                    <h4 className="text-sm font-bold text-[#00CFFF] mb-3 uppercase tracking-wider">Important Commitment</h4>
-                    <p className="text-sm text-gray-300 leading-relaxed mb-4">
-                      As an institution dashboard administrator, you commit to:
-                    </p>
-                    <ul className="text-xs text-gray-400 space-y-2 ml-4">
-                      <li>• <span className="font-semibold text-gray-300">Full Territory Administration</span> - Managing all institutional activities, members, and groups within your territory</li>
-                      <li>• <span className="font-semibold text-gray-300">Regular Supervision</span> - Conducting periodic reviews and monitoring compliance with ECD guidelines</li>
-                      <li>• <span className="font-semibold text-gray-300">Community Standards</span> - Ensuring all members follow the Community Guidelines and Codes of Conduct</li>
-                      <li>• <span className="font-semibold text-gray-300">Reporting & Documentation</span> - Maintaining accurate records and submitting required reports to ECD authorities</li>
-                      <li>• <span className="font-semibold text-gray-300">Support & Development</span> - Providing guidance, training, and support to institution members and leaders</li>
-                      <li>• <span className="font-semibold text-gray-300">Compliance Audits</span> - Cooperating with ECD supervisors during compliance audits and reviews</li>
-                    </ul>
-                  </div>
-
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                    <p className="text-xs text-gray-400 leading-relaxed">
-                      By submitting this application, you acknowledge that you have read and agree to the Commitment & Procedures outlined above. Your institution dashboard application will be reviewed by our super admin team. You'll be notified once it's approved or if additional information is needed.
-                    </p>
-                  </div>
-
-                  <div className="flex items-start gap-3 bg-white/5 rounded-xl p-4">
-                    <input
-                      type="checkbox"
-                      id="commitment-agree"
-                      className="mt-1 w-4 h-4 rounded border-white/20 accent-[#00CFFF] cursor-pointer"
-                      required
-                    />
-                    <label htmlFor="commitment-agree" className="text-xs text-gray-400 cursor-pointer">
-                      I confirm that I have read and understand the commitment and procedures for institutional dashboard administration, and I agree to fulfill all responsibilities outlined above.
-                    </label>
-                  </div>
-                </div>
-              </>
-            ) : null}
+            )}
 
             <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-              {step > 1 && (
+              {step === 2 && (
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => setStep(step - 1)}
+                  onClick={() => setStep(1)}
                   className="h-12 px-6"
                 >
                   Back
@@ -315,7 +274,7 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                 disabled={loading}
                 className="bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black font-bold h-12 px-8 rounded-xl"
               >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : step === 1 ? "Next" : step === 2 ? "Next" : "Submit Application"}
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : step === 1 ? "Next" : "Submit Application"}
               </Button>
             </div>
           </form>
