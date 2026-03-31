@@ -21,8 +21,7 @@
     },
     "privacy_consent_given": {
       "type": "boolean",
-      "default": false,
-      "description": "Whether the user has accepted the privacy and communication consent"
+      "default": false
     },
     "gender": {
       "type": "string",
@@ -30,24 +29,32 @@
         "male",
         "female",
         "prefer_not_to_say"
-      ],
-      "description": "User's gender"
+      ]
     },
     "date_of_birth": {
       "type": "string",
-      "format": "date",
-      "description": "User's date of birth (used to calculate age)"
+      "format": "date"
     },
     "bio": {
-      "type": "string",
-      "description": "Short user bio"
+      "type": "string"
     },
     "country": {
       "type": "string"
     },
-    "phone": {
+    "city": {
       "type": "string",
-      "description": "User's phone number"
+      "description": "User's city or town"
+    },
+    "address": {
+      "type": "string",
+      "description": "User's street address"
+    },
+    "postal_code": {
+      "type": "string",
+      "description": "User's postal / zip code"
+    },
+    "phone": {
+      "type": "string"
     },
     "glow_score": {
       "type": "number",
@@ -63,20 +70,16 @@
       "type": "string"
     },
     "territory_name": {
-      "type": "string",
-      "description": "Name of the administrative territory this admin manages"
+      "type": "string"
     },
     "territory_level": {
-      "type": "string",
-      "description": "Administrative level of the territory"
+      "type": "string"
     },
     "territory_countries": {
-      "type": "string",
-      "description": "Comma-separated list of countries in this admin's territory"
+      "type": "string"
     },
     "territory_map_url": {
-      "type": "string",
-      "description": "URL of the uploaded territory map image"
+      "type": "string"
     },
     "territory_status": {
       "type": "string",
@@ -85,8 +88,7 @@
         "approved",
         "rejected"
       ],
-      "default": "pending",
-      "description": "Approval status of this admin's territory configuration"
+      "default": "pending"
     }
   },
   "required": []

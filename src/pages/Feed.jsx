@@ -328,7 +328,7 @@ export default function Feed() {
   return (
     <div className="h-[100dvh] bg-[#0B0F1A] text-white relative overflow-hidden font-['Inter']">
       <OnboardingModal
-        isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth)}
+        isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth || !user.city || !user.address || !user.postal_code)}
         onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
       />
       <style>{`

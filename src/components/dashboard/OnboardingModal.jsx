@@ -44,6 +44,9 @@ export default function OnboardingModal({ isOpen, onCompleted }) {
   const [country, setCountry] = useState("");
   const [gender, setGender] = useState("");
   const [dob, setDob] = useState("");
+  const [city, setCity] = useState("");
+  const [address, setAddress] = useState("");
+  const [postalCode, setPostalCode] = useState("");
 
   // Step 2 — Extra details
   const [bio, setBio] = useState("");
@@ -75,6 +78,13 @@ export default function OnboardingModal({ isOpen, onCompleted }) {
     if (!country) { toast.error("Country is required."); return; }
     if (!gender) { toast.error("Please select your gender."); return; }
     if (!dob) { toast.error("Date of birth is required."); return; }
+    if (!city.trim()) { toast.error("City / Town is required."); return; }
+    if (!address.trim()) { toast.error("Address is required."); return; }
+    if (!postalCode.trim()) { toast.error("Postal code is required."); return; }
+    if (!/^[A-Za-z0-9][A-Za-z0-9\s\-]{1,9}$/.test(postalCode.trim())) {
+      toast.error("Please enter a valid postal / zip code (e.g. 10001 or SW1A 1AA).");
+      return;
+    }
     setStep(2);
   };
 
@@ -87,11 +97,14 @@ export default function OnboardingModal({ isOpen, onCompleted }) {
         country,
         gender,
         date_of_birth: dob,
+        city: city.trim(),
+        address: address.trim(),
+        postal_code: postalCode.trim().toUpperCase(),
         bio: bio.trim(),
         profile_picture_url: profilePic || undefined,
         phone: phone.trim() || undefined,
       });
-      onCompleted({ full_name: fullName.trim(), country, gender, date_of_birth: dob, bio, profile_picture_url: profilePic });
+      onCompleted({ full_name: fullName.trim(), country, gender, date_of_birth: dob, city, address, postal_code: postalCode, bio, profile_picture_url: profilePic });
     } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
@@ -205,6 +218,46 @@ export default function OnboardingModal({ isOpen, onCompleted }) {
                   max={new Date().toISOString().split("T")[0]}
                   className="w-full bg-[#121826] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00CFFF]/40 text-sm [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:brightness-200 [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:scale-125"
                 />
+              </div>
+
+              <div className="pt-1 pb-0.5">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="h-px flex-1 bg-white/5" />
+                  <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Location Details</span>
+                  <div className="h-px flex-1 bg-white/5" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Street Address <span className="text-red-400">*</span></label>
+                <input
+                  value={address}
+                  onChange={e => setAddress(e.target.value)}
+                  placeholder="e.g. 12 Church Road"
+                  className="w-full bg-[#121826] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#00CFFF]/40 text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">City / Town <span className="text-red-400">*</span></label>
+                  <input
+                    value={city}
+                    onChange={e => setCity(e.target.value)}
+                    placeholder="e.g. Nairobi"
+                    className="w-full bg-[#121826] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#00CFFF]/40 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Postal Code <span className="text-red-400">*</span></label>
+                  <input
+                    value={postalCode}
+                    onChange={e => setPostalCode(e.target.value)}
+                    placeholder="e.g. 00100"
+                    maxLength={10}
+                    className="w-full bg-[#121826] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#00CFFF]/40 text-sm"
+                  />
+                </div>
               </div>
             </>
           )}

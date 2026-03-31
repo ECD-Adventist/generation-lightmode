@@ -19,7 +19,7 @@ export default function Profile() {
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({ full_name: "", country: "", bio: "", website_url: "", profile_picture_url: "", cover_picture_url: "", gender: "", date_of_birth: "", phone: "" });
+  const [editData, setEditData] = useState({ full_name: "", country: "", bio: "", website_url: "", profile_picture_url: "", cover_picture_url: "", gender: "", date_of_birth: "", phone: "", city: "", address: "", postal_code: "" });
   const [activeProfileTab, setActiveProfileTab] = useState("drops");
   const [connectionsView, setConnectionsView] = useState(null);
   const profileInputRef = useRef(null);
@@ -59,7 +59,10 @@ export default function Profile() {
               cover_picture_url: me.cover_picture_url || "",
               gender: me.gender || "",
               date_of_birth: me.date_of_birth || "",
-              phone: me.phone || ""
+              phone: me.phone || "",
+              city: me.city || "",
+              address: me.address || "",
+              postal_code: me.postal_code || ""
             });
           }
         } else if (!viewUserEmail) {
@@ -85,7 +88,10 @@ export default function Profile() {
           cover_picture_url: currentUser.cover_picture_url || "",
           gender: currentUser.gender || "",
           date_of_birth: currentUser.date_of_birth || "",
-          phone: currentUser.phone || ""
+          phone: currentUser.phone || "",
+          city: currentUser.city || "",
+          address: currentUser.address || "",
+          postal_code: currentUser.postal_code || ""
         });
       } else {
         const found = allUsersForProfile.find(u => u.email === viewUserEmail);
@@ -253,7 +259,10 @@ export default function Profile() {
         cover_picture_url: editData.cover_picture_url,
         gender: editData.gender,
         date_of_birth: editData.date_of_birth,
-        phone: editData.phone
+        phone: editData.phone,
+        city: editData.city,
+        address: editData.address,
+        postal_code: editData.postal_code,
       });
       const updated = await base44.auth.me();
       setUser(updated);
@@ -544,6 +553,20 @@ export default function Profile() {
               <div>
                 <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Country</Label>
                 <Input value={editData.country} onChange={e => setEditData({...editData, country: e.target.value})} className="bg-[#0B0F1A] border-white/10 h-12 text-lg rounded-xl" />
+              </div>
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Street Address <span className="text-red-400">*</span></Label>
+                <Input value={editData.address} onChange={e => setEditData({...editData, address: e.target.value})} placeholder="e.g. 12 Church Road" className="bg-[#0B0F1A] border-white/10 h-12 text-lg rounded-xl" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">City / Town <span className="text-red-400">*</span></Label>
+                  <Input value={editData.city} onChange={e => setEditData({...editData, city: e.target.value})} placeholder="e.g. Nairobi" className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl" />
+                </div>
+                <div>
+                  <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Postal Code <span className="text-red-400">*</span></Label>
+                  <Input value={editData.postal_code} onChange={e => setEditData({...editData, postal_code: e.target.value})} placeholder="e.g. 00100" maxLength={10} className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl" />
+                </div>
               </div>
               <div>
                 <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Bio</Label>
