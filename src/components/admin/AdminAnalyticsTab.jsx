@@ -59,7 +59,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-export default function AdminAnalyticsTab() {
+export default function AdminAnalyticsTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
   const [dateRange, setDateRange] = useState("30d");
 
   const { data: users = [] } = useQuery({
@@ -95,6 +95,27 @@ export default function AdminAnalyticsTab() {
     queryFn: () => base44.entities.Follow.list("-created_date", 500),
   });
 
+  const allowedCountries = (territoryCountries || "").split(",").map(item => item.trim()).filter(Boolean);
+
+  const scopedUsers = territoryRestricted && territoryApproved
+    ? users.filter(entry => allowedCountries.includes(entry.country))
+    : users;
+
+  const scopedDrops = territoryRestricted && territoryApproved
+    ? drops.filter(drop => {
+        const owner = users.find(entry => entry.email === drop.user_email);
+        return owner && allowedCountries.includes(owner.country);
+      })
+    : drops;
+
+  const scopedGroups = territoryRestricted && territoryApproved
+    ? groups.filter(group => allowedCountries.includes(group.country))
+    : groups;
+
+  if (territoryRestricted && !territoryApproved) {
+    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please confirm your territory map first to unlock analytics for your region.</div>;
+  }
+
   // ── Registrations over time (bucketed by day) ──
   const registrationsChart = useMemo(() => {
     const days = dateRange === "7d" ? 7 : dateRange === "14d" ? 14 : 30;
@@ -105,14 +126,14 @@ export default function AdminAnalyticsTab() {
       const key = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
       buckets[key] = 0;
     }
-    users.forEach(u => {
+    scopedUsers.forEach(u => {
       if (!u.created_date) return;
       const d = new Date(u.created_date);
       const key = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
       if (key in buckets) buckets[key]++;
     });
     return Object.entries(buckets).map(([date, count]) => ({ date, count }));
-  }, [users, dateRange]);
+  }, [scopedUsers, dateRange]);
 
   // ── Drops over time ──
   const dropsChart = useMemo(() => {
@@ -124,49 +145,49 @@ export default function AdminAnalyticsTab() {
       const key = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
       buckets[key] = 0;
     }
-    drops.forEach(dr => {
+    scopedDrops.forEach(dr => {
       if (!dr.created_date) return;
       const d = new Date(dr.created_date);
       const key = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
       if (key in buckets) buckets[key]++;
     });
     return Object.entries(buckets).map(([date, count]) => ({ date, count }));
-  }, [drops, dateRange]);
+  }, [scopedDrops, dateRange]);
 
   // ── Top Countries ──
   const topCountries = useMemo(() => {
     const map = {};
-    users.forEach(u => {
+    scopedUsers.forEach(u => {
       if (u.country) map[u.country] = (map[u.country] || 0) + 1;
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([country, count]) => ({ country, count }));
-  }, [users]);
+  }, [scopedUsers]);
 
   // ── Gender breakdown ──
   const genderData = useMemo(() => {
-    const male = users.filter(u => u.gender === "male").length;
-    const female = users.filter(u => u.gender === "female").length;
-    const other = users.filter(u => u.gender === "prefer_not_to_say").length;
-    const unknown = users.filter(u => !u.gender).length;
+    const male = scopedUsers.filter(u => u.gender === "male").length;
+    const female = scopedUsers.filter(u => u.gender === "female").length;
+    const other = scopedUsers.filter(u => u.gender === "prefer_not_to_say").length;
+    const unknown = scopedUsers.filter(u => !u.gender).length;
     return [
       { name: "Male", value: male, color: CYAN },
       { name: "Female", value: female, color: PINK },
       { name: "Not specified", value: other, color: VIOLET },
       { name: "Unknown", value: unknown, color: "#374151" },
     ].filter(d => d.value > 0);
-  }, [users]);
+  }, [scopedUsers]);
 
   // ── Drop status ──
   const dropStatus = useMemo(() => {
-    const approved = drops.filter(d => d.status === "approved").length;
-    const pending = drops.filter(d => d.status === "pending").length;
-    const rejected = drops.filter(d => d.status === "rejected").length;
+    const approved = scopedDrops.filter(d => d.status === "approved").length;
+    const pending = scopedDrops.filter(d => d.status === "pending").length;
+    const rejected = scopedDrops.filter(d => d.status === "rejected").length;
     return [
       { name: "Approved", value: approved, color: GREEN },
       { name: "Pending", value: pending, color: GOLD },
       { name: "Rejected", value: rejected, color: "#ef4444" },
     ];
-  }, [drops]);
+  }, [scopedDrops]);
 
   // ── Prayer categories ──
   const prayerCategories = useMemo(() => {
@@ -178,7 +199,7 @@ export default function AdminAnalyticsTab() {
   // ── Age distribution ──
   const ageGroups = useMemo(() => {
     const groups = { "Under 13": 0, "13–17": 0, "18–25": 0, "26–35": 0, "36–45": 0, "46+": 0, "Unknown": 0 };
-    users.forEach(u => {
+    scopedUsers.forEach(u => {
       if (!u.date_of_birth) { groups["Unknown"]++; return; }
       const age = Math.floor((new Date() - new Date(u.date_of_birth)) / (365.25 * 24 * 3600 * 1000));
       if (age < 13) groups["Under 13"]++;
@@ -189,7 +210,7 @@ export default function AdminAnalyticsTab() {
       else groups["46+"]++;
     });
     return Object.entries(groups).filter(([, v]) => v > 0).map(([name, count]) => ({ name, count }));
-  }, [users]);
+  }, [scopedUsers]);
 
   // ── Engagement activity combo chart ──
   const engagementChart = useMemo(() => {
@@ -201,7 +222,7 @@ export default function AdminAnalyticsTab() {
       const key = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
       buckets[key] = { date: key, drops: 0, prayers: 0, follows: 0 };
     }
-    drops.forEach(dr => {
+    scopedDrops.forEach(dr => {
       const key = new Date(dr.created_date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
       if (buckets[key]) buckets[key].drops++;
     });
@@ -214,7 +235,7 @@ export default function AdminAnalyticsTab() {
       if (buckets[key]) buckets[key].follows++;
     });
     return Object.values(buckets);
-  }, [drops, prayers, follows, dateRange]);
+  }, [scopedDrops, prayers, follows, dateRange]);
 
   // ── Summary stats ──
   const now = new Date();
@@ -226,11 +247,11 @@ export default function AdminAnalyticsTab() {
     return { dir: pct >= 0 ? "up" : "down", label: `${pct >= 0 ? "+" : ""}${pct}% vs last week` };
   };
 
-  const userTrend = trendCalc(last7(users), prev7(users));
-  const dropTrend = trendCalc(last7(drops), prev7(drops));
+  const userTrend = trendCalc(last7(scopedUsers), prev7(scopedUsers));
+  const dropTrend = trendCalc(last7(scopedDrops), prev7(scopedDrops));
 
-  const totalLikes = drops.reduce((s, d) => s + (d.likes_count || 0), 0);
-  const approvedDrops = drops.filter(d => d.status === "approved").length;
+  const totalLikes = scopedDrops.reduce((s, d) => s + (d.likes_count || 0), 0);
+  const approvedDrops = scopedDrops.filter(d => d.status === "approved").length;
 
   return (
     <div className="space-y-8">
@@ -253,16 +274,16 @@ export default function AdminAnalyticsTab() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Members" value={users.length.toLocaleString()} icon={<Users />} color={CYAN} trend={userTrend.dir} trendValue={userTrend.label} sub="registered users" />
-        <StatCard label="Glow Drops" value={drops.length.toLocaleString()} icon={<Zap />} color={GOLD} trend={dropTrend.dir} trendValue={dropTrend.label} sub={`${approvedDrops} approved`} />
-        <StatCard label="GlowGroups" value={groups.length.toLocaleString()} icon={<Globe />} color={VIOLET} sub={`${topCountries.length} countries`} />
+        <StatCard label="Total Members" value={scopedUsers.length.toLocaleString()} icon={<Users />} color={CYAN} trend={userTrend.dir} trendValue={userTrend.label} sub="registered users" />
+        <StatCard label="Glow Drops" value={scopedDrops.length.toLocaleString()} icon={<Zap />} color={GOLD} trend={dropTrend.dir} trendValue={dropTrend.label} sub={`${approvedDrops} approved`} />
+        <StatCard label="GlowGroups" value={scopedGroups.length.toLocaleString()} icon={<Globe />} color={VIOLET} sub={`${topCountries.length} countries`} />
         <StatCard label="Total Likes" value={totalLikes.toLocaleString()} icon={<Heart />} color={PINK} sub="across all drops" />
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Prayer Requests" value={prayers.length.toLocaleString()} icon={<MessageSquare />} color={GREEN} sub={`${prayers.filter(p => p.answered).length} answered`} />
         <StatCard label="Challenge Subs" value={challenges.length.toLocaleString()} icon={<Target />} color={CYAN} sub="total submissions" />
         <StatCard label="Connections" value={follows.length.toLocaleString()} icon={<UserCheck />} color={GOLD} sub="total follows" />
-        <StatCard label="Active This Week" value={last7(users).toLocaleString()} icon={<Activity />} color={VIOLET} sub="new registrations" />
+        <StatCard label="Active This Week" value={last7(scopedUsers).toLocaleString()} icon={<Activity />} color={VIOLET} sub="new registrations" />
       </div>
 
       {/* Registrations Over Time */}

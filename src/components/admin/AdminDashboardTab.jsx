@@ -43,62 +43,81 @@ const CustomTooltip = ({ active, payload, label, color }) => {
   return null;
 };
 
-export default function AdminDashboardTab() {
+export default function AdminDashboardTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
+  const allowedCountries = (territoryCountries || "").split(",").map(item => item.trim()).filter(Boolean);
   const { data: users = [] } = useQuery({ queryKey: ["admin_users"], queryFn: () => base44.functions.invoke("listPublicUsers", {}).then(res => res.data) });
   const { data: drops = [] } = useQuery({ queryKey: ["admin_drops"], queryFn: () => base44.entities.GlowDrop.list() });
   const { data: groups = [] } = useQuery({ queryKey: ["admin_groups"], queryFn: () => base44.entities.GlowGroup.list() });
   const { data: challenges = [] } = useQuery({ queryKey: ["admin_challenges"], queryFn: () => base44.entities.Challenge.list() });
 
+  const scopedUsers = territoryRestricted && territoryApproved
+    ? users.filter(entry => allowedCountries.includes(entry.country))
+    : users;
+
+  const scopedDrops = territoryRestricted && territoryApproved
+    ? drops.filter(drop => {
+        const owner = users.find(entry => entry.email === drop.user_email);
+        return owner && allowedCountries.includes(owner.country);
+      })
+    : drops;
+
+  const scopedGroups = territoryRestricted && territoryApproved
+    ? groups.filter(group => allowedCountries.includes(group.country))
+    : groups;
+
+  if (territoryRestricted && !territoryApproved) {
+    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please upload and confirm your territory map first to unlock your scoped dashboard.</div>;
+  }
+
   // Real user growth: bucket registrations by month
   const growthData = useMemo(() => {
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const counts = {};
-    users.forEach(u => {
+    scopedUsers.forEach(u => {
       if (!u.created_date) return;
       const d = new Date(u.created_date);
       const key = months[d.getMonth()] + " " + d.getFullYear();
       counts[key] = (counts[key] || 0) + 1;
     });
-    // Get last 6 months
     const now = new Date();
     return Array.from({ length: 6 }, (_, i) => {
       const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
       const key = months[d.getMonth()] + " " + d.getFullYear();
       return { name: months[d.getMonth()], users: counts[key] || 0 };
     });
-  }, [users]);
+  }, [scopedUsers]);
 
   // Real drops: bucket by day of week
   const dropsData = useMemo(() => {
     const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     const counts = { Sun: 0, Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0 };
-    drops.forEach(d => {
+    scopedDrops.forEach(d => {
       if (!d.created_date) return;
       const day = days[new Date(d.created_date).getDay()];
       counts[day]++;
     });
     return ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(name => ({ name, drops: counts[name] }));
-  }, [drops]);
+  }, [scopedDrops]);
 
   // Real unique countries from users
   const uniqueCountries = useMemo(() => {
-    const set = new Set(users.map(u => u.country).filter(Boolean));
+    const set = new Set(scopedUsers.map(u => u.country).filter(Boolean));
     return set.size || 0;
   }, [users]);
 
   // Drops in last 7 days
   const recentDrops = useMemo(() => {
     const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    return drops.filter(d => d.created_date && new Date(d.created_date) > cutoff).length;
-  }, [drops]);
+    return scopedDrops.filter(d => d.created_date && new Date(d.created_date) > cutoff).length;
+  }, [scopedDrops]);
 
   const stats = [
-    { label: "Total Users", value: users.length, icon: Users, color: "#00CFFF", bg: "bg-[#00CFFF]/5", border: "border-[#00CFFF]/15", to: `${createPageUrl("AdminCenter")}?tab=users` },
-    { label: "Total Glow Drops", value: drops.length, icon: Zap, color: "#FFD000", bg: "bg-[#FFD000]/5", border: "border-[#FFD000]/15", trend: `${recentDrops} this week`, to: `${createPageUrl("AdminCenter")}?tab=drops` },
-    { label: "Active Groups", value: groups.length, icon: Activity, color: "#8A5CFF", bg: "bg-[#8A5CFF]/5", border: "border-[#8A5CFF]/15", to: `${createPageUrl("AdminCenter")}?tab=groups` },
+    { label: "Total Users", value: scopedUsers.length, icon: Users, color: "#00CFFF", bg: "bg-[#00CFFF]/5", border: "border-[#00CFFF]/15", to: `${createPageUrl("AdminCenter")}?tab=users` },
+    { label: "Total Glow Drops", value: scopedDrops.length, icon: Zap, color: "#FFD000", bg: "bg-[#FFD000]/5", border: "border-[#FFD000]/15", trend: `${recentDrops} this week`, to: `${createPageUrl("AdminCenter")}?tab=drops` },
+    { label: "Active Groups", value: scopedGroups.length, icon: Activity, color: "#8A5CFF", bg: "bg-[#8A5CFF]/5", border: "border-[#8A5CFF]/15", to: `${createPageUrl("AdminCenter")}?tab=groups` },
     { label: "Active Challenges", value: challenges.filter(c => c.active).length, icon: Target, color: "#ef4444", bg: "bg-red-500/5", border: "border-red-500/15", to: `${createPageUrl("AdminCenter")}?tab=challenges` },
     { label: "Countries", value: uniqueCountries, icon: Globe, color: "#22c55e", bg: "bg-green-500/5", border: "border-green-500/15", to: `${createPageUrl("AdminCenter")}?tab=countries` },
-    { label: "Approved Drops", value: drops.filter(d => d.status === "approved").length, icon: Trophy, color: "#f97316", bg: "bg-orange-500/5", border: "border-orange-500/15", to: `${createPageUrl("AdminCenter")}?tab=drops` },
+    { label: "Approved Drops", value: scopedDrops.filter(d => d.status === "approved").length, icon: Trophy, color: "#f97316", bg: "bg-orange-500/5", border: "border-orange-500/15", to: `${createPageUrl("AdminCenter")}?tab=drops` },
   ];
 
   return (
@@ -136,7 +155,7 @@ export default function AdminDashboardTab() {
               <h3 className="text-base font-bold font-['Space_Grotesk'] text-white">User Growth Trend</h3>
               <p className="text-xs text-gray-500 mt-0.5">Platform registrations over time</p>
             </div>
-            <div className="px-3 py-1 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-[#00CFFF] text-xs font-bold">+{users.length} total</div>
+            <div className="px-3 py-1 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-[#00CFFF] text-xs font-bold">+{scopedUsers.length} total</div>
           </div>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
@@ -165,7 +184,7 @@ export default function AdminDashboardTab() {
               <h3 className="text-base font-bold font-['Space_Grotesk'] text-white">Daily Glow Drops</h3>
               <p className="text-xs text-gray-500 mt-0.5">Content created this week</p>
             </div>
-            <div className="px-3 py-1 rounded-full bg-[#FFD000]/10 border border-[#FFD000]/20 text-[#FFD000] text-xs font-bold">{drops.length} total</div>
+            <div className="px-3 py-1 rounded-full bg-[#FFD000]/10 border border-[#FFD000]/20 text-[#FFD000] text-xs font-bold">{scopedDrops.length} total</div>
           </div>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">

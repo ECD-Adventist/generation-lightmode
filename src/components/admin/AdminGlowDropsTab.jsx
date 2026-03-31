@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { CheckCircle, XCircle, ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-export default function AdminGlowDropsTab() {
+export default function AdminGlowDropsTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState("pending");
 
@@ -13,7 +13,19 @@ export default function AdminGlowDropsTab() {
     queryFn: () => base44.entities.GlowDrop.list('-created_date', 100)
   });
 
-  const filteredDrops = drops.filter(d => filter === "all" || d.status === filter);
+  const allowedCountries = (territoryCountries || "").split(",").map(item => item.trim()).filter(Boolean);
+
+  const filteredDrops = drops.filter(d => {
+    if (territoryRestricted && territoryApproved) {
+      const ownerCountry = user?.countryMap?.[d.user_email];
+      if (ownerCountry && !allowedCountries.includes(ownerCountry)) return false;
+    }
+    return filter === "all" || d.status === filter;
+  });
+
+  if (territoryRestricted && !territoryApproved) {
+    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please confirm your territory map first to review drops in your region.</div>;
+  }
 
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }) => {

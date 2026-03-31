@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import {
   Search, Edit2, Trash2, Shield, Loader2, Calendar, Users, Activity,
-  Filter, MapPin, Zap, AlertCircle, Mail, X, Check, User, Clock
+  Filter, MapPin, Zap, AlertCircle, Mail, X, Check, User, Clock, Map
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -21,7 +21,13 @@ function calcAge(dob) {
 function roleColor(role) {
   switch (role) {
     case "super_admin": return "bg-purple-500/20 text-purple-400 border-purple-500/30";
-    case "admin": return "bg-red-500/20 text-red-400 border-red-500/30";
+    case "admin":
+    case "ecd_admin":
+    case "country_admin":
+    case "union_admin":
+    case "conference_field_admin":
+    case "church_admin":
+      return "bg-red-500/20 text-red-400 border-red-500/30";
     case "moderator": return "bg-orange-500/20 text-orange-400 border-orange-500/30";
     case "missionary": return "bg-green-500/20 text-green-400 border-green-500/30";
     case "GlowGroup Leader": return "bg-[#00CFFF]/20 text-[#00CFFF] border-[#00CFFF]/30";
@@ -125,7 +131,19 @@ export default function AdminUsersTab({ user }) {
   const allRoles = useMemo(() => {
     const fromData = new Set(users.map(u => u.role).filter(Boolean));
     // Merge with known roles
-    ["user", "admin", "super_admin", "moderator", "missionary", "GlowGroup Leader"].forEach(r => fromData.add(r));
+    [
+      "user",
+      "admin",
+      "super_admin",
+      "ecd_admin",
+      "country_admin",
+      "union_admin",
+      "conference_field_admin",
+      "church_admin",
+      "moderator",
+      "missionary",
+      "GlowGroup Leader"
+    ].forEach(r => fromData.add(r));
     return Array.from(fromData).sort();
   }, [users]);
 
@@ -351,6 +369,7 @@ export default function AdminUsersTab({ user }) {
                 <th className="p-4 font-semibold text-gray-400 text-xs uppercase tracking-wider">Gender</th>
                 <th className="p-4 font-semibold text-gray-400 text-xs uppercase tracking-wider">Age</th>
                 <th className="p-4 font-semibold text-gray-400 text-xs uppercase tracking-wider">Role</th>
+                <th className="p-4 font-semibold text-gray-400 text-xs uppercase tracking-wider">Territory</th>
                 <th className="p-4 font-semibold text-gray-400 text-xs uppercase tracking-wider">XP</th>
                 <th className="p-4 font-semibold text-gray-400 text-xs uppercase tracking-wider">Joined</th>
                 <th className="p-4 font-semibold text-gray-400 text-xs uppercase tracking-wider text-right">Actions</th>
@@ -358,9 +377,9 @@ export default function AdminUsersTab({ user }) {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan="8" className="p-8 text-center"><Loader2 className="w-6 h-6 text-[#00CFFF] animate-spin mx-auto" /></td></tr>
+                <tr><td colSpan="9" className="p-8 text-center"><Loader2 className="w-6 h-6 text-[#00CFFF] animate-spin mx-auto" /></td></tr>
               ) : filteredUsers.length === 0 ? (
-                <tr><td colSpan="8" className="p-8 text-center text-gray-500">No users match your filters.</td></tr>
+                <tr><td colSpan="9" className="p-8 text-center text-gray-500">No users match your filters.</td></tr>
               ) : (
                 filteredUsers.map(u => {
                   const age = calcAge(u.date_of_birth);
@@ -392,9 +411,19 @@ export default function AdminUsersTab({ user }) {
                       </td>
                       <td className="p-4">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold border ${roleColor(u.role)}`}>
-                          {(u.role === "super_admin" || u.role === "admin") && <Shield size={10} />}
+                          {(u.role === "super_admin" || String(u.role).includes("admin")) && <Shield size={10} />}
                           {u.role || "user"}
                         </span>
+                      </td>
+                      <td className="p-4 text-sm text-gray-400">
+                        {u.territory_name ? (
+                          <div className="flex flex-col gap-1">
+                            <span className="flex items-center gap-1"><Map size={12} className="text-[#00CFFF]" />{u.territory_name}</span>
+                            <span className="text-[10px] uppercase tracking-wider text-gray-500">{u.territory_status || "not submitted"}</span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-600 text-xs">Not set</span>
+                        )}
                       </td>
                       <td className="p-4">
                         <span className="flex items-center gap-1 text-xs font-bold text-[#FFD000]">

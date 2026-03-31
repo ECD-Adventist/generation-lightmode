@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Loader2, Zap, Bell, User, ShieldAlert } from "lucide-react";
+import AdminTerritorySetupTab from "../components/admin/AdminTerritorySetupTab";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import AdminSidebar from "../components/admin/AdminSidebar";
@@ -60,7 +61,7 @@ export default function AdminCenter() {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
 
   // Role-based access matrix
-  const ADMIN_ROLES = ["admin", "super_admin"];
+  const ADMIN_ROLES = ["admin", "super_admin", "ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin"];
   const MODERATOR_ROLES = ["moderator"];
   const LEADER_ROLES = ["GlowGroup Leader"];
   const MISSIONARY_ROLES = ["missionary"];
@@ -69,6 +70,7 @@ export default function AdminCenter() {
   const isModerator = MODERATOR_ROLES.includes(user?.role);
   const isLeader = LEADER_ROLES.includes(user?.role);
   const isMissionary = MISSIONARY_ROLES.includes(user?.role);
+  const isRegionalAdmin = ["ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin"].includes(user?.role);
 
   // Non-admin privileged roles redirect to their relevant pages
   if (!loading && user && !isAdmin && !isModerator && !isLeader && !isMissionary) {
@@ -128,21 +130,24 @@ export default function AdminCenter() {
 
   const isSuperAdmin = user.role === "super_admin";
 
+  const hasApprovedTerritory = !isRegionalAdmin || user?.territory_status === "approved";
+
   const renderTab = () => {
     switch (activeTab) {
-      case "dashboard": return <AdminDashboardTab />;
+      case "territory": return <AdminTerritorySetupTab user={user} />;
+      case "dashboard": return <AdminDashboardTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "users": return <AdminUsersTab user={user} />;
-      case "groups": return <AdminGlowGroupsTab />;
-      case "drops": return <AdminGlowDropsTab />;
+      case "groups": return <AdminGlowGroupsTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "drops": return <AdminGlowDropsTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "challenges": return <AdminChallengesTab />;
       case "leaderboards": return <AdminLeaderboardsTab />;
-      case "countries": return <AdminCountriesTab />;
+      case "countries": return <AdminCountriesTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "activity": return <AdminActivityFeedTab currentUser={user} />;
       case "codes": return <AdminCodesTab sourceFilter="codes_of_truth" title="Codes of Truth" />;
       case "keepit100": return <AdminCodesTab sourceFilter="keeping_it_100" title="Keep It 100" />;
       case "media": return <AdminMediaTab />;
       case "badges": return <AdminBadgesTab />;
-      case "analytics": return <AdminAnalyticsTab />;
+      case "analytics": return <AdminAnalyticsTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "notifications": return <AdminNotificationsTab />;
       case "announcements": return <AdminAnnouncementsTab />;
       case "assistant-training": return <AdminAssistantTrainingTab />;
@@ -153,7 +158,7 @@ export default function AdminCenter() {
 
   return (
     <div className="bg-[#0B0F1A] text-white flex flex-col md:flex-row" style={{ minHeight: "100vh" }}>
-      <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} />
+      <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} isRegionalAdmin={isRegionalAdmin} />
       <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#080C14]">
         {/* Top Nav Bar */}
         <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5 shrink-0 hidden md:block">

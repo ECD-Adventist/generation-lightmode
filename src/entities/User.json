@@ -1,0 +1,54 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "super_admin",
+        "admin",
+        "ecd_admin",
+        "country_admin",
+        "union_admin",
+        "conference_field_admin",
+        "church_admin",
+        "moderator",
+        "missionary",
+        "GlowGroup Leader",
+        "user"
+      ],
+      "default": "user"
+    },
+    "territory_name": {
+      "type": "string"
+    },
+    "territory_level": {
+      "type": "string",
+      "enum": [
+        "ecd",
+        "country",
+        "union",
+        "conference_field",
+        "church"
+      ]
+    },
+    "territory_map_url": {
+      "type": "string"
+    },
+    "territory_countries": {
+      "type": "string"
+    },
+    "territory_extraction_notes": {
+      "type": "string"
+    },
+    "territory_status": {
+      "type": "string",
+      "enum": [
+        "not_submitted",
+        "pending_review",
+        "approved"
+      ],
+      "default": "not_submitted"
+    }
+  }
+}

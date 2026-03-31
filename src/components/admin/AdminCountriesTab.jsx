@@ -6,7 +6,7 @@ import { Globe, Zap, Users, TrendingUp, Award } from "lucide-react";
 const MEDAL = ["🥇", "🥈", "🥉"];
 const COLORS = ["#FFD000", "#C8D0E0", "#C77A2B"];
 
-export default function AdminCountriesTab() {
+export default function AdminCountriesTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin_users_countries"],
     queryFn: () => base44.functions.invoke("listPublicUsers", {}).then(r => r.data || []),
@@ -20,9 +20,23 @@ export default function AdminCountriesTab() {
     queryFn: () => base44.entities.GlowGroup.list(),
   });
 
+  const allowedCountries = (territoryCountries || "").split(",").map(item => item.trim()).filter(Boolean);
+
+  const scopedUsers = territoryRestricted && territoryApproved
+    ? users.filter(entry => allowedCountries.includes(entry.country))
+    : users;
+
+  const scopedGroups = territoryRestricted && territoryApproved
+    ? groups.filter(group => allowedCountries.includes(group.country))
+    : groups;
+
+  if (territoryRestricted && !territoryApproved) {
+    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please confirm your territory map first to unlock country rankings.</div>;
+  }
+
   const countryStats = useMemo(() => {
     const map = {};
-    users.forEach(u => {
+    scopedUsers.forEach(u => {
       if (!u.country) return;
       if (!map[u.country]) map[u.country] = { country: u.country, users: 0, totalXP: 0, drops: 0, groups: 0 };
       map[u.country].users++;
@@ -30,20 +44,20 @@ export default function AdminCountriesTab() {
     });
     drops.forEach(d => {
       if (!d.user_email) return;
-      const u = users.find(u => u.email === d.user_email);
+      const u = scopedUsers.find(u => u.email === d.user_email);
       if (u?.country && map[u.country]) map[u.country].drops++;
     });
-    groups.forEach(g => {
+    scopedGroups.forEach(g => {
       if (g.country && map[g.country]) map[g.country].groups++;
     });
     return Object.values(map)
       .map(c => ({ ...c, score: c.users * 10 + c.totalXP + c.drops * 2 + c.groups * 5 }))
       .sort((a, b) => b.score - a.score);
-  }, [users, drops, groups]);
+  }, [scopedUsers, drops, scopedGroups]);
 
   const maxScore = countryStats[0]?.score || 1;
-  const totalUsers = users.length;
-  const totalXP = users.reduce((s, u) => s + (u.glow_score || 0), 0);
+  const totalUsers = scopedUsers.length;
+  const totalXP = scopedUsers.reduce((s, u) => s + (u.glow_score || 0), 0);
 
   return (
     <div className="space-y-6">

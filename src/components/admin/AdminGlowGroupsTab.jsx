@@ -3,11 +3,20 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Users, MoreVertical, Globe2, Activity } from "lucide-react";
 
-export default function AdminGlowGroupsTab() {
+export default function AdminGlowGroupsTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
   const { data: groups = [], isLoading } = useQuery({
     queryKey: ["admin_groups"],
     queryFn: () => base44.entities.GlowGroup.list()
   });
+
+  const allowedCountries = (territoryCountries || "").split(",").map(item => item.trim()).filter(Boolean);
+  const scopedGroups = territoryRestricted && territoryApproved
+    ? groups.filter(group => allowedCountries.includes(group.country))
+    : groups;
+
+  if (territoryRestricted && !territoryApproved) {
+    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please confirm your territory map first to manage groups in your region.</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -29,7 +38,7 @@ export default function AdminGlowGroupsTab() {
               </tr>
             </thead>
             <tbody>
-              {groups.map(g => (
+              {scopedGroups.map(g => (
                 <tr key={g.id} className="border-b border-white/5 hover:bg-white/[0.02] transition">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
@@ -62,7 +71,7 @@ export default function AdminGlowGroupsTab() {
                   </td>
                 </tr>
               ))}
-              {groups.length === 0 && !isLoading && (
+              {scopedGroups.length === 0 && !isLoading && (
                 <tr><td colSpan="5" className="p-8 text-center text-gray-500">No GlowGroups created yet.</td></tr>
               )}
             </tbody>

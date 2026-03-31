@@ -3,8 +3,9 @@ import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon,
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
-export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin }) {
+export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, isRegionalAdmin }) {
   const menuItems = [
+    ...(isRegionalAdmin ? [{ id: "territory", label: "Territory Setup", icon: <Globe size={18} /> }] : []),
     { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
     { id: "users", label: "Users", icon: <Users size={18} /> },
     { id: "groups", label: "GlowGroups", icon: <MessageSquare size={18} /> },
