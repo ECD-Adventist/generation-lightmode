@@ -27,7 +27,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
     { id: "announcements", label: "Announcements", icon: <Megaphone size={18} /> },
     { id: "comments", label: "Comment Moderation", icon: <Flag size={18} /> },
     { id: "assistant-training", label: "Assistant Training", icon: <Brain size={18} /> },
-    { id: "institutions", label: "Institution Applications", icon: <Globe size={18} className="text-[#8A5CFF]" /> },
+    { id: "institutions", label: "Institution Dashboard", icon: <Globe size={18} className="text-[#8A5CFF]" /> },
   ];
 
   if (isSuperAdmin) {

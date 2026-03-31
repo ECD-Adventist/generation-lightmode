@@ -152,6 +152,14 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
       toast.error("Add a verse, reflection, or image to post");
       return;
     }
+
+    // Check 10 posts per 24h limit
+    const limitCheck = await checkPostLimitAsync();
+    if (!limitCheck.allowed) {
+      toast.error(`You've reached 10 posts in 24h. Try again in ${limitCheck.hoursUntil}h`);
+      return;
+    }
+
     setLoading(true);
     try {
       let uploadedMediaUrl = null;
@@ -209,6 +217,31 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
     setMood("");
     setShowSuggestion(true);
     onClose();
+  };
+
+  // Check 10 posts per 24h limit
+  const checkPostLimitAsync = async () => {
+    if (!user?.email) return { allowed: true };
+    try {
+      const now = new Date();
+      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      const recentDrops = await base44.entities.GlowDrop.filter({ user_email: user.email });
+      const postsInLast24h = recentDrops.filter(d => {
+        const createdDate = d.created_date ? new Date(d.created_date.endsWith('Z') ? d.created_date : d.created_date + 'Z') : null;
+        return createdDate && createdDate > oneDayAgo;
+      });
+      
+      if (postsInLast24h.length >= 10) {
+        const oldestPost = postsInLast24h.sort((a, b) => new Date(a.created_date || 0) - new Date(b.created_date || 0))[0];
+        const nextPostTime = new Date(new Date(oldestPost.created_date || 0).getTime() + 24 * 60 * 60 * 1000);
+        const hoursUntil = Math.ceil((nextPostTime - now) / (1000 * 60 * 60));
+        return { allowed: false, hoursUntil, postsCount: postsInLast24h.length };
+      }
+      return { allowed: true, postsCount: postsInLast24h.length };
+    } catch (err) {
+      console.error("Error checking post limit:", err);
+      return { allowed: true };
+    }
   };
 
   return (
