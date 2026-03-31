@@ -6,7 +6,11 @@
       "type": "string",
       "enum": [
         "admin",
-        "user"
+        "user",
+        "super_admin",
+        "GlowGroup Leader",
+        "moderator",
+        "missionary"
       ],
       "default": "user"
     },
@@ -14,6 +18,41 @@
       "type": "boolean",
       "default": false,
       "description": "Whether the user has accepted the privacy and communication consent"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "prefer_not_to_say"
+      ],
+      "description": "User's gender"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "description": "User's date of birth (used to calculate age)"
+    },
+    "bio": {
+      "type": "string",
+      "description": "Short user bio"
+    },
+    "country": {
+      "type": "string"
+    },
+    "glow_score": {
+      "type": "number",
+      "default": 0
+    },
+    "profile_picture_url": {
+      "type": "string"
+    },
+    "cover_picture_url": {
+      "type": "string"
+    },
+    "website_url": {
+      "type": "string"
     }
-  }
+  },
+  "required": []
 }

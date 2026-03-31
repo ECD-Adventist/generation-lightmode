@@ -25,9 +25,12 @@ Deno.serve(async (req) => {
         email: u.email,
         profile_picture_url: u.profile_picture_url,
         country: u.country,
+        bio: u.bio,
         glow_score: u.glow_score || 0,
         role: u.role,
         created_date: u.created_date,
+        gender: u.gender,
+        date_of_birth: u.date_of_birth,
         notify_likes: u.notify_likes,
         notify_follows: u.notify_follows,
         notify_comments: u.notify_comments
