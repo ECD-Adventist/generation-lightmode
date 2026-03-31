@@ -1,0 +1,41 @@
+{
+  "name": "GlowGroupEvent",
+  "type": "object",
+  "properties": {
+    "group_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "location": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "group_id",
+    "title",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "GlowGroup Leader"
+      }
+    },
+    "read": true,
+    "update": {
+      "data.leader_email": "{{user.email}}"
+    },
+    "delete": {
+      "data.leader_email": "{{user.email}}"
+    }
+  }
+}
