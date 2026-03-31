@@ -576,7 +576,7 @@ export default function Profile() {
                     type="date"
                     value={editData.date_of_birth}
                     onChange={e => setEditData({...editData, date_of_birth: e.target.value})}
-                    className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl"
+                    className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-60"
                   />
                 </div>
               </div>
