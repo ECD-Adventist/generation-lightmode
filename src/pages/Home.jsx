@@ -535,6 +535,7 @@ export default function Home() {
         <style>{`
           .leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 8px; }
           .leaflet-popup-tip { background: #121826; border: 1px solid rgba(0,207,255,0.4); }
+          .leaflet-control-attribution { display: none !important; }
         `}</style>
 
         <div style={{ position: "relative", zIndex: 10 }}>

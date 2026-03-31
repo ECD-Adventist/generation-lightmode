@@ -10,8 +10,8 @@ export default function usePublicCommunitySnapshot() {
     },
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
-    retry: false,
-    initialData: {
+    retry: 1,
+    placeholderData: {
       totalUsers: 0,
       totalGroups: 0,
       totalDrops: 0,

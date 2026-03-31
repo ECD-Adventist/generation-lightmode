@@ -5,7 +5,7 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
 
     const [users, groups, groupMembers, drops, challenges, submissions] = await Promise.all([
-      base44.asServiceRole.entities.User.list(),
+      base44.asServiceRole.entities.User.list('-created_date', 2000),
       base44.asServiceRole.entities.GlowGroup.list(),
       base44.asServiceRole.entities.GlowGroupMember.list(),
       base44.asServiceRole.entities.GlowDrop.list('-created_date', 500),
