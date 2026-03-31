@@ -247,7 +247,6 @@ export default function Feed() {
         await navigator.share({
           text: shareText,
         });
-        base44.entities.GlowDrop.update(drop.id, { shares_count: (drop.shares_count || 0) + 1 }).catch(() => {});
         queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
         toast.success("Shared successfully!");
       } catch (err) {
@@ -257,7 +256,6 @@ export default function Feed() {
       // Fallback: copy link to clipboard
       try {
         await navigator.clipboard.writeText(shareText);
-        base44.entities.GlowDrop.update(drop.id, { shares_count: (drop.shares_count || 0) + 1 }).catch(() => {});
         queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
         toast.success("Link copied to clipboard! Share it anywhere.");
       } catch {

@@ -167,7 +167,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         hashtags: drop.hashtags,
         status: "approved"
       });
-      await base44.entities.GlowDrop.update(drop.id, { reposts_count: (drop.reposts_count || 0) + 1 });
+      // Don't update reposts_count directly — RLS prevents non-creators from updating
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
