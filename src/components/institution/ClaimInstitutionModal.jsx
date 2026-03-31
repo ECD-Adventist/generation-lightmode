@@ -7,6 +7,7 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Loader2, Upload, X } from "lucide-react";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
+import { useEffect } from "react";
 
 export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
   const [step, setStep] = useState(1);
@@ -26,6 +27,25 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
     commitment_description: "",
     logo_url: ""
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        institution_name: "",
+        institution_type: "church",
+        country: user?.country || "",
+        contact_person: user?.full_name || "",
+        contact_email: user?.email || "",
+        contact_phone: user?.phone || "",
+        procedures_description: "",
+        commitment_description: "",
+        logo_url: ""
+      });
+      setLogoFile(null);
+      setLogoPreview(null);
+      setStep(1);
+    }
+  }, [isOpen, user]);
 
   const handleLogoSelect = (e) => {
     const file = e.target.files[0];
