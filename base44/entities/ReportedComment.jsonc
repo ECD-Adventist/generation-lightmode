@@ -1,0 +1,47 @@
+{
+  "name": "ReportedComment",
+  "type": "object",
+  "properties": {
+    "comment_id": {
+      "type": "string"
+    },
+    "reporter_email": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "resolved",
+        "dismissed"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "comment_id",
+    "reporter_email",
+    "reason"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
