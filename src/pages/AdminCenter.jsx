@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Zap, Bell, User } from "lucide-react";
+import { Loader2, Zap, Bell, User, ShieldAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import AdminSidebar from "../components/admin/AdminSidebar";
@@ -53,13 +53,72 @@ export default function AdminCenter() {
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
 
-  if (!user || (user.role !== "admin" && user.role !== "super_admin")) {
-    return <div className="min-h-screen flex flex-col items-center justify-center bg-[#0B0F1A] text-white">
-      <div className="text-red-500 mb-4"><ShieldAlert size={48} /></div>
-      <h2 className="text-2xl font-bold font-['Space_Grotesk'] mb-2">Access Denied</h2>
-      <p className="text-gray-400">You must be an admin to view this page.</p>
-    </div>;
+  // Role-based access matrix
+  const ADMIN_ROLES = ["admin", "super_admin"];
+  const MODERATOR_ROLES = ["moderator"];
+  const LEADER_ROLES = ["GlowGroup Leader"];
+  const MISSIONARY_ROLES = ["missionary"];
+
+  const isAdmin = ADMIN_ROLES.includes(user?.role);
+  const isModerator = MODERATOR_ROLES.includes(user?.role);
+  const isLeader = LEADER_ROLES.includes(user?.role);
+  const isMissionary = MISSIONARY_ROLES.includes(user?.role);
+
+  // Non-admin privileged roles redirect to their relevant pages
+  if (!loading && user && !isAdmin && !isModerator && !isLeader && !isMissionary) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0B0F1A] text-white gap-4">
+        <div className="text-red-500 mb-2"><ShieldAlert size={48} /></div>
+        <h2 className="text-2xl font-bold font-['Space_Grotesk']">Access Denied</h2>
+        <p className="text-gray-400">You must be an admin or have a privileged role to view this page.</p>
+        <a href={createPageUrl("Dashboard")} className="mt-2 px-6 py-2.5 rounded-xl bg-[#00CFFF] text-black font-bold text-sm hover:bg-[#00CFFF]/80 transition">Go to Dashboard</a>
+      </div>
+    );
   }
+
+  // Moderators get drops + groups only
+  if (!loading && user && isModerator) {
+    return (
+      <div className="bg-[#0B0F1A] text-white flex flex-col md:flex-row" style={{ minHeight: "100vh" }}>
+        <div className="w-full md:w-64 bg-[#121826] border-r border-white/5 p-5 flex flex-col gap-2 shrink-0 md:sticky top-0 md:h-screen">
+          <p className="text-xs text-gray-500 uppercase tracking-widest mb-2 font-bold">Moderator Panel</p>
+          {["drops", "groups"].map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)} className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium capitalize transition ${activeTab === tab ? "bg-[#00CFFF]/10 text-[#00CFFF] border border-[#00CFFF]/20" : "text-gray-400 hover:bg-white/5 hover:text-white"}`}>{tab === "drops" ? "Glow Drops" : "GlowGroups"}</button>
+          ))}
+          <a href={createPageUrl("Dashboard")} className="mt-auto text-xs text-gray-500 hover:text-white transition">← Back to App</a>
+        </div>
+        <div className="flex-1 p-6 md:p-8 overflow-auto">
+          {activeTab === "drops" ? <AdminGlowDropsTab /> : <AdminGlowGroupsTab />}
+        </div>
+      </div>
+    );
+  }
+
+  // GlowGroup Leaders go straight to groups management
+  if (!loading && user && isLeader) {
+    return (
+      <div className="bg-[#0B0F1A] text-white min-h-screen p-6 md:p-10">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-[#00CFFF] font-bold uppercase tracking-wider mb-1">GlowGroup Leader Panel</p>
+              <h1 className="text-2xl font-bold font-['Space_Grotesk']">Your Groups</h1>
+            </div>
+            <a href={createPageUrl("Dashboard")} className="text-sm text-gray-400 hover:text-white transition">← Dashboard</a>
+          </div>
+          <AdminGlowGroupsTab leaderEmail={user.email} />
+        </div>
+      </div>
+    );
+  }
+
+  // Missionaries redirect to Dashboard (they have no admin panel)
+  if (!loading && user && isMissionary) {
+    window.location.href = createPageUrl("Dashboard");
+    return null;
+  }
+
+  if (!user || !isAdmin) return null;
 
   const isSuperAdmin = user.role === "super_admin";
 
@@ -115,16 +174,5 @@ export default function AdminCenter() {
         </div>
       </div>
     </div>
-  );
-}
-
-// Inline fallback for the icon above
-function ShieldAlert(props) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={props.size||24} height={props.size||24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinelinejoin="round" {...props}>
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
-      <path d="M12 8v4"/>
-      <path d="M12 16h.01"/>
-    </svg>
   );
 }

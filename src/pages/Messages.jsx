@@ -2,15 +2,18 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MessageCircle, Users } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import ConversationsList from "@/components/messages/ConversationsList";
 import ChatWindow from "@/components/messages/ChatWindow";
+import GroupChatWindow from "@/components/messages/GroupChatWindow";
 import { isNotificationEnabled } from "@/lib/notifications";
 
 export default function Messages() {
   const [user, setUser] = useState(null);
   const [selectedConversationId, setSelectedConversationId] = useState(null);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
+  const [activeTab, setActiveTab] = useState("dms"); // "dms" | "groups"
   const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
   const targetEmail = urlParams.get("user");
@@ -43,11 +46,44 @@ export default function Messages() {
     enabled: !!user,
   });
 
-  const conversations = useMemo(() => allConversations.filter((conversation) => conversation.participant_a_email === user?.email || conversation.participant_b_email === user?.email), [allConversations, user?.email]);
+  // GlowGroup memberships for group chat
+  const { data: myMemberships = [] } = useQuery({
+    queryKey: ["myGroupMemberships", user?.email],
+    queryFn: () => base44.entities.GlowGroupMember.filter({ user_email: user?.email }),
+    enabled: !!user,
+  });
 
-  const selectedConversation = conversations.find((conversation) => conversation.id === selectedConversationId) || null;
-  const otherEmail = selectedConversation ? (selectedConversation.participant_a_email === user?.email ? selectedConversation.participant_b_email : selectedConversation.participant_a_email) : null;
-  const otherUser = allUsers.find((person) => person.email === otherEmail) || null;
+  const { data: myLeaderGroups = [] } = useQuery({
+    queryKey: ["myLeaderGroups", user?.email],
+    queryFn: () => base44.entities.GlowGroup.filter({ leader_email: user?.email }),
+    enabled: !!user,
+  });
+
+  const { data: allGroups = [] } = useQuery({
+    queryKey: ["allGlowGroups"],
+    queryFn: () => base44.entities.GlowGroup.list(),
+    enabled: !!user,
+  });
+
+  // Groups the user belongs to (as member OR leader)
+  const myGroups = useMemo(() => {
+    const memberGroupIds = new Set(myMemberships.map(m => m.group_id));
+    const leaderGroupIds = new Set(myLeaderGroups.map(g => g.id));
+    return allGroups.filter(g => memberGroupIds.has(g.id) || leaderGroupIds.has(g.id));
+  }, [allGroups, myMemberships, myLeaderGroups]);
+
+  const selectedGroup = myGroups.find(g => g.id === selectedGroupId) || null;
+
+  const conversations = useMemo(
+    () => allConversations.filter(c => c.participant_a_email === user?.email || c.participant_b_email === user?.email),
+    [allConversations, user?.email]
+  );
+
+  const selectedConversation = conversations.find(c => c.id === selectedConversationId) || null;
+  const otherEmail = selectedConversation
+    ? (selectedConversation.participant_a_email === user?.email ? selectedConversation.participant_b_email : selectedConversation.participant_a_email)
+    : null;
+  const otherUser = allUsers.find(u => u.email === otherEmail) || null;
 
   const { data: messages = [] } = useQuery({
     queryKey: ["directMessages", selectedConversationId],
@@ -57,12 +93,11 @@ export default function Messages() {
 
   const ensureConversationMutation = useMutation({
     mutationFn: async (email) => {
-      const existing = conversations.find((conversation) => {
-        const pair = [conversation.participant_a_email, conversation.participant_b_email].sort().join("::");
+      const existing = conversations.find(c => {
+        const pair = [c.participant_a_email, c.participant_b_email].sort().join("::");
         return pair === [user.email, email].sort().join("::");
       });
       if (existing) return existing;
-
       return await base44.entities.DirectConversation.create({
         participant_a_email: [user.email, email].sort()[0],
         participant_b_email: [user.email, email].sort()[1],
@@ -91,7 +126,6 @@ export default function Messages() {
         last_message: content,
         last_message_at: new Date().toISOString(),
       });
-      // Send notification if recipient has messages enabled
       const recipientUser = allUsers.find(u => u.email === otherEmail);
       if (isNotificationEnabled(recipientUser, "messages")) {
         base44.entities.Notification.create({
@@ -111,42 +145,33 @@ export default function Messages() {
 
   useEffect(() => {
     if (!user?.email) return;
-    const unsubscribeMessages = base44.entities.DirectMessage.subscribe((event) => {
+    const unsubMsgs = base44.entities.DirectMessage.subscribe((event) => {
       if (event.data?.recipient_email === user.email || event.data?.sender_email === user.email) {
         queryClient.invalidateQueries({ queryKey: ["directMessages", selectedConversationId] });
         queryClient.invalidateQueries({ queryKey: ["directConversations", user.email] });
       }
     });
-    const unsubscribeConversations = base44.entities.DirectConversation.subscribe(() => {
+    const unsubConvs = base44.entities.DirectConversation.subscribe(() => {
       queryClient.invalidateQueries({ queryKey: ["directConversations", user.email] });
     });
-    return () => {
-      unsubscribeMessages();
-      unsubscribeConversations();
-    };
+    return () => { unsubMsgs(); unsubConvs(); };
   }, [user?.email, selectedConversationId, queryClient]);
 
   useEffect(() => {
     if (!user?.email || !selectedConversationId || messages.length === 0) return;
-    const unread = messages.filter((message) => message.recipient_email === user.email && !message.read);
+    const unread = messages.filter(m => m.recipient_email === user.email && !m.read);
     if (unread.length > 0) {
-      Promise.all(unread.map((message) => base44.entities.DirectMessage.update(message.id, { read: true, status: "read" })));
+      Promise.all(unread.map(m => base44.entities.DirectMessage.update(m.id, { read: true, status: "read" })));
     }
   }, [messages, selectedConversationId, user?.email]);
 
   useEffect(() => {
     if (!user?.email || !targetEmail) return;
-
-    const existing = conversations.find((conversation) => {
-      const pair = [conversation.participant_a_email, conversation.participant_b_email].sort().join("::");
+    const existing = conversations.find(c => {
+      const pair = [c.participant_a_email, c.participant_b_email].sort().join("::");
       return pair === [user.email, targetEmail].sort().join("::");
     });
-
-    if (existing) {
-      setSelectedConversationId(existing.id);
-      return;
-    }
-
+    if (existing) { setSelectedConversationId(existing.id); return; }
     if (!ensureConversationMutation.isPending) ensureConversationMutation.mutate(targetEmail);
   }, [targetEmail, user?.email, conversations]);
 
@@ -167,28 +192,91 @@ export default function Messages() {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <h1 className="text-xl font-bold">Messages</h1>
-          <div className="w-5" />
+          {/* Tab switcher */}
+          <div className="flex items-center gap-1 bg-[#121826] border border-white/10 rounded-xl p-1">
+            <button
+              onClick={() => setActiveTab("dms")}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold transition ${activeTab === "dms" ? "bg-[#00CFFF] text-black" : "text-gray-400 hover:text-white"}`}
+            >
+              <MessageCircle className="w-4 h-4" /> Direct
+            </button>
+            <button
+              onClick={() => setActiveTab("groups")}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold transition ${activeTab === "groups" ? "bg-[#8A5CFF] text-white" : "text-gray-400 hover:text-white"}`}
+            >
+              <Users className="w-4 h-4" /> Groups {myGroups.length > 0 && <span className="bg-white/20 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{myGroups.length}</span>}
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto grid lg:grid-cols-[320px_minmax(0,1fr)] gap-4 px-4 py-6">
-        <ConversationsList
-          conversations={conversations}
-          selectedConversationId={selectedConversationId}
-          currentUserEmail={user.email}
-          allUsers={allUsers}
-          followingUsers={following.map((entry) => entry.following_email)}
-          onSelectConversation={(id) => setSelectedConversationId(id)}
-          onStartConversation={(email) => ensureConversationMutation.mutate(email)}
-        />
-        <ChatWindow
-          conversation={selectedConversation}
-          currentUser={user}
-          otherUser={otherUser}
-          messages={messages}
-          onSend={({ content, file_url }) => sendMessageMutation.mutate({ content, file_url })}
-          isSending={sendMessageMutation.isPending}
-        />
+        {activeTab === "dms" ? (
+          <>
+            <ConversationsList
+              conversations={conversations}
+              selectedConversationId={selectedConversationId}
+              currentUserEmail={user.email}
+              allUsers={allUsers}
+              followingUsers={following.map(f => f.following_email)}
+              onSelectConversation={setSelectedConversationId}
+              onStartConversation={(email) => ensureConversationMutation.mutate(email)}
+            />
+            <ChatWindow
+              conversation={selectedConversation}
+              currentUser={user}
+              otherUser={otherUser}
+              messages={messages}
+              onSend={({ content, file_url }) => sendMessageMutation.mutate({ content, file_url })}
+              isSending={sendMessageMutation.isPending}
+            />
+          </>
+        ) : (
+          <>
+            {/* Group list */}
+            <div className="bg-[#121826] border border-white/10 rounded-3xl overflow-hidden flex flex-col h-[72vh]">
+              <div className="px-4 py-4 border-b border-white/10">
+                <h2 className="text-lg font-bold text-white">GlowGroups</h2>
+                <p className="text-sm text-gray-400 mt-1">Chat with your group members.</p>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                {myGroups.length === 0 ? (
+                  <div className="text-center py-10 px-4 text-gray-500 text-sm">
+                    <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                    You're not in any GlowGroups yet.
+                    <br />
+                    <Link to={createPageUrl("GlowGroups")} className="text-[#00CFFF] font-bold hover:underline mt-1 inline-block">Join a group →</Link>
+                  </div>
+                ) : myGroups.map(group => {
+                  const isLeaderGroup = group.leader_email === user.email;
+                  return (
+                    <button
+                      key={group.id}
+                      onClick={() => setSelectedGroupId(group.id)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition border-b border-white/5 ${selectedGroupId === group.id ? "bg-white/10" : "hover:bg-white/5"}`}
+                    >
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#8A5CFF] to-[#00CFFF] flex items-center justify-center shrink-0">
+                        <Users className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-white truncate flex items-center gap-1.5">
+                          {group.name}
+                          {isLeaderGroup && <span className="text-[10px] bg-[#FFD000]/20 text-[#FFD000] px-1.5 py-0.5 rounded-full font-bold">Leader</span>}
+                        </div>
+                        <div className="text-xs text-gray-400 truncate">{group.country}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <GroupChatWindow
+              group={selectedGroup}
+              currentUser={user}
+              allUsers={allUsers}
+            />
+          </>
+        )}
       </div>
     </div>
   );
