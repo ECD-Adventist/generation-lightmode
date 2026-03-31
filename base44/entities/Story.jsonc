@@ -1,29 +1,42 @@
 {
-  "name": "CommunityMoment",
+  "name": "Story",
   "type": "object",
   "properties": {
     "user_email": {
       "type": "string"
     },
-    "type": {
+    "media_url": {
+      "type": "string"
+    },
+    "text_content": {
+      "type": "string"
+    },
+    "story_type": {
       "type": "string",
       "enum": [
-        "status",
-        "prayer"
+        "image",
+        "status"
       ],
       "default": "status"
     },
-    "content": {
-      "type": "string"
+    "background_theme": {
+      "type": "string",
+      "enum": [
+        "ocean",
+        "violet",
+        "sunrise",
+        "midnight"
+      ],
+      "default": "ocean"
     },
-    "likes_count": {
-      "type": "number",
-      "default": 0
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
     }
   },
   "required": [
     "user_email",
-    "content"
+    "expires_at"
   ],
   "rls": {
     "create": true,
@@ -41,11 +54,6 @@
         {
           "user_condition": {
             "role": "super_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "moderator"
           }
         }
       ]

@@ -1,27 +1,19 @@
 {
-  "name": "CommunityMoment",
+  "name": "GlowGroupMessage",
   "type": "object",
   "properties": {
+    "group_id": {
+      "type": "string"
+    },
     "user_email": {
       "type": "string"
     },
-    "type": {
-      "type": "string",
-      "enum": [
-        "status",
-        "prayer"
-      ],
-      "default": "status"
-    },
     "content": {
       "type": "string"
-    },
-    "likes_count": {
-      "type": "number",
-      "default": 0
     }
   },
   "required": [
+    "group_id",
     "user_email",
     "content"
   ],
@@ -41,11 +33,6 @@
         {
           "user_condition": {
             "role": "super_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "moderator"
           }
         }
       ]

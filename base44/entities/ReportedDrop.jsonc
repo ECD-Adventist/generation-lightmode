@@ -1,34 +1,24 @@
 {
-  "name": "CommunityMoment",
+  "name": "ReportedDrop",
   "type": "object",
   "properties": {
-    "user_email": {
+    "drop_id": {
       "type": "string"
     },
-    "type": {
-      "type": "string",
-      "enum": [
-        "status",
-        "prayer"
-      ],
-      "default": "status"
-    },
-    "content": {
+    "reporter_email": {
       "type": "string"
     },
-    "likes_count": {
-      "type": "number",
-      "default": 0
+    "reason": {
+      "type": "string"
     }
   },
   "required": [
-    "user_email",
-    "content"
+    "drop_id",
+    "reporter_email"
   ],
   "rls": {
     "create": true,
-    "read": true,
-    "update": {
+    "read": {
       "$or": [
         {
           "created_by": "{{user.email}}"
@@ -50,11 +40,13 @@
         }
       ]
     },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
     "delete": {
       "$or": [
-        {
-          "created_by": "{{user.email}}"
-        },
         {
           "user_condition": {
             "role": "admin"

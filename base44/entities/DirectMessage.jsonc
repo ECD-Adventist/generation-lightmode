@@ -1,43 +1,39 @@
 {
-  "name": "Notification",
+  "name": "DirectMessage",
   "type": "object",
   "properties": {
-    "user_email": {
+    "conversation_id": {
       "type": "string"
     },
-    "type": {
-      "type": "string",
-      "enum": [
-        "like",
-        "reply",
-        "milestone",
-        "system",
-        "follow",
-        "message"
-      ]
+    "sender_email": {
+      "type": "string"
     },
-    "message": {
+    "recipient_email": {
+      "type": "string"
+    },
+    "content": {
       "type": "string"
     },
     "read": {
       "type": "boolean",
       "default": false
-    },
-    "link": {
-      "type": "string"
     }
   },
   "required": [
-    "user_email",
-    "type",
-    "message"
+    "conversation_id",
+    "sender_email",
+    "recipient_email",
+    "content"
   ],
   "rls": {
     "create": true,
     "read": {
       "$or": [
         {
-          "data.user_email": "{{user.email}}"
+          "data.sender_email": "{{user.email}}"
+        },
+        {
+          "data.recipient_email": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -54,7 +50,10 @@
     "update": {
       "$or": [
         {
-          "data.user_email": "{{user.email}}"
+          "data.sender_email": "{{user.email}}"
+        },
+        {
+          "data.recipient_email": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -71,7 +70,7 @@
     "delete": {
       "$or": [
         {
-          "data.user_email": "{{user.email}}"
+          "data.sender_email": "{{user.email}}"
         },
         {
           "user_condition": {

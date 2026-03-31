@@ -1,24 +1,31 @@
 {
-  "name": "CommunityMoment",
+  "name": "PrayerRequest",
   "type": "object",
   "properties": {
     "user_email": {
       "type": "string"
     },
-    "type": {
-      "type": "string",
-      "enum": [
-        "status",
-        "prayer"
-      ],
-      "default": "status"
-    },
     "content": {
       "type": "string"
     },
-    "likes_count": {
-      "type": "number",
-      "default": 0
+    "category": {
+      "type": "string",
+      "enum": [
+        "Health",
+        "Family",
+        "Finance",
+        "Guidance",
+        "Other"
+      ],
+      "default": "Other"
+    },
+    "is_anonymous": {
+      "type": "boolean",
+      "default": false
+    },
+    "answered": {
+      "type": "boolean",
+      "default": false
     }
   },
   "required": [

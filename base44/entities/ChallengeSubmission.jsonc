@@ -1,29 +1,25 @@
 {
-  "name": "CommunityMoment",
+  "name": "ChallengeSubmission",
   "type": "object",
   "properties": {
+    "challenge_id": {
+      "type": "string"
+    },
     "user_email": {
       "type": "string"
     },
-    "type": {
-      "type": "string",
-      "enum": [
-        "status",
-        "prayer"
-      ],
-      "default": "status"
-    },
-    "content": {
+    "submission_url": {
       "type": "string"
     },
-    "likes_count": {
+    "points_awarded": {
       "type": "number",
       "default": 0
     }
   },
   "required": [
+    "challenge_id",
     "user_email",
-    "content"
+    "submission_url"
   ],
   "rls": {
     "create": true,
@@ -42,11 +38,6 @@
           "user_condition": {
             "role": "super_admin"
           }
-        },
-        {
-          "user_condition": {
-            "role": "moderator"
-          }
         }
       ]
     },
@@ -63,11 +54,6 @@
         {
           "user_condition": {
             "role": "super_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "moderator"
           }
         }
       ]

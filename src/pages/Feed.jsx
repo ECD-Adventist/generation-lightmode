@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -426,6 +426,7 @@ export default function Feed() {
                  <Link to={createPageUrl("FaithQuiz")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Medal className="w-3.5 h-3.5 text-[#00CFFF]" /> Faith Quiz</Link>
                  <Link to={createPageUrl("Messages")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><MessageSquare className="w-3.5 h-3.5" /> Messages</Link>
                  <Link to={createPageUrl("PrayerWall")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Handshake className="w-3.5 h-3.5 text-[#8A5CFF]" /> Prayer Wall</Link>
+                 <Link to="/TerritoryPhotos" className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Camera className="w-3.5 h-3.5 text-[#00CFFF]" /> Territory Moments</Link>
                  <Link to="/Settings" className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Settings className="w-3.5 h-3.5" /> Settings</Link>
                </div>
              )}
@@ -740,6 +741,7 @@ export default function Feed() {
                     <Link to={createPageUrl("FaithQuiz")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Medal className="w-3.5 h-3.5 text-[#00CFFF]" /> Faith Quiz</Link>
                     <Link to={createPageUrl("Messages")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><MessageSquare className="w-3.5 h-3.5" /> Messages</Link>
                     <Link to={createPageUrl("PrayerWall")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Handshake className="w-3.5 h-3.5 text-[#8A5CFF]" /> Prayer Wall</Link>
+                    <Link to="/TerritoryPhotos" onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Camera className="w-3.5 h-3.5 text-[#00CFFF]" /> Territory Moments</Link>
                     <Link to="/Settings" onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Settings className="w-3.5 h-3.5" /> Settings</Link>
                   </div>
                 )}

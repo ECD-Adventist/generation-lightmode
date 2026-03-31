@@ -1,34 +1,21 @@
 {
-  "name": "CommunityMoment",
+  "name": "SavedDrop",
   "type": "object",
   "properties": {
     "user_email": {
       "type": "string"
     },
-    "type": {
-      "type": "string",
-      "enum": [
-        "status",
-        "prayer"
-      ],
-      "default": "status"
-    },
-    "content": {
+    "drop_id": {
       "type": "string"
-    },
-    "likes_count": {
-      "type": "number",
-      "default": 0
     }
   },
   "required": [
     "user_email",
-    "content"
+    "drop_id"
   ],
   "rls": {
     "create": true,
-    "read": true,
-    "update": {
+    "read": {
       "$or": [
         {
           "created_by": "{{user.email}}"
@@ -42,10 +29,17 @@
           "user_condition": {
             "role": "super_admin"
           }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
         },
         {
           "user_condition": {
-            "role": "moderator"
+            "role": "admin"
           }
         }
       ]
@@ -63,11 +57,6 @@
         {
           "user_condition": {
             "role": "super_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "moderator"
           }
         }
       ]

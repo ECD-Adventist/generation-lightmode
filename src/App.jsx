@@ -15,6 +15,7 @@ import InstitutionPageView from './pages/InstitutionPage';
 import About from './pages/About';
 import Privacy from './pages/Privacy';
 import Settings from './pages/Settings';
+import TerritoryPhotos from './pages/TerritoryPhotos';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -75,6 +76,7 @@ const AuthenticatedApp = () => {
       <Route path="/About" element={<LayoutWrapper currentPageName="About"><About /></LayoutWrapper>} />
       <Route path="/Privacy" element={<LayoutWrapper currentPageName="Privacy"><Privacy /></LayoutWrapper>} />
       <Route path="/Settings" element={<LayoutWrapper currentPageName="Settings"><Settings /></LayoutWrapper>} />
+      <Route path="/TerritoryPhotos" element={<LayoutWrapper currentPageName="TerritoryPhotos"><TerritoryPhotos /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

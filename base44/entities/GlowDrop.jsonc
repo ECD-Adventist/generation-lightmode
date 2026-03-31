@@ -1,29 +1,41 @@
 {
-  "name": "CommunityMoment",
+  "name": "GlowDrop",
   "type": "object",
   "properties": {
     "user_email": {
       "type": "string"
     },
-    "type": {
+    "verse": {
+      "type": "string"
+    },
+    "reflection": {
+      "type": "string"
+    },
+    "media_url": {
+      "type": "string"
+    },
+    "status": {
       "type": "string",
       "enum": [
-        "status",
-        "prayer"
+        "pending",
+        "approved",
+        "rejected"
       ],
-      "default": "status"
-    },
-    "content": {
-      "type": "string"
+      "default": "pending"
     },
     "likes_count": {
       "type": "number",
       "default": 0
+    },
+    "category": {
+      "type": "string"
+    },
+    "hashtags": {
+      "type": "string"
     }
   },
   "required": [
-    "user_email",
-    "content"
+    "user_email"
   ],
   "rls": {
     "create": true,

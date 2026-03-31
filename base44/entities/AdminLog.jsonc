@@ -1,38 +1,27 @@
 {
-  "name": "CommunityMoment",
+  "name": "AdminLog",
   "type": "object",
   "properties": {
-    "user_email": {
+    "admin_email": {
       "type": "string"
     },
-    "type": {
-      "type": "string",
-      "enum": [
-        "status",
-        "prayer"
-      ],
-      "default": "status"
-    },
-    "content": {
+    "action": {
       "type": "string"
     },
-    "likes_count": {
-      "type": "number",
-      "default": 0
+    "target": {
+      "type": "string"
+    },
+    "details": {
+      "type": "string"
     }
   },
   "required": [
-    "user_email",
-    "content"
+    "admin_email",
+    "action"
   ],
   "rls": {
-    "create": true,
-    "read": true,
-    "update": {
+    "create": {
       "$or": [
-        {
-          "created_by": "{{user.email}}"
-        },
         {
           "user_condition": {
             "role": "admin"
@@ -50,11 +39,8 @@
         }
       ]
     },
-    "delete": {
+    "read": {
       "$or": [
-        {
-          "created_by": "{{user.email}}"
-        },
         {
           "user_condition": {
             "role": "admin"
@@ -71,6 +57,12 @@
           }
         }
       ]
+    },
+    "update": false,
+    "delete": {
+      "user_condition": {
+        "role": "super_admin"
+      }
     }
   }
 }

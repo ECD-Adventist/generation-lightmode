@@ -1,0 +1,42 @@
+{
+  "name": "GlowGroupMember",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "group_id": {
+      "type": "string"
+    },
+    "joined_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_email",
+    "group_id"
+  ],
+  "rls": {
+    "create": true,
+    "read": true,
+    "update": false,
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
+}
