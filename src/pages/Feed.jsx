@@ -156,8 +156,6 @@ export default function Feed() {
   const likeMutation = useMutation({
     mutationFn: async ({ id, likes, authorEmail }) => {
       if (!user) { toast.error("Please log in to like drops"); return; }
-      const alreadyLiked = userLikes.some(like => like.drop_id === id);
-      if (alreadyLiked) { toast.error("You already liked this drop!"); return; }
       
       // Do the like
       await base44.entities.GlowDropLike.create({ drop_id: id, user_email: user.email });
@@ -182,7 +180,14 @@ export default function Feed() {
       await queryClient.cancelQueries({ queryKey: ["userLikes", user?.email] });
       
       const prevDrops = queryClient.getQueryData(["allGlowDrops"]);
-      const prevLikes = queryClient.getQueryData(["userLikes", user?.email]);
+      const prevLikes = queryClient.getQueryData(["userLikes", user?.email]) || [];
+      
+      // Check if already liked using fresh state
+      const alreadyLiked = prevLikes.some(like => like.drop_id === id);
+      if (alreadyLiked) {
+        toast.error("You already liked this drop!");
+        throw new Error("Already liked");
+      }
       
       queryClient.setQueryData(["allGlowDrops"], old => 
         (old || []).map(d => d.id === id ? { ...d, likes_count: (d.likes_count || 0) + 1 } : d)
