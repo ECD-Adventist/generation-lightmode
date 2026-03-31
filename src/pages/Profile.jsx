@@ -250,7 +250,7 @@ export default function Profile() {
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      await base44.auth.updateMe({ 
+      const updatePayload = { 
         full_name: editData.full_name, 
         country: editData.country,
         bio: editData.bio,
@@ -263,12 +263,15 @@ export default function Profile() {
         city: editData.city,
         address: editData.address,
         postal_code: editData.postal_code,
-      });
+      };
+      
+      await base44.auth.updateMe(updatePayload);
       const updated = await base44.auth.me();
       setUser(updated);
       setCurrentUser(updated);
       setIsEditing(false);
       toast.success("Profile updated successfully!");
+      
       // Notify territory admins if location changed
       if (editData.city || editData.country) {
         base44.functions.invoke("notifyTerritoryAdmins", {
@@ -279,7 +282,8 @@ export default function Profile() {
         }).catch(() => {});
       }
     } catch (err) {
-      toast.error("Failed to update profile");
+      console.error("Profile update error:", err);
+      toast.error(err?.message || "Failed to update profile. Please try again.");
     }
   };
 
