@@ -379,7 +379,7 @@ export default function Home() {
             <StatCard value={1000000} suffix="+" label="Youth to be Mobilized" icon={Users} color="#00CFFF" started={statsVisible} />
             <StatCard value={10000000} suffix="+" label="Peers to be Reached" icon={Users} color="#FFD000" started={statsVisible} />
             <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#1DA1FF" started={statsVisible} />
-            <StatCard value={500} suffix="+" label="GlowGroups Active" icon={Star} color="#8A5CFF" started={statsVisible} />
+            <StatCard value={500} suffix="+" label="Glow Groups Target" icon={Star} color="#8A5CFF" started={statsVisible} />
           </div>
         </div>
       </section>
