@@ -20,6 +20,7 @@ import AdminLeaderboardsTab from "../components/admin/AdminLeaderboardsTab";
 import AdminNotificationsTab from "../components/admin/AdminNotificationsTab";
 import AdminBadgesTab from "../components/admin/AdminBadgesTab";
 import AdminMediaTab from "../components/admin/AdminMediaTab";
+import AdminAnnouncementsTab from "../components/admin/AdminAnnouncementsTab";
 
 export default function AdminCenter() {
   const [user, setUser] = useState(null);
@@ -143,6 +144,7 @@ export default function AdminCenter() {
       case "badges": return <AdminBadgesTab />;
       case "analytics": return <AdminAnalyticsTab />;
       case "notifications": return <AdminNotificationsTab />;
+      case "announcements": return <AdminAnnouncementsTab />;
       case "assistant-training": return <AdminAssistantTrainingTab />;
       case "settings": return isSuperAdmin ? <AdminSettingsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view system settings.</div>;
       default: return <AdminDashboardTab />;

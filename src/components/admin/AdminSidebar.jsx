@@ -1,5 +1,5 @@
 import React from "react";
-import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain } from "lucide-react";
+import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -19,6 +19,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin }) 
     { id: "badges", label: "Badges & Ranks", icon: <Award size={18} /> },
     { id: "analytics", label: "Analytics", icon: <BarChart3 size={18} /> },
     { id: "notifications", label: "Notifications", icon: <Bell size={18} /> },
+    { id: "announcements", label: "Announcements", icon: <Megaphone size={18} /> },
     { id: "assistant-training", label: "Assistant Training", icon: <Brain size={18} /> },
   ];
 
