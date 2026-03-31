@@ -30,7 +30,10 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
   ];
 
   if (isSuperAdmin) {
-    menuItems.push({ id: "settings", label: "System Settings", icon: <Settings size={18} /> });
+    menuItems.push(
+      { id: "institutions", label: "Institution Dashboards", icon: <span style={{fontSize:16}}>🏢</span> },
+      { id: "settings", label: "System Settings", icon: <Settings size={18} /> }
+    );
   }
 
   return (

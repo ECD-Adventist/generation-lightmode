@@ -8,6 +8,7 @@ import { Loader2, Sparkles, ImagePlus, X, Zap, Hash, BookOpen, ChevronRight } fr
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
+import ImageCropperModal from "@/components/ui/ImageCropperModal";
 
 // Compress image to max 150KB
 async function compressImage(file) {
@@ -68,6 +69,7 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [aiLoading, setAiLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [cropData, setCropData] = useState(null);
   const [mood, setMood] = useState("");
   const [showSuggestion, setShowSuggestion] = useState(true);
   const fileInputRef = useRef(null);
@@ -94,10 +96,16 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
       toast.error("File size must be under 10MB");
       return;
     }
-    setFile(selected);
+    setCropData({ file: selected, type: "post", aspectRatio: 0.75 });
+    e.target.value = null;
+  };
+
+  const handleCropComplete = (croppedFile) => {
+    setCropData(null);
+    setFile(croppedFile);
     const reader = new FileReader();
     reader.onload = (ev) => setPreview(ev.target.result);
-    reader.readAsDataURL(selected);
+    reader.readAsDataURL(croppedFile);
   };
 
   const clearFile = () => {
@@ -199,7 +207,16 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={resetAndClose}>
+    <>
+      {cropData && (
+        <ImageCropperModal
+          file={cropData.file}
+          aspectRatio={cropData.aspectRatio}
+          onCancel={() => setCropData(null)}
+          onCrop={handleCropComplete}
+        />
+      )}
+      <Dialog open={isOpen} onOpenChange={resetAndClose}>
       <DialogContent className="sm:max-w-lg bg-[#0B0F1A] text-white border border-[#00CFFF]/20 max-h-[92vh] overflow-y-auto z-[2000] p-0 rounded-3xl shadow-[0_0_60px_rgba(0,207,255,0.15)] [&>button]:text-white [&>button]:hover:text-[#00CFFF]">
         {/* Header */}
         <div className="relative px-6 pt-6 pb-4">
@@ -356,5 +373,6 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
         </form>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

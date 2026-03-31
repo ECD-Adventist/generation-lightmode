@@ -1,0 +1,80 @@
+{
+  "name": "Institution",
+  "type": "object",
+  "properties": {
+    "institution_name": {
+      "type": "string",
+      "description": "Official name of the institution"
+    },
+    "institution_type": {
+      "type": "string",
+      "enum": [
+        "school",
+        "church",
+        "university",
+        "nonprofit",
+        "ministry",
+        "other"
+      ],
+      "description": "Type of institution"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the institution"
+    },
+    "contact_person_name": {
+      "type": "string",
+      "description": "Full name of contact person"
+    },
+    "contact_email": {
+      "type": "string",
+      "description": "Email of contact person"
+    },
+    "contact_phone": {
+      "type": "string",
+      "description": "Phone of contact person"
+    },
+    "institution_address": {
+      "type": "string",
+      "description": "Physical address of institution"
+    },
+    "website_url": {
+      "type": "string",
+      "description": "Institution website (optional)"
+    },
+    "commitment": {
+      "type": "boolean",
+      "default": false,
+      "description": "Commitment to follow community guidelines"
+    },
+    "applicant_email": {
+      "type": "string",
+      "description": "Email of the user applying"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Application status"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When application was submitted"
+    }
+  },
+  "required": [
+    "institution_name",
+    "institution_type",
+    "description",
+    "contact_person_name",
+    "contact_email",
+    "institution_address",
+    "commitment",
+    "applicant_email"
+  ]
+}

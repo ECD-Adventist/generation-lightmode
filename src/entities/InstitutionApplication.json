@@ -1,0 +1,46 @@
+{
+  "name": "InstitutionApplication",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "institution_name": {
+      "type": "string"
+    },
+    "institution_type": {
+      "type": "string",
+      "enum": ["church", "school", "ministry", "organization", "other"]
+    },
+    "country": {
+      "type": "string"
+    },
+    "contact_person": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "procedures_description": {
+      "type": "string"
+    },
+    "commitment_description": {
+      "type": "string"
+    },
+    "logo_url": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "approved", "rejected"],
+      "default": "pending"
+    },
+    "admin_notes": {
+      "type": "string"
+    }
+  },
+  "required": ["user_email", "institution_name", "institution_type", "country", "contact_person", "contact_email", "procedures_description", "commitment_description"]
+}

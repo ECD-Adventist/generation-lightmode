@@ -18,6 +18,7 @@ import { isNotificationEnabled } from "@/lib/notifications";
 import StatusComposerModal from "@/components/feed/StatusComposerModal";
 import StatusViewerModal from "@/components/feed/StatusViewerModal";
 import OnboardingModal from "@/components/dashboard/OnboardingModal";
+import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModal";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
@@ -57,6 +58,7 @@ export default function Feed() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
+  const [isClaimInstitutionOpen, setIsClaimInstitutionOpen] = useState(false);
   const [displayCount, setDisplayCount] = useState(10);
   const queryClient = useQueryClient();
   const feedEndRef = useRef(null);
@@ -456,6 +458,7 @@ export default function Feed() {
                  <Link to={createPageUrl("PrayerWall")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Handshake className="w-3.5 h-3.5 text-[#8A5CFF]" /> Prayer Wall</Link>
                  <Link to="/TerritoryPhotos" className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Camera className="w-3.5 h-3.5 text-[#00CFFF]" /> Territory Moments</Link>
                  <Link to="/Settings" className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Settings className="w-3.5 h-3.5" /> Settings</Link>
+                 <button onClick={() => setIsClaimInstitutionOpen(true)} className="w-full text-left flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><Zap className="w-3.5 h-3.5 text-[#FFD000]" /> Claim Institution</button>
                </div>
              )}
            </nav>
@@ -732,6 +735,7 @@ export default function Feed() {
         
         <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
         <StatusComposerModal isOpen={isStatusModalOpen} onClose={() => setIsStatusModalOpen(false)} user={user} />
+        <ClaimInstitutionModal isOpen={isClaimInstitutionOpen} onClose={() => setIsClaimInstitutionOpen(false)} user={user} />
         <StatusViewerModal
           story={selectedStory}
           storyUser={selectedStory ? getUserInfo(selectedStory.user_email) : null}
