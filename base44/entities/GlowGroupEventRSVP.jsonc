@@ -1,0 +1,51 @@
+{
+  "name": "GlowGroupEventRSVP",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "going",
+        "maybe",
+        "cant_go"
+      ]
+    }
+  },
+  "required": [
+    "event_id",
+    "user_email",
+    "status"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "GlowGroup Leader"
+          }
+        }
+      ]
+    },
+    "update": {
+      "data.user_email": "{{user.email}}"
+    },
+    "delete": {
+      "data.user_email": "{{user.email}}"
+    }
+  }
+}
