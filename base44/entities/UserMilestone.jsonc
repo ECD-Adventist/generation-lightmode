@@ -1,0 +1,41 @@
+{
+  "name": "UserMilestone",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "milestone_key": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "reward_xp": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "user_email",
+    "milestone_key",
+    "title"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": false,
+    "delete": false
+  }
+}
