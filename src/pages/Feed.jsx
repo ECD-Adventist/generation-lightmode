@@ -154,25 +154,22 @@ export default function Feed() {
   });
 
   const likeMutation = useMutation({
-    mutationFn: async ({ id, likes, authorEmail }) => {
+    mutationFn: async ({ id, likes, authorEmail, authorName }) => {
       if (!user) { toast.error("Please log in to like drops"); return; }
       
-      // Do the like
-      await base44.entities.GlowDropLike.create({ drop_id: id, user_email: user.email });
-      await base44.entities.GlowDrop.update(id, { likes_count: (likes || 0) + 1 });
-      
-      // Fire and forget notification
-      if (authorEmail && authorEmail !== user.email) {
-        const authorUser = users.find(entry => entry.email === authorEmail);
-        if (isNotificationEnabled(authorUser, "likes")) {
-          base44.entities.Notification.create({
-            user_email: authorEmail, type: "like",
-            message: `${user.full_name || 'Someone'} liked your Glow Drop!`,
-            link: `/Post?id=${encodeURIComponent(id)}&user=${encodeURIComponent(authorEmail)}`
-          }).catch(() => {});
-        }
+      // Call backend function for atomic like operation
+      const response = await base44.functions.invoke('handleLikeDrop', {
+        drop_id: id,
+        author_email: authorEmail,
+        author_name: authorName
+      });
+
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to like drop');
       }
+
       toast.success("❤️ Liked!");
+      return response.data;
     },
     // Optimistic update
     onMutate: async ({ id, likes }) => {
