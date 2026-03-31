@@ -1,12 +1,37 @@
-import React, { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Globe, Zap, Users, TrendingUp, Award } from "lucide-react";
+import { Globe, Zap, Users, TrendingUp, Award, RefreshCw, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 const COLORS = ["#FFD000", "#C8D0E0", "#C77A2B"];
 
 export default function AdminCountriesTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
+  const [merging, setMerging] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleMerge = async () => {
+    setMerging(true);
+    try {
+      const res = await base44.functions.invoke("normalizeCountries", {});
+      const { updated, changes } = res.data;
+      if (updated === 0) {
+        toast.success("No duplicates found — all countries are already clean!");
+      } else {
+        toast.success(`Merged ${updated} user record(s). Refreshing...`);
+        changes.forEach(c => console.log(`  ${c.email}: "${c.from}" → "${c.to}"`));
+        queryClient.invalidateQueries({ queryKey: ["admin_users_countries"] });
+        queryClient.invalidateQueries({ queryKey: ["admin_users"] });
+        queryClient.invalidateQueries({ queryKey: ["analytics_users"] });
+      }
+    } catch (err) {
+      toast.error("Failed to run country merge: " + err.message);
+    } finally {
+      setMerging(false);
+    }
+  };
+
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin_users_countries"],
     queryFn: () => base44.functions.invoke("listPublicUsers", {}).then(r => r.data || []),
@@ -61,9 +86,19 @@ export default function AdminCountriesTab({ user, territoryRestricted, territory
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white">🌍 Countries Lighting Up</h1>
-        <p className="text-gray-400 mt-1 text-sm">Nations ranked by total members and aggregate Glow Score XP.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white">🌍 Countries Lighting Up</h1>
+          <p className="text-gray-400 mt-1 text-sm">Nations ranked by total members and aggregate Glow Score XP.</p>
+        </div>
+        <button
+          onClick={handleMerge}
+          disabled={merging}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-[#00CFFF] text-sm font-bold hover:bg-[#00CFFF]/20 transition disabled:opacity-50 shrink-0"
+        >
+          {merging ? <Loader2 size={15} className="animate-spin" /> : <RefreshCw size={15} />}
+          {merging ? "Merging..." : "Merge Duplicates"}
+        </button>
       </div>
 
       {/* Summary */}
