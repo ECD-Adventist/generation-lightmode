@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Clock, XCircle, Zap, Home, Users, Bell, Globe, Trash2, Bookmark } from "lucide-react";
+import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Clock, XCircle, Zap, Home, Users, Bell, Globe, Trash2, Bookmark, Calendar } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -572,12 +572,15 @@ export default function Profile() {
                 </div>
                 <div>
                   <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Date of Birth</Label>
-                  <Input
-                    type="date"
-                    value={editData.date_of_birth}
-                    onChange={e => setEditData({...editData, date_of_birth: e.target.value})}
-                    className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:brightness-200 [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:scale-125"
-                  />
+                  <div className="relative">
+                    <Input
+                      type="date"
+                      value={editData.date_of_birth}
+                      onChange={e => setEditData({...editData, date_of_birth: e.target.value})}
+                      className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl pr-12 [color-scheme:dark]"
+                    />
+                    <Calendar className="w-4 h-4 text-[#00CFFF] absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
                 </div>
               </div>
               <div>
