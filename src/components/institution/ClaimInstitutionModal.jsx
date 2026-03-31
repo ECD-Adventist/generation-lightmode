@@ -220,7 +220,7 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                   <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoSelect} />
                 </div>
               </>
-            ) : (
+            ) : step === 2 ? (
               <>
                 <div>
                   <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Procedures & Guidelines *</label>
