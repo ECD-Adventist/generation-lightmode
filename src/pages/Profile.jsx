@@ -19,7 +19,7 @@ export default function Profile() {
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({ full_name: "", country: "", bio: "", website_url: "", profile_picture_url: "", cover_picture_url: "" });
+  const [editData, setEditData] = useState({ full_name: "", country: "", bio: "", website_url: "", profile_picture_url: "", cover_picture_url: "", gender: "", date_of_birth: "", phone: "" });
   const [activeProfileTab, setActiveProfileTab] = useState("drops");
   const [connectionsView, setConnectionsView] = useState(null);
   const profileInputRef = useRef(null);
@@ -56,7 +56,10 @@ export default function Profile() {
               bio: me.bio || "",
               website_url: me.website_url || "",
               profile_picture_url: me.profile_picture_url || "", 
-              cover_picture_url: me.cover_picture_url || "" 
+              cover_picture_url: me.cover_picture_url || "",
+              gender: me.gender || "",
+              date_of_birth: me.date_of_birth || "",
+              phone: me.phone || ""
             });
           }
         } else if (!viewUserEmail) {
@@ -79,7 +82,10 @@ export default function Profile() {
           bio: currentUser.bio || "",
           website_url: currentUser.website_url || "",
           profile_picture_url: currentUser.profile_picture_url || "", 
-          cover_picture_url: currentUser.cover_picture_url || "" 
+          cover_picture_url: currentUser.cover_picture_url || "",
+          gender: currentUser.gender || "",
+          date_of_birth: currentUser.date_of_birth || "",
+          phone: currentUser.phone || ""
         });
       } else {
         const found = allUsersForProfile.find(u => u.email === viewUserEmail);
@@ -244,7 +250,10 @@ export default function Profile() {
         bio: editData.bio,
         website_url: editData.website_url,
         profile_picture_url: editData.profile_picture_url,
-        cover_picture_url: editData.cover_picture_url
+        cover_picture_url: editData.cover_picture_url,
+        gender: editData.gender,
+        date_of_birth: editData.date_of_birth,
+        phone: editData.phone
       });
       const updated = await base44.auth.me();
       setUser(updated);
@@ -546,6 +555,40 @@ export default function Profile() {
                   className="w-full bg-[#0B0F1A] border border-white/10 rounded-xl px-3 py-3 text-white text-base resize-none min-h-[80px] focus:outline-none focus:ring-1 focus:ring-[#00CFFF]/50"
                 />
                 <span className="text-[10px] text-gray-500 ml-1">{editData.bio?.length || 0}/150</span>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Gender</Label>
+                  <select
+                    value={editData.gender}
+                    onChange={e => setEditData({...editData, gender: e.target.value})}
+                    className="w-full bg-[#0B0F1A] border border-white/10 rounded-xl px-3 h-12 text-white text-base focus:outline-none focus:ring-1 focus:ring-[#00CFFF]/50"
+                  >
+                    <option value="">Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="prefer_not_to_say">Prefer not to say</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Date of Birth</Label>
+                  <Input
+                    type="date"
+                    value={editData.date_of_birth}
+                    onChange={e => setEditData({...editData, date_of_birth: e.target.value})}
+                    className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Phone Number</Label>
+                <Input
+                  type="tel"
+                  value={editData.phone}
+                  onChange={e => setEditData({...editData, phone: e.target.value})}
+                  placeholder="+1 234 567 8900"
+                  className="bg-[#0B0F1A] border-white/10 h-12 text-lg rounded-xl"
+                />
               </div>
               <div>
                 <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Website / Link</Label>
