@@ -179,8 +179,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     <div className="bg-[#121826]/80 backdrop-blur-sm border border-white/10 rounded-[2rem] mb-8 p-3 shadow-2xl hover:border-[#00CFFF]/40 transition-all duration-300 group">
       {/* Media / Content Area */}
       <div 
-        className={`relative w-full rounded-[1.5rem] overflow-hidden ${!drop.media_url ? 'min-h-[520px]' : ''} bg-gradient-to-br from-[#1a1b26] via-[#0B0F1A] to-[#1a103c] flex flex-col justify-center items-center text-center shadow-inner`}
-        style={drop.media_url ? {} : {}}
+        className={`relative w-full rounded-[1.5rem] overflow-hidden bg-gradient-to-br from-[#1a1b26] via-[#0B0F1A] to-[#1a103c] flex flex-col justify-center items-center text-center shadow-inner ${drop.media_url ? 'aspect-[3/4]' : 'min-h-[520px]'}`}
         onDoubleClick={() => likeMutation.mutate({id: drop.id, authorEmail: drop.user_email, authorName: dropUser.full_name})}
       >
         {/* Gradient Overlays for readability */}
@@ -227,7 +226,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         {/* Media Image */}
         {drop.media_url && (
-          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="w-full h-auto object-contain max-h-[600px]" />
+          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="w-full h-full object-cover" />
         )}
 
         {/* Text Content (if no media) */}

@@ -9,6 +9,58 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
 
+// Compress image to max 150KB
+async function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        
+        // Start with original dimensions
+        let quality = 0.9;
+        let compressedSize = file.size;
+        
+        // Reduce quality until under 150KB
+        while (compressedSize > 150 * 1024 && quality > 0.1) {
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          
+          canvas.toBlob((blob) => {
+            compressedSize = blob.size;
+            if (compressedSize <= 150 * 1024) {
+              resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+            }
+          }, 'image/jpeg', quality);
+          
+          quality -= 0.1;
+        }
+        
+        // If still too large, reduce dimensions
+        if (compressedSize > 150 * 1024) {
+          const scale = Math.sqrt((150 * 1024) / compressedSize);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob((blob) => {
+            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+          }, 'image/jpeg', 0.8);
+        }
+      };
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+  });
+}
+
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
 
 export default function SubmitDropModal({ isOpen, onClose, user }) {
@@ -92,7 +144,8 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
     try {
       let uploadedMediaUrl = null;
       if (file) {
-        const uploadRes = await base44.integrations.Core.UploadFile({ file });
+        const compressedFile = file.size > 150 * 1024 ? await compressImage(file) : file;
+        const uploadRes = await base44.integrations.Core.UploadFile({ file: compressedFile });
         uploadedMediaUrl = uploadRes.file_url;
       }
 
