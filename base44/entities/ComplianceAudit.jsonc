@@ -1,0 +1,162 @@
+{
+  "name": "ComplianceAudit",
+  "type": "object",
+  "properties": {
+    "institution_id": {
+      "type": "string",
+      "description": "Institution ID this audit belongs to"
+    },
+    "leader_email": {
+      "type": "string",
+      "description": "Email of the institution leader submitting the audit"
+    },
+    "territory_name": {
+      "type": "string",
+      "description": "Name of the assigned territory"
+    },
+    "audit_period": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "quarterly",
+        "annual"
+      ],
+      "default": "monthly",
+      "description": "Audit submission period"
+    },
+    "audit_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the audit submission"
+    },
+    "member_count": {
+      "type": "number",
+      "description": "Total active members in territory"
+    },
+    "supervision_activities": {
+      "type": "string",
+      "description": "Summary of member supervision activities conducted"
+    },
+    "supervision_frequency": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "bi-weekly",
+        "monthly",
+        "quarterly"
+      ],
+      "description": "How frequently supervision is conducted"
+    },
+    "ecd_alignment_status": {
+      "type": "string",
+      "enum": [
+        "fully_compliant",
+        "mostly_compliant",
+        "partially_compliant",
+        "non_compliant"
+      ],
+      "description": "ECD alignment compliance status"
+    },
+    "ecd_standards_met": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of ECD standards verified as met (e.g., safety protocols, staff training, community engagement)"
+    },
+    "ecd_gaps": {
+      "type": "string",
+      "description": "Description of any ECD compliance gaps or areas for improvement"
+    },
+    "corrective_actions": {
+      "type": "string",
+      "description": "Plans to address identified gaps"
+    },
+    "documentation_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs of uploaded supporting documents (training records, compliance certificates, photos, etc.)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional comments or observations"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "under_review",
+        "approved",
+        "requires_revision"
+      ],
+      "default": "submitted",
+      "description": "Audit submission status"
+    },
+    "reviewer_feedback": {
+      "type": "string",
+      "description": "Feedback from super admin reviewer"
+    }
+  },
+  "required": [
+    "institution_id",
+    "leader_email",
+    "territory_name",
+    "audit_date",
+    "member_count",
+    "supervision_activities",
+    "ecd_alignment_status"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.leader_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.leader_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
+}
