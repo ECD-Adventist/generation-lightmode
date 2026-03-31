@@ -173,26 +173,32 @@ export default function Feed() {
       return response.data;
     },
     // Optimistic update
-    onMutate: async ({ id, likes }) => {
+    onMutate: async ({ id }) => {
       await queryClient.cancelQueries({ queryKey: ["allGlowDrops"] });
       await queryClient.cancelQueries({ queryKey: ["userLikes", user?.email] });
       
       const prevDrops = queryClient.getQueryData(["allGlowDrops"]);
       const prevLikes = queryClient.getQueryData(["userLikes", user?.email]) || [];
       
-      // Check if already liked using fresh state
       const alreadyLiked = prevLikes.some(like => like.drop_id === id);
-      if (alreadyLiked) {
-        toast.error("You already liked this drop!");
-        throw new Error("Already liked");
-      }
       
-      queryClient.setQueryData(["allGlowDrops"], old => 
-        (old || []).map(d => d.id === id ? { ...d, likes_count: (d.likes_count || 0) + 1 } : d)
-      );
-      queryClient.setQueryData(["userLikes", user?.email], old => 
-        [...(old || []), { drop_id: id, user_email: user?.email }]
-      );
+      if (alreadyLiked) {
+        // Optimistic unlike
+        queryClient.setQueryData(["allGlowDrops"], old => 
+          (old || []).map(d => d.id === id ? { ...d, likes_count: Math.max(0, (d.likes_count || 1) - 1) } : d)
+        );
+        queryClient.setQueryData(["userLikes", user?.email], old => 
+          (old || []).filter(like => like.drop_id !== id)
+        );
+      } else {
+        // Optimistic like
+        queryClient.setQueryData(["allGlowDrops"], old => 
+          (old || []).map(d => d.id === id ? { ...d, likes_count: (d.likes_count || 0) + 1 } : d)
+        );
+        queryClient.setQueryData(["userLikes", user?.email], old => 
+          [...(old || []), { drop_id: id, user_email: user?.email }]
+        );
+      }
       
       return { prevDrops, prevLikes };
     },

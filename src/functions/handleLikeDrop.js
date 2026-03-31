@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
     if (hasLiked) {
       // Unlike
       await base44.entities.GlowDropLike.delete(existingLikes[0].id);
-      await base44.entities.GlowDrop.update(drop_id, {
+      await base44.asServiceRole.entities.GlowDrop.update(drop_id, {
         likes_count: Math.max(0, (drop.likes_count || 1) - 1)
       });
       likeAction = 'unlike';
@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
         drop_id,
         user_email: user.email
       });
-      await base44.entities.GlowDrop.update(drop_id, {
+      await base44.asServiceRole.entities.GlowDrop.update(drop_id, {
         likes_count: (drop.likes_count || 0) + 1
       });
       likeAction = 'like';
