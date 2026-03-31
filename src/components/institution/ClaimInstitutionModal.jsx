@@ -280,7 +280,7 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                         className="mt-1 w-4 h-4 rounded border-white/20 bg-[#0B0F1A] accent-[#00CFFF]"
                       />
                       <span className="text-xs text-gray-300 leading-relaxed">
-                        I agree to <strong>administer and supervise all assigned territories</strong> according to ECD (Early Childhood Development) standards, including mandatory oversight protocols, compliance audits, and member supervision requirements.
+                        I agree to <strong>administer and supervise all assigned territories</strong> according to ECD (East Central Africa Division of the Seventh-day Adventist Church) standards, including mandatory oversight protocols, compliance audits, and member supervision requirements.
                       </span>
                     </label>
                   </div>
