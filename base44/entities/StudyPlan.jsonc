@@ -1,0 +1,40 @@
+{
+  "name": "StudyPlan",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "duration_days": {
+      "type": "number"
+    },
+    "verses_per_day": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "duration_days"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": true,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
