@@ -248,48 +248,33 @@ export default function Profile() {
   const [uploadingImage, setUploadingImage] = useState(false);
 
   const handleUpdateProfile = async (e) => {
-    e.preventDefault();
-    if (!editData.full_name.trim()) {
-      toast.error("Full name is required");
-      return;
-    }
-    try {
-      // Update name via backend (full_name is read-only in updateMe)
-      await base44.functions.invoke('updateMyName', { full_name: editData.full_name });
-      
-      // Update other profile fields
-      await base44.auth.updateMe({ 
-        country: editData.country,
-        bio: editData.bio,
-        website_url: editData.website_url,
-        profile_picture_url: editData.profile_picture_url,
-        cover_picture_url: editData.cover_picture_url,
-        gender: editData.gender,
-        date_of_birth: editData.date_of_birth,
-        phone: editData.phone,
-        city: editData.city,
-        address: editData.address,
-        postal_code: editData.postal_code,
-      });
-      const updated = await base44.auth.me();
-      setUser(updated);
-      setCurrentUser(updated);
-      setIsEditing(false);
-      toast.success("Profile updated successfully!");
-      // Notify territory admins if location changed
-      if (editData.city || editData.country) {
-        base44.functions.invoke("notifyTerritoryAdmins", {
-          event_type: "location_updated",
-          user_email: updated.email,
-          user_country: editData.country,
-          user_city: editData.city,
-        }).catch(() => {});
+      e.preventDefault();
+      if (!editData.full_name.trim()) {
+        toast.error("Full name is required");
+        return;
       }
-    } catch (err) {
-      console.error("Profile update error:", err);
-      toast.error(err.message || "Failed to update profile. Check your input and try again.");
-    }
-  };
+      try {
+        // Update all profile fields via backend function
+        const response = await base44.functions.invoke('updateProfile', editData);
+        const updated = await base44.auth.me();
+        setUser(updated);
+        setCurrentUser(updated);
+        setIsEditing(false);
+        toast.success("Profile updated successfully!");
+        // Notify territory admins if location changed
+        if (editData.city || editData.country) {
+          base44.functions.invoke("notifyTerritoryAdmins", {
+            event_type: "location_updated",
+            user_email: updated.email,
+            user_country: editData.country,
+            user_city: editData.city,
+          }).catch(() => {});
+        }
+      } catch (err) {
+        console.error("Profile update error:", err);
+        toast.error(err.message || "Failed to update profile. Check your input and try again.");
+      }
+    };
 
   const [cropData, setCropData] = useState(null);
 
