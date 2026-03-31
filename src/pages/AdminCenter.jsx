@@ -16,6 +16,10 @@ import AdminAssistantTrainingTab from "../components/admin/AdminAssistantTrainin
 import AdminCountriesTab from "../components/admin/AdminCountriesTab";
 import AdminActivityFeedTab from "../components/admin/AdminActivityFeedTab";
 import AdminAnalyticsTab from "../components/admin/AdminAnalyticsTab";
+import AdminLeaderboardsTab from "../components/admin/AdminLeaderboardsTab";
+import AdminNotificationsTab from "../components/admin/AdminNotificationsTab";
+import AdminBadgesTab from "../components/admin/AdminBadgesTab";
+import AdminMediaTab from "../components/admin/AdminMediaTab";
 
 export default function AdminCenter() {
   const [user, setUser] = useState(null);
@@ -130,15 +134,15 @@ export default function AdminCenter() {
       case "groups": return <AdminGlowGroupsTab />;
       case "drops": return <AdminGlowDropsTab />;
       case "challenges": return <AdminChallengesTab />;
-      case "leaderboards": return <AdminPlaceholderTab title="Leaderboards Control" description="Adjust rankings and highlight champions." />;
+      case "leaderboards": return <AdminLeaderboardsTab />;
       case "countries": return <AdminCountriesTab />;
       case "activity": return <AdminActivityFeedTab currentUser={user} />;
       case "codes": return <AdminCodesTab sourceFilter="codes_of_truth" title="Codes of Truth" />;
       case "keepit100": return <AdminCodesTab sourceFilter="keeping_it_100" title="Keep It 100" />;
-      case "media": return <AdminPlaceholderTab title="Media Library" description="Upload and organize assets, videos, and images." />;
-      case "badges": return <AdminPlaceholderTab title="Badges & Ranks" description="Configure gamification rules and create new badges." />;
+      case "media": return <AdminMediaTab />;
+      case "badges": return <AdminBadgesTab />;
       case "analytics": return <AdminAnalyticsTab />;
-      case "notifications": return <AdminPlaceholderTab title="Push Notifications" description="Send platform-wide alerts and updates." />;
+      case "notifications": return <AdminNotificationsTab />;
       case "assistant-training": return <AdminAssistantTrainingTab />;
       case "settings": return isSuperAdmin ? <AdminSettingsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view system settings.</div>;
       default: return <AdminDashboardTab />;
