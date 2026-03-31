@@ -24,6 +24,8 @@ import AdminMediaTab from "../components/admin/AdminMediaTab";
 import AdminAnnouncementsTab from "../components/admin/AdminAnnouncementsTab";
 import AdminTerritoryMapTab from "../components/admin/AdminTerritoryMapTab";
 import AdminTerritoryAssignTab from "../components/admin/AdminTerritoryAssignTab";
+import AdminChartsTab from "../components/admin/AdminChartsTab";
+import AdminTerritoryChallengesTab from "../components/admin/AdminTerritoryChallengesTab";
 
 export default function AdminCenter() {
   const [user, setUser] = useState(null);
@@ -156,6 +158,8 @@ export default function AdminCenter() {
       case "countries": return <AdminCountriesTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "territory-map": return <AdminTerritoryMapTab currentUser={user} />;
       case "territory-assign": return <AdminTerritoryAssignTab />;
+      case "charts": return <AdminChartsTab territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "territory-challenges": return <AdminTerritoryChallengesTab currentUser={user} />;
       case "activity": return <AdminActivityFeedTab currentUser={user} />;
       case "codes": return <AdminCodesTab sourceFilter="codes_of_truth" title="Codes of Truth" />;
       case "keepit100": return <AdminCodesTab sourceFilter="keeping_it_100" title="Keep It 100" />;

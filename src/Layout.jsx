@@ -344,9 +344,13 @@ export default function Layout({ children, currentPageName }) {
             </div>
             <LanguageSelector />
             {!userEmail ? (
-              <a href={createPageUrl("Feed")} className="glm-btn-primary" style={{ padding: "10px 24px", fontSize: 14, whiteSpace: "nowrap", flexShrink: 0 }}>
+              <button onClick={async () => {
+                const isAuth = await base44.auth.isAuthenticated();
+                if (isAuth) window.location.href = createPageUrl("Feed");
+                else base44.auth.redirectToLogin(createPageUrl("Feed"));
+              }} className="glm-btn-primary" style={{ padding: "10px 24px", fontSize: 14, whiteSpace: "nowrap", flexShrink: 0 }}>
                 Switch It On ⚡
-              </a>
+              </button>
             ) : (
               <div className="flex items-center gap-4">
                 <Link to={createPageUrl("Feed")} style={{
@@ -496,9 +500,13 @@ export default function Layout({ children, currentPageName }) {
                 </Link>
               </>
             ) : (
-              <a href={createPageUrl("Feed")} className="glm-btn-primary" style={{ display: "block", textAlign: "center", marginTop: 20 }}>
+              <button onClick={async () => {
+                const isAuth = await base44.auth.isAuthenticated();
+                if (isAuth) window.location.href = createPageUrl("Feed");
+                else base44.auth.redirectToLogin(createPageUrl("Feed"));
+              }} className="glm-btn-primary" style={{ display: "block", textAlign: "center", marginTop: 20, width: "100%", cursor: "pointer" }}>
                 Switch It On ⚡
-              </a>
+              </button>
             )}
           </div>
         )}

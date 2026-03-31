@@ -1,0 +1,45 @@
+{
+  "name": "Challenge",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "points_reward": {
+      "type": "number",
+      "default": 0
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "territory_scope": {
+      "type": "string",
+      "description": "Territory name/city/country this challenge is scoped to"
+    },
+    "territory_metric": {
+      "type": "string",
+      "enum": [
+        "glow_score",
+        "drops",
+        "followers"
+      ],
+      "description": "Metric used to rank participants"
+    }
+  },
+  "required": [
+    "title",
+    "points_reward"
+  ]
+}

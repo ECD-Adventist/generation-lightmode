@@ -269,6 +269,15 @@ export default function Profile() {
       setCurrentUser(updated);
       setIsEditing(false);
       toast.success("Profile updated successfully!");
+      // Notify territory admins if location changed
+      if (editData.city || editData.country) {
+        base44.functions.invoke("notifyTerritoryAdmins", {
+          event_type: "location_updated",
+          user_email: updated.email,
+          user_country: editData.country,
+          user_city: editData.city,
+        }).catch(() => {});
+      }
     } catch (err) {
       toast.error("Failed to update profile");
     }
