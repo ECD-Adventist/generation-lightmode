@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Search, Edit2, Trash2, Shield, Loader2, Calendar, Users, Activity, Filter, MapPin, Zap } from "lucide-react";
+import { Search, Edit2, Trash2, Shield, Loader2, Calendar, Users, Activity, Filter, MapPin, Zap, AlertCircle, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
@@ -9,6 +9,8 @@ export default function AdminUsersTab({ user }) {
   const [search, setSearch] = useState("");
   const [filterRole, setFilterRole] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
+  const [filterIncomplete, setFilterIncomplete] = useState(false);
+  const [sendingReminders, setSendingReminders] = useState(false);
   
   const { data: users = [], isLoading } = useQuery({ 
     queryKey: ["admin_users_full"], 
@@ -22,10 +24,13 @@ export default function AdminUsersTab({ user }) {
     } 
   });
 
+  const incompleteCount = useMemo(() => users.filter(u => !u.country || !u.bio || !u.profile_picture_url).length, [users]);
+
   const filteredUsers = useMemo(() => {
     return users.filter(u => {
       const matchesSearch = u.full_name?.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase());
       const matchesRole = filterRole === "all" || (u.role || "user") === filterRole;
+      const matchesIncomplete = !filterIncomplete || (!u.country || !u.bio || !u.profile_picture_url);
       
       let matchesTime = true;
       if (timeFilter !== "all" && u.created_date) {
@@ -39,9 +44,21 @@ export default function AdminUsersTab({ user }) {
         else if (timeFilter === "1year") matchesTime = diffDays <= 365;
       }
 
-      return matchesSearch && matchesRole && matchesTime;
+      return matchesSearch && matchesRole && matchesTime && matchesIncomplete;
     }).sort((a, b) => new Date(b.created_date || 0) - new Date(a.created_date || 0));
-  }, [users, search, filterRole, timeFilter]);
+  }, [users, search, filterRole, timeFilter, filterIncomplete]);
+
+  const handleSendReminders = async () => {
+    setSendingReminders(true);
+    try {
+      const res = await base44.functions.invoke("sendProfileReminder", {});
+      toast.success(`✅ Reminders sent to ${res.data.sent} users! Summary emailed to admin.`);
+    } catch {
+      toast.error("Failed to send reminders.");
+    } finally {
+      setSendingReminders(false);
+    }
+  };
 
   const stats = useMemo(() => {
     const now = new Date();
@@ -66,6 +83,35 @@ export default function AdminUsersTab({ user }) {
           <p className="text-gray-400 mt-1 text-sm md:text-base">Monitor and manage your community members.</p>
         </div>
       </div>
+
+      {/* Incomplete Profiles Banner */}
+      {incompleteCount > 0 && (
+        <div className="bg-[#FFD000]/10 border border-[#FFD000]/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="text-[#FFD000] w-5 h-5 shrink-0" />
+            <div>
+              <p className="text-[#FFD000] font-bold text-sm">{incompleteCount} members have incomplete profiles</p>
+              <p className="text-gray-400 text-xs mt-0.5">Missing country, bio, or profile picture — they won't appear correctly on the Global Map.</p>
+            </div>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={() => setFilterIncomplete(v => !v)}
+              className={`px-4 py-2 rounded-lg text-xs font-bold border transition ${filterIncomplete ? "bg-[#FFD000]/20 border-[#FFD000]/50 text-[#FFD000]" : "border-white/10 text-gray-400 hover:border-[#FFD000]/40 hover:text-[#FFD000]"}`}
+            >
+              {filterIncomplete ? "Show All" : "Filter Incomplete"}
+            </button>
+            <button
+              onClick={handleSendReminders}
+              disabled={sendingReminders}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold bg-[#FFD000] text-black hover:bg-[#FFD000]/80 transition disabled:opacity-50"
+            >
+              {sendingReminders ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
+              {sendingReminders ? "Sending..." : "Send Reminders"}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-[#121826] border border-white/5 rounded-2xl p-5 flex items-center gap-4">
@@ -168,7 +214,7 @@ export default function AdminUsersTab({ user }) {
                     </td>
                     <td className="p-4">
                       <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-1 text-xs text-gray-400"><MapPin size={12} /> {u.country || "Global"}</div>
+                        <div className="flex items-center gap-1 text-xs text-gray-400"><MapPin size={12} /> {u.country || <span className="text-orange-400">No country</span>}</div>
                         <div className="flex items-center gap-1 text-xs font-bold text-[#FFD000]"><Zap size={12} /> {u.glow_score || 0} XP</div>
                       </div>
                     </td>
