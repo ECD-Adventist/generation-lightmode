@@ -17,7 +17,7 @@ import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
 import { isNotificationEnabled } from "@/lib/notifications";
 import StatusComposerModal from "@/components/feed/StatusComposerModal";
 import StatusViewerModal from "@/components/feed/StatusViewerModal";
-import ConsentModal from "@/components/dashboard/ConsentModal";
+import OnboardingModal from "@/components/dashboard/OnboardingModal";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
@@ -327,9 +327,9 @@ export default function Feed() {
 
   return (
     <div className="h-[100dvh] bg-[#0B0F1A] text-white relative overflow-hidden font-['Inter']">
-      <ConsentModal
-        isOpen={!!user && !user.privacy_consent_given}
-        onAccepted={() => setUser(prev => ({ ...prev, privacy_consent_given: true }))}
+      <OnboardingModal
+        isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth)}
+        onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
       />
       <style>{`
         @keyframes pan-map {

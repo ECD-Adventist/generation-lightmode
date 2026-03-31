@@ -40,6 +40,10 @@
     "country": {
       "type": "string"
     },
+    "phone": {
+      "type": "string",
+      "description": "User's phone number"
+    },
     "glow_score": {
       "type": "number",
       "default": 0
