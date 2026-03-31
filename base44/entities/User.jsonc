@@ -5,12 +5,17 @@
     "role": {
       "type": "string",
       "enum": [
-        "admin",
         "user",
-        "super_admin",
+        "missionary",
         "GlowGroup Leader",
         "moderator",
-        "missionary"
+        "church_admin",
+        "conference_field_admin",
+        "union_admin",
+        "country_admin",
+        "ecd_admin",
+        "admin",
+        "super_admin"
       ],
       "default": "user"
     },
@@ -56,6 +61,32 @@
     },
     "website_url": {
       "type": "string"
+    },
+    "territory_name": {
+      "type": "string",
+      "description": "Name of the administrative territory this admin manages"
+    },
+    "territory_level": {
+      "type": "string",
+      "description": "Administrative level of the territory"
+    },
+    "territory_countries": {
+      "type": "string",
+      "description": "Comma-separated list of countries in this admin's territory"
+    },
+    "territory_map_url": {
+      "type": "string",
+      "description": "URL of the uploaded territory map image"
+    },
+    "territory_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Approval status of this admin's territory configuration"
     }
   },
   "required": []

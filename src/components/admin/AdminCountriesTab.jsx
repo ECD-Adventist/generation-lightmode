@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Globe, Zap, Users, TrendingUp, Award, RefreshCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import CountriesWorldMap from "./CountriesWorldMap";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 const COLORS = ["#FFD000", "#C8D0E0", "#C77A2B"];
@@ -120,6 +121,9 @@ export default function AdminCountriesTab({ user, territoryRestricted, territory
           </div>
         ))}
       </div>
+
+      {/* World Map */}
+      <CountriesWorldMap countryStats={countryStats} />
 
       {/* Top 3 Podium */}
       {countryStats.length >= 3 && (
