@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -52,6 +52,32 @@ export default function OnboardingModal({ isOpen, onCompleted }) {
   const [bio, setBio] = useState("");
   const [profilePic, setProfilePic] = useState("");
   const [phone, setPhone] = useState("");
+
+  // Initialize from user's existing data
+  useEffect(() => {
+    const initializeFromUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        if (user) {
+          setFullName(user.full_name || "");
+          setCountry(user.country || "");
+          setGender(user.gender || "");
+          setDob(user.date_of_birth || "");
+          setCity(user.city || "");
+          setAddress(user.address || "");
+          setPostalCode(user.postal_code || "");
+          setBio(user.bio || "");
+          setProfilePic(user.profile_picture_url || "");
+          setPhone(user.phone || "");
+        }
+      } catch (err) {
+        console.error("Failed to load user data:", err);
+      }
+    };
+    if (isOpen) {
+      initializeFromUser();
+    }
+  }, [isOpen]);
 
   const handlePicUpload = async (e) => {
     const file = e.target.files?.[0];

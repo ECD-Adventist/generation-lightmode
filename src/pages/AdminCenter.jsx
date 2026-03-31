@@ -26,6 +26,7 @@ import AdminTerritoryMapTab from "../components/admin/AdminTerritoryMapTab";
 import AdminTerritoryAssignTab from "../components/admin/AdminTerritoryAssignTab";
 import AdminChartsTab from "../components/admin/AdminChartsTab";
 import AdminTerritoryChallengesTab from "../components/admin/AdminTerritoryChallengesTab";
+import AdminCommentsTab from "../components/admin/AdminCommentsTab";
 
 export default function AdminCenter() {
   const [user, setUser] = useState(null);
@@ -169,10 +170,11 @@ export default function AdminCenter() {
       case "notifications": return <AdminNotificationsTab />;
       case "announcements": return <AdminAnnouncementsTab />;
       case "assistant-training": return <AdminAssistantTrainingTab />;
+      case "comments": return <AdminCommentsTab />;
       case "settings": return isSuperAdmin ? <AdminSettingsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view system settings.</div>;
       default: return <AdminDashboardTab />;
-    }
-  };
+      }
+      };
 
   return (
     <div className="bg-[#0B0F1A] text-white flex flex-col md:flex-row" style={{ minHeight: "100vh" }}>
