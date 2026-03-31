@@ -557,8 +557,8 @@ export default function Home() {
 
           <div style={{ height: "70vh", minHeight: 450, width: "100%", background: "#080C14" }}>
             <MapContainer 
-              center={[2, 30]} 
-              zoom={liveCountries.length > 0 ? 3 : 2}
+              center={[10, 20]} 
+              zoom={2}
               scrollWheelZoom={false}
               zoomControl={false}
               style={{ height: "100%", width: "100%", background: "#0B0F1A" }}
@@ -567,7 +567,7 @@ export default function Home() {
                 url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
                 attribution='&copy; CartoDB'
               />
-              {liveCountries.filter(loc => loc.country !== "Global" && countryCoordinates[loc.country]).flatMap((loc, i) => {
+              {liveCountries.filter(loc => countryCoordinates[loc.country]).flatMap((loc, i) => {
                 const coordinates = countryCoordinates[loc.country];
                 const color = i % 3 === 0 ? "#00CFFF" : i % 3 === 1 ? "#FFD000" : "#8A5CFF";
                 // Scale radii to be visible even with small numbers
