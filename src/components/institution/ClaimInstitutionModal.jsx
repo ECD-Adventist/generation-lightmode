@@ -224,7 +224,7 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                     required
                     value={formData.procedures_description}
                     onChange={(e) => setFormData({ ...formData, procedures_description: e.target.value })}
-                    placeholder="Describe the procedures members should follow, rules, and guidelines..."
+                    placeholder="Describe member procedures, rules, guidelines, territory administration protocols, supervision requirements for ECD compliance..."
                     className="bg-[#0B0F1A] border-white/10 rounded-xl h-32"
                   />
                   <span className="text-[10px] text-gray-500">{formData.procedures_description.length}/1000</span>
@@ -236,7 +236,7 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                     required
                     value={formData.commitment_description}
                     onChange={(e) => setFormData({ ...formData, commitment_description: e.target.value })}
-                    placeholder="Describe what members must commit to, core values, spiritual focus, etc..."
+                    placeholder="Core values, spiritual focus, ECD supervision requirements, territory administration responsibilities, member commitments..."
                     className="bg-[#0B0F1A] border-white/10 rounded-xl h-32"
                   />
                   <span className="text-[10px] text-gray-500">{formData.commitment_description.length}/1000</span>

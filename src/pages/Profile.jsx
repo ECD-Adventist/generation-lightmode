@@ -249,6 +249,10 @@ export default function Profile() {
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
+    if (!editData.full_name.trim()) {
+      toast.error("Full name is required");
+      return;
+    }
     try {
       await base44.auth.updateMe({ 
         full_name: editData.full_name, 
@@ -279,7 +283,8 @@ export default function Profile() {
         }).catch(() => {});
       }
     } catch (err) {
-      toast.error("Failed to update profile");
+      console.error("Profile update error:", err);
+      toast.error(err.message || "Failed to update profile. Check your input and try again.");
     }
   };
 
