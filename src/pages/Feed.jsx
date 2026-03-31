@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera, X } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -299,10 +299,14 @@ export default function Feed() {
           (activeFilter === 'Devotional' && drop.category === 'Devotional') ||
           (activeFilter === 'Testimony' && drop.category === 'Testimony');
 
+        const q = searchQuery.toLowerCase();
+        const dropAuthor = getUserInfo(drop.user_email);
         const matchesSearch = !searchQuery || 
-          drop.verse?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          drop.reflection?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          drop.hashtags?.toLowerCase().includes(searchQuery.toLowerCase());
+          drop.verse?.toLowerCase().includes(q) ||
+          drop.reflection?.toLowerCase().includes(q) ||
+          drop.hashtags?.toLowerCase().includes(q) ||
+          drop.category?.toLowerCase().includes(q) ||
+          dropAuthor?.full_name?.toLowerCase().includes(q);
 
         return matchesFilter && matchesSearch;
       })
@@ -479,15 +483,42 @@ export default function Feed() {
         </div>
 
         {/* Center Header (Desktop) */}
-        <div className="hidden lg:flex items-center justify-between px-4 mb-6 shrink-0">
-           <h2 className="text-xl font-bold text-white">For You</h2>
-           <button
-             onClick={() => setIsSearchOpen(true)}
-             className="relative w-72 flex items-center gap-2 bg-[#121826] border border-white/10 rounded-full py-2.5 pl-9 pr-4 text-sm text-gray-500 hover:border-[#00CFFF]/40 hover:text-gray-300 transition cursor-pointer text-left whitespace-nowrap overflow-hidden"
-           >
-             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00CFFF] w-4 h-4" />
-             Search people, drops, groups...
-           </button>
+        <div className="hidden lg:flex items-center justify-between px-4 mb-6 shrink-0 gap-4">
+           <h2 className="text-xl font-bold text-white shrink-0">For You</h2>
+           <div className="relative w-80">
+             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00CFFF] w-4 h-4 pointer-events-none" />
+             <input
+               type="text"
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               placeholder="Search drops by verse, reflection, hashtag..."
+               className="w-full bg-[#121826] border border-white/10 rounded-full py-2.5 pl-9 pr-9 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00CFFF]/50 transition"
+             />
+             {searchQuery && (
+               <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition">
+                 <X className="w-4 h-4" />
+               </button>
+             )}
+           </div>
+        </div>
+
+        {/* Mobile Search Bar */}
+        <div className="lg:hidden px-4 mb-4 shrink-0">
+          <div className="relative">
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00CFFF] w-4 h-4 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search drops..."
+              className="w-full bg-[#121826] border border-white/10 rounded-full py-2.5 pl-9 pr-9 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00CFFF]/50 transition"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Stories / Status Row */}
