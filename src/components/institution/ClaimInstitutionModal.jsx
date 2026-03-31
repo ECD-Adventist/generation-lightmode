@@ -23,8 +23,9 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
     contact_person: user?.full_name || "",
     contact_email: user?.email || "",
     contact_phone: user?.phone || "",
-    procedures_description: "",
-    commitment_description: "",
+    agree_procedures: false,
+    agree_commitment: false,
+    agree_ecd_supervision: false,
     logo_url: ""
   });
 
@@ -37,8 +38,9 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
         contact_person: user?.full_name || "",
         contact_email: user?.email || "",
         contact_phone: user?.phone || "",
-        procedures_description: "",
-        commitment_description: "",
+        agree_procedures: false,
+        agree_commitment: false,
+        agree_ecd_supervision: false,
         logo_url: ""
       });
       setLogoFile(null);
@@ -73,8 +75,8 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
     }
 
     if (step === 2) {
-      if (!formData.procedures_description || !formData.commitment_description) {
-        toast.error("Please fill in procedures and commitment");
+      if (!formData.agree_procedures || !formData.agree_commitment || !formData.agree_ecd_supervision) {
+        toast.error("Please agree to all terms");
         return;
       }
 
@@ -94,8 +96,9 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
           contact_person: formData.contact_person,
           contact_email: formData.contact_email,
           contact_phone: formData.contact_phone,
-          procedures_description: formData.procedures_description,
-          commitment_description: formData.commitment_description,
+          agree_procedures: formData.agree_procedures,
+          agree_commitment: formData.agree_commitment,
+          agree_ecd_supervision: formData.agree_ecd_supervision,
           logo_url: logoUrl,
           status: "pending"
         });
@@ -238,28 +241,49 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
               </>
             ) : (
               <>
-                <div>
-                  <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Procedures & Guidelines *</label>
-                  <Textarea
-                    required
-                    value={formData.procedures_description}
-                    onChange={(e) => setFormData({ ...formData, procedures_description: e.target.value })}
-                    placeholder="Describe member procedures, rules, guidelines, territory administration protocols, supervision requirements for ECD compliance..."
-                    className="bg-[#0B0F1A] border-white/10 rounded-xl h-32"
-                  />
-                  <span className="text-[10px] text-gray-500">{formData.procedures_description.length}/1000</span>
-                </div>
+                <div className="space-y-4">
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-4">
+                    <h3 className="text-sm font-bold text-white">Commitment & Procedures</h3>
+                    
+                    <label className="flex items-start gap-3 cursor-pointer hover:bg-white/5 p-3 rounded-lg transition">
+                      <input
+                        type="checkbox"
+                        required
+                        checked={formData.agree_procedures}
+                        onChange={(e) => setFormData({ ...formData, agree_procedures: e.target.checked })}
+                        className="mt-1 w-4 h-4 rounded border-white/20 bg-[#0B0F1A] accent-[#00CFFF]"
+                      />
+                      <span className="text-xs text-gray-300 leading-relaxed">
+                        I agree to maintain and enforce clear member <strong>procedures, rules, and guidelines</strong> that align with Generation LightMode standards and ECD compliance requirements.
+                      </span>
+                    </label>
 
-                <div>
-                  <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Commitment & Values *</label>
-                  <Textarea
-                    required
-                    value={formData.commitment_description}
-                    onChange={(e) => setFormData({ ...formData, commitment_description: e.target.value })}
-                    placeholder="Core values, spiritual focus, ECD supervision requirements, territory administration responsibilities, member commitments..."
-                    className="bg-[#0B0F1A] border-white/10 rounded-xl h-32"
-                  />
-                  <span className="text-[10px] text-gray-500">{formData.commitment_description.length}/1000</span>
+                    <label className="flex items-start gap-3 cursor-pointer hover:bg-white/5 p-3 rounded-lg transition">
+                      <input
+                        type="checkbox"
+                        required
+                        checked={formData.agree_commitment}
+                        onChange={(e) => setFormData({ ...formData, agree_commitment: e.target.checked })}
+                        className="mt-1 w-4 h-4 rounded border-white/20 bg-[#0B0F1A] accent-[#00CFFF]"
+                      />
+                      <span className="text-xs text-gray-300 leading-relaxed">
+                        I commit to upholding core <strong>spiritual values and faith-based principles</strong> as the foundation of our institution's mission and territory administration.
+                      </span>
+                    </label>
+
+                    <label className="flex items-start gap-3 cursor-pointer hover:bg-white/5 p-3 rounded-lg transition">
+                      <input
+                        type="checkbox"
+                        required
+                        checked={formData.agree_ecd_supervision}
+                        onChange={(e) => setFormData({ ...formData, agree_ecd_supervision: e.target.checked })}
+                        className="mt-1 w-4 h-4 rounded border-white/20 bg-[#0B0F1A] accent-[#00CFFF]"
+                      />
+                      <span className="text-xs text-gray-300 leading-relaxed">
+                        I agree to <strong>administer and supervise all assigned territories</strong> according to ECD (Early Childhood Development) standards, including mandatory oversight protocols, compliance audits, and member supervision requirements.
+                      </span>
+                    </label>
+                  </div>
                 </div>
 
                 <div className="bg-white/5 border border-white/10 rounded-xl p-4">
