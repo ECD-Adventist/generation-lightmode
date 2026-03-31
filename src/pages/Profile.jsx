@@ -254,8 +254,11 @@ export default function Profile() {
       return;
     }
     try {
+      // Update name via backend (full_name is read-only in updateMe)
+      await base44.functions.invoke('updateMyName', { full_name: editData.full_name });
+      
+      // Update other profile fields
       await base44.auth.updateMe({ 
-        full_name: editData.full_name, 
         country: editData.country,
         bio: editData.bio,
         website_url: editData.website_url,
