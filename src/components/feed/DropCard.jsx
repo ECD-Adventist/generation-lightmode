@@ -259,7 +259,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
               className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
               title={userHasLiked ? "You already liked this" : "Like this drop"}
             >
-              <Heart className={`w-6 h-6 transition-all ${userHasLiked ? "text-red-500 fill-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : drop.likes_count > 0 ? "text-red-500 fill-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "text-white hover:scale-110"}`} />
+              <Heart className={`w-6 h-6 transition-all ${userHasLiked ? "text-red-500 fill-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "text-white hover:scale-110"}`} />
             </button>
             <span className="text-white text-xs font-bold drop-shadow-md">{drop.likes_count || 0}</span>
           </div>
