@@ -23,7 +23,9 @@ Deno.serve(async (req) => {
     });
 
     const hasLiked = existingLikes.length > 0;
-    const drop = await base44.entities.GlowDrop.get(drop_id);
+
+    // Use service role for reading and updating the drop to bypass RLS
+    const drop = await base44.asServiceRole.entities.GlowDrop.get(drop_id);
 
     if (!drop) {
       return Response.json({ error: 'Drop not found' }, { status: 404 });
@@ -52,11 +54,11 @@ Deno.serve(async (req) => {
 
       // Notify drop author if they have notifications enabled
       if (author_email && author_email !== user.email) {
-        const authorUser = await base44.entities.User.get(author_email).catch(() => null);
+        const authorUser = await base44.asServiceRole.entities.User.filter({ email: author_email }).then(r => r[0]).catch(() => null);
         const notificationsEnabled = authorUser?.notification_likes !== false;
         
         if (notificationsEnabled) {
-          await base44.entities.Notification.create({
+          await base44.asServiceRole.entities.Notification.create({
             user_email: author_email,
             type: 'like',
             message: `${user.full_name || 'Someone'} liked your Glow Drop.`,
