@@ -255,12 +255,19 @@ export default function Profile() {
       }
       try {
         // Update all profile fields via backend function
-        const response = await base44.functions.invoke('updateProfile', editData);
+        await base44.functions.invoke('updateProfile', editData);
+
+        // Brief delay to allow backend to persist
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // Refresh user data from server
         const updated = await base44.auth.me();
-        setUser(updated);
-        setCurrentUser(updated);
+        setUser(prev => ({ ...prev, ...updated }));
+        setCurrentUser(prev => ({ ...prev, ...updated }));
+        setEditData(prev => ({ ...prev, ...updated }));
         setIsEditing(false);
         toast.success("Profile updated successfully!");
+
         // Notify territory admins if location changed
         if (editData.city || editData.country) {
           base44.functions.invoke("notifyTerritoryAdmins", {
