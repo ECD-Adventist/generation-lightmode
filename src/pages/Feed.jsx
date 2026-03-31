@@ -634,8 +634,7 @@ export default function Feed() {
             <h3 className="font-black text-xs text-[#FFD000] mb-4 tracking-widest uppercase">People to Connect</h3>
             
             <div className="space-y-4">
-              {users.filter(u => u.email !== user?.email).map((u, i) => {
-                const isFollowing = following.some(f => f.following_email === u.email);
+              {users.filter(u => u.email !== user?.email && !following.some(f => f.following_email === u.email)).map((u, i) => {
                 return (
                 <div key={u.id} className="flex items-center gap-2">
                   <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-2 flex-1 min-w-0 no-underline hover:opacity-80 transition">
@@ -649,9 +648,9 @@ export default function Feed() {
                   </Link>
                    <button 
                      onClick={() => followMutation.mutate(u.email)}
-                     className={`text-[9px] font-bold px-3 py-1.5 rounded-full border transition shrink-0 ${isFollowing ? "border-gray-500 text-gray-400 hover:border-red-500 hover:text-red-500" : "border-[#00CFFF] text-[#00CFFF] hover:bg-[#00CFFF]/10"}`}
+                     className="text-[9px] font-bold px-3 py-1.5 rounded-full border border-[#00CFFF] text-[#00CFFF] hover:bg-[#00CFFF]/10 transition shrink-0"
                    >
-                     {isFollowing ? "UNFOLLOW" : "CONNECT"}
+                     CONNECT
                    </button>
                 </div>
               )})}

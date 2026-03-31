@@ -1,0 +1,93 @@
+{
+  "name": "TerritoryLeaderboard",
+  "type": "object",
+  "properties": {
+    "territory_name": {
+      "type": "string",
+      "description": "Country or region name"
+    },
+    "total_glow_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Sum of all user XP in territory"
+    },
+    "total_users": {
+      "type": "number",
+      "default": 0,
+      "description": "Count of active users"
+    },
+    "total_drops": {
+      "type": "number",
+      "default": 0,
+      "description": "Total Glow Drops submitted"
+    },
+    "total_challenges_completed": {
+      "type": "number",
+      "default": 0,
+      "description": "Sum of challenge submissions"
+    },
+    "total_prayer_supports": {
+      "type": "number",
+      "default": 0,
+      "description": "Total prayer request supports"
+    },
+    "active_groups": {
+      "type": "number",
+      "default": 0,
+      "description": "Count of active GlowGroups"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last sync timestamp"
+    }
+  },
+  "required": [
+    "territory_name"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "read": true,
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
+}

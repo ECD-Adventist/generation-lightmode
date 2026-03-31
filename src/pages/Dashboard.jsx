@@ -14,6 +14,7 @@ import PrayerAnalyticsTab from "../components/dashboard/PrayerAnalyticsTab";
 import DashboardMapHero from "../components/dashboard/DashboardMapHero";
 import OnboardingModal from "../components/dashboard/OnboardingModal";
 import AICoachingTab from "../components/dashboard/AICoachingTab";
+import TerritoryLeaderboard from "../components/leaderboard/TerritoryLeaderboard";
 import { applyDailyCheckIn } from "@/lib/gamification";
 
 export default function Dashboard() {
@@ -139,6 +140,7 @@ export default function Dashboard() {
               { id: 'drops', label: 'Submit Drop', icon: '✨' },
               { id: 'challenges', label: 'Challenges', icon: '🎯' },
               { id: 'glowgroups', label: 'GlowGroups', icon: '👥' },
+              { id: 'territory-leaderboard', label: 'Territory Board', icon: '🌍' },
               { id: 'leaderboard', label: 'Leaderboard', icon: '🏆' },
               { id: 'prayer', label: 'Prayer Requests', icon: '🙏' },
               { id: 'prayer-analytics', label: 'Prayer Analytics', icon: '📈' },
@@ -174,6 +176,9 @@ export default function Dashboard() {
           </TabsContent>
           <TabsContent value="prayer-analytics">
             <PrayerAnalyticsTab />
+          </TabsContent>
+          <TabsContent value="territory-leaderboard">
+            <TerritoryLeaderboard userTerritory={user?.country} />
           </TabsContent>
           <TabsContent value="ai-coach">
             <AICoachingTab user={user} />

@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Heart, CheckCircle2, UserCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import PrayerMatcher from "@/components/prayer/PrayerMatcher";
 
 export default function PrayerRequestsTab({ user }) {
   const [content, setContent] = useState("");
@@ -88,6 +89,13 @@ export default function PrayerRequestsTab({ user }) {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl">
+      {/* Prayer Matcher */}
+      <div className="bg-[#0B0F1A]/50 p-6 rounded-2xl border border-[#00CFFF]/20 shadow-lg">
+        <h3 className="text-xl font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-4">Find Prayer Matches 🙏</h3>
+        <p className="text-sm text-gray-400 mb-4">Get matched with prayer requests that align with your interests and territory.</p>
+        <PrayerMatcher currentUser={user} />
+      </div>
+
       <div className="bg-[#121826]/80 p-6 rounded-2xl border border-white/10 shadow-lg">
         <h3 className="text-xl font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-4">Share a Prayer Request</h3>
         <form onSubmit={handlePost} className="space-y-4">
