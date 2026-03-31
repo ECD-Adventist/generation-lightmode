@@ -345,7 +345,7 @@ export default function Layout({ children, currentPageName }) {
             <LanguageSelector />
             {!userEmail ? (
               <a href={createPageUrl("Feed")} className="glm-btn-primary" style={{ padding: "10px 24px", fontSize: 14, whiteSpace: "nowrap", flexShrink: 0 }}>
-                {t("joinNow")}
+                Switch It On ⚡
               </a>
             ) : (
               <div className="flex items-center gap-4">
@@ -497,7 +497,7 @@ export default function Layout({ children, currentPageName }) {
               </>
             ) : (
               <a href={createPageUrl("Feed")} className="glm-btn-primary" style={{ display: "block", textAlign: "center", marginTop: 20 }}>
-                {t("joinNow")}
+                Switch It On ⚡
               </a>
             )}
           </div>

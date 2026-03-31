@@ -53,7 +53,7 @@ function EditRoleModal({ targetUser, allRoles, onClose, onSave }) {
             <button key={r} onClick={() => setRole(r)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition ${role === r ? "bg-[#00CFFF]/15 border-[#00CFFF]/40 text-[#00CFFF]" : "border-white/10 text-gray-400 hover:border-white/20 hover:text-white"}`}>
               <Shield size={14} />
-              <span className="capitalize">{r.replace(/_/g, " ")}</span>
+              <span>{r === "ecd_admin" ? "ECD Admin" : r.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</span>
               {role === r && <Check size={14} className="ml-auto" />}
             </button>
           ))}
@@ -128,23 +128,26 @@ export default function AdminUsersTab({ user }) {
   });
 
   // Dynamically collect all roles from the actual user data
+  // Hierarchical role order (top-down)
+  const ROLE_ORDER = [
+    "super_admin",
+    "admin",
+    "ecd_admin",
+    "country_admin",
+    "union_admin",
+    "conference_field_admin",
+    "church_admin",
+    "moderator",
+    "missionary",
+    "GlowGroup Leader",
+    "user"
+  ];
+
   const allRoles = useMemo(() => {
     const fromData = new Set(users.map(u => u.role).filter(Boolean));
     // Merge with known roles
-    [
-      "user",
-      "admin",
-      "super_admin",
-      "ecd_admin",
-      "country_admin",
-      "union_admin",
-      "conference_field_admin",
-      "church_admin",
-      "moderator",
-      "missionary",
-      "GlowGroup Leader"
-    ].forEach(r => fromData.add(r));
-    return Array.from(fromData).sort();
+    ROLE_ORDER.forEach(r => fromData.add(r));
+    return ROLE_ORDER.filter(r => fromData.has(r));
   }, [users]);
 
   // Unique countries from data
@@ -412,7 +415,7 @@ export default function AdminUsersTab({ user }) {
                       <td className="p-4">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold border ${roleColor(u.role)}`}>
                           {(u.role === "super_admin" || String(u.role).includes("admin")) && <Shield size={10} />}
-                          {u.role || "user"}
+                          {u.role === "ecd_admin" ? "ECD Admin" : (u.role || "user").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
                         </span>
                       </td>
                       <td className="p-4 text-sm text-gray-400">
