@@ -15,6 +15,7 @@ import AdminPlaceholderTab from "../components/admin/AdminPlaceholderTab";
 import AdminAssistantTrainingTab from "../components/admin/AdminAssistantTrainingTab";
 import AdminCountriesTab from "../components/admin/AdminCountriesTab";
 import AdminActivityFeedTab from "../components/admin/AdminActivityFeedTab";
+import AdminAnalyticsTab from "../components/admin/AdminAnalyticsTab";
 
 export default function AdminCenter() {
   const [user, setUser] = useState(null);
@@ -136,7 +137,7 @@ export default function AdminCenter() {
       case "keepit100": return <AdminCodesTab sourceFilter="keeping_it_100" title="Keep It 100" />;
       case "media": return <AdminPlaceholderTab title="Media Library" description="Upload and organize assets, videos, and images." />;
       case "badges": return <AdminPlaceholderTab title="Badges & Ranks" description="Configure gamification rules and create new badges." />;
-      case "analytics": return <AdminPlaceholderTab title="Advanced Analytics" description="Deep dive into engagement metrics and exports." />;
+      case "analytics": return <AdminAnalyticsTab />;
       case "notifications": return <AdminPlaceholderTab title="Push Notifications" description="Send platform-wide alerts and updates." />;
       case "assistant-training": return <AdminAssistantTrainingTab />;
       case "settings": return isSuperAdmin ? <AdminSettingsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view system settings.</div>;
