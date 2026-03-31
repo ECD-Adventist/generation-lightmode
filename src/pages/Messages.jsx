@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import { ArrowLeft, MessageCircle, Users } from "lucide-react";
 import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
 import ConversationsList from "@/components/messages/ConversationsList";
 import ChatWindow from "@/components/messages/ChatWindow";
 import GroupChatWindow from "@/components/messages/GroupChatWindow";
@@ -114,33 +115,43 @@ export default function Messages() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async ({ content, file_url }) => {
+      if (!user) { toast.error("Please log in to send messages"); return; }
+      if (!content?.trim() && !file_url) return;
+      
       const message = await base44.entities.DirectMessage.create({
         conversation_id: selectedConversation.id,
         sender_email: user.email,
         recipient_email: otherEmail,
-        content,
+        content: content?.trim() || `Shared a file`,
         file_url: file_url || undefined,
         status: "sent",
       });
+      
       await base44.entities.DirectConversation.update(selectedConversation.id, {
-        last_message: content,
+        last_message: content?.trim() || `Shared a file`,
         last_message_at: new Date().toISOString(),
       });
-      const recipientUser = allUsers.find(u => u.email === otherEmail);
-      if (isNotificationEnabled(recipientUser, "messages")) {
+      
+      // Notification (fire and forget, don't block)
+      if (otherEmail && otherEmail !== user.email && isNotificationEnabled(otherUser, "messages")) {
         base44.entities.Notification.create({
           user_email: otherEmail,
           type: "message",
-          message: `${user.full_name || 'Someone'} sent you a message: "${content.slice(0, 60)}${content.length > 60 ? '...' : ''}"`,
+          message: `${user.full_name || 'Someone'} sent you a message: "${(content?.trim() || 'shared a file').slice(0, 60)}${(content?.trim() || 'shared a file').length > 60 ? '...' : ''}"`,
           link: `/Messages?user=${encodeURIComponent(user.email)}`,
         }).catch(() => {});
       }
+      
       await base44.entities.DirectMessage.update(message.id, { status: "delivered" });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["directMessages", selectedConversationId] });
       queryClient.invalidateQueries({ queryKey: ["directConversations", user?.email] });
+      toast.success("Message sent!");
     },
+    onError: () => {
+      toast.error("Failed to send message. Try again.");
+    }
   });
 
   useEffect(() => {
