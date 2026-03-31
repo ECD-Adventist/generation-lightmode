@@ -65,10 +65,6 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
     ? groups.filter(group => allowedCountries.includes(group.country))
     : groups;
 
-  if (territoryRestricted && !territoryApproved) {
-    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please upload and confirm your territory map first to unlock your scoped dashboard.</div>;
-  }
-
   // Real user growth: bucket registrations by month
   const growthData = useMemo(() => {
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -119,6 +115,10 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
     { label: "Countries", value: uniqueCountries, icon: Globe, color: "#22c55e", bg: "bg-green-500/5", border: "border-green-500/15", to: `${createPageUrl("AdminCenter")}?tab=countries` },
     { label: "Approved Drops", value: scopedDrops.filter(d => d.status === "approved").length, icon: Trophy, color: "#f97316", bg: "bg-orange-500/5", border: "border-orange-500/15", to: `${createPageUrl("AdminCenter")}?tab=drops` },
   ];
+
+  if (territoryRestricted && !territoryApproved) {
+    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please upload and confirm your territory map first to unlock your scoped dashboard.</div>;
+  }
 
   return (
     <div className="space-y-8 pb-12">

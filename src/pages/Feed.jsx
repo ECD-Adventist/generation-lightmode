@@ -162,14 +162,14 @@ export default function Feed() {
         drop_id: id,
         author_email: authorEmail,
         author_name: authorName,
-        action: action
+        action: 'toggle'
       });
 
       if (!response.data.success) {
         throw new Error(response.data.error || 'Failed to ' + action + ' drop');
       }
 
-      toast.success(action === 'unlike' ? "❤️ Unliked!" : "❤️ Liked!");
+      toast.success(response.data.action === 'unlike' ? "❤️ Unliked!" : "❤️ Liked!");
       return response.data;
     },
     // Optimistic update

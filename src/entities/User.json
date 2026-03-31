@@ -49,6 +49,17 @@
         "approved"
       ],
       "default": "not_submitted"
+    },
+    "faith_streak_count": {
+      "type": "number",
+      "default": 0
+    },
+    "longest_faith_streak": {
+      "type": "number",
+      "default": 0
+    },
+    "last_faith_activity_date": {
+      "type": "string"
     }
   }
 }

@@ -29,6 +29,57 @@ Deno.serve(async (req) => {
 
     const currentDrop = drops[0];
 
+    if (action === 'toggle') {
+      if (existingLike.length > 0) {
+        await base44.entities.GlowDropLike.delete(existingLike[0].id);
+        const newLikeCount = Math.max(0, (currentDrop.likes_count || 0) - 1);
+
+        await base44.entities.GlowDrop.update(drop_id, {
+          likes_count: newLikeCount
+        });
+
+        return Response.json({
+          success: true,
+          action: 'unlike',
+          likes_count: newLikeCount,
+          message: 'Drop unliked successfully'
+        });
+      }
+
+      const newLikeCount = (currentDrop.likes_count || 0) + 1;
+
+      await base44.entities.GlowDropLike.create({
+        drop_id: drop_id,
+        user_email: user.email
+      });
+
+      await base44.entities.GlowDrop.update(drop_id, {
+        likes_count: newLikeCount
+      });
+
+      if (author_email && author_email !== user.email) {
+        const authorUsers = await base44.entities.User.filter({ email: author_email });
+        const authorUser = authorUsers?.[0];
+        const shouldNotify = !authorUser || authorUser.notify_likes !== false;
+
+        if (shouldNotify) {
+          base44.entities.Notification.create({
+            user_email: author_email,
+            type: 'like',
+            message: `${user.full_name || 'Someone'} liked your Glow Drop!`,
+            link: `/Post?id=${encodeURIComponent(drop_id)}&user=${encodeURIComponent(author_email)}`
+          }).catch(() => {});
+        }
+      }
+
+      return Response.json({
+        success: true,
+        action: 'like',
+        likes_count: newLikeCount,
+        message: 'Drop liked successfully'
+      });
+    }
+
     if (action === 'unlike') {
       // Remove like
       if (existingLike.length === 0) {
@@ -44,6 +95,7 @@ Deno.serve(async (req) => {
 
       return Response.json({
         success: true,
+        action: 'unlike',
         likes_count: newLikeCount,
         message: 'Drop unliked successfully'
       });

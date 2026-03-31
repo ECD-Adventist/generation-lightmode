@@ -56,10 +56,6 @@ export default function AdminCountriesTab({ user, territoryRestricted, territory
     ? groups.filter(group => allowedCountries.includes(group.country))
     : groups;
 
-  if (territoryRestricted && !territoryApproved) {
-    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please confirm your territory map first to unlock country rankings.</div>;
-  }
-
   const countryStats = useMemo(() => {
     const map = {};
     scopedUsers.forEach(u => {
@@ -84,6 +80,10 @@ export default function AdminCountriesTab({ user, territoryRestricted, territory
   const maxScore = countryStats[0]?.score || 1;
   const totalUsers = scopedUsers.length;
   const totalXP = scopedUsers.reduce((s, u) => s + (u.glow_score || 0), 0);
+
+  if (territoryRestricted && !territoryApproved) {
+    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please confirm your territory map first to unlock country rankings.</div>;
+  }
 
   return (
     <div className="space-y-6">

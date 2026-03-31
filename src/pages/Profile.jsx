@@ -520,6 +520,10 @@ export default function Profile() {
                 <span className="font-bold text-2xl text-[#FFD000]">{user.glow_score || 0}</span>
                 <span className="text-gray-400 text-sm block md:inline"> XP</span>
               </div>
+              <div className="text-center md:text-left">
+                <span className="font-bold text-2xl text-[#00CFFF]">{user.faith_streak_count || 0}</span>
+                <span className="text-gray-400 text-sm block md:inline"> faith streak</span>
+              </div>
             </div>
 
             <div className="w-full max-w-md mx-auto md:mx-0 mb-6 bg-white/5 h-2 rounded-full overflow-hidden">

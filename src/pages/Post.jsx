@@ -59,22 +59,16 @@ export default function Post() {
   };
 
   const likeMutation = useMutation({
-    mutationFn: async ({ id, likes, authorEmail }) => {
+    mutationFn: async ({ id, authorEmail, authorName }) => {
       if (!currentUser) { toast.error("Please log in to like"); return; }
-      const alreadyLiked = userLikes.some((like) => like.drop_id === id);
-      if (alreadyLiked) { toast.error("You already liked this!"); return; }
-      await base44.entities.GlowDropLike.create({ drop_id: id, user_email: currentUser.email });
-      await base44.entities.GlowDrop.update(id, { likes_count: (likes || 0) + 1 });
-      const authorUser = allUsers.find((u) => u.email === authorEmail);
-      if (authorEmail && authorEmail !== currentUser.email && isNotificationEnabled(authorUser, "likes")) {
-        await base44.entities.Notification.create({
-          user_email: authorEmail,
-          type: "like",
-          message: `${currentUser.full_name || "Someone"} liked your Glow Drop!`,
-          link: `/Feed`,
-        });
-      }
-      toast.success("❤️ Liked!");
+      const response = await base44.functions.invoke('handleLikeDrop', {
+        drop_id: id,
+        author_email: authorEmail,
+        author_name: authorName,
+        action: 'toggle'
+      });
+      toast.success(response.data.action === 'unlike' ? "❤️ Unliked!" : "❤️ Liked!");
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postDrop", dropId] });
@@ -84,12 +78,38 @@ export default function Post() {
   });
 
   const handleShare = async (drop) => {
-    const shareText = `✨ Generation LightMode\n\n"${drop.verse}"\n\n${drop.reflection}\n\nJoin the movement at ${window.location.origin}`;
+    const response = await base44.functions.invoke('generateSharePreview', { drop_id: drop.id });
+    const shareUrl = response.data.share_url;
+    const shareText = `✨ Generation LightMode\n\n"${drop.verse || ''}"\n\n${drop.reflection || ''}\n\n${shareUrl}`;
+
+    document.title = response.data.title || 'Glow Drop';
+
+    const setMeta = (property, content, attr = 'property') => {
+      let tag = document.head.querySelector(`meta[${attr}="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute(attr, property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content || '');
+    };
+
+    setMeta('og:title', response.data.title);
+    setMeta('og:description', response.data.description);
+    setMeta('og:image', response.data.image_url);
+    setMeta('og:url', response.data.share_url);
+    setMeta('twitter:title', response.data.title, 'name');
+    setMeta('twitter:description', response.data.description, 'name');
+    setMeta('twitter:image', response.data.image_url, 'name');
+    setMeta('twitter:card', 'summary_large_image', 'name');
+
     if (navigator.share) {
-      try { await navigator.share({ title: "Glow Drop", text: shareText }); } catch {}
+      try {
+        await navigator.share({ title: response.data.title || 'Glow Drop', text: shareText, url: shareUrl });
+      } catch {}
     } else {
-      navigator.clipboard.writeText(shareText);
-      toast.success("Copied to clipboard!");
+      await navigator.clipboard.writeText(shareText);
+      toast.success('Copied to clipboard!');
     }
   };
 

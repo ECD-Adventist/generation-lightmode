@@ -23,10 +23,6 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
     return filter === "all" || d.status === filter;
   });
 
-  if (territoryRestricted && !territoryApproved) {
-    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please confirm your territory map first to review drops in your region.</div>;
-  }
-
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }) => {
       await base44.entities.GlowDrop.update(id, { status });
@@ -36,6 +32,10 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
       toast.success("Status updated");
     }
   });
+
+  if (territoryRestricted && !territoryApproved) {
+    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please confirm your territory map first to review drops in your region.</div>;
+  }
 
   return (
     <div className="space-y-6">

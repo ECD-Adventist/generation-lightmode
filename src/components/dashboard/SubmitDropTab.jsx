@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, Sparkles } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { updatePostingStreak } from "@/lib/gamification";
+import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
 
 export default function SubmitDropTab({ user }) {
   const [loading, setLoading] = useState(false);
@@ -113,6 +113,7 @@ export default function SubmitDropTab({ user }) {
       }
 
       const streakUser = await updatePostingStreak(base44, user);
+      await updateFaithStreak(base44, streakUser);
       await base44.auth.updateMe({ glow_score: (streakUser.glow_score || user.glow_score || 0) + finalScore + challengeBonus });
       toast.success(`Glow Drop submitted! +${finalScore} XP earned!${challengeMsg}`);
       

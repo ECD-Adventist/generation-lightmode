@@ -112,10 +112,6 @@ export default function AdminAnalyticsTab({ user, territoryRestricted, territory
     ? groups.filter(group => allowedCountries.includes(group.country))
     : groups;
 
-  if (territoryRestricted && !territoryApproved) {
-    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please confirm your territory map first to unlock analytics for your region.</div>;
-  }
-
   // ── Registrations over time (bucketed by day) ──
   const registrationsChart = useMemo(() => {
     const days = dateRange === "7d" ? 7 : dateRange === "14d" ? 14 : 30;
@@ -252,6 +248,10 @@ export default function AdminAnalyticsTab({ user, territoryRestricted, territory
 
   const totalLikes = scopedDrops.reduce((s, d) => s + (d.likes_count || 0), 0);
   const approvedDrops = scopedDrops.filter(d => d.status === "approved").length;
+
+  if (territoryRestricted && !territoryApproved) {
+    return <div className="bg-[#121826] border border-[#FFD000]/30 rounded-2xl p-6 text-sm text-gray-300">Please confirm your territory map first to unlock analytics for your region.</div>;
+  }
 
   return (
     <div className="space-y-8">

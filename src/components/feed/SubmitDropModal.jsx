@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Loader2, Sparkles, ImagePlus, X, Zap, Hash, BookOpen, ChevronRight } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { updatePostingStreak } from "@/lib/gamification";
+import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
 
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
 
@@ -111,6 +111,7 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
       }
 
       const streakUser = await updatePostingStreak(base44, user);
+      await updateFaithStreak(base44, streakUser);
       await base44.auth.updateMe({ glow_score: (streakUser.glow_score || user.glow_score || 0) + 5 + challengeBonus });
 
       // Notify followers about new post (fire and forget)

@@ -52,16 +52,43 @@ export async function updatePostingStreak(base44, user) {
   if (!user) return user;
 
   const today = getTodayString();
-  if (user.last_post_date === today) return user;
+  if (user.last_post_date === today && user.last_faith_activity_date === today) return user;
 
-  const nextStreak = isYesterday(user.last_post_date, today)
+  const nextPostStreak = isYesterday(user.last_post_date, today)
     ? (user.posting_streak_count || 0) + 1
+    : 1;
+
+  const nextFaithStreak = isYesterday(user.last_faith_activity_date, today)
+    ? (user.faith_streak_count || 0) + 1
     : 1;
 
   const updates = {
     last_post_date: today,
-    posting_streak_count: nextStreak,
-    longest_posting_streak: Math.max(nextStreak, user.longest_posting_streak || 0),
+    posting_streak_count: nextPostStreak,
+    longest_posting_streak: Math.max(nextPostStreak, user.longest_posting_streak || 0),
+    last_faith_activity_date: today,
+    faith_streak_count: nextFaithStreak,
+    longest_faith_streak: Math.max(nextFaithStreak, user.longest_faith_streak || 0),
+  };
+
+  await base44.auth.updateMe(updates);
+  return { ...user, ...updates };
+}
+
+export async function updateFaithStreak(base44, user) {
+  if (!user) return user;
+
+  const today = getTodayString();
+  if (user.last_faith_activity_date === today) return user;
+
+  const nextFaithStreak = isYesterday(user.last_faith_activity_date, today)
+    ? (user.faith_streak_count || 0) + 1
+    : 1;
+
+  const updates = {
+    last_faith_activity_date: today,
+    faith_streak_count: nextFaithStreak,
+    longest_faith_streak: Math.max(nextFaithStreak, user.longest_faith_streak || 0),
   };
 
   await base44.auth.updateMe(updates);
