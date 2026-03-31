@@ -289,7 +289,7 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                   </div>
                 </div>
               </>
-            )}
+            ) : null}
 
             <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
               {step > 1 && (
