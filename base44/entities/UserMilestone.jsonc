@@ -22,20 +22,23 @@
     "title"
   ],
   "rls": {
-    "create": true,
-    "read": {
-      "$or": [
-        {
-          "data.user_email": "{{user.email}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
     },
-    "update": false,
-    "delete": false
+    "read": {
+      "data.user_email": "{{user.email}}"
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
   }
 }
