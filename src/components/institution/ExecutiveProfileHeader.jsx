@@ -5,7 +5,6 @@ import { base44 } from "@/api/base44Client";
 import { Camera, Shield, MapPin, ExternalLink, Building2, Crown, Sparkles, Upload, Loader2 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
-import TerritoryOrgChart from "@/components/institution/TerritoryOrgChart";
 import TerritoryMapVisual from "@/components/institution/TerritoryMapVisual";
 
 export default function ExecutiveProfileHeader({
@@ -341,35 +340,33 @@ export default function ExecutiveProfileHeader({
                 )}
 
                 {institutionApps.some(app => app.organization_map_url) ? (
-                  <div className="space-y-4">
-                    {/* Map image on white bg */}
-                    <div className="rounded-2xl overflow-hidden border border-[#FFD000]/20 bg-white p-4" style={{ boxShadow: "0 0 40px rgba(255,208,0,0.08)" }}>
-                      <img
-                        src={institutionApps.find(app => app.organization_map_url)?.organization_map_url}
-                        alt="Organization Map"
-                        className="w-full h-auto object-contain max-h-[460px]"
-                      />
-                    </div>
-                    {/* Interactive territory map */}
-                    {(() => {
-                      const appWithMap = institutionApps.find(a => a.organization_map_url);
-                      if (appWithMap?.extracted_territories) {
-                        try {
-                          const territories = JSON.parse(appWithMap.extracted_territories);
-                          if (territories.length > 0) {
-                            return (
-                              <TerritoryMapVisual
-                                territories={territories}
-                                institutionName={appWithMap.institution_name}
-                                memberCount={0}
-                              />
-                            );
-                          }
-                        } catch (e) {}
-                      }
-                      return null;
-                    })()}
-                  </div>
+                  (() => {
+                    const appWithMap = institutionApps.find(a => a.organization_map_url);
+                    if (appWithMap?.extracted_territories) {
+                      try {
+                        const territories = JSON.parse(appWithMap.extracted_territories);
+                        if (territories.length > 0) {
+                          return (
+                            <TerritoryMapVisual
+                              territories={territories}
+                              institutionName={appWithMap.institution_name}
+                              memberCount={0}
+                            />
+                          );
+                        }
+                      } catch (e) {}
+                    }
+                    // fallback: show uploaded image if no extracted territories yet
+                    return (
+                      <div className="rounded-2xl overflow-hidden border border-[#FFD000]/20 bg-white p-4">
+                        <img
+                          src={appWithMap?.organization_map_url}
+                          alt="Organization Map"
+                          className="w-full h-auto object-contain max-h-[460px]"
+                        />
+                      </div>
+                    );
+                  })()
                 ) : isOwnProfile && !mapUploadProgress ? (
                   <button
                     onClick={() => orgMapInputRef.current?.click()}
