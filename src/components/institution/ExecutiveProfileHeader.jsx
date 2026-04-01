@@ -84,28 +84,8 @@ export default function ExecutiveProfileHeader({
 
               <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A]/90 via-transparent to-[#0B0F1A]/10" />
 
-              <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{
-                background: "linear-gradient(90deg, transparent, #FFD000, #00CFFF, transparent)",
-              }} />
-
-              {/* Institution branding strip */}
-              <div className="absolute bottom-0 left-0 right-0 px-6 pb-4 flex items-end justify-between z-10">
-                <div className="flex items-center gap-3">
-                  {primaryPage?.logo_url && (
-                    <img src={primaryPage.logo_url} alt="" className="w-9 h-9 rounded-lg object-cover border border-white/30 shadow-lg" />
-                  )}
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <Shield className="w-3 h-3 text-[#FFD000]" />
-                      <span className="text-[10px] font-black uppercase tracking-[0.15em] text-[#FFD000] drop-shadow-md">Institution Profile</span>
-                    </div>
-                    <span className="text-sm font-bold text-white drop-shadow-md">{primaryApp?.institution_name}</span>
-                  </div>
-                </div>
-                {institutionApps.length > 1 && (
-                  <span className="text-[10px] text-white/60 font-bold drop-shadow-md">+{institutionApps.length - 1} more</span>
-                )}
-              </div>
+              {/* Light border line style requested by user */}
+              <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-white/10" />
 
               {isOwnProfile && (
                 <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center z-20">
@@ -186,8 +166,10 @@ export default function ExecutiveProfileHeader({
                   <span className="text-[10px] text-gray-600">Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}</span>
                 </div>
 
-                {/* Stats Row - Executive style */}
-                <div className="grid grid-cols-5 gap-2 sm:gap-4 mb-5">
+              </div>
+
+              {/* Stats Row - Executive style */}
+              <div className="grid grid-cols-5 gap-2 sm:gap-4 mt-8 border-t border-white/5 pt-8">
                   {[
                     { val: myDrops.length, label: "Posts", color: "#FFFFFF" },
                     { val: myFollowers.length, label: "Followers", color: "#00CFFF", onClick: () => onSetConnectionsView("Followers") },
@@ -208,7 +190,7 @@ export default function ExecutiveProfileHeader({
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+                <div className="flex flex-wrap gap-3 justify-center sm:justify-start mt-2">
                   {isOwnProfile && (
                     <>
                       <button onClick={onEditProfile} className="px-5 py-2.5 rounded-xl text-sm font-bold transition border border-[#FFD000]/30 bg-[#FFD000]/10 text-[#FFD000] hover:bg-[#FFD000]/20">
@@ -407,7 +389,6 @@ export default function ExecutiveProfileHeader({
                 ) : null}
               </div>
             )}
-          </div>
           </div>
         </div>
       </div>
