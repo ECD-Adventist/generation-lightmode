@@ -54,7 +54,7 @@ export default function TerritoryDrillDownPanel({ country, territories, ownerEma
         {/* Header */}
         <div className="sticky top-0 z-10 px-6 py-5 flex items-center gap-3 border-b border-white/5"
           style={{ background: "#0e1117" }}>
-          <div className="w-9 h-9 rounded-xl bg-[#8B1A1A] flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-[#00CFFF]/20 flex items-center justify-center shrink-0">
             <MapPin className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
@@ -83,7 +83,7 @@ export default function TerritoryDrillDownPanel({ country, territories, ownerEma
               <div className="flex flex-wrap gap-1.5">
                 {countryTerritories.map((t, i) => (
                   <span key={i} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border"
-                    style={{ background: "rgba(139,26,26,0.2)", borderColor: "rgba(231,76,60,0.3)", color: "#e8a0a0" }}>
+                    style={{ background: "rgba(0,207,255,0.08)", borderColor: "rgba(0,207,255,0.25)", color: "rgba(0,207,255,0.85)" }}>
                     <MapPin className="w-2.5 h-2.5" /> {t.name}
                   </span>
                 ))}

@@ -46,7 +46,16 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
   }, [territories]);
 
   const regions = useMemo(() => [...new Set(territories.map(t => t.region).filter(Boolean))], [territories]);
-  const countries = useMemo(() => [...new Set(territories.map(t => t.country).filter(Boolean))], [territories]);
+  const countries = useMemo(() => {
+    const normalized = new Map();
+    territories.forEach(t => {
+      const raw = (t.country || "").trim();
+      if (!raw) return;
+      const key = raw.toLowerCase().replace(/[^a-z]/g, "");
+      if (!normalized.has(key)) normalized.set(key, raw);
+    });
+    return [...normalized.values()];
+  }, [territories]);
 
   const centerMarker = useMemo(() => {
     if (highlightedIsoCodes.has("834")) return [34.8, -6.4];
@@ -97,7 +106,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
                 }}
               >
                 {tooltip.name}
-                <span className="ml-2 text-[#e74c3c] text-[9px] font-black uppercase">explore →</span>
+                <span className="ml-2 text-[#00CFFF] text-[9px] font-black uppercase">explore →</span>
               </div>
             )}
 
@@ -220,25 +229,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
           </div>
         </div>
 
-        {/* Territory chips */}
-        <div className="px-5 py-4 flex flex-wrap gap-2" style={{ borderTop: "1px solid rgba(0,207,255,0.08)" }}>
-          {territories.map((t, i) => (
-            <button
-              key={i}
-              onClick={() => setSelectedCountry(t.country)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition"
-              style={{
-                background: "rgba(0,207,255,0.06)",
-                border: "1px solid rgba(0,207,255,0.2)",
-                color: "rgba(0,207,255,0.8)",
-              }}
-              onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.15)"; e.currentTarget.style.color = "#00CFFF"; }}
-              onMouseOut={e => { e.currentTarget.style.background = "rgba(0,207,255,0.06)"; e.currentTarget.style.color = "rgba(0,207,255,0.8)"; }}
-            >
-              <MapPin className="w-2.5 h-2.5" /> {t.name}
-            </button>
-          ))}
-        </div>
+
       </div>
 
       {selectedCountry && (
