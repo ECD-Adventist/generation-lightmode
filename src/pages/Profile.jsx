@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Clock, XCircle, Zap, Home, Users, Bell, Globe, Trash2, Bookmark, Calendar } from "lucide-react";
+import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Clock, XCircle, Zap, Home, Users, Bell, Globe, Trash2, Bookmark, Calendar, Building2 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import ProfileConnectionsModal from "@/components/profile/ProfileConnectionsModal";
 import ProfileInstitutionsTab from "@/components/institution/ProfileInstitutionsTab";
 import InstitutionOwnerBadge from "@/components/institution/InstitutionOwnerBadge";
+import ExecutiveProfileHeader from "@/components/institution/ExecutiveProfileHeader";
 import { isNotificationEnabled } from "@/lib/notifications";
 
 export default function Profile() {
@@ -408,173 +409,192 @@ export default function Profile() {
         onClose={() => setConnectionsView(null)}
         onToggleFollow={(email) => followMutation.mutate(email)}
       />
-      <div className="max-w-4xl mx-auto px-4 relative z-10">
-        <div className="flex items-center justify-between mb-8 py-4">
-          <div className="font-bold text-lg text-gray-400">{user.full_name || user.email}</div>
-          {isOwnProfile && (
-            <button onClick={() => setIsEditing(!isEditing)} className="text-gray-400 hover:text-white transition">
-              <Settings className="w-6 h-6" />
-            </button>
-          )}
-        </div>
+      <div className="max-w-4xl mx-auto relative z-10">
 
-        {/* Cover Photo */}
-        <style>{`
-          @keyframes sweep-light {
-            0% { transform: translateX(-150%) skewX(-20deg); }
-            100% { transform: translateX(300%) skewX(-20deg); }
-          }
-          @keyframes spin-border {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-          }
-        `}</style>
-        <div 
-          className={`w-full h-48 sm:h-64 rounded-2xl mb-8 relative group p-[2px] overflow-hidden shadow-[0_0_30px_rgba(0,207,255,0.15)] ${isOwnProfile ? 'cursor-pointer' : ''}`}
-          onClick={() => isOwnProfile && coverInputRef.current?.click()}
-        >
-          {/* Rotating Edge Light */}
-          <div style={{
-            position: "absolute", top: "50%", left: "50%", width: "200%", height: "200%",
-            background: userInstitutionApps.length > 0
-              ? "conic-gradient(from 0deg, transparent 60%, #FFD000 80%, #00CFFF 100%)"
-              : "conic-gradient(from 0deg, transparent 60%, #00CFFF 80%, #8A5CFF 100%)",
-            animation: "spin-border 4s linear infinite",
-            zIndex: 0
-          }} />
-
-          {/* Inner Content Wrapper */}
-          <div 
-            className="w-full h-full rounded-[14px] bg-[#121826] overflow-hidden relative z-10"
-            style={user.cover_picture_url ? { backgroundImage: `url(${user.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-          >
-            {/* Sweeping Light Effect */}
-            <div style={{
-              position: "absolute", top: 0, bottom: 0, left: 0, width: "30%",
-              background: "linear-gradient(90deg, transparent, rgba(0,207,255,0.1), rgba(255,255,255,0.3), rgba(0,207,255,0.1), transparent)",
-              animation: "sweep-light 4s infinite ease-in-out",
-              zIndex: 1, pointerEvents: "none",
-              boxShadow: "0 0 20px rgba(0,207,255,0.4)"
-            }} />
-
-            {isOwnProfile && (
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-                <div className="flex items-center gap-2 text-white font-bold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
-                  <Camera className="w-5 h-5" /> Change Cover
-                </div>
-              </div>
-            )}
-            {!user.cover_picture_url && (
-              <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-gradient-to-br from-[#0B0F1A] to-[#121826]">
-                No Cover Photo
-              </div>
-            )}
-          </div>
-        </div>
-        <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "cover")} disabled={uploadingImage} />
-
-        {/* Profile Header */}
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-white/5 pb-12 -mt-20 sm:-mt-24 relative z-10 px-4">
-          <div 
-            className={`w-32 h-32 rounded-full p-1 flex-shrink-0 overflow-hidden group relative ${isOwnProfile ? 'cursor-pointer' : ''} ${
-              userInstitutionApps.length > 0
-                ? 'bg-gradient-to-tr from-[#FFD000] to-[#00CFFF] shadow-[0_0_30px_rgba(255,208,0,0.3)]'
-                : 'bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] shadow-[0_0_30px_rgba(0,207,255,0.3)]'
-            }`}
-            onClick={() => isOwnProfile && profileInputRef.current?.click()}
-          >
-            <div className="w-full h-full rounded-full bg-[#121826] border-4 border-[#0B0F1A] flex items-center justify-center text-5xl font-bold font-['Space_Grotesk'] uppercase overflow-hidden relative">
-              <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="Profile" className="w-full h-full object-cover" />
+        {userInstitutionApps.length > 0 ? (
+          /* ======= EXECUTIVE PROFILE HEADER for Institution Owners ======= */
+          <>
+            <ExecutiveProfileHeader
+              user={user}
+              isOwnProfile={isOwnProfile}
+              profileEmail={profileEmail}
+              myDrops={myDrops}
+              myFollowers={myFollowers}
+              myFollowing={myFollowing}
+              onSetConnectionsView={setConnectionsView}
+              onEditProfile={() => setIsEditing(true)}
+              onFollowToggle={() => followMutation.mutate(profileEmail)}
+              isFollowingThisUser={isFollowingThisUser}
+              currentUser={currentUser}
+              onProfileImageSelect={e => handleImageSelect(e, "profile")}
+              onCoverImageSelect={e => handleImageSelect(e, "cover")}
+              uploadingImage={uploadingImage}
+              institutionApps={userInstitutionApps}
+            />
+            <div className="h-8" />
+          </>
+        ) : (
+          /* ======= STANDARD PROFILE HEADER for regular users ======= */
+          <div className="px-4">
+            <div className="flex items-center justify-between mb-8 py-4">
+              <div className="font-bold text-lg text-gray-400">{user.full_name || user.email}</div>
               {isOwnProfile && (
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10">
-                  <Camera className="w-6 h-6 text-white mb-1" />
-                  <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
-                </div>
-              )}
-            </div>
-          </div>
-          <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "profile")} disabled={uploadingImage} />
-          
-          <div className="flex-1 text-center md:text-left mt-4 md:mt-16">
-            <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-3xl font-bold font-['Inter']">{user.full_name}</h1>
-                <InstitutionOwnerBadge applications={userInstitutionApps} />
-              </div>
-              {isOwnProfile && !isEditing && (
-                <button onClick={() => setIsEditing(true)} className="px-5 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-semibold transition border border-white/5">
-                  Edit Profile
+                <button onClick={() => setIsEditing(!isEditing)} className="text-gray-400 hover:text-white transition">
+                  <Settings className="w-6 h-6" />
                 </button>
               )}
-              {!isOwnProfile && currentUser && (
-                <div className="flex flex-wrap gap-3">
-                  <button 
-                    onClick={() => followMutation.mutate(profileEmail)} 
-                    className={`px-6 py-2 rounded-lg text-sm font-bold transition border ${isFollowingThisUser ? "bg-white/10 border-white/10 text-gray-300 hover:border-red-500 hover:text-red-400" : "bg-[#00CFFF] border-[#00CFFF] text-black hover:bg-[#00CFFF]/80"}`}
-                  >
-                    {isFollowingThisUser ? "Following" : "Follow"}
-                  </button>
-                  <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(profileEmail)}`} className="px-6 py-2 rounded-lg text-sm font-bold transition border border-white/10 bg-white/5 text-white hover:bg-white/10">
-                    Message
-                  </Link>
-                </div>
-              )}
-            </div>
-            
-            <div className="flex flex-wrap gap-8 justify-center md:justify-start mb-6">
-              <div className="text-center md:text-left">
-                <span className="font-bold text-2xl">{myDrops.length}</span>
-                <span className="text-gray-400 text-sm block md:inline"> posts</span>
-              </div>
-              <button type="button" onClick={() => setConnectionsView("Followers")} className="text-center md:text-left transition hover:opacity-80">
-                <span className="font-bold text-2xl text-white">{myFollowers.length}</span>
-                <span className="text-gray-400 text-sm block md:inline"> followers</span>
-              </button>
-              <button type="button" onClick={() => setConnectionsView("Following")} className="text-center md:text-left transition hover:opacity-80">
-                <span className="font-bold text-2xl text-white">{myFollowing.length}</span>
-                <span className="text-gray-400 text-sm block md:inline"> following</span>
-              </button>
-              <div className="text-center md:text-left">
-                <span className="font-bold text-2xl text-[#FFD000]">{user.glow_score || 0}</span>
-                <span className="text-gray-400 text-sm block md:inline"> XP</span>
-              </div>
-              <div className="text-center md:text-left">
-                <span className="font-bold text-2xl text-[#00CFFF]">{user.faith_streak_count || 0}</span>
-                <span className="text-gray-400 text-sm block md:inline"> faith streak</span>
-              </div>
             </div>
 
-            <div className="w-full max-w-md mx-auto md:mx-0 mb-6 bg-white/5 h-2 rounded-full overflow-hidden">
-               <div className="h-full bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF]" style={{ width: `${(((user.glow_score || 0) % 50) / 50) * 100}%` }}></div>
+            {/* Cover Photo */}
+            <style>{`
+              @keyframes sweep-light {
+                0% { transform: translateX(-150%) skewX(-20deg); }
+                100% { transform: translateX(300%) skewX(-20deg); }
+              }
+              @keyframes spin-border {
+                0% { transform: translate(-50%, -50%) rotate(0deg); }
+                100% { transform: translate(-50%, -50%) rotate(360deg); }
+              }
+            `}</style>
+            <div 
+              className={`w-full h-48 sm:h-64 rounded-2xl mb-8 relative group p-[2px] overflow-hidden shadow-[0_0_30px_rgba(0,207,255,0.15)] ${isOwnProfile ? 'cursor-pointer' : ''}`}
+              onClick={() => isOwnProfile && coverInputRef.current?.click()}
+            >
+              {/* Rotating Edge Light */}
+              <div style={{
+                position: "absolute", top: "50%", left: "50%", width: "200%", height: "200%",
+                background: "conic-gradient(from 0deg, transparent 60%, #00CFFF 80%, #8A5CFF 100%)",
+                animation: "spin-border 4s linear infinite",
+                zIndex: 0
+              }} />
+
+              {/* Inner Content Wrapper */}
+              <div 
+                className="w-full h-full rounded-[14px] bg-[#121826] overflow-hidden relative z-10"
+                style={user.cover_picture_url ? { backgroundImage: `url(${user.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+              >
+                {/* Sweeping Light Effect */}
+                <div style={{
+                  position: "absolute", top: 0, bottom: 0, left: 0, width: "30%",
+                  background: "linear-gradient(90deg, transparent, rgba(0,207,255,0.1), rgba(255,255,255,0.3), rgba(0,207,255,0.1), transparent)",
+                  animation: "sweep-light 4s infinite ease-in-out",
+                  zIndex: 1, pointerEvents: "none",
+                  boxShadow: "0 0 20px rgba(0,207,255,0.4)"
+                }} />
+
+                {isOwnProfile && (
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
+                    <div className="flex items-center gap-2 text-white font-bold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
+                      <Camera className="w-5 h-5" /> Change Cover
+                    </div>
+                  </div>
+                )}
+                {!user.cover_picture_url && (
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-gradient-to-br from-[#0B0F1A] to-[#121826]">
+                    No Cover Photo
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="text-xs text-gray-400 text-center md:text-left max-w-md mx-auto md:mx-0 mb-6 -mt-4">
-              {50 - ((user.glow_score || 0) % 50)} XP to Next Level
-            </div>
-            
-            <div className="text-sm text-gray-300 max-w-md mx-auto md:mx-0 space-y-2">
-              <p className="font-bold text-white uppercase tracking-wider text-xs">{user.country || "Global Citizen"}</p>
-              <p className="leading-relaxed whitespace-pre-line">
-                {user.bio || "Digital Missionary ⚡ Spreading light through faith in the online world."}
-              </p>
-              {user.website_url && (
-                <a
-                  href={user.website_url.startsWith("http") ? user.website_url : `https://${user.website_url}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[#00CFFF] font-bold text-xs hover:underline break-all"
-                >
-                  🔗 {user.website_url.replace(/^https?:\/\//, "")}
-                </a>
-              )}
-              <div className="flex items-center gap-2 text-[10px] text-gray-500 mt-1">
-                <span>Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}</span>
+            <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "cover")} disabled={uploadingImage} />
+
+            {/* Profile Header */}
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-white/5 pb-12 -mt-20 sm:-mt-24 relative z-10 px-4">
+              <div 
+                className={`w-32 h-32 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-1 flex-shrink-0 shadow-[0_0_30px_rgba(0,207,255,0.3)] overflow-hidden group relative ${isOwnProfile ? 'cursor-pointer' : ''}`}
+                onClick={() => isOwnProfile && profileInputRef.current?.click()}
+              >
+                <div className="w-full h-full rounded-full bg-[#121826] border-4 border-[#0B0F1A] flex items-center justify-center text-5xl font-bold font-['Space_Grotesk'] uppercase overflow-hidden relative">
+                  <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="Profile" className="w-full h-full object-cover" />
+                  {isOwnProfile && (
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10">
+                      <Camera className="w-6 h-6 text-white mb-1" />
+                      <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "profile")} disabled={uploadingImage} />
+              
+              <div className="flex-1 text-center md:text-left mt-4 md:mt-16">
+                <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
+                  <h1 className="text-3xl font-bold font-['Inter']">{user.full_name}</h1>
+                  {isOwnProfile && !isEditing && (
+                    <button onClick={() => setIsEditing(true)} className="px-5 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-semibold transition border border-white/5">
+                      Edit Profile
+                    </button>
+                  )}
+                  {!isOwnProfile && currentUser && (
+                    <div className="flex flex-wrap gap-3">
+                      <button 
+                        onClick={() => followMutation.mutate(profileEmail)} 
+                        className={`px-6 py-2 rounded-lg text-sm font-bold transition border ${isFollowingThisUser ? "bg-white/10 border-white/10 text-gray-300 hover:border-red-500 hover:text-red-400" : "bg-[#00CFFF] border-[#00CFFF] text-black hover:bg-[#00CFFF]/80"}`}
+                      >
+                        {isFollowingThisUser ? "Following" : "Follow"}
+                      </button>
+                      <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(profileEmail)}`} className="px-6 py-2 rounded-lg text-sm font-bold transition border border-white/10 bg-white/5 text-white hover:bg-white/10">
+                        Message
+                      </Link>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex flex-wrap gap-8 justify-center md:justify-start mb-6">
+                  <div className="text-center md:text-left">
+                    <span className="font-bold text-2xl">{myDrops.length}</span>
+                    <span className="text-gray-400 text-sm block md:inline"> posts</span>
+                  </div>
+                  <button type="button" onClick={() => setConnectionsView("Followers")} className="text-center md:text-left transition hover:opacity-80">
+                    <span className="font-bold text-2xl text-white">{myFollowers.length}</span>
+                    <span className="text-gray-400 text-sm block md:inline"> followers</span>
+                  </button>
+                  <button type="button" onClick={() => setConnectionsView("Following")} className="text-center md:text-left transition hover:opacity-80">
+                    <span className="font-bold text-2xl text-white">{myFollowing.length}</span>
+                    <span className="text-gray-400 text-sm block md:inline"> following</span>
+                  </button>
+                  <div className="text-center md:text-left">
+                    <span className="font-bold text-2xl text-[#FFD000]">{user.glow_score || 0}</span>
+                    <span className="text-gray-400 text-sm block md:inline"> XP</span>
+                  </div>
+                  <div className="text-center md:text-left">
+                    <span className="font-bold text-2xl text-[#00CFFF]">{user.faith_streak_count || 0}</span>
+                    <span className="text-gray-400 text-sm block md:inline"> faith streak</span>
+                  </div>
+                </div>
+
+                <div className="w-full max-w-md mx-auto md:mx-0 mb-6 bg-white/5 h-2 rounded-full overflow-hidden">
+                   <div className="h-full bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF]" style={{ width: `${(((user.glow_score || 0) % 50) / 50) * 100}%` }}></div>
+                </div>
+                <div className="text-xs text-gray-400 text-center md:text-left max-w-md mx-auto md:mx-0 mb-6 -mt-4">
+                  {50 - ((user.glow_score || 0) % 50)} XP to Next Level
+                </div>
+                
+                <div className="text-sm text-gray-300 max-w-md mx-auto md:mx-0 space-y-2">
+                  <p className="font-bold text-white uppercase tracking-wider text-xs">{user.country || "Global Citizen"}</p>
+                  <p className="leading-relaxed whitespace-pre-line">
+                    {user.bio || "Digital Missionary ⚡ Spreading light through faith in the online world."}
+                  </p>
+                  {user.website_url && (
+                    <a
+                      href={user.website_url.startsWith("http") ? user.website_url : `https://${user.website_url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[#00CFFF] font-bold text-xs hover:underline break-all"
+                    >
+                      🔗 {user.website_url.replace(/^https?:\/\//, "")}
+                    </a>
+                  )}
+                  <div className="flex items-center gap-2 text-[10px] text-gray-500 mt-1">
+                    <span>Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {isEditing && isOwnProfile && (
-          <div className="bg-[#121826]/80 backdrop-blur-xl p-8 rounded-2xl border border-white/10 mb-12 animate-in fade-in slide-in-from-top-4 shadow-2xl">
+          <div className="bg-[#121826]/80 backdrop-blur-xl p-8 rounded-2xl border border-white/10 mb-12 animate-in fade-in slide-in-from-top-4 shadow-2xl mx-4">
             <h3 className="text-xl font-bold mb-6 font-['Space_Grotesk'] text-[#00CFFF]">Edit Your Details</h3>
             <form onSubmit={handleUpdateProfile} className="space-y-5">
               <div>
@@ -689,7 +709,7 @@ export default function Profile() {
         )}
 
         {/* Tabs */}
-        <div className="flex border-t border-white/10 mb-2 overflow-x-auto hide-scrollbar">
+        <div className="flex border-t border-white/10 mb-2 overflow-x-auto hide-scrollbar mx-4">
           <div onClick={() => setActiveProfileTab("drops")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "drops" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
             <Grid className="w-4 h-4" /> DROPS
           </div>
@@ -702,13 +722,13 @@ export default function Profile() {
           <div onClick={() => setActiveProfileTab("badges")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "badges" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
             <Award className="w-4 h-4" /> ACHIEVEMENTS
           </div>
-          <div onClick={() => setActiveProfileTab("institutions")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "institutions" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
-            <Grid className="w-4 h-4" /> INSTITUTIONS
+          <div onClick={() => setActiveProfileTab("institutions")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "institutions" ? (userInstitutionApps.length > 0 ? "border-[#FFD000] text-[#FFD000]" : "border-[#00CFFF] text-white") : "border-transparent text-gray-500 hover:text-gray-300"}`}>
+            <Building2 className="w-4 h-4" /> INSTITUTIONS
           </div>
         </div>
 
         {activeProfileTab === "drops" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 px-4">
           {myDrops.map(drop => (
             <Link
               key={drop.id}
@@ -753,7 +773,7 @@ export default function Profile() {
         )}
 
         {activeProfileTab === "saved" && isOwnProfile && (
-          <div className="py-6">
+          <div className="py-6 px-4">
             {savedDrops.length === 0 ? (
               <div className="text-center py-20 text-gray-500 bg-[#121826]/50 rounded-2xl border border-white/5">
                 <Bookmark className="w-10 h-10 mx-auto mb-3 opacity-30" />
@@ -795,7 +815,7 @@ export default function Profile() {
         )}
 
         {activeProfileTab === "missions" && (
-          <div className="py-6 space-y-6">
+          <div className="py-6 space-y-6 px-4">
             {/* Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="bg-[#121826] rounded-2xl p-4 border border-white/5 text-center">
@@ -872,11 +892,11 @@ export default function Profile() {
         )}
 
         {activeProfileTab === "institutions" && (
-          <ProfileInstitutionsTab profileEmail={profileEmail} isOwnProfile={isOwnProfile} />
+          <div className="px-4"><ProfileInstitutionsTab profileEmail={profileEmail} isOwnProfile={isOwnProfile} /></div>
         )}
 
         {activeProfileTab === "badges" && (
-           <div className="py-8">
+           <div className="py-8 px-4">
              {certificates.length > 0 && (
                <div className="mb-10">
                  <h3 className="text-xl font-bold font-['Space_Grotesk'] text-[#FFD000] mb-4 flex items-center gap-2"><Award className="w-6 h-6" /> Glow Certificates</h3>
