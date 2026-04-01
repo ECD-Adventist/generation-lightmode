@@ -252,36 +252,19 @@ export default function ExecutiveProfileHeader({
               </div>
             </div>
 
-            {/* Institution Cards */}
-            {institutionApps.length > 0 && (
+            {/* Organization Map */}
+            {institutionApps.some(app => app.organization_map_url) && (
               <div className="mt-6 pt-6 border-t border-white/5">
                 <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-4 h-4 text-[#FFD000]" />
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#FFD000]/80">Affiliated Institutions</h3>
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#FFD000]/80">Organization Map</h3>
                 </div>
-                <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-1">
-                  {institutionApps.map(app => {
-                    const page = institutionPages.find(p => p.owner_email === app.user_email && p.name?.toLowerCase() === app.institution_name?.toLowerCase()) || institutionPages.find(p => p.owner_email === app.user_email);
-                    return (
-                      <Link
-                        key={app.id}
-                        to={page ? `/InstitutionPage?id=${page.id}` : "#"}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.03] border border-[#FFD000]/10 hover:border-[#FFD000]/30 transition shrink-0 min-w-[200px]"
-                      >
-                        {app.logo_url ? (
-                          <img src={app.logo_url} alt="" className="w-9 h-9 rounded-lg object-cover border border-white/10" />
-                        ) : (
-                          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#FFD000]/20 to-[#00CFFF]/20 flex items-center justify-center border border-white/10">
-                            <Building2 className="w-4 h-4 text-[#FFD000]" />
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-white truncate">{app.institution_name}</p>
-                          <p className="text-[10px] text-gray-500 capitalize">{app.institution_type}</p>
-                        </div>
-                      </Link>
-                    );
-                  })}
+                <div className="rounded-xl overflow-hidden border border-[#FFD000]/10 bg-white/[0.02]">
+                  <img
+                    src={institutionApps.find(app => app.organization_map_url)?.organization_map_url}
+                    alt="Organization Map"
+                    className="w-full h-auto object-contain max-h-[400px]"
+                  />
                 </div>
               </div>
             )}

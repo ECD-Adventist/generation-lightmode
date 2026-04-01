@@ -14,8 +14,11 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
   const [loading, setLoading] = useState(false);
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
+  const [orgMapFile, setOrgMapFile] = useState(null);
+  const [orgMapPreview, setOrgMapPreview] = useState(null);
   const [cropData, setCropData] = useState(null);
   const logoInputRef = useRef(null);
+  const orgMapInputRef = useRef(null);
   const [formData, setFormData] = useState({
     institution_name: "",
     institution_type: "church",
@@ -45,6 +48,8 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
       });
       setLogoFile(null);
       setLogoPreview(null);
+      setOrgMapFile(null);
+      setOrgMapPreview(null);
       setStep(1);
     }
   }, [isOpen, user]);
@@ -57,10 +62,22 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
   };
 
   const handleCropComplete = async (croppedFile) => {
-    setCropData(null);
-    setLogoFile(croppedFile);
-    const preview = URL.createObjectURL(croppedFile);
-    setLogoPreview(preview);
+    if (cropData?.type === "orgmap") {
+      setCropData(null);
+      setOrgMapFile(croppedFile);
+      setOrgMapPreview(URL.createObjectURL(croppedFile));
+    } else {
+      setCropData(null);
+      setLogoFile(croppedFile);
+      setLogoPreview(URL.createObjectURL(croppedFile));
+    }
+  };
+
+  const handleOrgMapSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setCropData({ file, type: "orgmap", aspectRatio: 16 / 9 });
+    e.target.value = null;
   };
 
   const handleSubmit = async (e) => {
@@ -83,9 +100,14 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
       setLoading(true);
       try {
         let logoUrl = "";
+        let orgMapUrl = "";
         if (logoFile) {
           const uploadRes = await base44.integrations.Core.UploadFile({ file: logoFile });
           logoUrl = uploadRes.file_url;
+        }
+        if (orgMapFile) {
+          const uploadRes = await base44.integrations.Core.UploadFile({ file: orgMapFile });
+          orgMapUrl = uploadRes.file_url;
         }
 
         await base44.entities.InstitutionApplication.create({
@@ -99,6 +121,7 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
           procedures_description: "Agreed to maintain and enforce clear member procedures, rules, and guidelines aligned with Generation LightMode and ECD standards.",
           commitment_description: "Committed to upholding spiritual values, faith-based principles, and ECD (East Central Africa Division) territory supervision requirements.",
           logo_url: logoUrl,
+          organization_map_url: orgMapUrl,
           status: "pending"
         });
 
@@ -119,6 +142,8 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
         });
         setLogoFile(null);
         setLogoPreview(null);
+        setOrgMapFile(null);
+        setOrgMapPreview(null);
       } catch (err) {
         toast.error(err?.message || "Failed to submit application");
       } finally {
@@ -237,6 +262,28 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                     )}
                   </button>
                   <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoSelect} />
+                </div>
+
+                <div>
+                  <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Organization Map / Structure (Optional)</label>
+                  <button
+                    type="button"
+                    onClick={() => orgMapInputRef.current?.click()}
+                    className="w-full border-2 border-dashed border-white/10 rounded-xl p-6 hover:border-[#FFD000]/30 transition text-center"
+                  >
+                    {orgMapPreview ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <img src={orgMapPreview} alt="Org Map" className="w-full max-h-32 rounded-lg object-contain" />
+                        <span className="text-xs text-gray-400">Click to change</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2">
+                        <Upload className="w-6 h-6 text-gray-500" />
+                        <span className="text-sm text-gray-400">Upload your organization map/structure image</span>
+                      </div>
+                    )}
+                  </button>
+                  <input ref={orgMapInputRef} type="file" accept="image/*" className="hidden" onChange={handleOrgMapSelect} />
                 </div>
               </>
             ) : (

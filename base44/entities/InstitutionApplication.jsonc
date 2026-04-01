@@ -39,6 +39,10 @@
     "logo_url": {
       "type": "string"
     },
+    "organization_map_url": {
+      "type": "string",
+      "description": "Image URL of the organization structure/map"
+    },
     "status": {
       "type": "string",
       "enum": [

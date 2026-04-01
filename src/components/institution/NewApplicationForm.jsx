@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function NewApplicationForm({ user, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
+  const [orgMapFile, setOrgMapFile] = useState(null);
+  const [orgMapPreview, setOrgMapPreview] = useState(null);
   const [formData, setFormData] = useState({
     institution_name: "",
     institution_type: "church",
@@ -33,6 +35,12 @@ export default function NewApplicationForm({ user, onClose, onSuccess }) {
 
     setLoading(true);
     try {
+      let orgMapUrl = "";
+      if (orgMapFile) {
+        const uploadRes = await base44.integrations.Core.UploadFile({ file: orgMapFile });
+        orgMapUrl = uploadRes.file_url;
+      }
+
       await base44.entities.InstitutionApplication.create({
         user_email: user.email,
         institution_name: formData.institution_name,
@@ -43,6 +51,7 @@ export default function NewApplicationForm({ user, onClose, onSuccess }) {
         contact_phone: formData.contact_phone,
         procedures_description: formData.description,
         commitment_description: "Committed to community guidelines and the mission of Generation LightMode.",
+        organization_map_url: orgMapUrl,
         status: "pending",
       });
       toast.success("Application submitted successfully!");
@@ -104,6 +113,34 @@ export default function NewApplicationForm({ user, onClose, onSuccess }) {
         <div>
           <label className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">Phone (Optional)</label>
           <Input value={formData.contact_phone} onChange={e => setFormData({ ...formData, contact_phone: e.target.value })} placeholder="+1 234 567 8900" className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl" />
+        </div>
+
+        <div>
+          <label className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">Organization Map / Structure (Optional)</label>
+          <button
+            type="button"
+            onClick={() => document.getElementById('orgMapInput')?.click()}
+            className="w-full border-2 border-dashed border-white/10 rounded-xl p-6 hover:border-[#FFD000]/30 transition text-center"
+          >
+            {orgMapPreview ? (
+              <div className="flex flex-col items-center gap-2">
+                <img src={orgMapPreview} alt="Org Map" className="w-full max-h-32 rounded-lg object-contain" />
+                <span className="text-xs text-gray-400">Click to change</span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <Upload className="w-6 h-6 text-gray-500" />
+                <span className="text-sm text-gray-400">Upload your organization map/structure image</span>
+              </div>
+            )}
+          </button>
+          <input id="orgMapInput" type="file" accept="image/*" className="hidden" onChange={(e) => {
+            const file = e.target.files[0];
+            if (file) {
+              setOrgMapFile(file);
+              setOrgMapPreview(URL.createObjectURL(file));
+            }
+          }} />
         </div>
 
         <div className="bg-[#0B0F1A] p-4 rounded-xl border border-[#00CFFF]/20">
