@@ -339,12 +339,16 @@ export default function ExecutiveProfileHeader({
                 )}
 
                 {institutionApps.some(app => app.organization_map_url) ? (
-                  <div className="rounded-xl overflow-hidden border border-[#00CFFF]/10 bg-white p-2">
-                    <img
-                      src={institutionApps.find(app => app.organization_map_url)?.organization_map_url}
-                      alt="Organization Map"
-                      className="w-full h-auto object-contain max-h-[420px] rounded-lg"
-                    />
+                  <div className="rounded-2xl overflow-hidden border border-[#FFD000]/20" style={{ background: "#fff", boxShadow: "0 0 40px rgba(255,208,0,0.08), 0 0 0 1px rgba(0,207,255,0.1)" }}>
+                    {/* Map image on white bg */}
+                    <div className="bg-white p-6">
+                      <img
+                        src={institutionApps.find(app => app.organization_map_url)?.organization_map_url}
+                        alt="Organization Map"
+                        className="w-full h-auto object-contain max-h-[460px]"
+                      />
+                    </div>
+                    {/* Extracted territories infographic */}
                     {(() => {
                       const appWithMap = institutionApps.find(a => a.organization_map_url);
                       if (appWithMap?.extracted_territories) {
@@ -352,13 +356,20 @@ export default function ExecutiveProfileHeader({
                           const territories = JSON.parse(appWithMap.extracted_territories);
                           if (territories.length > 0) {
                             return (
-                              <div className="mt-4 pt-4 border-t border-gray-200 px-2 pb-2">
-                                <div className="text-[10px] font-black text-[#00CFFF] uppercase tracking-[0.15em] mb-2 flex items-center gap-1.5">
-                                  <Sparkles className="w-3 h-3" /> Extracted Territories
+                              <div className="px-6 py-5 border-t border-gray-100 bg-white">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <Sparkles className="w-3.5 h-3.5 text-[#00CFFF]" />
+                                  <span className="text-[10px] font-black text-[#00CFFF] uppercase tracking-[0.18em]">Extracted Territories</span>
+                                  <span className="ml-auto text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{territories.length} total</span>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                   {territories.map((t, i) => (
-                                    <span key={i} className="px-3 py-1 bg-[#00CFFF]/10 border border-[#00CFFF]/20 rounded-full text-xs font-semibold text-[#00CFFF]">
+                                    <span
+                                      key={i}
+                                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border"
+                                      style={{ background: "rgba(0,207,255,0.06)", borderColor: "rgba(0,207,255,0.25)", color: "#0099cc" }}
+                                    >
+                                      <span className="w-1.5 h-1.5 rounded-full bg-[#00CFFF] inline-block shrink-0"></span>
                                       {t.name}
                                     </span>
                                   ))}
