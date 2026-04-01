@@ -81,32 +81,7 @@ export default function ExecutiveProfileHeader({
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-[#1a2740] via-[#0f1628] to-[#0a1025]" />
               )}
-
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A]/90 via-transparent to-[#0B0F1A]/10" />
-
-              <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{
-                background: "linear-gradient(90deg, transparent, #FFD000, #00CFFF, transparent)",
-              }} />
-
-              {/* Institution branding strip */}
-              <div className="absolute bottom-0 left-0 right-0 px-6 pb-4 flex items-end justify-between z-10">
-                <div className="flex items-center gap-3">
-                  {primaryPage?.logo_url && (
-                    <img src={primaryPage.logo_url} alt="" className="w-9 h-9 rounded-lg object-cover border border-white/30 shadow-lg" />
-                  )}
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <Shield className="w-3 h-3 text-[#FFD000]" />
-                      <span className="text-[10px] font-black uppercase tracking-[0.15em] text-[#FFD000] drop-shadow-md">Institution Profile</span>
-                    </div>
-                    <span className="text-sm font-bold text-white drop-shadow-md">{primaryApp?.institution_name}</span>
-                  </div>
-                </div>
-                {institutionApps.length > 1 && (
-                  <span className="text-[10px] text-white/60 font-bold drop-shadow-md">+{institutionApps.length - 1} more</span>
-                )}
-              </div>
-
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0c1020]/80 via-transparent to-transparent" />
               {isOwnProfile && (
                 <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center z-20">
                   <div className="flex items-center gap-2 text-white font-bold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
@@ -117,10 +92,11 @@ export default function ExecutiveProfileHeader({
             </div>
             <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={onCoverImageSelect} disabled={uploadingImage} />
 
-            <div className="px-6 pb-8 sm:px-8 pt-4">
-              <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+            {/* Profile info row — avatar overlapping cover */}
+            <div className="px-6 pb-8 sm:px-8">
+              <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-end -mt-14 sm:-mt-16">
                 {/* Premium Avatar */}
-                <div className="relative shrink-0 -mt-16 sm:-mt-20 z-10">
+                <div className="relative shrink-0 z-10">
                 <div
                   className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] ${isOwnProfile ? "cursor-pointer" : ""}`}
                   style={{ background: "linear-gradient(135deg, #FFD000, #00CFFF, #FFD000)" }}
@@ -151,8 +127,8 @@ export default function ExecutiveProfileHeader({
               </div>
 
               {/* Info */}
-              <div className="flex-1 text-center sm:text-left min-w-0">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3 justify-center sm:justify-start">
+              <div className="flex-1 min-w-0 pb-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2 justify-center sm:justify-start">
                   <h1 className="text-2xl sm:text-3xl font-black text-white" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
                     {user.full_name}
                   </h1>
@@ -169,10 +145,10 @@ export default function ExecutiveProfileHeader({
                 </div>
 
                 {/* Bio & location */}
-                <p className="text-sm text-gray-300 leading-relaxed mb-3 max-w-lg whitespace-pre-line">
+                <p className="text-sm text-gray-300 leading-relaxed mb-2 max-w-lg whitespace-pre-line">
                   {user.bio || "Leading with faith and purpose. Building community through the power of light."}
                 </p>
-                <div className="flex flex-wrap gap-3 items-center justify-center sm:justify-start mb-5">
+                <div className="flex flex-wrap gap-3 items-center justify-center sm:justify-start mb-4">
                   {user.country && (
                     <span className="flex items-center gap-1 text-xs text-gray-400">
                       <MapPin className="w-3 h-3" /> {user.country}
@@ -186,40 +162,19 @@ export default function ExecutiveProfileHeader({
                   <span className="text-[10px] text-gray-600">Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}</span>
                 </div>
 
-                {/* Stats Row - Executive style */}
-                <div className="grid grid-cols-5 gap-2 sm:gap-4 mb-5">
-                  {[
-                    { val: myDrops.length, label: "Posts", color: "#FFFFFF" },
-                    { val: myFollowers.length, label: "Followers", color: "#00CFFF", onClick: () => onSetConnectionsView("Followers") },
-                    { val: myFollowing.length, label: "Following", color: "#00CFFF", onClick: () => onSetConnectionsView("Following") },
-                    { val: user.glow_score || 0, label: "XP", color: "#FFD000" },
-                    { val: user.faith_streak_count || 0, label: "Streak", color: "#8A5CFF" },
-                  ].map((stat, i) => (
-                    <button
-                      key={i}
-                      onClick={stat.onClick}
-                      disabled={!stat.onClick}
-                      className={`text-center px-2 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 ${stat.onClick ? "hover:bg-white/[0.06] cursor-pointer" : "cursor-default"} transition`}
-                    >
-                      <div className="text-lg sm:text-xl font-black" style={{ color: stat.color, fontFamily: "Space Grotesk, sans-serif" }}>{stat.val}</div>
-                      <div className="text-[9px] text-gray-500 uppercase tracking-wider font-bold">{stat.label}</div>
-                    </button>
-                  ))}
-                </div>
-
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
                   {isOwnProfile && (
                     <>
-                      <button onClick={onEditProfile} className="px-5 py-2.5 rounded-xl text-sm font-bold transition border border-[#FFD000]/30 bg-[#FFD000]/10 text-[#FFD000] hover:bg-[#FFD000]/20">
+                      <button onClick={onEditProfile} className="px-5 py-2 rounded-xl text-sm font-bold transition border border-[#FFD000]/30 bg-[#FFD000]/10 text-[#FFD000] hover:bg-[#FFD000]/20">
                         Edit Profile
                       </button>
                       {primaryPage && (
-                        <Link to={`/InstitutionDashboard?id=${primaryPage.id}`} className="px-5 py-2.5 rounded-xl text-sm font-bold transition border border-[#00CFFF]/30 bg-[#00CFFF]/10 text-[#00CFFF] hover:bg-[#00CFFF]/20 flex items-center gap-2">
+                        <Link to={`/InstitutionDashboard?id=${primaryPage.id}`} className="px-5 py-2 rounded-xl text-sm font-bold transition border border-[#00CFFF]/30 bg-[#00CFFF]/10 text-[#00CFFF] hover:bg-[#00CFFF]/20 flex items-center gap-2">
                           <Building2 className="w-4 h-4" /> Manage Institution
                         </Link>
                       )}
-                      <Link to="/InstitutionControlCenter" className="px-5 py-2.5 rounded-xl text-sm font-bold transition border border-[#8A5CFF]/30 bg-[#8A5CFF]/10 text-[#8A5CFF] hover:bg-[#8A5CFF]/20 flex items-center gap-2">
+                      <Link to="/InstitutionControlCenter" className="px-5 py-2 rounded-xl text-sm font-bold transition border border-[#8A5CFF]/30 bg-[#8A5CFF]/10 text-[#8A5CFF] hover:bg-[#8A5CFF]/20 flex items-center gap-2">
                         <Shield className="w-4 h-4" /> Control Center
                       </Link>
                     </>
@@ -228,7 +183,7 @@ export default function ExecutiveProfileHeader({
                     <>
                       <button
                         onClick={onFollowToggle}
-                        className={`px-6 py-2.5 rounded-xl text-sm font-bold transition border ${
+                        className={`px-6 py-2 rounded-xl text-sm font-bold transition border ${
                           isFollowingThisUser
                             ? "bg-white/5 border-white/10 text-gray-300 hover:border-red-500/50 hover:text-red-400"
                             : "border-[#FFD000]/40 text-[#0B0F1A] hover:opacity-90"
@@ -237,7 +192,7 @@ export default function ExecutiveProfileHeader({
                       >
                         {isFollowingThisUser ? "Following" : "Follow"}
                       </button>
-                      <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(profileEmail)}`} className="px-6 py-2.5 rounded-xl text-sm font-bold transition border border-white/10 bg-white/5 text-white hover:bg-white/10">
+                      <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(profileEmail)}`} className="px-6 py-2 rounded-xl text-sm font-bold transition border border-white/10 bg-white/5 text-white hover:bg-white/10">
                         Message
                       </Link>
                     </>
@@ -245,6 +200,30 @@ export default function ExecutiveProfileHeader({
                 </div>
               </div>
             </div>
+
+            {/* Divider line + Stats Row below avatar/info */}
+            <div className="border-t border-white/5 mt-6 pt-5">
+              <div className="grid grid-cols-5 gap-2 sm:gap-4">
+                {[
+                  { val: myDrops.length, label: "Posts", color: "#FFFFFF" },
+                  { val: myFollowers.length, label: "Followers", color: "#00CFFF", onClick: () => onSetConnectionsView("Followers") },
+                  { val: myFollowing.length, label: "Following", color: "#00CFFF", onClick: () => onSetConnectionsView("Following") },
+                  { val: user.glow_score || 0, label: "XP", color: "#FFD000" },
+                  { val: user.faith_streak_count || 0, label: "Streak", color: "#8A5CFF" },
+                ].map((stat, i) => (
+                  <button
+                    key={i}
+                    onClick={stat.onClick}
+                    disabled={!stat.onClick}
+                    className={`text-center px-2 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 ${stat.onClick ? "hover:bg-white/[0.06] cursor-pointer" : "cursor-default"} transition`}
+                  >
+                    <div className="text-lg sm:text-xl font-black" style={{ color: stat.color, fontFamily: "Space Grotesk, sans-serif" }}>{stat.val}</div>
+                    <div className="text-[9px] text-gray-500 uppercase tracking-wider font-bold">{stat.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
 
             {/* Organization Map */}
             {(institutionApps.some(app => app.organization_map_url) || isOwnProfile) && (
@@ -362,11 +341,11 @@ export default function ExecutiveProfileHeader({
                 )}
 
                 {institutionApps.some(app => app.organization_map_url) ? (
-                  <div className="rounded-xl overflow-hidden border border-[#FFD000]/10 bg-white/[0.02] p-4">
+                  <div className="rounded-xl overflow-hidden border border-[#00CFFF]/10 bg-white rounded-xl p-2">
                     <img
                       src={institutionApps.find(app => app.organization_map_url)?.organization_map_url}
                       alt="Organization Map"
-                      className="w-full h-auto object-contain max-h-[400px] rounded-lg mb-4 bg-white"
+                      className="w-full h-auto object-contain max-h-[420px] rounded-lg"
                     />
                     
                     {(() => {
@@ -376,13 +355,13 @@ export default function ExecutiveProfileHeader({
                           const territories = JSON.parse(appWithMap.extracted_territories);
                           if (territories.length > 0) {
                             return (
-                              <div className="mt-4 pt-4 border-t border-white/5">
-                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                  <Sparkles className="w-3 h-3 text-[#00CFFF]" /> Extracted Territories
+                              <div className="mt-4 pt-4 border-t border-white/5 px-4 pb-2">
+                                <div className="text-[10px] font-black text-[#00CFFF] uppercase tracking-[0.15em] mb-2 flex items-center gap-1.5">
+                                  <Sparkles className="w-3 h-3" /> Extracted Territories
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                   {territories.map((t, i) => (
-                                    <span key={i} className="px-2.5 py-1 bg-[#00CFFF]/10 border border-[#00CFFF]/20 rounded-md text-xs font-semibold text-[#00CFFF]">
+                                    <span key={i} className="px-3 py-1 bg-[#00CFFF]/10 border border-[#00CFFF]/20 rounded-full text-xs font-semibold text-[#00CFFF]">
                                       {t.name}
                                     </span>
                                   ))}
@@ -407,7 +386,6 @@ export default function ExecutiveProfileHeader({
                 ) : null}
               </div>
             )}
-          </div>
           </div>
         </div>
       </div>
