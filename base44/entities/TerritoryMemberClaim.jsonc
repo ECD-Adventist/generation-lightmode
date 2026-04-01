@@ -1,0 +1,108 @@
+{
+  "name": "TerritoryMemberClaim",
+  "type": "object",
+  "properties": {
+    "institution_app_id": {
+      "type": "string",
+      "description": "ID of the InstitutionApplication"
+    },
+    "institution_name": {
+      "type": "string"
+    },
+    "institution_owner_email": {
+      "type": "string"
+    },
+    "member_email": {
+      "type": "string",
+      "description": "Email of the user claiming membership"
+    },
+    "member_name": {
+      "type": "string"
+    },
+    "claimed_territory": {
+      "type": "string",
+      "description": "Territory name the user claims to belong to"
+    },
+    "member_country": {
+      "type": "string"
+    },
+    "member_city": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "reviewer_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "institution_app_id",
+    "institution_owner_email",
+    "member_email",
+    "claimed_territory"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.member_email": "{{user.email}}"
+        },
+        {
+          "data.institution_owner_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.institution_owner_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.institution_owner_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
+}

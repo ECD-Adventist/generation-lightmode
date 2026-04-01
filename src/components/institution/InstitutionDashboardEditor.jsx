@@ -3,17 +3,27 @@ import { useQueryClient } from "@tanstack/react-query";
 import InstitutionDetailsEditor from "./InstitutionDetailsEditor";
 import InstitutionAnalytics from "./InstitutionAnalytics";
 import InstitutionTeamManager from "./InstitutionTeamManager";
-import { Building2, BarChart3, Users } from "lucide-react";
+import TerritoryAnalytics from "./TerritoryAnalytics";
+import { Building2, BarChart3, Users, MapPin } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
 const tabs = [
   { key: "details", label: "Page Details", icon: Building2 },
   { key: "analytics", label: "Analytics", icon: BarChart3 },
+  { key: "territory", label: "Territory Analytics", icon: MapPin },
   { key: "team", label: "Team Members", icon: Users },
 ];
 
 export default function InstitutionDashboardEditor({ page, user }) {
   const [activeTab, setActiveTab] = useState("details");
   const queryClient = useQueryClient();
+
+  const { data: institutionApps = [] } = useQuery({
+    queryKey: ["profileInstitutionApps", page?.owner_email],
+    queryFn: () => base44.entities.InstitutionApplication.filter({ user_email: page.owner_email, status: "approved" }),
+    enabled: !!page?.owner_email,
+  });
 
   const onPageUpdated = () => {
     queryClient.invalidateQueries({ queryKey: ["institutionPageEdit", page.id] });
@@ -45,6 +55,7 @@ export default function InstitutionDashboardEditor({ page, user }) {
 
       {activeTab === "details" && <InstitutionDetailsEditor page={page} onUpdated={onPageUpdated} />}
       {activeTab === "analytics" && <InstitutionAnalytics page={page} />}
+      {activeTab === "territory" && <TerritoryAnalytics page={page} institutionApps={institutionApps} />}
       {activeTab === "team" && <InstitutionTeamManager page={page} onUpdated={onPageUpdated} />}
     </div>
   );

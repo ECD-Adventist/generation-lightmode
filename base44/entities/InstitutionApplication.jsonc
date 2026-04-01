@@ -43,6 +43,10 @@
       "type": "string",
       "description": "Image URL of the organization structure/map"
     },
+    "extracted_territories": {
+      "type": "string",
+      "description": "JSON string of territories extracted from the org map, e.g. [{name, region, country}]"
+    },
     "status": {
       "type": "string",
       "enum": [

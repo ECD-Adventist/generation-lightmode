@@ -60,54 +60,44 @@ export default function ExecutiveProfileHeader({
         }
       `}</style>
 
-      {/* Executive Cover Banner */}
+      {/* Executive Cover Banner — bright & clean */}
       <div className="relative mb-0">
         <div
-          className={`w-full h-56 sm:h-72 relative overflow-hidden ${isOwnProfile ? "cursor-pointer" : ""}`}
+          className={`w-full h-52 sm:h-64 relative overflow-hidden ${isOwnProfile ? "cursor-pointer" : ""}`}
           onClick={() => isOwnProfile && coverInputRef.current?.click()}
-          style={{ borderRadius: "0 0 24px 24px" }}
+          style={{ borderRadius: "0 0 0 0" }}
         >
-          {/* Dark premium background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0a0e1a] via-[#0f1628] to-[#0a0e1a]" />
-
-          {/* Cover image */}
-          {user.cover_picture_url && (
-           <img src={user.cover_picture_url} alt="Cover" className="absolute inset-0 w-full h-full object-cover opacity-80" />
+          {/* Cover image — full brightness */}
+          {user.cover_picture_url ? (
+            <img src={user.cover_picture_url} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[#1a2740] via-[#0f1628] to-[#0a1025]" />
           )}
 
-          {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A] via-[#0B0F1A]/20 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#FFD000]/5 via-transparent to-[#00CFFF]/5" />
+          {/* Subtle bottom gradient for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A]/80 via-transparent to-[#0B0F1A]/10" />
 
-          {/* Gold shimmer line at top */}
-          <div className="absolute top-0 left-0 right-0 h-[2px]" style={{
-            background: "linear-gradient(90deg, transparent 20%, #FFD000 50%, transparent 80%)",
-            backgroundSize: "200% 100%",
-            animation: "executive-shimmer 3s linear infinite",
-          }} />
-
-          {/* Decorative pattern overlay */}
-          <div className="absolute inset-0 opacity-[0.03]" style={{
-            backgroundImage: "radial-gradient(circle at 25% 25%, #FFD000 1px, transparent 1px), radial-gradient(circle at 75% 75%, #00CFFF 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
+          {/* Gold accent line at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{
+            background: "linear-gradient(90deg, transparent, #FFD000, #00CFFF, transparent)",
           }} />
 
           {/* Institution branding strip */}
-          <div className="absolute bottom-0 left-0 right-0 px-6 pb-6 flex items-end justify-between z-10">
+          <div className="absolute bottom-0 left-0 right-0 px-6 pb-4 flex items-end justify-between z-10">
             <div className="flex items-center gap-3">
               {primaryPage?.logo_url && (
-                <img src={primaryPage.logo_url} alt="" className="w-10 h-10 rounded-lg object-cover border border-[#FFD000]/30 shadow-lg" />
+                <img src={primaryPage.logo_url} alt="" className="w-9 h-9 rounded-lg object-cover border border-white/30 shadow-lg" />
               )}
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#FFD000]/80">Verified Institution</span>
+                <div className="flex items-center gap-1.5">
                   <Shield className="w-3 h-3 text-[#FFD000]" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.15em] text-[#FFD000] drop-shadow-md">Verified Institution</span>
                 </div>
-                <span className="text-sm font-bold text-white/90">{primaryApp?.institution_name}</span>
+                <span className="text-sm font-bold text-white drop-shadow-md">{primaryApp?.institution_name}</span>
               </div>
             </div>
             {institutionApps.length > 1 && (
-              <span className="text-[10px] text-[#FFD000]/60 font-bold">+{institutionApps.length - 1} more</span>
+              <span className="text-[10px] text-white/60 font-bold drop-shadow-md">+{institutionApps.length - 1} more</span>
             )}
           </div>
 
@@ -233,6 +223,9 @@ export default function ExecutiveProfileHeader({
                           <Building2 className="w-4 h-4" /> Manage Institution
                         </Link>
                       )}
+                      <Link to="/InstitutionControlCenter" className="px-5 py-2.5 rounded-xl text-sm font-bold transition border border-[#8A5CFF]/30 bg-[#8A5CFF]/10 text-[#8A5CFF] hover:bg-[#8A5CFF]/20 flex items-center gap-2">
+                        <Shield className="w-4 h-4" /> Control Center
+                      </Link>
                     </>
                   )}
                   {!isOwnProfile && currentUser && (
@@ -283,26 +276,58 @@ export default function ExecutiveProfileHeader({
                           if (!file) return;
                           e.target.value = null;
                           setUploadingMap(true);
-                          setMapUploadProgress({ step: 1, percent: 15, label: "Uploading image..." });
+                          setMapUploadProgress({ step: 1, percent: 10, label: "Uploading image..." });
 
                           try {
                             // Step 1: Upload file
-                            setMapUploadProgress({ step: 1, percent: 30, label: "Uploading image..." });
+                            setMapUploadProgress({ step: 1, percent: 25, label: "Uploading image..." });
                             const { file_url } = await base44.integrations.Core.UploadFile({ file });
-                            setMapUploadProgress({ step: 2, percent: 60, label: "Extracting map data..." });
+                            setMapUploadProgress({ step: 1, percent: 40, label: "Upload complete" });
 
-                            // Step 2: Simulate extraction/processing delay
-                            await new Promise(r => setTimeout(r, 1200));
-                            setMapUploadProgress({ step: 3, percent: 85, label: "Saving to profile..." });
+                            // Step 2: Extract territories using AI
+                            setMapUploadProgress({ step: 2, percent: 50, label: "AI extracting territories..." });
+                            let extractedTerritories = [];
+                            try {
+                              const extractResult = await base44.integrations.Core.InvokeLLM({
+                                prompt: `Analyze this organization map image. Extract all territory names, regions, countries, and any hierarchical structure visible. Return a JSON array of objects with fields: name (territory/conference name), region (geographic region), country (country name). If you cannot identify territories, return a best-effort list based on visible text or geographic regions shown.`,
+                                file_urls: [file_url],
+                                response_json_schema: {
+                                  type: "object",
+                                  properties: {
+                                    territories: {
+                                      type: "array",
+                                      items: {
+                                        type: "object",
+                                        properties: {
+                                          name: { type: "string" },
+                                          region: { type: "string" },
+                                          country: { type: "string" }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              });
+                              extractedTerritories = extractResult?.territories || [];
+                            } catch (aiErr) {
+                              console.warn("AI extraction failed, saving map without territories:", aiErr);
+                            }
+                            setMapUploadProgress({ step: 2, percent: 70, label: `Found ${extractedTerritories.length} territories` });
+                            await new Promise(r => setTimeout(r, 800));
 
                             // Step 3: Save to entity
+                            setMapUploadProgress({ step: 3, percent: 85, label: "Saving to profile..." });
                             const appWithMap = institutionApps.find(a => a.organization_map_url) || primaryApp;
-                            await base44.entities.InstitutionApplication.update(appWithMap.id, { organization_map_url: file_url });
+                            const updateData = { organization_map_url: file_url };
+                            if (extractedTerritories.length > 0) {
+                              updateData.extracted_territories = JSON.stringify(extractedTerritories);
+                            }
+                            await base44.entities.InstitutionApplication.update(appWithMap.id, updateData);
                             setMapUploadProgress({ step: 4, percent: 100, label: "Done!" });
 
                             await new Promise(r => setTimeout(r, 600));
                             queryClient.invalidateQueries({ queryKey: ["profileInstitutionApps"] });
-                            toast.success("Organization map updated!");
+                            toast.success(`Organization map updated! ${extractedTerritories.length} territories extracted.`);
                           } catch (err) {
                             toast.error("Failed to upload map");
                           } finally {
