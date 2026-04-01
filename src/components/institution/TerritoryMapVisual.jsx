@@ -1,11 +1,10 @@
 import React, { useMemo, useState } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
-import { Globe, Users, MapPin } from "lucide-react";
+import { Globe, MapPin } from "lucide-react";
 import TerritoryDrillDownPanel from "./TerritoryDrillDownPanel";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
-// ISO numeric → country name (for click lookup)
 const ISO_TO_COUNTRY = {
   "231": "Ethiopia", "404": "Kenya", "834": "Tanzania", "800": "Uganda",
   "646": "Rwanda", "108": "Burundi", "180": "Democratic Republic of Congo",
@@ -33,17 +32,7 @@ const COUNTRY_NAME_TO_ISO = {
   "Central African Republic": "140", "CAR": "140",
 };
 
-function StatRow({ value, label, color = "#00CFFF" }) {
-  return (
-    <div className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-      <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{label}</span>
-      <span className="text-lg font-black" style={{ color, fontFamily: "Space Grotesk, sans-serif" }}>{value}</span>
-    </div>
-  );
-}
-
 export default function TerritoryMapVisual({ territories, institutionName, memberCount, ownerEmail }) {
-  const [hoveredCountry, setHoveredCountry] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, name: "" });
 
@@ -75,40 +64,44 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
 
   return (
     <>
-      <div className="rounded-2xl overflow-hidden border border-white/10" style={{ background: "#0e1117" }}>
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-white/5 flex items-center gap-3">
+      <div className="rounded-2xl overflow-hidden border border-white/10" style={{ background: "#0B0F1A" }}>
+
+        {/* Header row */}
+        <div className="px-5 py-3 flex items-center gap-2 border-b border-white/5">
           <Globe className="w-4 h-4 text-[#00CFFF]" />
-          <span className="text-[11px] font-black text-[#00CFFF] uppercase tracking-[0.18em]">Territory Map</span>
-          <span className="text-[10px] text-gray-500 ml-1">· Click a region to explore</span>
-          <span className="ml-auto text-[10px] font-bold text-gray-400 bg-white/5 px-2 py-0.5 rounded-full">{countries.length} countries</span>
+          <span className="text-[11px] font-black text-[#00CFFF] uppercase tracking-[0.2em]">Territory Map</span>
+          <span className="text-[10px] text-gray-600 ml-1">· click a region</span>
+          <span className="ml-auto text-[11px] font-bold text-gray-300 bg-white/5 border border-white/10 px-3 py-1 rounded-lg">
+            {countries.length} countries
+          </span>
         </div>
 
-        {/* Map + Stats */}
+        {/* Map + Stats side by side */}
         <div className="flex flex-col lg:flex-row">
-          {/* Map */}
-          <div className="flex-1 relative" style={{ minHeight: 320 }}>
+
+          {/* Map — takes ~70% */}
+          <div className="relative flex-1" style={{ minHeight: 340, background: "#0B0F1A" }}>
             {/* Tooltip */}
             {tooltip.visible && (
               <div
                 className="absolute z-20 pointer-events-none px-3 py-1.5 rounded-lg text-xs font-bold text-white border border-white/10"
                 style={{
-                  background: "rgba(14,17,23,0.95)",
-                  left: tooltip.x + 10,
-                  top: tooltip.y - 30,
+                  background: "rgba(11,15,26,0.97)",
+                  left: tooltip.x,
+                  top: tooltip.y - 38,
                   transform: "translateX(-50%)",
                   whiteSpace: "nowrap",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
                 }}
               >
                 {tooltip.name}
-                <span className="ml-2 text-[#e74c3c] text-[9px] font-black uppercase">Click to explore →</span>
+                <span className="ml-2 text-[#e74c3c] text-[9px] font-black uppercase">explore →</span>
               </div>
             )}
 
             <ComposableMap
               projection="geoMercator"
-              projectionConfig={{ scale: 220, center: [25, 5] }}
+              projectionConfig={{ scale: 160, center: [20, 10] }}
               style={{ width: "100%", height: "100%" }}
             >
               <Geographies geography={GEO_URL}>
@@ -116,7 +109,6 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
                   geographies.map(geo => {
                     const isoId = String(geo.id);
                     const isHighlighted = highlightedIsoCodes.has(isoId);
-                    const isHovered = hoveredCountry === isoId;
                     const isSelected = selectedCountry && ISO_TO_COUNTRY[isoId] === selectedCountry;
 
                     return (
@@ -126,8 +118,6 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
                         onClick={() => handleCountryClick(geo)}
                         onMouseEnter={(evt) => {
                           if (!isHighlighted) return;
-                          setHoveredCountry(isoId);
-                          const rect = evt.target.closest("svg")?.getBoundingClientRect();
                           const svgEl = evt.target.closest("svg");
                           if (svgEl) {
                             const svgRect = svgEl.getBoundingClientRect();
@@ -151,25 +141,21 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
                             }));
                           }
                         }}
-                        onMouseLeave={() => {
-                          setHoveredCountry(null);
-                          setTooltip({ visible: false, x: 0, y: 0, name: "" });
-                        }}
+                        onMouseLeave={() => setTooltip({ visible: false, x: 0, y: 0, name: "" })}
                         style={{
                           default: {
-                            fill: isSelected ? "#c0392b" : isHighlighted ? "#8B1A1A" : "#1a1e2a",
-                            stroke: isSelected ? "#e74c3c" : isHighlighted ? "#c0392b" : "#2a2f3d",
-                            strokeWidth: isHighlighted ? 0.8 : 0.4,
+                            fill: isSelected ? "#c0392b" : isHighlighted ? "#8B1A1A" : "#161B28",
+                            stroke: isSelected ? "#e74c3c" : isHighlighted ? "#a93226" : "#1e2536",
+                            strokeWidth: isHighlighted ? 0.7 : 0.3,
                             outline: "none",
                             cursor: isHighlighted ? "pointer" : "default",
                           },
                           hover: {
-                            fill: isHighlighted ? "#b52828" : "#1e2330",
-                            stroke: isHighlighted ? "#e74c3c" : "#2a2f3d",
-                            strokeWidth: isHighlighted ? 1.2 : 0.4,
+                            fill: isHighlighted ? "#b52828" : "#1a2030",
+                            stroke: isHighlighted ? "#e74c3c" : "#1e2536",
+                            strokeWidth: isHighlighted ? 1 : 0.3,
                             outline: "none",
                             cursor: isHighlighted ? "pointer" : "default",
-                            filter: isHighlighted ? "drop-shadow(0 0 6px rgba(231,76,60,0.6))" : "none",
                           },
                           pressed: { outline: "none" },
                         }}
@@ -181,68 +167,76 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
               {centerMarker && (
                 <Marker coordinates={centerMarker}>
                   <circle r={5} fill="#e74c3c" stroke="#fff" strokeWidth={1.5} />
-                  <circle r={10} fill="rgba(231,76,60,0.2)" />
+                  <circle r={12} fill="rgba(231,76,60,0.15)" />
                 </Marker>
               )}
             </ComposableMap>
           </div>
 
-          {/* Stats panel */}
-          <div className="w-full lg:w-52 px-6 py-5 border-t border-white/5 lg:border-t-0 lg:border-l lg:border-white/5 flex flex-col justify-center gap-1">
-            <div className="mb-4">
-              <div className="text-[9px] font-black uppercase tracking-widest text-[#00CFFF] mb-1">Territory Stats</div>
-              {memberCount > 0 && (
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-3xl font-black text-white" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
-                    {memberCount >= 1000000 ? `${(memberCount / 1000000).toFixed(1)}M`
-                      : memberCount >= 1000 ? `${(memberCount / 1000).toFixed(1)}K`
-                      : memberCount}
-                  </span>
-                  <div className="w-8 h-8 rounded-full bg-[#8B1A1A] flex items-center justify-center">
-                    <Users className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-              )}
+          {/* Stats panel — right side, vertically centered */}
+          <div
+            className="lg:w-56 shrink-0 flex flex-col justify-center px-8 py-8 border-t border-white/5 lg:border-t-0 lg:border-l lg:border-white/5"
+            style={{ background: "#0B0F1A" }}
+          >
+            <div className="text-[10px] font-black uppercase tracking-[0.25em] text-[#00CFFF] mb-6">
+              Territory Stats
             </div>
-            <StatRow value={countries.length} label="Countries" color="#00CFFF" />
-            <StatRow value={regions.length} label="Regions" color="#FFD000" />
-            <StatRow value={territories.length} label="Territories" color="#8A5CFF" />
+
+            {/* Stat rows — label left, big number right */}
+            {[
+              { label: "Countries", value: countries.length, color: "#00CFFF" },
+              { label: "Regions", value: regions.length, color: "#FFD000" },
+              { label: "Territories", value: territories.length, color: "#8A5CFF" },
+            ].map(({ label, value, color }) => (
+              <div key={label} className="flex items-center justify-between py-4 border-b border-white/5 last:border-0">
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.15em]">{label}</span>
+                <span
+                  className="text-2xl font-black"
+                  style={{ color, fontFamily: "Space Grotesk, sans-serif" }}
+                >
+                  {value}
+                </span>
+              </div>
+            ))}
 
             {/* Clickable country list */}
-            <div className="mt-4 space-y-1">
-              <div className="text-[9px] font-black uppercase tracking-widest text-gray-500 mb-2">Explore by Country</div>
-              {countries.map(c => (
-                <button
-                  key={c}
-                  onClick={() => setSelectedCountry(c)}
-                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left transition hover:bg-white/5 group"
-                >
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#8B1A1A] group-hover:bg-[#e74c3c] transition shrink-0" />
-                  <span className="text-[11px] text-gray-400 group-hover:text-white transition truncate">{c}</span>
-                </button>
-              ))}
-            </div>
+            {countries.length > 0 && (
+              <div className="mt-6 space-y-1">
+                <div className="text-[9px] font-black uppercase tracking-widest text-gray-600 mb-2">Jump to</div>
+                {countries.map(c => (
+                  <button
+                    key={c}
+                    onClick={() => setSelectedCountry(c)}
+                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left transition hover:bg-white/5 group"
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#8B1A1A] group-hover:bg-[#e74c3c] transition shrink-0" />
+                    <span className="text-[11px] text-gray-500 group-hover:text-white transition truncate">{c}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Territory chips */}
-        <div className="px-6 py-4 border-t border-white/5">
-          <div className="flex flex-wrap gap-1.5">
-            {territories.map((t, i) => (
-              <button
-                key={i}
-                onClick={() => setSelectedCountry(t.country)}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border transition hover:border-[#e74c3c]/50 hover:text-white"
-                style={{ background: "rgba(139,26,26,0.15)", borderColor: "rgba(231,76,60,0.25)", color: "#e8a0a0" }}
-              >
-                <MapPin className="w-2.5 h-2.5" /> {t.name}
-              </button>
-            ))}
-          </div>
+        <div className="px-5 py-4 border-t border-white/5 flex flex-wrap gap-2">
+          {territories.map((t, i) => (
+            <button
+              key={i}
+              onClick={() => setSelectedCountry(t.country)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold border transition hover:border-[#e74c3c]/50 hover:text-white"
+              style={{
+                background: "rgba(139,26,26,0.12)",
+                borderColor: "rgba(231,76,60,0.2)",
+                color: "#c0a0a0",
+              }}
+            >
+              <MapPin className="w-2.5 h-2.5" /> {t.name}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Drill-down side panel */}
       {selectedCountry && (
         <TerritoryDrillDownPanel
           country={selectedCountry}
