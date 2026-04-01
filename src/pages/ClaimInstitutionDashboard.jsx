@@ -123,9 +123,8 @@ export default function ClaimInstitutionDashboard() {
               >
                 <option value="school">School</option>
                 <option value="church">Church</option>
-                <option value="university">University</option>
-                <option value="nonprofit">Non-Profit</option>
                 <option value="ministry">Ministry</option>
+                <option value="organization">Organization</option>
                 <option value="other">Other</option>
               </select>
             </div>
