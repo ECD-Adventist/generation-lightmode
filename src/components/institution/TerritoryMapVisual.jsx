@@ -112,7 +112,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
 
             <ComposableMap
               projection="geoMercator"
-              projectionConfig={{ scale: 400, center: [30, 0] }}
+              projectionConfig={{ scale: 650, center: [35, 2] }}
               style={{ width: "100%", height: "100%" }}
             >
               <Geographies geography={GEO_URL}>
