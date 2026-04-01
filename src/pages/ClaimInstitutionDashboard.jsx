@@ -34,8 +34,8 @@ export default function ClaimInstitutionDashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.institution_name || !formData.contact_person_name || !formData.institution_address) {
+
+    if (!formData.institution_name || !formData.description || !formData.contact_person_name || !formData.contact_email || !formData.institution_address) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -204,6 +204,7 @@ export default function ClaimInstitutionDashboard() {
                   type="checkbox"
                   checked={formData.commitment}
                   onChange={e => setFormData({ ...formData, commitment: e.target.checked })}
+                  required
                   className="mt-1"
                 />
                 <div>
