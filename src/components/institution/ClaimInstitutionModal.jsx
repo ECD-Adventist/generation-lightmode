@@ -247,7 +247,6 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                     <label className="flex items-start gap-3 cursor-pointer hover:bg-white/5 p-3 rounded-lg transition">
                       <input
                         type="checkbox"
-                        required
                         checked={formData.agree_procedures}
                         onChange={(e) => setFormData({ ...formData, agree_procedures: e.target.checked })}
                         className="mt-1 w-4 h-4 rounded border-white/20 bg-[#0B0F1A] accent-[#00CFFF]"
@@ -260,7 +259,6 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                     <label className="flex items-start gap-3 cursor-pointer hover:bg-white/5 p-3 rounded-lg transition">
                       <input
                         type="checkbox"
-                        required
                         checked={formData.agree_commitment}
                         onChange={(e) => setFormData({ ...formData, agree_commitment: e.target.checked })}
                         className="mt-1 w-4 h-4 rounded border-white/20 bg-[#0B0F1A] accent-[#00CFFF]"
@@ -273,7 +271,6 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                     <label className="flex items-start gap-3 cursor-pointer hover:bg-white/5 p-3 rounded-lg transition">
                       <input
                         type="checkbox"
-                        required
                         checked={formData.agree_ecd_supervision}
                         onChange={(e) => setFormData({ ...formData, agree_ecd_supervision: e.target.checked })}
                         className="mt-1 w-4 h-4 rounded border-white/20 bg-[#0B0F1A] accent-[#00CFFF]"
