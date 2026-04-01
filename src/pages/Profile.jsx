@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import ProfileConnectionsModal from "@/components/profile/ProfileConnectionsModal";
+import ProfileInstitutionsTab from "@/components/institution/ProfileInstitutionsTab";
 import { isNotificationEnabled } from "@/lib/notifications";
 
 export default function Profile() {
@@ -684,6 +685,9 @@ export default function Profile() {
           <div onClick={() => setActiveProfileTab("badges")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "badges" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
             <Award className="w-4 h-4" /> ACHIEVEMENTS
           </div>
+          <div onClick={() => setActiveProfileTab("institutions")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "institutions" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
+            <Grid className="w-4 h-4" /> INSTITUTIONS
+          </div>
         </div>
 
         {activeProfileTab === "drops" && (
@@ -848,6 +852,10 @@ export default function Profile() {
               )}
             </div>
           </div>
+        )}
+
+        {activeProfileTab === "institutions" && (
+          <ProfileInstitutionsTab profileEmail={profileEmail} isOwnProfile={isOwnProfile} />
         )}
 
         {activeProfileTab === "badges" && (
