@@ -76,12 +76,22 @@ export default function ProfileInstitutionsTab({ profileEmail, isOwnProfile }) {
             </div>
 
             {isApproved && page ? (
-              <Link
-                to={`/InstitutionPage?id=${page.id}`}
-                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-[#00CFFF] font-bold text-xs hover:bg-[#00CFFF]/20 transition"
-              >
-                <ExternalLink className="w-3.5 h-3.5" /> View Dashboard
-              </Link>
+              <div className="flex gap-2">
+                {isOwnProfile && (
+                  <Link
+                    to={`/InstitutionDashboard?id=${page.id}`}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-[#00CFFF]/10 to-[#8A5CFF]/10 border border-[#00CFFF]/20 text-[#00CFFF] font-bold text-xs hover:from-[#00CFFF]/20 hover:to-[#8A5CFF]/20 transition"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> Manage
+                  </Link>
+                )}
+                <Link
+                  to={`/InstitutionPage?id=${page.id}`}
+                  className={`${isOwnProfile ? "" : "flex-1"} flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white/5 border border-white/10 text-gray-300 font-bold text-xs hover:bg-white/10 transition`}
+                >
+                  View Page
+                </Link>
+              </div>
             ) : isApproved ? (
               <div className="text-center py-2.5 rounded-xl bg-green-500/10 text-green-400 text-xs font-bold">
                 ✓ Approved — Dashboard being set up

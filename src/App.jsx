@@ -18,6 +18,7 @@ import Settings from './pages/Settings';
 import TerritoryPhotos from './pages/TerritoryPhotos';
 import ClaimInstitutionDashboard from './pages/ClaimInstitutionDashboard';
 import ComplianceReporting from './pages/ComplianceReporting';
+import InstitutionDashboard from './pages/InstitutionDashboard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -81,6 +82,7 @@ const AuthenticatedApp = () => {
       <Route path="/TerritoryPhotos" element={<LayoutWrapper currentPageName="TerritoryPhotos"><TerritoryPhotos /></LayoutWrapper>} />
       <Route path="/ClaimInstitutionDashboard" element={<LayoutWrapper currentPageName="ClaimInstitutionDashboard"><ClaimInstitutionDashboard /></LayoutWrapper>} />
       <Route path="/ComplianceReporting" element={<LayoutWrapper currentPageName="ComplianceReporting"><ComplianceReporting /></LayoutWrapper>} />
+      <Route path="/InstitutionDashboard" element={<LayoutWrapper currentPageName="InstitutionDashboard"><InstitutionDashboard /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

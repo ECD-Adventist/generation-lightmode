@@ -12,6 +12,7 @@ import ImageCropperModal from "@/components/ui/ImageCropperModal";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import ProfileConnectionsModal from "@/components/profile/ProfileConnectionsModal";
 import ProfileInstitutionsTab from "@/components/institution/ProfileInstitutionsTab";
+import InstitutionOwnerBadge from "@/components/institution/InstitutionOwnerBadge";
 import { isNotificationEnabled } from "@/lib/notifications";
 
 export default function Profile() {
@@ -161,6 +162,13 @@ export default function Profile() {
     queryKey: ["myChallengeSubmissions", profileEmail],
     queryFn: () => base44.entities.ChallengeSubmission.filter({ user_email: profileEmail }, '-created_date'),
     enabled: !!profileEmail
+  });
+
+  // Check if user is an institution owner (has approved applications)
+  const { data: userInstitutionApps = [] } = useQuery({
+    queryKey: ["profileInstitutionApps", profileEmail],
+    queryFn: () => base44.entities.InstitutionApplication.filter({ user_email: profileEmail, status: "approved" }),
+    enabled: !!profileEmail,
   });
 
   // Follow/unfollow for viewing other profiles
@@ -428,7 +436,9 @@ export default function Profile() {
           {/* Rotating Edge Light */}
           <div style={{
             position: "absolute", top: "50%", left: "50%", width: "200%", height: "200%",
-            background: "conic-gradient(from 0deg, transparent 60%, #00CFFF 80%, #8A5CFF 100%)",
+            background: userInstitutionApps.length > 0
+              ? "conic-gradient(from 0deg, transparent 60%, #FFD000 80%, #00CFFF 100%)"
+              : "conic-gradient(from 0deg, transparent 60%, #00CFFF 80%, #8A5CFF 100%)",
             animation: "spin-border 4s linear infinite",
             zIndex: 0
           }} />
@@ -466,7 +476,11 @@ export default function Profile() {
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-white/5 pb-12 -mt-20 sm:-mt-24 relative z-10 px-4">
           <div 
-            className={`w-32 h-32 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-1 flex-shrink-0 shadow-[0_0_30px_rgba(0,207,255,0.3)] overflow-hidden group relative ${isOwnProfile ? 'cursor-pointer' : ''}`}
+            className={`w-32 h-32 rounded-full p-1 flex-shrink-0 overflow-hidden group relative ${isOwnProfile ? 'cursor-pointer' : ''} ${
+              userInstitutionApps.length > 0
+                ? 'bg-gradient-to-tr from-[#FFD000] to-[#00CFFF] shadow-[0_0_30px_rgba(255,208,0,0.3)]'
+                : 'bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] shadow-[0_0_30px_rgba(0,207,255,0.3)]'
+            }`}
             onClick={() => isOwnProfile && profileInputRef.current?.click()}
           >
             <div className="w-full h-full rounded-full bg-[#121826] border-4 border-[#0B0F1A] flex items-center justify-center text-5xl font-bold font-['Space_Grotesk'] uppercase overflow-hidden relative">
@@ -483,7 +497,10 @@ export default function Profile() {
           
           <div className="flex-1 text-center md:text-left mt-4 md:mt-16">
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
-              <h1 className="text-3xl font-bold font-['Inter']">{user.full_name}</h1>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-3xl font-bold font-['Inter']">{user.full_name}</h1>
+                <InstitutionOwnerBadge applications={userInstitutionApps} />
+              </div>
               {isOwnProfile && !isEditing && (
                 <button onClick={() => setIsEditing(true)} className="px-5 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-semibold transition border border-white/5">
                   Edit Profile

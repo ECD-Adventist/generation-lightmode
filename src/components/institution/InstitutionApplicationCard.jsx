@@ -42,12 +42,20 @@ export default function InstitutionApplicationCard({ application, institutionPag
       )}
 
       {application.status === "approved" && institutionPage && (
-        <Link
-          to={`/InstitutionPage?id=${institutionPage.id}`}
-          className="mt-4 flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-[#00CFFF]/10 to-[#8A5CFF]/10 border border-[#00CFFF]/20 text-[#00CFFF] font-bold text-sm hover:from-[#00CFFF]/20 hover:to-[#8A5CFF]/20 transition"
-        >
-          <ExternalLink className="w-4 h-4" /> View Institution Dashboard
-        </Link>
+        <div className="mt-4 flex gap-3">
+          <Link
+            to={`/InstitutionDashboard?id=${institutionPage.id}`}
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-[#00CFFF]/10 to-[#8A5CFF]/10 border border-[#00CFFF]/20 text-[#00CFFF] font-bold text-sm hover:from-[#00CFFF]/20 hover:to-[#8A5CFF]/20 transition"
+          >
+            <ExternalLink className="w-4 h-4" /> Manage Dashboard
+          </Link>
+          <Link
+            to={`/InstitutionPage?id=${institutionPage.id}`}
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-300 font-bold text-sm hover:bg-white/10 transition"
+          >
+            View Page
+          </Link>
+        </div>
       )}
 
       {application.status === "approved" && !institutionPage && (
