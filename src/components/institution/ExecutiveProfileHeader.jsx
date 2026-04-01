@@ -351,6 +351,7 @@ export default function ExecutiveProfileHeader({
                               territories={territories}
                               institutionName={appWithMap.institution_name}
                               memberCount={0}
+                              ownerEmail={profileEmail}
                             />
                           );
                         }
