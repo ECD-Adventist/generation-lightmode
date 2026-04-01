@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { Camera, Shield, MapPin, ExternalLink, Building2, Crown, Sparkles, Upload, Loader2 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
+import TerritoryOrgChart from "@/components/institution/TerritoryOrgChart";
 
 export default function ExecutiveProfileHeader({
   user,
@@ -339,43 +340,23 @@ export default function ExecutiveProfileHeader({
                 )}
 
                 {institutionApps.some(app => app.organization_map_url) ? (
-                  <div className="rounded-2xl overflow-hidden border border-[#FFD000]/20" style={{ background: "#fff", boxShadow: "0 0 40px rgba(255,208,0,0.08), 0 0 0 1px rgba(0,207,255,0.1)" }}>
+                  <div className="space-y-4">
                     {/* Map image on white bg */}
-                    <div className="bg-white p-6">
+                    <div className="rounded-2xl overflow-hidden border border-[#FFD000]/20 bg-white p-4" style={{ boxShadow: "0 0 40px rgba(255,208,0,0.08)" }}>
                       <img
                         src={institutionApps.find(app => app.organization_map_url)?.organization_map_url}
                         alt="Organization Map"
                         className="w-full h-auto object-contain max-h-[460px]"
                       />
                     </div>
-                    {/* Extracted territories infographic */}
+                    {/* Hierarchical org-chart of extracted territories */}
                     {(() => {
                       const appWithMap = institutionApps.find(a => a.organization_map_url);
                       if (appWithMap?.extracted_territories) {
                         try {
                           const territories = JSON.parse(appWithMap.extracted_territories);
                           if (territories.length > 0) {
-                            return (
-                              <div className="px-6 py-5 border-t border-gray-100 bg-white">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <Sparkles className="w-3.5 h-3.5 text-[#00CFFF]" />
-                                  <span className="text-[10px] font-black text-[#00CFFF] uppercase tracking-[0.18em]">Extracted Territories</span>
-                                  <span className="ml-auto text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{territories.length} total</span>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                  {territories.map((t, i) => (
-                                    <span
-                                      key={i}
-                                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border"
-                                      style={{ background: "rgba(0,207,255,0.06)", borderColor: "rgba(0,207,255,0.25)", color: "#0099cc" }}
-                                    >
-                                      <span className="w-1.5 h-1.5 rounded-full bg-[#00CFFF] inline-block shrink-0"></span>
-                                      {t.name}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            );
+                            return <TerritoryOrgChart territories={territories} />;
                           }
                         } catch (e) {}
                       }
