@@ -64,14 +64,14 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
 
   return (
     <>
-      <div className="rounded-2xl overflow-hidden border border-white/10" style={{ background: "#0B0F1A" }}>
+      <div className="rounded-2xl overflow-hidden" style={{ background: "#0B0F1A", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 0 40px rgba(0,207,255,0.05)" }}>
 
         {/* Header row */}
-        <div className="px-5 py-3 flex items-center gap-2 border-b border-white/5">
+        <div className="px-5 py-3 flex items-center gap-2" style={{ borderBottom: "1px solid rgba(0,207,255,0.1)", background: "rgba(0,207,255,0.03)" }}>
           <Globe className="w-4 h-4 text-[#00CFFF]" />
           <span className="text-[11px] font-black text-[#00CFFF] uppercase tracking-[0.2em]">Territory Map</span>
-          <span className="text-[10px] text-gray-600 ml-1">· click a region</span>
-          <span className="ml-auto text-[11px] font-bold text-gray-300 bg-white/5 border border-white/10 px-3 py-1 rounded-lg">
+          <span className="text-[10px] ml-1" style={{ color: "rgba(0,207,255,0.4)" }}>· click a region</span>
+          <span className="ml-auto text-[11px] font-bold px-3 py-1 rounded-lg" style={{ color: "#00CFFF", background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.2)" }}>
             {countries.length} countries
           </span>
         </div>
@@ -80,13 +80,15 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
         <div className="flex flex-col lg:flex-row">
 
           {/* Map — takes ~70% */}
-          <div className="relative flex-1" style={{ minHeight: 480, background: "#0B0F1A" }}>
+          <div className="relative flex-1" style={{ minHeight: 480, background: "#080C14" }}>
             {/* Tooltip */}
             {tooltip.visible && (
               <div
-                className="absolute z-20 pointer-events-none px-3 py-1.5 rounded-lg text-xs font-bold text-white border border-white/10"
+                className="absolute z-20 pointer-events-none px-3 py-1.5 rounded-lg text-xs font-bold text-white"
                 style={{
-                  background: "rgba(11,15,26,0.97)",
+                  background: "rgba(0,207,255,0.15)",
+                  border: "1px solid rgba(0,207,255,0.4)",
+                  backdropFilter: "blur(10px)",
                   left: tooltip.x,
                   top: tooltip.y - 38,
                   transform: "translateX(-50%)",
@@ -144,15 +146,15 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
                         onMouseLeave={() => setTooltip({ visible: false, x: 0, y: 0, name: "" })}
                         style={{
                           default: {
-                            fill: isSelected ? "#c0392b" : isHighlighted ? "#7B1515" : "#12161F",
-                            stroke: isSelected ? "#e74c3c" : isHighlighted ? "#c0392b" : "#1a1f2e",
+                            fill: isSelected ? "#006699" : isHighlighted ? "#004D80" : "#0D1220",
+                            stroke: isSelected ? "#00CFFF" : isHighlighted ? "#0099CC" : "#141929",
                             strokeWidth: isHighlighted ? 1.2 : 0.3,
                             outline: "none",
                             cursor: isHighlighted ? "pointer" : "default",
                           },
                           hover: {
-                            fill: isHighlighted ? "#a82020" : "#161b28",
-                            stroke: isHighlighted ? "#e74c3c" : "#1a1f2e",
+                            fill: isHighlighted ? "#0077AA" : "#111828",
+                            stroke: isHighlighted ? "#00CFFF" : "#141929",
                             strokeWidth: isHighlighted ? 1.5 : 0.3,
                             outline: "none",
                             cursor: isHighlighted ? "pointer" : "default",
@@ -166,8 +168,8 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
               </Geographies>
               {centerMarker && (
                 <Marker coordinates={centerMarker}>
-                  <circle r={14} fill="rgba(231,76,60,0.12)" />
-                  <circle r={7} fill="#e74c3c" stroke="#fff" strokeWidth={2} />
+                  <circle r={16} fill="rgba(0,207,255,0.1)" />
+                  <circle r={7} fill="#00CFFF" stroke="#fff" strokeWidth={2} />
                 </Marker>
               )}
             </ComposableMap>
@@ -175,25 +177,22 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
 
           {/* Stats panel — right side, vertically centered */}
           <div
-            className="lg:w-56 shrink-0 flex flex-col justify-center px-8 py-8 border-t border-white/5 lg:border-t-0 lg:border-l lg:border-white/5"
-            style={{ background: "#0B0F1A" }}
+            className="lg:w-56 shrink-0 flex flex-col justify-center px-8 py-8"
+            style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.08)", borderLeft: "1px solid rgba(0,207,255,0.08)" }}
           >
-            <div className="text-[10px] font-black uppercase tracking-[0.25em] text-[#00CFFF] mb-6">
+            <div className="text-[10px] font-black uppercase tracking-[0.25em] mb-6" style={{ color: "#00CFFF" }}>
               Territory Stats
             </div>
 
-            {/* Stat rows — label left, big number right */}
+            {/* Stat rows */}
             {[
               { label: "Countries", value: countries.length, color: "#00CFFF" },
               { label: "Regions", value: regions.length, color: "#FFD000" },
               { label: "Territories", value: territories.length, color: "#8A5CFF" },
             ].map(({ label, value, color }) => (
-              <div key={label} className="flex items-center justify-between py-4 border-b border-white/5 last:border-0">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.15em]">{label}</span>
-                <span
-                  className="text-2xl font-black"
-                  style={{ color, fontFamily: "Space Grotesk, sans-serif" }}
-                >
+              <div key={label} className="flex items-center justify-between py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                <span className="text-[11px] font-bold uppercase tracking-[0.15em]" style={{ color: "rgba(200,208,224,0.6)" }}>{label}</span>
+                <span className="text-2xl font-black" style={{ color, fontFamily: "Space Grotesk, sans-serif", textShadow: `0 0 12px ${color}60` }}>
                   {value}
                 </span>
               </div>
@@ -202,15 +201,18 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
             {/* Clickable country list */}
             {countries.length > 0 && (
               <div className="mt-6 space-y-1">
-                <div className="text-[9px] font-black uppercase tracking-widest text-gray-600 mb-2">Jump to</div>
+                <div className="text-[9px] font-black uppercase tracking-widest mb-2" style={{ color: "rgba(0,207,255,0.4)" }}>Jump to</div>
                 {countries.map(c => (
                   <button
                     key={c}
                     onClick={() => setSelectedCountry(c)}
-                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left transition hover:bg-white/5 group"
+                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left transition group"
+                    style={{ hover: { background: "rgba(0,207,255,0.05)" } }}
+                    onMouseOver={e => e.currentTarget.style.background = "rgba(0,207,255,0.05)"}
+                    onMouseOut={e => e.currentTarget.style.background = "transparent"}
                   >
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#8B1A1A] group-hover:bg-[#e74c3c] transition shrink-0" />
-                    <span className="text-[11px] text-gray-500 group-hover:text-white transition truncate">{c}</span>
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#00CFFF", boxShadow: "0 0 6px #00CFFF" }} />
+                    <span className="text-[11px] truncate" style={{ color: "rgba(200,208,224,0.6)" }}>{c}</span>
                   </button>
                 ))}
               </div>
@@ -219,17 +221,19 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
         </div>
 
         {/* Territory chips */}
-        <div className="px-5 py-4 border-t border-white/5 flex flex-wrap gap-2">
+        <div className="px-5 py-4 flex flex-wrap gap-2" style={{ borderTop: "1px solid rgba(0,207,255,0.08)" }}>
           {territories.map((t, i) => (
             <button
               key={i}
               onClick={() => setSelectedCountry(t.country)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold border transition hover:border-[#e74c3c]/50 hover:text-white"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition"
               style={{
-                background: "rgba(139,26,26,0.12)",
-                borderColor: "rgba(231,76,60,0.2)",
-                color: "#c0a0a0",
+                background: "rgba(0,207,255,0.06)",
+                border: "1px solid rgba(0,207,255,0.2)",
+                color: "rgba(0,207,255,0.8)",
               }}
+              onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.15)"; e.currentTarget.style.color = "#00CFFF"; }}
+              onMouseOut={e => { e.currentTarget.style.background = "rgba(0,207,255,0.06)"; e.currentTarget.style.color = "rgba(0,207,255,0.8)"; }}
             >
               <MapPin className="w-2.5 h-2.5" /> {t.name}
             </button>
