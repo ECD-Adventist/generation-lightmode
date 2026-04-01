@@ -112,14 +112,15 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
           contact_person: user?.full_name || "",
           contact_email: user?.email || "",
           contact_phone: user?.phone || "",
-          procedures_description: "",
-          commitment_description: "",
+          agree_procedures: false,
+          agree_commitment: false,
+          agree_ecd_supervision: false,
           logo_url: ""
         });
         setLogoFile(null);
         setLogoPreview(null);
       } catch (err) {
-        toast.error("Failed to submit application");
+        toast.error(err?.message || "Failed to submit application");
       } finally {
         setLoading(false);
       }
