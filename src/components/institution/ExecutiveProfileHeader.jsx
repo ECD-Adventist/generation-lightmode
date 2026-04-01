@@ -6,6 +6,7 @@ import { Camera, Shield, MapPin, ExternalLink, Building2, Crown, Sparkles, Uploa
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import TerritoryOrgChart from "@/components/institution/TerritoryOrgChart";
+import TerritoryMapVisual from "@/components/institution/TerritoryMapVisual";
 
 export default function ExecutiveProfileHeader({
   user,
@@ -349,14 +350,20 @@ export default function ExecutiveProfileHeader({
                         className="w-full h-auto object-contain max-h-[460px]"
                       />
                     </div>
-                    {/* Hierarchical org-chart of extracted territories */}
+                    {/* Interactive territory map */}
                     {(() => {
                       const appWithMap = institutionApps.find(a => a.organization_map_url);
                       if (appWithMap?.extracted_territories) {
                         try {
                           const territories = JSON.parse(appWithMap.extracted_territories);
                           if (territories.length > 0) {
-                            return <TerritoryOrgChart territories={territories} />;
+                            return (
+                              <TerritoryMapVisual
+                                territories={territories}
+                                institutionName={appWithMap.institution_name}
+                                memberCount={0}
+                              />
+                            );
                           }
                         } catch (e) {}
                       }
