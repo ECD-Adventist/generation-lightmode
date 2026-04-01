@@ -96,9 +96,8 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
           contact_person: formData.contact_person,
           contact_email: formData.contact_email,
           contact_phone: formData.contact_phone,
-          agree_procedures: formData.agree_procedures,
-          agree_commitment: formData.agree_commitment,
-          agree_ecd_supervision: formData.agree_ecd_supervision,
+          procedures_description: "Agreed to maintain and enforce clear member procedures, rules, and guidelines aligned with Generation LightMode and ECD standards.",
+          commitment_description: "Committed to upholding spiritual values, faith-based principles, and ECD (East Central Africa Division) territory supervision requirements.",
           logo_url: logoUrl,
           status: "pending"
         });
