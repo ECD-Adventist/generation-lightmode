@@ -60,60 +60,8 @@ export default function ExecutiveProfileHeader({
         }
       `}</style>
 
-      {/* Executive Cover Banner — bright & clean */}
-      <div className="relative mb-0">
-        <div
-          className={`w-full h-52 sm:h-64 relative overflow-hidden ${isOwnProfile ? "cursor-pointer" : ""}`}
-          onClick={() => isOwnProfile && coverInputRef.current?.click()}
-          style={{ borderRadius: "0 0 0 0" }}
-        >
-          {/* Cover image — full brightness */}
-          {user.cover_picture_url ? (
-            <img src={user.cover_picture_url} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-[#1a2740] via-[#0f1628] to-[#0a1025]" />
-          )}
-
-          {/* Subtle bottom gradient for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A]/80 via-transparent to-[#0B0F1A]/10" />
-
-          {/* Gold accent line at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{
-            background: "linear-gradient(90deg, transparent, #FFD000, #00CFFF, transparent)",
-          }} />
-
-          {/* Institution branding strip */}
-          <div className="absolute bottom-0 left-0 right-0 px-6 pb-4 flex items-end justify-between z-10">
-            <div className="flex items-center gap-3">
-              {primaryPage?.logo_url && (
-                <img src={primaryPage.logo_url} alt="" className="w-9 h-9 rounded-lg object-cover border border-white/30 shadow-lg" />
-              )}
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <Shield className="w-3 h-3 text-[#FFD000]" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.15em] text-[#FFD000] drop-shadow-md">Verified Institution</span>
-                </div>
-                <span className="text-sm font-bold text-white drop-shadow-md">{primaryApp?.institution_name}</span>
-              </div>
-            </div>
-            {institutionApps.length > 1 && (
-              <span className="text-[10px] text-white/60 font-bold drop-shadow-md">+{institutionApps.length - 1} more</span>
-            )}
-          </div>
-
-          {isOwnProfile && (
-            <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-              <div className="flex items-center gap-2 text-white font-bold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
-                <Camera className="w-5 h-5" /> Change Cover
-              </div>
-            </div>
-          )}
-        </div>
-        <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={onCoverImageSelect} disabled={uploadingImage} />
-      </div>
-
-      {/* Executive Profile Card */}
-      <div className="px-4 -mt-16 relative z-20">
+      {/* Executive Profile Card containing Cover and Info */}
+      <div className="px-4 mt-6 relative z-20">
         <div
           className="rounded-3xl p-[1px] overflow-hidden"
           style={{
@@ -121,10 +69,58 @@ export default function ExecutiveProfileHeader({
             animation: "gold-pulse 3s ease-in-out infinite",
           }}
         >
-          <div className="bg-[#0c1020] rounded-3xl px-6 py-8 sm:px-8">
-            <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
-              {/* Premium Avatar */}
-              <div className="relative shrink-0">
+          <div className="bg-[#0c1020] rounded-3xl overflow-hidden relative">
+            
+            {/* Cover Banner inside the box */}
+            <div
+              className={`w-full h-48 sm:h-56 relative overflow-hidden ${isOwnProfile ? "cursor-pointer" : ""}`}
+              onClick={() => isOwnProfile && coverInputRef.current?.click()}
+            >
+              {user.cover_picture_url ? (
+                <img src={user.cover_picture_url} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-[#1a2740] via-[#0f1628] to-[#0a1025]" />
+              )}
+
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A]/90 via-transparent to-[#0B0F1A]/10" />
+
+              <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{
+                background: "linear-gradient(90deg, transparent, #FFD000, #00CFFF, transparent)",
+              }} />
+
+              {/* Institution branding strip */}
+              <div className="absolute bottom-0 left-0 right-0 px-6 pb-4 flex items-end justify-between z-10">
+                <div className="flex items-center gap-3">
+                  {primaryPage?.logo_url && (
+                    <img src={primaryPage.logo_url} alt="" className="w-9 h-9 rounded-lg object-cover border border-white/30 shadow-lg" />
+                  )}
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <Shield className="w-3 h-3 text-[#FFD000]" />
+                      <span className="text-[10px] font-black uppercase tracking-[0.15em] text-[#FFD000] drop-shadow-md">Institution Profile</span>
+                    </div>
+                    <span className="text-sm font-bold text-white drop-shadow-md">{primaryApp?.institution_name}</span>
+                  </div>
+                </div>
+                {institutionApps.length > 1 && (
+                  <span className="text-[10px] text-white/60 font-bold drop-shadow-md">+{institutionApps.length - 1} more</span>
+                )}
+              </div>
+
+              {isOwnProfile && (
+                <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center z-20">
+                  <div className="flex items-center gap-2 text-white font-bold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
+                    <Camera className="w-5 h-5" /> Change Cover
+                  </div>
+                </div>
+              )}
+            </div>
+            <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={onCoverImageSelect} disabled={uploadingImage} />
+
+            <div className="px-6 pb-8 sm:px-8 pt-4">
+              <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+                {/* Premium Avatar */}
+                <div className="relative shrink-0 -mt-16 sm:-mt-20 z-10">
                 <div
                   className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] ${isOwnProfile ? "cursor-pointer" : ""}`}
                   style={{ background: "linear-gradient(135deg, #FFD000, #00CFFF, #FFD000)" }}
@@ -269,7 +265,7 @@ export default function ExecutiveProfileHeader({
                       <input
                         ref={orgMapInputRef}
                         type="file"
-                        accept="image/*"
+                        accept="image/png"
                         className="hidden"
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
@@ -366,12 +362,38 @@ export default function ExecutiveProfileHeader({
                 )}
 
                 {institutionApps.some(app => app.organization_map_url) ? (
-                  <div className="rounded-xl overflow-hidden border border-[#FFD000]/10 bg-white/[0.02]">
+                  <div className="rounded-xl overflow-hidden border border-[#FFD000]/10 bg-white/[0.02] p-4">
                     <img
                       src={institutionApps.find(app => app.organization_map_url)?.organization_map_url}
                       alt="Organization Map"
-                      className="w-full h-auto object-contain max-h-[400px]"
+                      className="w-full h-auto object-contain max-h-[400px] rounded-lg mb-4 bg-white"
                     />
+                    
+                    {(() => {
+                      const appWithMap = institutionApps.find(a => a.organization_map_url);
+                      if (appWithMap?.extracted_territories) {
+                        try {
+                          const territories = JSON.parse(appWithMap.extracted_territories);
+                          if (territories.length > 0) {
+                            return (
+                              <div className="mt-4 pt-4 border-t border-white/5">
+                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                  <Sparkles className="w-3 h-3 text-[#00CFFF]" /> Extracted Territories
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  {territories.map((t, i) => (
+                                    <span key={i} className="px-2.5 py-1 bg-[#00CFFF]/10 border border-[#00CFFF]/20 rounded-md text-xs font-semibold text-[#00CFFF]">
+                                      {t.name}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+                        } catch (e) {}
+                      }
+                      return null;
+                    })()}
                   </div>
                 ) : isOwnProfile && !mapUploadProgress ? (
                   <button
@@ -385,6 +407,7 @@ export default function ExecutiveProfileHeader({
                 ) : null}
               </div>
             )}
+          </div>
           </div>
         </div>
       </div>

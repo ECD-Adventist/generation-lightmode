@@ -7,10 +7,12 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import TerritoryAnalytics from "@/components/institution/TerritoryAnalytics";
 import TerritoryVerificationQueue from "@/components/institution/TerritoryVerificationQueue";
+import TerritoryMapManager from "@/components/institution/TerritoryMapManager";
 
 const tabs = [
   { key: "verification", label: "Member Verification", icon: ShieldCheck },
   { key: "analytics", label: "Territory Analytics", icon: BarChart3 },
+  { key: "map", label: "Map & Territories", icon: MapPin },
 ];
 
 export default function InstitutionControlCenter() {
@@ -116,6 +118,13 @@ export default function InstitutionControlCenter() {
           <TerritoryAnalytics
             page={primaryPage || {}}
             institutionApps={institutionApps}
+          />
+        )}
+
+        {activeTab === "map" && (
+          <TerritoryMapManager
+            institutionApps={institutionApps}
+            primaryApp={institutionApps[0]}
           />
         )}
       </div>
