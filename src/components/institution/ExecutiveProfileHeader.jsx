@@ -27,6 +27,7 @@ export default function ExecutiveProfileHeader({
   const coverInputRef = useRef(null);
   const orgMapInputRef = useRef(null);
   const [uploadingMap, setUploadingMap] = useState(false);
+  const [mapUploadProgress, setMapUploadProgress] = useState(null); // null | { step, percent, label }
   const queryClient = useQueryClient();
   const primaryApp = institutionApps[0];
 
@@ -71,11 +72,11 @@ export default function ExecutiveProfileHeader({
 
           {/* Cover image */}
           {user.cover_picture_url && (
-            <img src={user.cover_picture_url} alt="Cover" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+           <img src={user.cover_picture_url} alt="Cover" className="absolute inset-0 w-full h-full object-cover opacity-80" />
           )}
 
           {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F1A] via-[#0B0F1A]/20 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#FFD000]/5 via-transparent to-[#00CFFF]/5" />
 
           {/* Gold shimmer line at top */}
@@ -135,11 +136,11 @@ export default function ExecutiveProfileHeader({
               {/* Premium Avatar */}
               <div className="relative shrink-0">
                 <div
-                  className={`w-28 h-28 sm:w-32 sm:h-32 rounded-2xl p-[3px] ${isOwnProfile ? "cursor-pointer" : ""}`}
+                  className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] ${isOwnProfile ? "cursor-pointer" : ""}`}
                   style={{ background: "linear-gradient(135deg, #FFD000, #00CFFF, #FFD000)" }}
                   onClick={() => isOwnProfile && profileInputRef.current?.click()}
                 >
-                  <div className="w-full h-full rounded-[13px] bg-[#0c1020] overflow-hidden relative group">
+                  <div className="w-full h-full rounded-full bg-[#0c1020] overflow-hidden relative group">
                     <img
                       src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
                       alt="Profile"
@@ -172,7 +173,7 @@ export default function ExecutiveProfileHeader({
                   <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
                     <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#FFD000]/40" style={{ background: "linear-gradient(90deg, rgba(255,208,0,0.12), rgba(0,207,255,0.08))" }}>
                       <Building2 className="w-3 h-3 text-[#FFD000]" />
-                      <span className="text-[10px] font-black text-[#FFD000] uppercase tracking-wider">Institution Leader</span>
+                      <span className="text-[10px] font-black text-[#FFD000] uppercase tracking-wider">Institution Profile</span>
                     </div>
                     <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20">
                       <Shield className="w-3 h-3 text-[#00CFFF]" />
@@ -282,23 +283,63 @@ export default function ExecutiveProfileHeader({
                           if (!file) return;
                           e.target.value = null;
                           setUploadingMap(true);
+                          setMapUploadProgress({ step: 1, percent: 15, label: "Uploading image..." });
+
                           try {
+                            // Step 1: Upload file
+                            setMapUploadProgress({ step: 1, percent: 30, label: "Uploading image..." });
                             const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                            setMapUploadProgress({ step: 2, percent: 60, label: "Extracting map data..." });
+
+                            // Step 2: Simulate extraction/processing delay
+                            await new Promise(r => setTimeout(r, 1200));
+                            setMapUploadProgress({ step: 3, percent: 85, label: "Saving to profile..." });
+
+                            // Step 3: Save to entity
                             const appWithMap = institutionApps.find(a => a.organization_map_url) || primaryApp;
                             await base44.entities.InstitutionApplication.update(appWithMap.id, { organization_map_url: file_url });
-                            queryClient.invalidateQueries({ queryKey: ["myInstitutionApps"] });
-                            queryClient.invalidateQueries({ queryKey: ["institutionApps"] });
+                            setMapUploadProgress({ step: 4, percent: 100, label: "Done!" });
+
+                            await new Promise(r => setTimeout(r, 600));
+                            queryClient.invalidateQueries({ queryKey: ["profileInstitutionApps"] });
                             toast.success("Organization map updated!");
                           } catch (err) {
                             toast.error("Failed to upload map");
                           } finally {
                             setUploadingMap(false);
+                            setMapUploadProgress(null);
                           }
                         }}
                       />
                     </>
                   )}
                 </div>
+                {/* Progress bar */}
+                {mapUploadProgress && (
+                  <div className="mb-4 rounded-xl bg-white/[0.03] border border-[#FFD000]/10 p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-[#FFD000]">{mapUploadProgress.label}</span>
+                      <span className="text-xs font-bold text-gray-400">{mapUploadProgress.percent}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500 ease-out"
+                        style={{
+                          width: `${mapUploadProgress.percent}%`,
+                          background: "linear-gradient(90deg, #FFD000, #00CFFF)",
+                        }}
+                      />
+                    </div>
+                    <div className="flex gap-4 mt-2">
+                      {["Upload", "Extract", "Save", "Done"].map((s, i) => (
+                        <span key={s} className={`text-[9px] font-bold uppercase tracking-wider ${mapUploadProgress.step > i ? "text-[#FFD000]" : mapUploadProgress.step === i + 1 ? "text-[#00CFFF]" : "text-gray-600"}`}>
+                          {mapUploadProgress.step > i ? "✓" : (i + 1)} {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {institutionApps.some(app => app.organization_map_url) ? (
                   <div className="rounded-xl overflow-hidden border border-[#FFD000]/10 bg-white/[0.02]">
                     <img
@@ -307,7 +348,7 @@ export default function ExecutiveProfileHeader({
                       className="w-full h-auto object-contain max-h-[400px]"
                     />
                   </div>
-                ) : isOwnProfile ? (
+                ) : isOwnProfile && !mapUploadProgress ? (
                   <button
                     onClick={() => orgMapInputRef.current?.click()}
                     disabled={uploadingMap}
