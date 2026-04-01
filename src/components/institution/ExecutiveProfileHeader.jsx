@@ -27,11 +27,10 @@ export default function ExecutiveProfileHeader({
   const coverInputRef = useRef(null);
   const orgMapInputRef = useRef(null);
   const [uploadingMap, setUploadingMap] = useState(false);
-  const [mapUploadProgress, setMapUploadProgress] = useState(null); // null | { step, percent, label }
+  const [mapUploadProgress, setMapUploadProgress] = useState(null);
   const queryClient = useQueryClient();
   const primaryApp = institutionApps[0];
 
-  // Fetch the institution page for logo display
   const { data: institutionPages = [] } = useQuery({
     queryKey: ["allInstitutionPages"],
     queryFn: () => base44.entities.InstitutionPage.list("-created_date", 100),
@@ -46,10 +45,6 @@ export default function ExecutiveProfileHeader({
   return (
     <>
       <style>{`
-        @keyframes executive-shimmer {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
         @keyframes gold-pulse {
           0%, 100% { box-shadow: 0 0 20px rgba(255,208,0,0.2), 0 0 60px rgba(255,208,0,0.05); }
           50% { box-shadow: 0 0 40px rgba(255,208,0,0.35), 0 0 80px rgba(255,208,0,0.1); }
@@ -60,7 +55,6 @@ export default function ExecutiveProfileHeader({
         }
       `}</style>
 
-      {/* Executive Profile Card containing Cover and Info */}
       <div className="px-4 mt-6 relative z-20">
         <div
           className="rounded-3xl p-[1px] overflow-hidden"
@@ -69,9 +63,9 @@ export default function ExecutiveProfileHeader({
             animation: "gold-pulse 3s ease-in-out infinite",
           }}
         >
-          <div className="bg-[#0c1020] rounded-3xl overflow-hidden relative">
-            
-            {/* Cover Banner inside the box */}
+          <div className="bg-[#0c1020] rounded-3xl overflow-hidden">
+
+            {/* Cover Banner */}
             <div
               className={`w-full h-48 sm:h-56 relative overflow-hidden ${isOwnProfile ? "cursor-pointer" : ""}`}
               onClick={() => isOwnProfile && coverInputRef.current?.click()}
@@ -92,63 +86,66 @@ export default function ExecutiveProfileHeader({
             </div>
             <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={onCoverImageSelect} disabled={uploadingImage} />
 
-            {/* Profile info row — avatar overlapping cover */}
-            <div className="px-6 pb-8 sm:px-8">
-              <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-end -mt-14 sm:-mt-16">
-                {/* Premium Avatar */}
+            {/* Profile Info */}
+            <div className="px-6 pb-6 sm:px-8">
+              {/* Avatar + Name row */}
+              <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-end -mt-14 sm:-mt-16">
+                {/* Avatar */}
                 <div className="relative shrink-0 z-10">
-                <div
-                  className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] ${isOwnProfile ? "cursor-pointer" : ""}`}
-                  style={{ background: "linear-gradient(135deg, #FFD000, #00CFFF, #FFD000)" }}
-                  onClick={() => isOwnProfile && profileInputRef.current?.click()}
-                >
-                  <div className="w-full h-full rounded-full bg-[#0c1020] overflow-hidden relative group">
-                    <img
-                      src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                    {isOwnProfile && (
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center">
-                        <Camera className="w-5 h-5 text-white mb-1" />
-                        <span className="text-[9px] text-white font-bold uppercase">Change</span>
+                  <div
+                    className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] ${isOwnProfile ? "cursor-pointer" : ""}`}
+                    style={{ background: "linear-gradient(135deg, #FFD000, #00CFFF, #FFD000)" }}
+                    onClick={() => isOwnProfile && profileInputRef.current?.click()}
+                  >
+                    <div className="w-full h-full rounded-full bg-[#0c1020] overflow-hidden relative group">
+                      <img
+                        src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                      {isOwnProfile && (
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center">
+                          <Camera className="w-5 h-5 text-white mb-1" />
+                          <span className="text-[9px] text-white font-bold uppercase">Change</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div
+                    className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-[#FFD000] to-[#F5A623] flex items-center justify-center shadow-lg border-2 border-[#0c1020]"
+                    style={{ animation: "crown-float 3s ease-in-out infinite" }}
+                  >
+                    <Crown className="w-4 h-4 text-[#0B0F1A]" />
+                  </div>
+                  <input ref={profileInputRef} type="file" accept="image/*" className="hidden" onChange={onProfileImageSelect} disabled={uploadingImage} />
+                </div>
+
+                {/* Name + badges */}
+                <div className="flex-1 min-w-0 pb-2 text-center sm:text-left">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2 justify-center sm:justify-start flex-wrap">
+                    <h1 className="text-2xl sm:text-3xl font-black text-white" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
+                      {user.full_name}
+                    </h1>
+                    <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#FFD000]/40" style={{ background: "linear-gradient(90deg, rgba(255,208,0,0.12), rgba(0,207,255,0.08))" }}>
+                        <Building2 className="w-3 h-3 text-[#FFD000]" />
+                        <span className="text-[10px] font-black text-[#FFD000] uppercase tracking-wider">Institution Profile</span>
                       </div>
-                    )}
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20">
+                        <Shield className="w-3 h-3 text-[#00CFFF]" />
+                        <span className="text-[10px] font-bold text-[#00CFFF]">Verified</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                {/* Crown icon */}
-                <div
-                  className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-[#FFD000] to-[#F5A623] flex items-center justify-center shadow-lg border-2 border-[#0c1020]"
-                  style={{ animation: "crown-float 3s ease-in-out infinite" }}
-                >
-                  <Crown className="w-4 h-4 text-[#0B0F1A]" />
-                </div>
-                <input ref={profileInputRef} type="file" accept="image/*" className="hidden" onChange={onProfileImageSelect} disabled={uploadingImage} />
               </div>
 
-              {/* Info */}
-              <div className="flex-1 min-w-0 pb-2">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2 justify-center sm:justify-start">
-                  <h1 className="text-2xl sm:text-3xl font-black text-white" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
-                    {user.full_name}
-                  </h1>
-                  <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#FFD000]/40" style={{ background: "linear-gradient(90deg, rgba(255,208,0,0.12), rgba(0,207,255,0.08))" }}>
-                      <Building2 className="w-3 h-3 text-[#FFD000]" />
-                      <span className="text-[10px] font-black text-[#FFD000] uppercase tracking-wider">Institution Profile</span>
-                    </div>
-                    <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20">
-                      <Shield className="w-3 h-3 text-[#00CFFF]" />
-                      <span className="text-[10px] font-bold text-[#00CFFF]">Verified</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bio & location */}
-                <p className="text-sm text-gray-300 leading-relaxed mb-2 max-w-lg whitespace-pre-line">
+              {/* Bio, location, actions */}
+              <div className="mt-4">
+                <p className="text-sm text-gray-300 leading-relaxed mb-3 max-w-lg whitespace-pre-line">
                   {user.bio || "Leading with faith and purpose. Building community through the power of light."}
                 </p>
-                <div className="flex flex-wrap gap-3 items-center justify-center sm:justify-start mb-4">
+                <div className="flex flex-wrap gap-3 items-center mb-4">
                   {user.country && (
                     <span className="flex items-center gap-1 text-xs text-gray-400">
                       <MapPin className="w-3 h-3" /> {user.country}
@@ -159,11 +156,13 @@ export default function ExecutiveProfileHeader({
                       <ExternalLink className="w-3 h-3" /> {user.website_url.replace(/^https?:\/\//, "")}
                     </a>
                   )}
-                  <span className="text-[10px] text-gray-600">Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}</span>
+                  <span className="text-[10px] text-gray-600">
+                    Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}
+                  </span>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+                <div className="flex flex-wrap gap-3">
                   {isOwnProfile && (
                     <>
                       <button onClick={onEditProfile} className="px-5 py-2 rounded-xl text-sm font-bold transition border border-[#FFD000]/30 bg-[#FFD000]/10 text-[#FFD000] hover:bg-[#FFD000]/20">
@@ -201,8 +200,8 @@ export default function ExecutiveProfileHeader({
               </div>
             </div>
 
-            {/* Divider line + Stats Row below avatar/info */}
-            <div className="border-t border-white/5 mt-6 pt-5">
+            {/* Stats Row */}
+            <div className="border-t border-white/5 px-6 sm:px-8 py-4">
               <div className="grid grid-cols-5 gap-2 sm:gap-4">
                 {[
                   { val: myDrops.length, label: "Posts", color: "#FFFFFF" },
@@ -223,11 +222,10 @@ export default function ExecutiveProfileHeader({
                 ))}
               </div>
             </div>
-          </div>
 
             {/* Organization Map */}
             {(institutionApps.some(app => app.organization_map_url) || isOwnProfile) && (
-              <div className="mt-6 pt-6 border-t border-white/5">
+              <div className="border-t border-white/5 px-6 sm:px-8 py-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-4 h-4 text-[#FFD000]" />
                   <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#FFD000]/80">Organization Map</h3>
@@ -251,20 +249,14 @@ export default function ExecutiveProfileHeader({
                           if (!file) return;
                           e.target.value = null;
                           setUploadingMap(true);
-                          setMapUploadProgress({ step: 1, percent: 10, label: "Uploading image..." });
-
+                          setMapUploadProgress({ step: 1, percent: 25, label: "Uploading image..." });
                           try {
-                            // Step 1: Upload file
-                            setMapUploadProgress({ step: 1, percent: 25, label: "Uploading image..." });
                             const { file_url } = await base44.integrations.Core.UploadFile({ file });
-                            setMapUploadProgress({ step: 1, percent: 40, label: "Upload complete" });
-
-                            // Step 2: Extract territories using AI
                             setMapUploadProgress({ step: 2, percent: 50, label: "AI extracting territories..." });
                             let extractedTerritories = [];
                             try {
                               const extractResult = await base44.integrations.Core.InvokeLLM({
-                                prompt: `Analyze this organization map image. Extract all territory names, regions, countries, and any hierarchical structure visible. Return a JSON array of objects with fields: name (territory/conference name), region (geographic region), country (country name). If you cannot identify territories, return a best-effort list based on visible text or geographic regions shown.`,
+                                prompt: `Analyze this organization map image. Extract all territory names, regions, countries, and any hierarchical structure visible. Return a JSON array of objects with fields: name (territory/conference name), region (geographic region), country (country name).`,
                                 file_urls: [file_url],
                                 response_json_schema: {
                                   type: "object",
@@ -285,12 +277,8 @@ export default function ExecutiveProfileHeader({
                               });
                               extractedTerritories = extractResult?.territories || [];
                             } catch (aiErr) {
-                              console.warn("AI extraction failed, saving map without territories:", aiErr);
+                              console.warn("AI extraction failed:", aiErr);
                             }
-                            setMapUploadProgress({ step: 2, percent: 70, label: `Found ${extractedTerritories.length} territories` });
-                            await new Promise(r => setTimeout(r, 800));
-
-                            // Step 3: Save to entity
                             setMapUploadProgress({ step: 3, percent: 85, label: "Saving to profile..." });
                             const appWithMap = institutionApps.find(a => a.organization_map_url) || primaryApp;
                             const updateData = { organization_map_url: file_url };
@@ -299,7 +287,6 @@ export default function ExecutiveProfileHeader({
                             }
                             await base44.entities.InstitutionApplication.update(appWithMap.id, updateData);
                             setMapUploadProgress({ step: 4, percent: 100, label: "Done!" });
-
                             await new Promise(r => setTimeout(r, 600));
                             queryClient.invalidateQueries({ queryKey: ["profileInstitutionApps"] });
                             toast.success(`Organization map updated! ${extractedTerritories.length} territories extracted.`);
@@ -314,6 +301,7 @@ export default function ExecutiveProfileHeader({
                     </>
                   )}
                 </div>
+
                 {/* Progress bar */}
                 {mapUploadProgress && (
                   <div className="mb-4 rounded-xl bg-white/[0.03] border border-[#FFD000]/10 p-4">
@@ -324,10 +312,7 @@ export default function ExecutiveProfileHeader({
                     <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-500 ease-out"
-                        style={{
-                          width: `${mapUploadProgress.percent}%`,
-                          background: "linear-gradient(90deg, #FFD000, #00CFFF)",
-                        }}
+                        style={{ width: `${mapUploadProgress.percent}%`, background: "linear-gradient(90deg, #FFD000, #00CFFF)" }}
                       />
                     </div>
                     <div className="flex gap-4 mt-2">
@@ -341,13 +326,12 @@ export default function ExecutiveProfileHeader({
                 )}
 
                 {institutionApps.some(app => app.organization_map_url) ? (
-                  <div className="rounded-xl overflow-hidden border border-[#00CFFF]/10 bg-white rounded-xl p-2">
+                  <div className="rounded-xl overflow-hidden border border-[#00CFFF]/10 bg-white p-2">
                     <img
                       src={institutionApps.find(app => app.organization_map_url)?.organization_map_url}
                       alt="Organization Map"
                       className="w-full h-auto object-contain max-h-[420px] rounded-lg"
                     />
-                    
                     {(() => {
                       const appWithMap = institutionApps.find(a => a.organization_map_url);
                       if (appWithMap?.extracted_territories) {
@@ -355,7 +339,7 @@ export default function ExecutiveProfileHeader({
                           const territories = JSON.parse(appWithMap.extracted_territories);
                           if (territories.length > 0) {
                             return (
-                              <div className="mt-4 pt-4 border-t border-white/5 px-4 pb-2">
+                              <div className="mt-4 pt-4 border-t border-gray-200 px-2 pb-2">
                                 <div className="text-[10px] font-black text-[#00CFFF] uppercase tracking-[0.15em] mb-2 flex items-center gap-1.5">
                                   <Sparkles className="w-3 h-3" /> Extracted Territories
                                 </div>
@@ -386,6 +370,7 @@ export default function ExecutiveProfileHeader({
                 ) : null}
               </div>
             )}
+
           </div>
         </div>
       </div>
