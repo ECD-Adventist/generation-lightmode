@@ -80,7 +80,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
         <div className="flex flex-col lg:flex-row">
 
           {/* Map — takes ~70% */}
-          <div className="relative flex-1" style={{ minHeight: 340, background: "#0B0F1A" }}>
+          <div className="relative flex-1" style={{ minHeight: 480, background: "#0B0F1A" }}>
             {/* Tooltip */}
             {tooltip.visible && (
               <div
@@ -101,7 +101,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
 
             <ComposableMap
               projection="geoMercator"
-              projectionConfig={{ scale: 160, center: [20, 10] }}
+              projectionConfig={{ scale: 400, center: [30, 0] }}
               style={{ width: "100%", height: "100%" }}
             >
               <Geographies geography={GEO_URL}>
@@ -144,16 +144,16 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
                         onMouseLeave={() => setTooltip({ visible: false, x: 0, y: 0, name: "" })}
                         style={{
                           default: {
-                            fill: isSelected ? "#c0392b" : isHighlighted ? "#8B1A1A" : "#161B28",
-                            stroke: isSelected ? "#e74c3c" : isHighlighted ? "#a93226" : "#1e2536",
-                            strokeWidth: isHighlighted ? 0.7 : 0.3,
+                            fill: isSelected ? "#c0392b" : isHighlighted ? "#7B1515" : "#12161F",
+                            stroke: isSelected ? "#e74c3c" : isHighlighted ? "#c0392b" : "#1a1f2e",
+                            strokeWidth: isHighlighted ? 1.2 : 0.3,
                             outline: "none",
                             cursor: isHighlighted ? "pointer" : "default",
                           },
                           hover: {
-                            fill: isHighlighted ? "#b52828" : "#1a2030",
-                            stroke: isHighlighted ? "#e74c3c" : "#1e2536",
-                            strokeWidth: isHighlighted ? 1 : 0.3,
+                            fill: isHighlighted ? "#a82020" : "#161b28",
+                            stroke: isHighlighted ? "#e74c3c" : "#1a1f2e",
+                            strokeWidth: isHighlighted ? 1.5 : 0.3,
                             outline: "none",
                             cursor: isHighlighted ? "pointer" : "default",
                           },
@@ -166,8 +166,8 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
               </Geographies>
               {centerMarker && (
                 <Marker coordinates={centerMarker}>
-                  <circle r={5} fill="#e74c3c" stroke="#fff" strokeWidth={1.5} />
-                  <circle r={12} fill="rgba(231,76,60,0.15)" />
+                  <circle r={14} fill="rgba(231,76,60,0.12)" />
+                  <circle r={7} fill="#e74c3c" stroke="#fff" strokeWidth={2} />
                 </Marker>
               )}
             </ComposableMap>
