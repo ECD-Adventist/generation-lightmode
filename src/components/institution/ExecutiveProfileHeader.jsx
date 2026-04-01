@@ -1,9 +1,10 @@
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Camera, Shield, MapPin, ExternalLink, Building2, Crown, Sparkles } from "lucide-react";
+import { Camera, Shield, MapPin, ExternalLink, Building2, Crown, Sparkles, Upload, Loader2 } from "lucide-react";
 import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
 
 export default function ExecutiveProfileHeader({
   user,
@@ -24,6 +25,9 @@ export default function ExecutiveProfileHeader({
 }) {
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
+  const orgMapInputRef = useRef(null);
+  const [uploadingMap, setUploadingMap] = useState(false);
+  const queryClient = useQueryClient();
   const primaryApp = institutionApps[0];
 
   // Fetch the institution page for logo display
@@ -253,19 +257,66 @@ export default function ExecutiveProfileHeader({
             </div>
 
             {/* Organization Map */}
-            {institutionApps.some(app => app.organization_map_url) && (
+            {(institutionApps.some(app => app.organization_map_url) || isOwnProfile) && (
               <div className="mt-6 pt-6 border-t border-white/5">
                 <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-4 h-4 text-[#FFD000]" />
                   <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#FFD000]/80">Organization Map</h3>
+                  {isOwnProfile && (
+                    <>
+                      <button
+                        onClick={() => orgMapInputRef.current?.click()}
+                        disabled={uploadingMap}
+                        className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold text-gray-400 hover:text-[#FFD000] bg-white/5 hover:bg-white/10 border border-white/5 transition"
+                      >
+                        {uploadingMap ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                        {institutionApps.some(app => app.organization_map_url) ? "Replace" : "Upload"}
+                      </button>
+                      <input
+                        ref={orgMapInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          e.target.value = null;
+                          setUploadingMap(true);
+                          try {
+                            const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                            const appWithMap = institutionApps.find(a => a.organization_map_url) || primaryApp;
+                            await base44.entities.InstitutionApplication.update(appWithMap.id, { organization_map_url: file_url });
+                            queryClient.invalidateQueries({ queryKey: ["myInstitutionApps"] });
+                            queryClient.invalidateQueries({ queryKey: ["institutionApps"] });
+                            toast.success("Organization map updated!");
+                          } catch (err) {
+                            toast.error("Failed to upload map");
+                          } finally {
+                            setUploadingMap(false);
+                          }
+                        }}
+                      />
+                    </>
+                  )}
                 </div>
-                <div className="rounded-xl overflow-hidden border border-[#FFD000]/10 bg-white/[0.02]">
-                  <img
-                    src={institutionApps.find(app => app.organization_map_url)?.organization_map_url}
-                    alt="Organization Map"
-                    className="w-full h-auto object-contain max-h-[400px]"
-                  />
-                </div>
+                {institutionApps.some(app => app.organization_map_url) ? (
+                  <div className="rounded-xl overflow-hidden border border-[#FFD000]/10 bg-white/[0.02]">
+                    <img
+                      src={institutionApps.find(app => app.organization_map_url)?.organization_map_url}
+                      alt="Organization Map"
+                      className="w-full h-auto object-contain max-h-[400px]"
+                    />
+                  </div>
+                ) : isOwnProfile ? (
+                  <button
+                    onClick={() => orgMapInputRef.current?.click()}
+                    disabled={uploadingMap}
+                    className="w-full border-2 border-dashed border-white/10 rounded-xl p-8 hover:border-[#FFD000]/30 transition text-center"
+                  >
+                    <Upload className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">Upload your organization map / structure</p>
+                  </button>
+                ) : null}
               </div>
             )}
           </div>
