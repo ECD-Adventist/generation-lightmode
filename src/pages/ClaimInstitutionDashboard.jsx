@@ -47,10 +47,17 @@ export default function ClaimInstitutionDashboard() {
 
     setLoading(true);
     try {
-      await base44.entities.Institution.create({
-        ...formData,
-        applicant_email: user.email,
-        submitted_at: new Date().toISOString()
+      await base44.entities.InstitutionApplication.create({
+        user_email: user.email,
+        institution_name: formData.institution_name,
+        institution_type: formData.institution_type,
+        country: formData.institution_address,
+        contact_person: formData.contact_person_name,
+        contact_email: formData.contact_email,
+        contact_phone: formData.contact_phone,
+        procedures_description: formData.description,
+        commitment_description: "Committed to community guidelines and the mission of Generation LightMode.",
+        status: "pending"
       });
 
       setSubmitted(true);
@@ -60,7 +67,7 @@ export default function ClaimInstitutionDashboard() {
         navigate(createPageUrl("Feed"));
       }, 2000);
     } catch (err) {
-      toast.error("Failed to submit application");
+      toast.error(err?.message || "Failed to submit application");
     } finally {
       setLoading(false);
     }
