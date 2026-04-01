@@ -53,6 +53,10 @@ export default function ExecutiveProfileHeader({
           0%, 100% { transform: translateY(0) rotate(-3deg); }
           50% { transform: translateY(-4px) rotate(3deg); }
         }
+        @keyframes shimmer-line {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
       `}</style>
 
       <div className="px-4 mt-6 relative z-20">
@@ -86,14 +90,25 @@ export default function ExecutiveProfileHeader({
             </div>
             <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={onCoverImageSelect} disabled={uploadingImage} />
 
+            {/* Animated shimmer line after cover */}
+            <div className="relative h-[2px] overflow-hidden" style={{ background: "rgba(255,208,0,0.08)" }}>
+              <div
+                className="absolute inset-y-0 w-1/2"
+                style={{
+                  background: "linear-gradient(90deg, transparent, #FFD000, #00CFFF, transparent)",
+                  animation: "shimmer-line 2.5s linear infinite",
+                }}
+              />
+            </div>
+
             {/* Profile Info */}
-            <div className="px-6 pb-6 sm:px-8">
+            <div className="px-6 py-5 sm:px-8">
               {/* Avatar + Name row */}
-              <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-end -mt-14 sm:-mt-16">
+              <div className="flex flex-row gap-5 items-end -mt-20">
                 {/* Avatar */}
                 <div className="relative shrink-0 z-10">
                   <div
-                    className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] ${isOwnProfile ? "cursor-pointer" : ""}`}
+                    className={`w-24 h-24 sm:w-28 sm:h-28 rounded-full p-[3px] ${isOwnProfile ? "cursor-pointer" : ""}`}
                     style={{ background: "linear-gradient(135deg, #FFD000, #00CFFF, #FFD000)" }}
                     onClick={() => isOwnProfile && profileInputRef.current?.click()}
                   >
@@ -120,83 +135,81 @@ export default function ExecutiveProfileHeader({
                   <input ref={profileInputRef} type="file" accept="image/*" className="hidden" onChange={onProfileImageSelect} disabled={uploadingImage} />
                 </div>
 
-                {/* Name + badges */}
-                <div className="flex-1 min-w-0 pb-2 text-center sm:text-left">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2 justify-center sm:justify-start flex-wrap">
-                    <h1 className="text-2xl sm:text-3xl font-black text-white" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
+                {/* Name + badges inline */}
+                <div className="flex-1 min-w-0 pb-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="text-xl sm:text-2xl font-black text-white" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
                       {user.full_name}
                     </h1>
-                    <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
-                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#FFD000]/40" style={{ background: "linear-gradient(90deg, rgba(255,208,0,0.12), rgba(0,207,255,0.08))" }}>
-                        <Building2 className="w-3 h-3 text-[#FFD000]" />
-                        <span className="text-[10px] font-black text-[#FFD000] uppercase tracking-wider">Institution Profile</span>
-                      </div>
-                      <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20">
-                        <Shield className="w-3 h-3 text-[#00CFFF]" />
-                        <span className="text-[10px] font-bold text-[#00CFFF]">Verified</span>
-                      </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#FFD000]/40" style={{ background: "linear-gradient(90deg, rgba(255,208,0,0.12), rgba(0,207,255,0.08))" }}>
+                      <Building2 className="w-3 h-3 text-[#FFD000]" />
+                      <span className="text-[10px] font-black text-[#FFD000] uppercase tracking-wider">Institution Profile</span>
+                    </div>
+                    <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20">
+                      <Shield className="w-3 h-3 text-[#00CFFF]" />
+                      <span className="text-[10px] font-bold text-[#00CFFF]">Verified</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Bio, location, actions */}
-              <div className="mt-4">
-                <p className="text-sm text-gray-300 leading-relaxed mb-3 max-w-lg whitespace-pre-line">
-                  {user.bio || "Leading with faith and purpose. Building community through the power of light."}
-                </p>
-                <div className="flex flex-wrap gap-3 items-center mb-4">
-                  {user.country && (
-                    <span className="flex items-center gap-1 text-xs text-gray-400">
-                      <MapPin className="w-3 h-3" /> {user.country}
-                    </span>
-                  )}
-                  {user.website_url && (
-                    <a href={user.website_url.startsWith("http") ? user.website_url : `https://${user.website_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-[#00CFFF] font-semibold hover:underline">
-                      <ExternalLink className="w-3 h-3" /> {user.website_url.replace(/^https?:\/\//, "")}
-                    </a>
-                  )}
-                  <span className="text-[10px] text-gray-600">
-                    Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}
-                  </span>
-                </div>
+              {/* Bio */}
+              <p className="text-sm text-gray-300 leading-relaxed mt-4 mb-2 whitespace-pre-line">
+                {user.bio || "Leading with faith and purpose. Building community through the power of light."}
+              </p>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-3">
-                  {isOwnProfile && (
-                    <>
-                      <button onClick={onEditProfile} className="px-5 py-2 rounded-xl text-sm font-bold transition border border-[#FFD000]/30 bg-[#FFD000]/10 text-[#FFD000] hover:bg-[#FFD000]/20">
-                        Edit Profile
-                      </button>
-                      {primaryPage && (
-                        <Link to={`/InstitutionDashboard?id=${primaryPage.id}`} className="px-5 py-2 rounded-xl text-sm font-bold transition border border-[#00CFFF]/30 bg-[#00CFFF]/10 text-[#00CFFF] hover:bg-[#00CFFF]/20 flex items-center gap-2">
-                          <Building2 className="w-4 h-4" /> Manage Institution
-                        </Link>
-                      )}
-                      <Link to="/InstitutionControlCenter" className="px-5 py-2 rounded-xl text-sm font-bold transition border border-[#8A5CFF]/30 bg-[#8A5CFF]/10 text-[#8A5CFF] hover:bg-[#8A5CFF]/20 flex items-center gap-2">
-                        <Shield className="w-4 h-4" /> Control Center
+              {/* Location + joined */}
+              <div className="flex flex-wrap gap-3 items-center mb-4 mt-1">
+                {user.country && (
+                  <span className="flex items-center gap-1 text-xs text-gray-400">
+                    <MapPin className="w-3 h-3" /> {user.country}
+                  </span>
+                )}
+                {user.website_url && (
+                  <a href={user.website_url.startsWith("http") ? user.website_url : `https://${user.website_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-[#00CFFF] font-semibold hover:underline">
+                    <ExternalLink className="w-3 h-3" /> {user.website_url.replace(/^https?:\/\//, "")}
+                  </a>
+                )}
+                <span className="text-xs text-gray-500">
+                  Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}
+                </span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-3">
+                {isOwnProfile && (
+                  <>
+                    <button onClick={onEditProfile} className="px-5 py-2 rounded-xl text-sm font-bold transition border border-[#FFD000]/30 bg-[#FFD000]/10 text-[#FFD000] hover:bg-[#FFD000]/20">
+                      Edit Profile
+                    </button>
+                    {primaryPage && (
+                      <Link to={`/InstitutionDashboard?id=${primaryPage.id}`} className="px-5 py-2 rounded-xl text-sm font-bold transition border border-[#00CFFF]/30 bg-[#00CFFF]/10 text-[#00CFFF] hover:bg-[#00CFFF]/20 flex items-center gap-2">
+                        <Building2 className="w-4 h-4" /> Manage Institution
                       </Link>
-                    </>
-                  )}
-                  {!isOwnProfile && currentUser && (
-                    <>
-                      <button
-                        onClick={onFollowToggle}
-                        className={`px-6 py-2 rounded-xl text-sm font-bold transition border ${
-                          isFollowingThisUser
-                            ? "bg-white/5 border-white/10 text-gray-300 hover:border-red-500/50 hover:text-red-400"
-                            : "border-[#FFD000]/40 text-[#0B0F1A] hover:opacity-90"
-                        }`}
-                        style={!isFollowingThisUser ? { background: "linear-gradient(90deg, #FFD000, #00CFFF)" } : {}}
-                      >
-                        {isFollowingThisUser ? "Following" : "Follow"}
-                      </button>
-                      <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(profileEmail)}`} className="px-6 py-2 rounded-xl text-sm font-bold transition border border-white/10 bg-white/5 text-white hover:bg-white/10">
-                        Message
-                      </Link>
-                    </>
-                  )}
-                </div>
+                    )}
+                    <Link to="/InstitutionControlCenter" className="px-5 py-2 rounded-xl text-sm font-bold transition border border-[#8A5CFF]/30 bg-[#8A5CFF]/10 text-[#8A5CFF] hover:bg-[#8A5CFF]/20 flex items-center gap-2">
+                      <Shield className="w-4 h-4" /> Control Center
+                    </Link>
+                  </>
+                )}
+                {!isOwnProfile && currentUser && (
+                  <>
+                    <button
+                      onClick={onFollowToggle}
+                      className={`px-6 py-2 rounded-xl text-sm font-bold transition border ${
+                        isFollowingThisUser
+                          ? "bg-white/5 border-white/10 text-gray-300 hover:border-red-500/50 hover:text-red-400"
+                          : "border-[#FFD000]/40 text-[#0B0F1A] hover:opacity-90"
+                      }`}
+                      style={!isFollowingThisUser ? { background: "linear-gradient(90deg, #FFD000, #00CFFF)" } : {}}
+                    >
+                      {isFollowingThisUser ? "Following" : "Follow"}
+                    </button>
+                    <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(profileEmail)}`} className="px-6 py-2 rounded-xl text-sm font-bold transition border border-white/10 bg-white/5 text-white hover:bg-white/10">
+                      Message
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
 
