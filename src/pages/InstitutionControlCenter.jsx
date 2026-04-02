@@ -67,7 +67,8 @@ export default function InstitutionControlCenter() {
   }, []);
 
   const isRegionalAdmin = ["ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin"].includes(user?.role);
-  const territoryApproved = !isRegionalAdmin || user?.territory_status === "approved";
+  const hasApprovedInstitutionAccess = institutionApps.some(app => app.status === "approved");
+  const territoryApproved = !isRegionalAdmin || user?.territory_status === "approved" || hasApprovedInstitutionAccess;
   const territoryCountries = user?.territory_countries;
 
   const { data: institutionApps = [] } = useQuery({
@@ -129,11 +130,11 @@ export default function InstitutionControlCenter() {
     return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
   }
 
-  if (!isRegionalAdmin) {
+  if (!isRegionalAdmin && !hasApprovedInstitutionAccess) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#0B0F1A] text-white gap-4 px-6">
         <h2 className="text-2xl font-bold font-['Space_Grotesk']">Access Denied</h2>
-        <p className="text-gray-400 text-center">This area is only for territory-level admins.</p>
+        <p className="text-gray-400 text-center">This area is only for approved territory or institution leaders.</p>
         <a href={createPageUrl("Dashboard")} className="px-6 py-2.5 rounded-xl bg-[#00CFFF] text-black font-bold text-sm hover:bg-[#00CFFF]/80 transition">Go to Dashboard</a>
       </div>
     );

@@ -25,13 +25,28 @@ export default function AdminInstitutionTab() {
 
   const approveAppMutation = useMutation({
     mutationFn: async (appId) => {
+      const app = applications.find(a => a.id === appId);
       await base44.entities.InstitutionApplication.update(appId, { status: "approved", admin_notes: adminNotes });
+
+      if (app?.user_email) {
+        const applicant = allUsers.find(u => u.email === app.user_email);
+        if (applicant?.id) {
+          const nextRole = applicant.role && applicant.role !== "user" ? applicant.role : "church_admin";
+          await base44.entities.User.update(applicant.id, {
+            role: nextRole,
+            territory_name: app.institution_name,
+            territory_level: app.institution_type === "organization" ? "ecd" : app.institution_type === "church" ? "church" : applicant.territory_level,
+            territory_status: "approved"
+          });
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["institutionApplications"] });
+      queryClient.invalidateQueries({ queryKey: ["allUsers"] });
       setSelectedApp(null);
       setAdminNotes("");
-      toast.success("Application approved!");
+      toast.success("Application approved and control center access saved!");
     },
   });
 
