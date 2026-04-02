@@ -10,54 +10,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
 import ImageCropperModal from "@/components/feed/ImageCropperModal";
 
-// Compress image to max 150KB
-async function compressImage(file) {
-  const MAX_SIZE = 150 * 1024;
-
-  const toBlobAsync = (canvas, type, quality) =>
-    new Promise((resolve) => canvas.toBlob(resolve, type, quality));
-
-  const loadImage = (src) =>
-    new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = src;
-    });
-
-  const dataUrl = await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => resolve(e.target.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-
-  const img = await loadImage(dataUrl);
-  const canvas = document.createElement("canvas");
-  let { width, height } = img;
-
-  // Try reducing quality first at original dimensions
-  for (let quality = 0.8; quality >= 0.2; quality -= 0.15) {
-    canvas.width = width;
-    canvas.height = height;
-    canvas.getContext("2d").drawImage(img, 0, 0, width, height);
-    const blob = await toBlobAsync(canvas, "image/jpeg", quality);
-    if (blob.size <= MAX_SIZE) {
-      return new File([blob], file.name, { type: "image/jpeg" });
-    }
-  }
-
-  // Still too large — scale dimensions down
-  const scale = Math.sqrt(MAX_SIZE / file.size) * 0.9;
-  width = Math.round(width * scale);
-  height = Math.round(height * scale);
-  canvas.width = width;
-  canvas.height = height;
-  canvas.getContext("2d").drawImage(img, 0, 0, width, height);
-  const blob = await toBlobAsync(canvas, "image/jpeg", 0.7);
-  return new File([blob], file.name, { type: "image/jpeg" });
-}
-
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
 
 export default function SubmitDropModal({ isOpen, onClose, user }) {
@@ -68,6 +20,8 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [cropSrc, setCropSrc] = useState(null);
   const [mood, setMood] = useState("");
   const [showSuggestion, setShowSuggestion] = useState(true);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStage, setUploadStage] = useState("");
   const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({ verse: "", reflection: "", hashtags: "#FaithAlwaysOn", category: "Devotional" });
@@ -157,12 +111,19 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
     }
 
     setLoading(true);
+    setUploadProgress(0);
+    setUploadStage(file ? "Preparing upload..." : "Creating post...");
     try {
       let uploadedMediaUrl = null;
       if (file) {
-        const compressedFile = file.size > 150 * 1024 ? await compressImage(file) : file;
-        const uploadRes = await base44.integrations.Core.UploadFile({ file: compressedFile });
+        setUploadProgress(15);
+        setUploadStage("Uploading photo...");
+        const uploadRes = await base44.integrations.Core.UploadFile({ file });
         uploadedMediaUrl = uploadRes.file_url;
+        setUploadProgress(70);
+        setUploadStage("Saving post...");
+      } else {
+        setUploadProgress(70);
       }
 
       await base44.entities.GlowDrop.create({
@@ -195,6 +156,8 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
         });
       }).catch(() => {});
 
+      setUploadProgress(100);
+      setUploadStage("Done");
       toast.success(`Glow Drop posted! +${5 + challengeBonus} XP ⚡`);
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
       queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });
@@ -212,6 +175,8 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
     setCropSrc(null);
     setMood("");
     setShowSuggestion(true);
+    setUploadProgress(0);
+    setUploadStage("");
     onClose();
   };
 
@@ -372,16 +337,32 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
                 <button
                   type="button"
                   onClick={clearFile}
-                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/70 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-red-500/80 transition-colors"
+                  disabled={loading}
+                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/70 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-red-500/80 transition-colors disabled:opacity-50"
                 >
                   <X className="w-4 h-4" />
                 </button>
+                {loading && file && (
+                  <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-white mb-1.5">
+                      <span>{uploadStage}</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-28 rounded-2xl border-2 border-dashed border-white/10 bg-[#121826]/50 hover:border-[#00CFFF]/40 hover:bg-[#00CFFF]/5 transition-all flex flex-col items-center justify-center gap-2 group"
+                disabled={loading}
+                className="w-full h-28 rounded-2xl border-2 border-dashed border-white/10 bg-[#121826]/50 hover:border-[#00CFFF]/40 hover:bg-[#00CFFF]/5 transition-all flex flex-col items-center justify-center gap-2 group disabled:opacity-50"
               >
                 <ImagePlus className="w-8 h-8 text-gray-500 group-hover:text-[#00CFFF] transition-colors" />
                 <span className="text-xs text-gray-500 group-hover:text-gray-300 transition-colors font-medium">
