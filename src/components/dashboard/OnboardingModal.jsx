@@ -59,16 +59,42 @@ export default function OnboardingModal({ isOpen, onCompleted }) {
       try {
         const user = await base44.auth.me();
         if (user) {
-          setFullName(user.full_name || "");
-          setCountry(user.country || "");
-          setGender(user.gender || "");
-          setDob(user.date_of_birth || "");
-          setCity(user.city || "");
-          setAddress(user.address || "");
-          setPostalCode(user.postal_code || "");
-          setBio(user.bio || "");
-          setProfilePic(user.profile_picture_url || "");
-          setPhone(user.phone || "");
+          const userData = user.data || {};
+          setFullName(user.full_name || userData.full_name || "");
+          setCountry(user.country || userData.country || "");
+          setGender(user.gender || userData.gender || "");
+          setDob(user.date_of_birth || userData.date_of_birth || "");
+          setCity(user.city || userData.city || "");
+          setAddress(user.address || userData.address || "");
+          setPostalCode(user.postal_code || userData.postal_code || "");
+          setBio(user.bio || userData.bio || "");
+          setProfilePic(user.profile_picture_url || userData.profile_picture_url || "");
+          setPhone(user.phone || userData.phone || "");
+
+          const hasConsent = user.privacy_consent_given || userData.privacy_consent_given;
+          const hasRequiredProfile = Boolean(
+            (user.full_name || userData.full_name) &&
+            (user.country || userData.country) &&
+            (user.gender || userData.gender) &&
+            (user.date_of_birth || userData.date_of_birth) &&
+            (user.city || userData.city) &&
+            (user.address || userData.address) &&
+            (user.postal_code || userData.postal_code)
+          );
+
+          if (hasConsent && hasRequiredProfile) {
+            onCompleted({
+              full_name: user.full_name || userData.full_name || "",
+              country: user.country || userData.country || "",
+              gender: user.gender || userData.gender || "",
+              date_of_birth: user.date_of_birth || userData.date_of_birth || "",
+              city: user.city || userData.city || "",
+              address: user.address || userData.address || "",
+              postal_code: user.postal_code || userData.postal_code || "",
+              bio: user.bio || userData.bio || "",
+              profile_picture_url: user.profile_picture_url || userData.profile_picture_url || "",
+            });
+          }
         }
       } catch (err) {
         console.error("Failed to load user data:", err);
@@ -77,7 +103,7 @@ export default function OnboardingModal({ isOpen, onCompleted }) {
     if (isOpen) {
       initializeFromUser();
     }
-  }, [isOpen]);
+  }, [isOpen, onCompleted]);
 
   const handlePicUpload = async (e) => {
     const file = e.target.files?.[0];
