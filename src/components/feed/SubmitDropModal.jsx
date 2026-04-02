@@ -10,13 +10,59 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
 import ImageCropperModal from "@/components/feed/ImageCropperModal";
 
+// Compress image to max 150KB
+async function compressImage(file) {
+  const MAX_SIZE = 150 * 1024;
+
+  const toBlobAsync = (canvas, type, quality) =>
+    new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+
+  const loadImage = (src) =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+  const img = await loadImage(dataUrl);
+  const canvas = document.createElement("canvas");
+  let { width, height } = img;
+
+  // Try reducing quality first at original dimensions
+  for (let quality = 0.8; quality >= 0.2; quality -= 0.15) {
+    canvas.width = width;
+    canvas.height = height;
+    canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+    const blob = await toBlobAsync(canvas, "image/jpeg", quality);
+    if (blob.size <= MAX_SIZE) {
+      return new File([blob], file.name, { type: "image/jpeg" });
+    }
+  }
+
+  // Still too large — scale dimensions down
+  const scale = Math.sqrt(MAX_SIZE / file.size) * 0.9;
+  width = Math.round(width * scale);
+  height = Math.round(height * scale);
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+  const blob = await toBlobAsync(canvas, "image/jpeg", 0.7);
+  return new File([blob], file.name, { type: "image/jpeg" });
+}
 
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
 
 export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(null); // 0-100 or null
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [cropSrc, setCropSrc] = useState(null);
@@ -114,25 +160,9 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
     try {
       let uploadedMediaUrl = null;
       if (file) {
-        // Simulate progress while uploading
-        setUploadProgress(0);
-        const progressInterval = setInterval(() => {
-          setUploadProgress(prev => {
-            if (prev >= 85) { clearInterval(progressInterval); return 85; }
-            return prev + Math.floor(Math.random() * 15 + 5);
-          });
-        }, 300);
-
-        try {
-          const uploadRes = await base44.integrations.Core.UploadFile({ file });
-          clearInterval(progressInterval);
-          setUploadProgress(100);
-          uploadedMediaUrl = uploadRes.file_url;
-          await new Promise(r => setTimeout(r, 400)); // brief pause to show 100%
-        } finally {
-          clearInterval(progressInterval);
-          setUploadProgress(null);
-        }
+        const compressedFile = file.size > 150 * 1024 ? await compressImage(file) : file;
+        const uploadRes = await base44.integrations.Core.UploadFile({ file: compressedFile });
+        uploadedMediaUrl = uploadRes.file_url;
       }
 
       await base44.entities.GlowDrop.create({
@@ -182,7 +212,6 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
     setCropSrc(null);
     setMood("");
     setShowSuggestion(true);
-    setUploadProgress(null);
     onClose();
   };
 
@@ -347,20 +376,6 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
                 >
                   <X className="w-4 h-4" />
                 </button>
-                {uploadProgress !== null && (
-                  <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-black/70 backdrop-blur-sm">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-bold text-[#00CFFF] uppercase tracking-wider">Uploading photo...</span>
-                      <span className="text-[10px] font-black text-[#00CFFF]">{uploadProgress}%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-300"
-                        style={{ width: `${uploadProgress}%`, background: "linear-gradient(90deg, #00CFFF, #8A5CFF)" }}
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
             ) : (
               <button
