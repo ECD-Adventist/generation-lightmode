@@ -54,7 +54,12 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   };
 
   const handleCropDone = async (blob) => {
-    const croppedFile = new File([blob], "cropped.jpg", { type: "image/jpeg" });
+    if (!blob) {
+      toast.error("Couldn't prepare the photo. Try again.");
+      return;
+    }
+
+    const croppedFile = new File([blob], `glow-drop-${Date.now()}.jpg`, { type: "image/jpeg" });
     setFile(croppedFile);
     const reader = new FileReader();
     reader.onload = (ev) => setPreview(ev.target.result);
@@ -163,8 +168,9 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
       queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });
       queryClient.invalidateQueries({ queryKey: ["myGlowDropsProfile"] });
       resetAndClose();
-    } catch {
-      toast.error("Failed to post. Try again.");
+    } catch (error) {
+      console.error("Glow Drop upload failed:", error);
+      toast.error(error?.message || "Failed to post. Try again.");
     } finally { setLoading(false); }
   };
 

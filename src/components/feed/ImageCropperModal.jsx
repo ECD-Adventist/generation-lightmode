@@ -57,22 +57,33 @@ export default function ImageCropperModal({ src, onCrop, onCancel }) {
   const handleMouseUp = () => setIsDragging(false);
 
   const handleCrop = () => {
+    if (!imgRef.current) return;
+
     const outputCanvas = document.createElement("canvas");
     outputCanvas.width = 630;
-    outputCanvas.height = 840; // 3:4 at higher res
+    outputCanvas.height = 840;
     const ctx = outputCanvas.getContext("2d");
-    const scaleX = outputCanvas.width / PREVIEW_W;
-    const scaleY = outputCanvas.height / PREVIEW_H;
+
+    const sourceX = Math.max(0, -offset.x / scale);
+    const sourceY = Math.max(0, -offset.y / scale);
+    const sourceWidth = PREVIEW_W / scale;
+    const sourceHeight = PREVIEW_H / scale;
+
     ctx.drawImage(
       imgRef.current,
-      offset.x * scaleX,
-      offset.y * scaleY,
-      imgRef.current.width * scale * scaleX,
-      imgRef.current.height * scale * scaleY
+      sourceX,
+      sourceY,
+      sourceWidth,
+      sourceHeight,
+      0,
+      0,
+      outputCanvas.width,
+      outputCanvas.height
     );
+
     outputCanvas.toBlob((blob) => {
-      onCrop(blob);
-    }, "image/jpeg", 0.9);
+      if (blob) onCrop(blob);
+    }, "image/jpeg", 0.92);
   };
 
   return (
