@@ -12,54 +12,50 @@ import ImageCropperModal from "@/components/feed/ImageCropperModal";
 
 // Compress image to max 150KB
 async function compressImage(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
+  const MAX_SIZE = 150 * 1024;
+
+  const toBlobAsync = (canvas, type, quality) =>
+    new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+
+  const loadImage = (src) =>
+    new Promise((resolve, reject) => {
       const img = new Image();
-      img.src = event.target.result;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let { width, height } = img;
-        
-        // Start with original dimensions
-        let quality = 0.9;
-        let compressedSize = file.size;
-        
-        // Reduce quality until under 150KB
-        while (compressedSize > 150 * 1024 && quality > 0.1) {
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
-          
-          canvas.toBlob((blob) => {
-            compressedSize = blob.size;
-            if (compressedSize <= 150 * 1024) {
-              resolve(new File([blob], file.name, { type: 'image/jpeg' }));
-            }
-          }, 'image/jpeg', quality);
-          
-          quality -= 0.1;
-        }
-        
-        // If still too large, reduce dimensions
-        if (compressedSize > 150 * 1024) {
-          const scale = Math.sqrt((150 * 1024) / compressedSize);
-          width = Math.round(width * scale);
-          height = Math.round(height * scale);
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          canvas.toBlob((blob) => {
-            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
-          }, 'image/jpeg', 0.8);
-        }
-      };
-    };
-    reader.onerror = () => reject(new Error('Failed to read file'));
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
+
+  const img = await loadImage(dataUrl);
+  const canvas = document.createElement("canvas");
+  let { width, height } = img;
+
+  // Try reducing quality first at original dimensions
+  for (let quality = 0.8; quality >= 0.2; quality -= 0.15) {
+    canvas.width = width;
+    canvas.height = height;
+    canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+    const blob = await toBlobAsync(canvas, "image/jpeg", quality);
+    if (blob.size <= MAX_SIZE) {
+      return new File([blob], file.name, { type: "image/jpeg" });
+    }
+  }
+
+  // Still too large — scale dimensions down
+  const scale = Math.sqrt(MAX_SIZE / file.size) * 0.9;
+  width = Math.round(width * scale);
+  height = Math.round(height * scale);
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+  const blob = await toBlobAsync(canvas, "image/jpeg", 0.7);
+  return new File([blob], file.name, { type: "image/jpeg" });
 }
 
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
