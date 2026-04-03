@@ -185,6 +185,14 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
                   <circle r={7} fill="#00CFFF" stroke="#fff" strokeWidth={2} />
                 </Marker>
               )}
+              {/* Seychelles marker — too small to see on map */}
+              {highlightedIsoCodes.has("690") && (
+                <Marker coordinates={[55.5, -4.7]}>
+                  <circle r={10} fill="rgba(0,207,255,0.15)" />
+                  <circle r={5} fill="#00CFFF" stroke="#fff" strokeWidth={1.5} />
+                  <text y={-14} textAnchor="middle" fill="#00CFFF" fontSize={9} fontWeight="bold">Seychelles</text>
+                </Marker>
+              )}
             </ComposableMap>
           </div>
 
