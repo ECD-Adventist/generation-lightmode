@@ -1,29 +1,22 @@
 {
-  "name": "UserDailyChallenge",
+  "name": "DailyCode",
   "type": "object",
   "properties": {
-    "user_email": {
+    "code_id": {
       "type": "string"
     },
-    "date_string": {
-      "type": "string"
-    },
-    "challenge_id": {
-      "type": "string"
+    "date_published": {
+      "type": "string",
+      "format": "date"
     }
   },
   "required": [
-    "user_email",
-    "date_string",
-    "challenge_id"
+    "code_id",
+    "date_published"
   ],
   "rls": {
-    "create": true,
-    "read": {
+    "create": {
       "$or": [
-        {
-          "data.user_email": "{{user.email}}"
-        },
         {
           "user_condition": {
             "role": "admin"
@@ -36,14 +29,23 @@
         }
       ]
     },
+    "read": true,
     "update": {
-      "data.user_email": "{{user.email}}"
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
     },
     "delete": {
       "$or": [
-        {
-          "data.user_email": "{{user.email}}"
-        },
         {
           "user_condition": {
             "role": "admin"

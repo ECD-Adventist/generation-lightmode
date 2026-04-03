@@ -17,6 +17,7 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
   const remainingRef = useRef(STORY_DURATION);
@@ -47,6 +48,9 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
     return result;
   }, [story, allStories]);
 
+  const currentStory = storyQueue[currentIndex];
+  const currentStoryUser = currentStory && getUserInfo ? getUserInfo(currentStory.user_email) : storyUser;
+
   // Reset when opened
   useEffect(() => {
     if (isOpen && storyQueue.length > 0) {
@@ -54,11 +58,23 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
       setCurrentIndex(idx >= 0 ? idx : 0);
       setProgress(0);
       remainingRef.current = STORY_DURATION;
+      setImageLoaded(false);
     }
   }, [isOpen, story?.id, storyQueue]);
 
-  const currentStory = storyQueue[currentIndex];
-  const currentStoryUser = currentStory && getUserInfo ? getUserInfo(currentStory.user_email) : storyUser;
+  // Reset imageLoaded when story changes — preload image before starting timer
+  useEffect(() => {
+    if (!currentStory) return;
+    if (currentStory.story_type === "image" && currentStory.media_url) {
+      setImageLoaded(false);
+      const img = new Image();
+      img.onload = () => setImageLoaded(true);
+      img.onerror = () => setImageLoaded(true);
+      img.src = currentStory.media_url;
+    } else {
+      setImageLoaded(true);
+    }
+  }, [currentIndex, currentStory?.id]);
 
   // Find segment boundaries for the current user
   const currentUserSegments = React.useMemo(() => {
@@ -99,7 +115,7 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
 
   // Auto-advance timer
   useEffect(() => {
-    if (!isOpen || isPaused || !currentStory) return;
+    if (!isOpen || isPaused || !currentStory || !imageLoaded) return;
     // Don't run timer on expired stories (they'll be skipped by the effect above)
     if (currentStory.expires_at && new Date(currentStory.expires_at).getTime() <= Date.now()) return;
 
@@ -165,6 +181,13 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Loading spinner while image loads */}
+        {!imageLoaded && currentStory.story_type === "image" && currentStory.media_url && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-black">
+            <div className="w-8 h-8 border-3 border-white/20 border-t-white rounded-full animate-spin" />
+          </div>
+        )}
+
         {/* Content */}
         {currentStory.story_type === "image" && currentStory.media_url ? (
           <img src={currentStory.media_url} alt="Story" className="absolute inset-0 w-full h-full object-cover" />

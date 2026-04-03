@@ -1,28 +1,41 @@
 {
-  "name": "UserDailyChallenge",
+  "name": "GroupSession",
   "type": "object",
   "properties": {
-    "user_email": {
+    "group_id": {
       "type": "string"
     },
-    "date_string": {
+    "host_email": {
       "type": "string"
     },
-    "challenge_id": {
+    "title": {
       "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "scheduled_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false
     }
   },
   "required": [
-    "user_email",
-    "date_string",
-    "challenge_id"
+    "group_id",
+    "host_email",
+    "title",
+    "scheduled_at"
   ],
   "rls": {
     "create": true,
-    "read": {
+    "read": true,
+    "update": {
       "$or": [
         {
-          "data.user_email": "{{user.email}}"
+          "data.host_email": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -36,13 +49,10 @@
         }
       ]
     },
-    "update": {
-      "data.user_email": "{{user.email}}"
-    },
     "delete": {
       "$or": [
         {
-          "data.user_email": "{{user.email}}"
+          "data.host_email": "{{user.email}}"
         },
         {
           "user_condition": {

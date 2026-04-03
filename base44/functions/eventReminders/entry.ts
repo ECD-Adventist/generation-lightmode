@@ -4,7 +4,12 @@ Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
         
-        // Use service role for scheduled jobs to bypass user-level auth rules
+        // Verify admin access for scheduled task
+        const caller = await base44.auth.me();
+        if (!caller || (caller.role !== 'admin' && caller.role !== 'super_admin')) {
+            return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+        }
+        
         const events = await base44.asServiceRole.entities.GlowGroupEvent.list();
         const rsvps = await base44.asServiceRole.entities.GlowGroupEventRSVP.list();
         const now = new Date();

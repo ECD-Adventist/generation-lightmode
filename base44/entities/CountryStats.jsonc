@@ -1,29 +1,33 @@
 {
-  "name": "UserDailyChallenge",
+  "name": "CountryStats",
   "type": "object",
   "properties": {
-    "user_email": {
+    "name": {
       "type": "string"
     },
-    "date_string": {
-      "type": "string"
+    "users_count": {
+      "type": "number",
+      "default": 0
     },
-    "challenge_id": {
-      "type": "string"
+    "drops_count": {
+      "type": "number",
+      "default": 0
+    },
+    "engagement_score": {
+      "type": "number",
+      "default": 0
+    },
+    "active_groups": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [
-    "user_email",
-    "date_string",
-    "challenge_id"
+    "name"
   ],
   "rls": {
-    "create": true,
-    "read": {
+    "create": {
       "$or": [
-        {
-          "data.user_email": "{{user.email}}"
-        },
         {
           "user_condition": {
             "role": "admin"
@@ -36,14 +40,23 @@
         }
       ]
     },
+    "read": true,
     "update": {
-      "data.user_email": "{{user.email}}"
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
     },
     "delete": {
       "$or": [
-        {
-          "data.user_email": "{{user.email}}"
-        },
         {
           "user_condition": {
             "role": "admin"

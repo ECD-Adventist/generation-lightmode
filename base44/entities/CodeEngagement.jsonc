@@ -1,0 +1,43 @@
+{
+  "name": "CodeEngagement",
+  "type": "object",
+  "properties": {
+    "code_id": {
+      "type": "string"
+    },
+    "shares_count": {
+      "type": "number",
+      "default": 0
+    },
+    "downloads_count": {
+      "type": "number",
+      "default": 0
+    },
+    "reposts_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "code_id"
+  ],
+  "rls": {
+    "create": true,
+    "read": true,
+    "update": true,
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -45,7 +45,7 @@
     },
     "extracted_territories": {
       "type": "string",
-      "description": "JSON string of territories extracted from the org map, e.g. [{name, region, country}]"
+      "description": "JSON string of territories extracted from the org map"
     },
     "status": {
       "type": "string",
@@ -69,5 +69,56 @@
     "contact_email",
     "procedures_description",
     "commitment_description"
-  ]
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
 }

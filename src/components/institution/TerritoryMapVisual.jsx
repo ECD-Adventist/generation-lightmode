@@ -15,20 +15,24 @@ const ISO_TO_COUNTRY = {
   "012": "Algeria", "504": "Morocco", "788": "Tunisia", "710": "South Africa",
   "072": "Botswana", "516": "Namibia", "148": "Chad", "562": "Niger",
   "466": "Mali", "686": "Senegal", "384": "Ivory Coast", "266": "Gabon",
-  "140": "Central African Republic",
+  "140": "Central African Republic", "690": "Seychelles",
 };
 
 const COUNTRY_NAME_TO_ISO = {
   "Ethiopia": "231", "Kenya": "404", "Tanzania": "834", "Uganda": "800",
   "Rwanda": "646", "Burundi": "108", "Democratic Republic of Congo": "180",
-  "DRC": "180", "Congo": "180", "Sudan": "729", "South Sudan": "728",
-  "Somalia": "706", "Eritrea": "232", "Djibouti": "262", "Zambia": "894",
-  "Zimbabwe": "716", "Malawi": "454", "Mozambique": "508", "Angola": "024",
-  "Madagascar": "450", "Nigeria": "566", "Ghana": "288", "Cameroon": "120",
-  "Egypt": "818", "Libya": "434", "Algeria": "012", "Morocco": "504",
-  "Tunisia": "788", "South Africa": "710", "Botswana": "072", "Namibia": "516",
-  "Chad": "148", "Niger": "562", "Mali": "466", "Senegal": "686",
-  "Ivory Coast": "384", "Côte d'Ivoire": "384", "Gabon": "266",
+  "Democratic Republic of the Congo": "180",
+  "DRC": "180", "DR Congo": "180", "Congo": "180",
+  "Sudan": "729", "South Sudan": "728",
+  "Somalia": "706", "Eritrea": "232", "Djibouti": "262",
+  "Seychelles": "690",
+  "Zambia": "894", "Zimbabwe": "716", "Malawi": "454", "Mozambique": "508",
+  "Angola": "024", "Madagascar": "450", "Nigeria": "566", "Ghana": "288",
+  "Cameroon": "120", "Egypt": "818", "Libya": "434", "Algeria": "012",
+  "Morocco": "504", "Tunisia": "788", "South Africa": "710",
+  "Botswana": "072", "Namibia": "516", "Chad": "148", "Niger": "562",
+  "Mali": "466", "Senegal": "686", "Ivory Coast": "384",
+  "Côte d'Ivoire": "384", "Gabon": "266",
   "Central African Republic": "140", "CAR": "140",
 };
 
@@ -112,7 +116,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
 
             <ComposableMap
               projection="geoMercator"
-              projectionConfig={{ scale: 650, center: [35, 2] }}
+              projectionConfig={{ scale: 900, center: [33, 0] }}
               style={{ width: "100%", height: "100%" }}
             >
               <Geographies geography={GEO_URL}>

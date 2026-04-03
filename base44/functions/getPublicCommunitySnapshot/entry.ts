@@ -4,6 +4,12 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
+    // Authenticate caller
+    const user = await base44.auth.me();
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const [users, groups, groupMembers, drops, challenges, submissions] = await Promise.all([
       base44.asServiceRole.entities.User.list('-created_date', 2000),
       base44.asServiceRole.entities.GlowGroup.list(),

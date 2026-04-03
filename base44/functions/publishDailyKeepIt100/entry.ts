@@ -4,6 +4,12 @@ Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
         
+        // Verify admin access
+        const caller = await base44.auth.me();
+        if (!caller || (caller.role !== 'admin' && caller.role !== 'super_admin')) {
+            return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+        }
+        
         const allCodes = await base44.asServiceRole.entities.CodeOfTruth.filter({ status: "approved", source_document: "keeping_it_100" });
         if (allCodes.length === 0) {
             return Response.json({ message: "No Keep It 100 codes available" });

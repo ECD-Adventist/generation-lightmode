@@ -4,7 +4,12 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     
-    // Get all users
+    // Verify admin access for scheduled task
+    const caller = await base44.auth.me();
+    if (!caller || (caller.role !== 'admin' && caller.role !== 'super_admin')) {
+        return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+    }
+    
     const users = await base44.asServiceRole.entities.User.list('-created_date', 500);
     
     const notifications = users.map(user => ({

@@ -1,28 +1,33 @@
 {
-  "name": "UserDailyChallenge",
+  "name": "PrayerComment",
   "type": "object",
   "properties": {
+    "request_id": {
+      "type": "string"
+    },
     "user_email": {
       "type": "string"
     },
-    "date_string": {
+    "content": {
       "type": "string"
     },
-    "challenge_id": {
-      "type": "string"
+    "is_anonymous": {
+      "type": "boolean",
+      "default": false
     }
   },
   "required": [
+    "request_id",
     "user_email",
-    "date_string",
-    "challenge_id"
+    "content"
   ],
   "rls": {
     "create": true,
-    "read": {
+    "read": true,
+    "update": {
       "$or": [
         {
-          "data.user_email": "{{user.email}}"
+          "created_by": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -36,13 +41,10 @@
         }
       ]
     },
-    "update": {
-      "data.user_email": "{{user.email}}"
-    },
     "delete": {
       "$or": [
         {
-          "data.user_email": "{{user.email}}"
+          "created_by": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -52,6 +54,11 @@
         {
           "user_condition": {
             "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "moderator"
           }
         }
       ]

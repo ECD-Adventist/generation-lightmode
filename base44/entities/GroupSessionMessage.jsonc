@@ -1,48 +1,32 @@
 {
-  "name": "UserDailyChallenge",
+  "name": "GroupSessionMessage",
   "type": "object",
   "properties": {
+    "session_id": {
+      "type": "string"
+    },
     "user_email": {
       "type": "string"
     },
-    "date_string": {
-      "type": "string"
-    },
-    "challenge_id": {
+    "content": {
       "type": "string"
     }
   },
   "required": [
+    "session_id",
     "user_email",
-    "date_string",
-    "challenge_id"
+    "content"
   ],
   "rls": {
     "create": true,
-    "read": {
-      "$or": [
-        {
-          "data.user_email": "{{user.email}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "super_admin"
-          }
-        }
-      ]
-    },
+    "read": true,
     "update": {
-      "data.user_email": "{{user.email}}"
+      "created_by": "{{user.email}}"
     },
     "delete": {
       "$or": [
         {
-          "data.user_email": "{{user.email}}"
+          "created_by": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -52,6 +36,11 @@
         {
           "user_condition": {
             "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "moderator"
           }
         }
       ]

@@ -4,7 +4,22 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, isRegionalAdmin }) {
-  const menuItems = [
+  // Territory/institution admins get a restricted set of tabs
+  const territoryOnlyItems = [
+    { id: "territory-map", label: "Territory Map", icon: <Map size={18} /> },
+    { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
+    { id: "groups", label: "GlowGroups", icon: <MessageSquare size={18} /> },
+    { id: "drops", label: "Glow Drops", icon: <Zap size={18} /> },
+    { id: "countries", label: "Countries", icon: <Globe size={18} /> },
+    { id: "charts", label: "Charts Dashboard", icon: <PieChart size={18} /> },
+    { id: "territory-challenges", label: "Territory Challenges", icon: <Target size={18} className="text-[#FFD000]" /> },
+    { id: "activity", label: "Activity Feed", icon: <span style={{fontSize:16}}>⚡</span> },
+    { id: "codes", label: "Codes of Truth", icon: <Hash size={18} /> },
+    { id: "keepit100", label: "Keep It 100", icon: <span style={{fontSize:16}}>💯</span> },
+  ];
+
+  // Full admin / super admin items
+  const fullAdminItems = [
     ...(isRegionalAdmin ? [{ id: "territory", label: "Territory Setup", icon: <Globe size={18} /> }] : []),
     { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
     { id: "users", label: "Users", icon: <Users size={18} /> },
@@ -29,6 +44,9 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
     { id: "assistant-training", label: "Assistant Training", icon: <Brain size={18} /> },
     { id: "institutions", label: "Institution Dashboard", icon: <Globe size={18} className="text-[#8A5CFF]" /> },
   ];
+
+  // Use restricted set if not super admin
+  const menuItems = (isSuperAdmin || (!isRegionalAdmin)) ? fullAdminItems : territoryOnlyItems;
 
   if (isSuperAdmin) {
     menuItems.push({ id: "settings", label: "System Settings", icon: <Settings size={18} /> });

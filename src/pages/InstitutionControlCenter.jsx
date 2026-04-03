@@ -12,34 +12,21 @@ import AdminCountriesTab from "@/components/admin/AdminCountriesTab";
 import AdminActivityFeedTab from "@/components/admin/AdminActivityFeedTab";
 import AdminAnalyticsTab from "@/components/admin/AdminAnalyticsTab";
 import AdminTerritoryMapTab from "@/components/admin/AdminTerritoryMapTab";
-import AdminTerritoryAssignTab from "@/components/admin/AdminTerritoryAssignTab";
 import AdminChartsTab from "@/components/admin/AdminChartsTab";
 import AdminTerritoryChallengesTab from "@/components/admin/AdminTerritoryChallengesTab";
 import AdminCodesTab from "@/components/admin/AdminCodesTab";
-import AdminMediaTab from "@/components/admin/AdminMediaTab";
-import AdminBadgesTab from "@/components/admin/AdminBadgesTab";
-import AdminNotificationsTab from "@/components/admin/AdminNotificationsTab";
-import AdminAnnouncementsTab from "@/components/admin/AdminAnnouncementsTab";
-import AdminCommentsTab from "@/components/admin/AdminCommentsTab";
 
 const ALLOWED_TERRITORY_TABS = [
+  "territory-map",
   "dashboard",
   "groups",
   "drops",
   "countries",
-  "territory-map",
-  "territory-assign",
   "charts",
   "territory-challenges",
   "activity",
   "codes",
   "keepit100",
-  "media",
-  "badges",
-  "analytics",
-  "notifications",
-  "announcements",
-  "comments",
 ];
 
 export default function InstitutionControlCenter() {
@@ -86,6 +73,11 @@ export default function InstitutionControlCenter() {
   };
 
   const renderTab = () => {
+    // Enforce that territory admins can only access allowed tabs
+    if (!ALLOWED_TERRITORY_TABS.includes(activeTab)) {
+      return <AdminTerritoryMapTab currentUser={user} />;
+    }
+
     switch (activeTab) {
       case "dashboard":
         return <AdminDashboardTab user={user} territoryRestricted={true} territoryCountries={territoryCountries} territoryApproved={territoryApproved} />;
@@ -97,8 +89,6 @@ export default function InstitutionControlCenter() {
         return <AdminCountriesTab user={user} territoryRestricted={true} territoryCountries={territoryCountries} territoryApproved={territoryApproved} />;
       case "territory-map":
         return <AdminTerritoryMapTab currentUser={user} />;
-      case "territory-assign":
-        return <AdminTerritoryAssignTab />;
       case "charts":
         return <AdminChartsTab territoryRestricted={true} territoryCountries={territoryCountries} territoryApproved={territoryApproved} />;
       case "territory-challenges":
@@ -109,18 +99,6 @@ export default function InstitutionControlCenter() {
         return <AdminCodesTab sourceFilter="codes_of_truth" title="Codes of Truth" />;
       case "keepit100":
         return <AdminCodesTab sourceFilter="keeping_it_100" title="Keep It 100" />;
-      case "media":
-        return <AdminMediaTab />;
-      case "badges":
-        return <AdminBadgesTab />;
-      case "analytics":
-        return <AdminAnalyticsTab user={user} territoryRestricted={true} territoryCountries={territoryCountries} territoryApproved={territoryApproved} />;
-      case "notifications":
-        return <AdminNotificationsTab />;
-      case "announcements":
-        return <AdminAnnouncementsTab />;
-      case "comments":
-        return <AdminCommentsTab />;
       default:
         return <AdminTerritoryMapTab currentUser={user} />;
     }
@@ -142,7 +120,7 @@ export default function InstitutionControlCenter() {
 
   return (
     <div className="bg-[#0B0F1A] text-white flex flex-col md:flex-row" style={{ minHeight: "100vh" }}>
-      <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={false} isRegionalAdmin={true} />
+      <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={false} isRegionalAdmin={!hasApprovedInstitutionAccess || isRegionalAdmin} />
       <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#080C14]">
         <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5 shrink-0 hidden md:block">
           <div className="px-6 py-3 flex items-center justify-between gap-4">
