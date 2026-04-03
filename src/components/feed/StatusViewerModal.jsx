@@ -11,16 +11,15 @@ const themeClasses = {
   midnight: "from-[#121826] to-[#0B0F1A]",
 };
 
-const STORY_DURATION = 5000; // 5 seconds per story
+const STORY_DURATION = 6000; // 6 seconds per story
 
 export default function StatusViewerModal({ story, storyUser, isOpen, onClose, allStories = [], allUsers = [], getUserInfo }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const timerRef = useRef(null);
   const startTimeRef = useRef(null);
-  const remainingRef = useRef(STORY_DURATION);
+  const rafRef = useRef(null);
 
   // Build ordered story list from all active (non-expired) stories
   const storyQueue = React.useMemo(() => {
@@ -57,7 +56,6 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
       const idx = storyQueue.findIndex(s => s.id === story?.id);
       setCurrentIndex(idx >= 0 ? idx : 0);
       setProgress(0);
-      remainingRef.current = STORY_DURATION;
       setImageLoaded(false);
     }
   }, [isOpen, story?.id, storyQueue]);
@@ -87,20 +85,22 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
   }, [currentIndex, currentStory, storyQueue]);
 
   const goNext = useCallback(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
     if (currentIndex < storyQueue.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setProgress(0);
-      remainingRef.current = STORY_DURATION;
+      setImageLoaded(false);
     } else {
       onClose();
     }
   }, [currentIndex, storyQueue.length, onClose]);
 
   const goPrev = useCallback(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
     if (currentIndex > 0) {
       setCurrentIndex(prev => prev - 1);
       setProgress(0);
-      remainingRef.current = STORY_DURATION;
+      setImageLoaded(false);
     }
   }, [currentIndex]);
 
@@ -113,39 +113,33 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
     }
   }, [isOpen, currentStory, currentIndex, goNext]);
 
-  // Reset remaining time when story index changes
-  useEffect(() => {
-    remainingRef.current = STORY_DURATION;
-    setProgress(0);
-  }, [currentIndex]);
-
-  // Auto-advance timer — only starts once imageLoaded is true
+  // Auto-advance timer — clean simple version, starts fresh on each story/load
   useEffect(() => {
     if (!isOpen || isPaused || !currentStory || !imageLoaded) return;
-    if (currentStory.expires_at && new Date(currentStory.expires_at).getTime() <= Date.now()) return;
+    if (currentStory.expires_at && new Date(currentStory.expires_at).getTime() <= Date.now()) {
+      goNext();
+      return;
+    }
 
+    setProgress(0);
     startTimeRef.current = Date.now();
-    const duration = remainingRef.current;
-    let raf;
 
     const tick = () => {
       const elapsed = Date.now() - startTimeRef.current;
-      const pct = Math.min((STORY_DURATION - duration + elapsed) / STORY_DURATION, 1);
+      const pct = Math.min(elapsed / STORY_DURATION, 1);
       setProgress(pct);
       if (pct >= 1) {
         goNext();
       } else {
-        raf = requestAnimationFrame(tick);
+        rafRef.current = requestAnimationFrame(tick);
       }
     };
-    raf = requestAnimationFrame(tick);
+    rafRef.current = requestAnimationFrame(tick);
 
     return () => {
-      cancelAnimationFrame(raf);
-      const elapsed = Date.now() - startTimeRef.current;
-      remainingRef.current = Math.max(0, duration - elapsed);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [isOpen, isPaused, imageLoaded, currentIndex, currentStory?.id, goNext]);
+  }, [isOpen, isPaused, imageLoaded, currentIndex, goNext]);
 
   // Touch handling
   const touchStartRef = useRef(null);
