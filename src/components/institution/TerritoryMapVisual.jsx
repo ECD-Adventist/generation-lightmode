@@ -5,6 +5,12 @@ import TerritoryDrillDownPanel from "./TerritoryDrillDownPanel";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
+// ECD core nations (from the official ECD territory)
+export const ECD_COUNTRIES = [
+  "Sudan", "South Sudan", "Ethiopia", "Eritrea", "Somalia", "Djibouti",
+  "Uganda", "Kenya", "Tanzania", "Democratic Republic of Congo", "Rwanda", "Burundi"
+];
+
 const ISO_TO_COUNTRY = {
   "231": "Ethiopia", "404": "Kenya", "834": "Tanzania", "800": "Uganda",
   "646": "Rwanda", "108": "Burundi", "180": "Democratic Republic of Congo",
@@ -36,12 +42,17 @@ const COUNTRY_NAME_TO_ISO = {
   "Central African Republic": "140", "CAR": "140",
 };
 
+// ISO codes for all 12 ECD countries
+const ECD_ISO_CODES = new Set(
+  ECD_COUNTRIES.map(c => COUNTRY_NAME_TO_ISO[c]).filter(Boolean)
+);
+
 export default function TerritoryMapVisual({ territories, institutionName, memberCount, ownerEmail }) {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, name: "" });
 
   const highlightedIsoCodes = useMemo(() => {
-    const codes = new Set();
+    const codes = new Set(ECD_ISO_CODES); // Always show all ECD countries
     territories.forEach(t => {
       const code = COUNTRY_NAME_TO_ISO[t.country || ""];
       if (code) codes.add(code);
@@ -116,7 +127,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
 
             <ComposableMap
               projection="geoMercator"
-              projectionConfig={{ scale: 900, center: [33, 0] }}
+              projectionConfig={{ scale: 820, center: [36, 2] }}
               style={{ width: "100%", height: "100%" }}
             >
               <Geographies geography={GEO_URL}>
@@ -159,15 +170,15 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
                         onMouseLeave={() => setTooltip({ visible: false, x: 0, y: 0, name: "" })}
                         style={{
                           default: {
-                            fill: isSelected ? "#006699" : isHighlighted ? "#004D80" : "#0D1220",
-                            stroke: isSelected ? "#00CFFF" : isHighlighted ? "#0099CC" : "#141929",
+                            fill: isSelected ? "#8B0000" : isHighlighted ? "#6B1A1A" : "#0D1220",
+                            stroke: isSelected ? "#FF4444" : isHighlighted ? "#CC2222" : "#141929",
                             strokeWidth: isHighlighted ? 1.2 : 0.3,
                             outline: "none",
                             cursor: isHighlighted ? "pointer" : "default",
                           },
                           hover: {
-                            fill: isHighlighted ? "#0077AA" : "#111828",
-                            stroke: isHighlighted ? "#00CFFF" : "#141929",
+                            fill: isHighlighted ? "#7A1010" : "#111828",
+                            stroke: isHighlighted ? "#FF4444" : "#141929",
                             strokeWidth: isHighlighted ? 1.5 : 0.3,
                             outline: "none",
                             cursor: isHighlighted ? "pointer" : "default",
@@ -181,16 +192,8 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
               </Geographies>
               {centerMarker && (
                 <Marker coordinates={centerMarker}>
-                  <circle r={16} fill="rgba(0,207,255,0.1)" />
-                  <circle r={7} fill="#00CFFF" stroke="#fff" strokeWidth={2} />
-                </Marker>
-              )}
-              {/* Seychelles marker — too small to see on map */}
-              {highlightedIsoCodes.has("690") && (
-                <Marker coordinates={[55.5, -4.7]}>
-                  <circle r={10} fill="rgba(0,207,255,0.15)" />
-                  <circle r={5} fill="#00CFFF" stroke="#fff" strokeWidth={1.5} />
-                  <text y={-14} textAnchor="middle" fill="#00CFFF" fontSize={9} fontWeight="bold">Seychelles</text>
+                  <circle r={16} fill="rgba(204,34,34,0.15)" />
+                  <circle r={7} fill="#CC2222" stroke="#fff" strokeWidth={2} />
                 </Marker>
               )}
             </ComposableMap>
@@ -201,13 +204,13 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
             className="lg:w-56 shrink-0 flex flex-col justify-center px-8 py-8"
             style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.08)", borderLeft: "1px solid rgba(0,207,255,0.08)" }}
           >
-            <div className="text-[10px] font-black uppercase tracking-[0.25em] mb-6" style={{ color: "#00CFFF" }}>
-              Territory Stats
+            <div className="text-[10px] font-black uppercase tracking-[0.25em] mb-6" style={{ color: "#CC2222" }}>
+              ECD Territory
             </div>
 
             {/* Stat rows */}
             {[
-              { label: "Countries", value: countries.length, color: "#00CFFF" },
+              { label: "ECD Nations", value: ECD_COUNTRIES.length, color: "#CC2222" },
               { label: "Regions", value: regions.length, color: "#FFD000" },
               { label: "Territories", value: territories.length, color: "#8A5CFF" },
             ].map(({ label, value, color }) => (

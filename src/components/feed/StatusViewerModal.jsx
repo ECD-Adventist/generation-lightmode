@@ -113,31 +113,39 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
     }
   }, [isOpen, currentStory, currentIndex, goNext]);
 
-  // Auto-advance timer
+  // Reset remaining time when story index changes
+  useEffect(() => {
+    remainingRef.current = STORY_DURATION;
+    setProgress(0);
+  }, [currentIndex]);
+
+  // Auto-advance timer — only starts once imageLoaded is true
   useEffect(() => {
     if (!isOpen || isPaused || !currentStory || !imageLoaded) return;
-    // Don't run timer on expired stories (they'll be skipped by the effect above)
     if (currentStory.expires_at && new Date(currentStory.expires_at).getTime() <= Date.now()) return;
 
     startTimeRef.current = Date.now();
     const duration = remainingRef.current;
+    let raf;
 
-    timerRef.current = requestAnimationFrame(function tick() {
+    const tick = () => {
       const elapsed = Date.now() - startTimeRef.current;
       const pct = Math.min((STORY_DURATION - duration + elapsed) / STORY_DURATION, 1);
       setProgress(pct);
       if (pct >= 1) {
         goNext();
       } else {
-        timerRef.current = requestAnimationFrame(tick);
+        raf = requestAnimationFrame(tick);
       }
-    });
+    };
+    raf = requestAnimationFrame(tick);
 
     return () => {
-      if (timerRef.current) cancelAnimationFrame(timerRef.current);
-      remainingRef.current = duration - (Date.now() - startTimeRef.current);
+      cancelAnimationFrame(raf);
+      const elapsed = Date.now() - startTimeRef.current;
+      remainingRef.current = Math.max(0, duration - elapsed);
     };
-  }, [isOpen, isPaused, currentIndex, currentStory, goNext]);
+  }, [isOpen, isPaused, imageLoaded, currentIndex, currentStory?.id, goNext]);
 
   // Touch handling
   const touchStartRef = useRef(null);

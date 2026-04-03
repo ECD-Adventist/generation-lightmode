@@ -7,6 +7,7 @@ import { Loader2, ImagePlus, Type, X } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { compressImageUnder2MB } from "@/lib/imageUtils";
 
 const themes = [
   { id: "ocean", className: "from-[#00CFFF] to-[#1DA1FF]" },
@@ -30,13 +31,14 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
   const reset = () => { setMode("status"); setText(""); setTheme("ocean"); setFile(null); setPreview(null); };
   const handleClose = () => { reset(); onClose(); };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    setFile(f);
+    const compressed = await compressImageUnder2MB(f);
+    setFile(compressed);
     const reader = new FileReader();
     reader.onload = (ev) => setPreview(ev.target.result);
-    reader.readAsDataURL(f);
+    reader.readAsDataURL(compressed);
   };
 
   const removeImage = () => { setFile(null); setPreview(null); if (fileRef.current) fileRef.current.value = ""; };

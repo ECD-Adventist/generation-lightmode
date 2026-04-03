@@ -9,6 +9,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
 import ImageCropperModal from "@/components/feed/ImageCropperModal";
+import { compressImageUnder2MB } from "@/lib/imageUtils";
 
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
 
@@ -40,22 +41,21 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
 
   const dailyCode = codes[0];
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
     if (!selected.type.startsWith("image/")) {
       toast.error("Please choose an image file");
       return;
     }
-    if (selected.size > 10 * 1024 * 1024) {
-      toast.error("File size must be under 10MB");
-      return;
-    }
+
+    // Compress to under 2MB automatically
+    const compressed = await compressImageUnder2MB(selected);
 
     const reader = new FileReader();
     reader.onload = (ev) => setCropSrc(ev.target.result);
     reader.onerror = () => toast.error("Couldn't read that image");
-    reader.readAsDataURL(selected);
+    reader.readAsDataURL(compressed);
     e.target.value = "";
   };
 

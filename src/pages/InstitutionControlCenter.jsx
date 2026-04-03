@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Loader2, Bell } from "lucide-react";
 import { createPageUrl } from "@/utils";
-import AdminSidebar from "@/components/admin/AdminSidebar";
+import TerritorySidebar from "@/components/admin/TerritorySidebar";
 import AdminDashboardTab from "@/components/admin/AdminDashboardTab";
 import AdminGlowGroupsTab from "@/components/admin/AdminGlowGroupsTab";
 import AdminGlowDropsTab from "@/components/admin/AdminGlowDropsTab";
@@ -120,7 +120,7 @@ export default function InstitutionControlCenter() {
 
   return (
     <div className="bg-[#0B0F1A] text-white flex flex-col md:flex-row" style={{ minHeight: "100vh" }}>
-      <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={false} isRegionalAdmin={!hasApprovedInstitutionAccess || isRegionalAdmin} />
+      <TerritorySidebar activeTab={activeTab} setActiveTab={handleTabChange} titleName={titleName} subTitle="East-Central Africa Division" />
       <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#080C14]">
         <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5 shrink-0 hidden md:block">
           <div className="px-6 py-3 flex items-center justify-between gap-4">
