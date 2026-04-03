@@ -66,16 +66,16 @@ export default function InstitutionControlCenter() {
     checkAuth();
   }, []);
 
-  const isRegionalAdmin = ["ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin"].includes(user?.role);
-  const hasApprovedInstitutionAccess = institutionApps.some(app => app.status === "approved");
-  const territoryApproved = !isRegionalAdmin || user?.territory_status === "approved" || hasApprovedInstitutionAccess;
-  const territoryCountries = user?.territory_countries;
-
   const { data: institutionApps = [] } = useQuery({
     queryKey: ["myApprovedInstitutionsForTerritoryCenter", user?.email],
     queryFn: () => base44.entities.InstitutionApplication.filter({ user_email: user.email, status: "approved" }),
     enabled: !!user,
   });
+
+  const isRegionalAdmin = ["ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin"].includes(user?.role);
+  const hasApprovedInstitutionAccess = institutionApps.some(app => app.status === "approved");
+  const territoryApproved = !isRegionalAdmin || user?.territory_status === "approved" || hasApprovedInstitutionAccess;
+  const territoryCountries = user?.territory_countries;
 
   const titleName = institutionApps[0]?.institution_name || user?.territory_name || user?.full_name || "Territory";
 

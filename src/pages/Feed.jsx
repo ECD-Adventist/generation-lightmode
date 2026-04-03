@@ -74,6 +74,8 @@ export default function Feed() {
           } catch (e) {
             console.error("Failed to fetch user:", e);
           }
+        } else {
+          base44.auth.redirectToLogin(window.location.pathname);
         }
       } catch (err) {
         console.error("Auth check failed:", err);
@@ -353,7 +355,14 @@ export default function Feed() {
     return () => observer.disconnect();
   }, [displayCount, filteredDrops.length]);
 
-  // No blocking loading state — render feed immediately, user loads in background
+  // Show loading while auth is being checked
+  if (!user) {
+    return (
+      <div className="h-[100dvh] bg-[#0B0F1A] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-[100dvh] bg-[#0B0F1A] text-white relative overflow-hidden font-['Inter']">

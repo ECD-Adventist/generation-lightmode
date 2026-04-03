@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight, Home, Bell, User, Video } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight, Home, Bell, User, Video, Loader2 } from "lucide-react";
 import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
@@ -13,11 +13,20 @@ const rankColors = { Champion: "#FFD000", Trendsetter: "#8A5CFF", Warrior: "#1DA
 export default function GlowGroups() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("people"); // "people" | "groups" | "leaders"
+  const [authChecked, setAuthChecked] = useState(false);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    base44.auth.isAuthenticated().then(isAuth => {
+      if (!isAuth) base44.auth.redirectToLogin(window.location.pathname);
+      else setAuthChecked(true);
+    });
+  }, []);
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
     queryFn: () => base44.auth.me(),
+    enabled: authChecked,
   });
 
   const { data: users = [], isError: usersError } = useQuery({
@@ -119,6 +128,10 @@ export default function GlowGroups() {
     { id: "sessions", label: "Sessions", icon: Video },
     { id: "leaders", label: "Light Leaders", icon: Star },
   ];
+
+  if (!authChecked || !user) {
+    return <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
+  }
 
   return (
     <div className="min-h-screen bg-[#0B0F1A] text-white">

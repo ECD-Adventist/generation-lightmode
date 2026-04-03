@@ -21,10 +21,9 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
   const startTimeRef = useRef(null);
   const remainingRef = useRef(STORY_DURATION);
 
-  // Build ordered story list from all active stories (one per user, or all from tapped user first)
+  // Build ordered story list from all active (non-expired) stories
   const storyQueue = React.useMemo(() => {
     if (!story || !allStories.length) return [];
-    // Get all stories grouped by user, starting with the selected user
     const now = Date.now();
     const active = allStories.filter(s => s.expires_at && new Date(s.expires_at).getTime() > now);
     
@@ -89,9 +88,20 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
     }
   }, [currentIndex]);
 
+  // Skip expired stories automatically
+  useEffect(() => {
+    if (!isOpen || !currentStory) return;
+    const now = Date.now();
+    if (currentStory.expires_at && new Date(currentStory.expires_at).getTime() <= now) {
+      goNext();
+    }
+  }, [isOpen, currentStory, currentIndex, goNext]);
+
   // Auto-advance timer
   useEffect(() => {
     if (!isOpen || isPaused || !currentStory) return;
+    // Don't run timer on expired stories (they'll be skipped by the effect above)
+    if (currentStory.expires_at && new Date(currentStory.expires_at).getTime() <= Date.now()) return;
 
     startTimeRef.current = Date.now();
     const duration = remainingRef.current;
