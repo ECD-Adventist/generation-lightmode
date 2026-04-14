@@ -15,6 +15,7 @@ import ProfileInstitutionsTab from "@/components/institution/ProfileInstitutions
 import InstitutionOwnerBadge from "@/components/institution/InstitutionOwnerBadge";
 import ExecutiveProfileHeader from "@/components/institution/ExecutiveProfileHeader";
 import { isNotificationEnabled } from "@/lib/notifications";
+import EditProfileModal from "@/components/profile/EditProfileModal";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -257,41 +258,7 @@ export default function Profile() {
 
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  const handleUpdateProfile = async (e) => {
-      e.preventDefault();
-      if (!editData.full_name.trim()) {
-        toast.error("Full name is required");
-        return;
-      }
-      try {
-        // Update all profile fields via backend function
-        await base44.functions.invoke('updateProfile', editData);
 
-        // Brief delay to allow backend to persist
-        await new Promise(resolve => setTimeout(resolve, 300));
-
-        // Refresh user data from server
-        const updated = await base44.auth.me();
-        setUser(prev => ({ ...prev, ...updated }));
-        setCurrentUser(prev => ({ ...prev, ...updated }));
-        setEditData(prev => ({ ...prev, ...updated }));
-        setIsEditing(false);
-        toast.success("Profile updated successfully!");
-
-        // Notify territory admins if location changed
-        if (editData.city || editData.country) {
-          base44.functions.invoke("notifyTerritoryAdmins", {
-            event_type: "location_updated",
-            user_email: updated.email,
-            user_country: editData.country,
-            user_city: editData.city,
-          }).catch(() => {});
-        }
-      } catch (err) {
-        console.error("Profile update error:", err);
-        toast.error(err.message || "Failed to update profile. Check your input and try again.");
-      }
-    };
 
   const [cropData, setCropData] = useState(null);
 
@@ -594,118 +561,23 @@ export default function Profile() {
         )}
 
         {isEditing && isOwnProfile && (
-          <div className="bg-[#121826]/80 backdrop-blur-xl p-8 rounded-2xl border border-white/10 mb-12 animate-in fade-in slide-in-from-top-4 shadow-2xl mx-4">
-            <h3 className="text-xl font-bold mb-6 font-['Space_Grotesk'] text-[#00CFFF]">Edit Your Details</h3>
-            <form onSubmit={handleUpdateProfile} className="space-y-5">
-              <div>
-                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Full Name</Label>
-                <Input required value={editData.full_name} onChange={e => setEditData({...editData, full_name: e.target.value})} className="bg-[#0B0F1A] border-white/10 h-12 text-lg rounded-xl" />
-              </div>
-              <div>
-                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Country</Label>
-                <Input value={editData.country} onChange={e => setEditData({...editData, country: e.target.value})} className="bg-[#0B0F1A] border-white/10 h-12 text-lg rounded-xl" />
-              </div>
-              <div>
-                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Street Address <span className="text-red-400">*</span></Label>
-                <Input value={editData.address} onChange={e => setEditData({...editData, address: e.target.value})} placeholder="e.g. 12 Church Road" className="bg-[#0B0F1A] border-white/10 h-12 text-lg rounded-xl" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">City / Town <span className="text-red-400">*</span></Label>
-                  <Input value={editData.city} onChange={e => setEditData({...editData, city: e.target.value})} placeholder="e.g. Nairobi" className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl" />
-                </div>
-                <div>
-                  <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Postal Code <span className="text-red-400">*</span></Label>
-                  <Input value={editData.postal_code} onChange={e => setEditData({...editData, postal_code: e.target.value})} placeholder="e.g. 00100" maxLength={10} className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl" />
-                </div>
-              </div>
-              <div>
-                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Bio</Label>
-                <textarea
-                  value={editData.bio}
-                  onChange={e => setEditData({...editData, bio: e.target.value})}
-                  maxLength={150}
-                  placeholder="Tell people about yourself..."
-                  className="w-full bg-[#0B0F1A] border border-white/10 rounded-xl px-3 py-3 text-white text-base resize-none min-h-[80px] focus:outline-none focus:ring-1 focus:ring-[#00CFFF]/50"
-                />
-                <span className="text-[10px] text-gray-500 ml-1">{editData.bio?.length || 0}/150</span>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Gender</Label>
-                  <select
-                    value={editData.gender}
-                    onChange={e => setEditData({...editData, gender: e.target.value})}
-                    className="w-full bg-[#0B0F1A] border border-white/10 rounded-xl px-3 h-12 text-white text-base focus:outline-none focus:ring-1 focus:ring-[#00CFFF]/50"
-                  >
-                    <option value="">Select gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="prefer_not_to_say">Prefer not to say</option>
-                  </select>
-                </div>
-                <div>
-                  <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Date of Birth</Label>
-                  <div className="relative">
-                    <Input
-                      type="date"
-                      value={editData.date_of_birth}
-                      onChange={e => setEditData({...editData, date_of_birth: e.target.value})}
-                      className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl pr-12 [color-scheme:dark]"
-                    />
-                    <Calendar className="w-4 h-4 text-[#00CFFF] absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  </div>
-                </div>
-              </div>
-              <div>
-                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Phone Number</Label>
-                <Input
-                  type="tel"
-                  value={editData.phone}
-                  onChange={e => setEditData({...editData, phone: e.target.value})}
-                  placeholder="+1 234 567 8900"
-                  className="bg-[#0B0F1A] border-white/10 h-12 text-lg rounded-xl"
-                />
-              </div>
-              <div>
-                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Website / Link</Label>
-                <Input
-                  value={editData.website_url}
-                  onChange={e => setEditData({...editData, website_url: e.target.value})}
-                  placeholder="https://your-link.com"
-                  className="bg-[#0B0F1A] border-white/10 h-12 text-lg rounded-xl"
-                />
-              </div>
-              <div>
-                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Profile Picture</Label>
-                <Input type="file" accept="image/*" onChange={e => handleImageSelect(e, "profile")} disabled={uploadingImage} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
-                {editData.profile_picture_url && (
-                  <div className="flex items-center gap-4 mt-2">
-                    <img src={editData.profile_picture_url} alt="Profile preview" className="w-16 h-16 rounded-full object-cover border border-white/10" />
-                    <Button type="button" variant="ghost" onClick={() => setEditData({...editData, profile_picture_url: ""})} className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 px-3 text-xs">
-                      <Trash2 className="w-3.5 h-3.5 mr-1" /> Remove
-                    </Button>
-                  </div>
-                )}
-              </div>
-              <div>
-                <Label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block ml-1">Cover Photo</Label>
-                <Input type="file" accept="image/*" onChange={e => handleImageSelect(e, "cover")} disabled={uploadingImage} className="bg-[#0B0F1A] border-dashed border-2 border-white/10 text-gray-400 text-sm h-auto px-3 py-3 rounded-xl file:bg-[#121826] file:text-[#00CFFF] file:border file:border-[#00CFFF]/30 file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold hover:file:bg-[#00CFFF]/10 file:cursor-pointer cursor-pointer hover:border-[#00CFFF]/30" />
-                {editData.cover_picture_url && (
-                  <div className="flex items-start gap-4 mt-2">
-                    <img src={editData.cover_picture_url} alt="Cover preview" className="w-full max-w-[200px] h-24 rounded-xl object-cover border border-white/10" />
-                    <Button type="button" variant="ghost" onClick={() => setEditData({...editData, cover_picture_url: ""})} className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 px-3 text-xs mt-1">
-                      <Trash2 className="w-3.5 h-3.5 mr-1" /> Remove
-                    </Button>
-                  </div>
-                )}
-              </div>
-              <div className="flex justify-end gap-3 pt-4">
-                <Button type="button" variant="ghost" onClick={() => setIsEditing(false)} className="h-12 px-6">Cancel</Button>
-                <Button type="submit" className="bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-[#0B0F1A] font-bold h-12 px-8 rounded-xl shadow-[0_0_20px_rgba(0,207,255,0.3)]">Save Profile</Button>
-              </div>
-            </form>
-          </div>
+          <EditProfileModal
+            isOpen={isEditing}
+            onClose={() => setIsEditing(false)}
+            user={user}
+            onSaved={(updated) => {
+              setUser(prev => ({ ...prev, ...updated }));
+              setCurrentUser(prev => ({ ...prev, ...updated }));
+              if (editData.city || editData.country) {
+                base44.functions.invoke("notifyTerritoryAdmins", {
+                  event_type: "location_updated",
+                  user_email: updated.email,
+                  user_country: updated.country,
+                  user_city: updated.city,
+                }).catch(() => {});
+              }
+            }}
+          />
         )}
 
         {/* Tabs */}
