@@ -12,7 +12,25 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const {
+        // Explicitly whitelist ONLY allowed fields — never spread raw body
+        const full_name = (body.full_name || '').trim();
+        const country = (body.country || '').trim();
+        const bio = (body.bio || '').slice(0, 150).trim();
+        const website_url = (body.website_url || '').trim();
+        const profile_picture_url = (body.profile_picture_url || '').trim();
+        const cover_picture_url = (body.cover_picture_url || '').trim();
+        const gender = (body.gender || '').trim();
+        const date_of_birth = (body.date_of_birth || '').trim();
+        const phone = (body.phone || '').trim();
+        const city = (body.city || '').trim();
+        const address = (body.address || '').trim();
+        const postal_code = (body.postal_code || '').trim();
+
+        if (!full_name) {
+            return Response.json({ error: 'Full name is required' }, { status: 400 });
+        }
+
+        const updateData = {
             full_name,
             country,
             bio,
@@ -24,29 +42,10 @@ Deno.serve(async (req) => {
             phone,
             city,
             address,
-            postal_code
-        } = body;
-
-        if (!full_name || !full_name.trim()) {
-            return Response.json({ error: 'Full name is required' }, { status: 400 });
-        }
-
-        const updateData = {
-            full_name: full_name.trim(),
-            country: country || '',
-            bio: bio || '',
-            website_url: website_url || '',
-            profile_picture_url: profile_picture_url || '',
-            cover_picture_url: cover_picture_url || '',
-            gender: gender || '',
-            date_of_birth: date_of_birth || '',
-            phone: phone || '',
-            city: city || '',
-            address: address || '',
-            postal_code: postal_code || ''
+            postal_code,
         };
 
-        // Use updateMe for built-in fields (full_name) + custom fields
+        // Use updateMe — correctly updates built-in fields (full_name) and custom fields
         await base44.auth.updateMe(updateData);
 
         return Response.json({ success: true, data: updateData });

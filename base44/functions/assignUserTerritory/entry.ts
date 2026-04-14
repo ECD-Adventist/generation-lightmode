@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
@@ -15,6 +15,26 @@ Deno.serve(async (req) => {
 
   if (!userId) return Response.json({ error: "userId required" }, { status: 400 });
 
+  // Prevent self-escalation
+  if (userId === user.id) {
+    return Response.json({ error: "Cannot modify your own territory assignment" }, { status: 403 });
+  }
+
+  // Non-super admins can only set territory_status to "approved" or "rejected" —
+  // they cannot change territory_level to a level higher than their own
+  const levelHierarchy = ["church", "conference_field", "union", "country", "ecd", "global"];
+  const callerLevel = user.territory_level || "church";
+  const callerLevelIdx = levelHierarchy.indexOf(callerLevel);
+
+  if (territory_level) {
+    const targetLevelIdx = levelHierarchy.indexOf(territory_level);
+    // Only super_admin/admin can assign levels equal to or above their own
+    if (!["admin", "super_admin"].includes(user.role) && targetLevelIdx >= callerLevelIdx) {
+      return Response.json({ error: "Cannot assign a territory level equal to or above your own" }, { status: 403 });
+    }
+  }
+
+  // Only super_admin and admin can change roles or assign high-level territories
   const updates = {};
   if (status) updates.territory_status = status;
   if (territory_name !== undefined) updates.territory_name = territory_name;

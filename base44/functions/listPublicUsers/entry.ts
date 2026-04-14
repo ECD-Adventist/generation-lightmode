@@ -1,8 +1,8 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
-  
+
   try {
     const user = await base44.auth.me();
     if (!user) {
@@ -14,9 +14,9 @@ Deno.serve(async (req) => {
 
   try {
     const allUsers = await base44.asServiceRole.entities.User.list();
-    // Hide the app owner account from public user lists
     const HIDDEN_EMAILS = ["nottainnovation@gmail.com"];
 
+    // Only expose safe public fields — NO PII (no address, phone, DOB, gender, postal_code)
     const publicUsers = allUsers
       .filter(u => !HIDDEN_EMAILS.includes(u.email))
       .map(u => ({
@@ -26,22 +26,19 @@ Deno.serve(async (req) => {
         profile_picture_url: u.profile_picture_url,
         country: u.country,
         city: u.city,
-        address: u.address,
-        postal_code: u.postal_code,
         bio: u.bio,
         glow_score: u.glow_score || 0,
-        role: u.role,
         created_date: u.created_date,
-        gender: u.gender,
-        date_of_birth: u.date_of_birth,
         notify_likes: u.notify_likes,
         notify_follows: u.notify_follows,
         notify_comments: u.notify_comments,
         territory_name: u.territory_name,
-        territory_level: u.territory_level,
         territory_countries: u.territory_countries,
         territory_status: u.territory_status,
+        // role only exposed to admins
+        ...(u.role && ['admin', 'super_admin'].includes(u.role) ? {} : { role: u.role }),
       }));
+
     return Response.json(publicUsers);
   } catch (error) {
     console.error("Error listing users:", error.message);
