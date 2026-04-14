@@ -13,7 +13,20 @@ Deno.serve(async (req) => {
     const body = await req.json();
 
     // Whitelist only allowed fields
-    const { verse, reflection, hashtags, category, media_url } = body;
+    const { verse, reflection, hashtags, category, media_url: rawMediaUrl } = body;
+
+    // Validate media_url — only allow known CDN domains
+    const ALLOWED_CDN_HOSTS = ["media.base44.com", "images.unsplash.com", "res.cloudinary.com"];
+    let media_url = null;
+    if (rawMediaUrl) {
+      try {
+        const parsed = new URL(rawMediaUrl);
+        if (ALLOWED_CDN_HOSTS.some(host => parsed.hostname === host || parsed.hostname.endsWith("." + host))) {
+          media_url = rawMediaUrl;
+        }
+        // Silently drop disallowed URLs — don't expose error to attacker
+      } catch { /* invalid URL — ignore */ }
+    }
 
     // Server-side rate limit: max 10 posts per 24 hours
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();

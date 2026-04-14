@@ -16,7 +16,17 @@ Deno.serve(async (req) => {
         const full_name = (body.full_name || '').trim();
         const country = (body.country || '').trim();
         const bio = (body.bio || '').slice(0, 150).trim();
-        const website_url = (body.website_url || '').trim();
+        // Validate website_url — must be a real http(s) URL, not javascript: or data: etc.
+        const rawWebsiteUrl = (body.website_url || '').trim();
+        let website_url = '';
+        if (rawWebsiteUrl) {
+          try {
+            const parsed = new URL(rawWebsiteUrl.startsWith('http') ? rawWebsiteUrl : 'https://' + rawWebsiteUrl);
+            if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+              website_url = parsed.href;
+            }
+          } catch { /* invalid URL — clear it */ }
+        }
         const profile_picture_url = (body.profile_picture_url || '').trim();
         const cover_picture_url = (body.cover_picture_url || '').trim();
         const gender = (body.gender || '').trim();

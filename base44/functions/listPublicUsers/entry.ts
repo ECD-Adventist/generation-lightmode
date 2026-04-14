@@ -17,6 +17,8 @@ Deno.serve(async (req) => {
     const HIDDEN_EMAILS = ["nottainnovation@gmail.com"];
 
     // Only expose safe public fields — NO PII (no address, phone, DOB, gender, postal_code)
+    // Admin roles are hidden from public — only non-privileged roles are exposed
+    const ADMIN_ROLES = ['admin', 'super_admin', 'ecd_admin', 'country_admin', 'union_admin', 'conference_field_admin', 'church_admin', 'moderator'];
     const publicUsers = allUsers
       .filter(u => !HIDDEN_EMAILS.includes(u.email))
       .map(u => ({
@@ -35,8 +37,8 @@ Deno.serve(async (req) => {
         territory_name: u.territory_name,
         territory_countries: u.territory_countries,
         territory_status: u.territory_status,
-        // role only exposed to admins
-        ...(u.role && ['admin', 'super_admin'].includes(u.role) ? {} : { role: u.role }),
+        // Hide privileged roles from public — show only safe non-admin roles
+        role: ADMIN_ROLES.includes(u.role) ? undefined : (u.role || 'user'),
       }));
 
     return Response.json(publicUsers);

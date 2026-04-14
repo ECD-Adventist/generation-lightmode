@@ -3,7 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import {
   Search, Edit2, Trash2, Shield, Loader2, Calendar, Users, Activity,
-  Filter, MapPin, Zap, AlertCircle, Mail, X, Check, User, Clock, Map
+  Filter, MapPin, Zap, AlertCircle, Mail, X, Check, User, Clock, Map,
+  CheckSquare, Square, RefreshCw
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -108,11 +109,15 @@ export default function AdminUsersTab({ user }) {
   const [filterRole, setFilterRole] = useState("all");
   const [filterGender, setFilterGender] = useState("all");
   const [filterCountry, setFilterCountry] = useState("all");
+  const [filterTerritoryStatus, setFilterTerritoryStatus] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
   const [filterIncomplete, setFilterIncomplete] = useState(false);
   const [sendingReminders, setSendingReminders] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [deletingUser, setDeletingUser] = useState(null);
+  const [selectedUsers, setSelectedUsers] = useState(new Set());
+  const [bulkStatus, setBulkStatus] = useState("approved");
+  const [bulkUpdating, setBulkUpdating] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: users = [], isLoading } = useQuery({
@@ -190,9 +195,11 @@ export default function AdminUsersTab({ user }) {
         else if (timeFilter === "1year") matchesTime = diffHours <= 24 * 365;
       }
 
-      return matchesSearch && matchesRole && matchesGender && matchesCountry && matchesTime && matchesIncomplete;
+      const matchesTerritoryStatus = filterTerritoryStatus === "all" || (u.territory_status || "none") === filterTerritoryStatus;
+
+      return matchesSearch && matchesRole && matchesGender && matchesCountry && matchesTime && matchesIncomplete && matchesTerritoryStatus;
     }).sort((a, b) => new Date(b.created_date || 0) - new Date(a.created_date || 0));
-  }, [users, search, filterRole, filterGender, filterCountry, timeFilter, filterIncomplete]);
+  }, [users, search, filterRole, filterGender, filterCountry, timeFilter, filterIncomplete, filterTerritoryStatus]);
 
   const handleSendReminders = async () => {
     setSendingReminders(true);
@@ -208,14 +215,50 @@ export default function AdminUsersTab({ user }) {
 
   const handleSaveRole = async (email, newRole) => {
     try {
-      const allUsers = await base44.entities.User.filter({ email });
-      if (allUsers.length > 0) {
-        await base44.entities.User.update(allUsers[0].id, { role: newRole });
+      const targetUsers = await base44.entities.User.filter({ email });
+      if (targetUsers.length > 0) {
+        await base44.functions.invoke("adminUpdateUserRole", { targetUserId: targetUsers[0].id, newRole });
         toast.success(`Role updated to "${newRole}"`);
         queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
       }
-    } catch {
-      toast.error("Failed to update role.");
+    } catch (err) {
+      toast.error(err?.response?.data?.error || "Failed to update role.");
+    }
+  };
+
+  const handleBulkStatusUpdate = async () => {
+    if (selectedUsers.size === 0) return;
+    setBulkUpdating(true);
+    let success = 0;
+    for (const email of selectedUsers) {
+      try {
+        const targetUsers = await base44.entities.User.filter({ email });
+        if (targetUsers.length > 0) {
+          await base44.functions.invoke("assignUserTerritory", { userId: targetUsers[0].id, status: bulkStatus });
+          success++;
+        }
+      } catch { /* continue on individual failure */ }
+    }
+    toast.success(`Updated territory status for ${success} user(s) to "${bulkStatus}"`);
+    setSelectedUsers(new Set());
+    setBulkUpdating(false);
+    queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
+  };
+
+  const toggleSelectUser = (email) => {
+    setSelectedUsers(prev => {
+      const next = new Set(prev);
+      if (next.has(email)) next.delete(email);
+      else next.add(email);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUsers.size === filteredUsers.length) {
+      setSelectedUsers(new Set());
+    } else {
+      setSelectedUsers(new Set(filteredUsers.map(u => u.email)));
     }
   };
 
@@ -346,6 +389,17 @@ export default function AdminUsersTab({ user }) {
             </select>
           </div>
 
+          <div className="flex items-center gap-2 bg-[#0B0F1A] border border-white/10 rounded-lg px-3 py-2">
+            <Map size={14} className="text-gray-500" />
+            <select className="bg-transparent text-sm text-gray-300 focus:outline-none" value={filterTerritoryStatus} onChange={e => setFilterTerritoryStatus(e.target.value)}>
+              <option value="all">All Territory Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="none">Not Set</option>
+            </select>
+          </div>
+
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
             <Input
@@ -353,12 +407,50 @@ export default function AdminUsersTab({ user }) {
               placeholder="Search name, email, country..."
               className="pl-9 bg-[#0B0F1A] border-white/10 rounded-lg text-sm w-full"
             />
+            {search && (
+              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition">
+                <X size={14} />
+              </button>
+            )}
           </div>
         </div>
 
-        <p className="text-xs text-gray-500">
-          Showing <span className="text-white font-bold">{filteredUsers.length}</span> of {users.length} users
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-gray-500">
+            Showing <span className="text-white font-bold">{filteredUsers.length}</span> of {users.length} users
+            {selectedUsers.size > 0 && <span className="ml-2 text-[#00CFFF] font-bold">· {selectedUsers.size} selected</span>}
+          </p>
+
+          {/* Bulk Territory Status Update */}
+          {selectedUsers.size > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400 font-semibold">Bulk set territory status:</span>
+              <select
+                value={bulkStatus}
+                onChange={e => setBulkStatus(e.target.value)}
+                className="bg-[#0B0F1A] border border-white/10 rounded-lg px-3 py-1.5 text-sm text-gray-300 focus:outline-none"
+              >
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <button
+                onClick={handleBulkStatusUpdate}
+                disabled={bulkUpdating}
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#00CFFF] text-black text-xs font-bold hover:bg-[#00CFFF]/80 transition disabled:opacity-50"
+              >
+                {bulkUpdating ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+                Apply to {selectedUsers.size} user(s)
+              </button>
+              <button
+                onClick={() => setSelectedUsers(new Set())}
+                className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-gray-400 hover:text-white transition"
+              >
+                Clear
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Table */}
@@ -367,6 +459,13 @@ export default function AdminUsersTab({ user }) {
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
               <tr className="border-b border-white/5 bg-white/[0.02]">
+                <th className="p-4">
+                  <button onClick={toggleSelectAll} className="text-gray-500 hover:text-white transition">
+                    {selectedUsers.size === filteredUsers.length && filteredUsers.length > 0
+                      ? <CheckSquare size={16} className="text-[#00CFFF]" />
+                      : <Square size={16} />}
+                  </button>
+                </th>
                 <th className="p-4 font-semibold text-gray-400 text-xs uppercase tracking-wider">User</th>
                 <th className="p-4 font-semibold text-gray-400 text-xs uppercase tracking-wider">Country</th>
                 <th className="p-4 font-semibold text-gray-400 text-xs uppercase tracking-wider">Gender</th>
@@ -382,13 +481,19 @@ export default function AdminUsersTab({ user }) {
               {isLoading ? (
                 <tr><td colSpan="9" className="p-8 text-center"><Loader2 className="w-6 h-6 text-[#00CFFF] animate-spin mx-auto" /></td></tr>
               ) : filteredUsers.length === 0 ? (
-                <tr><td colSpan="9" className="p-8 text-center text-gray-500">No users match your filters.</td></tr>
+                <tr><td colSpan="10" className="p-8 text-center text-gray-500">No users match your filters.</td></tr>
               ) : (
                 filteredUsers.map(u => {
                   const age = calcAge(u.date_of_birth);
                   const isNew = u.created_date && ((new Date() - new Date(u.created_date)) / (1000 * 60 * 60)) <= 24;
+                  const isSelected = selectedUsers.has(u.email);
                   return (
-                    <tr key={u.email} className="border-b border-white/5 hover:bg-white/[0.02] transition">
+                    <tr key={u.email} className={`border-b border-white/5 hover:bg-white/[0.02] transition ${isSelected ? "bg-[#00CFFF]/5" : ""}`}>
+                      <td className="p-4">
+                        <button onClick={() => toggleSelectUser(u.email)} className="text-gray-500 hover:text-white transition">
+                          {isSelected ? <CheckSquare size={16} className="text-[#00CFFF]" /> : <Square size={16} />}
+                        </button>
+                      </td>
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="relative">
@@ -421,8 +526,15 @@ export default function AdminUsersTab({ user }) {
                       <td className="p-4 text-sm text-gray-400">
                         {u.territory_name ? (
                           <div className="flex flex-col gap-1">
-                            <span className="flex items-center gap-1"><Map size={12} className="text-[#00CFFF]" />{u.territory_name}</span>
-                            <span className="text-[10px] uppercase tracking-wider text-gray-500">{u.territory_status || "not submitted"}</span>
+                            <span className="flex items-center gap-1 text-xs"><Map size={12} className="text-[#00CFFF]" />{u.territory_name}</span>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider w-fit ${
+                              u.territory_status === "approved" ? "bg-green-500/20 text-green-400 border border-green-500/30" :
+                              u.territory_status === "pending" ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30" :
+                              u.territory_status === "rejected" ? "bg-red-500/20 text-red-400 border border-red-500/30" :
+                              "bg-white/5 text-gray-500 border border-white/10"
+                            }`}>
+                              {u.territory_status || "not set"}
+                            </span>
                           </div>
                         ) : (
                           <span className="text-gray-600 text-xs">Not set</span>

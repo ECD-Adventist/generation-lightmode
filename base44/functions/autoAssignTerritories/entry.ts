@@ -6,9 +6,10 @@ Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
   const user = await base44.auth.me();
 
-  const ADMIN_ROLES = ["admin", "super_admin", "ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin"];
+  // Only super_admin and admin can run bulk territory assignment — church_admin scope is too destructive
+  const ADMIN_ROLES = ["admin", "super_admin"];
   if (!user || !ADMIN_ROLES.includes(user.role)) {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
+    return Response.json({ error: "Forbidden: only super_admin or admin can run bulk territory assignment" }, { status: 403 });
   }
 
   const allUsers = await base44.asServiceRole.entities.User.list();
