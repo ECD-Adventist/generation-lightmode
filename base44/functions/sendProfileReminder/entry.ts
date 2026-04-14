@@ -48,8 +48,10 @@ Generation LightMode Team`.trim()
     }
 
     // Also notify admin
-    await base44.asServiceRole.integrations.Core.SendEmail({
-      to: "wayogai@ecd.adventist.org",
+    const adminEmail = Deno.env.get('PROFILE_REMINDER_ADMIN_EMAIL');
+    if (adminEmail) {
+      await base44.asServiceRole.integrations.Core.SendEmail({
+        to: adminEmail,
       from_name: "Generation LightMode",
       subject: `Profile Completion Reminders Sent — ${sent} users notified`,
       body: `
@@ -64,7 +66,8 @@ Total members with incomplete profiles: ${sent}
 
 — Generation LightMode System
       `.trim()
-    });
+      });
+    }
 
     return Response.json({ success: true, sent });
   } catch (error) {

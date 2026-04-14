@@ -14,7 +14,10 @@ Deno.serve(async (req) => {
 
   try {
     const allUsers = await base44.asServiceRole.entities.User.list();
-    const HIDDEN_EMAILS = ["nottainnovation@gmail.com"];
+    const HIDDEN_EMAILS = (Deno.env.get('PUBLIC_USER_HIDDEN_EMAILS') || '')
+      .split(',')
+      .map(email => email.trim())
+      .filter(Boolean);
 
     // Only expose safe public fields — NO PII (no address, phone, DOB, gender, postal_code)
     // Admin roles are hidden from public — only non-privileged roles are exposed
