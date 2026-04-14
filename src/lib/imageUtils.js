@@ -5,7 +5,7 @@
  */
 export function compressImageUnder2MB(file) {
   return new Promise((resolve) => {
-    const MAX_BYTES = 2 * 1024 * 1024;
+    const MAX_BYTES = 10 * 1024 * 1024;
     if (file.size <= MAX_BYTES) { resolve(file); return; }
 
     const img = new window.Image();

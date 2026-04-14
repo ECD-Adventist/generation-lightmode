@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
     try {
@@ -12,7 +12,6 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Extract all profile fields
         const {
             full_name,
             country,
@@ -32,7 +31,6 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Full name is required' }, { status: 400 });
         }
 
-        // Prepare update data for all editable fields
         const updateData = {
             full_name: full_name.trim(),
             country: country || '',
@@ -48,8 +46,8 @@ Deno.serve(async (req) => {
             postal_code: postal_code || ''
         };
 
-        // Update user with all profile data
-        await base44.asServiceRole.entities.User.update(user.id, updateData);
+        // Use updateMe for built-in fields (full_name) + custom fields
+        await base44.auth.updateMe(updateData);
 
         return Response.json({ success: true, data: updateData });
     } catch (error) {
