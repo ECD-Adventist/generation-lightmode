@@ -8,7 +8,7 @@ export default function useGlowDropsFeed() {
 
   return useQuery({
     queryKey: glowDropsFeedQueryKey,
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 50),
+    queryFn: () => base44.entities.GlowDrop.list("-created_date", 200),
     staleTime: 1000 * 60 * 3,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,

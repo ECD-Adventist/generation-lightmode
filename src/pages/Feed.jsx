@@ -663,7 +663,7 @@ export default function Feed() {
                 />
               ))}
               <div ref={feedEndRef} className="py-6 text-center text-gray-500 text-sm">
-                {displayCount < filteredDrops.length ? "Loading more..." : filteredDrops.length === 0 ? "" : "No more posts"}
+                {displayCount < filteredDrops.length ? "Loading more..." : filteredDrops.length === 0 ? "" : `Showing ${filteredDrops.length} posts`}
               </div>
             </>
           )}
