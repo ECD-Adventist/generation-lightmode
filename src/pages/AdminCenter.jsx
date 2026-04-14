@@ -28,6 +28,7 @@ import AdminChartsTab from "../components/admin/AdminChartsTab";
 import AdminTerritoryChallengesTab from "../components/admin/AdminTerritoryChallengesTab";
 import AdminCommentsTab from "../components/admin/AdminCommentsTab";
 import AdminInstitutionTab from "../components/admin/AdminInstitutionTab";
+import AdminGrowthAnalyticsTab from "../components/admin/AdminGrowthAnalyticsTab";
 
 export default function AdminCenter() {
   const [user, setUser] = useState(null);
@@ -168,6 +169,7 @@ export default function AdminCenter() {
       case "media": return <AdminMediaTab />;
       case "badges": return <AdminBadgesTab />;
       case "analytics": return <AdminAnalyticsTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "growth-analytics": return <AdminGrowthAnalyticsTab territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} />;
       case "notifications": return <AdminNotificationsTab />;
       case "announcements": return <AdminAnnouncementsTab />;
       case "assistant-training": return <AdminAssistantTrainingTab />;

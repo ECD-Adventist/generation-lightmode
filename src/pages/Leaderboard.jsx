@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Trophy, TrendingUp, MapPin, Zap, Home, Bell, User, Globe, ArrowUp, Flame, ArrowLeft, Heart } from "lucide-react";
+import GlobalGlowLeaderboard from "@/components/leaderboard/GlobalGlowLeaderboard";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { useNavigate } from "react-router-dom";
@@ -232,6 +233,11 @@ export default function Leaderboard() {
               );
             })
           )}
+        </div>
+
+        {/* Global Glow Leaderboard */}
+        <div className="mt-12 mb-10">
+          <GlobalGlowLeaderboard currentUser={user} />
         </div>
 
         {/* Stats Footer */}

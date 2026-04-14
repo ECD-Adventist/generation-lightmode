@@ -1,10 +1,14 @@
 import React, { useState } from "react";
-import { Heart, MessageCircle } from "lucide-react";
+import { Heart, MessageCircle, Lock } from "lucide-react";
+import PrayerRoomModal from "./PrayerRoomModal";
 
-export default function PrayerRequestCard({ request, requesterName, supportCount, hasPrayed, comments, onPray, onComment }) {
+export default function PrayerRequestCard({ request, requesterName, supportCount, hasPrayed, comments, onPray, onComment, currentUser }) {
   const [draft, setDraft] = useState("");
   const [anonymousComment, setAnonymousComment] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [prayerRoomOpen, setPrayerRoomOpen] = useState(false);
+
+  const canOpenPrayerRoom = currentUser && !request.is_anonymous && request.user_email && request.user_email !== currentUser.email && hasPrayed;
 
   return (
     <div className="bg-[#121826] border border-white/10 rounded-3xl p-5">
@@ -26,7 +30,26 @@ export default function PrayerRequestCard({ request, requesterName, supportCount
         <button onClick={() => setShowComments((value) => !value)} className="flex items-center gap-1 text-sm text-gray-400 hover:text-white transition">
           <MessageCircle className="w-4 h-4" /> {comments.length} comments
         </button>
+        {canOpenPrayerRoom && (
+          <button
+            onClick={() => setPrayerRoomOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-[#8A5CFF]/20 border border-[#8A5CFF]/30 text-[#8A5CFF] hover:bg-[#8A5CFF]/30 transition"
+          >
+            <Lock className="w-3 h-3" /> Open Prayer Room
+          </button>
+        )}
       </div>
+
+      {prayerRoomOpen && (
+        <PrayerRoomModal
+          isOpen={prayerRoomOpen}
+          onClose={() => setPrayerRoomOpen(false)}
+          currentUser={currentUser}
+          partnerEmail={request.user_email}
+          partnerName={requesterName}
+          prayerRequest={request.content}
+        />
+      )}
 
       {showComments && (
         <div className="space-y-3 border-t border-white/5 pt-4">

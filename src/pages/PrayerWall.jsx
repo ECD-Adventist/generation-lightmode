@@ -179,6 +179,7 @@ export default function PrayerWall() {
                 comments={requestComments}
                 onPray={() => prayMutation.mutate(request.id)}
                 onComment={(commentContent, anonymous) => commentMutation.mutate({ requestId: request.id, commentContent, anonymous })}
+                currentUser={user}
               />
             );
           })}
