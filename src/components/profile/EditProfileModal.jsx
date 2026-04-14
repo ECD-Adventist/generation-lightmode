@@ -92,8 +92,8 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
       await new Promise(r => setTimeout(r, 200));
       const updated = await base44.auth.me();
 
-      // Merge saved fields back — auth.me() may not return all custom fields
-      const merged = { ...updated, ...editData, ...updated };
+      // Prefer the just-saved values so the profile reflects them immediately
+      const merged = { ...updated, ...editData, full_name: editData.full_name.trim() };
       toast.success("Profile saved! ✨");
       onSaved(merged);
       onClose();
