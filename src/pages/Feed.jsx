@@ -62,6 +62,7 @@ export default function Feed() {
   const [displayCount, setDisplayCount] = useState(10);
   const queryClient = useQueryClient();
   const feedEndRef = useRef(null);
+  const feedScrollRef = useRef(null);
 
   useEffect(() => {
     async function checkAuth() {
@@ -340,18 +341,22 @@ export default function Feed() {
       .map(([tag, count]) => ({ tag, count }));
   }, [drops]);
 
-  // Infinite scroll observer
+  // Infinite scroll observer — uses the scrollable feed container as root
   useEffect(() => {
+    const sentinel = feedEndRef.current;
+    const scrollRoot = feedScrollRef.current;
+    if (!sentinel || !scrollRoot) return;
+
     const observer = new IntersectionObserver(
       entries => {
         if (entries[0].isIntersecting && displayCount < filteredDrops.length) {
           setDisplayCount(prev => prev + 10);
         }
       },
-      { threshold: 0.1 }
+      { root: scrollRoot, threshold: 0.1 }
     );
     
-    if (feedEndRef.current) observer.observe(feedEndRef.current);
+    observer.observe(sentinel);
     return () => observer.disconnect();
   }, [displayCount, filteredDrops.length]);
 
@@ -480,7 +485,7 @@ export default function Feed() {
         </div>
 
         {/* Center Feed */}
-        <div className="lg:col-span-2 sm:border-x border-white/10 h-[100dvh] lg:border-none flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8">
+        <div ref={feedScrollRef} className="lg:col-span-2 sm:border-x border-white/10 h-[100dvh] lg:border-none flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8">
           
           {/* Top Header Mobile */}
           <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A]/80 backdrop-blur-xl border-b border-white/10 lg:hidden">
