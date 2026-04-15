@@ -3,11 +3,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
-        const user = await base44.auth.me();
 
-        if (user?.role !== 'admin') {
-            return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-        }
+        // This is a scheduled automation — no authenticated user context exists.
+        // All operations use asServiceRole to bypass user-level RLS.
 
         const allCodes = await base44.asServiceRole.entities.CodeOfTruth.filter({ status: "approved", source_document: "codes_of_truth" });
         if (allCodes.length === 0) {
