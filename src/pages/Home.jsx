@@ -188,8 +188,8 @@ export default function Home() {
         }} />
         {/* Background image */}
         <img
-          src="https://images.unsplash.com/photo-1504052434569-70ad5836ab65?q=80&w=2070&auto=format&fit=crop"
-          alt="Dark room"
+          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png"
+          alt="Generation LightMode Youth"
           loading="eager"
           decoding="async"
           style={{
