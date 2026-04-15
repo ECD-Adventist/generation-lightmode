@@ -30,7 +30,7 @@ const galleryImages1 = [
 
 const galleryImages2 = [
   "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=2049&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1498837167922-41c53b4485a0?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=2070&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2070&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1506869640319-ce1a5e18ef4b?q=80&w=2070&auto=format&fit=crop",
@@ -147,45 +147,12 @@ export default function Home() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-end",
         textAlign: "center",
         position: "relative",
         overflow: "hidden",
+        paddingBottom: "clamp(60px, 10vw, 120px)",
       }}>
-        <style>
-          {`
-            @keyframes image-glow {
-              0%, 100% { filter: brightness(1) contrast(1.1); opacity: 0.35; }
-              50% { filter: brightness(1.3) contrast(1.2); opacity: 0.55; }
-            }
-            @keyframes rotate-beam {
-              0%   { transform: translate(-50%, -50%) rotate(0deg); }
-              100% { transform: translate(-50%, -50%) rotate(360deg); }
-            }
-            @keyframes rotate-beam-reverse {
-              0%   { transform: translate(-50%, -50%) rotate(0deg); }
-              100% { transform: translate(-50%, -50%) rotate(-360deg); }
-            }
-          `}
-        </style>
-
-        {/* Rotating glow beams */}
-        <div style={{
-          position: "absolute", top: "50%", left: "50%",
-          width: "200%", height: "200%",
-          transform: "translate(-50%, -50%) rotate(0deg)",
-          animation: "rotate-beam 8s linear infinite",
-          pointerEvents: "none", zIndex: 1,
-          background: "conic-gradient(from 0deg, transparent 0deg, rgba(0,207,255,0.07) 20deg, transparent 40deg, transparent 180deg, rgba(255,208,0,0.05) 200deg, transparent 220deg, transparent 360deg)",
-        }} />
-        <div style={{
-          position: "absolute", top: "50%", left: "50%",
-          width: "180%", height: "180%",
-          transform: "translate(-50%, -50%) rotate(0deg)",
-          animation: "rotate-beam-reverse 12s linear infinite",
-          pointerEvents: "none", zIndex: 1,
-          background: "conic-gradient(from 90deg, transparent 0deg, rgba(138,92,255,0.06) 15deg, transparent 30deg, transparent 360deg)",
-        }} />
         {/* Background image */}
         <img
           src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png"
@@ -194,23 +161,14 @@ export default function Home() {
           decoding="async"
           style={{
             position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "cover", objectPosition: "center top", opacity: 0.35, pointerEvents: "none",
-            animation: "image-glow 4s ease-in-out infinite"
+            objectFit: "cover", objectPosition: "center top", opacity: 0.6, pointerEvents: "none",
           }}
         />
 
-        {/* Dark overlay */}
+        {/* Dark overlay — gentle bottom fade */}
         <div style={{
           position: "absolute", inset: 0,
-          background: "linear-gradient(180deg, rgba(11,15,26,0.65) 0%, rgba(11,15,26,0.35) 50%, rgba(11,15,26,0.95) 100%)",
-          pointerEvents: "none",
-        }} />
-
-        {/* Glow orbs on top of video */}
-        <div style={{
-          position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
-          width: 800, height: 800, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(0,207,255,0.12) 0%, transparent 70%)",
+          background: "linear-gradient(180deg, rgba(11,15,26,0.15) 0%, rgba(11,15,26,0.1) 40%, rgba(11,15,26,0.8) 85%, rgba(11,15,26,1) 100%)",
           pointerEvents: "none",
         }} />
 
@@ -227,15 +185,6 @@ export default function Home() {
             {t("heroBadge")}
           </span>
         </div>
-
-        {/* Logo — GIGANTIC GLOW */}
-        <style>{`
-          @keyframes logo-glow {
-            0%, 100% { filter: drop-shadow(0 0 80px rgba(0,207,255,0.8)) drop-shadow(0 0 150px rgba(255,208,0,0.4)) brightness(1); }
-            50% { filter: drop-shadow(0 0 120px rgba(0,207,255,1)) drop-shadow(0 0 200px rgba(255,208,0,0.6)) brightness(1.1); }
-          }
-        `}</style>
-
 
         <h1 className="glm-headline" style={{ position: "relative", zIndex: 2, fontSize: "clamp(30px, 5.5vw, 68px)", lineHeight: 1.1, marginBottom: 24, maxWidth: 900 }}>
           {t("heroTitleBefore")}{" "}
@@ -281,8 +230,8 @@ export default function Home() {
       <section style={{ padding: "0", position: "relative", overflow: "hidden", minHeight: "80vh", display: "flex", alignItems: "center" }}>
         {/* Full background image */}
         <img
-          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/03e3bfc33_COVER02copy.jpg"
-          alt="Mission field"
+          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/809a08e85_PrBlasiousRuguri-Onthecoach.png"
+          alt="Pr. Blasious Ruguri"
           loading="lazy"
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", zIndex: 0 }}
         />
