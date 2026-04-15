@@ -341,24 +341,7 @@ export default function Feed() {
       .map(([tag, count]) => ({ tag, count }));
   }, [drops]);
 
-  // Infinite scroll observer — uses the scrollable feed container as root
-  useEffect(() => {
-    const sentinel = feedEndRef.current;
-    const scrollRoot = feedScrollRef.current;
-    if (!sentinel || !scrollRoot) return;
-
-    const observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting && displayCount < filteredDrops.length) {
-          setDisplayCount(prev => prev + 10);
-        }
-      },
-      { root: scrollRoot, threshold: 0.1 }
-    );
-    
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [displayCount, filteredDrops.length]);
+  // Infinite scroll handled via onScroll on the container instead
 
   // Show loading while auth is being checked
   if (!user) {
@@ -485,7 +468,18 @@ export default function Feed() {
         </div>
 
         {/* Center Feed */}
-        <div ref={feedScrollRef} className="lg:col-span-2 sm:border-x border-white/10 h-[100dvh] lg:border-none flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8">
+        <div 
+          ref={feedScrollRef} 
+          className="lg:col-span-2 sm:border-x border-white/10 h-[100dvh] lg:border-none flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8"
+          onScroll={(e) => {
+            const { scrollTop, scrollHeight, clientHeight } = e.target;
+            if (scrollHeight - scrollTop <= clientHeight + 150) {
+              if (displayCount < filteredDrops.length) {
+                setDisplayCount(prev => prev + 10);
+              }
+            }
+          }}
+        >
           
           {/* Top Header Mobile */}
           <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A]/80 backdrop-blur-xl border-b border-white/10 lg:hidden">

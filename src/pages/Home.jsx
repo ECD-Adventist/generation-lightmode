@@ -19,29 +19,23 @@ const mapLocations = [
 ];
 
 const galleryImages1 = [
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/8b7388f03_african-american-male-friends-standing-park-discussing-bible.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/b1de4c3f2_authentic-book-club-scene.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/c6ad94d7f_cinematic-style-view-parent-child-spending-time-together.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/4e00b099d_closeup-shot-couple-sitting-park-reading-bible-with-blurred-background.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/ee6c61c7a_diverse-group-friends-enjoying-quality-time-together-vibrant-outdoor-setting.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/14079f808_4V5A9468.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/d7f1e55cf_4V5A9500.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/f0c6f3f3f_4V5A9524.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/84146e9e3_4V5A9625.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/6ecc10600_close-up-people-working-as-team.jpg",
+  "https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=2069&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070&auto=format&fit=crop",
 ];
 
 const galleryImages2 = [
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/e83180081_group-diverse-people-sitting-table-reading-bible.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/69f11852d_group-people-are-sitting-ground-one-them-reads-book.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/38e68ed9e_medium-shot-students-reading-together.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/a890a8acd_men-doing-makeup-indoors.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/c0937858a_portrait-interracial-couple-reading-together.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/db8f107d1_4V5A9685.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/6cd03ab20_4V5A9699.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/117e3c882_group-friends-gathering-together.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/478c205e6_medium-shot-community-members.jpg",
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9d1bba277_medium-shot-smiley-kids-playing-together.jpg",
+  "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=2049&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1498837167922-41c53b4485a0?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1506869640319-ce1a5e18ef4b?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=2070&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?q=80&w=2070&auto=format&fit=crop",
 ];
 
 function ScrollingGallery({ images, direction = "left", speed = "40s" }) {
@@ -194,7 +188,7 @@ export default function Home() {
         }} />
         {/* Background image */}
         <img
-          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/9dae14706_HEROIMAGE.jpg"
+          src="https://images.unsplash.com/photo-1504052434569-70ad5836ab65?q=80&w=2070&auto=format&fit=crop"
           alt="Dark room"
           loading="eager"
           decoding="async"
@@ -332,7 +326,7 @@ export default function Home() {
         {/* Background Image with Play Button */}
         <div style={{ position: "absolute", inset: 0, zIndex: 0, background: "#000", overflow: "hidden" }}>
            <img 
-             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/787db261d_PrBlasiousRuguri-onthecoachcopy.png" 
+             src="https://images.unsplash.com/photo-1478147424095-2016abc223b2?q=80&w=2000&auto=format&fit=crop" 
              style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }}
              alt="Vision Background"
            />
@@ -618,7 +612,7 @@ export default function Home() {
         {/* Background Image */}
         <div style={{
           position: "absolute", inset: 0,
-          backgroundImage: "url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a6fca6155ae283f1b55144/94eae4cde_couch-light-dimly-lit-room-with-lamp-wall-it.jpg')",
+          backgroundImage: "url('https://images.unsplash.com/photo-1493612276216-ee3925520721?q=80&w=2000&auto=format&fit=crop')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "scroll",
