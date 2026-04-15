@@ -341,23 +341,20 @@ export default function Feed() {
       .map(([tag, count]) => ({ tag, count }));
   }, [drops]);
 
-  // Infinite scroll observer — uses the scrollable feed container as root
+  // Infinite scroll — listen to scroll events on the feed container
   useEffect(() => {
-    const sentinel = feedEndRef.current;
-    const scrollRoot = feedScrollRef.current;
-    if (!sentinel || !scrollRoot) return;
+    const scrollEl = feedScrollRef.current;
+    if (!scrollEl) return;
 
-    const observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting && displayCount < filteredDrops.length) {
-          setDisplayCount(prev => prev + 10);
-        }
-      },
-      { root: scrollRoot, threshold: 0.1 }
-    );
-    
-    observer.observe(sentinel);
-    return () => observer.disconnect();
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = scrollEl;
+      if (scrollHeight - scrollTop - clientHeight < 300 && displayCount < filteredDrops.length) {
+        setDisplayCount(prev => prev + 10);
+      }
+    };
+
+    scrollEl.addEventListener("scroll", handleScroll, { passive: true });
+    return () => scrollEl.removeEventListener("scroll", handleScroll);
   }, [displayCount, filteredDrops.length]);
 
   // Show loading while auth is being checked
