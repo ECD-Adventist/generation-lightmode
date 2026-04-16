@@ -123,26 +123,24 @@ export default function Home() {
           decoding="async"
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", pointerEvents: "none" }}
         />
-        {/* Cinematic gradient — dark top-left for text safety, heavy bottom fade */}
+        {/* Cinematic gradient — transparent top, heavy amber→dark at bottom */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
-          background: "linear-gradient(180deg, rgba(11,15,26,0.0) 0%, rgba(11,15,26,0.0) 45%, rgba(11,15,26,0.75) 72%, rgba(11,15,26,0.99) 100%)",
+          background: "linear-gradient(180deg, rgba(11,15,26,0.05) 0%, rgba(11,15,26,0.0) 30%, rgba(11,15,26,0.6) 70%, rgba(11,15,26,0.98) 100%)",
         }} />
-        {/* Left-side gradient so text area is readable */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "linear-gradient(90deg, rgba(11,15,26,0.75) 0%, rgba(11,15,26,0.4) 40%, rgba(11,15,26,0.0) 70%)" }} />
-        {/* Warm golden vignette at bottom */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 30% 100%, rgba(255,140,0,0.1) 0%, transparent 60%)" }} />
+        {/* Warm golden side vignette matching hero image tonality */}
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 100%, rgba(255,140,0,0.12) 0%, transparent 65%)" }} />
 
-        {/* Hero Content — pinned bottom-LEFT so faces in center/right are clear */}
-        <div style={{ position: "relative", zIndex: 2, padding: "0 clamp(24px, 6vw, 80px) clamp(60px, 9vw, 100px)", maxWidth: 580, width: "100%" }}>
+        {/* Hero Content — bottom-anchored, editorial layout */}
+        <div style={{ position: "relative", zIndex: 2, padding: "0 clamp(20px, 6vw, 80px) clamp(60px, 10vw, 100px)", maxWidth: 1200, width: "100%", margin: "0 auto" }}>
           {/* Eyebrow pill */}
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.12)", border: "1px solid rgba(255,208,0,0.4)", borderRadius: 999, padding: "6px 18px", marginBottom: 22, backdropFilter: "blur(10px)" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.1)", border: "1px solid rgba(255,208,0,0.35)", borderRadius: 999, padding: "6px 18px", marginBottom: 24, backdropFilter: "blur(10px)" }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFD000", boxShadow: "0 0 8px #FFD000", display: "inline-block" }} />
-            <span style={{ color: "#FFD000", fontSize: 10, fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>Generation LightMode · Faith. Always On.</span>
+            <span style={{ color: "#FFD000", fontSize: 11, fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>Generation LightMode · Faith. Always On.</span>
           </div>
 
-          {/* Giant headline — left aligned */}
-          <h1 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(36px, 5.5vw, 72px)", lineHeight: 0.97, letterSpacing: "-0.03em", marginBottom: 22, color: "#FFFFFF", textShadow: "0 4px 30px rgba(0,0,0,0.6)" }}>
+          {/* Giant headline */}
+          <h1 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(40px, 7vw, 88px)", lineHeight: 0.95, letterSpacing: "-0.03em", marginBottom: 28, color: "#FFFFFF" }}>
             {t("heroTitleBefore")}{" "}
             <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               {t("heroTitleHighlight")}
@@ -150,40 +148,45 @@ export default function Home() {
             <br />{t("heroTitleAfter")}
           </h1>
 
-          <p style={{ color: "#D8E4F0", fontSize: "clamp(14px, 1.6vw, 17px)", fontFamily: "Inter, sans-serif", lineHeight: 1.65, marginBottom: 28, textShadow: "0 2px 12px rgba(0,0,0,0.7)" }}>
-            {t("heroSubtitle")}
-          </p>
+          {/* Two-column bottom bar */}
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 32, flexWrap: "wrap" }}>
+            <div style={{ maxWidth: 520 }}>
+              <p style={{ color: "#C8D0E0", fontSize: "clamp(15px, 1.8vw, 18px)", fontFamily: "Inter, sans-serif", lineHeight: 1.65, marginBottom: 32 }}>
+                {t("heroSubtitle")}
+              </p>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <a href={createPageUrl("Dashboard")} style={{
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                  background: "linear-gradient(135deg, #FFD000, #FFA500)",
+                  color: "#0B0F1A", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
+                  fontSize: 15, padding: "14px 28px", borderRadius: 999, textDecoration: "none",
+                  boxShadow: "0 0 30px rgba(255,208,0,0.4), 0 4px 20px rgba(0,0,0,0.3)",
+                  transition: "all 0.3s",
+                }}
+                  onMouseOver={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 0 50px rgba(255,208,0,0.6), 0 8px 30px rgba(0,0,0,0.3)"; }}
+                  onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 0 30px rgba(255,208,0,0.4), 0 4px 20px rgba(0,0,0,0.3)"; }}
+                >
+                  <Zap size={16} /> {t("switchOn")}
+                </a>
+                <button onClick={() => { const el = document.getElementById('vision-video-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.06)", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 15, padding: "13px 26px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.2)", cursor: "pointer", backdropFilter: "blur(10px)", transition: "all 0.3s" }}
+                  onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.4)"; }}
+                  onMouseOut={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
+                >
+                  <Play size={15} fill="currentColor" /> {t("watchVideo")}
+                </button>
+              </div>
+            </div>
 
-          {/* Slogan */}
-          <p style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, color: "#FFD000", fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 6, textShadow: "0 0 16px rgba(255,208,0,0.6)" }}>
-            {t("slogan")}
-          </p>
-          <p style={{ fontFamily: "Inter, sans-serif", fontStyle: "italic", color: "rgba(138,92,255,0.9)", fontSize: 12, letterSpacing: "0.04em", marginBottom: 32 }}>
-            {t("verse")}
-          </p>
-
-          {/* CTA Buttons */}
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <a href={createPageUrl("Dashboard")} style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              background: "linear-gradient(135deg, #FFD000, #FFA500)",
-              color: "#0B0F1A", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
-              fontSize: 15, padding: "14px 28px", borderRadius: 999, textDecoration: "none",
-              boxShadow: "0 0 30px rgba(255,208,0,0.4), 0 4px 20px rgba(0,0,0,0.4)",
-              transition: "all 0.3s",
-            }}
-              onMouseOver={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 0 50px rgba(255,208,0,0.6), 0 8px 30px rgba(0,0,0,0.4)"; }}
-              onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 0 30px rgba(255,208,0,0.4), 0 4px 20px rgba(0,0,0,0.4)"; }}
-            >
-              <Zap size={16} /> {t("switchOn")}
-            </a>
-            <button onClick={() => { const el = document.getElementById('vision-video-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}
-              style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,0,0,0.35)", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 15, padding: "13px 26px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.25)", cursor: "pointer", backdropFilter: "blur(12px)", transition: "all 0.3s" }}
-              onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.15)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.5)"; }}
-              onMouseOut={e => { e.currentTarget.style.background = "rgba(0,0,0,0.35)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)"; }}
-            >
-              <Play size={15} fill="currentColor" /> {t("watchVideo")}
-            </button>
+            {/* Verse / Slogan block */}
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <p style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, color: "#FFD000", fontSize: 15, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6, textShadow: "0 0 20px rgba(255,208,0,0.6)" }}>
+                {t("slogan")}
+              </p>
+              <p style={{ fontFamily: "Inter, sans-serif", fontStyle: "italic", color: "rgba(138,92,255,0.9)", fontSize: 13, letterSpacing: "0.04em" }}>
+                {t("verse")}
+              </p>
+            </div>
           </div>
         </div>
 
