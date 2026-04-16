@@ -162,9 +162,11 @@ export default function LightModeQuotientQuiz() {
       padding: "clamp(70px, 10vw, 120px) clamp(20px, 5vw, 60px)",
       background: "linear-gradient(180deg, #0B0F1A 0%, #0D1424 50%, #0B0F1A 100%)",
     }}>
-      {/* Ambient glows */}
-      <div style={{ position: "absolute", top: "10%", left: "-5%", width: 420, height: 420, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.08), transparent 70%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: "5%", right: "-8%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,208,0,0.06), transparent 70%)", pointerEvents: "none" }} />
+      {/* Full-bleed background image */}
+      <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/971f277d8_COVER02copy.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", filter: "brightness(0.3) saturate(1.1)" }} />
+      {/* Overlays for readability */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.85) 0%, rgba(11,15,26,0.5) 30%, rgba(11,15,26,0.5) 70%, rgba(11,15,26,0.9) 100%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 50%, rgba(255,208,0,0.08) 0%, transparent 55%)", pointerEvents: "none" }} />
 
       <div style={{ maxWidth: 820, margin: "0 auto", position: "relative", zIndex: 1 }}>
         {/* Header */}
@@ -179,19 +181,19 @@ export default function LightModeQuotientQuiz() {
               LightMode Quotient
             </span>
           </h2>
-          <p style={{ color: "#8A9BB0", fontSize: 16, fontFamily: "Inter, sans-serif", lineHeight: 1.6, maxWidth: 540, margin: "0 auto" }}>
+          <p style={{ color: "#D0D8E8", fontSize: 16, fontFamily: "Inter, sans-serif", lineHeight: 1.6, maxWidth: 540, margin: "0 auto", textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
             A 5-question quiz to reveal your unique 'glow style' — and how God has wired you to light up your community.
           </p>
         </div>
 
         {/* Quiz Body */}
         <div style={{
-          background: "linear-gradient(160deg, rgba(18,24,38,0.85) 0%, rgba(11,15,26,0.95) 100%)",
-          backdropFilter: "blur(16px)",
+          background: "rgba(11,15,26,0.85)",
+          backdropFilter: "blur(20px)",
           border: "1px solid rgba(0,207,255,0.15)",
           borderRadius: 24,
           padding: "clamp(26px, 4vw, 44px)",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.35), 0 0 60px rgba(0,207,255,0.08)",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.5), 0 0 60px rgba(0,207,255,0.08)",
           minHeight: 380,
           position: "relative",
         }}>

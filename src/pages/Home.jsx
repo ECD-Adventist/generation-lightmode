@@ -4,6 +4,7 @@ import { countryCoordinates } from "@/lib/countryCoordinates";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Globe, Users, Star, ChevronDown, Play, X, ArrowRight, Zap } from "lucide-react";
+import { toast } from "sonner";
 import { useAppLanguage } from "../components/i18n/useAppLanguage";
 import DailyDropsSection from "../components/home/DailyDropsSection";
 import LightModeQuotientQuiz from "../components/home/LightModeQuotientQuiz";
@@ -385,12 +386,15 @@ export default function Home() {
 
             {/* CTAs */}
             <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.3)", borderRadius: 999, padding: "10px 22px 10px 14px", color: "#FFD000", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 14, backdropFilter: "blur(12px)" }}>
+              <button onClick={() => toast("Video Coming Soon", { icon: "🎬", description: "The vision video is currently being produced. Stay tuned!" })} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.3)", borderRadius: 999, padding: "10px 22px 10px 14px", color: "#FFD000", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 14, backdropFilter: "blur(12px)", cursor: "pointer", transition: "all 0.3s" }}
+                onMouseOver={e => { e.currentTarget.style.background = "rgba(255,208,0,0.18)"; e.currentTarget.style.borderColor = "rgba(255,208,0,0.6)"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "rgba(255,208,0,0.08)"; e.currentTarget.style.borderColor = "rgba(255,208,0,0.3)"; }}
+              >
                 <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,208,0,0.15)", border: "1px solid rgba(255,208,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <Play size={13} color="#FFD000" fill="#FFD000" style={{ marginLeft: 1 }} />
                 </div>
-                Video Coming Soon
-              </div>
+                Watch the Vision
+              </button>
               <Link to={createPageUrl("About")} style={{ color: "#C8D0E0", fontFamily: "Inter, sans-serif", fontSize: 13, textDecoration: "none", display: "flex", alignItems: "center", gap: 6, transition: "color 0.2s" }}
                 onMouseOver={e => e.currentTarget.style.color = "#FFD000"}
                 onMouseOut={e => e.currentTarget.style.color = "#C8D0E0"}
@@ -471,13 +475,13 @@ export default function Home() {
               { tier: "Platinum", label: "Ambassador Missionary", icon: "💎", color: "#A8C0FF", glow: "rgba(168,192,255,0.15)", milestone: "Mentor · Lead · Report", requirement: "Mentor others + lead a LightMode Challenge + submit Glow Logs" },
             ].map((item, idx) => (
               <div key={item.tier} style={{
-                background: "linear-gradient(160deg, rgba(255,255,255,0.025) 0%, rgba(8,12,20,0.95) 100%)",
-                border: `1px solid ${item.color}25`, borderRadius: 20, padding: "32px 22px",
+                background: "#0D1220",
+                border: `1px solid ${item.color}35`, borderRadius: 20, padding: "32px 22px",
                 textAlign: "center", position: "relative", overflow: "hidden",
                 transition: "transform 0.3s, box-shadow 0.3s",
               }}
                 onMouseOver={e => { e.currentTarget.style.transform = "translateY(-8px)"; e.currentTarget.style.boxShadow = `0 24px 60px ${item.glow}`; e.currentTarget.style.borderColor = `${item.color}55`; }}
-                onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = `${item.color}25`; }}
+                onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = `${item.color}35`; }}
               >
                 <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at top, ${item.glow}, transparent 50%)`, pointerEvents: "none" }} />
                 <div style={{ position: "absolute", top: 0, left: "15%", right: "15%", height: 2, background: `linear-gradient(90deg, transparent, ${item.color}, transparent)` }} />
@@ -587,13 +591,13 @@ export default function Home() {
 
       {/* ═══════════════════ PLEDGE CTA — immersive ═══════════════════ */}
       <section id="join" style={{ position: "relative", overflow: "hidden", padding: "clamp(80px, 12vw, 140px) clamp(20px, 6vw, 60px)" }}>
-        {/* Dramatic layered background */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "url('https://images.unsplash.com/photo-1493612276216-ee3925520721?q=80&w=2000&auto=format&fit=crop')", backgroundSize: "cover", backgroundPosition: "center", opacity: 0.4 }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.9) 0%, rgba(11,15,26,0.55) 50%, rgba(11,15,26,0.92) 100%)" }} />
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 50%, rgba(138,92,255,0.1) 0%, transparent 65%)" }} />
+        {/* Hero-tone warm background — pledge imagery */}
+        <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", filter: "brightness(0.35) saturate(1.2)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.92) 0%, rgba(26,18,8,0.7) 40%, rgba(11,15,26,0.85) 80%, rgba(11,15,26,0.98) 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 60%, rgba(255,165,0,0.12) 0%, transparent 55%)" }} />
 
         <div style={{ position: "relative", zIndex: 1, maxWidth: 780, margin: "0 auto", textAlign: "center" }}>
-          <div style={{ fontSize: 56, marginBottom: 20, filter: "drop-shadow(0 0 20px rgba(255,208,0,0.5))" }}>🔆</div>
+          <div style={{ fontSize: 56, marginBottom: 20, filter: "drop-shadow(0 0 20px rgba(255,208,0,0.5))" }}>✋</div>
           <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(32px, 5vw, 60px)", letterSpacing: "-0.03em", color: "#FFFFFF", marginBottom: 20 }}>
             {t("pledgeTitle").split(" ").slice(0, -1).join(" ")}{" "}
             <span style={{ background: "linear-gradient(90deg, #FFD000, #00CFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
