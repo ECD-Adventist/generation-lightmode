@@ -215,11 +215,13 @@ export default function Home() {
 
       {/* ═══════════════════ WHY LIGHTMODE EXISTS — editorial dark + warm gold ═══════════════════ */}
       <section style={{ position: "relative", overflow: "hidden", padding: "clamp(90px, 11vw, 140px) clamp(20px, 6vw, 80px)", background: "radial-gradient(ellipse at 20% 30%, #1A1208 0%, #0B0F1A 55%, #080C14 100%)" }}>
+        {/* Lightbulb pattern background — fading */}
+        <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/8f9bf2363_lightbulb-seamless-pattern-background-light-bulb-motif-wallpaper-idea-thinking-creative-electric-energy-solution-vector.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.06, pointerEvents: "none", mixBlendMode: "screen" }} />
         {/* Warm gold ambient blobs matching hero tone */}
         <div style={{ position: "absolute", top: "-10%", left: "-5%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,165,0,0.12), transparent 65%)", pointerEvents: "none", filter: "blur(40px)" }} />
         <div style={{ position: "absolute", bottom: "-15%", right: "-10%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,208,0,0.08), transparent 65%)", pointerEvents: "none", filter: "blur(50px)" }} />
-        {/* Faint grid texture */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(rgba(255,208,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,208,0,0.03) 1px, transparent 1px)", backgroundSize: "60px 60px", pointerEvents: "none", opacity: 0.4 }} />
+        {/* Edge fade overlay so pattern dissolves at edges */}
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 30%, #0B0F1A 75%)", pointerEvents: "none" }} />
 
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1080, margin: "0 auto" }}>
           {/* Eyebrow */}
@@ -245,44 +247,49 @@ export default function Home() {
             </p>
           )}
 
-          {/* 3-card insight grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 18, marginBottom: 54 }}>
+          {/* 3-card insight grid with images */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, marginBottom: 54 }}>
             {[
-              { num: "01", text: t("whyText1"), accent: "#FFD000" },
-              { num: "02", text: t("whyText2"), accent: "#00CFFF" },
-              { num: "03", text: t("whyText3"), accent: "#8A5CFF", emphasis: true },
+              { num: "01", text: t("whyText1"), accent: "#FFD000", img: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop" },
+              { num: "02", text: t("whyText2"), accent: "#00CFFF", img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop" },
+              { num: "03", text: t("whyText3"), accent: "#8A5CFF", emphasis: true, img: "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=800&auto=format&fit=crop" },
             ].map((item) => (
               <div key={item.num} style={{
                 position: "relative",
-                background: "linear-gradient(160deg, rgba(18,14,8,0.6) 0%, rgba(11,15,26,0.85) 100%)",
+                background: "linear-gradient(160deg, rgba(18,14,8,0.6) 0%, rgba(11,15,26,0.95) 100%)",
                 border: `1px solid ${item.accent}22`,
                 borderRadius: 20,
-                padding: "28px 24px 26px",
-                backdropFilter: "blur(12px)",
                 overflow: "hidden",
                 transition: "transform 0.3s, border-color 0.3s, box-shadow 0.3s",
               }}
-                onMouseOver={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = `${item.accent}66`; e.currentTarget.style.boxShadow = `0 20px 50px ${item.accent}18`; }}
+                onMouseOver={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.borderColor = `${item.accent}66`; e.currentTarget.style.boxShadow = `0 20px 50px ${item.accent}18`; }}
                 onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = `${item.accent}22`; e.currentTarget.style.boxShadow = "none"; }}
               >
+                {/* Card image */}
+                <div style={{ position: "relative", height: 160, overflow: "hidden" }}>
+                  <img src={item.img} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.7) saturate(0.8)" }} />
+                  <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, transparent 20%, rgba(11,15,26,0.95) 100%)` }} />
+                  <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${item.accent}15, transparent 60%)` }} />
+                  {/* Number overlay */}
+                  <div style={{ position: "absolute", bottom: 14, left: 22, fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 38, color: item.accent, letterSpacing: "-0.02em", opacity: 0.9, textShadow: `0 0 20px ${item.accent}60` }}>
+                    {item.num}
+                  </div>
+                </div>
                 {/* Top accent line */}
                 <div style={{ position: "absolute", top: 0, left: 24, right: 24, height: 2, background: `linear-gradient(90deg, ${item.accent}, transparent)`, borderRadius: 999 }} />
-                {/* Corner glow */}
-                <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, background: `radial-gradient(circle, ${item.accent}20, transparent 70%)`, pointerEvents: "none" }} />
-
-                <div style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 32, color: item.accent, letterSpacing: "-0.02em", marginBottom: 14, opacity: 0.9 }}>
-                  {item.num}
+                {/* Text content */}
+                <div style={{ padding: "18px 22px 24px" }}>
+                  <p style={{
+                    color: item.emphasis ? "#FFFFFF" : "#C8D0E0",
+                    fontSize: 15,
+                    fontFamily: "Inter, sans-serif",
+                    lineHeight: 1.7,
+                    fontWeight: item.emphasis ? 500 : 400,
+                    margin: 0,
+                  }}>
+                    {item.text}
+                  </p>
                 </div>
-                <p style={{
-                  color: item.emphasis ? "#FFFFFF" : "#C8D0E0",
-                  fontSize: 15,
-                  fontFamily: "Inter, sans-serif",
-                  lineHeight: 1.7,
-                  fontWeight: item.emphasis ? 500 : 400,
-                  margin: 0,
-                }}>
-                  {item.text}
-                </p>
               </div>
             ))}
           </div>
