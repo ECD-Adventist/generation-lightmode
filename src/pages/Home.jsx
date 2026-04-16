@@ -116,14 +116,26 @@ export default function Home() {
         minHeight: "100vh", position: "relative", overflow: "hidden",
         display: "flex", flexDirection: "column", justifyContent: "flex-end",
       }}>
-        {/* Full-bleed hero image */}
+        {/* Full-bleed hero image with breathing-light animation */}
+        <style>{`
+          @keyframes hero-breathe {
+            0%, 100% { filter: brightness(1) contrast(1); transform: scale(1); }
+            50% { filter: brightness(1.1) contrast(1.05); transform: scale(1.015); }
+          }
+          @keyframes hero-glow-breathe {
+            0%, 100% { opacity: 0.35; }
+            50% { opacity: 0.65; }
+          }
+        `}</style>
         <img
           src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png"
           alt="Generation LightMode Youth"
           loading="eager"
           decoding="async"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", pointerEvents: "none" }}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", pointerEvents: "none", animation: "hero-breathe 7s ease-in-out infinite", transformOrigin: "center center" }}
         />
+        {/* Breathing warm light wash layered over hero */}
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 55%, rgba(255,190,80,0.18) 0%, rgba(255,140,0,0.05) 40%, transparent 70%)", animation: "hero-glow-breathe 7s ease-in-out infinite", mixBlendMode: "screen" }} />
         {/* Branded gradient — dark at top (for navbar visibility) + bottom (for text) with subtle cyan/gold tint */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
@@ -242,51 +254,77 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════ VISION / PR. BLASIOUS — dramatic full screen ═══════════════════ */}
-      <section id="vision-video-section" style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", overflow: "hidden" }}>
-        {/* Background */}
+      {/* ═══════════════════ VISION / PR. BLASIOUS — split layout, face visible ═══════════════════ */}
+      <section id="vision-video-section" style={{ position: "relative", minHeight: "95vh", overflow: "hidden", background: "linear-gradient(180deg, #0B0F1A 0%, #120A05 50%, #0B0F1A 100%)" }}>
+        {/* Background image — full bleed but heavily pushed right so text side stays clean */}
         <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/809a08e85_PrBlasiousRuguri-Onthecoach.png"
           alt="Pr. Blasious Ruguri" loading="lazy"
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
-        {/* Warm cinematic overlay matching the couch/lamp warmth */}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(11,15,26,0.97) 0%, rgba(11,15,26,0.85) 40%, rgba(11,15,26,0.4) 70%, rgba(20,12,5,0.2) 100%)" }} />
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 50%, rgba(180,100,20,0.15) 0%, transparent 55%)" }} />
+        {/* Left-to-right dark-to-transparent gradient so left column is readable AND the subject's face (center) stays fully visible */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(11,15,26,0.96) 0%, rgba(11,15,26,0.88) 22%, rgba(11,15,26,0.3) 42%, rgba(11,15,26,0) 58%, rgba(11,15,26,0.1) 100%)" }} />
+        {/* Warm lamp-light vignette on the right side */}
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 85% 40%, rgba(220,140,40,0.18) 0%, transparent 45%)" }} />
+        {/* Top/bottom fades for smooth section transitions */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.5) 0%, transparent 12%, transparent 88%, rgba(11,15,26,0.7) 100%)" }} />
 
-        <div style={{ position: "relative", zIndex: 2, maxWidth: 1200, margin: "0 auto", padding: "clamp(60px, 8vw, 100px) clamp(24px, 6vw, 80px)", display: "flex", flexDirection: "column", gap: 32 }}>
-          <div style={{ maxWidth: 600 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.08)", border: "1px solid rgba(0,207,255,0.25)", borderRadius: 999, padding: "6px 16px", marginBottom: 24 }}>
-              <span style={{ color: "#00CFFF", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>The Vision</span>
+        <div style={{ position: "relative", zIndex: 2, maxWidth: 1280, margin: "0 auto", padding: "clamp(60px, 8vw, 110px) clamp(24px, 5vw, 70px)", display: "grid", gridTemplateColumns: "minmax(320px, 1fr) 1fr", gap: 40, alignItems: "center", minHeight: "95vh" }} className="vision-grid">
+          {/* Left column — text block */}
+          <div style={{ maxWidth: 520 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.3)", borderRadius: 999, padding: "6px 16px", marginBottom: 22, backdropFilter: "blur(10px)" }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#00CFFF", boxShadow: "0 0 8px #00CFFF", display: "inline-block" }} />
+              <span style={{ color: "#00CFFF", fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>A Word From The Division President</span>
             </div>
-            <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(36px, 5vw, 64px)", lineHeight: 0.98, letterSpacing: "-0.03em", color: "#FFFFFF", marginBottom: 24 }}>
+            <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(32px, 4.5vw, 56px)", lineHeight: 1, letterSpacing: "-0.03em", color: "#FFFFFF", marginBottom: 20 }}>
               {t("visionTitle").split(" ")[0]}{" "}
               <span style={{ background: "linear-gradient(90deg, #00CFFF, #8A5CFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
                 {t("visionTitle").split(" ").slice(1).join(" ")}
               </span>
             </h2>
-            <p style={{ color: "#C8D0E0", fontSize: 17, fontFamily: "Inter, sans-serif", lineHeight: 1.75, marginBottom: 40 }}>
+            <div style={{ width: 52, height: 3, background: "linear-gradient(90deg, #FFD000, #00CFFF)", borderRadius: 999, marginBottom: 24 }} />
+            <p style={{ color: "#D8E0EC", fontSize: 16, fontFamily: "Inter, sans-serif", lineHeight: 1.75, marginBottom: 32 }}>
               {t("visionText")}
             </p>
 
-            {/* Play button + CTA */}
-            <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-              <button onClick={() => setShowVideo(true)} style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.4)", borderRadius: 999, padding: "14px 24px 14px 18px", cursor: "pointer", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 15, backdropFilter: "blur(12px)", transition: "all 0.3s" }}
-                onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.2)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.7)"; }}
-                onMouseOut={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.4)"; }}
+            {/* Speaker card — giving the subject identity without covering his face */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32, padding: "12px 16px", background: "rgba(18,24,38,0.6)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,208,0,0.2)", borderRadius: 14, maxWidth: 360 }}>
+              <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #FFD000, #FFA500)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, color: "#0B0F1A", fontSize: 16, flexShrink: 0 }}>
+                BR
+              </div>
+              <div>
+                <div style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 14, color: "#FFFFFF" }}>Pr. Blasious Ruguri</div>
+                <div style={{ fontFamily: "Inter, sans-serif", fontSize: 11, color: "#FFD000", letterSpacing: "0.04em" }}>East-Central Africa Division President</div>
+              </div>
+            </div>
+
+            {/* CTAs */}
+            <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+              <button onClick={() => setShowVideo(true)} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(0,207,255,0.12)", border: "1px solid rgba(0,207,255,0.4)", borderRadius: 999, padding: "10px 22px 10px 10px", cursor: "pointer", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 14, backdropFilter: "blur(12px)", transition: "all 0.3s" }}
+                onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.22)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.7)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "rgba(0,207,255,0.12)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.4)"; e.currentTarget.style.transform = "translateY(0)"; }}
               >
-                <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#00CFFF", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 20px rgba(0,207,255,0.6)", flexShrink: 0 }}>
-                  <Play size={18} color="#0B0F1A" fill="#0B0F1A" style={{ marginLeft: 3 }} />
+                <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#00CFFF", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 20px rgba(0,207,255,0.6)", flexShrink: 0 }}>
+                  <Play size={15} color="#0B0F1A" fill="#0B0F1A" style={{ marginLeft: 2 }} />
                 </div>
                 Watch the Vision
               </button>
-              <Link to={createPageUrl("About")} style={{ color: "#C8D0E0", fontFamily: "Inter, sans-serif", fontSize: 14, textDecoration: "none", display: "flex", alignItems: "center", gap: 6, borderBottom: "1px solid rgba(200,208,224,0.3)", paddingBottom: 2, transition: "color 0.2s" }}
-                onMouseOver={e => e.currentTarget.style.color = "#FFFFFF"}
+              <Link to={createPageUrl("About")} style={{ color: "#C8D0E0", fontFamily: "Inter, sans-serif", fontSize: 13, textDecoration: "none", display: "flex", alignItems: "center", gap: 6, transition: "color 0.2s" }}
+                onMouseOver={e => e.currentTarget.style.color = "#FFD000"}
                 onMouseOut={e => e.currentTarget.style.color = "#C8D0E0"}
               >
-                {t("readMore")} <ArrowRight size={14} />
+                {t("readMore")} <ArrowRight size={13} />
               </Link>
             </div>
           </div>
+
+          {/* Right column — intentionally empty to preserve view of the subject */}
+          <div />
         </div>
+
+        <style>{`
+          @media (max-width: 900px) {
+            .vision-grid { grid-template-columns: 1fr !important; align-items: flex-end !important; padding-bottom: 40px !important; }
+          }
+        `}</style>
       </section>
 
       {/* ═══════════════════ STATS — floating glass cards ═══════════════════ */}

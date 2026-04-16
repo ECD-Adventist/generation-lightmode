@@ -391,19 +391,9 @@ export default function Layout({ children, currentPageName }) {
                 const isAuth = await base44.auth.isAuthenticated();
                 if (isAuth) window.location.href = createPageUrl("Feed");
                 else base44.auth.redirectToLogin(createPageUrl("Feed"));
-              }} style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                background: "linear-gradient(135deg, #00CFFF, #8A5CFF)",
-                color: "#0B0F1A", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
-                fontSize: 13, padding: "10px 22px", borderRadius: 999, border: "none", cursor: "pointer",
-                whiteSpace: "nowrap", flexShrink: 0,
-                boxShadow: "0 0 20px rgba(0,207,255,0.4)",
-                transition: "all 0.3s",
-              }}
-                onMouseOver={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 0 32px rgba(0,207,255,0.6)"; }}
-                onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 0 20px rgba(0,207,255,0.4)"; }}
-              >
-                ⚡ Switch It On
+              }} className="glm-switch-btn">
+                <span className="glm-switch-ring" aria-hidden="true" />
+                <span className="glm-switch-inner">⚡ Switch It On</span>
               </button>
             ) : (
               <div className="flex items-center gap-4">
@@ -643,6 +633,68 @@ export default function Layout({ children, currentPageName }) {
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .mobile-menu-btn { display: block !important; }
+        }
+
+        /* Rotating gold light around Switch It On button */
+        @keyframes glm-switch-spin { to { transform: rotate(360deg); } }
+        @keyframes glm-switch-pulse {
+          0%, 100% { box-shadow: 0 0 18px rgba(0,207,255,0.35), 0 0 0 0 rgba(255,208,0,0.0); }
+          50% { box-shadow: 0 0 34px rgba(0,207,255,0.6), 0 0 0 4px rgba(255,208,0,0.08); }
+        }
+        .glm-switch-btn {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2px;
+          border: none;
+          cursor: pointer;
+          border-radius: 999px;
+          background: transparent;
+          white-space: nowrap;
+          flex-shrink: 0;
+          isolation: isolate;
+          transition: transform 0.3s ease;
+          animation: glm-switch-pulse 2.8s ease-in-out infinite;
+        }
+        .glm-switch-btn:hover { transform: translateY(-1px) scale(1.03); }
+        .glm-switch-ring {
+          position: absolute;
+          inset: -3px;
+          border-radius: 999px;
+          padding: 0;
+          background: conic-gradient(from 0deg,
+            rgba(255,208,0,0) 0deg,
+            rgba(255,208,0,0.0) 60deg,
+            rgba(255,208,0,0.95) 140deg,
+            rgba(255,165,0,1) 180deg,
+            rgba(255,208,0,0.95) 220deg,
+            rgba(255,208,0,0.0) 300deg,
+            rgba(255,208,0,0) 360deg);
+          filter: blur(2px);
+          animation: glm-switch-spin 3.5s linear infinite;
+          z-index: -1;
+        }
+        .glm-switch-btn::before {
+          content: "";
+          position: absolute;
+          inset: -2px;
+          border-radius: 999px;
+          background: #0B0F1A;
+          z-index: -1;
+        }
+        .glm-switch-inner {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: linear-gradient(135deg, #00CFFF, #8A5CFF);
+          color: #0B0F1A;
+          font-family: 'Space Grotesk', sans-serif;
+          font-weight: 800;
+          font-size: 13px;
+          padding: 10px 22px;
+          border-radius: 999px;
+          box-shadow: inset 0 0 10px rgba(255,255,255,0.15);
         }
       `}</style>
     </div>
