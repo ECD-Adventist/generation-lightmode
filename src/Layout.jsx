@@ -267,27 +267,19 @@ export default function Layout({ children, currentPageName }) {
         /* Public nav for non-logged-in users */
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
-        background: scrolled ? "rgba(11,15,26,0.95)" : "transparent",
-        backdropFilter: scrolled ? "blur(20px)" : "blur(6px)",
-        borderBottom: scrolled ? "1px solid rgba(0,207,255,0.15)" : "1px solid rgba(0,207,255,0.08)",
+        background: scrolled ? "rgba(11,15,26,0.85)" : "transparent",
+        backdropFilter: scrolled ? "blur(24px) saturate(1.4)" : "blur(8px)",
+        borderBottom: "none",
         transition: "all 0.4s ease",
         padding: "0 24px",
       }}>
-        {/* Branded gradient veil — always present for visibility over hero images */}
+        {/* Branded gradient veil — soft fade only at top, no hard edge at bottom */}
         <div style={{
           position: "absolute", inset: 0, zIndex: -1,
           background: scrolled
-            ? "linear-gradient(180deg, rgba(11,15,26,0.98) 0%, rgba(18,24,38,0.95) 100%)"
-            : "linear-gradient(180deg, rgba(11,15,26,0.88) 0%, rgba(11,15,26,0.55) 70%, rgba(11,15,26,0) 100%)",
+            ? "linear-gradient(180deg, rgba(11,15,26,0.92) 0%, rgba(11,15,26,0.85) 100%)"
+            : "linear-gradient(180deg, rgba(11,15,26,0.75) 0%, rgba(11,15,26,0.35) 50%, rgba(11,15,26,0) 100%)",
           transition: "all 0.4s ease",
-          pointerEvents: "none",
-        }} />
-        {/* Subtle cyan/violet accent glow along the bottom edge */}
-        <div style={{
-          position: "absolute", left: 0, right: 0, bottom: 0, height: 1, zIndex: -1,
-          background: "linear-gradient(90deg, transparent, rgba(0,207,255,0.4), rgba(138,92,255,0.4), transparent)",
-          opacity: scrolled ? 1 : 0.6,
-          transition: "opacity 0.4s ease",
           pointerEvents: "none",
         }} />
         <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[76px] md:h-[76px] lg:h-[86px] w-full">
@@ -300,24 +292,61 @@ export default function Layout({ children, currentPageName }) {
             />
           </Link>
 
-          {/* Desktop Nav */}
-          <div style={{ display: "flex", alignItems: "center", gap: 32 }} className="desktop-nav">
-            {navLinks.map(link => (
-              <Link
-                key={link.page}
-                to={createPageUrl(link.page)}
-                className={`nav-link ${currentPageName === link.page ? "active" : ""}`}
-              >
-                {t(link.key) || link.page}
-              </Link>
-            ))}
+          {/* Desktop Nav — glassy pill group */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "rgba(11,15,26,0.45)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 999, boxShadow: "0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)" }} className="desktop-nav">
+            {navLinks.map(link => {
+              const isActive = currentPageName === link.page;
+              return (
+                <Link
+                  key={link.page}
+                  to={createPageUrl(link.page)}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: 999,
+                    fontFamily: "Inter, sans-serif",
+                    fontWeight: 600,
+                    fontSize: 14,
+                    color: isActive ? "#0B0F1A" : "#E0E8F0",
+                    background: isActive ? "linear-gradient(135deg, #00CFFF, #8A5CFF)" : "transparent",
+                    textDecoration: "none",
+                    transition: "all 0.2s",
+                    boxShadow: isActive ? "0 0 20px rgba(0,207,255,0.4)" : "none",
+                    whiteSpace: "nowrap",
+                  }}
+                  onMouseOver={e => { if (!isActive) { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#00CFFF"; } }}
+                  onMouseOut={e => { if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#E0E8F0"; } }}
+                >
+                  {t(link.key) || link.page}
+                </Link>
+              );
+            })}
             {/* Resources Dropdown */}
-            <div style={{ position: "relative", height: "100%", display: "flex", alignItems: "center" }}
+            <div style={{ position: "relative", display: "flex", alignItems: "center" }}
               onMouseEnter={() => setResourcesOpen(true)}
               onMouseLeave={() => setResourcesOpen(false)}
             >
-              <Link to={createPageUrl("Resources")} className={`nav-link ${["Media","Resources"].includes(currentPageName) ? "active" : ""}`} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                {t("resources")} <span style={{ fontSize: 10, opacity: 0.7 }}>▾</span>
+              <Link to={createPageUrl("Resources")}
+                style={{
+                  display: "flex", alignItems: "center", gap: 4,
+                  padding: "8px 16px",
+                  borderRadius: 999,
+                  fontFamily: "Inter, sans-serif",
+                  fontWeight: 600,
+                  fontSize: 14,
+                  color: ["Media","Resources"].includes(currentPageName) ? "#00CFFF" : "#E0E8F0",
+                  background: ["Media","Resources"].includes(currentPageName) ? "rgba(0,207,255,0.1)" : "transparent",
+                  textDecoration: "none",
+                  transition: "all 0.2s",
+                  whiteSpace: "nowrap",
+                }}
+                onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#00CFFF"; }}
+                onMouseOut={e => {
+                  const active = ["Media","Resources"].includes(currentPageName);
+                  e.currentTarget.style.background = active ? "rgba(0,207,255,0.1)" : "transparent";
+                  e.currentTarget.style.color = active ? "#00CFFF" : "#E0E8F0";
+                }}
+              >
+                {t("resources")} <span style={{ fontSize: 9, opacity: 0.7 }}>▾</span>
               </Link>
               {resourcesOpen && (
                 <div style={{
@@ -352,14 +381,29 @@ export default function Layout({ children, currentPageName }) {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Right-side actions — outside the pill group */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }} className="desktop-nav">
             <LanguageSelector />
             {!userEmail ? (
               <button onClick={async () => {
                 const isAuth = await base44.auth.isAuthenticated();
                 if (isAuth) window.location.href = createPageUrl("Feed");
                 else base44.auth.redirectToLogin(createPageUrl("Feed"));
-              }} className="glm-btn-primary" style={{ padding: "10px 24px", fontSize: 14, whiteSpace: "nowrap", flexShrink: 0 }}>
-                Switch It On ⚡
+              }} style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                background: "linear-gradient(135deg, #00CFFF, #8A5CFF)",
+                color: "#0B0F1A", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
+                fontSize: 13, padding: "10px 22px", borderRadius: 999, border: "none", cursor: "pointer",
+                whiteSpace: "nowrap", flexShrink: 0,
+                boxShadow: "0 0 20px rgba(0,207,255,0.4)",
+                transition: "all 0.3s",
+              }}
+                onMouseOver={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 0 32px rgba(0,207,255,0.6)"; }}
+                onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 0 20px rgba(0,207,255,0.4)"; }}
+              >
+                ⚡ Switch It On
               </button>
             ) : (
               <div className="flex items-center gap-4">

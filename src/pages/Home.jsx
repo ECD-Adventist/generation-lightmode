@@ -6,6 +6,7 @@ import { createPageUrl } from "@/utils";
 import { Globe, Users, Star, ChevronDown, Play, X, ArrowRight, Zap } from "lucide-react";
 import { useAppLanguage } from "../components/i18n/useAppLanguage";
 import DailyDropsSection from "../components/home/DailyDropsSection";
+import LightModeQuotientQuiz from "../components/home/LightModeQuotientQuiz";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -133,55 +134,63 @@ export default function Home() {
         {/* Cyan top accent tint to enhance navbar */}
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 180, pointerEvents: "none", background: "linear-gradient(180deg, rgba(0,207,255,0.08) 0%, transparent 100%)" }} />
 
-        {/* Hero Content — bottom-anchored, compact so faces stay visible */}
-        <div style={{ position: "relative", zIndex: 2, padding: "0 clamp(20px, 6vw, 80px) clamp(40px, 7vw, 72px)", maxWidth: 1200, width: "100%", margin: "0 auto" }}>
-          {/* Headline — reduced size to avoid covering faces */}
-          <h1 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(26px, 4vw, 52px)", lineHeight: 1.05, letterSpacing: "-0.02em", marginBottom: 20, color: "#FFFFFF", textShadow: "0 2px 20px rgba(0,0,0,0.6)", maxWidth: 820 }}>
-            {t("heroTitleBefore")}{" "}
-            <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              {t("heroTitleHighlight")}
-            </span>
-            {" "}{t("heroTitleAfter")}
-          </h1>
+        {/* Hero Content — bottom-left anchored, smart editorial layout */}
+        <div style={{ position: "relative", zIndex: 2, padding: "0 clamp(20px, 6vw, 80px) clamp(40px, 6vw, 64px)", maxWidth: 1200, width: "100%", margin: "0 auto" }}>
+          <div style={{ maxWidth: 620 }}>
+            {/* Headline — smaller, refined */}
+            <h1 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(22px, 3.2vw, 40px)", lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 16, color: "#FFFFFF", textShadow: "0 2px 20px rgba(0,0,0,0.7)" }}>
+              {t("heroTitleBefore")}{" "}
+              <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                {t("heroTitleHighlight")}
+              </span>
+              {" "}{t("heroTitleAfter")}
+            </h1>
 
-          {/* Two-column bottom bar */}
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 28, flexWrap: "wrap" }}>
-            <div style={{ maxWidth: 560 }}>
-              <p style={{ color: "#E0E8F0", fontSize: "clamp(14px, 1.5vw, 16px)", fontFamily: "Inter, sans-serif", lineHeight: 1.6, marginBottom: 24, textShadow: "0 2px 10px rgba(0,0,0,0.6)" }}>
-                Join 10M+ believers turning hidden faith into visible light — across the nations of the East-Central Africa Division.
-              </p>
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <a href={createPageUrl("Dashboard")} style={{
-                  display: "inline-flex", alignItems: "center", gap: 8,
-                  background: "linear-gradient(135deg, #FFD000, #FFA500)",
-                  color: "#0B0F1A", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
-                  fontSize: 15, padding: "14px 28px", borderRadius: 999, textDecoration: "none",
-                  boxShadow: "0 0 30px rgba(255,208,0,0.4), 0 4px 20px rgba(0,0,0,0.3)",
-                  transition: "all 0.3s",
-                }}
-                  onMouseOver={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 0 50px rgba(255,208,0,0.6), 0 8px 30px rgba(0,0,0,0.3)"; }}
-                  onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 0 30px rgba(255,208,0,0.4), 0 4px 20px rgba(0,0,0,0.3)"; }}
-                >
-                  <Zap size={16} /> {t("switchOn")}
-                </a>
-                <button onClick={() => { const el = document.getElementById('vision-video-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.06)", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 15, padding: "13px 26px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.2)", cursor: "pointer", backdropFilter: "blur(10px)", transition: "all 0.3s" }}
-                  onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.4)"; }}
-                  onMouseOut={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
-                >
-                  <Play size={15} fill="currentColor" /> {t("watchVideo")}
-                </button>
-              </div>
+            {/* Subtitle */}
+            <p style={{ color: "#E0E8F0", fontSize: "clamp(13px, 1.4vw, 15px)", fontFamily: "Inter, sans-serif", lineHeight: 1.6, marginBottom: 22, textShadow: "0 2px 10px rgba(0,0,0,0.7)", maxWidth: 560 }}>
+              Join 10M+ believers turning hidden faith into visible light — across the nations of the East-Central Africa Division.
+            </p>
+
+            {/* CTAs */}
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 24 }}>
+              <a href={createPageUrl("Dashboard")} style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                background: "linear-gradient(135deg, #FFD000, #FFA500)",
+                color: "#0B0F1A", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
+                fontSize: 14, padding: "12px 24px", borderRadius: 999, textDecoration: "none",
+                boxShadow: "0 0 30px rgba(255,208,0,0.4), 0 4px 20px rgba(0,0,0,0.3)",
+                transition: "all 0.3s",
+              }}
+                onMouseOver={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 0 50px rgba(255,208,0,0.6), 0 8px 30px rgba(0,0,0,0.3)"; }}
+                onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 0 30px rgba(255,208,0,0.4), 0 4px 20px rgba(0,0,0,0.3)"; }}
+              >
+                <Zap size={14} /> {t("switchOn")}
+              </a>
+              <button onClick={() => { const el = document.getElementById('quiz'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.08)", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 14, padding: "11px 22px", borderRadius: 999, border: "1px solid rgba(0,207,255,0.4)", cursor: "pointer", backdropFilter: "blur(10px)", transition: "all 0.3s" }}
+                onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.18)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.7)"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "rgba(0,207,255,0.08)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.4)"; }}
+              >
+                ✨ Take The Quiz
+              </button>
+              <button onClick={() => { const el = document.getElementById('vision-video-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.04)", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 600, fontSize: 14, padding: "11px 22px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer", backdropFilter: "blur(10px)", transition: "all 0.3s" }}
+                onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+              >
+                <Play size={13} fill="currentColor" /> {t("watchVideo")}
+              </button>
             </div>
 
-            {/* Verse / Slogan block */}
-            <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <p style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, color: "#FFD000", fontSize: 15, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6, textShadow: "0 0 20px rgba(255,208,0,0.6)" }}>
+            {/* Slogan + Verse as small footer row — subtle, does not cover faces */}
+            <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", paddingTop: 14, borderTop: "1px solid rgba(255,208,0,0.18)" }}>
+              <span style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, color: "#FFD000", fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", textShadow: "0 0 15px rgba(255,208,0,0.5)" }}>
                 {t("slogan")}
-              </p>
-              <p style={{ fontFamily: "Inter, sans-serif", fontStyle: "italic", color: "rgba(138,92,255,0.9)", fontSize: 13, letterSpacing: "0.04em" }}>
+              </span>
+              <span style={{ opacity: 0.3, color: "#FFD000" }}>•</span>
+              <span style={{ fontFamily: "Inter, sans-serif", fontStyle: "italic", color: "rgba(200,208,224,0.85)", fontSize: 12, textShadow: "0 2px 10px rgba(0,0,0,0.7)" }}>
                 {t("verse")}
-              </p>
+              </span>
             </div>
           </div>
         </div>
@@ -438,6 +447,11 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <div className="section-divider" />
+
+      {/* ═══════════════════ LIGHTMODE QUOTIENT QUIZ ═══════════════════ */}
+      <LightModeQuotientQuiz />
 
       <div className="section-divider" />
 
