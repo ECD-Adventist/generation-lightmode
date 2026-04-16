@@ -246,13 +246,13 @@ export default function Home() {
 
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "clamp(60px, 10vw, 100px) 24px", position: "relative", zIndex: 2, width: "100%" }}>
           <div style={{ maxWidth: 620 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, border: "1px solid rgba(255,208,0,0.3)", borderRadius: 999, padding: "6px 16px", marginBottom: 22 }}>
-              <span style={{ color: "#FFD000", fontSize: 11, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.1em", textTransform: "uppercase" }}>WHY IT MATTERS</span>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.24)", borderRadius: 999, padding: "7px 14px", marginBottom: 22 }}>
+              <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.04em" }}>WHY IT MATTERS</span>
             </div>
-            <h2 className="glm-headline" style={{ fontSize: "clamp(34px, 5vw, 52px)", lineHeight: 1.1, marginBottom: 20, color: "#FFFFFF" }}>
-              {t("whyTitleBefore")} <span style={{ color: "#00CFFF" }}>{t("whyTitleHighlight")}</span>
+            <h2 className="glm-headline" style={{ fontSize: "clamp(34px, 5vw, 58px)", lineHeight: 1.02, marginBottom: 18 }}>
+              {t("whyTitleBefore")} <span className="glm-gradient-text">{t("whyTitleHighlight")}</span>
             </h2>
-            <p style={{ color: "#8A5CFF", fontSize: 13, fontWeight: 600, fontFamily: "Inter, sans-serif", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 24 }}>
+            <p style={{ color: "#FFD000", fontSize: 14, fontWeight: 700, fontFamily: "Inter, sans-serif", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 24 }}>
               {t("whySubtitle")}
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 18, marginBottom: 30 }}>
@@ -289,19 +289,19 @@ export default function Home() {
         }} />
 
         {/* Content at the bottom */}
-        <div style={{ position: "relative", zIndex: 2, padding: "80px 24px 60px", maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
-            <Link to={createPageUrl("About")} style={{ display: "inline-block", marginBottom: "32px", transition: "transform 0.3s ease" }} onMouseOver={e => e.currentTarget.style.transform = "scale(1.05)"} onMouseOut={e => e.currentTarget.style.transform = "scale(1)"}>
-               <div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(11,15,26,0.4)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(255,255,255,0.2)", margin: "0 auto" }}>
-                 <Play size={32} color="#FFF" style={{ marginLeft: 4 }} />
+        <div style={{ position: "relative", zIndex: 2, padding: "80px 24px 60px", maxWidth: 1000, margin: "0 auto", textAlign: "center" }}>
+            <Link to={createPageUrl("About")} style={{ display: "inline-block", marginBottom: "24px" }}>
+               <div style={{ width: 90, height: 90, borderRadius: "50%", background: "rgba(0,207,255,0.15)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(0,207,255,0.6)", animation: "pulse-glow 2.5s ease-in-out infinite", margin: "0 auto" }}>
+                 <Play size={40} color="#00CFFF" style={{ marginLeft: 6 }} />
                </div>
              </Link>
-            <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 48px)", marginBottom: 20, color: "#FFF" }}>
-              {t("visionTitle").split(" ")[0]} <span style={{ color: "#00CFFF" }}>{t("visionTitle").split(" ").slice(1).join(" ")}</span>
+            <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24, textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>
+              {t("visionTitle").split(" ")[0]} <span className="glm-gradient-text">{t("visionTitle").split(" ").slice(1).join(" ")}</span>
             </h2>
-            <p className="glm-body" style={{ fontSize: 17, marginBottom: 40, lineHeight: 1.6, color: "rgba(255,255,255,0.8)" }}>
+            <p className="glm-body" style={{ fontSize: 18, marginBottom: 40, lineHeight: 1.8, color: "#E0E8F0", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
               {t("visionText")}
             </p>
-            <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 15, background: "transparent", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.2)", color: "#FFF" }}>
+            <Link to={createPageUrl("About")} className="glm-btn-secondary" style={{ fontSize: 17, background: "rgba(11,15,26,0.6)", backdropFilter: "blur(10px)" }}>
               {t("readMore")}
             </Link>
         </div>
@@ -339,24 +339,24 @@ export default function Home() {
       <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#121826" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, border: "1px solid rgba(255,208,0,0.3)", borderRadius: 999, padding: "6px 16px", marginBottom: 18 }}>
-              <span style={{ color: "#FFD000", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Recognition System</span>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.1)", border: "1px solid rgba(255,208,0,0.25)", borderRadius: 999, padding: "6px 16px", marginBottom: 18 }}>
+              <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>Recognition System</span>
             </div>
-            <h2 className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 42px)", marginBottom: 16, color: "#FFF" }}>
+            <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 14 }}>
               The 4 Glow Pins
             </h2>
-            <p className="glm-body" style={{ fontSize: 16, maxWidth: 620, margin: "0 auto", color: "rgba(255,255,255,0.7)" }}>
+            <p className="glm-body" style={{ fontSize: 17, maxWidth: 620, margin: "0 auto" }}>
               Just as Pathfinders earn honors and Literature Evangelists receive pins, LightMode missionaries are celebrated for their faith in action.
             </p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20 }}>
             {[
               {
                 tier: "Bronze",
                 label: "Starter Missionary",
                 icon: "🥉",
                 color: "#C77A2B",
-                glow: "rgba(199,122,43,0.1)",
+                glow: "rgba(199,122,43,0.22)",
                 requirement: "Complete the LightMode Pledge + post your first 30 Glow Drops",
                 milestone: "First 30 Glow Drops"
               },
@@ -365,7 +365,7 @@ export default function Home() {
                 label: "Consistent Missionary",
                 icon: "🥈",
                 color: "#C7CEDB",
-                glow: "rgba(199,206,219,0.1)",
+                glow: "rgba(199,206,219,0.18)",
                 requirement: "Share 60 Glow Drops + 60 Real Light Talks in one month",
                 milestone: "60 Drops + 60 Talks"
               },
@@ -374,7 +374,7 @@ export default function Home() {
                 label: "Multiplying Missionary",
                 icon: "🥇",
                 color: "#FFD000",
-                glow: "rgba(255,208,0,0.1)",
+                glow: "rgba(255,208,0,0.22)",
                 requirement: "Recruit 5 new youth + start or strengthen a GlowGroup",
                 milestone: "Recruit 5 + GlowGroup"
               },
@@ -383,23 +383,23 @@ export default function Home() {
                 label: "Ambassador Missionary",
                 icon: "💎",
                 color: "#E8EFFE",
-                glow: "rgba(232,239,254,0.1)",
+                glow: "rgba(232,239,254,0.15)",
                 requirement: "Mentor others + lead a LightMode Challenge + submit Glow Logs",
                 milestone: "Mentor · Lead · Report"
               },
             ].map((item, idx) => (
               <div key={item.tier} style={{
-                background: "rgba(255,255,255,0.02)",
-                border: `1px solid rgba(255,255,255,0.05)`,
-                borderRadius: 20,
-                padding: "36px 24px",
+                background: "linear-gradient(160deg, rgba(255,255,255,0.03) 0%, rgba(11,15,26,0.98) 100%)",
+                border: `1px solid ${item.color}28`,
+                borderRadius: 24,
+                padding: "32px 24px",
                 textAlign: "center",
                 position: "relative",
                 overflow: "hidden",
-                transition: "transform 0.4s ease, background 0.4s ease",
+                transition: "transform 0.3s, box-shadow 0.3s",
               }}
-                onMouseOver={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
-                onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.background = "rgba(255,255,255,0.02)"; }}
+                onMouseOver={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = `0 20px 60px ${item.glow}`; }}
+                onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
               >
                 {/* Background glow */}
                 <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at top center, ${item.glow}, transparent 55%)`, pointerEvents: "none" }} />
@@ -409,41 +409,46 @@ export default function Home() {
                 <div style={{ position: "relative", zIndex: 1 }}>
                   {/* Icon badge */}
                   <div style={{
-                    width: 64, height: 64, margin: "0 auto 24px",
+                    width: 72, height: 72, margin: "0 auto 20px",
                     borderRadius: "50%",
-                    background: `rgba(255,255,255,0.03)`,
-                    border: `1px solid ${item.color}30`,
+                    background: `radial-gradient(circle, ${item.color}22, rgba(11,15,26,0.8))`,
+                    border: `2px solid ${item.color}40`,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 28,
+                    fontSize: 34,
+                    boxShadow: `0 0 28px ${item.glow}, inset 0 0 20px ${item.color}10`,
                   }}>
                     {item.icon}
                   </div>
 
                   {/* Step indicator */}
-                  <div style={{ fontSize: 11, fontWeight: 600, color: item.color, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, opacity: 0.9 }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: item.color, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 6, opacity: 0.8 }}>
                     Tier {idx + 1}
                   </div>
 
-                  <h3 className="glm-headline" style={{ fontSize: 24, color: "#FFFFFF", marginBottom: 6, lineHeight: 1.2 }}>{item.tier}</h3>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.6)", marginBottom: 20, fontFamily: "Inter, sans-serif" }}>
+                  <h3 className="glm-headline" style={{ fontSize: 22, color: "#FFFFFF", marginBottom: 4, lineHeight: 1.15 }}>{item.tier}</h3>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: item.color, marginBottom: 18, fontFamily: "Inter, sans-serif" }}>
                     {item.label}
                   </div>
 
                   {/* Milestone pill */}
                   <div style={{
                     display: "inline-block",
-                    border: `1px solid rgba(255,255,255,0.1)`,
+                    background: `${item.color}14`,
+                    border: `1px solid ${item.color}30`,
                     borderRadius: 999,
-                    padding: "6px 16px",
-                    fontSize: 12,
-                    fontWeight: 500,
-                    color: "#FFF",
+                    padding: "4px 14px",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: item.color,
                     marginBottom: 16,
+                    letterSpacing: "0.04em",
                   }}>
                     {item.milestone}
                   </div>
 
-                  <p className="glm-body" style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(255,255,255,0.5)" }}>{item.requirement}</p>
+                  <p className="glm-body" style={{ fontSize: 13, lineHeight: 1.6, color: "#A0A8BC" }}>{item.requirement}</p>
+
+                  <div style={{ width: "60%", margin: "20px auto 0", height: 1, background: `linear-gradient(90deg, transparent, ${item.color}50, transparent)` }} />
                 </div>
               </div>
             ))}
@@ -461,24 +466,24 @@ export default function Home() {
 
       {/* GLOW MAP — Full Width */}
       <section style={{ padding: "clamp(60px, 10vw, 80px) 0 0", background: "#0B0F1A" }}>
-        <div style={{ textAlign: "center", padding: "0 24px", marginBottom: 48 }}>
-          <h2 className="glm-headline" style={{ fontSize: "clamp(28px, 4vw, 42px)", marginBottom: 16, color: "#FFF" }}>
+        <div style={{ textAlign: "center", padding: "0 24px", marginBottom: 40 }}>
+          <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 48px)", marginBottom: 12 }}>
             Global Light Map
           </h2>
-          <p className="glm-body" style={{ fontSize: 16, maxWidth: 600, margin: "0 auto", color: "rgba(255,255,255,0.7)" }}>
+          <p className="glm-body" style={{ fontSize: 17, maxWidth: 600, margin: "0 auto" }}>
             Real-time data showing where our members, GlowGroups, and Glow Drops are illuminating the world.
           </p>
         </div>
 
         <style>{`
           .leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 8px; }
-          .leaflet-popup-tip { background: #121826; border: 1px solid rgba(255,255,255,0.1); }
+          .leaflet-popup-tip { background: #121826; border: 1px solid rgba(0,207,255,0.4); }
           .leaflet-control-attribution { display: none !important; }
         `}</style>
 
         <div style={{ position: "relative", zIndex: 10 }}>
           {/* Stats overlay */}
-          <div style={{ position: "absolute", top: 20, right: 20, zIndex: 1000, background: "rgba(11,15,26,0.7)", backdropFilter: "blur(20px)", borderRadius: 16, padding: "20px 24px", border: "1px solid rgba(255,255,255,0.1)", minWidth: 200 }}>
+          <div style={{ position: "absolute", top: 20, right: 20, zIndex: 1000, background: "rgba(11,15,26,0.92)", backdropFilter: "blur(14px)", borderRadius: 18, padding: "16px 18px", border: "1px solid rgba(0,207,255,0.2)", minWidth: 180 }}>
             <div style={{ fontSize: 10, fontWeight: 800, color: "#00CFFF", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>Live Statistics</div>
             {[
               { label: "Members", value: liveCountries.reduce((s, c) => s + (c.users || 0), 0), color: "#00CFFF" },
@@ -578,31 +583,31 @@ export default function Home() {
           pointerEvents: "none", zIndex: 0
         }} />
         
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 800, margin: "0 auto", padding: "60px 40px" }}>
-          <div style={{ fontSize: 48, marginBottom: 24, opacity: 0.9 }}>🔆</div>
-          <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 48px)", marginBottom: 20, color: "#FFF" }}>
-            {t("pledgeTitle").split(" ").slice(0, -1).join(" ")} <span style={{ color: "#FFD000" }}>{t("pledgeTitle").split(" ").slice(-1)}</span>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 800, margin: "0 auto", padding: "40px" }}>
+          <div style={{ fontSize: 64, marginBottom: 24, textShadow: "0 0 20px rgba(255,208,0,0.5)" }}>🔆</div>
+          <h2 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 56px)", marginBottom: 24, textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
+            {t("pledgeTitle").split(" ").slice(0, -1).join(" ")} <span className="glm-gradient-text">{t("pledgeTitle").split(" ").slice(-1)}</span>
           </h2>
-          <p className="glm-body" style={{ fontSize: 17, maxWidth: 560, margin: "0 auto 48px", color: "rgba(255,255,255,0.8)", lineHeight: 1.6 }}>
+          <p className="glm-body" style={{ fontSize: 18, maxWidth: 560, margin: "0 auto 48px", color: "#E0E8F0", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
             {t("pledgeText")}
           </p>
 
-          <div style={{ marginBottom: 56, textAlign: "left", padding: "0 20px" }}>
-            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", marginBottom: 24, fontStyle: "italic", fontFamily: "Inter, sans-serif" }}>"As a member of Generation LightMode, I pledge to:</p>
+          <div style={{ marginBottom: 48, textAlign: "left", padding: "0 20px" }}>
+            <p style={{ fontSize: 18, color: "#E0E8F0", marginBottom: 24, fontStyle: "italic", fontFamily: "Inter, sans-serif", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>"As a member of Generation LightMode, I pledge to:</p>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 16 }}>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", fontWeight: 600 }}>1.</span> <span className="glm-body" style={{ color: "rgba(255,255,255,0.85)" }}><strong>LIVE VISIBLY</strong> → Keep my faith always on — unashamed and unhidden.</span></li>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", fontWeight: 600 }}>2.</span> <span className="glm-body" style={{ color: "rgba(255,255,255,0.85)" }}><strong>SHINE BOLDLY</strong> → Glow for Christ in every post, story, and real-life interaction.</span></li>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", fontWeight: 600 }}>3.</span> <span className="glm-body" style={{ color: "rgba(255,255,255,0.85)" }}><strong>SPEAK TRUTH</strong> → Share God's love with courage and compassion.</span></li>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", fontWeight: 600 }}>4.</span> <span className="glm-body" style={{ color: "rgba(255,255,255,0.85)" }}><strong>WALK WITH PURPOSE</strong> → Let my online and offline life reflect Jesus' light.</span></li>
-              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", fontWeight: 600 }}>5.</span> <span className="glm-body" style={{ color: "rgba(255,255,255,0.85)" }}><strong>IGNITE OTHERS</strong> → Encourage fellow believers and guide seekers to the Light.</span></li>
+              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>1.</span> <span className="glm-body" style={{ textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}><strong>LIVE VISIBLY</strong> → Keep my faith always on — unashamed and unhidden.</span></li>
+              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>2.</span> <span className="glm-body" style={{ textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}><strong>SHINE BOLDLY</strong> → Glow for Christ in every post, story, and real-life interaction.</span></li>
+              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>3.</span> <span className="glm-body" style={{ textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}><strong>SPEAK TRUTH</strong> → Share God's love with courage and compassion.</span></li>
+              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>4.</span> <span className="glm-body" style={{ textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}><strong>WALK WITH PURPOSE</strong> → Let my online and offline life reflect Jesus' light.</span></li>
+              <li style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><span style={{ color: "#00CFFF", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>5.</span> <span className="glm-body" style={{ textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}><strong>IGNITE OTHERS</strong> → Encourage fellow believers and guide seekers to the Light.</span></li>
             </ul>
-            <p style={{ fontSize: 17, color: "#FFD000", marginTop: 40, fontWeight: 500, fontFamily: "Space Grotesk, sans-serif", textAlign: "center" }}>My light will not dim. My faith will not fade. I am Generation LightMode."</p>
+            <p style={{ fontSize: 18, color: "#FFD000", marginTop: 32, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", textAlign: "center", textShadow: "0 0 20px rgba(255,208,0,0.5)" }}>My light will not dim. My faith will not fade. I am Generation LightMode."</p>
           </div>
 
-          <a href={createPageUrl("Dashboard")} className="glm-btn-primary" style={{ fontSize: 16, padding: "16px 40px", borderRadius: "50px", background: "#00CFFF", color: "#0B0F1A", fontWeight: 700, border: "none", transition: "transform 0.2s" }} onMouseOver={e => e.currentTarget.style.transform = "scale(1.02)"} onMouseOut={e => e.currentTarget.style.transform = "scale(1)"}>
+          <a href={createPageUrl("Dashboard")} className="glm-btn-primary animate-pulse-glow" style={{ fontSize: 20, padding: "18px 52px" }}>
             {t("signPledge")}
           </a>
-          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginTop: 24, fontFamily: "Inter, sans-serif" }}>
+          <p style={{ color: "#C8D0E0", fontSize: 14, marginTop: 20, fontFamily: "Inter, sans-serif", textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
             {t("freeToJoin")}
           </p>
         </div>
