@@ -247,44 +247,71 @@ export default function Home() {
             </p>
           )}
 
-          {/* 3-card insight grid with images */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, marginBottom: 54 }}>
+          {/* 3-card insight grid — premium editorial */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24, marginBottom: 54 }}>
             {[
-              { num: "01", text: t("whyText1"), accent: "#FFD000", img: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop" },
-              { num: "02", text: t("whyText2"), accent: "#00CFFF", img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop" },
-              { num: "03", text: t("whyText3"), accent: "#8A5CFF", emphasis: true, img: "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=800&auto=format&fit=crop" },
+              { num: "01", title: "The New Mission Field", text: t("whyText1"), accent: "#FFD000", img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/af8161c1e_generated_image.png" },
+              { num: "02", title: "A Generation Online", text: t("whyText2"), accent: "#00CFFF", img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/97b24099d_generated_image.png" },
+              { num: "03", title: "A Bold Response", text: t("whyText3"), accent: "#8A5CFF", emphasis: true, img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/d8394ad3c_generated_image.png" },
             ].map((item) => (
               <div key={item.num} style={{
                 position: "relative",
-                background: "linear-gradient(160deg, rgba(18,14,8,0.6) 0%, rgba(11,15,26,0.95) 100%)",
-                border: `1px solid ${item.accent}22`,
-                borderRadius: 20,
+                borderRadius: 24,
                 overflow: "hidden",
-                transition: "transform 0.3s, border-color 0.3s, box-shadow 0.3s",
+                transition: "transform 0.4s ease, box-shadow 0.4s ease",
+                cursor: "default",
+                minHeight: 420,
+                display: "flex",
+                flexDirection: "column",
               }}
-                onMouseOver={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.borderColor = `${item.accent}66`; e.currentTarget.style.boxShadow = `0 20px 50px ${item.accent}18`; }}
-                onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = `${item.accent}22`; e.currentTarget.style.boxShadow = "none"; }}
+                onMouseOver={e => { e.currentTarget.style.transform = "translateY(-8px) scale(1.01)"; e.currentTarget.style.boxShadow = `0 30px 70px ${item.accent}25, 0 0 40px ${item.accent}10`; }}
+                onMouseOut={e => { e.currentTarget.style.transform = "translateY(0) scale(1)"; e.currentTarget.style.boxShadow = "none"; }}
               >
-                {/* Card image */}
-                <div style={{ position: "relative", height: 160, overflow: "hidden" }}>
-                  <img src={item.img} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.7) saturate(0.8)" }} />
-                  <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, transparent 20%, rgba(11,15,26,0.95) 100%)` }} />
-                  <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${item.accent}15, transparent 60%)` }} />
-                  {/* Number overlay */}
-                  <div style={{ position: "absolute", bottom: 14, left: 22, fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 38, color: item.accent, letterSpacing: "-0.02em", opacity: 0.9, textShadow: `0 0 20px ${item.accent}60` }}>
+                {/* Full-bleed background image */}
+                <img src={item.img} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                {/* Dark cinematic overlay */}
+                <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, ${item.accent}10 0%, rgba(11,15,26,0.55) 35%, rgba(11,15,26,0.92) 70%, rgba(11,15,26,0.98) 100%)` }} />
+                {/* Side accent glow */}
+                <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at top left, ${item.accent}18, transparent 50%)`, pointerEvents: "none" }} />
+                {/* Top accent line */}
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${item.accent}, ${item.accent}40, transparent)` }} />
+
+                {/* Content */}
+                <div style={{ position: "relative", zIndex: 2, padding: "28px 26px", display: "flex", flexDirection: "column", flex: 1, justifyContent: "flex-end" }}>
+                  {/* Floating number badge */}
+                  <div style={{
+                    position: "absolute", top: 24, left: 26,
+                    width: 52, height: 52, borderRadius: 16,
+                    background: `${item.accent}18`,
+                    border: `1.5px solid ${item.accent}50`,
+                    backdropFilter: "blur(12px)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 20,
+                    color: item.accent,
+                    boxShadow: `0 0 20px ${item.accent}30`,
+                  }}>
                     {item.num}
                   </div>
-                </div>
-                {/* Top accent line */}
-                <div style={{ position: "absolute", top: 0, left: 24, right: 24, height: 2, background: `linear-gradient(90deg, ${item.accent}, transparent)`, borderRadius: 999 }} />
-                {/* Text content */}
-                <div style={{ padding: "18px 22px 24px" }}>
+
+                  {/* Title */}
+                  <h3 style={{
+                    fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
+                    fontSize: 22, color: "#FFFFFF", marginBottom: 12,
+                    lineHeight: 1.2, letterSpacing: "-0.01em",
+                  }}>
+                    {item.title}
+                  </h3>
+
+                  {/* Divider */}
+                  <div style={{ width: 40, height: 2, background: `linear-gradient(90deg, ${item.accent}, transparent)`, borderRadius: 999, marginBottom: 14 }} />
+
+                  {/* Body text */}
                   <p style={{
-                    color: item.emphasis ? "#FFFFFF" : "#C8D0E0",
-                    fontSize: 15,
+                    color: item.emphasis ? "#E8ECF2" : "#B8C0D0",
+                    fontSize: 14,
                     fontFamily: "Inter, sans-serif",
-                    lineHeight: 1.7,
-                    fontWeight: item.emphasis ? 500 : 400,
+                    lineHeight: 1.75,
+                    fontWeight: 400,
                     margin: 0,
                   }}>
                     {item.text}
