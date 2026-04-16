@@ -250,9 +250,9 @@ export default function Home() {
           {/* 3-card insight grid — premium editorial */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24, marginBottom: 54 }}>
             {[
-              { num: "01", title: "The New Mission Field", text: t("whyText1"), accent: "#FFD000", img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/af8161c1e_generated_image.png" },
-              { num: "02", title: "A Generation Online", text: t("whyText2"), accent: "#00CFFF", img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/97b24099d_generated_image.png" },
-              { num: "03", title: "A Bold Response", text: t("whyText3"), accent: "#8A5CFF", emphasis: true, img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/d8394ad3c_generated_image.png" },
+              { num: "01", title: "The New Mission Field", text: t("whyText1"), accent: "#FFD000", img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c98eb0914_generated_image.png" },
+              { num: "02", title: "A Generation Online", text: t("whyText2"), accent: "#00CFFF", img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/0b76b2e6f_generated_image.png" },
+              { num: "03", title: "A Bold Response", text: t("whyText3"), accent: "#8A5CFF", emphasis: true, img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/e9655d83e_generated_image.png" },
             ].map((item) => (
               <div key={item.num} style={{
                 position: "relative",
@@ -281,14 +281,15 @@ export default function Home() {
                   {/* Floating number badge */}
                   <div style={{
                     position: "absolute", top: 24, left: 26,
-                    width: 52, height: 52, borderRadius: 16,
-                    background: `${item.accent}18`,
-                    border: `1.5px solid ${item.accent}50`,
-                    backdropFilter: "blur(12px)",
+                    width: 58, height: 58, borderRadius: 16,
+                    background: `rgba(11,15,26,0.75)`,
+                    border: `2px solid ${item.accent}80`,
+                    backdropFilter: "blur(16px)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 20,
+                    fontFamily: "Space Grotesk, sans-serif", fontWeight: 900, fontSize: 24,
                     color: item.accent,
-                    boxShadow: `0 0 20px ${item.accent}30`,
+                    boxShadow: `0 0 30px ${item.accent}50, inset 0 0 12px ${item.accent}15`,
+                    textShadow: `0 0 12px ${item.accent}`,
                   }}>
                     {item.num}
                   </div>
@@ -384,15 +385,12 @@ export default function Home() {
 
             {/* CTAs */}
             <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-              <button onClick={() => setShowVideo(true)} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(0,207,255,0.12)", border: "1px solid rgba(0,207,255,0.4)", borderRadius: 999, padding: "10px 22px 10px 10px", cursor: "pointer", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 14, backdropFilter: "blur(12px)", transition: "all 0.3s" }}
-                onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.22)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.7)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-                onMouseOut={e => { e.currentTarget.style.background = "rgba(0,207,255,0.12)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.4)"; e.currentTarget.style.transform = "translateY(0)"; }}
-              >
-                <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#00CFFF", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 20px rgba(0,207,255,0.6)", flexShrink: 0 }}>
-                  <Play size={15} color="#0B0F1A" fill="#0B0F1A" style={{ marginLeft: 2 }} />
+              <div style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.3)", borderRadius: 999, padding: "10px 22px 10px 14px", color: "#FFD000", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 14, backdropFilter: "blur(12px)" }}>
+                <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,208,0,0.15)", border: "1px solid rgba(255,208,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Play size={13} color="#FFD000" fill="#FFD000" style={{ marginLeft: 1 }} />
                 </div>
-                Watch the Vision
-              </button>
+                Video Coming Soon
+              </div>
               <Link to={createPageUrl("About")} style={{ color: "#C8D0E0", fontFamily: "Inter, sans-serif", fontSize: 13, textDecoration: "none", display: "flex", alignItems: "center", gap: 6, transition: "color 0.2s" }}
                 onMouseOver={e => e.currentTarget.style.color = "#FFD000"}
                 onMouseOut={e => e.currentTarget.style.color = "#C8D0E0"}
@@ -449,6 +447,9 @@ export default function Home() {
 
       {/* ═══════════════════ GLOW RANKS ═══════════════════ */}
       <section style={{ padding: "clamp(80px, 10vw, 120px) clamp(20px, 5vw, 60px)", background: "#0D1220", position: "relative", overflow: "hidden" }}>
+        {/* Lightbulb pattern background */}
+        <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/8f9bf2363_lightbulb-seamless-pattern-background-light-bulb-motif-wallpaper-idea-thinking-creative-electric-energy-solution-vector.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.04, pointerEvents: "none", mixBlendMode: "screen" }} />
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 30%, #0D1220 75%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 100%, rgba(138,92,255,0.06) 0%, transparent 60%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
           <div style={{ textAlign: "center", marginBottom: 60 }}>

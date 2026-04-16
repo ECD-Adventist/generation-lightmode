@@ -45,6 +45,9 @@ export default function DailyDropsSection() {
 
   return (
     <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#0B0F1A", position: "relative", overflow: "hidden" }}>
+      {/* Lightbulb pattern background */}
+      <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/8f9bf2363_lightbulb-seamless-pattern-background-light-bulb-motif-wallpaper-idea-thinking-creative-electric-energy-solution-vector.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.04, pointerEvents: "none", mixBlendMode: "screen" }} />
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 30%, #0B0F1A 75%)", pointerEvents: "none" }} />
       {/* Ambient background blobs */}
       <div style={{ position: "absolute", top: "10%", left: "-5%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.05), transparent 70%)", pointerEvents: "none" }} />
       <div style={{ position: "absolute", bottom: "5%", right: "-5%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(138,92,255,0.06), transparent 70%)", pointerEvents: "none" }} />
