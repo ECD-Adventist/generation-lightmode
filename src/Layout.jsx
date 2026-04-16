@@ -267,19 +267,13 @@ export default function Layout({ children, currentPageName }) {
         /* Public nav for non-logged-in users */
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
-        background: scrolled ? "rgba(11,15,26,0.95)" : "transparent",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
-        borderBottom: scrolled ? "1px solid rgba(0,207,255,0.1)" : "none",
+        background: scrolled ? "rgba(11,15,26,0.97)" : "rgba(11,15,26,0.55)",
+        backdropFilter: "blur(20px)",
+        borderBottom: scrolled ? "1px solid rgba(0,207,255,0.12)" : "1px solid rgba(255,255,255,0.05)",
         transition: "all 0.4s ease",
         padding: "0 24px",
       }}>
-        <div style={{
-          position: "absolute", inset: 0, zIndex: -1,
-          background: scrolled ? "none" : "linear-gradient(180deg, rgba(0,207,255,0.15) 0%, transparent 100%)",
-          transition: "opacity 0.4s ease",
-          opacity: scrolled ? 0 : 1,
-          pointerEvents: "none",
-        }} />
+        
         <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[76px] md:h-[76px] lg:h-[86px] w-full">
           {/* Logo */}
           <Link to={createPageUrl("Home")} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
