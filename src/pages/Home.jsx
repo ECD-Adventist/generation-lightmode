@@ -213,42 +213,96 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════ MISSION STRIP — cinematic side-by-side ═══════════════════ */}
-      <section style={{ position: "relative", overflow: "hidden", minHeight: "85vh", display: "flex", alignItems: "stretch" }}>
-        {/* Left: image panel */}
-        <div style={{ flex: "0 0 50%", position: "relative", overflow: "hidden" }} className="hidden lg:block" >
-          <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/03e3bfc33_COVER02copy.jpg" alt="Mission field" loading="lazy"
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }} />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, transparent 70%, #0B0F1A 100%)" }} />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.4) 0%, transparent 30%, transparent 70%, rgba(11,15,26,0.8) 100%)" }} />
-        </div>
-        {/* Right: text panel */}
-        <div style={{ flex: 1, background: "#0B0F1A", display: "flex", alignItems: "center", padding: "clamp(60px, 8vw, 100px) clamp(32px, 6vw, 80px)" }}>
-          {/* Mobile bg */}
-          <div className="lg:hidden" style={{ position: "absolute", inset: 0 }}>
-            <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/03e3bfc33_COVER02copy.jpg" alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15 }} />
+      {/* ═══════════════════ WHY LIGHTMODE EXISTS — editorial dark + warm gold ═══════════════════ */}
+      <section style={{ position: "relative", overflow: "hidden", padding: "clamp(90px, 11vw, 140px) clamp(20px, 6vw, 80px)", background: "radial-gradient(ellipse at 20% 30%, #1A1208 0%, #0B0F1A 55%, #080C14 100%)" }}>
+        {/* Warm gold ambient blobs matching hero tone */}
+        <div style={{ position: "absolute", top: "-10%", left: "-5%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,165,0,0.12), transparent 65%)", pointerEvents: "none", filter: "blur(40px)" }} />
+        <div style={{ position: "absolute", bottom: "-15%", right: "-10%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,208,0,0.08), transparent 65%)", pointerEvents: "none", filter: "blur(50px)" }} />
+        {/* Faint grid texture */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(rgba(255,208,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,208,0,0.03) 1px, transparent 1px)", backgroundSize: "60px 60px", pointerEvents: "none", opacity: 0.4 }} />
+
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 1080, margin: "0 auto" }}>
+          {/* Eyebrow */}
+          <div style={{ textAlign: "center", marginBottom: 36 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.28)", borderRadius: 999, padding: "7px 18px", backdropFilter: "blur(10px)" }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFD000", boxShadow: "0 0 10px #FFD000", display: "inline-block" }} />
+              <span style={{ color: "#FFD000", fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>Why It Matters</span>
+            </div>
           </div>
-          <div style={{ position: "relative", zIndex: 1, maxWidth: 540 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.3)", borderRadius: 999, padding: "6px 16px", marginBottom: 24 }}>
-              <span style={{ color: "#FFD000", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>Why It Matters</span>
-            </div>
-            <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", lineHeight: 1.05, letterSpacing: "-0.02em", color: "#FFFFFF", marginBottom: 16 }}>
-              {t("whyTitleBefore")}{" "}
-              <span style={{ background: "linear-gradient(90deg, #00CFFF, #8A5CFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-                {t("whyTitleHighlight")}
-              </span>
-            </h2>
-            <div style={{ width: 48, height: 3, background: "linear-gradient(90deg, #FFD000, #00CFFF)", borderRadius: 999, marginBottom: 28 }} />
-            <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 36 }}>
-              <p style={{ color: "#C8D0E0", fontSize: 16, fontFamily: "Inter, sans-serif", lineHeight: 1.7 }}>{t("whyText1")}</p>
-              <p style={{ color: "#C8D0E0", fontSize: 16, fontFamily: "Inter, sans-serif", lineHeight: 1.7 }}>{t("whyText2")}</p>
-              <p style={{ color: "#E8EFFE", fontSize: 16, fontFamily: "Inter, sans-serif", lineHeight: 1.7, fontWeight: 500 }}>{t("whyText3")}</p>
-            </div>
-            <Link to={createPageUrl("About")} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#00CFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 15, textDecoration: "none", border: "1px solid rgba(0,207,255,0.4)", borderRadius: 999, padding: "12px 24px", transition: "all 0.3s" }}
-              onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.8)"; }}
-              onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.4)"; }}
+
+          {/* Big centered headline */}
+          <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(40px, 6vw, 76px)", lineHeight: 1, letterSpacing: "-0.035em", color: "#FFFFFF", marginBottom: 18, textAlign: "center" }}>
+            {t("whyTitleBefore")}{" "}
+            <span style={{ background: "linear-gradient(90deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              {t("whyTitleHighlight")}
+            </span>
+          </h2>
+
+          {/* Subtitle */}
+          {t("whySubtitle") && (
+            <p style={{ color: "#FFD000", fontSize: "clamp(15px, 1.6vw, 18px)", fontFamily: "Inter, sans-serif", fontStyle: "italic", textAlign: "center", marginBottom: 54, letterSpacing: "0.02em", textShadow: "0 0 20px rgba(255,208,0,0.25)" }}>
+              {t("whySubtitle")}
+            </p>
+          )}
+
+          {/* 3-card insight grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 18, marginBottom: 54 }}>
+            {[
+              { num: "01", text: t("whyText1"), accent: "#FFD000" },
+              { num: "02", text: t("whyText2"), accent: "#00CFFF" },
+              { num: "03", text: t("whyText3"), accent: "#8A5CFF", emphasis: true },
+            ].map((item) => (
+              <div key={item.num} style={{
+                position: "relative",
+                background: "linear-gradient(160deg, rgba(18,14,8,0.6) 0%, rgba(11,15,26,0.85) 100%)",
+                border: `1px solid ${item.accent}22`,
+                borderRadius: 20,
+                padding: "28px 24px 26px",
+                backdropFilter: "blur(12px)",
+                overflow: "hidden",
+                transition: "transform 0.3s, border-color 0.3s, box-shadow 0.3s",
+              }}
+                onMouseOver={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = `${item.accent}66`; e.currentTarget.style.boxShadow = `0 20px 50px ${item.accent}18`; }}
+                onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = `${item.accent}22`; e.currentTarget.style.boxShadow = "none"; }}
+              >
+                {/* Top accent line */}
+                <div style={{ position: "absolute", top: 0, left: 24, right: 24, height: 2, background: `linear-gradient(90deg, ${item.accent}, transparent)`, borderRadius: 999 }} />
+                {/* Corner glow */}
+                <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, background: `radial-gradient(circle, ${item.accent}20, transparent 70%)`, pointerEvents: "none" }} />
+
+                <div style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 32, color: item.accent, letterSpacing: "-0.02em", marginBottom: 14, opacity: 0.9 }}>
+                  {item.num}
+                </div>
+                <p style={{
+                  color: item.emphasis ? "#FFFFFF" : "#C8D0E0",
+                  fontSize: 15,
+                  fontFamily: "Inter, sans-serif",
+                  lineHeight: 1.7,
+                  fontWeight: item.emphasis ? 500 : 400,
+                  margin: 0,
+                }}>
+                  {item.text}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div style={{ textAlign: "center" }}>
+            <Link to={createPageUrl("About")} style={{
+              display: "inline-flex", alignItems: "center", gap: 10,
+              color: "#0B0F1A",
+              background: "linear-gradient(135deg, #FFD000, #FFA500)",
+              fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 14,
+              textDecoration: "none",
+              borderRadius: 999, padding: "13px 28px",
+              boxShadow: "0 0 30px rgba(255,208,0,0.35)",
+              transition: "all 0.3s",
+            }}
+              onMouseOver={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 0 45px rgba(255,208,0,0.55)"; }}
+              onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 0 30px rgba(255,208,0,0.35)"; }}
             >
-              {t("learnMore")} <ArrowRight size={16} />
+              {t("learnMore")} <ArrowRight size={15} />
             </Link>
           </div>
         </div>
@@ -285,14 +339,12 @@ export default function Home() {
               {t("visionText")}
             </p>
 
-            {/* Speaker card — giving the subject identity without covering his face */}
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32, padding: "12px 16px", background: "rgba(18,24,38,0.6)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,208,0,0.2)", borderRadius: 14, maxWidth: 360 }}>
-              <div style={{ width: 44, height: 44, borderRadius: "50%", background: "linear-gradient(135deg, #FFD000, #FFA500)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, color: "#0B0F1A", fontSize: 16, flexShrink: 0 }}>
-                BR
-              </div>
+            {/* Speaker attribution — minimal inline caption, not a card */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 32 }}>
+              <div style={{ width: 26, height: 1, background: "linear-gradient(90deg, #FFD000, transparent)" }} />
               <div>
-                <div style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 14, color: "#FFFFFF" }}>Pr. Blasious Ruguri</div>
-                <div style={{ fontFamily: "Inter, sans-serif", fontSize: 11, color: "#FFD000", letterSpacing: "0.04em" }}>East-Central Africa Division President</div>
+                <div style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 600, fontSize: 13, color: "#FFFFFF", letterSpacing: "0.01em" }}>Pr. Blasious Ruguri</div>
+                <div style={{ fontFamily: "Inter, sans-serif", fontSize: 11, color: "#FFD000", letterSpacing: "0.06em", textTransform: "uppercase", opacity: 0.9 }}>East-Central Africa Division President</div>
               </div>
             </div>
 

@@ -392,7 +392,9 @@ export default function Layout({ children, currentPageName }) {
                 if (isAuth) window.location.href = createPageUrl("Feed");
                 else base44.auth.redirectToLogin(createPageUrl("Feed"));
               }} className="glm-switch-btn">
-                <span className="glm-switch-ring" aria-hidden="true" />
+                <span className="glm-switch-orbit p1" aria-hidden="true" />
+                <span className="glm-switch-orbit p2" aria-hidden="true" />
+                <span className="glm-switch-orbit p3" aria-hidden="true" />
                 <span className="glm-switch-inner">⚡ Switch It On</span>
               </button>
             ) : (
@@ -635,55 +637,37 @@ export default function Layout({ children, currentPageName }) {
           .mobile-menu-btn { display: block !important; }
         }
 
-        /* Rotating gold light around Switch It On button */
-        @keyframes glm-switch-spin { to { transform: rotate(360deg); } }
+        /* Switch It On — gold light orbiting AROUND the button (not rotating the button itself) */
+        @keyframes glm-orbit {
+          0%   { transform: rotate(0deg)   translateX(var(--orbit-r)) rotate(0deg); }
+          100% { transform: rotate(360deg) translateX(var(--orbit-r)) rotate(-360deg); }
+        }
+        @keyframes glm-orbit-reverse {
+          0%   { transform: rotate(0deg)   translateX(var(--orbit-r)) rotate(0deg); }
+          100% { transform: rotate(-360deg) translateX(var(--orbit-r)) rotate(360deg); }
+        }
         @keyframes glm-switch-pulse {
-          0%, 100% { box-shadow: 0 0 18px rgba(0,207,255,0.35), 0 0 0 0 rgba(255,208,0,0.0); }
-          50% { box-shadow: 0 0 34px rgba(0,207,255,0.6), 0 0 0 4px rgba(255,208,0,0.08); }
+          0%, 100% { box-shadow: 0 0 18px rgba(0,207,255,0.35); }
+          50%      { box-shadow: 0 0 34px rgba(0,207,255,0.6); }
         }
         .glm-switch-btn {
+          --orbit-r: 58px;
           position: relative;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 2px;
           border: none;
           cursor: pointer;
-          border-radius: 999px;
           background: transparent;
           white-space: nowrap;
           flex-shrink: 0;
-          isolation: isolate;
+          padding: 14px 18px;
           transition: transform 0.3s ease;
-          animation: glm-switch-pulse 2.8s ease-in-out infinite;
         }
         .glm-switch-btn:hover { transform: translateY(-1px) scale(1.03); }
-        .glm-switch-ring {
-          position: absolute;
-          inset: -3px;
-          border-radius: 999px;
-          padding: 0;
-          background: conic-gradient(from 0deg,
-            rgba(255,208,0,0) 0deg,
-            rgba(255,208,0,0.0) 60deg,
-            rgba(255,208,0,0.95) 140deg,
-            rgba(255,165,0,1) 180deg,
-            rgba(255,208,0,0.95) 220deg,
-            rgba(255,208,0,0.0) 300deg,
-            rgba(255,208,0,0) 360deg);
-          filter: blur(2px);
-          animation: glm-switch-spin 3.5s linear infinite;
-          z-index: -1;
-        }
-        .glm-switch-btn::before {
-          content: "";
-          position: absolute;
-          inset: -2px;
-          border-radius: 999px;
-          background: #0B0F1A;
-          z-index: -1;
-        }
         .glm-switch-inner {
+          position: relative;
+          z-index: 2;
           display: inline-flex;
           align-items: center;
           gap: 6px;
@@ -695,6 +679,28 @@ export default function Layout({ children, currentPageName }) {
           padding: 10px 22px;
           border-radius: 999px;
           box-shadow: inset 0 0 10px rgba(255,255,255,0.15);
+          animation: glm-switch-pulse 2.8s ease-in-out infinite;
+        }
+        /* Orbiting light particles — golden dots circling around the button */
+        .glm-switch-orbit {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 10px;
+          height: 10px;
+          margin: -5px 0 0 -5px;
+          border-radius: 50%;
+          background: radial-gradient(circle, #FFE066 0%, #FFD000 40%, rgba(255,165,0,0) 75%);
+          box-shadow: 0 0 16px #FFD000, 0 0 32px rgba(255,208,0,0.55);
+          pointer-events: none;
+          z-index: 1;
+          will-change: transform;
+        }
+        .glm-switch-orbit.p1 { animation: glm-orbit 3.2s linear infinite; }
+        .glm-switch-orbit.p2 { animation: glm-orbit 3.2s linear infinite; animation-delay: -1.6s; opacity: 0.7; }
+        .glm-switch-orbit.p3 { animation: glm-orbit-reverse 4.6s linear infinite; width: 6px; height: 6px; margin: -3px 0 0 -3px; opacity: 0.5; }
+        @media (max-width: 520px) {
+          .glm-switch-btn { --orbit-r: 48px; padding: 10px 14px; }
         }
       `}</style>
     </div>
