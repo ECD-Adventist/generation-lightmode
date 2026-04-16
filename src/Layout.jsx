@@ -268,16 +268,26 @@ export default function Layout({ children, currentPageName }) {
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
         background: scrolled ? "rgba(11,15,26,0.95)" : "transparent",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
-        borderBottom: scrolled ? "1px solid rgba(0,207,255,0.1)" : "none",
+        backdropFilter: scrolled ? "blur(20px)" : "blur(6px)",
+        borderBottom: scrolled ? "1px solid rgba(0,207,255,0.15)" : "1px solid rgba(0,207,255,0.08)",
         transition: "all 0.4s ease",
         padding: "0 24px",
       }}>
+        {/* Branded gradient veil — always present for visibility over hero images */}
         <div style={{
           position: "absolute", inset: 0, zIndex: -1,
-          background: scrolled ? "none" : "linear-gradient(180deg, rgba(0,207,255,0.15) 0%, transparent 100%)",
+          background: scrolled
+            ? "linear-gradient(180deg, rgba(11,15,26,0.98) 0%, rgba(18,24,38,0.95) 100%)"
+            : "linear-gradient(180deg, rgba(11,15,26,0.88) 0%, rgba(11,15,26,0.55) 70%, rgba(11,15,26,0) 100%)",
+          transition: "all 0.4s ease",
+          pointerEvents: "none",
+        }} />
+        {/* Subtle cyan/violet accent glow along the bottom edge */}
+        <div style={{
+          position: "absolute", left: 0, right: 0, bottom: 0, height: 1, zIndex: -1,
+          background: "linear-gradient(90deg, transparent, rgba(0,207,255,0.4), rgba(138,92,255,0.4), transparent)",
+          opacity: scrolled ? 1 : 0.6,
           transition: "opacity 0.4s ease",
-          opacity: scrolled ? 0 : 1,
           pointerEvents: "none",
         }} />
         <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[76px] md:h-[76px] lg:h-[86px] w-full">

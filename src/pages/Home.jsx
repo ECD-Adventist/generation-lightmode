@@ -123,36 +123,32 @@ export default function Home() {
           decoding="async"
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", pointerEvents: "none" }}
         />
-        {/* Cinematic gradient — transparent top, heavy amber→dark at bottom */}
+        {/* Branded gradient — dark at top (for navbar visibility) + bottom (for text) with subtle cyan/gold tint */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
-          background: "linear-gradient(180deg, rgba(11,15,26,0.05) 0%, rgba(11,15,26,0.0) 30%, rgba(11,15,26,0.6) 70%, rgba(11,15,26,0.98) 100%)",
+          background: "linear-gradient(180deg, rgba(11,15,26,0.85) 0%, rgba(11,15,26,0.45) 14%, rgba(11,15,26,0.0) 30%, rgba(11,15,26,0.0) 55%, rgba(11,15,26,0.75) 82%, rgba(11,15,26,0.98) 100%)",
         }} />
         {/* Warm golden side vignette matching hero image tonality */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 100%, rgba(255,140,0,0.12) 0%, transparent 65%)" }} />
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 110%, rgba(255,208,0,0.10) 0%, transparent 55%)" }} />
+        {/* Cyan top accent tint to enhance navbar */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 180, pointerEvents: "none", background: "linear-gradient(180deg, rgba(0,207,255,0.08) 0%, transparent 100%)" }} />
 
-        {/* Hero Content — bottom-anchored, editorial layout */}
-        <div style={{ position: "relative", zIndex: 2, padding: "0 clamp(20px, 6vw, 80px) clamp(60px, 10vw, 100px)", maxWidth: 1200, width: "100%", margin: "0 auto" }}>
-          {/* Eyebrow pill */}
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.1)", border: "1px solid rgba(255,208,0,0.35)", borderRadius: 999, padding: "6px 18px", marginBottom: 24, backdropFilter: "blur(10px)" }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFD000", boxShadow: "0 0 8px #FFD000", display: "inline-block" }} />
-            <span style={{ color: "#FFD000", fontSize: 11, fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>Generation LightMode · Faith. Always On.</span>
-          </div>
-
-          {/* Giant headline */}
-          <h1 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(40px, 7vw, 88px)", lineHeight: 0.95, letterSpacing: "-0.03em", marginBottom: 28, color: "#FFFFFF" }}>
+        {/* Hero Content — bottom-anchored, compact so faces stay visible */}
+        <div style={{ position: "relative", zIndex: 2, padding: "0 clamp(20px, 6vw, 80px) clamp(40px, 7vw, 72px)", maxWidth: 1200, width: "100%", margin: "0 auto" }}>
+          {/* Headline — reduced size to avoid covering faces */}
+          <h1 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(26px, 4vw, 52px)", lineHeight: 1.05, letterSpacing: "-0.02em", marginBottom: 20, color: "#FFFFFF", textShadow: "0 2px 20px rgba(0,0,0,0.6)", maxWidth: 820 }}>
             {t("heroTitleBefore")}{" "}
             <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               {t("heroTitleHighlight")}
             </span>
-            <br />{t("heroTitleAfter")}
+            {" "}{t("heroTitleAfter")}
           </h1>
 
           {/* Two-column bottom bar */}
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 32, flexWrap: "wrap" }}>
-            <div style={{ maxWidth: 520 }}>
-              <p style={{ color: "#C8D0E0", fontSize: "clamp(15px, 1.8vw, 18px)", fontFamily: "Inter, sans-serif", lineHeight: 1.65, marginBottom: 32 }}>
-                {t("heroSubtitle")}
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 28, flexWrap: "wrap" }}>
+            <div style={{ maxWidth: 560 }}>
+              <p style={{ color: "#E0E8F0", fontSize: "clamp(14px, 1.5vw, 16px)", fontFamily: "Inter, sans-serif", lineHeight: 1.6, marginBottom: 24, textShadow: "0 2px 10px rgba(0,0,0,0.6)" }}>
+                Join 10M+ believers turning hidden faith into visible light — across the nations of the East-Central Africa Division.
               </p>
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                 <a href={createPageUrl("Dashboard")} style={{
