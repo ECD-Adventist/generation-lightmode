@@ -384,7 +384,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
 
           {/* Right-side actions — outside the pill group */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }} className="desktop-nav">
+          <div style={{ display: "flex", alignItems: "center", gap: 12, overflow: "visible" }} className="desktop-nav">
             <LanguageSelector />
             {!userEmail ? (
               <button onClick={async () => {
@@ -663,6 +663,7 @@ export default function Layout({ children, currentPageName }) {
           flex-shrink: 0;
           padding: 14px 18px;
           transition: transform 0.3s ease;
+          overflow: visible;
         }
         .glm-switch-btn:hover { transform: translateY(-1px) scale(1.03); }
         .glm-switch-inner {
