@@ -75,27 +75,27 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-[#0B0F1A] text-white border-white/10 p-0 overflow-hidden gap-0">
+      <DialogContent className="sm:max-w-md bg-white text-[#0B1B3D] border-[#E6ECF5] p-0 overflow-hidden gap-0">
         {/* Header */}
-        <div className="px-5 pt-5 pb-4 border-b border-white/5">
+        <div className="px-5 pt-5 pb-4 border-b border-[#E6ECF5]">
           <DialogHeader className="mb-3">
-            <DialogTitle className="text-xl font-black" style={{ fontFamily: "Space Grotesk, sans-serif" }}>Create Status</DialogTitle>
-            <DialogDescription className="text-gray-500 text-sm">Visible for 24 hours</DialogDescription>
+            <DialogTitle className="text-xl font-black" style={{ fontFamily: "Space Grotesk, sans-serif", color: "#0B1B3D" }}>Create Status</DialogTitle>
+            <DialogDescription className="text-[#6B7FA0] text-sm">Visible for 24 hours</DialogDescription>
           </DialogHeader>
 
           {/* Mode Toggle */}
-          <div className="flex bg-[#121826] rounded-xl p-1 gap-1">
+          <div className="flex bg-[#F0F4FA] rounded-xl p-1 gap-1">
             <button
               type="button"
               onClick={() => setMode("status")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === "status" ? "bg-[#00CFFF] text-black shadow-[0_0_12px_rgba(0,207,255,0.3)]" : "text-gray-400 hover:text-white"}`}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === "status" ? "bg-white text-[#0B3FD9] shadow-sm border border-[#E6ECF5]" : "text-[#6B7FA0] hover:text-[#0B1B3D]"}`}
             >
               <Type className="w-4 h-4" /> Text
             </button>
             <button
               type="button"
               onClick={() => setMode("image")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === "image" ? "bg-[#FFD000] text-black shadow-[0_0_12px_rgba(255,208,0,0.3)]" : "text-gray-400 hover:text-white"}`}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all ${mode === "image" ? "bg-white text-[#CC7A00] shadow-sm border border-[#E6ECF5]" : "text-[#6B7FA0] hover:text-[#0B1B3D]"}`}
             >
               <ImagePlus className="w-4 h-4" /> Photo
             </button>
@@ -118,23 +118,23 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
                 value={text}
                 onChange={(e) => setText(e.target.value.slice(0, 200))}
                 placeholder="Share what's on your heart..."
-                className="bg-[#121826] border-white/10 min-h-[80px] text-white placeholder:text-gray-600 resize-none"
+                className="bg-[#F6F8FC] border-[#E6ECF5] min-h-[80px] text-[#0B1B3D] placeholder:text-[#8A97B5] resize-none"
                 maxLength={200}
               />
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-gray-600">{text.length}/200</span>
+                <span className="text-[10px] text-[#8A97B5]">{text.length}/200</span>
               </div>
 
               {/* Theme picker */}
               <div>
-                <Label className="text-xs text-gray-400 uppercase tracking-wider mb-2 block">Background</Label>
+                <Label className="text-xs text-[#6B7FA0] uppercase tracking-wider mb-2 block">Background</Label>
                 <div className="flex gap-2">
                   {themes.map(t => (
                     <button
                       key={t.id}
                       type="button"
                       onClick={() => setTheme(t.id)}
-                      className={`w-10 h-10 rounded-xl bg-gradient-to-br ${t.className} transition-all ${theme === t.id ? "ring-2 ring-white ring-offset-2 ring-offset-[#0B0F1A] scale-110" : "opacity-60 hover:opacity-100"}`}
+                      className={`w-10 h-10 rounded-xl bg-gradient-to-br ${t.className} transition-all ${theme === t.id ? "ring-2 ring-[#0B3FD9] ring-offset-2 ring-offset-white scale-110" : "opacity-60 hover:opacity-100"}`}
                     />
                   ))}
                 </div>
@@ -143,7 +143,7 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
           ) : (
             <div>
               {preview ? (
-                <div className="relative rounded-2xl overflow-hidden bg-black">
+                <div className="relative rounded-2xl overflow-hidden bg-[#F0F4FA]">
                   <img src={preview} alt="Preview" className="w-full max-h-[300px] object-contain" />
                   <button type="button" onClick={removeImage} className="absolute top-2 right-2 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-black/80 transition">
                     <X className="w-4 h-4" />
@@ -153,10 +153,10 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
                 <button
                   type="button"
                   onClick={() => fileRef.current?.click()}
-                  className="w-full h-[200px] rounded-2xl border-2 border-dashed border-white/10 bg-[#121826] flex flex-col items-center justify-center gap-3 hover:border-[#00CFFF]/40 hover:bg-[#00CFFF]/5 transition cursor-pointer"
+                  className="w-full h-[200px] rounded-2xl border-2 border-dashed border-[#D6E4FF] bg-[#F6F8FC] flex flex-col items-center justify-center gap-3 hover:border-[#1FB8FF] hover:bg-[#EEF3FF] transition cursor-pointer"
                 >
-                  <ImagePlus className="w-10 h-10 text-gray-500" />
-                  <span className="text-sm text-gray-400 font-medium">Tap to select a photo</span>
+                  <ImagePlus className="w-10 h-10 text-[#8A97B5]" />
+                  <span className="text-sm text-[#6B7FA0] font-medium">Tap to select a photo</span>
                 </button>
               )}
               <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
@@ -166,7 +166,7 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
           <Button
             type="submit"
             disabled={saving}
-            className="w-full bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black font-black py-6 rounded-xl text-base shadow-[0_0_20px_rgba(0,207,255,0.3)] hover:shadow-[0_0_30px_rgba(0,207,255,0.5)] transition-all"
+            className="w-full bg-gradient-to-r from-[#1FB8FF] to-[#0B3FD9] text-white font-black py-6 rounded-xl text-base shadow-[0_4px_14px_rgba(11,63,217,0.35)] hover:shadow-[0_6px_20px_rgba(11,63,217,0.5)] transition-all"
           >
             {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Publish Status"}
           </Button>
