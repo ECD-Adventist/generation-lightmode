@@ -334,43 +334,51 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             <button
               onClick={handleLike}
               className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none ${likeBurst ? 'dc-anim-pulse' : ''}`}
-              style={{ background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }}
+              style={drop.media_url
+                ? { background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }
+                : { background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
               title={userHasLiked ? "Unlike this drop" : "Like this drop"}
             >
-              <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${likeBurst ? 'dc-anim-like' : ''} ${userHasLiked ? "text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "text-white hover:scale-110"}`} />
+              <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${likeBurst ? 'dc-anim-like' : ''} ${userHasLiked ? "text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : drop.media_url ? "text-white hover:scale-110" : "text-[#5A6A8A] hover:scale-110"}`} />
             </button>
-            <span className="text-white text-[11px] sm:text-xs font-bold drop-shadow-md">{drop.likes_count || 0}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{drop.likes_count || 0}</span>
           </div>
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleCommentToggle}
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none"
-              style={{ background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }}
+              style={drop.media_url
+                ? { background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }
+                : { background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
             >
-              <MessageCircle className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${commentBounce ? 'dc-anim-bounce' : ''}`} style={{ color: showComments ? "#1FB8FF" : "#FFFFFF" }} />
+              <MessageCircle className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${commentBounce ? 'dc-anim-bounce' : ''}`} style={{ color: showComments ? "#1FB8FF" : drop.media_url ? "#FFFFFF" : "#5A6A8A" }} />
             </button>
-            <span className="text-white text-[11px] sm:text-xs font-bold drop-shadow-md">{comments.length}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{comments.length}</span>
           </div>
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleShareClick}
               className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none ${sharePulse ? 'dc-anim-pulse' : ''}`}
-              style={{ background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }}
+              style={drop.media_url
+                ? { background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }
+                : { background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
             >
-              <Share2 className={`w-5 h-5 sm:w-6 sm:h-6 text-white transition-transform hover:scale-110 ${sharePulse ? 'dc-anim-bounce' : ''}`} />
+              <Share2 className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${sharePulse ? 'dc-anim-bounce' : ''}`} style={{ color: drop.media_url ? "#FFFFFF" : "#5A6A8A" }} />
             </button>
-            <span className="text-white text-[11px] sm:text-xs font-bold drop-shadow-md">{drop.shares_count || 0}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{drop.shares_count || 0}</span>
           </div>
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleSaveClick}
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none"
-              style={{ background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }}
+              style={drop.media_url
+                ? { background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }
+                : { background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
             >
-              <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${saveBounce ? 'dc-anim-bounce' : ''} ${isSaved ? "fill-[#FFD60A]" : ""}`} style={{ color: isSaved ? "#FFD60A" : "#FFFFFF" }} />
+              <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${saveBounce ? 'dc-anim-bounce' : ''} ${isSaved ? "fill-[#FFD60A]" : ""}`} style={{ color: isSaved ? "#FFD60A" : drop.media_url ? "#FFFFFF" : "#5A6A8A" }} />
             </button>
           </div>
 
@@ -380,9 +388,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 <button
                   onClick={(e) => e.stopPropagation()}
                   className="w-9 h-9 sm:w-10 sm:h-10 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none"
-                  style={{ background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }}
+                  style={drop.media_url
+                    ? { background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }
+                    : { background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
                 >
-                  <MoreHorizontal className="w-4 h-4 text-white" />
+                  <MoreHorizontal className="w-4 h-4" style={{ color: drop.media_url ? "#FFFFFF" : "#5A6A8A" }} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white border text-[#0B1B3D] w-40 z-50" style={{ borderColor: "#E0EAF5" }}>

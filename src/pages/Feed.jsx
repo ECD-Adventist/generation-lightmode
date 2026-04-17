@@ -366,6 +366,12 @@ export default function Feed() {
           0%, 100% { transform: translateY(0) scale(1); opacity: 0.15; }
           50% { transform: translateY(-30px) scale(1.1); opacity: 0.35; }
         }
+        /* Custom scrollbar for Feed — blue palette */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #F0F4FA; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #1E5AFF, #5AC8FF); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #1E5AFF; }
+        * { scrollbar-width: thin; scrollbar-color: #1E5AFF #F0F4FA; }
       `}</style>
       
       {/* Soft accent lights */}
@@ -377,11 +383,11 @@ export default function Feed() {
         {/* Left Sidebar (Desktop) */}
         <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "#FFFFFF", borderColor: "#E0EAF5" }}>
            {/* Logo — BLUE */}
-           <Link to={createPageUrl("Home")} className="flex items-center justify-center mb-8 px-2">
+           <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
              <img
                src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png"
                alt="LightMode"
-               className="h-32 w-auto object-contain"
+               style={{ height: 56, width: "auto", objectFit: "contain" }}
              />
            </Link>
 
@@ -757,8 +763,8 @@ export default function Feed() {
           <div className="fixed inset-0 z-[100] lg:hidden">
             <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(10, 26, 61, 0.4)" }} onClick={() => setIsMobileNavOpen(false)} />
             <div className="absolute left-0 top-0 bottom-0 w-72 border-r flex flex-col py-8 px-6 overflow-y-auto" style={{ background: "#FFFFFF", borderColor: "#E0EAF5" }}>
-              <Link to={createPageUrl("Home")} className="flex items-center justify-center mb-10">
-                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" className="h-28 w-auto object-contain" />
+              <Link to={createPageUrl("Home")} className="flex items-center mb-10">
+                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 56, width: "auto", objectFit: "contain" }} />
               </Link>
               <nav className="flex flex-col gap-1 flex-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mb-1.5" style={{ color: "#8A97B5" }}>Main</p>
