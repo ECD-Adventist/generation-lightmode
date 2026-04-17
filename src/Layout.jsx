@@ -390,10 +390,7 @@ export default function Layout({ children, currentPageName }) {
             <LanguageSelector />
             {!userEmail ? (
               <button onClick={() => triggerSwitchOn("Feed")} className="glm-switch-btn">
-                <span className="glm-switch-orbit p1" aria-hidden="true" />
-                <span className="glm-switch-orbit p2" aria-hidden="true" />
-                <span className="glm-switch-orbit p3" aria-hidden="true" />
-                <span className="glm-switch-inner">⚡ Switch It On</span>
+                <span className="glm-switch-inner"><span className="glm-switch-text">⚡ Switch It On</span></span>
               </button>
             ) : (
               <div className="flex items-center gap-4">
@@ -401,7 +398,7 @@ export default function Layout({ children, currentPageName }) {
                   <span className="glm-switch-orbit p1" aria-hidden="true" />
                   <span className="glm-switch-orbit p2" aria-hidden="true" />
                   <span className="glm-switch-orbit p3" aria-hidden="true" />
-                  <span className="glm-switch-inner">⚡ Switch It On</span>
+                  <span className="glm-switch-inner"><span className="glm-switch-text">⚡ Switch It On</span></span>
                 </button>
                 <Link to={createPageUrl("Notifications")} className="relative w-10 h-10 rounded-full bg-[#121826] border border-white/10 flex items-center justify-center hover:bg-white/5 transition">
                   <Bell className="w-5 h-5 text-gray-300" />
@@ -643,6 +640,14 @@ export default function Layout({ children, currentPageName }) {
           transition: transform 0.3s ease;
         }
         .glm-switch-btn:hover { transform: translateY(-1px) scale(1.03); }
+        .glm-switch-btn:hover .glm-switch-inner {
+          background: linear-gradient(135deg, #FFD000, #FFA500);
+        }
+        .glm-switch-btn:hover .glm-switch-inner .glm-switch-text {
+          background-image: linear-gradient(90deg, #0B0F1A, #1a1a2e);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
         /* Rotating conic-gradient edge light */
         .glm-switch-btn::before {
           content: '';
@@ -660,8 +665,7 @@ export default function Layout({ children, currentPageName }) {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: linear-gradient(135deg, #00CFFF, #8A5CFF);
-          color: #0B0F1A;
+          background: linear-gradient(135deg, #0B0F1A, #151C2C);
           font-family: 'Space Grotesk', sans-serif;
           font-weight: 800;
           font-size: 13px;
@@ -679,6 +683,13 @@ export default function Layout({ children, currentPageName }) {
           animation: glm-sweep-light 3s infinite ease-in-out;
           pointer-events: none;
           z-index: 3;
+        }
+        /* Gradient text inside the pill */
+        .glm-switch-text {
+          background-image: linear-gradient(90deg, #00CFFF, #ffffff, #FFD000);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
         /* Hide orbit spans (no longer used) */
         .glm-switch-orbit { display: none; }
