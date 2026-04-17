@@ -50,14 +50,14 @@ export default function DailyDrops() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white">
+    <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5">
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-4">
-          <Link to={createPageUrl("Feed")} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition">
-            <ArrowLeft className="w-5 h-5 text-white" />
+          <Link to={createPageUrl("Feed")} className="w-10 h-10 rounded-full flex items-center justify-center transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#4A5878" }}>
+            <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-lg font-black font-['Space_Grotesk']">Daily Drops</h1>
+          <h1 className="text-lg font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>Daily Drops</h1>
         </div>
       </div>
 
@@ -66,21 +66,19 @@ export default function DailyDrops() {
         <div className="flex gap-3 mb-6">
           <button
             onClick={() => setActiveTab("codes_of_truth")}
-            className={`flex-1 py-3 rounded-2xl text-sm font-bold transition-all ${
-              activeTab === "codes_of_truth"
-                ? "bg-[#8A5CFF]/20 text-[#8A5CFF] border border-[#8A5CFF]/40"
-                : "bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10"
-            }`}
+            className="flex-1 py-3 rounded-2xl text-sm font-bold transition-all"
+            style={activeTab === "codes_of_truth"
+              ? { background: "rgba(11, 63, 217, 0.08)", color: "#0B3FD9", border: "1px solid #B8E5FF" }
+              : { background: "#FFFFFF", color: "#6B7FA0", border: "1px solid #E6ECF5" }}
           >
             🔐 Codes of Truth
           </button>
           <button
             onClick={() => setActiveTab("keeping_it_100")}
-            className={`flex-1 py-3 rounded-2xl text-sm font-bold transition-all ${
-              activeTab === "keeping_it_100"
-                ? "bg-[#FFD000]/20 text-[#FFD000] border border-[#FFD000]/40"
-                : "bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10"
-            }`}
+            className="flex-1 py-3 rounded-2xl text-sm font-bold transition-all"
+            style={activeTab === "keeping_it_100"
+              ? { background: "rgba(255, 208, 0, 0.1)", color: "#CC7A00", border: "1px solid #FFE4A0" }
+              : { background: "#FFFFFF", color: "#6B7FA0", border: "1px solid #E6ECF5" }}
           >
             💯 Keep It 100
           </button>
@@ -90,8 +88,8 @@ export default function DailyDrops() {
         {activeDrops.length > 0 && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-3">
-              <div className={`w-2 h-2 rounded-full ${activeTab === "codes_of_truth" ? "bg-[#8A5CFF]" : "bg-[#FFD000]"} animate-pulse`}></div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Today's Pick</span>
+              <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: activeTab === "codes_of_truth" ? "#0B3FD9" : "#CC7A00" }}></div>
+              <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#8A97B5" }}>Today's Pick</span>
             </div>
             <TruthCard drop={activeDrops[0]} onShare={handleShare} user={user} featured />
           </div>
@@ -100,11 +98,11 @@ export default function DailyDrops() {
         {/* Past Drops */}
         {isLoading ? (
           <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" />
+            <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} />
           </div>
         ) : activeDrops.length > 1 ? (
           <div>
-            <h3 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-4">Previous Posts</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: "#8A97B5" }}>Previous Posts</h3>
             <div className="space-y-4 pb-24">
               {activeDrops.slice(1).map(drop => (
                 <TruthCard key={drop.id} drop={drop} onShare={handleShare} user={user} />
@@ -112,7 +110,7 @@ export default function DailyDrops() {
             </div>
           </div>
         ) : activeDrops.length === 0 ? (
-          <div className="text-center py-20 text-gray-500">
+          <div className="text-center py-20" style={{ color: "#8A97B5" }}>
             <div className="text-4xl mb-4">{activeTab === "codes_of_truth" ? "🔐" : "💯"}</div>
             <p>No daily posts yet. Check back soon!</p>
           </div>
@@ -156,68 +154,67 @@ function TruthCard({ drop, onShare, user, featured }) {
   });
 
   return (
-    <div className={`rounded-3xl overflow-hidden border transition-all ${
-      featured 
-        ? "bg-gradient-to-br from-[#121826] to-[#0B0F1A] border-[#00CFFF]/20 shadow-[0_0_30px_rgba(0,207,255,0.1)]" 
-        : "bg-[#121826]/80 border-white/5 hover:border-white/10"
-    }`}>
+    <div className="rounded-3xl overflow-hidden transition-all" style={featured
+      ? { background: "#FFFFFF", border: "1px solid #B8E5FF", boxShadow: "0 4px 16px rgba(31, 184, 255, 0.1)" }
+      : { background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }
+    }>
       {drop.media_url && (
         <img src={drop.media_url} alt="" className="w-full max-h-80 object-contain bg-black" />
       )}
       <div className="p-5">
          {isSystemPost ? (
-           <div className="flex items-center gap-2 mb-4 pb-4 border-b border-white/5">
-             <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden border border-[#FFD000]/30 bg-[#0B0F1A]">
+           <div className="flex items-center gap-2 mb-4 pb-4 border-b" style={{ borderColor: "#E6ECF5" }}>
+              <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden" style={{ border: "1px solid #FFE4A0", background: "#FFFFFF" }}>
                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" className="w-full h-full object-cover" />
              </div>
              <div className="flex-1 min-w-0">
-               <div className="text-sm font-bold text-[#FFD000] truncate">Generation LightMode</div>
-               <div className="text-[10px] text-gray-500">Official Daily Drop</div>
+               <div className="text-sm font-bold truncate" style={{ color: "#CC7A00" }}>Generation LightMode</div>
+               <div className="text-[10px]" style={{ color: "#8A97B5" }}>Official Daily Drop</div>
              </div>
            </div>
          ) : creatorUser && (
-           <Link to={`${createPageUrl("Profile")}?user=${encodeURIComponent(drop.user_email)}`} className="flex items-center gap-2 mb-4 pb-4 border-b border-white/5 hover:opacity-80 transition">
-             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
-               <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center overflow-hidden text-xs font-bold">
+           <Link to={`${createPageUrl("Profile")}?user=${encodeURIComponent(drop.user_email)}`} className="flex items-center gap-2 mb-4 pb-4 border-b hover:opacity-80 transition" style={{ borderColor: "#E6ECF5" }}>
+              <div className="w-8 h-8 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
+                <div className="w-full h-full rounded-full flex items-center justify-center overflow-hidden text-xs font-bold" style={{ background: "#FFFFFF" }}>
                  <img src={creatorUser.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                </div>
              </div>
              <div className="flex-1 min-w-0">
-               <div className="text-sm font-bold text-white truncate">{creatorUser.full_name}</div>
-               <div className="text-[10px] text-gray-500">View profile</div>
+               <div className="text-sm font-bold truncate" style={{ color: "#0B1B3D" }}>{creatorUser.full_name}</div>
+               <div className="text-[10px]" style={{ color: "#8A97B5" }}>View profile</div>
              </div>
            </Link>
          )}
          {drop.verse && (
            <div className="flex items-center gap-2 mb-2">
-             <BookOpen className="w-4 h-4 text-[#00CFFF] shrink-0" />
-             <span className="text-sm font-bold text-[#00CFFF]">{drop.verse}</span>
+             <BookOpen className="w-4 h-4 shrink-0" style={{ color: "#0B3FD9" }} />
+             <span className="text-sm font-bold" style={{ color: "#0B3FD9" }}>{drop.verse}</span>
            </div>
          )}
          {drop.reflection && (
-           <p className="text-white text-base leading-relaxed font-['Inter'] whitespace-pre-line">{drop.reflection}</p>
+           <p className="text-base leading-relaxed font-['Inter'] whitespace-pre-line" style={{ color: "#0B1B3D" }}>{drop.reflection}</p>
          )}
-         <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
-          <span className="text-[10px] text-gray-500">
+         <div className="flex items-center justify-between mt-4 pt-3 border-t" style={{ borderColor: "#E6ECF5" }}>
+          <span className="text-[10px]" style={{ color: "#8A97B5" }}>
             {postedDate ? format(postedDate, "MMM d, yyyy 'at' h:mm a") : ""}
           </span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1.5 text-xs font-bold text-[#00CFFF] hover:text-white transition bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg">
+              <button className="flex items-center gap-1.5 text-xs font-bold transition px-3 py-1.5 rounded-lg" style={{ color: "#0B3FD9", background: "#EEF3FF" }}>
                 <Share2 className="w-3.5 h-3.5" /> Share
               </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-[#121826] border-white/10 text-white w-48">
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D" }}>
               <DropdownMenuItem 
                 onClick={() => repostMutation.mutate()}
                 disabled={repostMutation.isPending}
-                className="hover:bg-white/10 cursor-pointer flex items-center gap-2"
+                className="cursor-pointer flex items-center gap-2"
               >
                 <span className="text-base">⚡</span> Post to LightMode
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => onShare(drop)}
-                className="hover:bg-white/10 cursor-pointer flex items-center gap-2"
+                className="cursor-pointer flex items-center gap-2"
               >
                 <Share2 className="w-4 h-4" /> Share on Social Media
               </DropdownMenuItem>
@@ -225,11 +222,11 @@ function TruthCard({ drop, onShare, user, featured }) {
           </DropdownMenu>
         </div>
         {drop.hashtags && (
-          <div className="mt-2 text-xs text-[#8A5CFF] font-medium">{drop.hashtags}</div>
+          <div className="mt-2 text-xs font-medium" style={{ color: "#0B3FD9" }}>{drop.hashtags}</div>
         )}
 
         {/* Engagement Stats */}
-        <div className="flex items-center gap-5 mt-3 pt-3 border-t border-white/5 text-xs text-gray-400">
+        <div className="flex items-center gap-5 mt-3 pt-3 border-t text-xs" style={{ borderColor: "#E6ECF5", color: "#6B7FA0" }}>
           <div className="flex items-center gap-1.5">
             <Heart className="w-3.5 h-3.5" fill="currentColor" />
             <span className="font-semibold">{drop.likes_count || 0}</span>

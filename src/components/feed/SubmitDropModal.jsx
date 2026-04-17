@@ -247,73 +247,76 @@ RULES:
       )}
 
       <Dialog open={isOpen} onOpenChange={resetAndClose}>
-        <DialogContent className="sm:max-w-lg bg-[#0B0F1A] text-white border border-[#00CFFF]/20 max-h-[92vh] overflow-y-auto z-[2000] p-0 rounded-3xl shadow-[0_0_60px_rgba(0,207,255,0.15)] [&>button]:text-white [&>button]:hover:text-[#00CFFF]">
+        <DialogContent className="sm:max-w-lg max-h-[92vh] overflow-y-auto z-[2000] p-0 rounded-3xl [&>button]:text-[#4A5878] [&>button]:hover:text-[#0B3FD9]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D", boxShadow: "0 16px 48px rgba(11, 63, 217, 0.18)" }}>
           <div className="relative px-6 pt-6 pb-4">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00CFFF] via-[#8A5CFF] to-[#FFD000] rounded-t-3xl" />
-            <h2 className="text-2xl font-black font-['Space_Grotesk'] flex items-center gap-2">
-              <Zap className="w-6 h-6 text-[#FFD000]" /> Share Your Light
+            <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9, #FFD000)" }} />
+            <h2 className="text-2xl font-black font-['Space_Grotesk'] flex items-center gap-2" style={{ color: "#0B1B3D" }}>
+              <Zap className="w-6 h-6" style={{ color: "#CC7A00" }} /> Share Your Light
             </h2>
-            <p className="text-sm text-gray-400 mt-1">Inspire others and earn XP</p>
+            <p className="text-sm mt-1" style={{ color: "#6B7FA0" }}>Inspire others and earn XP</p>
           </div>
 
           {dailyCode && showSuggestion && (
             <div className="mx-6 mb-4">
               <button
                 onClick={adoptDailyCode}
-                className="w-full text-left bg-gradient-to-r from-[#FFD000]/10 to-[#00CFFF]/10 border border-[#FFD000]/30 rounded-2xl p-4 hover:border-[#FFD000]/60 transition-all group"
+                className="w-full text-left rounded-2xl p-4 transition-all group"
+                style={{ background: "linear-gradient(135deg, rgba(255,208,0,0.06), rgba(31,184,255,0.06))", border: "1px solid #FFE4A0" }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <Hash className="w-4 h-4 text-[#FFD000]" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#FFD000]">
+                    <Hash className="w-4 h-4" style={{ color: "#CC7A00" }} />
+                    <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#CC7A00" }}>
                       Today's {dailyCode.source_document === 'keeping_it_100' ? 'Keep It 100' : 'Code of Truth'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-[#00CFFF] opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#0B3FD9" }}>
                     <span>Use this</span>
                     <ChevronRight className="w-3 h-3" />
                   </div>
                 </div>
-                <p className="text-white font-bold text-sm leading-snug font-['Space_Grotesk'] mb-1">"{dailyCode.slogan_text}"</p>
+                <p className="font-bold text-sm leading-snug font-['Space_Grotesk'] mb-1" style={{ color: "#0B1B3D" }}>"{dailyCode.slogan_text}"</p>
                 {dailyCode.bible_reference && (
-                  <p className="text-xs text-gray-400 flex items-center gap-1"><BookOpen className="w-3 h-3" /> {dailyCode.bible_reference}</p>
+                  <p className="text-xs flex items-center gap-1" style={{ color: "#6B7FA0" }}><BookOpen className="w-3 h-3" /> {dailyCode.bible_reference}</p>
                 )}
               </button>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
-            <div className="bg-[#121826] rounded-2xl p-4 border border-white/5">
+            <div className="rounded-2xl p-4" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
               <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="w-4 h-4 text-[#8A5CFF]" />
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-300">AI Draft Assistant</span>
+                <Sparkles className="w-4 h-4" style={{ color: "#0B3FD9" }} />
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#4A5878" }}>AI Draft Assistant</span>
               </div>
               <div className="flex gap-2">
                 <Input
                   placeholder="How are you feeling? (grateful, anxious...)"
                   value={mood}
                   onChange={e => setMood(e.target.value)}
-                  className="bg-[#0B0F1A] border-white/10 text-white h-11 rounded-xl flex-1"
+                  className="h-11 rounded-xl flex-1"
+                  style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
                 />
-                <Button type="button" onClick={handleAIAssist} disabled={aiLoading} className="bg-gradient-to-r from-[#8A5CFF] to-[#00CFFF] text-white font-bold h-11 px-5 rounded-xl whitespace-nowrap shrink-0">
+                <Button type="button" onClick={handleAIAssist} disabled={aiLoading} className="font-bold h-11 px-5 rounded-xl whitespace-nowrap shrink-0" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}>
                   {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Inspire"}
                 </Button>
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block ml-1">Bible Verse</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block ml-1" style={{ color: "#6B7FA0" }}>Bible Verse</label>
               <Input
                 placeholder="e.g. Matthew 5:14 — You are the light..."
                 value={formData.verse}
                 onChange={e => setFormData({ ...formData, verse: e.target.value })}
-                className="bg-[#121826] border-white/10 text-white h-11 rounded-xl"
+                className="h-11 rounded-xl"
+                style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Reflection / Testimony</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest ml-1" style={{ color: "#6B7FA0" }}>Reflection / Testimony</label>
                 {formData.reflection && formData.reflection.length > 10 && (
                   <button
                     type="button"
@@ -331,23 +334,23 @@ RULES:
                 placeholder="Share what's on your heart..."
                 value={formData.reflection}
                 onChange={e => setFormData({ ...formData, reflection: e.target.value })}
-                className="bg-[#121826] border-white/10 text-white min-h-[100px] rounded-xl resize-none"
+                className="min-h-[100px] rounded-xl resize-none"
+                style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
               />
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block ml-1">Category</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest mb-2 block ml-1" style={{ color: "#6B7FA0" }}>Category</label>
               <div className="flex flex-wrap gap-2">
                 {categories.map(cat => (
                   <button
                     key={cat}
                     type="button"
                     onClick={() => setFormData({ ...formData, category: cat })}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
-                      formData.category === cat
-                        ? "bg-[#00CFFF]/20 text-[#00CFFF] border border-[#00CFFF]/40 shadow-[0_0_12px_rgba(0,207,255,0.2)]"
-                        : "bg-white/5 text-gray-400 border border-white/10 hover:border-white/20"
-                    }`}
+                    className="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all"
+                    style={formData.category === cat
+                      ? { background: "rgba(31, 184, 255, 0.1)", color: "#0B3FD9", border: "1px solid #B8E5FF" }
+                      : { background: "#F6F8FC", color: "#6B7FA0", border: "1px solid #E6ECF5" }}
                   >
                     {cat}
                   </button>
@@ -356,21 +359,22 @@ RULES:
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block ml-1">Hashtags</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block ml-1" style={{ color: "#6B7FA0" }}>Hashtags</label>
               <Input
                 placeholder="#FaithAlwaysOn #LightMode"
                 value={formData.hashtags}
                 onChange={e => setFormData({ ...formData, hashtags: e.target.value })}
-                className="bg-[#121826] border-white/10 text-[#FFD000] h-11 rounded-xl"
+                className="h-11 rounded-xl"
+                style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#CC7A00" }}
               />
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block ml-1">Attach Photo</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest mb-2 block ml-1" style={{ color: "#6B7FA0" }}>Attach Photo</label>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
 
               {preview ? (
-                <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#121826]">
+                <div className="relative rounded-2xl overflow-hidden" style={{ border: "1px solid #E6ECF5", background: "#F6F8FC" }}>
                   <img src={preview} alt="Preview" className="w-full max-h-60 object-contain bg-black/50" />
                   <button
                     type="button"
@@ -400,10 +404,11 @@ RULES:
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={loading}
-                  className="w-full h-28 rounded-2xl border-2 border-dashed border-white/10 bg-[#121826]/50 hover:border-[#00CFFF]/40 hover:bg-[#00CFFF]/5 transition-all flex flex-col items-center justify-center gap-2 group disabled:opacity-50"
+                  className="w-full h-28 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-2 group disabled:opacity-50"
+                  style={{ borderColor: "#D6E4FF", background: "#F6F8FC" }}
                 >
-                  <ImagePlus className="w-8 h-8 text-gray-500 group-hover:text-[#00CFFF] transition-colors" />
-                  <span className="text-xs text-gray-500 group-hover:text-gray-300 transition-colors font-medium">
+                  <ImagePlus className="w-8 h-8 transition-colors" style={{ color: "#8A97B5" }} />
+                  <span className="text-xs transition-colors font-medium" style={{ color: "#8A97B5" }}>
                     Tap to add a photo
                   </span>
                 </button>
@@ -413,7 +418,8 @@ RULES:
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-13 bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] hover:opacity-90 text-white font-black text-base rounded-2xl transition-all shadow-[0_0_30px_rgba(0,207,255,0.3)] hover:shadow-[0_0_40px_rgba(0,207,255,0.5)] py-3.5"
+              className="w-full h-13 hover:opacity-90 font-black text-base rounded-2xl transition-all py-3.5"
+              style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }}
             >
               {loading ? (
                 <span className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Posting...</span>

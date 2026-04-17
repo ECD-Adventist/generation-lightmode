@@ -122,14 +122,14 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
         <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
         {/* Modal */}
-        <div className="relative z-10 w-full max-w-lg bg-[#0D1524] border border-white/10 rounded-3xl shadow-2xl flex flex-col max-h-[92vh]">
+        <div className="relative z-10 w-full max-w-lg rounded-3xl shadow-2xl flex flex-col max-h-[92vh]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
           {/* Header */}
-          <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/5 shrink-0">
+          <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b shrink-0" style={{ borderColor: "#E6ECF5" }}>
             <div>
-              <h2 className="text-lg font-black text-white" style={{ fontFamily: "Space Grotesk, sans-serif" }}>Edit Profile</h2>
-              <p className="text-xs text-gray-500 mt-0.5">Changes are saved to your account</p>
+              <h2 className="text-lg font-black" style={{ fontFamily: "Space Grotesk, sans-serif", color: "#0B1B3D" }}>Edit Profile</h2>
+              <p className="text-xs mt-0.5" style={{ color: "#6B7FA0" }}>Changes are saved to your account</p>
             </div>
-            <button onClick={onClose} className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition text-gray-400 hover:text-white">
+            <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center transition" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}>
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -139,16 +139,17 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
 
             {/* Photos row */}
             <div>
-              <Label className="text-[10px] uppercase tracking-wider text-gray-500 mb-3 block">Photos</Label>
+              <Label className="text-[10px] uppercase tracking-wider mb-3 block" style={{ color: "#6B7FA0" }}>Photos</Label>
               <div className="flex items-center gap-4">
                 {/* Profile pic */}
                 <button
                   type="button"
                   onClick={() => profileInputRef.current?.click()}
                   disabled={uploadingImage}
-                  className="relative w-16 h-16 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0 group"
+                  className="relative w-16 h-16 rounded-full p-[2px] shrink-0 group"
+                  style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}
                 >
-                  <div className="w-full h-full rounded-full overflow-hidden bg-[#0B0F1A]">
+                  <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF" }}>
                     <img src={editData.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                   </div>
                   <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
@@ -162,7 +163,8 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                   type="button"
                   onClick={() => coverInputRef.current?.click()}
                   disabled={uploadingImage}
-                  className="relative flex-1 h-16 rounded-xl bg-[#121826] border border-white/10 overflow-hidden group"
+                  className="relative flex-1 h-16 rounded-xl overflow-hidden group"
+                  style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}
                   style={editData.cover_picture_url ? { backgroundImage: `url(${editData.cover_picture_url})`, backgroundSize: "cover", backgroundPosition: "center" } : {}}
                 >
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
@@ -171,7 +173,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                     </div>
                   </div>
                   {!editData.cover_picture_url && (
-                    <span className="text-gray-600 text-xs absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs absolute inset-0 flex items-center justify-center" style={{ color: "#8A97B5" }}>
                       + Cover Photo
                     </span>
                   )}
@@ -179,45 +181,41 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                 <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "cover")} />
               </div>
               {uploadingImage && (
-                <p className="text-xs text-[#00CFFF] mt-2 flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" /> Uploading…</p>
+                <p className="text-xs mt-2 flex items-center gap-1.5" style={{ color: "#0B3FD9" }}><Loader2 className="w-3 h-3 animate-spin" /> Uploading…</p>
               )}
             </div>
 
             {/* Full Name */}
             <div>
-              <Label className="text-[10px] uppercase tracking-wider text-gray-500 mb-1.5 block">Full Name <span className="text-red-400">*</span></Label>
-              <Input
-                required
-                value={editData.full_name}
-                onChange={e => set("full_name", e.target.value)}
-                placeholder="Your full name"
-                className="bg-[#121826] border-white/10 h-11 rounded-xl text-white"
-              />
+              <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Full Name <span className="text-red-400">*</span></Label>
+              <Input required value={editData.full_name} onChange={e => set("full_name", e.target.value)} placeholder="Your full name" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
             </div>
 
             {/* Bio */}
             <div>
-              <Label className="text-[10px] uppercase tracking-wider text-gray-500 mb-1.5 flex items-center justify-between">
+              <Label className="text-[10px] uppercase tracking-wider mb-1.5 flex items-center justify-between" style={{ color: "#6B7FA0" }}>
                 <span>Bio</span>
-                <span className="text-gray-600">{editData.bio.length}/1200</span>
+                <span style={{ color: "#8A97B5" }}>{editData.bio.length}/1200</span>
               </Label>
               <textarea
                 value={editData.bio}
                 onChange={e => set("bio", e.target.value.slice(0, 1200))}
                 placeholder="Tell people about yourself…"
                 rows={3}
-                className="w-full bg-[#121826] border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm resize-none focus:outline-none focus:ring-1 focus:ring-[#00CFFF]/40"
+                className="w-full rounded-xl px-3 py-2.5 text-sm resize-none focus:outline-none"
+                style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
               />
             </div>
 
             {/* Gender + DOB */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-[10px] uppercase tracking-wider text-gray-500 mb-1.5 block">Gender</Label>
+                <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Gender</Label>
                 <select
                   value={editData.gender}
                   onChange={e => set("gender", e.target.value)}
-                  className="w-full bg-[#121826] border border-white/10 rounded-xl px-3 h-11 text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#00CFFF]/40"
+                  className="w-full rounded-xl px-3 h-11 text-sm focus:outline-none"
+                  style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
                 >
                   <option value="">Select…</option>
                   <option value="male">Male</option>
@@ -226,13 +224,14 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                 </select>
               </div>
               <div>
-                <Label className="text-[10px] uppercase tracking-wider text-gray-500 mb-1.5 block">Date of Birth</Label>
+                <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Date of Birth</Label>
                 <div className="relative">
                   <Input
                     type="date"
                     value={editData.date_of_birth}
                     onChange={e => set("date_of_birth", e.target.value)}
-                    className="bg-[#121826] border-white/10 h-11 rounded-xl text-white [color-scheme:dark]"
+                    className="h-11 rounded-xl [color-scheme:light]"
+                    style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
                   />
                 </div>
               </div>
@@ -241,49 +240,50 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
             {/* Country + Phone */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-[10px] uppercase tracking-wider text-gray-500 mb-1.5 block">Country</Label>
-                <Input value={editData.country} onChange={e => set("country", e.target.value)} placeholder="e.g. Kenya" className="bg-[#121826] border-white/10 h-11 rounded-xl text-white" />
+                <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Country</Label>
+                <Input value={editData.country} onChange={e => set("country", e.target.value)} placeholder="e.g. Kenya" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
               </div>
               <div>
-                <Label className="text-[10px] uppercase tracking-wider text-gray-500 mb-1.5 block">Phone</Label>
-                <Input type="tel" value={editData.phone} onChange={e => set("phone", e.target.value)} placeholder="+254 700 000 000" className="bg-[#121826] border-white/10 h-11 rounded-xl text-white" />
+                <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Phone</Label>
+                <Input type="tel" value={editData.phone} onChange={e => set("phone", e.target.value)} placeholder="+254 700 000 000" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
               </div>
             </div>
 
             {/* Address */}
             <div>
-              <Label className="text-[10px] uppercase tracking-wider text-gray-500 mb-1.5 block">Street Address</Label>
-              <Input value={editData.address} onChange={e => set("address", e.target.value)} placeholder="e.g. 12 Church Road" className="bg-[#121826] border-white/10 h-11 rounded-xl text-white" />
+              <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Street Address</Label>
+              <Input value={editData.address} onChange={e => set("address", e.target.value)} placeholder="e.g. 12 Church Road" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
             </div>
 
             {/* City + Postal */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-[10px] uppercase tracking-wider text-gray-500 mb-1.5 block">City / Town</Label>
-                <Input value={editData.city} onChange={e => set("city", e.target.value)} placeholder="e.g. Nairobi" className="bg-[#121826] border-white/10 h-11 rounded-xl text-white" />
+                <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>City / Town</Label>
+                <Input value={editData.city} onChange={e => set("city", e.target.value)} placeholder="e.g. Nairobi" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
               </div>
               <div>
-                <Label className="text-[10px] uppercase tracking-wider text-gray-500 mb-1.5 block">Postal Code</Label>
-                <Input value={editData.postal_code} onChange={e => set("postal_code", e.target.value)} placeholder="e.g. 00100" maxLength={10} className="bg-[#121826] border-white/10 h-11 rounded-xl text-white" />
+                <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Postal Code</Label>
+                <Input value={editData.postal_code} onChange={e => set("postal_code", e.target.value)} placeholder="e.g. 00100" maxLength={10} className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
               </div>
             </div>
 
             {/* Website */}
             <div>
-              <Label className="text-[10px] uppercase tracking-wider text-gray-500 mb-1.5 block">Website / Link</Label>
-              <Input value={editData.website_url} onChange={e => set("website_url", e.target.value)} placeholder="https://your-link.com" className="bg-[#121826] border-white/10 h-11 rounded-xl text-white" />
+              <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Website / Link</Label>
+              <Input value={editData.website_url} onChange={e => set("website_url", e.target.value)} placeholder="https://your-link.com" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
             </div>
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-white/5 flex justify-end gap-3 shrink-0">
-            <Button type="button" variant="ghost" onClick={onClose} className="h-11 px-5 text-gray-400 hover:text-white">
+          <div className="px-6 py-4 border-t flex justify-end gap-3 shrink-0" style={{ borderColor: "#E6ECF5" }}>
+            <Button type="button" variant="ghost" onClick={onClose} className="h-11 px-5" style={{ color: "#4A5878" }}>
               Cancel
             </Button>
             <Button
               onClick={handleSave}
               disabled={saving || uploadingImage}
-              className="h-11 px-8 rounded-xl font-bold bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black hover:opacity-90 transition shadow-[0_0_20px_rgba(0,207,255,0.3)]"
+              className="h-11 px-8 rounded-xl font-bold hover:opacity-90 transition"
+              style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }}
             >
               {saving ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Saving…</> : "Save Profile"}
             </Button>
