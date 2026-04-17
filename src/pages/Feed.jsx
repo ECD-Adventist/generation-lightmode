@@ -22,19 +22,19 @@ import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModa
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   const baseStyle = active
-    ? { background: "linear-gradient(90deg, rgba(255, 208, 0, 0.18) 0%, rgba(255, 159, 26, 0.12) 100%)", color: "#0A1A3D", border: "1px solid rgba(255, 208, 0, 0.5)", boxShadow: "0 2px 8px rgba(255, 208, 0, 0.15)" }
+    ? { background: "linear-gradient(90deg, #FFD000 0%, #FFB800 100%)", color: "#0A1A3D", border: "1px solid #FFA500", boxShadow: "0 3px 10px rgba(255, 159, 26, 0.3)" }
     : accent
     ? { color: "#1E5AFF", background: "transparent" }
-    : { color: "#4A5878", background: "transparent" };
+    : { color: "#4A3A0A", background: "transparent" };
   const iconBoxStyle = active
-    ? { background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)", color: "#0A1A3D", boxShadow: "0 2px 6px rgba(255, 159, 26, 0.35)" }
+    ? { background: "#FFFFFF", color: "#FF9F1A", boxShadow: "0 2px 6px rgba(255, 159, 26, 0.25)" }
     : accent
     ? { background: "rgba(30, 90, 255, 0.08)", color: "#1E5AFF" }
-    : { background: "#F0F5FB", color: "#4A5878" };
+    : { background: "rgba(255, 208, 0, 0.18)", color: "#B8860B" };
   return (
     <Link
       to={to}
-      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-[#FFF8E0]"
+      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-[rgba(255,208,0,0.2)]"
       style={baseStyle}
     >
       <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition" style={iconBoxStyle}>
@@ -42,7 +42,7 @@ function SidebarLink({ to, icon, label, active, badge, accent }) {
       </div>
       <span className="text-sm font-semibold flex-1">{label}</span>
       {badge && (
-        <span className="font-bold text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ background: "#FFD000", color: "#0A1A3D" }}>
+        <span className="font-bold text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ background: active ? "#FFFFFF" : "#FFD000", color: "#0A1A3D" }}>
           {badge}
         </span>
       )}
@@ -374,21 +374,21 @@ export default function Feed() {
 
       <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 backdrop-blur-[2px]">
         
-        {/* Left Sidebar (Desktop) — LIGHT with GOLD accent border */}
-        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "rgba(255,255,255,0.75)", borderColor: "#FFD000", borderRightWidth: "2px" }}>
+        {/* Left Sidebar (Desktop) — GOLD TINTED */}
+        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "linear-gradient(180deg, #FFF8E0 0%, #FFF4D0 50%, #FFEFC0 100%)", borderColor: "#FFD000", borderRightWidth: "2px", boxShadow: "inset -1px 0 0 rgba(255, 159, 26, 0.15)" }}>
            {/* Logo — BLUE */}
-           <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
+           <Link to={createPageUrl("Home")} className="flex items-center justify-center mb-8 px-2">
              <img
                src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png"
                alt="LightMode"
-               className="h-20 w-auto object-contain"
+               className="h-32 w-auto object-contain"
              />
            </Link>
 
            {/* Main Nav */}
            <nav className="flex flex-col gap-1 flex-1">
-             {/* Section: Main */}
-             <p className="text-[9px] font-black uppercase tracking-[0.15em] px-3 mb-1" style={{ color: "#8A97B5" }}>Main</p>
+           {/* Section: Main */}
+           <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mb-1.5" style={{ color: "#B8860B" }}>Main</p>
 
              <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
              <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
@@ -402,25 +402,25 @@ export default function Feed() {
              } label="Profile" />
 
              {/* Section: Tools */}
-             <p className="text-[9px] font-black uppercase tracking-[0.15em] px-3 mt-4 mb-1" style={{ color: "#8A97B5" }}>Tools</p>
+             <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mt-4 mb-1.5" style={{ color: "#B8860B" }}>Tools</p>
 
              <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
 
              {/* Resources dropdown */}
              <button
                onClick={() => setIsResourcesOpen(v => !v)}
-               className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left hover:bg-[#E8F0FF]"
-               style={{ color: "#4A5878" }}
+               className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left hover:bg-[rgba(255,208,0,0.2)]"
+               style={{ color: "#4A3A0A" }}
              >
-               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm" style={{ background: "#F0F5FB" }}>📚</div>
+               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm" style={{ background: "rgba(255, 208, 0, 0.18)" }}>📚</div>
                <span className="text-sm font-semibold flex-1">Resources</span>
-               <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isResourcesOpen ? "rotate-90" : ""}`} style={{ color: "#8A97B5" }} />
+               <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isResourcesOpen ? "rotate-90" : ""}`} style={{ color: "#B8860B" }} />
              </button>
              {isResourcesOpen && (
-               <div className="flex flex-col gap-0.5 ml-3 pl-3 border-l" style={{ borderColor: "#D5E3F0" }}>
-                 <Link to={createPageUrl("KeepIt100")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[#E8F0FF]" style={{ color: "#4A5878" }}><span>💯</span> Keep It 100</Link>
-                 <Link to={createPageUrl("CodesOfTruth")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[#E8F0FF]" style={{ color: "#4A5878" }}><span>🔐</span> Codes of Truth</Link>
-                 <Link to={createPageUrl("Resources")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[#E8F0FF]" style={{ color: "#4A5878" }}><span>🌍</span> Other Resources</Link>
+               <div className="flex flex-col gap-0.5 ml-3 pl-3 border-l" style={{ borderColor: "rgba(255, 208, 0, 0.4)" }}>
+                 <Link to={createPageUrl("KeepIt100")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[rgba(255,208,0,0.2)]" style={{ color: "#4A3A0A" }}><span>💯</span> Keep It 100</Link>
+                 <Link to={createPageUrl("CodesOfTruth")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[rgba(255,208,0,0.2)]" style={{ color: "#4A3A0A" }}><span>🔐</span> Codes of Truth</Link>
+                 <Link to={createPageUrl("Resources")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[rgba(255,208,0,0.2)]" style={{ color: "#4A3A0A" }}><span>🌍</span> Other Resources</Link>
                </div>
              )}
 
@@ -430,26 +430,26 @@ export default function Feed() {
              {/* Section: More */}
              <button
                onClick={() => setIsMoreOpen(v => !v)}
-               className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left mt-4 hover:bg-[#E8F0FF]"
-               style={{ color: "#4A5878" }}
+               className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left mt-4 hover:bg-[rgba(255,208,0,0.2)]"
+               style={{ color: "#4A3A0A" }}
              >
-               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "#F0F5FB" }}>
+               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(255, 208, 0, 0.18)", color: "#B8860B" }}>
                  <Settings className="w-[16px] h-[16px]" />
                </div>
                <span className="text-sm font-semibold flex-1">More</span>
-               <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isMoreOpen ? "rotate-90" : ""}`} style={{ color: "#8A97B5" }} />
+               <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isMoreOpen ? "rotate-90" : ""}`} style={{ color: "#B8860B" }} />
              </button>
              {isMoreOpen && (
-               <div className="flex flex-col gap-0.5 ml-3 pl-3 border-l" style={{ borderColor: "#D5E3F0" }}>
-                 <Link to={createPageUrl("Milestones")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[#E8F0FF]" style={{ color: "#4A5878" }}><Trophy className="w-3.5 h-3.5" style={{ color: "#FF9F1A" }} /> Milestones</Link>
-                 <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[#E8F0FF]" style={{ color: "#4A5878" }}><MapIcon className="w-3.5 h-3.5" style={{ color: "#1E5AFF" }} /> Global Reach</Link>
-                 <Link to={createPageUrl("Challenges")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[#E8F0FF]" style={{ color: "#4A5878" }}><Target className="w-3.5 h-3.5" style={{ color: "#5AC8FF" }} /> Challenges</Link>
-                 <Link to={createPageUrl("LightReflections")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[#E8F0FF]" style={{ color: "#4A5878" }}><Sparkles className="w-3.5 h-3.5" style={{ color: "#FF9F1A" }} /> Light Reflections</Link>
-                 <Link to={createPageUrl("FaithQuiz")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[#E8F0FF]" style={{ color: "#4A5878" }}><Medal className="w-3.5 h-3.5" style={{ color: "#1E5AFF" }} /> Faith Quiz</Link>
-                 <Link to={createPageUrl("PrayerWall")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[#E8F0FF]" style={{ color: "#4A5878" }}><Handshake className="w-3.5 h-3.5" style={{ color: "#5AC8FF" }} /> Prayer Wall</Link>
-                 <Link to="/TerritoryPhotos" className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[#E8F0FF]" style={{ color: "#4A5878" }}><Camera className="w-3.5 h-3.5" style={{ color: "#1E5AFF" }} /> Territory Moments</Link>
-                 <Link to="/Settings" className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[#E8F0FF]" style={{ color: "#4A5878" }}><Settings className="w-3.5 h-3.5" /> Settings</Link>
-                 <button onClick={() => setIsClaimInstitutionOpen(true)} className="w-full text-left flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[#E8F0FF]" style={{ color: "#4A5878" }}><Zap className="w-3.5 h-3.5" style={{ color: "#FF9F1A" }} /> Claim Institution Dashboard</button>
+               <div className="flex flex-col gap-0.5 ml-3 pl-3 border-l" style={{ borderColor: "rgba(255, 208, 0, 0.4)" }}>
+                 <Link to={createPageUrl("Milestones")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[rgba(255,208,0,0.2)]" style={{ color: "#4A3A0A" }}><Trophy className="w-3.5 h-3.5" style={{ color: "#FF9F1A" }} /> Milestones</Link>
+                 <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[rgba(255,208,0,0.2)]" style={{ color: "#4A3A0A" }}><MapIcon className="w-3.5 h-3.5" style={{ color: "#1E5AFF" }} /> Global Reach</Link>
+                 <Link to={createPageUrl("Challenges")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[rgba(255,208,0,0.2)]" style={{ color: "#4A3A0A" }}><Target className="w-3.5 h-3.5" style={{ color: "#5AC8FF" }} /> Challenges</Link>
+                 <Link to={createPageUrl("LightReflections")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[rgba(255,208,0,0.2)]" style={{ color: "#4A3A0A" }}><Sparkles className="w-3.5 h-3.5" style={{ color: "#FF9F1A" }} /> Light Reflections</Link>
+                 <Link to={createPageUrl("FaithQuiz")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[rgba(255,208,0,0.2)]" style={{ color: "#4A3A0A" }}><Medal className="w-3.5 h-3.5" style={{ color: "#1E5AFF" }} /> Faith Quiz</Link>
+                 <Link to={createPageUrl("PrayerWall")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[rgba(255,208,0,0.2)]" style={{ color: "#4A3A0A" }}><Handshake className="w-3.5 h-3.5" style={{ color: "#5AC8FF" }} /> Prayer Wall</Link>
+                 <Link to="/TerritoryPhotos" className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[rgba(255,208,0,0.2)]" style={{ color: "#4A3A0A" }}><Camera className="w-3.5 h-3.5" style={{ color: "#1E5AFF" }} /> Territory Moments</Link>
+                 <Link to="/Settings" className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[rgba(255,208,0,0.2)]" style={{ color: "#4A3A0A" }}><Settings className="w-3.5 h-3.5" /> Settings</Link>
+                 <button onClick={() => setIsClaimInstitutionOpen(true)} className="w-full text-left flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-[rgba(255,208,0,0.2)]" style={{ color: "#4A3A0A" }}><Zap className="w-3.5 h-3.5" style={{ color: "#FF9F1A" }} /> Claim Institution Dashboard</button>
                </div>
              )}
            </nav>
@@ -756,12 +756,12 @@ export default function Feed() {
         {isMobileNavOpen && (
           <div className="fixed inset-0 z-[100] lg:hidden">
             <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(10, 26, 61, 0.4)" }} onClick={() => setIsMobileNavOpen(false)} />
-            <div className="absolute left-0 top-0 bottom-0 w-72 border-r flex flex-col py-8 px-6 overflow-y-auto" style={{ background: "#FFFFFF", borderColor: "#D5E3F0" }}>
-              <Link to={createPageUrl("Home")} className="flex items-center mb-10">
-                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" className="h-20 w-auto object-contain" />
+            <div className="absolute left-0 top-0 bottom-0 w-72 border-r flex flex-col py-8 px-6 overflow-y-auto" style={{ background: "linear-gradient(180deg, #FFF8E0 0%, #FFF4D0 50%, #FFEFC0 100%)", borderColor: "#FFD000", borderRightWidth: "2px" }}>
+              <Link to={createPageUrl("Home")} className="flex items-center justify-center mb-10">
+                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" className="h-28 w-auto object-contain" />
               </Link>
               <nav className="flex flex-col gap-1 flex-1">
-                <p className="text-[9px] font-black uppercase tracking-[0.15em] px-3 mb-1" style={{ color: "#8A97B5" }}>Main</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mb-1.5" style={{ color: "#B8860B" }}>Main</p>
                 <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
                 <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
                 <SidebarLink to={createPageUrl("Discover")} icon={<Compass className="w-[18px] h-[18px]" />} label="Discover" />
@@ -773,7 +773,7 @@ export default function Feed() {
                   </div>
                 } label="Profile" />
 
-                <p className="text-[9px] font-black uppercase tracking-[0.15em] px-3 mt-4 mb-1" style={{ color: "#8A97B5" }}>Tools</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mt-4 mb-1.5" style={{ color: "#B8860B" }}>Tools</p>
                 <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
 
                 {/* Resources dropdown */}
