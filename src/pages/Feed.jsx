@@ -30,8 +30,8 @@ function SidebarLink({ to, icon, label, active, badge, accent }) {
   const iconBoxStyle = active
     ? { background: "rgba(255,255,255,0.25)", color: "#FFFFFF" }
     : accent
-    ? { background: "rgba(30, 90, 255, 0.08)", color: "#1E5AFF" }
-    : { background: "#F0F4FA", color: "#5A6A8A" };
+    ? { background: "rgba(30, 90, 255, 0.12)", color: "#0B3FD9", border: "1px solid rgba(30, 90, 255, 0.2)" }
+    : { background: "#FFFFFF", color: "#0B1B3D", border: "1px solid #E6D9A8", boxShadow: "0 1px 3px rgba(139, 105, 20, 0.08)" };
   return (
     <Link
       to={to}
