@@ -50,6 +50,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
   const menuItems = (isSuperAdmin || (!isRegionalAdmin)) ? fullAdminItems : territoryOnlyItems;
 
   if (isSuperAdmin) {
+    menuItems.push({ id: "custom-posts", label: "Custom Posts", icon: <span style={{ fontSize: 16 }}>✨</span> });
     menuItems.push({ id: "settings", label: "System Settings", icon: <Settings size={18} /> });
   }
 
