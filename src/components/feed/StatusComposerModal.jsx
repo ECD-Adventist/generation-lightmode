@@ -76,7 +76,7 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-white text-[#0B1B3D] border-[#E6ECF5] p-0 overflow-hidden gap-0">
+      <DialogContent className="sm:max-w-md bg-white text-[#0B1B3D] border-[#E6ECF5] p-0 overflow-hidden gap-0 max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="px-5 pt-5 pb-4 border-b border-[#E6ECF5]">
           <DialogHeader className="mb-3">
@@ -104,7 +104,7 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
+        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4 overflow-y-auto flex-1 min-h-0">
           {/* AI Idea Generator */}
           <StoryIdeaGenerator
             mode={mode}
