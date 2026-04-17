@@ -346,14 +346,14 @@ export default function Feed() {
   // Show loading while auth is being checked
   if (!user) {
     return (
-      <div className="h-[100dvh] bg-[#0B0F1A] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" />
+      <div className="h-[100dvh] flex items-center justify-center" style={{ background: "linear-gradient(135deg, #C8F2D4 0%, #E8F5C8 100%)" }}>
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} />
       </div>
     );
   }
 
   return (
-    <div className="h-[100dvh] bg-[#0B0F1A] text-white relative overflow-hidden font-['Inter']">
+    <div className="h-[100dvh] relative overflow-hidden font-['Inter']" style={{ background: "linear-gradient(135deg, #C8F2D4 0%, #E8F5C8 100%)", color: "#0B1B3D" }}>
       <OnboardingModal
         isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth || !user.city || !user.address || !user.postal_code)}
         onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
@@ -369,17 +369,17 @@ export default function Feed() {
         }
       `}</style>
       
-      {/* Wireframe Map Background */}
-      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none w-[200vw] flex" style={{ animation: "pan-map 180s linear infinite" }}>
-        <div className="h-full w-[100vw] bg-cover bg-center flex-shrink-0" style={{ backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7dea9e31b_digital-world-map-hologram-blue-background.jpg')", filter: "grayscale(1) brightness(0.5) contrast(1.3)" }} />
-        <div className="h-full w-[100vw] bg-cover bg-center flex-shrink-0" style={{ backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7dea9e31b_digital-world-map-hologram-blue-background.jpg')", filter: "grayscale(1) brightness(0.5) contrast(1.3)" }} />
+      {/* Wireframe Map Background - lightened */}
+      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none w-[200vw] flex" style={{ animation: "pan-map 180s linear infinite" }}>
+        <div className="h-full w-[100vw] bg-cover bg-center flex-shrink-0" style={{ backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7dea9e31b_digital-world-map-hologram-blue-background.jpg')", filter: "grayscale(0.3) brightness(1.8) contrast(0.9) hue-rotate(50deg)" }} />
+        <div className="h-full w-[100vw] bg-cover bg-center flex-shrink-0" style={{ backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7dea9e31b_digital-world-map-hologram-blue-background.jpg')", filter: "grayscale(0.3) brightness(1.8) contrast(0.9) hue-rotate(50deg)" }} />
       </div>
       
-      {/* Subtle dim accent lights */}
-      <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] bg-[#00CFFF] rounded-full blur-[120px] z-0 opacity-[0.08] pointer-events-none animate-[float-light_8s_ease-in-out_infinite]"></div>
-      <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] bg-[#00CFFF] rounded-full blur-[140px] z-0 opacity-[0.06] pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]"></div>
+      {/* Soft mint/gold accent lights */}
+      <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] rounded-full blur-[120px] z-0 opacity-40 pointer-events-none animate-[float-light_8s_ease-in-out_infinite]" style={{ background: "#7FE08A" }}></div>
+      <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] rounded-full blur-[140px] z-0 opacity-30 pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]" style={{ background: "#FFD60A" }}></div>
 
-      <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 bg-[#0B0F1A]/70 backdrop-blur-[2px]">
+      <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
         <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r border-white/5 bg-[#080C14]/80 backdrop-blur-md overflow-y-auto hide-scrollbar">
@@ -467,10 +467,11 @@ export default function Feed() {
            </button>
         </div>
 
-        {/* Center Feed */}
+        {/* Center Feed — LIGHT MODE */}
         <div 
           ref={feedScrollRef} 
-          className="lg:col-span-2 sm:border-x border-white/10 h-[100dvh] lg:border-none flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8"
+          className="lg:col-span-2 h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8"
+          style={{ color: "#0B1B3D" }}
           onScroll={(e) => {
             const { scrollTop, scrollHeight, clientHeight } = e.target;
             if (scrollHeight - scrollTop <= clientHeight + 150) {
@@ -481,65 +482,66 @@ export default function Feed() {
           }}
         >
           
-          {/* Top Header Mobile */}
-          <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A]/80 backdrop-blur-xl border-b border-white/10 lg:hidden">
+          {/* Top Header Mobile — LIGHT */}
+          <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 backdrop-blur-xl border-b lg:hidden" style={{ background: "rgba(240, 250, 243, 0.85)", borderColor: "#E0EAF5" }}>
           <div className="flex items-center gap-3">
-            <button onClick={() => setIsMobileNavOpen(true)} className="text-gray-400 hover:text-white transition">
+            <button onClick={() => setIsMobileNavOpen(true)} className="transition" style={{ color: "#4A5878" }}>
               <Menu className="w-6 h-6" />
             </button>
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
               alt="Generation LightMode"
-              className="h-14 object-contain drop-shadow-[0_0_8px_rgba(0,207,255,0.4)]"
+              className="h-14 object-contain"
             />
           </div>
           <div className="flex gap-4 items-center shrink-0">
-            <Link to={createPageUrl("Notifications")} className="relative">
-              <Heart className="w-6 h-6 text-white" />
-
+            <Link to={createPageUrl("Notifications")} className="relative" style={{ color: "#0B1B3D" }}>
+              <Heart className="w-6 h-6" />
               {notifications.length > 0 && (
-                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                <span className="absolute top-0 right-0 w-2 h-2 rounded-full" style={{ background: "#FF9F1A" }}></span>
               )}
             </Link>
-            <Link to={createPageUrl("Messages")}>
-              <MessageCircle className="w-6 h-6 text-white" />
+            <Link to={createPageUrl("Messages")} style={{ color: "#0B1B3D" }}>
+              <MessageCircle className="w-6 h-6" />
             </Link>
           </div>
         </div>
 
-        {/* Center Header (Desktop) */}
+        {/* Center Header (Desktop) — LIGHT */}
         <div className="hidden lg:flex items-center justify-between px-4 mb-6 shrink-0 gap-4">
-           <h2 className="text-xl font-bold text-white shrink-0">For You</h2>
+           <h2 className="text-xl font-bold shrink-0" style={{ color: "#0B1B3D" }}>For You</h2>
            <div className="relative w-80">
-             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00CFFF] w-4 h-4 pointer-events-none" />
+             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "#1FB8FF" }} />
              <input
                type="text"
                value={searchQuery}
                onChange={(e) => setSearchQuery(e.target.value)}
                placeholder="Search drops by verse, reflection, hashtag..."
-               className="w-full bg-[#121826] border border-white/10 rounded-full py-2.5 pl-9 pr-9 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00CFFF]/50 transition"
+               className="w-full rounded-full py-2.5 pl-9 pr-9 text-sm focus:outline-none transition"
+               style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
              />
              {searchQuery && (
-               <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition">
+               <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 transition" style={{ color: "#8A97B5" }}>
                  <X className="w-4 h-4" />
                </button>
              )}
            </div>
         </div>
 
-        {/* Mobile Search Bar */}
+        {/* Mobile Search Bar — LIGHT */}
         <div className="lg:hidden px-4 mb-4 shrink-0">
           <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00CFFF] w-4 h-4 pointer-events-none" />
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "#1FB8FF" }} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search drops..."
-              className="w-full bg-[#121826] border border-white/10 rounded-full py-2.5 pl-9 pr-9 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00CFFF]/50 transition"
+              className="w-full rounded-full py-2.5 pl-9 pr-9 text-sm focus:outline-none transition"
+              style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition">
+              <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 transition" style={{ color: "#8A97B5" }}>
                 <X className="w-4 h-4" />
               </button>
             )}
@@ -552,13 +554,13 @@ export default function Feed() {
             onClick={() => user ? setIsStatusModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
             className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0"
           >
-             <div className="relative w-16 h-16 rounded-full p-[2px] bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF]">
-                <div className="w-full h-full rounded-full border-[2px] border-[#0B0F1A] overflow-hidden bg-[#121826] flex items-center justify-center">
+             <div className="relative w-16 h-16 rounded-full p-[2px]" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
+                <div className="w-full h-full rounded-full border-[2px] overflow-hidden flex items-center justify-center" style={{ borderColor: "#F0FAF3", background: "#FFFFFF" }}>
                   <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#00CFFF] text-black text-sm font-black flex items-center justify-center border-2 border-[#0B0F1A]">+</div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full text-sm font-black flex items-center justify-center border-2" style={{ background: "#FFD60A", color: "#0B1B3D", borderColor: "#F0FAF3" }}>+</div>
              </div>
-             <span className="text-[10px] font-bold text-[#00CFFF] uppercase tracking-wider">ADD STATUS</span>
+             <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#0B3FD9" }}>ADD STATUS</span>
           </button>
 
           {activeStories.map((story) => {
@@ -577,8 +579,8 @@ export default function Feed() {
                 onClick={() => setSelectedStory(story)}
                 className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0 opacity-90 hover:opacity-100 transition-opacity"
               >
-                <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-br from-[#FFD000] to-[#00CFFF]">
-                  <div className="w-full h-full rounded-full overflow-hidden bg-[#121826] flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full p-[2px]" style={{ background: "linear-gradient(135deg, #FFD60A 0%, #1FB8FF 100%)" }}>
+                  <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center" style={{ background: "#FFFFFF" }}>
                     {story.story_type === "image" && story.media_url ? (
                       <img src={story.media_url} className="w-full h-full object-cover" />
                     ) : (
@@ -588,35 +590,34 @@ export default function Feed() {
                     )}
                   </div>
                 </div>
-                <span className="text-[10px] font-medium text-gray-400 truncate w-16 text-center">{storyUser?.email === user?.email ? "You" : storyUser?.full_name?.split(' ')[0] || "Status"}</span>
+                <span className="text-[10px] font-medium truncate w-16 text-center" style={{ color: "#4A5878" }}>{storyUser?.email === user?.email ? "You" : storyUser?.full_name?.split(' ')[0] || "Status"}</span>
               </button>
             );
           })}
 
           {activeStories.length === 0 && (
-            <div className="flex items-center h-16 px-3 text-xs text-gray-500 whitespace-nowrap">No statuses yet. Be the first to post one.</div>
+            <div className="flex items-center h-16 px-3 text-xs whitespace-nowrap" style={{ color: "#8A97B5" }}>No statuses yet. Be the first to post one.</div>
           )}
         </div>
 
         <div className="flex gap-3 px-4 mb-6 overflow-x-auto hide-scrollbar shrink-0">
-          <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-4 py-2 rounded-full bg-gradient-to-r from-[#00CFFF]/20 to-[#8A5CFF]/20 border border-[#00CFFF]/30 text-sm font-semibold text-[#00CFFF] hover:from-[#00CFFF]/30 hover:to-[#8A5CFF]/30 transition whitespace-nowrap flex items-center gap-1.5"><Plus className="w-4 h-4" />Post</button>
-          <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Messages</Link>
-          <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Prayer Wall</Link>
-          <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-sm font-semibold text-[#00CFFF] hover:bg-[#00CFFF]/20 transition whitespace-nowrap">Live</Link>
-          <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full bg-gradient-to-r from-[#8A5CFF]/20 to-[#FFD000]/20 border border-[#00CFFF]/30 text-sm font-semibold text-[#00CFFF] hover:from-[#8A5CFF]/30 hover:to-[#FFD000]/30 transition whitespace-nowrap flex items-center gap-1.5">⚡ Daily Drops</Link>
+          <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.25)" }}><Plus className="w-4 h-4" />Post</button>
+          <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}>Messages</Link>
+          <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}>Prayer Wall</Link>
+          <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "rgba(31, 184, 255, 0.12)", border: "1px solid #B8E5FF", color: "#0B3FD9" }}>Live</Link>
+          <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "linear-gradient(90deg, #FFD60A 0%, #FF9F1A 100%)", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 159, 26, 0.3)" }}>⚡ Daily Drops</Link>
           </div>
 
-        {/* Filter Bar */}
+        {/* Filter Bar — LIGHT */}
         <div className="flex gap-2 px-4 mb-6 overflow-x-auto hide-scrollbar shrink-0">
           {['All', 'Following', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300 ${
-                activeFilter === filter 
-                  ? filter === 'Following' ? 'bg-[#00CFFF]/20 text-[#00CFFF] border border-[#00CFFF]/30' : 'bg-white/10 text-white' 
-                  : 'text-gray-500 hover:text-gray-300'
-              }`}
+              className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300"
+              style={activeFilter === filter
+                ? { background: "#0B3FD9", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.3)" }
+                : { background: "rgba(255,255,255,0.6)", color: "#4A5878", border: "1px solid #E0EAF5" }}
             >
               {filter}
             </button>
@@ -626,24 +627,24 @@ export default function Feed() {
         {/* Feed */}
         <div className="flex flex-col px-3 sm:px-4 py-4 pb-24 lg:pb-6 max-w-2xl mx-auto w-full flex-none">
           {dropsLoading && drops.length === 0 ? (
-            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>
+            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>
           ) : dropsError && filteredDrops.length === 0 ? (
-            <div className="text-center py-20 text-gray-500">
+            <div className="text-center py-20" style={{ color: "#4A5878" }}>
               <div className="text-4xl mb-4">↻</div>
-              <p>We’re refreshing the feed. Please try again in a moment.</p>
-              <button onClick={() => queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] })} className="inline-block mt-4 text-[#00CFFF] hover:underline">Refresh feed</button>
+              <p>We're refreshing the feed. Please try again in a moment.</p>
+              <button onClick={() => queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] })} className="inline-block mt-4 hover:underline font-semibold" style={{ color: "#0B3FD9" }}>Refresh feed</button>
             </div>
           ) : filteredDrops.length === 0 ? (
-            <div className="text-center py-20 text-gray-500">
+            <div className="text-center py-20" style={{ color: "#4A5878" }}>
               <div className="text-4xl mb-4">{activeFilter === 'Following' ? '👥' : '✨'}</div>
               <p>{activeFilter === 'Following' 
                 ? 'No posts from people you follow yet. Start following creators to see their content here!'
                 : searchQuery ? 'No Lights found matching your search. Try different keywords!' 
                 : 'No Lights found for this filter. Be the first to share your light!'}</p>
               {activeFilter === 'Following' ? (
-                <button onClick={() => setActiveFilter('All')} className="inline-block mt-4 text-[#00CFFF] hover:underline">Explore all posts</button>
+                <button onClick={() => setActiveFilter('All')} className="inline-block mt-4 hover:underline font-semibold" style={{ color: "#0B3FD9" }}>Explore all posts</button>
               ) : (
-                <button onClick={() => setIsDropModalOpen(true)} className="inline-block mt-4 text-[#00CFFF] hover:underline">Submit a Light</button>
+                <button onClick={() => setIsDropModalOpen(true)} className="inline-block mt-4 hover:underline font-semibold" style={{ color: "#0B3FD9" }}>Submit a Light</button>
               )}
             </div>
           ) : (
@@ -661,7 +662,7 @@ export default function Feed() {
                   savedDropRecords={savedDropRecords}
                 />
               ))}
-              <div ref={feedEndRef} className="py-6 text-center text-gray-500 text-sm">
+              <div ref={feedEndRef} className="py-6 text-center text-sm" style={{ color: "#8A97B5" }}>
                 {displayCount < filteredDrops.length ? "Loading more..." : filteredDrops.length === 0 ? "" : `Showing ${filteredDrops.length} posts`}
               </div>
             </>
@@ -670,18 +671,18 @@ export default function Feed() {
         
         </div>
 
-        {/* Right Sidebar (Desktop) */}
-        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l border-white/5 bg-transparent backdrop-blur-md overflow-y-auto hide-scrollbar">
+        {/* Right Sidebar (Desktop) — LIGHT */}
+        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l backdrop-blur-md overflow-y-auto hide-scrollbar" style={{ borderColor: "#E0EAF5", background: "rgba(240, 250, 243, 0.4)" }}>
           
           <DailyChallenges user={user} />
 
-          {/* Trending Vibes */}
-          <div className="bg-[#121826] rounded-[24px] p-5 mb-6 border border-white/5">
-            <h3 className="font-black text-xs text-[#00CFFF] mb-4 tracking-widest uppercase">Trending Vibes</h3>
+          {/* Trending Vibes — LIGHT */}
+          <div className="rounded-[24px] p-5 mb-6" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+            <h3 className="font-black text-xs mb-4 tracking-widest uppercase" style={{ color: "#0B3FD9" }}>Trending Vibes</h3>
             
             <div className="space-y-4">
               {trendingTopics.length === 0 ? (
-                <p className="text-xs text-gray-500">No live hashtags yet.</p>
+                <p className="text-xs" style={{ color: "#8A97B5" }}>No live hashtags yet.</p>
               ) : trendingTopics.map((topic) => (
                 <button
                   key={topic.tag}
@@ -689,53 +690,54 @@ export default function Feed() {
                   className="group text-left w-full"
                 >
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Live hashtag</span>
-                    <MoreHorizontal className="w-3 h-3 text-gray-600" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#8A97B5" }}>Live hashtag</span>
+                    <MoreHorizontal className="w-3 h-3" style={{ color: "#8A97B5" }} />
                   </div>
-                  <h4 className="font-bold text-sm text-white group-hover:text-[#00CFFF] transition">{topic.tag}</h4>
-                  <p className="text-[10px] text-gray-500 mt-0.5">{topic.count} drop{topic.count === 1 ? '' : 's'}</p>
+                  <h4 className="font-bold text-sm transition" style={{ color: "#0B1B3D" }}>{topic.tag}</h4>
+                  <p className="text-[10px] mt-0.5" style={{ color: "#8A97B5" }}>{topic.count} drop{topic.count === 1 ? '' : 's'}</p>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* People to Connect */}
-          <div className="bg-[#121826] rounded-[24px] p-5 border border-white/5">
-            <h3 className="font-black text-xs text-[#FFD000] mb-4 tracking-widest uppercase">People to Connect</h3>
+          {/* People to Connect — LIGHT */}
+          <div className="rounded-[24px] p-5" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+            <h3 className="font-black text-xs mb-4 tracking-widest uppercase" style={{ color: "#FF9F1A" }}>People to Connect</h3>
             
             <div className="space-y-4">
               {users.filter(u => u.email !== user?.email && !following.some(f => f.following_email === u.email)).map((u, i) => {
                 return (
                 <div key={u.id} className="flex items-center gap-2">
                   <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-2 flex-1 min-w-0 no-underline hover:opacity-80 transition">
-                    <div className="w-9 h-9 rounded-full bg-gray-800 overflow-hidden flex items-center justify-center font-bold text-xs text-white border border-white/10 shrink-0">
+                    <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-xs shrink-0" style={{ background: "#E0EAF5", border: "1px solid #E0EAF5" }}>
                        <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex flex-col min-w-0 flex-1">
-                      <span className="font-bold text-white text-xs truncate">{u.full_name}</span>
-                      <span className="text-gray-500 text-[9px] truncate">{u.country || "Global Believer"}</span>
+                      <span className="font-bold text-xs truncate" style={{ color: "#0B1B3D" }}>{u.full_name}</span>
+                      <span className="text-[9px] truncate" style={{ color: "#8A97B5" }}>{u.country || "Global Believer"}</span>
                     </div>
                   </Link>
                    <button 
                      onClick={() => followMutation.mutate(u.email)}
-                     className="text-[9px] font-bold px-3 py-1.5 rounded-full border border-[#00CFFF] text-[#00CFFF] hover:bg-[#00CFFF]/10 transition shrink-0"
+                     className="text-[9px] font-bold px-3 py-1.5 rounded-full transition shrink-0"
+                     style={{ border: "1px solid #1FB8FF", color: "#0B3FD9", background: "rgba(31, 184, 255, 0.08)" }}
                    >
                      CONNECT
                    </button>
                 </div>
               )})}
               {users.filter(u => u.email !== user?.email).length === 0 && (
-                <p className="text-xs text-gray-500 text-center py-2">No other members yet. Invite friends!</p>
+                <p className="text-xs text-center py-2" style={{ color: "#8A97B5" }}>No other members yet. Invite friends!</p>
               )}
             </div>
           </div>
           
-          <div className="mt-6 text-[9px] text-gray-600 flex flex-col gap-1">
+          <div className="mt-6 text-[9px] flex flex-col gap-1" style={{ color: "#8A97B5" }}>
              <p>© 2026 GENERATION LIGHTMODE. ALL RIGHTS RESERVED.</p>
              <div className="flex gap-2">
-               <a href="#" className="hover:text-gray-400">Privacy</a>
-               <a href="#" className="hover:text-gray-400">Terms</a>
-               <a href="#" className="hover:text-gray-400">Nexus Guide</a>
+               <a href="#" className="hover:underline">Privacy</a>
+               <a href="#" className="hover:underline">Terms</a>
+               <a href="#" className="hover:underline">Nexus Guide</a>
              </div>
           </div>
         </div>
@@ -822,15 +824,15 @@ export default function Feed() {
           </div>
         )}
 
-        {/* Bottom Mobile Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F1A]/90 backdrop-blur-xl border-t border-white/10 flex justify-around items-center py-3 px-6 z-50 pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden">
-          <Link to={createPageUrl("Feed")}><Home className="w-6 h-6 text-white" fill="white" /></Link>
-          <button onClick={() => setIsSearchOpen(true)}><SearchIcon className="w-6 h-6 text-white" /></button>
-          <Link to={createPageUrl("Dashboard")}><PlusSquare className="w-6 h-6 text-white" /></Link>
-          <Link to={createPageUrl("GlobalReach")}><Globe className="w-6 h-6 text-white" /></Link>
-          <Link to={createPageUrl("Resources")}><PlaySquare className="w-6 h-6 text-white" /></Link>
+        {/* Bottom Mobile Navigation — LIGHT */}
+        <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t flex justify-around items-center py-3 px-6 z-50 pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden" style={{ background: "rgba(240, 250, 243, 0.95)", borderColor: "#E0EAF5" }}>
+          <Link to={createPageUrl("Feed")}><Home className="w-6 h-6" fill="#0B3FD9" style={{ color: "#0B3FD9" }} /></Link>
+          <button onClick={() => setIsSearchOpen(true)}><SearchIcon className="w-6 h-6" style={{ color: "#0B1B3D" }} /></button>
+          <Link to={createPageUrl("Dashboard")}><PlusSquare className="w-6 h-6" style={{ color: "#0B1B3D" }} /></Link>
+          <Link to={createPageUrl("GlobalReach")}><Globe className="w-6 h-6" style={{ color: "#0B1B3D" }} /></Link>
+          <Link to={createPageUrl("Resources")}><PlaySquare className="w-6 h-6" style={{ color: "#0B1B3D" }} /></Link>
           <Link to={createPageUrl("Profile")}>
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/20 flex items-center justify-center text-[10px] uppercase font-bold text-white overflow-hidden">
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] uppercase font-bold overflow-hidden" style={{ border: "2px solid #1FB8FF" }}>
               <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
             </div>
           </Link>
