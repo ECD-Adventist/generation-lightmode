@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { compressImageUnder2MB } from "@/lib/imageUtils";
+import StoryIdeaGenerator from "./StoryIdeaGenerator";
 
 const themes = [
   { id: "ocean", className: "from-[#00CFFF] to-[#1DA1FF]" },
@@ -104,6 +105,16 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
 
         {/* Body */}
         <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
+          {/* AI Idea Generator */}
+          <StoryIdeaGenerator
+            mode={mode}
+            onSelectIdea={(idea) => {
+              setText(idea.text);
+              if (idea.theme && themes.find(t => t.id === idea.theme)) setTheme(idea.theme);
+              toast.success("Idea applied! Customize it to make it yours.");
+            }}
+          />
+
           {mode === "status" ? (
             <>
               {/* Live Preview */}
