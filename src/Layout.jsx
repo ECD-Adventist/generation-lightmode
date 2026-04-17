@@ -641,10 +641,10 @@ export default function Layout({ children, currentPageName }) {
         }
         .glm-switch-btn:hover { transform: translateY(-1px) scale(1.03); }
         .glm-switch-btn:hover .glm-switch-inner {
-          background: linear-gradient(135deg, #FFD000, #FFA500);
+          background: linear-gradient(135deg, #FFD000, #FFBA00);
         }
         .glm-switch-btn:hover .glm-switch-inner .glm-switch-text {
-          background-image: linear-gradient(90deg, #0B0F1A, #1a1a2e);
+          background-image: linear-gradient(90deg, #1B2A6B, #0F1D5A);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
@@ -665,7 +665,7 @@ export default function Layout({ children, currentPageName }) {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: linear-gradient(135deg, #0B0F1A, #151C2C);
+          background: linear-gradient(135deg, #1B2A6B, #0F1D5A);
           font-family: 'Space Grotesk', sans-serif;
           font-weight: 800;
           font-size: 13px;
@@ -686,10 +686,11 @@ export default function Layout({ children, currentPageName }) {
         }
         /* Gradient text inside the pill */
         .glm-switch-text {
-          background-image: linear-gradient(90deg, #00CFFF, #ffffff, #FFD000);
+          background-image: linear-gradient(90deg, #5CE1FF, #ffffff, #FFD000);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+          transition: all 0.3s ease;
         }
         /* Hide orbit spans (no longer used) */
         .glm-switch-orbit { display: none; }
