@@ -561,7 +561,7 @@ export default function Profile() {
                   )}
                 </div>
                 
-                <div className="flex flex-wrap gap-8 justify-center md:justify-start mb-6">
+                <div className="flex flex-wrap gap-6 justify-center md:justify-start mb-6">
                   <div className="text-center md:text-left">
                     <span className="font-bold text-2xl">{myDrops.length}</span>
                     <span className="text-gray-400 text-sm block md:inline"> posts</span>
@@ -574,14 +574,6 @@ export default function Profile() {
                     <span className="font-bold text-2xl text-white">{myFollowing.length}</span>
                     <span className="text-gray-400 text-sm block md:inline"> following</span>
                   </button>
-                  <div className="text-center md:text-left">
-                    <span className="font-bold text-2xl text-[#FFD000]">{user.glow_score || 0}</span>
-                    <span className="text-gray-400 text-sm block md:inline"> XP</span>
-                  </div>
-                  <div className="text-center md:text-left">
-                    <span className="font-bold text-2xl text-[#00CFFF]">{user.faith_streak_count || 0}</span>
-                    <span className="text-gray-400 text-sm block md:inline"> faith streak</span>
-                  </div>
                 </div>
 
                 <div className="text-sm text-gray-300 max-w-md mx-auto md:mx-0 space-y-3">
@@ -608,16 +600,18 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className="mt-6">
-                  <ProfileHighlights
-                    user={user}
-                    profileCompletion={profileCompletion}
-                    nextLevelXp={nextLevelXp}
-                    recentActivity={recentActivity}
-                    onShare={handleShareProfile}
-                  />
-                </div>
               </div>
+            </div>
+
+            {/* Highlights Section — full width below header */}
+            <div className="px-4 mb-6">
+              <ProfileHighlights
+                user={user}
+                profileCompletion={profileCompletion}
+                nextLevelXp={nextLevelXp}
+                recentActivity={recentActivity}
+                onShare={handleShareProfile}
+              />
             </div>
           </div>
         )}
