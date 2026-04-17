@@ -379,7 +379,7 @@ export default function Feed() {
       <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] rounded-full blur-[120px] z-0 opacity-30 pointer-events-none animate-[float-light_8s_ease-in-out_infinite]" style={{ background: "#7FE08A" }}></div>
       <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] rounded-full blur-[140px] z-0 opacity-25 pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]" style={{ background: "#5AC8FF" }}></div>
 
-      <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 backdrop-blur-[2px]">
+      <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-0 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
         <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "linear-gradient(180deg, #FFFDF5 0%, #FFF9E6 40%, #FFF4D6 100%)", borderColor: "#F0E0B0", backgroundImage: "radial-gradient(circle at 20% 80%, rgba(255,208,0,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,159,26,0.06) 0%, transparent 50%)" }}>
