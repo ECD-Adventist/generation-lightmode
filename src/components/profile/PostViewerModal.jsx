@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { X, ChevronUp, ChevronDown } from "lucide-react";
+import { X } from "lucide-react";
 import DropCard from "@/components/feed/DropCard";
 
 export default function PostViewerModal({
@@ -106,50 +106,7 @@ export default function PostViewerModal({
         <X className="w-4 h-4" />
       </button>
 
-      {/* Counter pill */}
-      <div className="absolute top-5 left-1/2 -translate-x-1/2 z-50 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-wider"
-        style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", color: "rgba(255,255,255,0.8)" }}>
-        {currentIndex + 1} of {drops.length}
-      </div>
 
-      {/* Vertical nav arrows */}
-      {currentIndex > 0 && (
-        <button
-          onClick={(e) => { e.stopPropagation(); goToPrev(); }}
-          className="absolute top-16 left-1/2 -translate-x-1/2 z-50 w-8 h-8 rounded-full hidden md:flex items-center justify-center transition-all hover:scale-110"
-          style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", color: "rgba(255,255,255,0.7)" }}
-        >
-          <ChevronUp className="w-4 h-4" />
-        </button>
-      )}
-      {currentIndex < drops.length - 1 && (
-        <button
-          onClick={(e) => { e.stopPropagation(); goToNext(); }}
-          className="absolute bottom-5 left-1/2 -translate-x-1/2 z-50 w-8 h-8 rounded-full hidden md:flex items-center justify-center transition-all hover:scale-110"
-          style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", color: "rgba(255,255,255,0.7)" }}
-        >
-          <ChevronDown className="w-4 h-4" />
-        </button>
-      )}
-
-      {/* Vertical dot rail */}
-      {drops.length > 1 && drops.length <= 20 && (
-        <div className="absolute right-5 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-1">
-          {drops.map((_, i) => (
-            <button
-              key={i}
-              onClick={(e) => { e.stopPropagation(); setCurrentIndex(i); }}
-              className="rounded-full transition-all duration-300"
-              style={{
-                width: 5,
-                height: i === currentIndex ? 18 : 5,
-                background: i === currentIndex ? "#fff" : "rgba(255,255,255,0.3)",
-                cursor: "pointer",
-              }}
-            />
-          ))}
-        </div>
-      )}
 
       {/* Card */}
       <div
