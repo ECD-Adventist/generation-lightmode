@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Loader2, Bell, Shield, LogOut, Home, ChevronRight, Moon, Globe, BookOpen } from "lucide-react";
+import { Loader2, Bell, Shield, LogOut, Home, ChevronRight, Globe, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 
 const NOTIF_KEYS = [
@@ -28,15 +28,10 @@ export default function Settings() {
         const me = await base44.auth.me();
         setUser(me);
         const saved = {};
-        NOTIF_KEYS.forEach(({ key }) => {
-          saved[key] = me[key] !== false; // default ON
-        });
+        NOTIF_KEYS.forEach(({ key }) => { saved[key] = me[key] !== false; });
         setPrefs(saved);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
+      } catch (e) { console.error(e); }
+      finally { setLoading(false); }
     }
     load();
   }, []);
@@ -45,143 +40,111 @@ export default function Settings() {
 
   const savePrefs = async () => {
     setSaving(true);
-    try {
-      await base44.auth.updateMe(prefs);
-      toast.success("Preferences saved!");
-    } catch {
-      toast.error("Failed to save");
-    } finally {
-      setSaving(false);
-    }
+    try { await base44.auth.updateMe(prefs); toast.success("Preferences saved!"); }
+    catch { toast.error("Failed to save"); }
+    finally { setSaving(false); }
   };
 
   const handleLogout = () => base44.auth.logout(createPageUrl("Home"));
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}>
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white pb-20">
+    <div className="min-h-screen pb-20 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       {/* Nav */}
-      <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5 px-6 py-3 flex items-center gap-4">
-        <Link to={createPageUrl("Feed")} className="flex items-center gap-2 text-gray-400 hover:text-white transition">
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b px-6 py-3 flex items-center gap-4" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
+        <Link to={createPageUrl("Feed")} className="flex items-center gap-2 transition" style={{ color: "#4A5878" }}>
           <Home className="w-4 h-4" />
         </Link>
-        <ChevronRight className="w-3.5 h-3.5 text-gray-600" />
-        <span className="text-white font-bold text-sm">Settings</span>
+        <ChevronRight className="w-3.5 h-3.5" style={{ color: "#8A97B5" }} />
+        <span className="font-bold text-sm" style={{ color: "#0B1B3D" }}>Settings</span>
         <div className="flex-1" />
-        <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 text-[#00CFFF] text-sm font-bold hover:opacity-80 transition">
+        <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 text-sm font-bold transition" style={{ color: "#0B3FD9" }}>
           ← Back to Feed
         </Link>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
-        {/* Header */}
         <div>
-          <h1 className="text-3xl font-black font-['Space_Grotesk']">Settings</h1>
-          <p className="text-gray-400 text-sm mt-1">Manage your account preferences and notifications.</p>
+          <h1 className="text-3xl font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>Settings</h1>
+          <p className="text-sm mt-1" style={{ color: "#6B7FA0" }}>Manage your account preferences and notifications.</p>
         </div>
 
         {/* Account Info */}
-        <div className="bg-[#121826] rounded-2xl border border-white/5 p-6">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-[#00CFFF] mb-4 flex items-center gap-2">
+        <div className="rounded-2xl p-6" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2" style={{ color: "#0B3FD9" }}>
             <Globe className="w-3.5 h-3.5" /> Account
           </h2>
           <div className="flex items-center gap-4 mb-4">
-            <img
-              src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
-              className="w-14 h-14 rounded-full object-cover border-2 border-white/10"
-              alt="Profile"
-            />
+            <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-14 h-14 rounded-full object-cover border-2" style={{ borderColor: "#E6ECF5" }} alt="Profile" />
             <div>
-              <p className="font-bold text-white">{user?.full_name}</p>
-              <p className="text-gray-400 text-sm">{user?.email}</p>
-              <p className="text-gray-500 text-xs mt-0.5">{user?.country || "No country set"}</p>
+              <p className="font-bold" style={{ color: "#0B1B3D" }}>{user?.full_name}</p>
+              <p className="text-sm" style={{ color: "#6B7FA0" }}>{user?.email}</p>
+              <p className="text-xs mt-0.5" style={{ color: "#8A97B5" }}>{user?.country || "No country set"}</p>
             </div>
           </div>
-          <Link
-            to={createPageUrl("Profile")}
-            className="inline-flex items-center gap-2 text-[#00CFFF] text-sm font-bold hover:underline"
-          >
+          <Link to={createPageUrl("Profile")} className="inline-flex items-center gap-2 text-sm font-bold" style={{ color: "#0B3FD9" }}>
             Edit Profile <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         {/* Notifications */}
-        <div className="bg-[#121826] rounded-2xl border border-white/5 p-6">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-[#FFD000] mb-4 flex items-center gap-2">
+        <div className="rounded-2xl p-6" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2" style={{ color: "#CC7A00" }}>
             <Bell className="w-3.5 h-3.5" /> Notification Preferences
           </h2>
           <div className="space-y-3">
             {NOTIF_KEYS.map(({ key, label, icon }) => (
-              <div key={key} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+              <div key={key} className="flex items-center justify-between py-2 border-b last:border-0" style={{ borderColor: "#E6ECF5" }}>
                 <div className="flex items-center gap-3">
                   <span className="text-lg">{icon}</span>
-                  <span className="text-sm text-gray-200">{label}</span>
+                  <span className="text-sm" style={{ color: "#3A4A6B" }}>{label}</span>
                 </div>
-                <button
-                  onClick={() => togglePref(key)}
-                  className={`w-11 h-6 rounded-full transition-colors duration-200 relative ${prefs[key] ? "bg-[#00CFFF]" : "bg-gray-700"}`}
-                >
-                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${prefs[key] ? "left-6" : "left-1"}`} />
+                <button onClick={() => togglePref(key)} className="w-11 h-6 rounded-full transition-colors duration-200 relative" style={{ background: prefs[key] ? "#1FB8FF" : "#D6E4FF" }}>
+                  <span className="absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200" style={{ left: prefs[key] ? 24 : 4 }} />
                 </button>
               </div>
             ))}
           </div>
-          <button
-            onClick={savePrefs}
-            disabled={saving}
-            className="mt-5 px-6 py-2.5 bg-[#00CFFF] text-black font-bold rounded-xl text-sm hover:bg-[#00CFFF]/80 transition flex items-center gap-2 disabled:opacity-60"
-          >
+          <button onClick={savePrefs} disabled={saving} className="mt-5 px-6 py-2.5 font-bold rounded-xl text-sm transition flex items-center gap-2 disabled:opacity-60" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             Save Preferences
           </button>
         </div>
 
         {/* Daily Code Widget */}
-        <div className="bg-[#121826] rounded-2xl border border-white/5 p-6">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-[#8A5CFF] mb-4 flex items-center gap-2">
+        <div className="rounded-2xl p-6" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2" style={{ color: "#0B3FD9" }}>
             <BookOpen className="w-3.5 h-3.5" /> Daily Truth
           </h2>
-          <p className="text-gray-400 text-sm mb-4">Access today's featured Code of Truth and daily devotional.</p>
-          <Link
-            to="/DailyTruthFeed"
-            className="inline-flex items-center gap-2 text-[#8A5CFF] text-sm font-bold hover:underline"
-          >
+          <p className="text-sm mb-4" style={{ color: "#6B7FA0" }}>Access today's featured Code of Truth and daily devotional.</p>
+          <Link to="/DailyTruthFeed" className="inline-flex items-center gap-2 text-sm font-bold" style={{ color: "#0B3FD9" }}>
             View Daily Truth Feed <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         {/* Privacy */}
-        <div className="bg-[#121826] rounded-2xl border border-white/5 p-6">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
+        <div className="rounded-2xl p-6" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2" style={{ color: "#6B7FA0" }}>
             <Shield className="w-3.5 h-3.5" /> Privacy & Legal
           </h2>
-          <Link
-            to="/Privacy"
-            className="flex items-center justify-between py-2 text-sm text-gray-300 hover:text-white transition"
-          >
-            Privacy Policy <ChevronRight className="w-3.5 h-3.5 text-gray-600" />
+          <Link to="/Privacy" className="flex items-center justify-between py-2 text-sm transition" style={{ color: "#4A5878" }}>
+            Privacy Policy <ChevronRight className="w-3.5 h-3.5" style={{ color: "#8A97B5" }} />
           </Link>
-          <div className="h-px bg-white/5 my-1" />
-          <a
-            href="mailto:privacy@generationlightmode.org"
-            className="flex items-center justify-between py-2 text-sm text-gray-300 hover:text-white transition"
-          >
-            Contact Support <ChevronRight className="w-3.5 h-3.5 text-gray-600" />
+          <div className="h-px my-1" style={{ background: "#E6ECF5" }} />
+          <a href="mailto:privacy@generationlightmode.org" className="flex items-center justify-between py-2 text-sm transition" style={{ color: "#4A5878" }}>
+            Contact Support <ChevronRight className="w-3.5 h-3.5" style={{ color: "#8A97B5" }} />
           </a>
         </div>
 
         {/* Sign Out */}
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-red-500/20 text-red-400 hover:bg-red-500/10 transition font-bold text-sm"
-        >
+        <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border transition font-bold text-sm" style={{ borderColor: "rgba(239, 68, 68, 0.2)", color: "#EF4444" }}>
           <LogOut className="w-4 h-4" /> Sign Out
         </button>
       </div>
