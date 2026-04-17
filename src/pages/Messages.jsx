@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
-import { ArrowLeft, MessageCircle, Users } from "lucide-react";
+import { ArrowLeft, MessageCircle, Users, Home, Zap, Bell, User, Globe } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import ConversationsList from "@/components/messages/ConversationsList";
@@ -117,7 +117,7 @@ export default function Messages() {
     mutationFn: async ({ content, file_url }) => {
       if (!user) { toast.error("Please log in to send messages"); return; }
       if (!content?.trim() && !file_url) return;
-      
+
       const message = await base44.entities.DirectMessage.create({
         conversation_id: selectedConversation.id,
         sender_email: user.email,
@@ -126,12 +126,12 @@ export default function Messages() {
         file_url: file_url || undefined,
         status: "sent",
       });
-      
+
       await base44.entities.DirectConversation.update(selectedConversation.id, {
         last_message: content?.trim() || `Shared a file`,
         last_message_at: new Date().toISOString(),
       });
-      
+
       // Notification (fire and forget, don't block)
       if (otherEmail && otherEmail !== user.email && isNotificationEnabled(otherUser, "messages")) {
         base44.entities.Notification.create({
@@ -141,17 +141,27 @@ export default function Messages() {
           link: `/Messages?user=${encodeURIComponent(user.email)}`,
         }).catch(() => {});
       }
-      
+
       await base44.entities.DirectMessage.update(message.id, { status: "delivered" });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["directMessages", selectedConversationId] });
       queryClient.invalidateQueries({ queryKey: ["directConversations", user?.email] });
-      toast.success("Message sent!");
     },
     onError: () => {
       toast.error("Failed to send message. Try again.");
     }
+  });
+
+  const deleteMessageMutation = useMutation({
+    mutationFn: async (messageId) => {
+      await base44.entities.DirectMessage.delete(messageId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["directMessages", selectedConversationId] });
+      toast.success("Message deleted");
+    },
+    onError: () => toast.error("Failed to delete message"),
   });
 
   useEffect(() => {
@@ -189,72 +199,108 @@ export default function Messages() {
   useEffect(() => {
     const conversationFromUrl = urlParams.get("conversation");
     if (conversationFromUrl) setSelectedConversationId(conversationFromUrl);
-    else if (conversations[0] && !selectedConversationId) setSelectedConversationId(conversations[0].id);
-  }, [conversations.length]);
+  }, []);
 
   if (!user) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>Loading messages...</div>;
+
+  // Mobile: show list when nothing selected; show chat when selected
+  const showListOnMobile = activeTab === "dms" ? !selectedConversationId : !selectedGroupId;
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       {/* Top Nav */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl border-b px-4 py-3" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-          <Link to={createPageUrl("Feed")} className="flex items-center gap-2 shrink-0 lg:hidden" style={{ color: "#0B1B3D" }}>
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <h1 className="text-xl font-bold" style={{ color: "#0B1B3D" }}>Messages</h1>
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b px-4 py-3" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link to={createPageUrl("Feed")} className="flex items-center gap-2 shrink-0" style={{ color: "#0B1B3D" }}>
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <h1 className="text-xl font-bold truncate" style={{ color: "#0B1B3D" }}>Messages</h1>
+          </div>
+
           {/* Tab switcher */}
-          <div className="flex items-center gap-1 rounded-xl p-1" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
+          <div className="flex items-center gap-1 rounded-xl p-1 shrink-0" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
             <button
               onClick={() => setActiveTab("dms")}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold transition"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-sm font-semibold transition"
               style={activeTab === "dms"
                 ? { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.25)" }
                 : { background: "transparent", color: "#4A5878" }}
             >
-              <MessageCircle className="w-4 h-4" /> Direct
+              <MessageCircle className="w-4 h-4" /> <span className="hidden sm:inline">Direct</span>
             </button>
             <button
               onClick={() => setActiveTab("groups")}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold transition"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg text-sm font-semibold transition"
               style={activeTab === "groups"
                 ? { background: "linear-gradient(90deg, #FFD000 0%, #FF9F1A 100%)", color: "#0B1B3D", boxShadow: "0 2px 8px rgba(255, 159, 26, 0.3)" }
                 : { background: "transparent", color: "#4A5878" }}
             >
-              <Users className="w-4 h-4" /> Groups {myGroups.length > 0 && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={activeTab === "groups" ? { background: "rgba(11, 27, 61, 0.15)", color: "#0B1B3D" } : { background: "#EEF3FF", color: "#0B3FD9" }}>{myGroups.length}</span>}
+              <Users className="w-4 h-4" /> <span className="hidden sm:inline">Groups</span>
+              {myGroups.length > 0 && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={activeTab === "groups" ? { background: "rgba(11, 27, 61, 0.15)", color: "#0B1B3D" } : { background: "#EEF3FF", color: "#0B3FD9" }}>
+                  {myGroups.length}
+                </span>
+              )}
             </button>
+          </div>
+
+          {/* Quick nav — desktop only */}
+          <div className="hidden lg:flex items-center gap-1">
+            {[
+              { to: "Feed", icon: <Home className="w-4 h-4" /> },
+              { to: "Dashboard", icon: <Zap className="w-4 h-4" /> },
+              { to: "Notifications", icon: <Bell className="w-4 h-4" /> },
+              { to: "Profile", icon: <User className="w-4 h-4" /> },
+            ].map(item => (
+              <Link key={item.to} to={createPageUrl(item.to)} className="w-9 h-9 rounded-xl flex items-center justify-center transition" style={{ color: "#4A5878" }}
+                onMouseOver={e => { e.currentTarget.style.background = "#EEF3FF"; e.currentTarget.style.color = "#0B3FD9"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#4A5878"; }}
+              >
+                {item.icon}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto grid lg:grid-cols-[320px_minmax(0,1fr)] gap-4 px-4 py-6">
+      <div className="max-w-6xl mx-auto grid lg:grid-cols-[340px_minmax(0,1fr)] gap-4 px-3 sm:px-4 py-4 sm:py-6">
         {activeTab === "dms" ? (
           <>
-            <ConversationsList
-              conversations={conversations}
-              selectedConversationId={selectedConversationId}
-              currentUserEmail={user.email}
-              allUsers={allUsers}
-              followingUsers={following.map(f => f.following_email)}
-              onSelectConversation={setSelectedConversationId}
-              onStartConversation={(email) => ensureConversationMutation.mutate(email)}
-            />
-            <ChatWindow
-              conversation={selectedConversation}
-              currentUser={user}
-              otherUser={otherUser}
-              messages={messages}
-              onSend={({ content, file_url }) => sendMessageMutation.mutate({ content, file_url })}
-              isSending={sendMessageMutation.isPending}
-            />
+            <div className={showListOnMobile ? "block" : "hidden lg:block"}>
+              <ConversationsList
+                conversations={conversations}
+                selectedConversationId={selectedConversationId}
+                currentUserEmail={user.email}
+                allUsers={allUsers}
+                followingUsers={following.map(f => f.following_email)}
+                onSelectConversation={setSelectedConversationId}
+                onStartConversation={(email) => ensureConversationMutation.mutate(email)}
+              />
+            </div>
+            <div className={!showListOnMobile ? "block" : "hidden lg:block"}>
+              <ChatWindow
+                conversation={selectedConversation}
+                currentUser={user}
+                otherUser={otherUser}
+                messages={messages}
+                onSend={({ content, file_url }) => sendMessageMutation.mutate({ content, file_url })}
+                isSending={sendMessageMutation.isPending}
+                onBack={() => setSelectedConversationId(null)}
+                onDeleteMessage={(id) => deleteMessageMutation.mutate(id)}
+              />
+            </div>
           </>
         ) : (
           <>
             {/* Group list */}
-            <div className="rounded-[1.5rem] overflow-hidden flex flex-col h-[72vh]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+            <div
+              className={`rounded-[1.5rem] lg:rounded-[1.75rem] overflow-hidden flex flex-col h-[calc(100vh-9rem)] lg:h-[72vh] ${showListOnMobile ? "block" : "hidden lg:flex"}`}
+              style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}
+            >
               <div className="px-4 py-4 border-b" style={{ borderColor: "#E6ECF5" }}>
                 <h2 className="text-lg font-bold" style={{ color: "#0B1B3D" }}>GlowGroups</h2>
-                <p className="text-sm mt-1" style={{ color: "#6B7FA0" }}>Chat with your group members.</p>
+                <p className="text-xs mt-0.5" style={{ color: "#6B7FA0" }}>Chat with your group members.</p>
               </div>
               <div className="flex-1 overflow-y-auto">
                 {myGroups.length === 0 ? (
@@ -291,11 +337,14 @@ export default function Messages() {
                 })}
               </div>
             </div>
-            <GroupChatWindow
-              group={selectedGroup}
-              currentUser={user}
-              allUsers={allUsers}
-            />
+            <div className={!showListOnMobile ? "block" : "hidden lg:block"}>
+              <GroupChatWindow
+                group={selectedGroup}
+                currentUser={user}
+                allUsers={allUsers}
+                onBack={() => setSelectedGroupId(null)}
+              />
+            </div>
           </>
         )}
       </div>
