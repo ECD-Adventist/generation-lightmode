@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
         // Explicitly whitelist ONLY allowed fields — never spread raw body
         const full_name = (body.full_name || '').trim();
         const country = (body.country || '').trim();
-        const bio = (body.bio || '').slice(0, 150).trim();
+        const bio = (body.bio || '').slice(0, 1200).trim();
         // Validate website_url — must be a real http(s) URL, not javascript: or data: etc.
         const rawWebsiteUrl = (body.website_url || '').trim();
         let website_url = '';
