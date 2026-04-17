@@ -510,20 +510,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════ GLOBAL MAP ═══════════════════ */}
-      <section style={{ padding: "clamp(80px, 10vw, 100px) 0 0", background: "#0B0F1A" }}>
-        <div style={{ textAlign: "center", padding: "0 24px", marginBottom: 48 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.08)", border: "1px solid rgba(0,207,255,0.2)", borderRadius: 999, padding: "6px 16px", marginBottom: 20 }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#00CFFF", boxShadow: "0 0 8px #00CFFF", display: "inline-block" }} />
-            <span style={{ color: "#00CFFF", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>Real-Time Data</span>
-          </div>
-          <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(28px, 4vw, 48px)", letterSpacing: "-0.02em", background: "linear-gradient(90deg, #00CFFF, #8A5CFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", marginBottom: 12 }}>
-            Global Light Map
-          </h2>
-          <p style={{ color: "#8A9BB0", fontSize: 16, fontFamily: "Inter, sans-serif", maxWidth: 500, margin: "0 auto" }}>
-            Real-time data showing where our members, GlowGroups, and Glow Drops are illuminating the world.
-          </p>
-        </div>
-
+      <section style={{ background: "#0B0F1A", position: "relative" }}>
         <style>{`
           .leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 8px; }
           .leaflet-popup-tip { background: #121826; border: 1px solid rgba(0,207,255,0.4); }
@@ -531,6 +518,21 @@ export default function Home() {
         `}</style>
 
         <div style={{ position: "relative", zIndex: 10 }}>
+          {/* Heading overlay — inside the map */}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 1000, textAlign: "center", padding: "clamp(32px, 5vw, 56px) 24px 0", pointerEvents: "none", background: "linear-gradient(180deg, rgba(11,15,26,0.85) 0%, rgba(11,15,26,0.4) 60%, transparent 100%)" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.08)", border: "1px solid rgba(0,207,255,0.2)", borderRadius: 999, padding: "6px 16px", marginBottom: 16, pointerEvents: "auto" }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#00CFFF", boxShadow: "0 0 8px #00CFFF", display: "inline-block" }} />
+              <span style={{ color: "#00CFFF", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>Real-Time Data</span>
+            </div>
+            <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(28px, 4vw, 48px)", letterSpacing: "-0.02em", background: "linear-gradient(90deg, #00CFFF, #8A5CFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", marginBottom: 10 }}>
+              Global Light Map
+            </h2>
+            <p style={{ color: "#C8D0E0", fontSize: 15, fontFamily: "Inter, sans-serif", maxWidth: 500, margin: "0 auto", textShadow: "0 2px 8px rgba(0,0,0,0.7)" }}>
+              Real-time data showing where our members, GlowGroups, and Glow Drops are illuminating the world.
+            </p>
+          </div>
+
+          {/* Stats panel */}
           <div style={{ position: "absolute", top: 20, right: 20, zIndex: 1000, background: "rgba(11,15,26,0.92)", backdropFilter: "blur(14px)", borderRadius: 16, padding: "16px 18px", border: "1px solid rgba(0,207,255,0.2)", minWidth: 180 }}>
             <div style={{ fontSize: 9, fontWeight: 800, color: "#00CFFF", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12, fontFamily: "Space Grotesk, sans-serif" }}>Live Statistics</div>
             {[
@@ -545,7 +547,7 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <div style={{ height: "70vh", minHeight: 450, width: "100%", background: "#080C14" }}>
+          <div style={{ height: "85vh", minHeight: 550, width: "100%", background: "#080C14" }}>
             <MapContainer center={[10, 20]} zoom={2} scrollWheelZoom={false} zoomControl={false} style={{ height: "100%", width: "100%", background: "#0B0F1A" }}>
               <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png" attribution='&copy; CartoDB' />
               {liveCountries.filter(loc => countryCoordinates[loc.country]).flatMap((loc, i) => {

@@ -18,6 +18,7 @@ import { isNotificationEnabled } from "@/lib/notifications";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 import PledgeModal from "@/components/pledge/PledgeModal";
 import ProfileHighlights, { getGlowRank } from "@/components/profile/ProfileHighlights";
+import AchievementBadges from "@/components/profile/AchievementBadges";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -231,19 +232,54 @@ export default function Profile() {
       try {
         const myCerts = await base44.entities.Certificate.filter({ user_email: user.email });
         const newCerts = [];
+        const email = user.email;
         
+        // 30 Days Consistent Posting
         if (!myCerts.find(c => c.title === '30 Days Consistent Posting')) {
-          const drops = await base44.entities.GlowDrop.filter({ user_email: user.email });
+          const drops = await base44.entities.GlowDrop.filter({ user_email: email });
           const uniqueDays = new Set(drops.map(d => d.created_date?.split('T')[0])).size;
           if (uniqueDays >= 30) {
-            newCerts.push({ user_email: user.email, title: '30 Days Consistent Posting', description: 'Posted Glow Drops on 30 distinct days.', icon: '🏅' });
+            newCerts.push({ user_email: email, title: '30 Days Consistent Posting', description: 'Posted Glow Drops on 30 distinct days.', icon: '🏅' });
           }
         }
         
+        // Community Leader
         if (!myCerts.find(c => c.title === 'Community Leader')) {
-          const groups = await base44.entities.GlowGroup.filter({ leader_email: user.email });
+          const groups = await base44.entities.GlowGroup.filter({ leader_email: email });
           if (groups.length > 0) {
-            newCerts.push({ user_email: user.email, title: 'Community Leader', description: 'Led a GlowGroup for the first time.', icon: '👑' });
+            newCerts.push({ user_email: email, title: 'Community Leader', description: 'Led a GlowGroup for the first time.', icon: '👑' });
+          }
+        }
+
+        // 7-Day Glow Streak
+        if (!myCerts.find(c => c.title === '7-Day Glow Streak') && (user.faith_streak_count || 0) >= 7) {
+          newCerts.push({ user_email: email, title: '7-Day Glow Streak', description: 'Maintained a 7-day consecutive posting streak.', icon: '🔥' });
+        }
+
+        // Community Influencer — 50+ total likes across all drops
+        if (!myCerts.find(c => c.title === 'Community Influencer')) {
+          const drops = await base44.entities.GlowDrop.filter({ user_email: email });
+          const totalLikes = drops.reduce((sum, d) => sum + (d.likes_count || 0), 0);
+          if (totalLikes >= 50) {
+            newCerts.push({ user_email: email, title: 'Community Influencer', description: 'Your posts received 50+ total likes — you inspire others!', icon: '⭐' });
+          }
+        }
+
+        // Prayer Warrior — 50+ prayer supports
+        if (!myCerts.find(c => c.title === 'Prayer Warrior')) {
+          const supports = await base44.entities.PrayerSupport.filter({ user_email: email });
+          if (supports.length >= 50) {
+            newCerts.push({ user_email: email, title: 'Prayer Warrior', description: 'Stood in prayer for 50+ requests. Mighty intercessor!', icon: '🛡️' });
+          }
+        }
+
+        // Monthly Evangelist — 20+ drops in a single month
+        if (!myCerts.find(c => c.title === 'Monthly Evangelist')) {
+          const drops = await base44.entities.GlowDrop.filter({ user_email: email });
+          const monthCounts = {};
+          drops.forEach(d => { if (d.created_date) { const k = d.created_date.substring(0, 7); monthCounts[k] = (monthCounts[k] || 0) + 1; } });
+          if (Math.max(0, ...Object.values(monthCounts)) >= 20) {
+            newCerts.push({ user_email: email, title: 'Monthly Evangelist', description: 'Posted 20+ Glow Drops in a single month!', icon: '📅' });
           }
         }
 
@@ -863,52 +899,16 @@ export default function Profile() {
         )}
 
         {activeProfileTab === "badges" && (
-           <div className="py-8 px-4">
-             {certificates.length > 0 && (
-               <div className="mb-10">
-                 <h3 className="text-xl font-bold font-['Space_Grotesk'] text-[#FFD000] mb-4 flex items-center gap-2"><Award className="w-6 h-6" /> Glow Certificates</h3>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   {certificates.map(cert => (
-                     <div key={cert.id} className="bg-gradient-to-r from-[#121826] to-[#0B0F1A] p-6 rounded-2xl border border-[#FFD000]/30 shadow-[0_0_20px_rgba(255,208,0,0.15)] flex items-center gap-6">
-                       <div className="text-5xl drop-shadow-lg bg-black/30 w-20 h-20 rounded-full flex items-center justify-center border-2 border-[#FFD000]/50">{cert.icon}</div>
-                       <div>
-                         <div className="text-xs text-[#FFD000] font-bold uppercase tracking-widest mb-1">Official Milestone</div>
-                         <h4 className="text-xl font-bold text-white font-['Space_Grotesk']">{cert.title}</h4>
-                         <p className="text-gray-400 text-sm mt-1">{cert.description}</p>
-                       </div>
-                     </div>
-                   ))}
-                 </div>
-               </div>
-             )}
-             
-             <h3 className="text-xl font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-4 flex items-center gap-2"><Award className="w-6 h-6" /> Badges</h3>
-             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-               {(() => {
-                const badges = [];
-                if (user.glow_score >= 100) badges.push({ id: 'gs100', name: 'Spark', desc: 'Reached 100 XP', icon: '⚡' });
-                if (user.glow_score >= 500) badges.push({ id: 'gs500', name: 'Flame', desc: 'Reached 500 XP', icon: '🔥' });
-                if (myDrops.length >= 1) badges.push({ id: 'creator', name: 'Creator', desc: 'Posted a Drop (+5 XP)', icon: '📝' });
-                if (myFollowing.length >= 5) badges.push({ id: 'social', name: 'Social Butterfly', desc: 'Followed 5+ people (+5 XP ea)', icon: '🦋' });
-                if (myMemberships.length >= 1) badges.push({ id: 'community', name: 'Community Member', desc: 'Joined a Group (+20 XP)', icon: '🤝' });
-                if (myDrops.some(d => {
-                  if (!d.created_date) return false;
-                  const h = new Date(d.created_date).getHours();
-                  return h >= 4 && h <= 7;
-                })) badges.push({ id: 'early', name: 'Early Riser', desc: 'Posted a drop between 4 AM and 7 AM', icon: '🌅' });
-                if (mySupports.length >= 50) badges.push({ id: 'warrior', name: 'Prayer Warrior', desc: 'Supported 50+ prayer requests', icon: '🛡️' });
-                if (user.role === 'GlowGroup Leader') badges.push({ id: 'pillar', name: 'Community Pillar', desc: 'Active community leader', icon: '🏛️' });
-                
-                return badges.length > 0 ? badges.map(b => (
-                  <div key={b.id} className="bg-[#121826]/80 p-6 rounded-2xl border border-[#00CFFF]/20 text-center flex flex-col items-center shadow-[0_0_15px_rgba(0,207,255,0.1)]">
-                    <div className="text-5xl mb-4 drop-shadow-md">{b.icon}</div>
-                    <div className="font-bold text-[#00CFFF] text-lg">{b.name}</div>
-                    <div className="text-sm text-gray-400 mt-2 leading-relaxed">{b.desc}</div>
-                  </div>
-                )) : <div className="col-span-full text-center text-gray-500 py-10 bg-[#121826]/50 rounded-2xl border border-white/5">Keep glowing to earn badges! Complete challenges and support prayers.</div>;
-             })()}
-             </div>
-           </div>
+          <AchievementBadges
+            user={user}
+            myDrops={myDrops}
+            myFollowing={myFollowing}
+            myFollowers={myFollowers}
+            myMemberships={myMemberships}
+            mySupports={mySupports}
+            challengeSubmissions={challengeSubmissions}
+            certificates={certificates}
+          />
         )}
       </div>
     </div>
