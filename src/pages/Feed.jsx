@@ -387,7 +387,7 @@ export default function Feed() {
              <img
                src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png"
                alt="LightMode"
-               style={{ height: 56, width: "auto", objectFit: "contain" }}
+               style={{ height: 112, width: "auto", objectFit: "contain" }}
              />
            </Link>
 
@@ -678,13 +678,13 @@ export default function Feed() {
           
           <DailyChallenges user={user} />
 
-          {/* Trending Vibes — LIGHT */}
-          <div className="rounded-[24px] p-5 mb-6" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
-            <h3 className="font-black text-xs mb-4 tracking-widest uppercase" style={{ color: "#0B3FD9" }}>Trending Vibes</h3>
+          {/* Trending Vibes — DARK BLUE */}
+          <div className="rounded-[24px] p-5 mb-6" style={{ background: "linear-gradient(135deg, #0B1B3D 0%, #1E2D50 100%)", border: "1px solid rgba(30, 90, 255, 0.2)", boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15)" }}>
+            <h3 className="font-black text-xs mb-4 tracking-widest uppercase" style={{ color: "#5AC8FF" }}>Trending Vibes</h3>
             
             <div className="space-y-4">
               {trendingTopics.length === 0 ? (
-                <p className="text-xs" style={{ color: "#8A97B5" }}>No live hashtags yet.</p>
+                <p className="text-xs" style={{ color: "#6B7FA0" }}>No live hashtags yet.</p>
               ) : trendingTopics.map((topic) => (
                 <button
                   key={topic.tag}
@@ -692,11 +692,11 @@ export default function Feed() {
                   className="group text-left w-full"
                 >
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#8A97B5" }}>Live hashtag</span>
-                    <MoreHorizontal className="w-3 h-3" style={{ color: "#8A97B5" }} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#6B7FA0" }}>Live hashtag</span>
+                    <MoreHorizontal className="w-3 h-3" style={{ color: "#6B7FA0" }} />
                   </div>
-                  <h4 className="font-bold text-sm transition" style={{ color: "#0B1B3D" }}>{topic.tag}</h4>
-                  <p className="text-[10px] mt-0.5" style={{ color: "#8A97B5" }}>{topic.count} drop{topic.count === 1 ? '' : 's'}</p>
+                  <h4 className="font-bold text-sm transition" style={{ color: "#FFFFFF" }}>{topic.tag}</h4>
+                  <p className="text-[10px] mt-0.5" style={{ color: "#6B7FA0" }}>{topic.count} drop{topic.count === 1 ? '' : 's'}</p>
                 </button>
               ))}
             </div>
@@ -764,7 +764,7 @@ export default function Feed() {
             <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(10, 26, 61, 0.4)" }} onClick={() => setIsMobileNavOpen(false)} />
             <div className="absolute left-0 top-0 bottom-0 w-72 border-r flex flex-col py-8 px-6 overflow-y-auto" style={{ background: "#FFFFFF", borderColor: "#E0EAF5" }}>
               <Link to={createPageUrl("Home")} className="flex items-center mb-10">
-                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 56, width: "auto", objectFit: "contain" }} />
+                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 112, width: "auto", objectFit: "contain" }} />
               </Link>
               <nav className="flex flex-col gap-1 flex-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mb-1.5" style={{ color: "#8A97B5" }}>Main</p>
