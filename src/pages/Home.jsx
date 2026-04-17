@@ -548,7 +548,7 @@ export default function Home() {
             ))}
           </div>
           <div style={{ height: "85vh", minHeight: 550, width: "100%", background: "#080C14" }}>
-            <MapContainer center={[10, 20]} zoom={2} scrollWheelZoom={false} zoomControl={false} style={{ height: "100%", width: "100%", background: "#0B0F1A" }}>
+            <MapContainer center={[0, 30]} zoom={4} scrollWheelZoom={false} zoomControl={false} style={{ height: "100%", width: "100%", background: "#0B0F1A" }}>
               <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png" attribution='&copy; CartoDB' />
               {liveCountries.filter(loc => countryCoordinates[loc.country]).flatMap((loc, i) => {
                 const coordinates = countryCoordinates[loc.country];
