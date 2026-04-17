@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { Loader2 } from "lucide-react";
 import GroupSessionRoom from "@/components/groups/GroupSessionRoom";
 
 export default function GroupSession() {
@@ -41,11 +42,11 @@ export default function GroupSession() {
     return memberships.some((membership) => membership.group_id === session.group_id) || group?.leader_email === user.email;
   }, [user, session, memberships, groups]);
 
-  if (!user || !session) return <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center text-white">Loading session...</div>;
-  if (!hasAccess) return <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center text-white">This room is private to group members.</div>;
+  if (!user || !session) return <div className="min-h-screen flex items-center justify-center font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
+  if (!hasAccess) return <div className="min-h-screen flex items-center justify-center font-['Inter']" style={{ background: "#F6F8FC", color: "#4A5878" }}>This room is private to group members.</div>;
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white px-4 py-6">
+    <div className="min-h-screen px-4 py-6 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       <div className="max-w-6xl mx-auto">
         <GroupSessionRoom user={user} session={session} />
       </div>

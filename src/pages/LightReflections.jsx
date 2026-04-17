@@ -14,7 +14,7 @@ function loadCached(email) {
     const obj = JSON.parse(raw);
     if (obj.email !== email) return null;
     const age = Date.now() - obj.ts;
-    if (age > 12 * 60 * 60 * 1000) return null; // 12h cache
+    if (age > 12 * 60 * 60 * 1000) return null;
     return obj.data;
   } catch { return null; }
 }
@@ -144,19 +144,19 @@ Return a JSON object with EXACTLY this structure:
   };
 
   if (!user) return (
-    <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center">
-      <Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" />
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}>
+      <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white">
+    <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       {/* Header */}
-      <div className="bg-[#121826] border-b border-white/5 px-6 py-4 flex items-center justify-between">
-        <Link to={createPageUrl("Dashboard")} className="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm">
+      <div className="border-b px-6 py-4 flex items-center justify-between" style={{ background: "#FFFFFF", borderColor: "#E6ECF5" }}>
+        <Link to={createPageUrl("Dashboard")} className="flex items-center gap-2 transition text-sm" style={{ color: "#4A5878" }}>
           <Home className="w-4 h-4" /> Dashboard
         </Link>
-        <div className="flex items-center gap-2 text-[#00CFFF]">
+        <div className="flex items-center gap-2" style={{ color: "#0B3FD9" }}>
           <Sparkles className="w-5 h-5" />
           <span className="font-bold text-sm font-['Space_Grotesk']">Light Reflections</span>
         </div>
@@ -166,29 +166,29 @@ Return a JSON object with EXACTLY this structure:
       <div className="max-w-2xl mx-auto px-4 py-10">
         {/* Title */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 bg-[#00CFFF]/10 border border-[#00CFFF]/20 px-4 py-2 rounded-full mb-5">
-            <span className="w-2 h-2 rounded-full bg-[#00CFFF] animate-pulse" />
-            <span className="text-[#00CFFF] text-xs font-bold tracking-wider uppercase">AI-Powered Daily Devotional</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-5" style={{ background: "rgba(31, 184, 255, 0.08)", border: "1px solid #B8E5FF" }}>
+            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#1FB8FF" }} />
+            <span className="text-xs font-bold tracking-wider uppercase" style={{ color: "#0B3FD9" }}>AI-Powered Daily Devotional</span>
           </div>
           <h1 className="text-4xl font-bold font-['Space_Grotesk'] mb-3">
-            Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF]">Light Reflection</span>
+            Your <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg, #1FB8FF, #0B3FD9)" }}>Light Reflection</span>
           </h1>
-          <p className="text-gray-400 text-sm max-w-md mx-auto">
+          <p className="text-sm max-w-md mx-auto" style={{ color: "#6B7FA0" }}>
             Personalized daily insights based on your Glow Drops, challenges completed, and faith journey.
           </p>
         </div>
 
         {/* Loading State */}
         {generating && (
-          <div className="bg-[#121826] border border-white/10 rounded-3xl p-12 text-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00CFFF]/20 to-[#8A5CFF]/20 border border-[#00CFFF]/30 flex items-center justify-center mx-auto mb-6 shadow-[0_0_40px_rgba(0,207,255,0.3)]">
-              <Sparkles className="w-9 h-9 text-[#00CFFF] animate-pulse" />
+          <div className="rounded-3xl p-12 text-center" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: "rgba(31, 184, 255, 0.08)", border: "1px solid #B8E5FF" }}>
+              <Sparkles className="w-9 h-9 animate-pulse" style={{ color: "#1FB8FF" }} />
             </div>
-            <p className="text-white font-bold text-lg mb-2">Crafting your reflection...</p>
-            <p className="text-gray-400 text-sm">Analyzing your journey and faith activity</p>
+            <p className="font-bold text-lg mb-2" style={{ color: "#0B1B3D" }}>Crafting your reflection...</p>
+            <p className="text-sm" style={{ color: "#6B7FA0" }}>Analyzing your journey and faith activity</p>
             <div className="flex justify-center gap-2 mt-6">
               {[0,1,2].map(i => (
-                <div key={i} className="w-2 h-2 rounded-full bg-[#00CFFF]" style={{ animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+                <div key={i} className="w-2 h-2 rounded-full" style={{ background: "#1FB8FF", animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
               ))}
             </div>
           </div>
@@ -197,99 +197,83 @@ Return a JSON object with EXACTLY this structure:
         {/* Reflection Card */}
         {!generating && reflection && (
           <div className="space-y-4">
-            {/* Greeting + Theme */}
-            <div className="bg-gradient-to-br from-[#00CFFF]/10 to-[#8A5CFF]/10 border border-[#00CFFF]/20 rounded-3xl p-6 shadow-[0_0_40px_rgba(0,207,255,0.08)]">
-              <p className="text-gray-300 text-sm mb-3">{reflection.greeting}</p>
-              <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-white">{reflection.theme}</h2>
-              <p className="text-gray-300 mt-4 leading-relaxed text-sm">{reflection.insight}</p>
+            <div className="rounded-3xl p-6" style={{ background: "linear-gradient(135deg, rgba(31,184,255,0.06), rgba(11,63,217,0.06))", border: "1px solid #B8E5FF" }}>
+              <p className="text-sm mb-3" style={{ color: "#4A5878" }}>{reflection.greeting}</p>
+              <h2 className="text-2xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{reflection.theme}</h2>
+              <p className="mt-4 leading-relaxed text-sm" style={{ color: "#3A4A6B" }}>{reflection.insight}</p>
             </div>
 
-            {/* Verse */}
             {reflection.verse && (
-              <div className="bg-[#121826] border border-[#8A5CFF]/30 rounded-3xl p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#8A5CFF]/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+              <div className="rounded-3xl p-6 relative overflow-hidden" style={{ background: "#FFFFFF", border: "1px solid #D6E4FF" }}>
+                <div className="absolute top-0 right-0 w-32 h-32 rounded-full -translate-y-1/2 translate-x-1/2" style={{ background: "rgba(11, 63, 217, 0.04)" }} />
                 <div className="flex items-center gap-2 mb-3">
-                  <BookOpen className="w-4 h-4 text-[#8A5CFF]" />
-                  <span className="text-[#8A5CFF] text-xs font-bold uppercase tracking-wider">Today's Verse</span>
+                  <BookOpen className="w-4 h-4" style={{ color: "#0B3FD9" }} />
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#0B3FD9" }}>Today's Verse</span>
                 </div>
-                <p className="text-white text-lg font-medium italic leading-relaxed mb-3">
+                <p className="text-lg font-medium italic leading-relaxed mb-3" style={{ color: "#0B1B3D" }}>
                   "{reflection.verse.text}"
                 </p>
-                <p className="text-[#8A5CFF] font-bold text-sm">— {reflection.verse.reference}</p>
+                <p className="font-bold text-sm" style={{ color: "#0B3FD9" }}>— {reflection.verse.reference}</p>
               </div>
             )}
 
-            {/* Tasks */}
             {reflection.tasks && (
-              <div className="bg-[#121826] border border-white/10 rounded-3xl p-6">
+              <div className="rounded-3xl p-6" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
                 <div className="flex items-center gap-2 mb-4">
-                  <Zap className="w-4 h-4 text-[#FFD000]" />
-                  <span className="text-[#FFD000] text-xs font-bold uppercase tracking-wider">Your Faith Tasks Today</span>
+                  <Zap className="w-4 h-4" style={{ color: "#CC7A00" }} />
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#CC7A00" }}>Your Faith Tasks Today</span>
                 </div>
                 <div className="space-y-3">
                   {reflection.tasks.map((task, i) => (
                     <button
                       key={i}
                       onClick={() => toggleTask(i)}
-                      className={`w-full flex items-start gap-3 p-4 rounded-2xl border transition-all text-left ${
-                        completedTasks.includes(i)
-                          ? "border-green-500/40 bg-green-500/10"
-                          : "border-white/5 bg-white/3 hover:border-white/15 hover:bg-white/5"
-                      }`}
+                      className="w-full flex items-start gap-3 p-4 rounded-2xl border transition-all text-left"
+                      style={completedTasks.includes(i)
+                        ? { borderColor: "#86EFAC", background: "rgba(34, 197, 94, 0.06)" }
+                        : { borderColor: "#E6ECF5", background: "#F6F8FC" }}
                     >
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
-                        completedTasks.includes(i) ? "border-green-400 bg-green-400" : "border-gray-500"
-                      }`}>
+                      <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all" style={completedTasks.includes(i) ? { borderColor: "#22C55E", background: "#22C55E" } : { borderColor: "#C0C8D8" }}>
                         {completedTasks.includes(i) && <CheckCircle2 className="w-3 h-3 text-white" />}
                       </div>
-                      <span className={`text-sm leading-relaxed ${completedTasks.includes(i) ? "text-gray-400 line-through" : "text-gray-200"}`}>
+                      <span className="text-sm leading-relaxed" style={completedTasks.includes(i) ? { color: "#8A97B5", textDecoration: "line-through" } : { color: "#3A4A6B" }}>
                         {task}
                       </span>
                     </button>
                   ))}
                 </div>
                 {completedTasks.length > 0 && (
-                  <p className="text-center text-xs text-green-400 mt-4 font-bold">
+                  <p className="text-center text-xs mt-4 font-bold" style={{ color: "#22C55E" }}>
                     ✓ {completedTasks.length} of {reflection.tasks.length} completed today
                   </p>
                 )}
               </div>
             )}
 
-            {/* Encouragement */}
             {reflection.encouragement && (
-              <div className="bg-gradient-to-r from-[#FFD000]/10 to-[#00CFFF]/10 border border-[#FFD000]/20 rounded-3xl p-6 text-center">
-                <p className="text-white font-bold text-base leading-relaxed">{reflection.encouragement}</p>
+              <div className="rounded-3xl p-6 text-center" style={{ background: "linear-gradient(135deg, rgba(255,208,0,0.06), rgba(31,184,255,0.06))", border: "1px solid #FFE4A0" }}>
+                <p className="font-bold text-base leading-relaxed" style={{ color: "#0B1B3D" }}>{reflection.encouragement}</p>
               </div>
             )}
 
-            {/* Actions */}
             <div className="flex items-center justify-between pt-2">
-              <button
-                onClick={() => generateReflection(true)}
-                disabled={generating}
-                className="flex items-center gap-2 text-sm text-gray-400 hover:text-[#00CFFF] transition font-medium"
-              >
+              <button onClick={() => generateReflection(true)} disabled={generating} className="flex items-center gap-2 text-sm transition font-medium" style={{ color: "#6B7FA0" }}>
                 <RefreshCw className="w-4 h-4" /> Regenerate
               </button>
-              <div className="text-xs text-gray-600">Refreshes every 12 hours</div>
-              <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 text-sm font-bold text-[#00CFFF] hover:text-white transition">
+              <div className="text-xs" style={{ color: "#8A97B5" }}>Refreshes every 12 hours</div>
+              <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 text-sm font-bold transition" style={{ color: "#0B3FD9" }}>
                 Share a Drop <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
         )}
 
-        {/* Empty state if no drops yet */}
         {!generating && !reflection && (
-          <div className="bg-[#121826] border border-white/10 rounded-3xl p-12 text-center">
-            <Sparkles className="w-12 h-12 mx-auto mb-4 text-[#00CFFF] opacity-40" />
-            <p className="text-white font-bold text-lg mb-2">Ready for your reflection?</p>
-            <p className="text-gray-400 text-sm mb-6">Post a few Glow Drops to unlock more personalized insights.</p>
-            <button
-              onClick={() => generateReflection(true)}
-              className="px-6 py-3 bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black font-bold rounded-2xl hover:opacity-90 transition shadow-[0_0_20px_rgba(0,207,255,0.3)]"
-            >
+          <div className="rounded-3xl p-12 text-center" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
+            <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-40" style={{ color: "#1FB8FF" }} />
+            <p className="font-bold text-lg mb-2" style={{ color: "#0B1B3D" }}>Ready for your reflection?</p>
+            <p className="text-sm mb-6" style={{ color: "#6B7FA0" }}>Post a few Glow Drops to unlock more personalized insights.</p>
+            <button onClick={() => generateReflection(true)} className="px-6 py-3 font-bold rounded-2xl hover:opacity-90 transition" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }}>
               Generate My Reflection
             </button>
           </div>

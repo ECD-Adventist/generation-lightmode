@@ -114,14 +114,14 @@ export default function Post() {
   };
 
   if (isLoading || !drop) {
-    return <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center text-white"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
+    return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white px-4 py-6 md:py-8">
+    <div className="min-h-screen px-4 py-6 md:py-8 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
-          <Link to={backUrl} className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition">
+          <Link to={backUrl} className="inline-flex items-center gap-2 transition" style={{ color: "#4A5878" }}>
             <ArrowLeft className="w-4 h-4" /> Back
           </Link>
         </div>
