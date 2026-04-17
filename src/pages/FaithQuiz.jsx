@@ -98,18 +98,18 @@ export default function FaithQuiz() {
   const medalColors = ["#FFD000", "#C0C0C0", "#CD7F32"];
 
   return (
-    <div style={{ background: "#0B0F1A", minHeight: "100vh", fontFamily: "Inter, sans-serif" }}>
+    <div style={{ background: "#F6F8FC", minHeight: "100vh", fontFamily: "Inter, sans-serif", color: "#0B1B3D" }}>
       {/* Nav */}
-      <div style={{ background: "rgba(18,24,38,0.95)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(0,207,255,0.1)", padding: "16px 24px", position: "sticky", top: 0, zIndex: 50 }}>
+      <div style={{ background: "rgba(246, 248, 252, 0.9)", backdropFilter: "blur(20px)", borderBottom: "1px solid #E2E8F0", padding: "16px 24px", position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Link to={createPageUrl("Feed")} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "#C8D0E0", fontSize: 14, fontWeight: 600 }}>
+          <Link to={createPageUrl("Feed")} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "#4A5878", fontSize: 14, fontWeight: 600 }}>
             <Home size={16} /> Back to Feed
           </Link>
-          <span style={{ color: "#FFD000", fontWeight: 800, fontSize: 16, fontFamily: "Space Grotesk, sans-serif" }}>💯 Faith Quiz</span>
+          <span style={{ color: "#0B3FD9", fontWeight: 800, fontSize: 16, fontFamily: "Space Grotesk, sans-serif" }}>💯 Faith Quiz</span>
           {user && (
-            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,208,0,0.1)", border: "1px solid rgba(255,208,0,0.3)", borderRadius: 999, padding: "5px 14px" }}>
-              <Zap size={14} color="#FFD000" />
-              <span style={{ color: "#FFD000", fontWeight: 700, fontSize: 13 }}>{user.glow_score || 0} XP</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,208,0,0.12)", border: "1px solid #FFE4A0", borderRadius: 999, padding: "5px 14px" }}>
+              <Zap size={14} color="#CC7A00" />
+              <span style={{ color: "#CC7A00", fontWeight: 700, fontSize: 13 }}>{user.glow_score || 0} XP</span>
             </div>
           )}
         </div>
@@ -120,14 +120,14 @@ export default function FaithQuiz() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
             {/* Left: Quiz intro */}
             <div>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.1)", border: "1px solid rgba(255,208,0,0.3)", borderRadius: 999, padding: "7px 18px", marginBottom: 24 }}>
-                <span style={{ color: "#FFD000", fontSize: 12, fontWeight: 700, letterSpacing: "0.06em" }}>💯 KEEPING IT 100 CHALLENGE</span>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.12)", border: "1px solid #FFE4A0", borderRadius: 999, padding: "7px 18px", marginBottom: 24 }}>
+                <span style={{ color: "#CC7A00", fontSize: 12, fontWeight: 700, letterSpacing: "0.06em" }}>💯 KEEPING IT 100 CHALLENGE</span>
               </div>
-              <h1 className="glm-headline" style={{ fontSize: "clamp(32px, 5vw, 52px)", lineHeight: 1.05, marginBottom: 16 }}>
-                Faith <span className="glm-gold-text">Quiz</span>
+              <h1 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(32px, 5vw, 52px)", lineHeight: 1.05, marginBottom: 16, color: "#0B1B3D" }}>
+                Faith <span style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Quiz</span>
               </h1>
-              <p className="glm-body" style={{ fontSize: 17, lineHeight: 1.7, marginBottom: 32 }}>
-                Test your knowledge on the "Keeping It 100" truths. 10 questions covering purity, identity, faith, and more. Each correct answer earns you <strong style={{ color: "#FFD000" }}>10 XP</strong> towards the LightMode Champion leaderboard!
+              <p style={{ fontSize: 17, lineHeight: 1.7, marginBottom: 32, color: "#4A5878" }}>
+                Test your knowledge on the "Keeping It 100" truths. 10 questions covering purity, identity, faith, and more. Each correct answer earns you <strong style={{ color: "#CC7A00" }}>10 XP</strong> towards the LightMode Champion leaderboard!
               </p>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 32 }}>
@@ -137,47 +137,46 @@ export default function FaithQuiz() {
                   { label: "Bible-Based", icon: "✝️" },
                   { label: "Instant Results", icon: "🏆" },
                 ].map(item => (
-                  <div key={item.label} style={{ background: "#121826", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+                  <div key={item.label} style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ fontSize: 20 }}>{item.icon}</span>
-                    <span style={{ color: "#C8D0E0", fontSize: 13, fontWeight: 600 }}>{item.label}</span>
+                    <span style={{ color: "#0B1B3D", fontSize: 13, fontWeight: 600 }}>{item.label}</span>
                   </div>
                 ))}
               </div>
 
               <button
                 onClick={startQuiz}
-                className="glm-btn-primary"
-                style={{ fontSize: 18, padding: "16px 40px", width: "100%", justifyContent: "center" }}
+                style={{ fontSize: 18, padding: "16px 40px", width: "100%", justifyContent: "center", display: "inline-flex", alignItems: "center", background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, borderRadius: 999, border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }}
               >
                 Start the Quiz 🔥
               </button>
             </div>
 
             {/* Right: Leaderboard */}
-            <div style={{ background: "#121826", border: "1px solid rgba(0,207,255,0.15)", borderRadius: 24, padding: "28px", position: "sticky", top: 90 }}>
+            <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 24, padding: "28px", position: "sticky", top: 90, boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
-                <Trophy size={20} color="#FFD000" />
-                <h3 className="glm-headline" style={{ fontSize: 20, color: "#FFD000" }}>LightMode Champions</h3>
+                <Trophy size={20} color="#CC7A00" />
+                <h3 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 20, color: "#CC7A00" }}>LightMode Champions</h3>
               </div>
               {leaderLoading ? (
                 <div style={{ display: "flex", justifyContent: "center", padding: 32 }}><Loader2 className="animate-spin" size={24} color="#00CFFF" /></div>
               ) : leaderboard.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "32px 16px", color: "#666" }}>
+                <div style={{ textAlign: "center", padding: "32px 16px", color: "#8A97B5" }}>
                   <Trophy size={36} style={{ margin: "0 auto 12px", display: "block" }} />
                   <p style={{ fontSize: 14 }}>No champions yet. Be the first!</p>
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {leaderboard.map((u, i) => (
-                    <div key={u.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 12, background: i < 3 ? `rgba(255,208,0,0.05)` : "rgba(255,255,255,0.02)", border: `1px solid ${i < 3 ? "rgba(255,208,0,0.15)" : "rgba(255,255,255,0.05)"}` }}>
-                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: i < 3 ? `${medalColors[i]}20` : "rgba(255,255,255,0.05)", border: `2px solid ${i < 3 ? medalColors[i] : "rgba(255,255,255,0.1)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900, color: i < 3 ? medalColors[i] : "#666", flexShrink: 0 }}>
+                    <div key={u.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 12, background: i < 3 ? "rgba(255,208,0,0.06)" : "#F6F8FC", border: `1px solid ${i < 3 ? "#FFE4A0" : "#E6ECF5"}` }}>
+                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: i < 3 ? `${medalColors[i]}20` : "#EEF3FF", border: `2px solid ${i < 3 ? medalColors[i] : "#E6ECF5"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900, color: i < 3 ? medalColors[i] : "#8A97B5", flexShrink: 0 }}>
                         {i + 1}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 700, fontSize: 14, color: "#FFF", truncate: true }}>{u.full_name || "Anonymous"}</div>
-                        <div style={{ fontSize: 11, color: "#666" }}>{u.country || "Global"}</div>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: "#0B1B3D" }}>{u.full_name || "Anonymous"}</div>
+                        <div style={{ fontSize: 11, color: "#6B7FA0" }}>{u.country || "Global"}</div>
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#FFD000", fontWeight: 800, fontSize: 14, fontFamily: "Space Grotesk, sans-serif", flexShrink: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#CC7A00", fontWeight: 800, fontSize: 14, fontFamily: "Space Grotesk, sans-serif", flexShrink: 0 }}>
                         <Zap size={12} /> {u.quiz_score || 0}
                       </div>
                     </div>
@@ -193,33 +192,31 @@ export default function FaithQuiz() {
             {/* Progress */}
             <div style={{ marginBottom: 32 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                <span style={{ color: "#C8D0E0", fontSize: 14, fontWeight: 600 }}>Question {currentQ + 1} of {QUIZ_QUESTIONS.length}</span>
-                <span style={{ color: "#FFD000", fontSize: 14, fontWeight: 700 }}>{answers.filter(a => a.correct).length} correct</span>
+                <span style={{ color: "#4A5878", fontSize: 14, fontWeight: 600 }}>Question {currentQ + 1} of {QUIZ_QUESTIONS.length}</span>
+                <span style={{ color: "#CC7A00", fontSize: 14, fontWeight: 700 }}>{answers.filter(a => a.correct).length} correct</span>
               </div>
-              <div style={{ height: 6, background: "rgba(255,255,255,0.08)", borderRadius: 999, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${((currentQ) / QUIZ_QUESTIONS.length) * 100}%`, background: "linear-gradient(90deg, #FFD000, #00CFFF)", borderRadius: 999, transition: "width 0.4s ease" }} />
+              <div style={{ height: 6, background: "#EEF3FF", borderRadius: 999, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${((currentQ) / QUIZ_QUESTIONS.length) * 100}%`, background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", borderRadius: 999, transition: "width 0.4s ease" }} />
               </div>
             </div>
 
             {/* Question Card */}
-            <div style={{ background: "#121826", border: "1px solid rgba(0,207,255,0.2)", borderRadius: 24, padding: "36px 32px", marginBottom: 20 }}>
-              <div style={{ display: "inline-block", background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.2)", borderRadius: 999, padding: "5px 14px", marginBottom: 20 }}>
-                <span style={{ color: "#00CFFF", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>💯 Keep It 100</span>
+            <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 24, padding: "36px 32px", marginBottom: 20, boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+              <div style={{ display: "inline-block", background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF", borderRadius: 999, padding: "5px 14px", marginBottom: 20 }}>
+                <span style={{ color: "#0B3FD9", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>💯 Keep It 100</span>
               </div>
-              <h2 style={{ color: "#FFF", fontSize: "clamp(18px, 2.5vw, 24px)", fontWeight: 800, fontFamily: "Space Grotesk, sans-serif", lineHeight: 1.3, marginBottom: 28 }}>
+              <h2 style={{ color: "#0B1B3D", fontSize: "clamp(18px, 2.5vw, 24px)", fontWeight: 800, fontFamily: "Space Grotesk, sans-serif", lineHeight: 1.3, marginBottom: 28 }}>
                 {question.question}
               </h2>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {question.options.map((opt, idx) => {
-                  let bg = "rgba(255,255,255,0.04)";
-                  let border = "rgba(255,255,255,0.1)";
-                  let color = "#C8D0E0";
+                  let bg = "#F6F8FC";
+                  let border = "#E6ECF5";
+                  let color = "#0B1B3D";
                   if (selected !== null) {
-                    if (idx === question.correct) { bg = "rgba(34,197,94,0.15)"; border = "rgba(34,197,94,0.5)"; color = "#86efac"; }
-                    else if (idx === selected && idx !== question.correct) { bg = "rgba(239,68,68,0.15)"; border = "rgba(239,68,68,0.5)"; color = "#fca5a5"; }
-                  } else if (selected === null) {
-                    bg = "rgba(255,255,255,0.04)";
+                    if (idx === question.correct) { bg = "rgba(34,197,94,0.1)"; border = "rgba(34,197,94,0.5)"; color = "#16A34A"; }
+                    else if (idx === selected && idx !== question.correct) { bg = "rgba(239,68,68,0.1)"; border = "rgba(239,68,68,0.5)"; color = "#DC2626"; }
                   }
 
                   return (
@@ -236,22 +233,22 @@ export default function FaithQuiz() {
                         transition: "all 0.25s", width: "100%"
                       }}
                     >
-                      <span style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: `1px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, flexShrink: 0 }}>
+                      <span style={{ width: 28, height: 28, borderRadius: "50%", background: "#FFFFFF", border: `1px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, flexShrink: 0, color: "#0B3FD9" }}>
                         {["A","B","C","D"][idx]}
                       </span>
                       {opt}
-                      {selected !== null && idx === question.correct && <CheckCircle size={18} color="#86efac" style={{ marginLeft: "auto" }} />}
-                      {selected !== null && idx === selected && idx !== question.correct && <XCircle size={18} color="#fca5a5" style={{ marginLeft: "auto" }} />}
+                      {selected !== null && idx === question.correct && <CheckCircle size={18} color="#16A34A" style={{ marginLeft: "auto" }} />}
+                      {selected !== null && idx === selected && idx !== question.correct && <XCircle size={18} color="#DC2626" style={{ marginLeft: "auto" }} />}
                     </button>
                   );
                 })}
               </div>
 
               {selected !== null && (
-                <div style={{ marginTop: 20, padding: "16px 20px", borderRadius: 14, background: "rgba(255,208,0,0.07)", border: "1px solid rgba(255,208,0,0.2)" }}>
-                  <p style={{ color: "#FFD000", fontSize: 13, fontWeight: 700, marginBottom: 4 }}>💯 Keep It 100 Truth:</p>
-                  <p style={{ color: "#C8D0E0", fontSize: 14, lineHeight: 1.6 }}>{question.slogan}</p>
-                  <p style={{ color: "#00CFFF", fontSize: 12, fontWeight: 700, marginTop: 6 }}>📖 {question.reference}</p>
+                <div style={{ marginTop: 20, padding: "16px 20px", borderRadius: 14, background: "rgba(255,208,0,0.06)", border: "1px solid #FFE4A0" }}>
+                  <p style={{ color: "#CC7A00", fontSize: 13, fontWeight: 700, marginBottom: 4 }}>💯 Keep It 100 Truth:</p>
+                  <p style={{ color: "#4A5878", fontSize: 14, lineHeight: 1.6 }}>{question.slogan}</p>
+                  <p style={{ color: "#0B3FD9", fontSize: 12, fontWeight: 700, marginTop: 6 }}>📖 {question.reference}</p>
                 </div>
               )}
             </div>
@@ -260,38 +257,37 @@ export default function FaithQuiz() {
 
         {screen === "result" && (
           <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center" }}>
-            <div style={{ background: "#121826", border: "1px solid rgba(255,208,0,0.25)", borderRadius: 28, padding: "48px 40px" }}>
+            <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 28, padding: "48px 40px", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
               <div style={{ fontSize: 72, marginBottom: 16 }}>
                 {score === QUIZ_QUESTIONS.length ? "🏆" : score >= 7 ? "🌟" : score >= 5 ? "⚡" : "📖"}
               </div>
-              <h2 className="glm-headline" style={{ fontSize: 36, color: "#FFD000", marginBottom: 8 }}>
+              <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 36, color: "#0B3FD9", marginBottom: 8 }}>
                 {score === QUIZ_QUESTIONS.length ? "LightMode Champion!" : score >= 7 ? "Faith Warrior!" : score >= 5 ? "Truth Seeker!" : "Keep Studying!"}
               </h2>
-              <p style={{ color: "#C8D0E0", fontSize: 16, marginBottom: 28 }}>
-                You got <strong style={{ color: "#FFF" }}>{score}</strong> out of <strong style={{ color: "#FFF" }}>{QUIZ_QUESTIONS.length}</strong> correct
+              <p style={{ color: "#4A5878", fontSize: 16, marginBottom: 28 }}>
+                You got <strong style={{ color: "#0B1B3D" }}>{score}</strong> out of <strong style={{ color: "#0B1B3D" }}>{QUIZ_QUESTIONS.length}</strong> correct
               </p>
 
-              {/* Score breakdown */}
               <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 32 }}>
-                <div style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 14, padding: "16px 24px" }}>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: "#86efac", fontFamily: "Space Grotesk, sans-serif" }}>{score}</div>
-                  <div style={{ fontSize: 11, color: "#666", fontWeight: 700, textTransform: "uppercase" }}>Correct</div>
+                <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)", borderRadius: 14, padding: "16px 24px" }}>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: "#16A34A", fontFamily: "Space Grotesk, sans-serif" }}>{score}</div>
+                  <div style={{ fontSize: 11, color: "#6B7FA0", fontWeight: 700, textTransform: "uppercase" }}>Correct</div>
                 </div>
-                <div style={{ background: "rgba(255,208,0,0.1)", border: "1px solid rgba(255,208,0,0.3)", borderRadius: 14, padding: "16px 24px" }}>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: "#FFD000", fontFamily: "Space Grotesk, sans-serif" }}>+{score * 10}</div>
-                  <div style={{ fontSize: 11, color: "#666", fontWeight: 700, textTransform: "uppercase" }}>XP Earned</div>
+                <div style={{ background: "rgba(255,208,0,0.08)", border: "1px solid #FFE4A0", borderRadius: 14, padding: "16px 24px" }}>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: "#CC7A00", fontFamily: "Space Grotesk, sans-serif" }}>+{score * 10}</div>
+                  <div style={{ fontSize: 11, color: "#6B7FA0", fontWeight: 700, textTransform: "uppercase" }}>XP Earned</div>
                 </div>
-                <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 14, padding: "16px 24px" }}>
-                  <div style={{ fontSize: 28, fontWeight: 900, color: "#fca5a5", fontFamily: "Space Grotesk, sans-serif" }}>{QUIZ_QUESTIONS.length - score}</div>
-                  <div style={{ fontSize: 11, color: "#666", fontWeight: 700, textTransform: "uppercase" }}>Missed</div>
+                <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 14, padding: "16px 24px" }}>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: "#DC2626", fontFamily: "Space Grotesk, sans-serif" }}>{QUIZ_QUESTIONS.length - score}</div>
+                  <div style={{ fontSize: 11, color: "#6B7FA0", fontWeight: 700, textTransform: "uppercase" }}>Missed</div>
                 </div>
               </div>
 
               <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-                <button onClick={resetQuiz} style={{ display: "flex", alignItems: "center", gap: 8, padding: "14px 28px", borderRadius: 999, background: "#FFD000", color: "#0B0F1A", fontWeight: 800, fontSize: 15, border: "none", cursor: "pointer", fontFamily: "Space Grotesk, sans-serif" }}>
+                <button onClick={resetQuiz} style={{ display: "flex", alignItems: "center", gap: 8, padding: "14px 28px", borderRadius: 999, background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", fontWeight: 800, fontSize: 15, border: "none", cursor: "pointer", fontFamily: "Space Grotesk, sans-serif", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }}>
                   <RotateCcw size={16} /> Try Again
                 </button>
-                <Link to={createPageUrl("KeepIt100")} style={{ display: "flex", alignItems: "center", gap: 8, padding: "14px 28px", borderRadius: 999, background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.3)", color: "#00CFFF", fontWeight: 700, fontSize: 15, textDecoration: "none", fontFamily: "Inter, sans-serif" }}>
+                <Link to={createPageUrl("KeepIt100")} style={{ display: "flex", alignItems: "center", gap: 8, padding: "14px 28px", borderRadius: 999, background: "rgba(31, 184, 255, 0.08)", border: "1px solid #B8E5FF", color: "#0B3FD9", fontWeight: 700, fontSize: 15, textDecoration: "none", fontFamily: "Inter, sans-serif" }}>
                   See All Slogans
                 </Link>
               </div>

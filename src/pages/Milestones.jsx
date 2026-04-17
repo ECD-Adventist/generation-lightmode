@@ -161,60 +161,52 @@ export default function Milestones() {
     }).finally(() => setIsAwarding(false));
   }, [user, milestones, earnedMilestones, isAwarding, queryClient]);
 
-  if (!user) return <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center text-white">Loading milestones...</div>;
+  if (!user) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><span style={{ color: "#1FB8FF" }}>Loading milestones...</span></div>;
 
   const earnedKeys = new Set(earnedMilestones.map((milestone) => milestone.milestone_key));
   const currentLevelProgress = (((user.glow_score || 0) % 50) / 50) * 100;
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white">
+    <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       {/* Top Navigation */}
-      <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5">
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
-            <img
-              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
-              alt="LightMode"
-              style={{ height: 56, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
-            />
+            <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 48, width: "auto" }} />
           </Link>
           <div className="flex items-center gap-1 sm:gap-2 ml-auto">
-            <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Home className="w-4 h-4" /><span className="hidden sm:inline">Feed</span>
-            </Link>
-            <Link to={createPageUrl("Dashboard")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Zap className="w-4 h-4" /><span className="hidden sm:inline">Dashboard</span>
-            </Link>
-            <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Globe className="w-4 h-4" /><span className="hidden sm:inline">Reach</span>
-            </Link>
-            <Link to={createPageUrl("Notifications")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Bell className="w-4 h-4" /><span className="hidden sm:inline">Alerts</span>
-            </Link>
-            <Link to={createPageUrl("Profile")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <User className="w-4 h-4" /><span className="hidden sm:inline">Profile</span>
-            </Link>
-            <Link to={createPageUrl("Home")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-[#00CFFF] hover:bg-white/5 transition text-sm font-medium border border-white/5">
-              <Globe className="w-4 h-4" /> Website
-            </Link>
+            {[
+              { to: "Feed", icon: <Home className="w-4 h-4" />, label: "Feed" },
+              { to: "Dashboard", icon: <Zap className="w-4 h-4" />, label: "Dashboard" },
+              { to: "GlobalReach", icon: <Globe className="w-4 h-4" />, label: "Reach" },
+              { to: "Notifications", icon: <Bell className="w-4 h-4" />, label: "Alerts" },
+              { to: "Profile", icon: <User className="w-4 h-4" />, label: "Profile" },
+            ].map(item => (
+              <Link key={item.to} to={createPageUrl(item.to)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl transition text-sm font-semibold" style={{ color: "#4A5878" }}
+                onMouseOver={e => { e.currentTarget.style.background = "#EEF3FF"; e.currentTarget.style.color = "#0B3FD9"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#4A5878"; }}
+              >
+                {item.icon}<span className="hidden sm:inline">{item.label}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
-        <div className="bg-[#121826] border border-white/10 rounded-3xl p-6">
-          <h1 className="text-3xl font-bold">Milestones</h1>
-          <p className="text-gray-400 mt-2">Track your faith journey, unlock rewards, and grow your Glow XP.</p>
+        <div className="rounded-3xl p-6" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+          <h1 className="text-3xl font-bold" style={{ fontFamily: "Space Grotesk, sans-serif", color: "#0B1B3D" }}>Milestones</h1>
+          <p className="mt-2" style={{ color: "#6B7FA0" }}>Track your faith journey, unlock rewards, and grow your Glow XP.</p>
           <div className="mt-6 flex flex-wrap items-end gap-8">
             <div>
-              <div className="text-4xl font-black text-[#FFD000]">{user.glow_score || 0}</div>
-              <div className="text-xs uppercase tracking-wider text-gray-500 mt-1">Total XP</div>
+              <div className="text-4xl font-black" style={{ color: "#CC7A00" }}>{user.glow_score || 0}</div>
+              <div className="text-xs uppercase tracking-wider mt-1" style={{ color: "#8A97B5" }}>Total XP</div>
             </div>
             <div className="flex-1 min-w-[240px]">
-              <div className="w-full h-3 rounded-full bg-white/5 overflow-hidden mb-2">
-                <div className="h-full bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF]" style={{ width: `${currentLevelProgress}%` }} />
+              <div className="w-full h-3 rounded-full overflow-hidden mb-2" style={{ background: "#EEF3FF" }}>
+                <div className="h-full rounded-full" style={{ width: `${currentLevelProgress}%`, background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)" }} />
               </div>
-              <div className="text-sm text-gray-400">{50 - ((user.glow_score || 0) % 50)} XP to next level</div>
+              <div className="text-sm" style={{ color: "#6B7FA0" }}>{50 - ((user.glow_score || 0) % 50)} XP to next level</div>
             </div>
           </div>
         </div>

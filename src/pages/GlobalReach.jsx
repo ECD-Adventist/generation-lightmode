@@ -152,49 +152,43 @@ export default function GlobalReach() {
   const totalCountries = useMemo(() => new Set(users.map(u => u.country).filter(Boolean)).size, [users]);
 
   if (!user) return (
-    <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center text-white">
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}>
       <div className="flex flex-col items-center gap-3">
-        <Globe className="w-10 h-10 text-[#00CFFF] animate-pulse" />
-        <span className="text-gray-400">Loading global reach...</span>
+        <Globe className="w-10 h-10 animate-pulse" style={{ color: "#1FB8FF" }} />
+        <span style={{ color: "#6B7FA0" }}>Loading global reach...</span>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white">
+    <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       {selectedDrop && <ImpactStoryPanel drop={selectedDrop} onClose={() => setSelectedDrop(null)} />}
 
       {/* Top Navigation */}
-      <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5">
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition" title="Go back">
+            <button onClick={() => navigate(-1)} className="p-2 rounded-lg transition" style={{ color: "#4A5878" }} title="Go back">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
-              <img
-                src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
-                alt="LightMode"
-                style={{ height: 56, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
-              />
+              <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 48, width: "auto" }} />
             </Link>
           </div>
           <div className="flex items-center gap-1 sm:gap-2 ml-auto">
-            <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Home className="w-4 h-4" /><span className="hidden sm:inline">Feed</span>
-            </Link>
-            <Link to={createPageUrl("Dashboard")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Zap className="w-4 h-4" /><span className="hidden sm:inline">Dashboard</span>
-            </Link>
-            <Link to={createPageUrl("Notifications")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Bell className="w-4 h-4" /><span className="hidden sm:inline">Alerts</span>
-            </Link>
-            <Link to={createPageUrl("Profile")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <User className="w-4 h-4" /><span className="hidden sm:inline">Profile</span>
-            </Link>
-            <Link to={createPageUrl("Home")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-[#00CFFF] hover:bg-white/5 transition text-sm font-medium border border-white/5">
-              <Globe className="w-4 h-4" /> Website
-            </Link>
+            {[
+              { to: "Feed", icon: <Home className="w-4 h-4" />, label: "Feed" },
+              { to: "Dashboard", icon: <Zap className="w-4 h-4" />, label: "Dashboard" },
+              { to: "Notifications", icon: <Bell className="w-4 h-4" />, label: "Alerts" },
+              { to: "Profile", icon: <User className="w-4 h-4" />, label: "Profile" },
+            ].map(item => (
+              <Link key={item.to} to={createPageUrl(item.to)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl transition text-sm font-semibold" style={{ color: "#4A5878" }}
+                onMouseOver={e => { e.currentTarget.style.background = "#EEF3FF"; e.currentTarget.style.color = "#0B3FD9"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#4A5878"; }}
+              >
+                {item.icon}<span className="hidden sm:inline">{item.label}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </div>
@@ -204,17 +198,17 @@ export default function GlobalReach() {
         {/* LEFT: Map + Controls */}
         <div className="space-y-6">
           {/* Hero Section */}
-          <div className="bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-white/10 rounded-3xl p-8 shadow-[0_0_40px_rgba(0,207,255,0.08)]">
+          <div className="rounded-3xl p-8" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
             <div className="flex items-start justify-between mb-6">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 mb-4">
-                  <span className="w-2 h-2 rounded-full bg-[#00CFFF] animate-pulse"></span>
-                  <span className="text-[#00CFFF] text-xs font-bold tracking-wider uppercase">Live Global Map</span>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF" }}>
+                  <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#1FB8FF" }}></span>
+                  <span className="text-xs font-bold tracking-wider uppercase" style={{ color: "#0B3FD9" }}>Live Global Map</span>
                 </div>
-                <h1 className="text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] mb-2">
+                <h1 className="text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text mb-2" style={{ backgroundImage: "linear-gradient(90deg, #1FB8FF, #0B3FD9)" }}>
                   Global Reach
                 </h1>
-                <p className="text-gray-400 text-sm max-w-md">
+                <p className="text-sm max-w-md" style={{ color: "#6B7FA0" }}>
                   {mapMode === "warriors"
                     ? "Explore where Light Warriors are building faith communities worldwide."
                     : "Discover inspiring Glow Drops shared by believers across nations."}
@@ -222,24 +216,22 @@ export default function GlobalReach() {
               </div>
 
               {/* View Toggle */}
-              <div className="flex bg-[#0B0F1A] border border-white/10 rounded-2xl p-1.5 gap-1 shrink-0 shadow-[0_0_20px_rgba(0,207,255,0.1)]">
+              <div className="flex rounded-2xl p-1.5 gap-1 shrink-0" style={{ background: "#F0F4FA", border: "1px solid #E6ECF5" }}>
                 <button
                   onClick={() => setMapMode("warriors")}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
-                    mapMode === "warriors"
-                      ? "bg-gradient-to-r from-[#00CFFF] to-[#00CFFF] text-black shadow-[0_0_20px_rgba(0,207,255,0.5)]"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
-                  }`}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap"
+                  style={mapMode === "warriors"
+                    ? { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.25)" }
+                    : { color: "#6B7FA0" }}
                 >
                   <Users className="w-4 h-4" /> Warriors
                 </button>
                 <button
                   onClick={() => setMapMode("drops")}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
-                    mapMode === "drops"
-                      ? "bg-gradient-to-r from-[#FFD000] to-[#FFD000] text-black shadow-[0_0_20px_rgba(255,208,0,0.5)]"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
-                  }`}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap"
+                  style={mapMode === "drops"
+                    ? { background: "linear-gradient(90deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 2px 8px rgba(255, 159, 26, 0.25)" }
+                    : { color: "#6B7FA0" }}
                 >
                   <Zap className="w-4 h-4" /> Drops
                 </button>
@@ -250,40 +242,40 @@ export default function GlobalReach() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[10px]">
               {mapMode === "warriors" ? (
                 <>
-                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
+                  <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
                     <div className="w-3 h-3 rounded-full bg-[#FFD000]" />
-                    <span className="text-gray-300">Your region</span>
+                    <span style={{ color: "#4A5878" }}>Your region</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
-                    <div className="w-3 h-3 rounded-full bg-[#00CFFF]" />
-                    <span className="text-gray-300">Other nations</span>
+                  <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                    <div className="w-3 h-3 rounded-full bg-[#1FB8FF]" />
+                    <span style={{ color: "#4A5878" }}>Other nations</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
-                    <div className="w-4 h-4 rounded-full bg-[#00CFFF]/40" />
-                    <span className="text-gray-300">Low density</span>
+                  <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                    <div className="w-4 h-4 rounded-full" style={{ background: "rgba(31,184,255,0.3)" }} />
+                    <span style={{ color: "#4A5878" }}>Low density</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
-                    <div className="w-5 h-5 rounded-full bg-[#00CFFF]" />
-                    <span className="text-gray-300">High density</span>
+                  <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                    <div className="w-5 h-5 rounded-full bg-[#1FB8FF]" />
+                    <span style={{ color: "#4A5878" }}>High density</span>
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
+                  <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
                     <Heart className="w-3 h-3 text-red-400" />
-                    <span className="text-gray-300">Few likes</span>
+                    <span style={{ color: "#4A5878" }}>Few likes</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
+                  <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
                     <Heart className="w-4 h-4 text-red-400" />
-                    <span className="text-gray-300">Popular</span>
+                    <span style={{ color: "#4A5878" }}>Popular</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
-                    <Zap className="w-3 h-3 text-[#FFD000]" />
-                    <span className="text-gray-300">Click to view</span>
+                  <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                    <Zap className="w-3 h-3" style={{ color: "#CC7A00" }} />
+                    <span style={{ color: "#4A5878" }}>Click to view</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-white/3 rounded-lg border border-white/5">
-                    <TrendingUp className="w-3 h-3 text-[#00CFFF]" />
-                    <span className="text-gray-300">Newest first</span>
+                  <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                    <TrendingUp className="w-3 h-3" style={{ color: "#1FB8FF" }} />
+                    <span style={{ color: "#4A5878" }}>Newest first</span>
                   </div>
                 </>
               )}
@@ -291,7 +283,7 @@ export default function GlobalReach() {
           </div>
 
           {/* Map */}
-          <div className="rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_40px_rgba(0,207,255,0.1)]" style={{ height: "65vh" }}>
+          <div className="rounded-3xl overflow-hidden" style={{ height: "65vh", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
             <MapContainer center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>
               <TileLayer
                 url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
@@ -381,44 +373,44 @@ export default function GlobalReach() {
         <div className="space-y-6">
           {/* Stats Cards */}
           <div className="grid grid-cols-3 lg:grid-cols-1 gap-3">
-            <div className="bg-gradient-to-br from-[#00CFFF]/15 to-[#00CFFF]/5 border border-[#00CFFF]/30 rounded-2xl p-4 text-center shadow-[0_0_20px_rgba(0,207,255,0.1)]">
-              <div className="text-3xl font-black text-[#00CFFF] font-['Space_Grotesk'] mb-1">{users.length}</div>
-              <div className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Light Warriors</div>
-              <div className="text-[9px] text-gray-600 mt-2">Across {totalCountries} nations</div>
+            <div className="rounded-2xl p-4 text-center" style={{ background: "rgba(31, 184, 255, 0.06)", border: "1px solid #B8E5FF" }}>
+              <div className="text-3xl font-black font-['Space_Grotesk'] mb-1" style={{ color: "#0B3FD9" }}>{users.length}</div>
+              <div className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#6B7FA0" }}>Light Warriors</div>
+              <div className="text-[9px] mt-2" style={{ color: "#8A97B5" }}>Across {totalCountries} nations</div>
             </div>
-            <div className="bg-gradient-to-br from-[#FFD000]/15 to-[#FFD000]/5 border border-[#FFD000]/30 rounded-2xl p-4 text-center shadow-[0_0_20px_rgba(255,208,0,0.1)]">
-              <div className="text-3xl font-black text-[#FFD000] font-['Space_Grotesk'] mb-1">{glowDrops.length}</div>
-              <div className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Glow Drops</div>
-              <div className="text-[9px] text-gray-600 mt-2">Faith stories shared</div>
+            <div className="rounded-2xl p-4 text-center" style={{ background: "rgba(255, 208, 0, 0.06)", border: "1px solid #FFE4A0" }}>
+              <div className="text-3xl font-black font-['Space_Grotesk'] mb-1" style={{ color: "#CC7A00" }}>{glowDrops.length}</div>
+              <div className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#6B7FA0" }}>Glow Drops</div>
+              <div className="text-[9px] mt-2" style={{ color: "#8A97B5" }}>Faith stories shared</div>
             </div>
-            <div className="bg-gradient-to-br from-[#8A5CFF]/15 to-[#8A5CFF]/5 border border-[#8A5CFF]/30 rounded-2xl p-4 text-center shadow-[0_0_20px_rgba(138,92,255,0.1)]">
-              <div className="text-3xl font-black text-[#8A5CFF] font-['Space_Grotesk'] mb-1">{totalCountries}</div>
-              <div className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Nations Active</div>
-              <div className="text-[9px] text-gray-600 mt-2">Spreading light</div>
+            <div className="rounded-2xl p-4 text-center" style={{ background: "rgba(11, 63, 217, 0.04)", border: "1px solid #D6E4FF" }}>
+              <div className="text-3xl font-black font-['Space_Grotesk'] mb-1" style={{ color: "#0B3FD9" }}>{totalCountries}</div>
+              <div className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#6B7FA0" }}>Nations Active</div>
+              <div className="text-[9px] mt-2" style={{ color: "#8A97B5" }}>Spreading light</div>
             </div>
           </div>
 
           {/* Local Believers */}
-          <div className="bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-[#FFD000]/20 rounded-3xl p-6 shadow-[0_0_25px_rgba(255,208,0,0.08)]">
+          <div className="rounded-3xl p-6" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
             <div className="flex items-center gap-2 mb-1">
-              <MapPin className="w-4 h-4 text-[#FFD000]" />
-              <div className="text-sm font-bold text-[#FFD000] uppercase tracking-wider">Your Region</div>
+              <MapPin className="w-4 h-4" style={{ color: "#CC7A00" }} />
+              <div className="text-sm font-bold uppercase tracking-wider" style={{ color: "#CC7A00" }}>Your Region</div>
             </div>
-            <div className="text-xs text-gray-400 mb-4">{user.country || "Your location"} — {localBelievers.length} warriors nearby</div>
+            <div className="text-xs mb-4" style={{ color: "#6B7FA0" }}>{user.country || "Your location"} — {localBelievers.length} warriors nearby</div>
             <div className="space-y-2">
               {localBelievers.map(person => (
                 <Link key={person.email} to={createPageUrl("Profile") + `?user=${encodeURIComponent(person.email)}`}
-                  className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-white/5 transition group">
-                  <img src={person.profile_picture_url || defaultAvatar} className="w-10 h-10 rounded-full object-cover border border-white/10 group-hover:border-[#00CFFF]/40 transition" />
+                  className="flex items-center gap-3 p-2.5 rounded-2xl transition group hover:bg-[#F0F4FA]">
+                  <img src={person.profile_picture_url || defaultAvatar} className="w-10 h-10 rounded-full object-cover transition" style={{ border: "1px solid #E6ECF5" }} />
                   <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-white text-sm truncate">{person.full_name}</div>
-                    <div className="text-xs text-gray-500">{person.glow_score || 0} XP</div>
+                    <div className="font-semibold text-sm truncate" style={{ color: "#0B1B3D" }}>{person.full_name}</div>
+                    <div className="text-xs" style={{ color: "#6B7FA0" }}>{person.glow_score || 0} XP</div>
                   </div>
-                  <div className="text-[#00CFFF] opacity-0 group-hover:opacity-100 transition text-xs font-bold">→</div>
+                  <div className="opacity-0 group-hover:opacity-100 transition text-xs font-bold" style={{ color: "#0B3FD9" }}>→</div>
                 </Link>
               ))}
               {localBelievers.length === 0 && (
-                <div className="text-sm text-gray-500 py-4 text-center">
+                <div className="text-sm py-4 text-center" style={{ color: "#8A97B5" }}>
                   <Globe className="w-8 h-8 mx-auto mb-2 opacity-30" />
                   No nearby warriors yet. You're pioneering your region!
                 </div>
@@ -427,23 +419,23 @@ export default function GlobalReach() {
           </div>
 
           {/* Recent Impact Stories */}
-          <div className="bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-[#00CFFF]/20 rounded-3xl p-6 shadow-[0_0_25px_rgba(0,207,255,0.08)]">
+          <div className="rounded-3xl p-6" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
             <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="w-4 h-4 text-[#00CFFF]" />
-              <div className="text-sm font-bold text-[#00CFFF] uppercase tracking-wider">Trending Now</div>
+              <TrendingUp className="w-4 h-4" style={{ color: "#0B3FD9" }} />
+              <div className="text-sm font-bold uppercase tracking-wider" style={{ color: "#0B3FD9" }}>Trending Now</div>
             </div>
-            <div className="text-xs text-gray-400 mb-4">Latest inspiring drops from the movement</div>
+            <div className="text-xs mb-4" style={{ color: "#6B7FA0" }}>Latest inspiring drops from the movement</div>
             <div className="space-y-3">
               {glowDrops.slice(0, 5).map(drop => {
                 const owner = userByEmail[drop.user_email] || {};
                 return (
                   <button key={drop.id} onClick={() => setSelectedDrop({ ...drop, owner })}
-                    className="w-full text-left flex items-start gap-3 p-3 rounded-2xl hover:bg-white/5 transition group">
-                    <img src={owner.profile_picture_url || defaultAvatar} className="w-9 h-9 rounded-full object-cover border border-white/10 shrink-0 mt-0.5" />
+                    className="w-full text-left flex items-start gap-3 p-3 rounded-2xl hover:bg-[#F0F4FA] transition group">
+                    <img src={owner.profile_picture_url || defaultAvatar} className="w-9 h-9 rounded-full object-cover shrink-0 mt-0.5" style={{ border: "1px solid #E6ECF5" }} />
                     <div className="min-w-0">
-                      <div className="text-sm font-semibold text-white truncate">{owner.full_name || "Glow Believer"}</div>
-                      <div className="text-xs text-gray-400 line-clamp-2 mt-0.5">{drop.verse || drop.reflection || "Shared a Glow Drop"}</div>
-                      <div className="text-[10px] text-[#FFD000] mt-1 opacity-0 group-hover:opacity-100 transition font-bold">Read story →</div>
+                      <div className="text-sm font-semibold truncate" style={{ color: "#0B1B3D" }}>{owner.full_name || "Glow Believer"}</div>
+                      <div className="text-xs line-clamp-2 mt-0.5" style={{ color: "#6B7FA0" }}>{drop.verse || drop.reflection || "Shared a Glow Drop"}</div>
+                      <div className="text-[10px] mt-1 opacity-0 group-hover:opacity-100 transition font-bold" style={{ color: "#0B3FD9" }}>Read story →</div>
                     </div>
                   </button>
                 );
