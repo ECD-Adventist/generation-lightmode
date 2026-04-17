@@ -497,7 +497,7 @@ export default function Feed() {
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png"
               alt="Generation LightMode"
-              className="h-12 sm:h-14 w-auto object-contain max-w-[180px] sm:max-w-[220px]"
+              className="h-9 sm:h-11 w-auto object-contain max-w-[150px] sm:max-w-[190px]"
             />
           </div>
           <div className="flex gap-3 items-center shrink-0">
