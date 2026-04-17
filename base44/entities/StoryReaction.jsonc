@@ -1,0 +1,39 @@
+{
+  "name": "StoryReaction",
+  "type": "object",
+  "properties": {
+    "story_id": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "reaction_type": {
+      "type": "string",
+      "enum": [
+        "like",
+        "fire",
+        "pray",
+        "sparkle",
+        "heart_eyes",
+        "clap"
+      ],
+      "default": "like"
+    }
+  },
+  "required": [
+    "story_id",
+    "user_email",
+    "reaction_type"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": true,
+    "update": false,
+    "delete": {
+      "data.user_email": "{{user.email}}"
+    }
+  }
+}

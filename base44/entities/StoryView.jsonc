@@ -1,0 +1,24 @@
+{
+  "name": "StoryView",
+  "type": "object",
+  "properties": {
+    "story_id": {
+      "type": "string"
+    },
+    "viewer_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "story_id",
+    "viewer_email"
+  ],
+  "rls": {
+    "create": {
+      "data.viewer_email": "{{user.email}}"
+    },
+    "read": true,
+    "update": false,
+    "delete": false
+  }
+}

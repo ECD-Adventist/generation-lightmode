@@ -21,6 +21,7 @@ import useOfflineSync from "@/hooks/useOfflineSync";
 import OfflineBanner from "@/components/feed/OfflineBanner";
 import StatusComposerModal from "@/components/feed/StatusComposerModal";
 import StatusViewerModal from "@/components/feed/StatusViewerModal";
+import StoriesForYou from "@/components/feed/StoriesForYou";
 import OnboardingModal from "@/components/dashboard/OnboardingModal";
 import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModal";
 
@@ -619,6 +620,15 @@ export default function Feed() {
           <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "linear-gradient(90deg, #FFD60A 0%, #FF9F1A 100%)", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 159, 26, 0.3)" }}>⚡ Daily Drops</Link>
           </div>
 
+        {/* Stories For You — algorithmic suggestions */}
+        <StoriesForYou
+          stories={stories}
+          currentUser={user}
+          following={following}
+          allUsers={users}
+          onSelectStory={(s) => setSelectedStory(s)}
+        />
+
         {/* Filter Bar — LIGHT */}
         <div className="flex gap-2 px-4 mb-6 overflow-x-auto hide-scrollbar shrink-0">
           {['All', 'Following', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
@@ -781,6 +791,7 @@ export default function Feed() {
           allStories={stories}
           allUsers={users}
           getUserInfo={getUserInfo}
+          currentUser={user}
         />
         {isSearchOpen && <GlobalSearchBar onClose={() => setIsSearchOpen(false)} />}
 

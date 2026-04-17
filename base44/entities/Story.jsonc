@@ -32,6 +32,14 @@
     "expires_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "likes_count": {
+      "type": "number",
+      "default": 0
+    },
+    "view_count": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [
@@ -39,12 +47,14 @@
     "expires_at"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
     "read": true,
     "update": {
       "$or": [
         {
-          "created_by": "{{user.email}}"
+          "data.user_email": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -61,7 +71,7 @@
     "delete": {
       "$or": [
         {
-          "created_by": "{{user.email}}"
+          "data.user_email": "{{user.email}}"
         },
         {
           "user_condition": {

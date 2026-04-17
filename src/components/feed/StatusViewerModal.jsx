@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { X, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Pause, Play, Eye } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { base44 } from "@/api/base44Client";
+import StoryReactionBar from "./StoryReactionBar";
 
 const themeClasses = {
   ocean: "from-[#00CFFF] to-[#1DA1FF]",
@@ -13,13 +15,14 @@ const themeClasses = {
 
 const STORY_DURATION = 6000; // 6 seconds per story
 
-export default function StatusViewerModal({ story, storyUser, isOpen, onClose, allStories = [], allUsers = [], getUserInfo }) {
+export default function StatusViewerModal({ story, storyUser, isOpen, onClose, allStories = [], allUsers = [], getUserInfo, currentUser }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const startTimeRef = useRef(null);
   const rafRef = useRef(null);
+  const viewedStoriesRef = useRef(new Set());
 
   // Build ordered story list from all active (non-expired) stories
   const storyQueue = React.useMemo(() => {
@@ -166,6 +169,24 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
     return () => window.removeEventListener("keydown", handler);
   }, [isOpen, goNext, goPrev, onClose]);
 
+  // Track view when story changes
+  useEffect(() => {
+    if (!isOpen || !currentStory || !currentUser) return;
+    if (currentStory.user_email === currentUser.email) return;
+    if (viewedStoriesRef.current.has(currentStory.id)) return;
+    
+    viewedStoriesRef.current.add(currentStory.id);
+    base44.entities.StoryView.create({
+      story_id: currentStory.id,
+      viewer_email: currentUser.email,
+    }).catch(() => {});
+  }, [isOpen, currentStory?.id, currentUser?.email]);
+
+  // Reset viewed set when modal closes
+  useEffect(() => {
+    if (!isOpen) viewedStoriesRef.current.clear();
+  }, [isOpen]);
+
   if (!isOpen || !currentStory) return null;
 
   const postedDate = currentStory.created_date
@@ -256,12 +277,23 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
           </div>
         </div>
 
-        {/* Tap zones for prev/next */}
-        <div className="absolute inset-0 z-20 flex">
+        {/* Tap zones for prev/next — leave bottom 60px for reaction bar */}
+        <div className="absolute inset-0 bottom-16 z-20 flex">
           <button className="w-1/3 h-full" onClick={goPrev} aria-label="Previous" />
           <button className="w-1/3 h-full" onMouseDown={() => setIsPaused(true)} onMouseUp={() => setIsPaused(false)} aria-label="Hold" />
           <button className="w-1/3 h-full" onClick={goNext} aria-label="Next" />
         </div>
+
+        {/* Reaction bar with like, emoji reactions, reply */}
+        {currentUser && (
+          <StoryReactionBar
+            story={currentStory}
+            currentUser={currentUser}
+            storyAuthor={currentStoryUser}
+            onPause={() => setIsPaused(true)}
+            onResume={() => setIsPaused(false)}
+          />
+        )}
 
         {/* Desktop nav arrows */}
         {currentIndex > 0 && (
