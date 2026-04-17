@@ -15,6 +15,7 @@ import EditProfileModal from "@/components/profile/EditProfileModal";
 import PledgeModal from "@/components/pledge/PledgeModal";
 import ProfileHighlights, { getGlowRank } from "@/components/profile/ProfileHighlights";
 import AchievementBadges from "@/components/profile/AchievementBadges";
+import PostViewerModal from "@/components/profile/PostViewerModal";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -27,6 +28,7 @@ export default function Profile() {
   const [connectionsView, setConnectionsView] = useState(null);
   const [pledgeModalOpen, setPledgeModalOpen] = useState(false);
   const [viewPledgeOpen, setViewPledgeOpen] = useState(false);
+  const [viewingDropId, setViewingDropId] = useState(null);
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
@@ -167,6 +169,44 @@ export default function Profile() {
     queryFn: () => base44.entities.InstitutionApplication.filter({ user_email: profileEmail, status: "approved" }),
     enabled: !!profileEmail,
   });
+
+  const { data: profileUserLikes = [] } = useQuery({
+    queryKey: ["profileUserLikes", currentUser?.email],
+    queryFn: () => base44.entities.GlowDropLike.filter({ user_email: currentUser?.email }),
+    enabled: !!currentUser,
+  });
+
+  const { data: profileSavedDrops = [] } = useQuery({
+    queryKey: ["profileSavedDrops", currentUser?.email],
+    queryFn: () => base44.entities.SavedDrop.filter({ user_email: currentUser?.email }),
+    enabled: !!currentUser,
+  });
+
+  const profileLikeMutation = useMutation({
+    mutationFn: async ({ id, authorEmail, authorName }) => {
+      if (!currentUser) { toast.error("Please log in to like"); return; }
+      const response = await base44.functions.invoke('handleLikeDrop', {
+        drop_id: id, author_email: authorEmail, author_name: authorName, action: 'toggle'
+      });
+      toast.success(response.data.action === 'unlike' ? "❤️ Unliked!" : "❤️ Liked!");
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myGlowDropsProfile", profileEmail] });
+      queryClient.invalidateQueries({ queryKey: ["profileUserLikes", currentUser?.email] });
+    }
+  });
+
+  const handleDropShare = async (drop) => {
+    const postUrl = `${window.location.origin}/Post?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`;
+    const shareText = `✨ Generation LightMode\n\n"${drop.verse || ''}"\n\n${drop.reflection || ''}\n\nJoin the movement!\n${postUrl}`;
+    if (navigator.share) {
+      try { await navigator.share({ text: shareText }); } catch {}
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      toast.success("Link copied to clipboard!");
+    }
+  };
 
   const { data: currentUserFollowing = [] } = useQuery({
     queryKey: ["currentUserFollowing", currentUser?.email],
@@ -644,9 +684,9 @@ export default function Profile() {
         {activeProfileTab === "drops" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 px-4">
             {myDrops.map(drop => (
-              <Link
+              <button
                 key={drop.id}
-                to={`${createPageUrl("Post")}?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(profileEmail)}`}
+                onClick={() => setViewingDropId(drop.id)}
                 className="aspect-[4/5] relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-3 text-center rounded-[1.25rem] transition-all hover:-translate-y-0.5"
                 style={{ background: drop.media_url ? "#FFFFFF" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}
               >
@@ -668,7 +708,7 @@ export default function Profile() {
                   </div>
                   <div className="text-sm text-white/90 font-medium">Open post</div>
                 </div>
-              </Link>
+              </button>
             ))}
             {myDrops.length === 0 && (
               <div className="col-span-full py-24 flex flex-col items-center justify-center rounded-[1.5rem]" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
@@ -700,9 +740,9 @@ export default function Profile() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
                 {savedDrops.map(drop => (
-                  <Link
+                  <button
                     key={drop.id}
-                    to={`${createPageUrl("Post")}?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
+                    onClick={() => setViewingDropId(drop.id)}
                     className="aspect-[4/5] relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-3 text-center rounded-[1.25rem] transition-all hover:-translate-y-0.5"
                     style={{ background: drop.media_url ? "#FFFFFF" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}
                   >
@@ -724,7 +764,7 @@ export default function Profile() {
                       </div>
                       <div className="text-sm text-white/90 font-medium">View post</div>
                     </div>
-                  </Link>
+                  </button>
                 ))}
               </div>
             )}
@@ -813,6 +853,21 @@ export default function Profile() {
           <AchievementBadges user={user} myDrops={myDrops} myFollowing={myFollowing} myFollowers={myFollowers} myMemberships={myMemberships} mySupports={mySupports} challengeSubmissions={challengeSubmissions} certificates={certificates} />
         )}
       </div>
+
+      {/* Instagram-style Post Viewer Modal */}
+      <PostViewerModal
+        isOpen={!!viewingDropId}
+        onClose={() => setViewingDropId(null)}
+        drops={activeProfileTab === "saved" ? savedDrops : myDrops}
+        initialDropId={viewingDropId}
+        user={user}
+        currentUser={currentUser}
+        allUsers={allUsersForProfile}
+        likeMutation={profileLikeMutation}
+        handleShare={handleDropShare}
+        userLikes={profileUserLikes}
+        savedDropRecords={profileSavedDrops}
+      />
     </div>
   );
 }
