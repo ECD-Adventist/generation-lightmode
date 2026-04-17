@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useAppLanguage } from "../components/i18n/useAppLanguage";
 import DailyDropsSection from "../components/home/DailyDropsSection";
 import LightModeQuotientQuiz from "../components/home/LightModeQuotientQuiz";
+import { useSwitchItOn } from "../components/pledge/SwitchItOnProvider";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -97,6 +98,7 @@ export default function Home() {
   const [statsVisible, setStatsVisible] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
   const { t, isRTL } = useAppLanguage("home");
+  const { trigger: triggerSwitchOn } = useSwitchItOn();
   const { data: snapshot } = usePublicCommunitySnapshot();
   const liveCountries = snapshot?.countryStats || [];
 
@@ -166,11 +168,11 @@ export default function Home() {
 
             {/* CTAs */}
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 24 }}>
-              <a href={createPageUrl("Dashboard")} style={{
+              <button onClick={() => triggerSwitchOn("Feed")} style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 background: "linear-gradient(135deg, #FFD000, #FFA500)",
                 color: "#0B0F1A", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
-                fontSize: 14, padding: "12px 24px", borderRadius: 999, textDecoration: "none",
+                fontSize: 14, padding: "12px 24px", borderRadius: 999, border: "none", cursor: "pointer",
                 boxShadow: "0 0 30px rgba(255,208,0,0.4), 0 4px 20px rgba(0,0,0,0.3)",
                 transition: "all 0.3s",
               }}
@@ -178,7 +180,7 @@ export default function Home() {
                 onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 0 30px rgba(255,208,0,0.4), 0 4px 20px rgba(0,0,0,0.3)"; }}
               >
                 <Zap size={14} /> {t("switchOn")}
-              </a>
+              </button>
               <button onClick={() => { const el = document.getElementById('quiz'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}
                 style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.08)", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 14, padding: "11px 22px", borderRadius: 999, border: "1px solid rgba(0,207,255,0.4)", cursor: "pointer", backdropFilter: "blur(10px)", transition: "all 0.3s" }}
                 onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.18)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.7)"; }}
@@ -632,11 +634,11 @@ export default function Home() {
             </p>
           </div>
 
-          <a href={createPageUrl("Dashboard")} style={{
+          <button onClick={() => triggerSwitchOn("Feed")} style={{
             display: "inline-flex", alignItems: "center", gap: 10,
             background: "linear-gradient(135deg, #FFD000, #FFA500)",
             color: "#0B0F1A", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
-            fontSize: 18, padding: "18px 48px", borderRadius: 999, textDecoration: "none",
+            fontSize: 18, padding: "18px 48px", borderRadius: 999, border: "none", cursor: "pointer",
             boxShadow: "0 0 40px rgba(255,208,0,0.5), 0 8px 30px rgba(0,0,0,0.4)",
             transition: "all 0.3s",
           }}
@@ -644,7 +646,7 @@ export default function Home() {
             onMouseOut={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 0 40px rgba(255,208,0,0.5), 0 8px 30px rgba(0,0,0,0.4)"; }}
           >
             <Zap size={20} /> {t("signPledge")}
-          </a>
+          </button>
           <p style={{ color: "#4A5568", fontSize: 13, marginTop: 16, fontFamily: "Inter, sans-serif" }}>{t("freeToJoin")}</p>
         </div>
       </section>

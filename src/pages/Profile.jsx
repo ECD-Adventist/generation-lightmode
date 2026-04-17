@@ -16,6 +16,7 @@ import InstitutionOwnerBadge from "@/components/institution/InstitutionOwnerBadg
 import ExecutiveProfileHeader from "@/components/institution/ExecutiveProfileHeader";
 import { isNotificationEnabled } from "@/lib/notifications";
 import EditProfileModal from "@/components/profile/EditProfileModal";
+import PledgeModal from "@/components/pledge/PledgeModal";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -26,6 +27,7 @@ export default function Profile() {
   const [editData, setEditData] = useState({ full_name: "", country: "", bio: "", website_url: "", profile_picture_url: "", cover_picture_url: "", gender: "", date_of_birth: "", phone: "", city: "", address: "", postal_code: "" });
   const [activeProfileTab, setActiveProfileTab] = useState("drops");
   const [connectionsView, setConnectionsView] = useState(null);
+  const [pledgeModalOpen, setPledgeModalOpen] = useState(false);
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
@@ -367,6 +369,16 @@ export default function Profile() {
         />
       )}
       <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
+      <PledgeModal
+        isOpen={pledgeModalOpen}
+        onClose={() => setPledgeModalOpen(false)}
+        onSigned={async () => {
+          setPledgeModalOpen(false);
+          const updated = await base44.auth.me();
+          setUser(updated);
+          setCurrentUser(updated);
+        }}
+      />
       <ProfileConnectionsModal
         title={connectionsView}
         items={connectionsView === "Followers" ? myFollowers.map((item) => ({ email: item.follower_email })) : myFollowing.map((item) => ({ email: item.following_email }))}
@@ -557,6 +569,40 @@ export default function Profile() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ===== LIGHTMODE PLEDGE STATUS ===== */}
+        {isOwnProfile && (
+          <div className="mx-4 mb-6">
+            {user.pledge_signed ? (
+              <div className="bg-gradient-to-r from-[#FFD000]/10 to-[#00CFFF]/10 border border-[#FFD000]/30 rounded-2xl p-5 flex items-center gap-4 shadow-[0_0_20px_rgba(255,208,0,0.1)]">
+                <div className="w-12 h-12 rounded-full bg-[#FFD000]/15 border border-[#FFD000]/40 flex items-center justify-center text-2xl flex-shrink-0">✋</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold text-[#FFD000] uppercase tracking-widest font-['Space_Grotesk']">LightMode Pledge</div>
+                  <div className="text-white font-bold font-['Space_Grotesk'] mt-0.5">Pledge Signed ⚡</div>
+                  {user.pledge_signed_at && (
+                    <div className="text-[11px] text-gray-500 mt-0.5">Signed {new Date(user.pledge_signed_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</div>
+                  )}
+                </div>
+                <CheckCircle className="w-6 h-6 text-[#FFD000] flex-shrink-0" />
+              </div>
+            ) : (
+              <div className="bg-gradient-to-r from-[#FFD000]/8 to-[#FFA500]/8 border border-[#FFD000]/30 rounded-2xl p-5 flex items-center gap-4 flex-wrap">
+                <div className="w-12 h-12 rounded-full bg-[#FFD000]/15 border border-[#FFD000]/40 flex items-center justify-center text-2xl flex-shrink-0">✋</div>
+                <div className="flex-1 min-w-[180px]">
+                  <div className="text-xs font-bold text-[#FFD000] uppercase tracking-widest font-['Space_Grotesk']">Pledge Required</div>
+                  <div className="text-white font-bold font-['Space_Grotesk'] mt-0.5">Sign the LightMode Pledge</div>
+                  <div className="text-[12px] text-gray-400 mt-1">Commit to always-on faith and unlock the full movement.</div>
+                </div>
+                <button
+                  onClick={() => setPledgeModalOpen(true)}
+                  className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#FFD000] to-[#FFA500] text-black font-black text-sm font-['Space_Grotesk'] hover:scale-105 transition shadow-[0_0_20px_rgba(255,208,0,0.4)]"
+                >
+                  ⚡ Sign Pledge
+                </button>
+              </div>
+            )}
           </div>
         )}
 

@@ -60,6 +60,16 @@
     },
     "last_faith_activity_date": {
       "type": "string"
+    },
+    "pledge_signed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has signed the LightMode pledge"
+    },
+    "pledge_signed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the user signed the pledge"
     }
   }
 }

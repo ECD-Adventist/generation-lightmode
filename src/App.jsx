@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { SwitchItOnProvider } from '@/components/pledge/SwitchItOnProvider';
 import LightReflections from './pages/LightReflections';
 import Leaderboard from './pages/Leaderboard';
 import Discover from './pages/Discover';
@@ -99,7 +100,9 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
-          <AuthenticatedApp />
+          <SwitchItOnProvider>
+            <AuthenticatedApp />
+          </SwitchItOnProvider>
         </Router>
         <Toaster />
       </QueryClientProvider>

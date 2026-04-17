@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Menu, X, Bell, LayoutDashboard, Users, Flag, BarChart3, MessageSquare, ShieldCheck, LogOut, User, Zap } from "lucide-react";
 import LanguageSelector from "./components/LanguageSelector";
 import { useAppLanguage } from "./components/i18n/useAppLanguage";
+import { useSwitchItOn } from "./components/pledge/SwitchItOnProvider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -34,6 +35,7 @@ export default function Layout({ children, currentPageName }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   const { t, isRTL } = useAppLanguage("layout");
+  const { trigger: triggerSwitchOn } = useSwitchItOn();
   const location = useLocation();
   const queryClient = useQueryClient();
   const [userEmail, setUserEmail] = useState(null);
@@ -387,11 +389,7 @@ export default function Layout({ children, currentPageName }) {
           <div style={{ display: "flex", alignItems: "center", gap: 12, overflow: "visible" }} className="desktop-nav">
             <LanguageSelector />
             {!userEmail ? (
-              <button onClick={async () => {
-                const isAuth = await base44.auth.isAuthenticated();
-                if (isAuth) window.location.href = createPageUrl("Feed");
-                else base44.auth.redirectToLogin(createPageUrl("Feed"));
-              }} className="glm-switch-btn">
+              <button onClick={() => triggerSwitchOn("Feed")} className="glm-switch-btn">
                 <span className="glm-switch-orbit p1" aria-hidden="true" />
                 <span className="glm-switch-orbit p2" aria-hidden="true" />
                 <span className="glm-switch-orbit p3" aria-hidden="true" />
@@ -399,7 +397,7 @@ export default function Layout({ children, currentPageName }) {
               </button>
             ) : (
               <div className="flex items-center gap-4">
-                <Link to={createPageUrl("Feed")} style={{
+                <button onClick={() => triggerSwitchOn("Feed")} style={{
                   background: "linear-gradient(90deg, #00CFFF, #8A5CFF)",
                   color: "#0B0F1A",
                   fontFamily: "Space Grotesk, sans-serif",
@@ -407,7 +405,8 @@ export default function Layout({ children, currentPageName }) {
                   fontSize: 14,
                   padding: "10px 24px",
                   borderRadius: 50,
-                  textDecoration: "none",
+                  border: "none",
+                  cursor: "pointer",
                   whiteSpace: "nowrap",
                   display: "inline-flex",
                   alignItems: "center",
@@ -417,7 +416,7 @@ export default function Layout({ children, currentPageName }) {
                   flexShrink: 0,
                 }}>
                   ⚡ Switch It On
-                </Link>
+                </button>
                 <Link to={createPageUrl("Notifications")} className="relative w-10 h-10 rounded-full bg-[#121826] border border-white/10 flex items-center justify-center hover:bg-white/5 transition">
                   <Bell className="w-5 h-5 text-gray-300" />
                   {notifications.length > 0 && (
@@ -538,19 +537,15 @@ export default function Layout({ children, currentPageName }) {
             
             {userEmail ? (
               <>
-                <Link to={createPageUrl("Feed")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
+                <button onClick={() => { setMenuOpen(false); triggerSwitchOn("Feed"); }} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17, background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
                   ⚡ Switch It On
-                </Link>
+                </button>
                 <Link to={createPageUrl("Profile")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
                   👤 {t("profile") || "Profile"}
                 </Link>
               </>
             ) : (
-              <button onClick={async () => {
-                const isAuth = await base44.auth.isAuthenticated();
-                if (isAuth) window.location.href = createPageUrl("Feed");
-                else base44.auth.redirectToLogin(createPageUrl("Feed"));
-              }} className="glm-btn-primary" style={{ display: "block", textAlign: "center", marginTop: 20, width: "100%", cursor: "pointer" }}>
+              <button onClick={() => { setMenuOpen(false); triggerSwitchOn("Feed"); }} className="glm-btn-primary" style={{ display: "block", textAlign: "center", marginTop: 20, width: "100%", cursor: "pointer" }}>
                 Switch It On ⚡
               </button>
             )}
