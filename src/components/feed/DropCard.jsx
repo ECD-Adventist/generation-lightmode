@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { isNotificationEnabled } from "@/lib/notifications";
 import ReadMoreText from "@/components/feed/ReadMoreText";
+import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [] }) {
   const [showComments, setShowComments] = useState(false);
@@ -321,11 +322,17 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   {drop.verse}
                 </h2>
               )}
-              {drop.reflection && (
-                <p className="text-base sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic" style={{ color: "#3A4A6B" }}>
-                  "{drop.reflection.length > 180 ? drop.reflection.slice(0, 180) + '…' : drop.reflection}"
-                </p>
-              )}
+              {drop.reflection && (() => {
+                // Strip HTML for the hero preview (keep it clean/italic)
+                const plain = containsHtml(drop.reflection)
+                  ? drop.reflection.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+                  : drop.reflection;
+                return (
+                  <p className="text-base sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic" style={{ color: "#3A4A6B" }}>
+                    "{plain.length > 180 ? plain.slice(0, 180) + '…' : plain}"
+                  </p>
+                );
+              })()}
               {/* Subtle bottom accent line */}
               <div className="mt-6 w-16 h-1 rounded-full" style={{ background: "linear-gradient(90deg, #1E5AFF, #5AC8FF)" }} />
             </div>
@@ -443,12 +450,20 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             </div>
           )}
           {drop.reflection && (
-            <ReadMoreText
-              text={drop.reflection}
-              lines={3}
-              className="text-sm leading-relaxed"
-              toggleColor="#0B3FD9"
-            />
+            containsHtml(drop.reflection) ? (
+              <div
+                className="text-sm leading-relaxed prose prose-sm max-w-none prose-a:text-[#0B3FD9] prose-strong:text-[#0B1B3D] prose-headings:text-[#0B1B3D] [&_iframe]:w-full [&_iframe]:rounded-lg [&_iframe]:aspect-video [&_img]:rounded-lg [&_img]:max-w-full"
+                style={{ color: "#3A4A6B" }}
+                dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(drop.reflection) }}
+              />
+            ) : (
+              <ReadMoreText
+                text={drop.reflection}
+                lines={3}
+                className="text-sm leading-relaxed"
+                toggleColor="#0B3FD9"
+              />
+            )
           )}
         </div>
       )}

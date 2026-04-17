@@ -1,0 +1,76 @@
+{
+  "name": "ScheduledPost",
+  "type": "object",
+  "properties": {
+    "verse": {
+      "type": "string"
+    },
+    "reflection": {
+      "type": "string",
+      "description": "Rich HTML content"
+    },
+    "hashtags": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "media_url": {
+      "type": "string"
+    },
+    "scheduled_for": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "published",
+        "cancelled",
+        "failed"
+      ],
+      "default": "scheduled"
+    },
+    "published_drop_id": {
+      "type": "string"
+    },
+    "error_message": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "scheduled_for"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    }
+  }
+}
