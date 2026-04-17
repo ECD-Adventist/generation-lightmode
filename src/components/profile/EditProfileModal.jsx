@@ -199,11 +199,11 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
             <div>
               <Label className="text-[10px] uppercase tracking-wider text-gray-500 mb-1.5 flex items-center justify-between">
                 <span>Bio</span>
-                <span className="text-gray-600">{editData.bio.length}/150</span>
+                <span className="text-gray-600">{editData.bio.length}/1200</span>
               </Label>
               <textarea
                 value={editData.bio}
-                onChange={e => set("bio", e.target.value.slice(0, 150))}
+                onChange={e => set("bio", e.target.value.slice(0, 1200))}
                 placeholder="Tell people about yourself…"
                 rows={3}
                 className="w-full bg-[#121826] border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm resize-none focus:outline-none focus:ring-1 focus:ring-[#00CFFF]/40"
