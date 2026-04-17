@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Clock, XCircle, Zap, Home, Users, Bell, Globe, Trash2, Bookmark, Calendar, Building2 } from "lucide-react";
+import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Clock, XCircle, Zap, Home, Users, Bell, Globe, Trash2, Bookmark, Calendar, Building2, Sparkles } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import ExecutiveProfileHeader from "@/components/institution/ExecutiveProfileHea
 import { isNotificationEnabled } from "@/lib/notifications";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 import PledgeModal from "@/components/pledge/PledgeModal";
+import ProfileHighlights, { getGlowRank } from "@/components/profile/ProfileHighlights";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -265,6 +266,35 @@ export default function Profile() {
 
   const [cropData, setCropData] = useState(null);
 
+  const profileCompletion = useMemo(() => {
+    const fields = [user?.full_name, user?.bio, user?.country, user?.website_url, user?.profile_picture_url, user?.cover_picture_url];
+    const completed = fields.filter(Boolean).length;
+    return Math.round((completed / fields.length) * 100);
+  }, [user]);
+
+  const nextLevelXp = 50 - ((user?.glow_score || 0) % 50);
+  const glowRank = getGlowRank(user?.glow_score || 0);
+
+  const recentActivity = useMemo(() => ([
+    { icon: "✨", label: "Glow Drops", value: `${myDrops.length} shared so far` },
+    { icon: "🎯", label: "Challenges", value: `${challengeSubmissions.length} completed missions` },
+    { icon: "👥", label: "Groups", value: `${myMemberships.length} group memberships` },
+    { icon: "🏆", label: "Achievements", value: `${certificates.length} certificates unlocked` },
+  ]), [myDrops.length, challengeSubmissions.length, myMemberships.length, certificates.length]);
+
+  const handleShareProfile = async () => {
+    const shareUrl = window.location.href;
+    const shareText = `${user.full_name || "LightMode Member"} • ${glowRank.name} • ${user.glow_score || 0} Glow Points`;
+
+    if (navigator.share) {
+      await navigator.share({ title: `${user.full_name || "Profile"} | LightMode`, text: shareText, url: shareUrl });
+      return;
+    }
+
+    await navigator.clipboard.writeText(shareUrl);
+    toast.success("Profile link copied");
+  };
+
   const handleImageSelect = (e, type) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -504,7 +534,13 @@ export default function Profile() {
               
               <div className="flex-1 text-center md:text-left mt-4 md:mt-16">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
-                  <h1 className="text-3xl font-bold font-['Inter']">{user.full_name}</h1>
+                  <div className="flex flex-col md:flex-row md:items-center gap-3">
+                    <h1 className="text-3xl font-bold font-['Inter']">{user.full_name}</h1>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 w-fit mx-auto md:mx-0">
+                      <Sparkles className="w-4 h-4" style={{ color: glowRank.color }} />
+                      <span className="text-sm font-bold text-white">{glowRank.name}</span>
+                    </div>
+                  </div>
                   {isOwnProfile && !isEditing && (
                     <button onClick={() => setIsEditing(true)} className="px-5 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-semibold transition border border-white/5">
                       Edit Profile
@@ -548,15 +584,12 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className="w-full max-w-md mx-auto md:mx-0 mb-6 bg-white/5 h-2 rounded-full overflow-hidden">
-                   <div className="h-full bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF]" style={{ width: `${(((user.glow_score || 0) % 50) / 50) * 100}%` }}></div>
-                </div>
-                <div className="text-xs text-gray-400 text-center md:text-left max-w-md mx-auto md:mx-0 mb-6 -mt-4">
-                  {50 - ((user.glow_score || 0) % 50)} XP to Next Level
-                </div>
-                
-                <div className="text-sm text-gray-300 max-w-md mx-auto md:mx-0 space-y-2">
-                  <p className="font-bold text-white uppercase tracking-wider text-xs">{user.country || "Global Citizen"}</p>
+                <div className="text-sm text-gray-300 max-w-md mx-auto md:mx-0 space-y-3">
+                  <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                    <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-white uppercase tracking-wider">{user.country || "Global Citizen"}</span>
+                    {myMemberships.length > 0 && <span className="px-3 py-1 rounded-full bg-[#8A5CFF]/10 border border-[#8A5CFF]/20 text-xs font-bold text-[#C9B3FF]">{myMemberships.length} GlowGroup{myMemberships.length > 1 ? "s" : ""}</span>}
+                    {userInstitutionApps.length > 0 && <span className="px-3 py-1 rounded-full bg-[#FFD000]/10 border border-[#FFD000]/20 text-xs font-bold text-[#FFD000]">Institution linked</span>}
+                  </div>
                   <p className="leading-relaxed whitespace-pre-line">
                     {user.bio || "Digital Missionary ⚡ Spreading light through faith in the online world."}
                   </p>
@@ -570,9 +603,19 @@ export default function Profile() {
                       🔗 {user.website_url.replace(/^https?:\/\//, "")}
                     </a>
                   )}
-                  <div className="flex items-center gap-2 text-[10px] text-gray-500 mt-1">
+                  <div className="flex items-center gap-2 text-[10px] text-gray-500 mt-1 justify-center md:justify-start">
                     <span>Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}</span>
                   </div>
+                </div>
+
+                <div className="mt-6">
+                  <ProfileHighlights
+                    user={user}
+                    profileCompletion={profileCompletion}
+                    nextLevelXp={nextLevelXp}
+                    recentActivity={recentActivity}
+                    onShare={handleShareProfile}
+                  />
                 </div>
               </div>
             </div>
