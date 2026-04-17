@@ -22,8 +22,8 @@ export default function PostViewerModal({
     if (!isOpen) return;
     const handleKey = (e) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft") goToPrev();
-      if (e.key === "ArrowRight") goToNext();
+      if (e.key === "ArrowUp") goToPrev();
+      if (e.key === "ArrowDown") goToNext();
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -46,10 +46,10 @@ export default function PostViewerModal({
   }, [drops.length]);
 
   // Swipe handling
-  const handleTouchStart = (e) => setTouchStart(e.touches[0].clientX);
+  const handleTouchStart = (e) => setTouchStart(e.touches[0].clientY);
   const handleTouchEnd = (e) => {
     if (touchStart === null) return;
-    const diff = touchStart - e.changedTouches[0].clientX;
+    const diff = touchStart - e.changedTouches[0].clientY;
     if (Math.abs(diff) > 60) {
       if (diff > 0) goToNext();
       else goToPrev();
@@ -89,31 +89,31 @@ export default function PostViewerModal({
         {currentIndex + 1} / {drops.length}
       </div>
 
-      {/* Prev arrow (desktop) */}
+      {/* Prev arrow (desktop) - top */}
       {currentIndex > 0 && (
         <button
           onClick={(e) => { e.stopPropagation(); goToPrev(); }}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full hidden md:flex items-center justify-center transition"
+          className="absolute top-16 left-1/2 -translate-x-1/2 z-50 w-10 h-10 rounded-full hidden md:flex items-center justify-center transition"
           style={{ background: "rgba(255,255,255,0.9)", border: "1px solid #E6ECF5", color: "#0B3FD9" }}
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-5 h-5 rotate-90" />
         </button>
       )}
 
-      {/* Next arrow (desktop) */}
+      {/* Next arrow (desktop) - bottom */}
       {currentIndex < drops.length - 1 && (
         <button
           onClick={(e) => { e.stopPropagation(); goToNext(); }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-50 w-10 h-10 rounded-full hidden md:flex items-center justify-center transition"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 w-10 h-10 rounded-full hidden md:flex items-center justify-center transition"
           style={{ background: "rgba(255,255,255,0.9)", border: "1px solid #E6ECF5", color: "#0B3FD9" }}
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-5 h-5 rotate-90" />
         </button>
       )}
 
       {/* Card container */}
       <div
-        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 rounded-3xl"
+        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 rounded-3xl relative"
         style={{ background: "#F6F8FC" }}
         onClick={(e) => e.stopPropagation()}
         onTouchStart={handleTouchStart}
@@ -132,16 +132,16 @@ export default function PostViewerModal({
           />
         </div>
 
-        {/* Dot indicators for mobile */}
+        {/* Dot indicators - vertical on right side */}
         {drops.length > 1 && (
-          <div className="flex justify-center gap-1.5 pb-4">
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1.5">
             {drops.map((_, i) => (
               <div
                 key={i}
                 className="rounded-full transition-all"
                 style={{
-                  width: i === currentIndex ? 20 : 6,
-                  height: 6,
+                  width: 6,
+                  height: i === currentIndex ? 20 : 6,
                   background: i === currentIndex ? "#0B3FD9" : "#D6E4FF",
                 }}
               />
