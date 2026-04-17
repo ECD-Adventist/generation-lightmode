@@ -2,10 +2,10 @@ import React from "react";
 
 export default function LifetimeAchievementBoard({ achievements }) {
   return (
-    <div className="bg-[#121826] border border-white/10 rounded-3xl p-6">
+    <div className="rounded-3xl p-6" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
       <div className="mb-6">
-        <h2 className="text-2xl font-bold">Lifetime Achievement Board</h2>
-        <p className="text-gray-400 mt-2">Track your long-term badge progress across faith, consistency, and community.</p>
+        <h2 className="text-2xl font-bold" style={{ color: "#0B1B3D" }}>Lifetime Achievement Board</h2>
+        <p className="mt-2" style={{ color: "#6B7FA0" }}>Track your long-term badge progress across faith, consistency, and community.</p>
       </div>
 
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -14,25 +14,25 @@ export default function LifetimeAchievementBoard({ achievements }) {
           const unlocked = achievement.value >= achievement.target;
 
           return (
-            <div key={achievement.key} className={`rounded-2xl border p-5 ${unlocked ? "bg-gradient-to-br from-[#FFD000]/10 to-transparent border-[#FFD000]/30" : "bg-[#0B0F1A] border-white/10"}`}>
+            <div key={achievement.key} className="rounded-2xl p-5" style={unlocked ? { background: "linear-gradient(135deg, #FFF8E6 0%, #FFFFFF 100%)", border: "1px solid #FFE4A0" } : { background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
               <div className="flex items-start justify-between gap-3 mb-4">
                 <div>
                   <div className="text-3xl mb-2">{achievement.icon}</div>
-                  <h3 className="font-bold text-white text-lg leading-tight">{achievement.title}</h3>
-                  <p className="text-sm text-gray-400 mt-2">{achievement.description}</p>
+                  <h3 className="font-bold text-lg leading-tight" style={{ color: "#0B1B3D" }}>{achievement.title}</h3>
+                  <p className="text-sm mt-2" style={{ color: "#6B7FA0" }}>{achievement.description}</p>
                 </div>
-                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${unlocked ? "bg-[#FFD000]/20 text-[#FFD000]" : "bg-white/5 text-gray-400"}`}>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider" style={unlocked ? { background: "rgba(255, 208, 0, 0.15)", color: "#CC7A00", border: "1px solid #FFE4A0" } : { background: "#FFFFFF", color: "#8A97B5", border: "1px solid #E6ECF5" }}>
                   {unlocked ? "Unlocked" : `${achievement.value}/${achievement.target}`}
                 </span>
               </div>
 
-              <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden mb-3">
-                <div className={`h-full rounded-full ${unlocked ? "bg-gradient-to-r from-[#FFD000] to-[#00CFFF]" : "bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF]"}`} style={{ width: `${progress}%` }} />
+              <div className="w-full h-2 rounded-full overflow-hidden mb-3" style={{ background: "#EEF3FF" }}>
+                <div className="h-full rounded-full" style={{ width: `${progress}%`, background: unlocked ? "linear-gradient(90deg, #FFD000, #1FB8FF)" : "linear-gradient(90deg, #1FB8FF, #0B3FD9)" }} />
               </div>
 
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-500">Progress</span>
-                <span className={unlocked ? "text-[#FFD000] font-bold" : "text-gray-300 font-semibold"}>{progress}%</span>
+                <span style={{ color: "#8A97B5" }}>Progress</span>
+                <span className="font-semibold" style={unlocked ? { color: "#CC7A00" } : { color: "#0B1B3D" }}>{progress}%</span>
               </div>
             </div>
           );

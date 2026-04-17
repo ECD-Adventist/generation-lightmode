@@ -45,47 +45,49 @@ L.Icon.Default.mergeOptions({
 function ImpactStoryPanel({ drop, onClose }) {
   if (!drop) return null;
   return (
-    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-4 backdrop-blur-sm" style={{ background: "rgba(11, 27, 61, 0.4)" }} onClick={onClose}>
       <div
-        className="bg-[#121826] border border-[#00CFFF]/30 rounded-3xl p-6 w-full max-w-md shadow-[0_0_60px_rgba(0,207,255,0.2)] animate-in slide-in-from-bottom-4"
+        className="rounded-3xl p-6 w-full max-w-md animate-in slide-in-from-bottom-4"
+        style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 16px 48px rgba(11, 63, 217, 0.18)" }}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <img src={drop.owner?.profile_picture_url || defaultAvatar} className="w-12 h-12 rounded-full object-cover border-2 border-[#00CFFF]/40" />
+            <img src={drop.owner?.profile_picture_url || defaultAvatar} className="w-12 h-12 rounded-full object-cover" style={{ border: "2px solid #B8E5FF" }} />
             <div>
-              <div className="font-bold text-white">{drop.owner?.full_name || "Glow Believer"}</div>
-              <div className="text-xs text-gray-400 flex items-center gap-1">
+              <div className="font-bold" style={{ color: "#0B1B3D" }}>{drop.owner?.full_name || "Glow Believer"}</div>
+              <div className="text-xs flex items-center gap-1" style={{ color: "#6B7FA0" }}>
                 <MapPin className="w-3 h-3" /> {drop.owner?.country || "Global"}
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white transition p-1">
+          <button onClick={onClose} className="transition p-1" style={{ color: "#8A97B5" }}>
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {drop.verse && (
-          <div className="bg-[#00CFFF]/8 border border-[#00CFFF]/20 rounded-2xl p-4 mb-3">
-            <div className="text-xs text-[#00CFFF] font-bold uppercase tracking-wider mb-2">📖 Verse</div>
-            <p className="text-white text-sm leading-relaxed font-medium italic">"{drop.verse}"</p>
+          <div className="rounded-2xl p-4 mb-3" style={{ background: "rgba(31, 184, 255, 0.06)", border: "1px solid #B8E5FF" }}>
+            <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "#0B3FD9" }}>📖 Verse</div>
+            <p className="text-sm leading-relaxed font-medium italic" style={{ color: "#0B1B3D" }}>"{drop.verse}"</p>
           </div>
         )}
 
         {drop.reflection && (
-          <div className="bg-[#8A5CFF]/8 border border-[#8A5CFF]/20 rounded-2xl p-4 mb-4">
-            <div className="text-xs text-[#8A5CFF] font-bold uppercase tracking-wider mb-2">💡 Reflection</div>
-            <p className="text-gray-300 text-sm leading-relaxed">{drop.reflection}</p>
+          <div className="rounded-2xl p-4 mb-4" style={{ background: "rgba(11, 63, 217, 0.04)", border: "1px solid #D6E4FF" }}>
+            <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "#0B3FD9" }}>💡 Reflection</div>
+            <p className="text-sm leading-relaxed" style={{ color: "#4A5878" }}>{drop.reflection}</p>
           </div>
         )}
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-sm" style={{ color: "#6B7FA0" }}>
             <Heart className="w-4 h-4 text-red-400" /> {drop.likes_count || 0} lights
           </div>
           <Link
             to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
-            className="flex items-center gap-1.5 text-sm font-bold text-[#FFD000] hover:text-white transition"
+            className="flex items-center gap-1.5 text-sm font-bold transition"
+            style={{ color: "#0B3FD9" }}
           >
             Open post <ExternalLink className="w-3.5 h-3.5" />
           </Link>
@@ -286,7 +288,7 @@ export default function GlobalReach() {
           <div className="rounded-3xl overflow-hidden" style={{ height: "65vh", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
             <MapContainer center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>
               <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+                url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
                 attribution='&copy; OpenStreetMap &copy; CARTO'
               />
 
@@ -300,28 +302,28 @@ export default function GlobalReach() {
                     center={cluster.coords}
                     radius={radius}
                     pathOptions={{
-                      color: isLocal ? "#FFD000" : "#00CFFF",
-                      fillColor: isLocal ? "#FFD000" : "#00CFFF",
+                      color: isLocal ? "#CC7A00" : "#0B3FD9",
+                      fillColor: isLocal ? "#FFD000" : "#1FB8FF",
                       fillOpacity: 0.25,
                       weight: isLocal ? 2.5 : 1.5,
                     }}
                   >
                     <Popup>
-                      <div style={{ background: "#121826", border: "1px solid rgba(0,207,255,0.3)", borderRadius: 12, padding: 16, minWidth: 200, color: "#fff", fontFamily: "Inter, sans-serif" }}>
+                      <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 12, padding: 16, minWidth: 200, color: "#0B1B3D", fontFamily: "Inter, sans-serif", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.12)" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                          <div style={{ width: 8, height: 8, borderRadius: "50%", background: isLocal ? "#FFD000" : "#00CFFF", boxShadow: `0 0 8px ${isLocal ? "#FFD000" : "#00CFFF"}` }} />
-                          <strong style={{ color: isLocal ? "#FFD000" : "#00CFFF", fontSize: 15 }}>{cluster.country}</strong>
+                          <div style={{ width: 8, height: 8, borderRadius: "50%", background: isLocal ? "#FFD000" : "#0B3FD9", boxShadow: `0 0 8px ${isLocal ? "#FFD000" : "#0B3FD9"}` }} />
+                          <strong style={{ color: isLocal ? "#CC7A00" : "#0B3FD9", fontSize: 15 }}>{cluster.country}</strong>
                         </div>
-                        <div style={{ fontSize: 13, color: "#ccc", marginBottom: 12 }}>
-                          <strong style={{ color: "#fff", fontSize: 22, fontFamily: "Space Grotesk, sans-serif" }}>{cluster.count}</strong> Light Warrior{cluster.count !== 1 ? "s" : ""}
+                        <div style={{ fontSize: 13, color: "#6B7FA0", marginBottom: 12 }}>
+                          <strong style={{ color: "#0B1B3D", fontSize: 22, fontFamily: "Space Grotesk, sans-serif" }}>{cluster.count}</strong> Light Warrior{cluster.count !== 1 ? "s" : ""}
                         </div>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
                           {cluster.members.slice(0, 5).map(m => (
-                            <img key={m.email} src={m.profile_picture_url || defaultAvatar} title={m.full_name} style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(255,255,255,0.2)" }} />
+                            <img key={m.email} src={m.profile_picture_url || defaultAvatar} title={m.full_name} style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover", border: "1px solid #E6ECF5" }} />
                           ))}
-                          {cluster.count > 5 && <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(0,207,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#00CFFF", fontWeight: "bold" }}>+{cluster.count - 5}</div>}
+                          {cluster.count > 5 && <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(11,63,217,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#0B3FD9", fontWeight: "bold" }}>+{cluster.count - 5}</div>}
                         </div>
-                        {isLocal && <div style={{ fontSize: 11, color: "#FFD000", fontWeight: 600 }}>⭐ Your region</div>}
+                        {isLocal && <div style={{ fontSize: 11, color: "#CC7A00", fontWeight: 600 }}>⭐ Your region</div>}
                       </div>
                     </Popup>
                   </CircleMarker>
@@ -345,19 +347,19 @@ export default function GlobalReach() {
                     eventHandlers={{ click: () => setSelectedDrop(drop) }}
                   >
                     <Popup>
-                      <div style={{ background: "#121826", border: "1px solid rgba(255,208,0,0.3)", borderRadius: 12, padding: 14, minWidth: 190, color: "#fff", fontFamily: "Inter, sans-serif", cursor: "pointer" }}
+                      <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 12, padding: 14, minWidth: 190, color: "#0B1B3D", fontFamily: "Inter, sans-serif", cursor: "pointer", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.12)" }}
                         onClick={() => setSelectedDrop(drop)}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                          <img src={drop.owner?.profile_picture_url || defaultAvatar} style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover" }} />
+                          <img src={drop.owner?.profile_picture_url || defaultAvatar} style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", border: "1px solid #E6ECF5" }} />
                           <div>
-                            <div style={{ fontWeight: 700, fontSize: 13 }}>{drop.owner?.full_name || "Glow Believer"}</div>
-                            <div style={{ fontSize: 11, color: "#999" }}>{drop.owner?.country || "Global"}</div>
+                            <div style={{ fontWeight: 700, fontSize: 13, color: "#0B1B3D" }}>{drop.owner?.full_name || "Glow Believer"}</div>
+                            <div style={{ fontSize: 11, color: "#6B7FA0" }}>{drop.owner?.country || "Global"}</div>
                           </div>
                         </div>
-                        <div style={{ fontSize: 12, color: "#ddd", marginBottom: 8, lineHeight: 1.5, maxWidth: 200, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
+                        <div style={{ fontSize: 12, color: "#4A5878", marginBottom: 8, lineHeight: 1.5, maxWidth: 200, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
                           {drop.verse || drop.reflection || "Glow Drop"}
                         </div>
-                        <div style={{ fontSize: 11, color: "#FFD000", fontWeight: 700, cursor: "pointer" }}>
+                        <div style={{ fontSize: 11, color: "#0B3FD9", fontWeight: 700, cursor: "pointer" }}>
                           📖 Read local story →
                         </div>
                       </div>

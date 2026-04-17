@@ -159,7 +159,7 @@ export default function FaithQuiz() {
                 <h3 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 20, color: "#CC7A00" }}>LightMode Champions</h3>
               </div>
               {leaderLoading ? (
-                <div style={{ display: "flex", justifyContent: "center", padding: 32 }}><Loader2 className="animate-spin" size={24} color="#00CFFF" /></div>
+                <div style={{ display: "flex", justifyContent: "center", padding: 32 }}><Loader2 className="animate-spin" size={24} color="#1FB8FF" /></div>
               ) : leaderboard.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "32px 16px", color: "#8A97B5" }}>
                   <Trophy size={36} style={{ margin: "0 auto 12px", display: "block" }} />
