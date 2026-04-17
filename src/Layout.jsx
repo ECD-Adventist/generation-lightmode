@@ -649,10 +649,12 @@ export default function Layout({ children, currentPageName }) {
           filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)) drop-shadow(0 0px 8px rgba(138,92,255,0.2));
         }
         .glm-switch-btn:hover .glm-switch-inner {
-          background: linear-gradient(180deg, #1a2440 0%, #111827 60%, #0d1220 100%);
+          background: linear-gradient(180deg, #1a2a3a 0%, #0f1820 50%, #0a0e14 100%);
           box-shadow: 
-            inset 0 1px 0 rgba(255,255,255,0.12),
-            inset 0 -2px 4px rgba(0,0,0,0.4);
+            inset 0 1.5px 0 rgba(255,255,255,0.15),
+            inset 0 -3px 8px rgba(0,0,0,0.7),
+            inset 0 0px 12px rgba(255,208,0,0.12),
+            0 6px 12px rgba(0,0,0,0.5);
         }
         .glm-switch-btn:hover .glm-switch-inner .glm-switch-text {
           background-image: linear-gradient(90deg, #ffffff, #FFD000);
@@ -676,7 +678,7 @@ export default function Layout({ children, currentPageName }) {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: linear-gradient(180deg, #141c2e 0%, #0B0F1A 60%, #080b14 100%);
+          background: linear-gradient(180deg, #0F1318 0%, #0B0F1A 50%, #050709 100%);
           font-family: 'Space Grotesk', sans-serif;
           font-weight: 800;
           font-size: 13px;
@@ -684,8 +686,9 @@ export default function Layout({ children, currentPageName }) {
           border-radius: 999px;
           overflow: hidden;
           box-shadow: 
-            inset 0 1px 0 rgba(255,255,255,0.08),
-            inset 0 -2px 4px rgba(0,0,0,0.4);
+            inset 0 1.5px 0 rgba(255,255,255,0.1),
+            inset 0 -3px 6px rgba(0,0,0,0.6),
+            0 4px 8px rgba(0,0,0,0.4);
           transition: background 0.3s ease, box-shadow 0.3s ease;
         }
         /* Subtle sweep shimmer on inner pill */
