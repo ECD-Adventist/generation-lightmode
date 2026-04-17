@@ -55,9 +55,6 @@ export default function Feed() {
   const [user, setUser] = useState(null);
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
-  const [sortBy, setSortBy] = useState("Newest");
-  const [selectedAuthor, setSelectedAuthor] = useState("All Users");
-  const [dateRange, setDateRange] = useState("Any Time");
   const [searchQuery, setSearchQuery] = useState("");
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedStory, setSelectedStory] = useState(null);
@@ -302,17 +299,7 @@ export default function Feed() {
 
   const followingEmails = useMemo(() => new Set(following.map(f => f.following_email)), [following]);
 
-  const authorOptions = useMemo(() => {
-    const names = users
-      .filter((u) => u.email)
-      .map((u) => u.full_name || u.email?.split('@')[0] || "Unknown")
-      .sort((a, b) => a.localeCompare(b));
-    return ["All Users", ...new Set(names)];
-  }, [users]);
-
   const filteredDrops = useMemo(() => {
-    const now = Date.now();
-
     return [...drops]
       .filter((drop) => {
         const matchesFilter = activeFilter === 'All' || 
@@ -323,31 +310,20 @@ export default function Feed() {
 
         const q = searchQuery.toLowerCase();
         const dropAuthor = getUserInfo(drop.user_email);
-        const authorName = dropAuthor?.full_name || dropAuthor?.email?.split('@')[0] || '';
         const matchesSearch = !searchQuery || 
           drop.verse?.toLowerCase().includes(q) ||
           drop.reflection?.toLowerCase().includes(q) ||
           drop.hashtags?.toLowerCase().includes(q) ||
           drop.category?.toLowerCase().includes(q) ||
-          authorName.toLowerCase().includes(q);
+          dropAuthor?.full_name?.toLowerCase().includes(q);
 
-        const matchesAuthor = selectedAuthor === "All Users" || authorName === selectedAuthor;
-
-        const createdAt = new Date(drop.created_date || 0).getTime();
-        const matchesDateRange = dateRange === "Any Time" ||
-          (dateRange === "Last 24h" && createdAt >= now - 24 * 60 * 60 * 1000) ||
-          (dateRange === "Last 7 Days" && createdAt >= now - 7 * 24 * 60 * 60 * 1000) ||
-          (dateRange === "Last 30 Days" && createdAt >= now - 30 * 24 * 60 * 60 * 1000);
-
-        return matchesFilter && matchesSearch && matchesAuthor && matchesDateRange;
+        return matchesFilter && matchesSearch;
       })
       .sort((a, b) => {
-        if (sortBy === 'Most Popular') return (b.likes_count || 0) - (a.likes_count || 0);
-        if (sortBy === 'Oldest') return new Date(a.created_date || 0) - new Date(b.created_date || 0);
-        if (sortBy === 'Category') return (a.category || '').localeCompare(b.category || '');
+        if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
         return new Date(b.created_date || 0) - new Date(a.created_date || 0);
       });
-  }, [drops, activeFilter, searchQuery, followingEmails, selectedAuthor, dateRange, sortBy, users]);
+  }, [drops, activeFilter, searchQuery, followingEmails]);
 
   const trendingTopics = useMemo(() => {
     const counts = new Map();
@@ -406,7 +382,7 @@ export default function Feed() {
       <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-0 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
-        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "linear-gradient(180deg, #FFFDF7 0%, #FFF8E8 32%, #F7FBEF 68%, #F2F9E8 100%)", borderColor: "#F0E0B0", backgroundImage: "radial-gradient(circle at 20% 80%, rgba(255,208,0,0.10) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,159,26,0.07) 0%, transparent 45%), radial-gradient(circle at 50% 40%, rgba(127,224,138,0.08) 0%, transparent 55%)" }}>
+        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "linear-gradient(180deg, #FFFDF5 0%, #FFF9E6 40%, #FFF4D6 100%)", borderColor: "#F0E0B0", backgroundImage: "radial-gradient(circle at 20% 80%, rgba(255,208,0,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,159,26,0.06) 0%, transparent 50%)" }}>
            {/* Logo — BLUE */}
            <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
              <img
@@ -636,65 +612,19 @@ export default function Feed() {
           </div>
 
         {/* Filter Bar — LIGHT */}
-        <div className="px-4 mb-6 shrink-0 space-y-3">
-          <div className="flex gap-2 overflow-x-auto hide-scrollbar">
-            {['All', 'Following', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300"
-                style={activeFilter === filter
-                  ? { background: "#0B3FD9", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.3)" }
-                  : { background: "rgba(255,255,255,0.7)", color: "#4A5878", border: "1px solid #E0EAF5" }}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="rounded-full px-4 py-2 text-xs font-semibold focus:outline-none"
-              style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
+        <div className="flex gap-2 px-4 mb-6 overflow-x-auto hide-scrollbar shrink-0">
+          {['All', 'Following', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300"
+              style={activeFilter === filter
+                ? { background: "#0B3FD9", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.3)" }
+                : { background: "rgba(255,255,255,0.6)", color: "#4A5878", border: "1px solid #E0EAF5" }}
             >
-              <option>Newest</option>
-              <option>Oldest</option>
-              <option>Most Popular</option>
-              <option>Category</option>
-            </select>
-
-            <select
-              value={selectedAuthor}
-              onChange={(e) => setSelectedAuthor(e.target.value)}
-              className="rounded-full px-4 py-2 text-xs font-semibold focus:outline-none max-w-[180px]"
-              style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
-            >
-              {authorOptions.map((author) => (
-                <option key={author}>{author}</option>
-              ))}
-            </select>
-
-            <select
-              value={dateRange}
-              onChange={(e) => setDateRange(e.target.value)}
-              className="rounded-full px-4 py-2 text-xs font-semibold focus:outline-none"
-              style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
-            >
-              <option>Any Time</option>
-              <option>Last 24h</option>
-              <option>Last 7 Days</option>
-              <option>Last 30 Days</option>
-            </select>
-          </div>
-
-          <div className="flex flex-wrap gap-2 text-[11px] font-semibold">
-            <span className="px-3 py-1 rounded-full" style={{ background: "#EAF1FF", color: "#0B3FD9" }}>Filter: {activeFilter}</span>
-            <span className="px-3 py-1 rounded-full" style={{ background: "#FFF4D6", color: "#B86B00" }}>Sort: {sortBy}</span>
-            {selectedAuthor !== 'All Users' && <span className="px-3 py-1 rounded-full" style={{ background: "#EEF7F1", color: "#28745C" }}>User: {selectedAuthor}</span>}
-            {dateRange !== 'Any Time' && <span className="px-3 py-1 rounded-full" style={{ background: "#F3F4F6", color: "#4B5563" }}>Date: {dateRange}</span>}
-          </div>
+              {filter}
+            </button>
+          ))}
         </div>
 
         {/* Feed */}
@@ -745,7 +675,7 @@ export default function Feed() {
         </div>
 
         {/* Right Sidebar (Desktop) — LIGHT */}
-        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l backdrop-blur-md overflow-y-auto hide-scrollbar" style={{ borderColor: "#E7ECF4", background: "linear-gradient(180deg, #FBFCFF 0%, #F6F8FC 100%)" }}>
+        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l backdrop-blur-md overflow-y-auto hide-scrollbar" style={{ borderColor: "#E2E8F0", background: "linear-gradient(180deg, #F8FAFF 0%, #F0F4FA 100%)" }}>
           
           <DailyChallenges user={user} />
 
