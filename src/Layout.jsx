@@ -295,7 +295,7 @@ export default function Layout({ children, currentPageName }) {
           </Link>
 
           {/* Desktop Nav — glassy pill group */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "rgba(11,15,26,0.45)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 999, boxShadow: "0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)" }} className="desktop-nav">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "rgba(11,15,26,0.35)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 999, boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }} className="desktop-nav">
             {navLinks.map(link => {
               const isActive = currentPageName === link.page;
               return (
@@ -397,25 +397,11 @@ export default function Layout({ children, currentPageName }) {
               </button>
             ) : (
               <div className="flex items-center gap-4">
-                <button onClick={() => triggerSwitchOn("Feed")} style={{
-                  background: "linear-gradient(90deg, #00CFFF, #8A5CFF)",
-                  color: "#0B0F1A",
-                  fontFamily: "Space Grotesk, sans-serif",
-                  fontWeight: 800,
-                  fontSize: 14,
-                  padding: "10px 24px",
-                  borderRadius: 50,
-                  border: "none",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  boxShadow: "0 0 20px rgba(0,207,255,0.4)",
-                  transition: "all 0.3s ease",
-                  flexShrink: 0,
-                }}>
-                  ⚡ Switch It On
+                <button onClick={() => triggerSwitchOn("Feed")} className="glm-switch-btn">
+                  <span className="glm-switch-orbit p1" aria-hidden="true" />
+                  <span className="glm-switch-orbit p2" aria-hidden="true" />
+                  <span className="glm-switch-orbit p3" aria-hidden="true" />
+                  <span className="glm-switch-inner">⚡ Switch It On</span>
                 </button>
                 <Link to={createPageUrl("Notifications")} className="relative w-10 h-10 rounded-full bg-[#121826] border border-white/10 flex items-center justify-center hover:bg-white/5 transition">
                   <Bell className="w-5 h-5 text-gray-300" />
