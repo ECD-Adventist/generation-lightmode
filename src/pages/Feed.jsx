@@ -359,21 +359,11 @@ export default function Feed() {
         onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
       />
       <style>{`
-        @keyframes pan-map {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
         @keyframes float-light {
           0%, 100% { transform: translateY(0) scale(1); opacity: 0.15; }
           50% { transform: translateY(-30px) scale(1.1); opacity: 0.35; }
         }
       `}</style>
-      
-      {/* Wireframe Map Background - lightened */}
-      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none w-[200vw] flex" style={{ animation: "pan-map 180s linear infinite" }}>
-        <div className="h-full w-[100vw] bg-cover bg-center flex-shrink-0" style={{ backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7dea9e31b_digital-world-map-hologram-blue-background.jpg')", filter: "grayscale(0.3) brightness(1.8) contrast(0.9) hue-rotate(50deg)" }} />
-        <div className="h-full w-[100vw] bg-cover bg-center flex-shrink-0" style={{ backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7dea9e31b_digital-world-map-hologram-blue-background.jpg')", filter: "grayscale(0.3) brightness(1.8) contrast(0.9) hue-rotate(50deg)" }} />
-      </div>
       
       {/* Soft mint/gold accent lights */}
       <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] rounded-full blur-[120px] z-0 opacity-40 pointer-events-none animate-[float-light_8s_ease-in-out_infinite]" style={{ background: "#7FE08A" }}></div>

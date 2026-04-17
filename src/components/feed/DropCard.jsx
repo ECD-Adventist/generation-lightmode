@@ -10,14 +10,20 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { isNotificationEnabled } from "@/lib/notifications";
+import ReadMoreText from "@/components/feed/ReadMoreText";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [] }) {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
+  // Animation triggers
+  const [likeBurst, setLikeBurst] = useState(false);
+  const [commentBounce, setCommentBounce] = useState(false);
+  const [sharePulse, setSharePulse] = useState(false);
+  const [saveBounce, setSaveBounce] = useState(false);
   const queryClient = useQueryClient();
-  
+
   const userHasLiked = userLikes.some(like => like.drop_id === drop.id);
 
   // Only fetch comments when the comment section is opened
@@ -28,14 +34,10 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   });
 
   const isSuperCreator = (dropUser.drop_count || 0) >= 9;
-
-  // Use allUsers passed from parent instead of refetching
   const users = allUsers;
 
-  // Use saved records passed from parent
   const savedForThisDrop = savedDropRecords.filter(s => s.drop_id === drop.id);
   const isSaved = savedForThisDrop.length > 0;
-
   const visibleComments = comments;
 
   const toggleSaveMutation = useMutation({
@@ -65,14 +67,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     mutationFn: async (content) => {
       if (!user) { toast.error("Please log in to comment"); return; }
       if (!content.trim()) return;
-      
       await base44.entities.GlowDropComment.create({
         drop_id: drop.id,
         user_email: user.email,
         content: content.trim()
       });
-      
-      // Notification (fire and forget, don't block)
       if (drop.user_email && drop.user_email !== user.email && isNotificationEnabled(dropUser, "comments")) {
         base44.entities.Notification.create({
           user_email: drop.user_email,
@@ -99,9 +98,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   };
 
   const deleteCommentMutation = useMutation({
-    mutationFn: async (commentId) => {
-      await base44.entities.GlowDropComment.delete(commentId);
-    },
+    mutationFn: async (commentId) => { await base44.entities.GlowDropComment.delete(commentId); },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments", drop.id] });
       toast.success("Comment deleted");
@@ -109,9 +106,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   });
 
   const updateCommentMutation = useMutation({
-    mutationFn: async ({ id, content }) => {
-      await base44.entities.GlowDropComment.update(id, { content });
-    },
+    mutationFn: async ({ id, content }) => { await base44.entities.GlowDropComment.update(id, { content }); },
     onSuccess: () => {
       setEditingCommentId(null);
       queryClient.invalidateQueries({ queryKey: ["comments", drop.id] });
@@ -122,10 +117,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   const blockUserMutation = useMutation({
     mutationFn: async (blockedEmail) => {
       if (user?.email === blockedEmail) return toast.error("You cannot block yourself");
-      await base44.entities.BlockedUser.create({
-        blocker_email: user.email,
-        blocked_email: blockedEmail
-      });
+      await base44.entities.BlockedUser.create({ blocker_email: user.email, blocked_email: blockedEmail });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["blockedUsers", user?.email] });
@@ -135,21 +127,13 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   const reportCommentMutation = useMutation({
     mutationFn: async ({ commentId, reason }) => {
-      await base44.entities.ReportedComment.create({
-        comment_id: commentId,
-        reporter_email: user.email,
-        reason
-      });
+      await base44.entities.ReportedComment.create({ comment_id: commentId, reporter_email: user.email, reason });
     },
-    onSuccess: () => {
-      toast.success("Comment reported to moderators");
-    }
+    onSuccess: () => { toast.success("Comment reported to moderators"); }
   });
 
   const deleteDropMutation = useMutation({
-    mutationFn: async () => {
-      await base44.entities.GlowDrop.delete(drop.id);
-    },
+    mutationFn: async () => { await base44.entities.GlowDrop.delete(drop.id); },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
       toast.success("Post deleted");
@@ -167,7 +151,6 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         hashtags: drop.hashtags,
         status: "approved"
       });
-      // Don't update reposts_count directly — RLS prevents non-creators from updating
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
@@ -175,136 +158,236 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     }
   });
 
+  // Action handlers with animations
+  const handleLike = (e) => {
+    e.stopPropagation();
+    setLikeBurst(true);
+    setTimeout(() => setLikeBurst(false), 600);
+    likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: dropUser.full_name });
+  };
+
+  const handleCommentToggle = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setCommentBounce(true);
+    setTimeout(() => setCommentBounce(false), 400);
+    setShowComments(prev => !prev);
+  };
+
+  const handleShareClick = (e) => {
+    e.stopPropagation();
+    setSharePulse(true);
+    setTimeout(() => setSharePulse(false), 500);
+    handleShare(drop);
+  };
+
+  const handleSaveClick = (e) => {
+    e.stopPropagation();
+    setSaveBounce(true);
+    setTimeout(() => setSaveBounce(false), 400);
+    toggleSaveMutation.mutate();
+  };
+
   return (
-    <div className="bg-[#121826]/80 backdrop-blur-sm border border-white/10 rounded-[2rem] mb-8 p-3 shadow-2xl hover:border-[#00CFFF]/40 transition-all duration-300 group">
-      {/* Media / Content Area */}
-      <div 
-        className={`relative w-full rounded-[1.5rem] overflow-hidden bg-gradient-to-br from-[#1a1b26] via-[#0B0F1A] to-[#1a103c] shadow-inner ${drop.media_url ? 'aspect-[3/4]' : 'min-h-[520px] flex flex-col justify-center items-center text-center'}`}
-        onDoubleClick={() => likeMutation.mutate({id: drop.id, authorEmail: drop.user_email, authorName: dropUser.full_name})}
+    <div
+      className="rounded-2xl sm:rounded-[2rem] mb-6 sm:mb-8 p-2 sm:p-3 transition-all duration-300 group"
+      style={{
+        background: "#FFFFFF",
+        border: "1px solid #E0EAF5",
+        boxShadow: "0 4px 20px rgba(11, 63, 217, 0.06)"
+      }}
+    >
+      <style>{`
+        @keyframes dc-heart-burst {
+          0% { transform: scale(1); }
+          30% { transform: scale(1.35); }
+          60% { transform: scale(0.92); }
+          100% { transform: scale(1); }
+        }
+        @keyframes dc-bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        @keyframes dc-pulse-ring {
+          0% { transform: scale(1); opacity: 0.55; }
+          100% { transform: scale(1.8); opacity: 0; }
+        }
+        @keyframes dc-float-up {
+          0% { transform: translate(-50%, 0) scale(0.6); opacity: 0; }
+          20% { opacity: 1; }
+          100% { transform: translate(-50%, -60px) scale(1.1); opacity: 0; }
+        }
+        .dc-anim-like { animation: dc-heart-burst 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .dc-anim-bounce { animation: dc-bounce 0.4s ease-out; }
+        .dc-anim-pulse::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 9999px;
+          border: 2px solid #1FB8FF;
+          animation: dc-pulse-ring 0.5s ease-out;
+          pointer-events: none;
+        }
+      `}</style>
+
+      {/* Media / Content Area — RESPONSIVE */}
+      <div
+        className={`relative w-full rounded-xl sm:rounded-[1.5rem] overflow-hidden shadow-inner ${
+          drop.media_url
+            ? 'aspect-[4/5] sm:aspect-[3/4]'
+            : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center'
+        }`}
+        style={{ background: "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" }}
+        onDoubleClick={() => {
+          setLikeBurst(true);
+          setTimeout(() => setLikeBurst(false), 600);
+          likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: dropUser.full_name });
+        }}
       >
-        {/* Gradient Overlays for readability */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/70 to-transparent pointer-events-none z-0" />
-        <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
+        {/* Gradient Overlays for readability (only when media present) */}
+        {drop.media_url && (
+          <>
+            <div className="absolute top-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-b from-black/40 to-transparent pointer-events-none z-0" />
+            <div className="absolute bottom-0 left-0 right-0 h-40 sm:h-56 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none z-0" />
+          </>
+        )}
 
         {/* User Pill (Top Left) */}
         {drop.user_email === "system@lightmode.com" ? (
-          <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-[#FFD000]/30 rounded-full pr-4 pl-1 py-1">
-            <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden bg-[#0B0F1A]">
+          <div
+            className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20 flex items-center gap-2 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1"
+            style={{
+              background: drop.media_url ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.75)",
+              border: `1px solid ${drop.media_url ? "rgba(255, 208, 0, 0.4)" : "#FFD60A"}`
+            }}
+          >
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full shrink-0 overflow-hidden" style={{ background: "#FFFFFF" }}>
               <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" className="w-full h-full object-cover" />
             </div>
             <div className="flex flex-col items-start justify-center">
-              <span className="font-bold font-['Inter'] text-xs text-[#FFD000] leading-none mb-0.5">Generation LightMode</span>
-              <span className="text-[10px] text-gray-300 font-medium leading-none">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
+              <span className="font-bold font-['Inter'] text-[11px] sm:text-xs leading-none mb-0.5" style={{ color: drop.media_url ? "#FFD60A" : "#0B3FD9" }}>Generation LightMode</span>
+              <span className="text-[9px] sm:text-[10px] font-medium leading-none" style={{ color: drop.media_url ? "#E0EAF5" : "#4A5878" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
             </div>
           </div>
         ) : (
-          <Link 
+          <Link
             to={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/10 rounded-full pr-4 pl-1 py-1 cursor-pointer hover:bg-black/50 transition no-underline"
+            className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20 flex items-center gap-2 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1 cursor-pointer transition no-underline"
+            style={{
+              background: drop.media_url ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.75)",
+              border: `1px solid ${drop.media_url ? "rgba(255,255,255,0.15)" : "#E0EAF5"}`
+            }}
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
-              <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
+              <div className="w-full h-full rounded-full flex items-center justify-center font-bold text-xs uppercase overflow-hidden" style={{ background: "#FFFFFF" }}>
                 <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
               </div>
             </div>
-            <div className="flex flex-col items-start justify-center">
-              <span className="font-bold font-['Inter'] text-xs text-white flex items-center gap-1 leading-none mb-0.5">
+            <div className="flex flex-col items-start justify-center min-w-0">
+              <span className="font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 truncate max-w-[140px] sm:max-w-none" style={{ color: drop.media_url ? "#FFFFFF" : "#0B1B3D" }}>
                 {dropUser.full_name || dropUser.email?.split('@')[0] || "Glow Believer"}
                 {isSuperCreator && (
-                  <span className="flex items-center justify-center w-3.5 h-3.5 bg-gradient-to-br from-[#00CFFF] to-[#FFD000] rounded-sm rotate-45 shadow-[0_0_10px_rgba(0,207,255,0.6)] ml-0.5">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-2.5 h-2.5 -rotate-45 text-black">
+                  <span className="flex items-center justify-center w-3.5 h-3.5 rounded-sm rotate-45 shadow-[0_0_10px_rgba(31,184,255,0.6)] ml-0.5" style={{ background: "linear-gradient(135deg, #1FB8FF, #FFD60A)" }}>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-2.5 h-2.5 -rotate-45" style={{ color: "#0B1B3D" }}>
                       <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/>
                     </svg>
                   </span>
                 )}
               </span>
-              <span className="text-[10px] text-gray-300 font-medium leading-none">{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
+              <span className="text-[9px] sm:text-[10px] font-medium leading-none" style={{ color: drop.media_url ? "#E0EAF5" : "#4A5878" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
             </div>
           </Link>
         )}
 
         {/* Media Image */}
         {drop.media_url && (
-          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="w-full h-full object-cover" />
+          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="w-full h-full object-cover" loading="lazy" />
         )}
 
-        {/* Text Content (if no media) */}
+        {/* Text Content (if no media) — LIGHT */}
         {!drop.media_url && (
-          <div className="p-8 pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center">
+          <div className="p-5 sm:p-8 pr-16 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center">
             {drop.verse && (
-              <h2 className="text-2xl sm:text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] mb-6 leading-tight drop-shadow-lg">
+              <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text mb-4 sm:mb-6 leading-tight" style={{ backgroundImage: "linear-gradient(90deg, #0B3FD9 0%, #1FB8FF 100%)" }}>
                 {drop.verse}
               </h2>
             )}
             {drop.reflection && (
-              <p className="text-lg sm:text-xl text-white font-['Inter'] leading-relaxed max-w-md drop-shadow-md">
-                "{drop.reflection}"
+              <p className="text-base sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md" style={{ color: "#0B1B3D" }}>
+                "{drop.reflection.length > 180 ? drop.reflection.slice(0, 180) + '…' : drop.reflection}"
               </p>
             )}
           </div>
         )}
 
-        {/* Double Tap Heart */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 pointer-events-none">
-          <Heart className="w-24 h-24 text-white/40 drop-shadow-2xl transform scale-90 group-hover:scale-100 transition-transform duration-300" />
-        </div>
+        {/* Double-tap floating heart */}
+        {likeBurst && (
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30">
+            <Heart className="w-20 h-20 sm:w-28 sm:h-28 fill-red-500 text-red-500 drop-shadow-2xl" style={{ animation: "dc-float-up 0.6s ease-out forwards" }} />
+          </div>
+        )}
 
-        {/* Floating Actions (Right Side Stack) */}
-        <div className="absolute right-3 bottom-6 z-20 flex flex-col items-center gap-5">
-          <div className="flex flex-col items-center gap-1.5">
-            <button 
-              onClick={(e) => { e.stopPropagation(); likeMutation.mutate({id: drop.id, authorEmail: drop.user_email, authorName: dropUser.full_name}); }} 
-              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+        {/* Floating Actions (Right Side Stack) — RESPONSIVE */}
+        <div className="absolute right-2 sm:right-3 bottom-4 sm:bottom-6 z-20 flex flex-col items-center gap-3 sm:gap-5">
+          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
+            <button
+              onClick={handleLike}
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none ${likeBurst ? 'dc-anim-pulse' : ''}`}
+              style={{ background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }}
               title={userHasLiked ? "Unlike this drop" : "Like this drop"}
             >
-              <Heart className={`w-6 h-6 transition-all ${userHasLiked ? "text-red-500 fill-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "text-white hover:scale-110"}`} />
+              <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${likeBurst ? 'dc-anim-like' : ''} ${userHasLiked ? "text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "text-white hover:scale-110"}`} />
             </button>
-            <span className="text-white text-xs font-bold drop-shadow-md">{drop.likes_count || 0}</span>
+            <span className="text-white text-[11px] sm:text-xs font-bold drop-shadow-md">{drop.likes_count || 0}</span>
           </div>
 
-          <div className="flex flex-col items-center gap-1.5">
-            <button 
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); setShowComments(prev => !prev); }} 
-              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
+            <button
+              onClick={handleCommentToggle}
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none"
+              style={{ background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }}
             >
-              <MessageCircle className={`w-6 h-6 transition-transform hover:scale-110 ${showComments ? "text-[#00CFFF]" : "text-white"}`} />
+              <MessageCircle className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${commentBounce ? 'dc-anim-bounce' : ''}`} style={{ color: showComments ? "#1FB8FF" : "#FFFFFF" }} />
             </button>
-            <span className="text-white text-xs font-bold drop-shadow-md">{comments.length}</span>
+            <span className="text-white text-[11px] sm:text-xs font-bold drop-shadow-md">{comments.length}</span>
           </div>
 
-          <div className="flex flex-col items-center gap-1.5">
-            <button 
-              onClick={(e) => { e.stopPropagation(); handleShare(drop); }} 
-              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
+            <button
+              onClick={handleShareClick}
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none ${sharePulse ? 'dc-anim-pulse' : ''}`}
+              style={{ background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }}
             >
-              <Share2 className="w-6 h-6 text-white hover:scale-110 transition-transform" />
+              <Share2 className={`w-5 h-5 sm:w-6 sm:h-6 text-white transition-transform hover:scale-110 ${sharePulse ? 'dc-anim-bounce' : ''}`} />
             </button>
-            <span className="text-white text-xs font-bold drop-shadow-md">{drop.shares_count || 0}</span>
+            <span className="text-white text-[11px] sm:text-xs font-bold drop-shadow-md">{drop.shares_count || 0}</span>
           </div>
-          
-          <div className="flex flex-col items-center gap-1.5">
-            <button 
-              onClick={(e) => { e.stopPropagation(); toggleSaveMutation.mutate(); }}
-              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+
+          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
+            <button
+              onClick={handleSaveClick}
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none"
+              style={{ background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }}
             >
-              <Bookmark className={`w-6 h-6 transition-transform hover:scale-110 ${isSaved ? "text-[#00CFFF] fill-[#00CFFF]" : "text-white"}`} />
+              <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${saveBounce ? 'dc-anim-bounce' : ''} ${isSaved ? "fill-[#FFD60A]" : ""}`} style={{ color: isSaved ? "#FFD60A" : "#FFFFFF" }} />
             </button>
           </div>
 
-          <div className="flex flex-col items-center gap-1.5 mt-2">
+          <div className="flex flex-col items-center gap-1 sm:gap-1.5 mt-1 sm:mt-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button 
+                <button
                   onClick={(e) => e.stopPropagation()}
-                  className="w-10 h-10 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none"
+                  style={{ background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.25)" }}
                 >
                   <MoreHorizontal className="w-4 h-4 text-white" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-[#121826] border-white/10 text-white w-40 z-50">
+              <DropdownMenuContent align="end" className="bg-white border text-[#0B1B3D] w-40 z-50" style={{ borderColor: "#E0EAF5" }}>
                 {user?.email === drop.user_email ? (
-                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); deleteDropMutation.mutate(); }} className="text-red-400 hover:bg-red-500/10 hover:text-red-400 cursor-pointer focus:bg-red-500/10 focus:text-red-400">
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); deleteDropMutation.mutate(); }} className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer focus:bg-red-50 focus:text-red-600">
                     Delete Post
                   </DropdownMenuItem>
                 ) : (
@@ -316,40 +399,50 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                       base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason })
                         .then(() => toast.success("Content reported to moderators."));
                     }
-                  }} className="hover:bg-white/10 cursor-pointer focus:bg-white/10">
+                  }} className="hover:bg-slate-100 cursor-pointer focus:bg-slate-100">
                     Report Post
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); repostMutation.mutate(); }} className="hover:bg-white/10 cursor-pointer focus:bg-white/10">
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); repostMutation.mutate(); }} className="hover:bg-slate-100 cursor-pointer focus:bg-slate-100">
                   Repost
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            {drop.reposts_count > 0 && <span className="text-white text-xs font-bold drop-shadow-md">{drop.reposts_count}</span>}
+            {drop.reposts_count > 0 && <span className="text-white text-[11px] sm:text-xs font-bold drop-shadow-md">{drop.reposts_count}</span>}
           </div>
         </div>
-
       </div>
 
-      {/* Verse & Reflection — always shown BELOW the image */}
+      {/* Verse & Reflection — BELOW the image, LIGHT with READ MORE */}
       {(drop.verse || drop.reflection) && (
-        <div className="px-4 pt-3 pb-1">
-          {drop.verse && <div className="font-bold text-[#00CFFF] text-sm mb-1">{drop.verse}</div>}
-          {drop.reflection && <p className="text-gray-200 text-sm leading-relaxed">{drop.reflection}</p>}
+        <div className="px-3 sm:px-4 pt-3 pb-1">
+          {drop.verse && (
+            <div className="font-bold text-sm mb-1" style={{ color: "#0B3FD9" }}>
+              {drop.verse}
+            </div>
+          )}
+          {drop.reflection && (
+            <ReadMoreText
+              text={drop.reflection}
+              lines={3}
+              className="text-sm leading-relaxed"
+              toggleColor="#0B3FD9"
+            />
+          )}
         </div>
       )}
 
       {/* Tags Row */}
       {(drop.hashtags || drop.category) && (
-        <div className="px-2 pt-3 pb-1">
+        <div className="px-2 sm:px-3 pt-2 sm:pt-3 pb-1">
           <div className="flex items-center gap-2 flex-wrap">
             {drop.category && (
-              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#8A5CFF]/20 to-[#00CFFF]/20 text-white text-[11px] font-bold border border-white/10 backdrop-blur-sm uppercase tracking-wider">
+              <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider" style={{ background: "linear-gradient(90deg, rgba(31,184,255,0.15), rgba(127,224,138,0.15))", color: "#0B3FD9", border: "1px solid #B8E5FF" }}>
                 {drop.category}
               </span>
             )}
             {drop.hashtags && (
-              <div className="text-[13px] text-[#00CFFF] font-medium opacity-90">
+              <div className="text-[13px] font-medium opacity-90" style={{ color: "#0B3FD9" }}>
                 {drop.hashtags.split(' ').map(t => t.startsWith('#') ? t : `#${t}`).join(' ')}
               </div>
             )}
@@ -357,74 +450,72 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         </div>
       )}
 
-      {/* Engagement Metrics */}
-      <div className="px-4 pt-4 pb-2 flex items-center gap-6 text-xs text-gray-400 border-t border-white/5">
-        <div className="flex items-center gap-1.5 hover:text-[#00CFFF] transition cursor-default">
+      {/* Engagement Metrics — LIGHT */}
+      <div className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 flex items-center gap-4 sm:gap-6 text-xs border-t flex-wrap" style={{ color: "#4A5878", borderColor: "#E0EAF5" }}>
+        <div className="flex items-center gap-1.5 transition cursor-default">
           <Heart className="w-4 h-4" fill="currentColor" />
           <span className="font-semibold">{drop.likes_count || 0}</span>
-          <span>Lights</span>
+          <span className="hidden sm:inline">Lights</span>
         </div>
-        <div className="flex items-center gap-1.5 hover:text-[#00CFFF] transition cursor-default">
+        <div className="flex items-center gap-1.5 transition cursor-default">
           <MessageCircle className="w-4 h-4" />
           <span className="font-semibold">{comments.length}</span>
-          <span>Comments</span>
+          <span className="hidden sm:inline">Comments</span>
         </div>
-        <div className="flex items-center gap-1.5 hover:text-[#00CFFF] transition cursor-default">
+        <div className="flex items-center gap-1.5 transition cursor-default">
           <Share2 className="w-4 h-4" />
           <span className="font-semibold">{drop.shares_count || 0}</span>
-          <span>Shares</span>
+          <span className="hidden sm:inline">Shares</span>
         </div>
         {drop.reposts_count > 0 && (
-          <div className="flex items-center gap-1.5 hover:text-[#FFD000] transition cursor-default ml-auto">
-            <span className="text-[#FFD000]">⚡</span>
-            <span className="font-semibold text-[#FFD000]">{drop.reposts_count}</span>
-            <span>Reposts</span>
+          <div className="flex items-center gap-1.5 transition cursor-default sm:ml-auto" style={{ color: "#FF9F1A" }}>
+            <span>⚡</span>
+            <span className="font-semibold">{drop.reposts_count}</span>
+            <span className="hidden sm:inline">Reposts</span>
           </div>
         )}
       </div>
 
-      {/* Comments Drawer/Section */}
+      {/* Comments Section — LIGHT */}
       {showComments && (
-        <div className="mt-3 px-3 py-4 bg-[#0B0F1A]/60 rounded-2xl border border-white/5 space-y-4 shadow-inner">
-          <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+        <div className="mt-3 px-3 py-4 rounded-2xl space-y-4" style={{ background: "#F0FAF3", border: "1px solid #E0EAF5" }}>
+          <div className="space-y-3 max-h-56 overflow-y-auto pr-2">
             {visibleComments.map(c => (
               <div key={c.id} className="flex gap-3 text-sm group/comment">
-                <div className="w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center shrink-0 font-bold text-[10px] uppercase text-white shadow-md">
+                <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 shadow-sm" style={{ background: "#E0EAF5" }}>
                   <img src={getCommentUser(c.user_email)?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full rounded-full object-cover" />
                 </div>
-                <div className="bg-[#121826]/80 backdrop-blur-md px-3.5 py-2.5 rounded-2xl rounded-tl-none border border-white/5 flex-1 shadow-sm relative">
+                <div className="px-3.5 py-2.5 rounded-2xl rounded-tl-none flex-1 shadow-sm relative" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5" }}>
                   <div className="flex justify-between items-start gap-2">
-                    <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.user_email)}`} className="font-bold text-[#00CFFF] text-xs block mb-1 no-underline hover:underline">{getCommentUser(c.user_email).full_name}</Link>
-                    
+                    <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.user_email)}`} className="font-bold text-xs block mb-1 no-underline hover:underline" style={{ color: "#0B3FD9" }}>{getCommentUser(c.user_email).full_name}</Link>
+
                     {user && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="opacity-0 group-hover/comment:opacity-100 transition-opacity text-gray-500 hover:text-white">
+                          <button className="opacity-0 group-hover/comment:opacity-100 transition-opacity" style={{ color: "#8A97B5" }}>
                             <MoreHorizontal className="w-4 h-4" />
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40 bg-[#121826] border-white/10 text-white">
+                        <DropdownMenuContent align="end" className="w-40 bg-white border text-[#0B1B3D]" style={{ borderColor: "#E0EAF5" }}>
                           {c.user_email === user.email && (
-                            <>
-                              <DropdownMenuItem onClick={() => { setEditingCommentId(c.id); setEditContent(c.content); }} className="hover:bg-white/10 cursor-pointer">
-                                Edit
-                              </DropdownMenuItem>
-                            </>
+                            <DropdownMenuItem onClick={() => { setEditingCommentId(c.id); setEditContent(c.content); }} className="hover:bg-slate-100 cursor-pointer">
+                              Edit
+                            </DropdownMenuItem>
                           )}
                           {(c.user_email === user.email || drop.user_email === user.email) && (
-                            <DropdownMenuItem onClick={() => deleteCommentMutation.mutate(c.id)} className="text-red-400 hover:bg-red-500/10 hover:text-red-400 cursor-pointer">
+                            <DropdownMenuItem onClick={() => deleteCommentMutation.mutate(c.id)} className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer">
                               Delete
                             </DropdownMenuItem>
                           )}
                           {c.user_email !== user.email && (
                             <>
-                              <DropdownMenuItem onClick={() => blockUserMutation.mutate(c.user_email)} className="hover:bg-white/10 cursor-pointer">
+                              <DropdownMenuItem onClick={() => blockUserMutation.mutate(c.user_email)} className="hover:bg-slate-100 cursor-pointer">
                                 Block User
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => {
                                 const reason = window.prompt("Why are you reporting this comment?");
                                 if (reason) reportCommentMutation.mutate({ commentId: c.id, reason });
-                              }} className="hover:bg-white/10 cursor-pointer">
+                              }} className="hover:bg-slate-100 cursor-pointer">
                                 Report
                               </DropdownMenuItem>
                             </>
@@ -436,34 +527,42 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
                   {editingCommentId === c.id ? (
                     <div className="mt-2 flex gap-2">
-                      <Input 
-                        value={editContent} 
-                        onChange={(e) => setEditContent(e.target.value)} 
-                        className="h-8 bg-[#0B0F1A] border-white/10 text-xs"
+                      <Input
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        className="h-8 text-xs"
+                        style={{ background: "#F0FAF3", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
                       />
-                      <Button size="sm" className="h-8 bg-[#00CFFF] text-black" onClick={() => updateCommentMutation.mutate({ id: c.id, content: editContent })}>Save</Button>
+                      <Button size="sm" className="h-8 font-bold" style={{ background: "#1FB8FF", color: "#FFFFFF" }} onClick={() => updateCommentMutation.mutate({ id: c.id, content: editContent })}>Save</Button>
                       <Button size="sm" variant="ghost" className="h-8" onClick={() => setEditingCommentId(null)}>Cancel</Button>
                     </div>
                   ) : (
-                    <span className="text-gray-200 leading-snug">{c.content}</span>
+                    <ReadMoreText
+                      text={c.content}
+                      lines={4}
+                      className="leading-snug"
+                      toggleColor="#0B3FD9"
+                    />
                   )}
                 </div>
               </div>
             ))}
-            {visibleComments.length === 0 && <div className="text-xs text-gray-500 italic text-center py-6">No comments yet. Ignite the conversation! 🔥</div>}
+            {visibleComments.length === 0 && <div className="text-xs italic text-center py-6" style={{ color: "#8A97B5" }}>No comments yet. Ignite the conversation! 🔥</div>}
           </div>
           <form onSubmit={submitComment} className="flex gap-2 relative mt-2">
-            <Input 
-              value={newComment} 
-              onChange={(e) => setNewComment(e.target.value)} 
-              placeholder="Add a comment..." 
-              className="bg-[#121826] border-white/10 text-white h-12 pl-4 pr-20 rounded-full text-sm focus-visible:ring-[#00CFFF]/50 shadow-inner"
+            <Input
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Add a comment..."
+              className="h-12 pl-4 pr-20 rounded-full text-sm focus-visible:ring-[#1FB8FF]/50"
+              style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
             />
-            <Button 
-              type="submit" 
-              disabled={!newComment.trim() || commentMutation.isPending} 
-              size="sm" 
-              className="absolute right-1 top-1 bottom-1 h-10 rounded-full bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black font-bold hover:opacity-90 px-4 transition-all"
+            <Button
+              type="submit"
+              disabled={!newComment.trim() || commentMutation.isPending}
+              size="sm"
+              className="absolute right-1 top-1 bottom-1 h-10 rounded-full font-bold hover:opacity-90 px-4 transition-all"
+              style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF" }}
             >
               Post
             </Button>
