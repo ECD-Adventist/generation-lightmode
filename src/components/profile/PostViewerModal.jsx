@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronUp, ChevronDown } from "lucide-react";
 import DropCard from "@/components/feed/DropCard";
 
 export default function PostViewerModal({
@@ -9,27 +9,27 @@ export default function PostViewerModal({
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(null);
+  const [animDir, setAnimDir] = useState(null);
 
   useEffect(() => {
     if (isOpen && initialDropId && drops.length > 0) {
       const idx = drops.findIndex(d => d.id === initialDropId);
       setCurrentIndex(idx >= 0 ? idx : 0);
+      setAnimDir(null);
     }
   }, [isOpen, initialDropId, drops]);
 
-  // Keyboard navigation
   useEffect(() => {
     if (!isOpen) return;
     const handleKey = (e) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowUp") goToPrev();
-      if (e.key === "ArrowDown") goToNext();
+      if (e.key === "ArrowUp") { e.preventDefault(); goToPrev(); }
+      if (e.key === "ArrowDown") { e.preventDefault(); goToNext(); }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [isOpen, currentIndex, drops.length]);
 
-  // Lock body scroll
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -38,14 +38,19 @@ export default function PostViewerModal({
   }, [isOpen]);
 
   const goToPrev = useCallback(() => {
-    setCurrentIndex(i => (i > 0 ? i - 1 : i));
+    setCurrentIndex(i => {
+      if (i > 0) { setAnimDir("up"); return i - 1; }
+      return i;
+    });
   }, []);
 
   const goToNext = useCallback(() => {
-    setCurrentIndex(i => (i < drops.length - 1 ? i + 1 : i));
+    setCurrentIndex(i => {
+      if (i < drops.length - 1) { setAnimDir("down"); return i + 1; }
+      return i;
+    });
   }, [drops.length]);
 
-  // Swipe handling
   const handleTouchStart = (e) => setTouchStart(e.touches[0].clientY);
   const handleTouchEnd = (e) => {
     if (touchStart === null) return;
@@ -56,6 +61,14 @@ export default function PostViewerModal({
     }
     setTouchStart(null);
   };
+
+  // Clear animation class after transition
+  useEffect(() => {
+    if (animDir) {
+      const t = setTimeout(() => setAnimDir(null), 300);
+      return () => clearTimeout(t);
+    }
+  }, [animDir, currentIndex]);
 
   if (!isOpen || drops.length === 0) return null;
 
@@ -72,54 +85,85 @@ export default function PostViewerModal({
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center"
-      style={{ background: "rgba(11, 27, 61, 0.6)", backdropFilter: "blur(10px)" }}
       onClick={onClose}
     >
-      {/* Close button */}
+      <style>{`
+        @keyframes modal-slide-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes modal-slide-down { from { opacity: 0; transform: translateY(-24px); } to { opacity: 1; transform: translateY(0); } }
+        .post-slide-up { animation: modal-slide-up 0.28s ease-out; }
+        .post-slide-down { animation: modal-slide-down 0.28s ease-out; }
+      `}</style>
+
+      {/* Backdrop */}
+      <div className="absolute inset-0" style={{ background: "rgba(0, 0, 0, 0.65)", backdropFilter: "blur(20px) saturate(1.2)" }} />
+
+      {/* Close */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full flex items-center justify-center transition"
-        style={{ background: "rgba(255,255,255,0.9)", border: "1px solid #E6ECF5", color: "#4A5878" }}
+        className="absolute top-5 right-5 z-50 w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
+        style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(8px)", color: "#fff" }}
       >
-        <X className="w-5 h-5" />
+        <X className="w-4 h-4" />
       </button>
 
-      {/* Post counter */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-1.5 rounded-full text-xs font-bold" style={{ background: "rgba(255,255,255,0.9)", color: "#4A5878", border: "1px solid #E6ECF5" }}>
-        {currentIndex + 1} / {drops.length}
+      {/* Counter pill */}
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 z-50 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-wider"
+        style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", color: "rgba(255,255,255,0.8)" }}>
+        {currentIndex + 1} of {drops.length}
       </div>
 
-      {/* Prev arrow (desktop) - top */}
+      {/* Vertical nav arrows */}
       {currentIndex > 0 && (
         <button
           onClick={(e) => { e.stopPropagation(); goToPrev(); }}
-          className="absolute top-16 left-1/2 -translate-x-1/2 z-50 w-10 h-10 rounded-full hidden md:flex items-center justify-center transition"
-          style={{ background: "rgba(255,255,255,0.9)", border: "1px solid #E6ECF5", color: "#0B3FD9" }}
+          className="absolute top-16 left-1/2 -translate-x-1/2 z-50 w-8 h-8 rounded-full hidden md:flex items-center justify-center transition-all hover:scale-110"
+          style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", color: "rgba(255,255,255,0.7)" }}
         >
-          <ChevronLeft className="w-5 h-5 rotate-90" />
+          <ChevronUp className="w-4 h-4" />
         </button>
       )}
-
-      {/* Next arrow (desktop) - bottom */}
       {currentIndex < drops.length - 1 && (
         <button
           onClick={(e) => { e.stopPropagation(); goToNext(); }}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 w-10 h-10 rounded-full hidden md:flex items-center justify-center transition"
-          style={{ background: "rgba(255,255,255,0.9)", border: "1px solid #E6ECF5", color: "#0B3FD9" }}
+          className="absolute bottom-5 left-1/2 -translate-x-1/2 z-50 w-8 h-8 rounded-full hidden md:flex items-center justify-center transition-all hover:scale-110"
+          style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", color: "rgba(255,255,255,0.7)" }}
         >
-          <ChevronRight className="w-5 h-5 rotate-90" />
+          <ChevronDown className="w-4 h-4" />
         </button>
       )}
 
-      {/* Card container */}
+      {/* Vertical dot rail */}
+      {drops.length > 1 && drops.length <= 20 && (
+        <div className="absolute right-5 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-1">
+          {drops.map((_, i) => (
+            <button
+              key={i}
+              onClick={(e) => { e.stopPropagation(); setCurrentIndex(i); }}
+              className="rounded-full transition-all duration-300"
+              style={{
+                width: 5,
+                height: i === currentIndex ? 18 : 5,
+                background: i === currentIndex ? "#fff" : "rgba(255,255,255,0.3)",
+                cursor: "pointer",
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Card */}
       <div
-        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4 rounded-3xl relative"
-        style={{ background: "#F6F8FC" }}
+        className={`relative w-full max-w-xl mx-4 rounded-2xl overflow-hidden ${animDir === "up" ? "post-slide-up" : animDir === "down" ? "post-slide-down" : ""}`}
+        style={{
+          maxHeight: "88vh",
+          background: "#FFFFFF",
+          boxShadow: "0 25px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)",
+        }}
         onClick={(e) => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="p-2 sm:p-4">
+        <div className="overflow-y-auto" style={{ maxHeight: "88vh" }}>
           <DropCard
             drop={drop}
             user={currentUser}
@@ -131,23 +175,6 @@ export default function PostViewerModal({
             allUsers={allUsers || []}
           />
         </div>
-
-        {/* Dot indicators - vertical on right side */}
-        {drops.length > 1 && (
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1.5">
-            {drops.map((_, i) => (
-              <div
-                key={i}
-                className="rounded-full transition-all"
-                style={{
-                  width: 6,
-                  height: i === currentIndex ? 20 : 6,
-                  background: i === currentIndex ? "#0B3FD9" : "#D6E4FF",
-                }}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
