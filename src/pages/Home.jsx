@@ -12,23 +12,23 @@ import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 const galleryImages1 = [
-  "https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=2069&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070&auto=format&fit=crop",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/5b3a8e4c8_4V5A9468.jpg",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/fc3d2e731_african-american-male-friends-standing-park-discussing-bible.jpg",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/8a30f4210_happy-friends-taking-selfiecopy.jpg",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/17ae95dc7_4V5A9500.jpg",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/ddacb4356_parenting-content-creator.jpg",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/07319cc86_medium-shot-community-members.jpg",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/389dfd11b_group-people-are-sitting-ground-one-them-reads-book.jpg",
 ];
 
 const galleryImages2 = [
-  "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=2049&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1506869640319-ce1a5e18ef4b?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=2070&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?q=80&w=2070&auto=format&fit=crop",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b006b5af7_4V5A9524.jpg",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/3474ac78b_business-people-having-online-meeting.jpg",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b4718684c_medium-shot-man-holding-device.jpg",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/91aa7eed5_4V5A9625.jpg",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/a37f93fdb_close-up-smartphone-recording-vlog-african-influencer-home-studio-using-smartphone-speaking-livestreaming-blogger-discussing-podcast-wearing-headphones-professional-microphone.jpg",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/1d96a9c18_medium-shot-students-reading-together.jpg",
+  "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/cd297c245_4V5A9685.jpg",
 ];
 
 function ScrollingGallery({ images, direction = "left", speed = "160s" }) {

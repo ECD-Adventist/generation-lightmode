@@ -104,7 +104,7 @@ export default function About() {
           <div style={{ position: "relative", minHeight: 500 }}>
             <div style={{ position: "absolute", inset: 0, borderRadius: 30, overflow: "hidden", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 0 40px rgba(0,207,255,0.12)" }}>
               <img
-                src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80"
+                src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/389dfd11b_group-people-are-sitting-ground-one-them-reads-book.jpg"
                 alt="Young believers together"
                 loading="lazy"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}

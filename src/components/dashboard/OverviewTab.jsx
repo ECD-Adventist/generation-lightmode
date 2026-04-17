@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Trophy, Award, MapPin, PlusCircle, Target, MessageSquare, ListOrdered, Share2, Bookmark, Heart, MessageCircle, ChevronRight, Zap, Bell, Sparkles, Globe } from "lucide-react";
+import { Trophy, Award, MapPin, PlusCircle, Target, MessageSquare, ListOrdered, Share2, Bookmark, Heart, MessageCircle, ChevronRight, Zap, Bell, Sparkles, Globe, Image } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import SubmitDropModal from "../feed/SubmitDropModal";
 import LevelProgressCard from "./LevelProgressCard";
 import StreakSummaryCard from "./StreakSummaryCard";
+import ShareProgressModal from "./ShareProgressModal";
 
 export default function OverviewTab({ user }) {
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   // Queries for dashboard data
   const { data: glowDrops = [] } = useQuery({
@@ -77,6 +79,7 @@ export default function OverviewTab({ user }) {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
       <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
+      <ShareProgressModal isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} user={user} />
 
       {/* TOP: USER OVERVIEW & STREAK */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -139,12 +142,12 @@ export default function OverviewTab({ user }) {
           </div>
           <span className="font-bold text-sm">AI Assistant</span>
         </Link>
-        <Link to={createPageUrl("Dashboard")+"?tab=leaderboard"} className="bg-[#1DA1FF]/10 border border-[#1DA1FF]/30 hover:bg-[#1DA1FF]/20 hover:scale-[1.02] transition-all p-4 rounded-2xl flex flex-col items-center justify-center gap-3 text-[#1DA1FF] group">
+        <button onClick={() => setIsShareOpen(true)} className="bg-[#1DA1FF]/10 border border-[#1DA1FF]/30 hover:bg-[#1DA1FF]/20 hover:scale-[1.02] transition-all p-4 rounded-2xl flex flex-col items-center justify-center gap-3 text-[#1DA1FF] group">
           <div className="w-12 h-12 rounded-full bg-[#1DA1FF]/20 flex items-center justify-center group-hover:bg-[#1DA1FF]/30 transition-colors">
-            <ListOrdered size={24} />
+            <Image size={24} />
           </div>
-          <span className="font-bold text-sm">Leaderboard</span>
-        </Link>
+          <span className="font-bold text-sm">Share Progress</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
