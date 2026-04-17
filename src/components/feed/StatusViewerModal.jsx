@@ -192,7 +192,9 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
 
         {/* Content */}
         {currentStory.story_type === "image" && currentStory.media_url ? (
-          <img src={currentStory.media_url} alt="Story" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 flex items-center justify-center bg-black">
+            <img src={currentStory.media_url} alt="Story" className="w-full h-full object-contain" />
+          </div>
         ) : (
           <div className={`absolute inset-0 bg-gradient-to-br ${themeClasses[currentStory.background_theme] || themeClasses.ocean} flex items-center justify-center p-10`}>
             <p className="text-white text-2xl sm:text-3xl font-black leading-relaxed text-center break-words drop-shadow-lg" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
