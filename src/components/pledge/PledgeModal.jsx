@@ -11,7 +11,7 @@ const pledgeItems = [
   ["IGNITE OTHERS", "Encourage fellow believers and guide seekers to the Light."],
 ];
 
-export default function PledgeModal({ isOpen, onClose, onSigned }) {
+export default function PledgeModal({ isOpen, onClose, onSigned, readOnly = false, signedAt = null }) {
   const [signing, setSigning] = useState(false);
   const [agreed, setAgreed] = useState(false);
 
@@ -73,10 +73,12 @@ export default function PledgeModal({ isOpen, onClose, onSigned }) {
         <div style={{ textAlign: "center", marginBottom: 22 }}>
           <div style={{ fontSize: 42, marginBottom: 10, filter: "drop-shadow(0 0 14px rgba(255,208,0,0.5))" }}>✋</div>
           <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 26, color: "#FFFFFF", marginBottom: 8, letterSpacing: "-0.02em" }}>
-            The LightMode <span style={{ background: "linear-gradient(90deg, #FFD000, #00CFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Pledge</span>
+            {readOnly ? "Your " : "The LightMode "}<span style={{ background: "linear-gradient(90deg, #FFD000, #00CFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{readOnly ? "Signed Pledge" : "Pledge"}</span>
           </h2>
           <p style={{ color: "#8A9BB0", fontSize: 13, fontFamily: "Inter, sans-serif" }}>
-            Before entering the movement, take a moment to commit.
+            {readOnly
+              ? (signedAt ? `Signed on ${new Date(signedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}` : "Your commitment to the movement.")
+              : "Before entering the movement, take a moment to commit."}
           </p>
         </div>
 
@@ -99,37 +101,62 @@ export default function PledgeModal({ isOpen, onClose, onSigned }) {
           </p>
         </div>
 
-        <label style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 18, cursor: "pointer", padding: 12, background: "rgba(0,207,255,0.04)", border: "1px solid rgba(0,207,255,0.15)", borderRadius: 12 }}>
-          <input
-            type="checkbox"
-            checked={agreed}
-            onChange={e => setAgreed(e.target.checked)}
-            style={{ marginTop: 2, accentColor: "#00CFFF", width: 16, height: 16, cursor: "pointer" }}
-          />
-          <span style={{ color: "#E0E8F0", fontSize: 13, fontFamily: "Inter, sans-serif", lineHeight: 1.5 }}>
-            I commit to this pledge and choose to join Generation LightMode with an always-on faith.
-          </span>
-        </label>
+        {readOnly ? (
+          <>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: 14, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.3)", borderRadius: 12, marginBottom: 14 }}>
+              <Check size={18} color="#FFD000" style={{ flexShrink: 0 }} />
+              <span style={{ color: "#FFD000", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600 }}>
+                You have signed this pledge. Your faith is always on. ⚡
+              </span>
+            </div>
+            <button
+              onClick={onClose}
+              style={{
+                width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+                background: "rgba(255,255,255,0.06)", color: "#E0E8F0",
+                fontFamily: "Space Grotesk, sans-serif", fontWeight: 700,
+                fontSize: 14, padding: "13px 28px", borderRadius: 999,
+                border: "1px solid rgba(255,255,255,0.1)", cursor: "pointer",
+              }}
+            >
+              Close
+            </button>
+          </>
+        ) : (
+          <>
+            <label style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 18, cursor: "pointer", padding: 12, background: "rgba(0,207,255,0.04)", border: "1px solid rgba(0,207,255,0.15)", borderRadius: 12 }}>
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={e => setAgreed(e.target.checked)}
+                style={{ marginTop: 2, accentColor: "#00CFFF", width: 16, height: 16, cursor: "pointer" }}
+              />
+              <span style={{ color: "#E0E8F0", fontSize: 13, fontFamily: "Inter, sans-serif", lineHeight: 1.5 }}>
+                I commit to this pledge and choose to join Generation LightMode with an always-on faith.
+              </span>
+            </label>
 
-        <button
-          onClick={handleSign}
-          disabled={signing || !agreed}
-          style={{
-            width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
-            background: agreed ? "linear-gradient(135deg, #FFD000, #FFA500)" : "rgba(255,255,255,0.06)",
-            color: agreed ? "#0B0F1A" : "#6A7585",
-            fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
-            fontSize: 15, padding: "14px 28px", borderRadius: 999,
-            border: "none", cursor: agreed && !signing ? "pointer" : "not-allowed",
-            boxShadow: agreed ? "0 0 30px rgba(255,208,0,0.4)" : "none",
-            transition: "all 0.3s",
-          }}
-        >
-          {signing ? "Signing..." : <><Check size={16} /> I Sign This Pledge <Zap size={16} /></>}
-        </button>
-        <p style={{ color: "#4A5568", fontSize: 11, marginTop: 12, fontFamily: "Inter, sans-serif", textAlign: "center" }}>
-          Free to join. Your pledge unlocks access to the movement.
-        </p>
+            <button
+              onClick={handleSign}
+              disabled={signing || !agreed}
+              style={{
+                width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+                background: agreed ? "linear-gradient(135deg, #FFD000, #FFA500)" : "rgba(255,255,255,0.06)",
+                color: agreed ? "#0B0F1A" : "#6A7585",
+                fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
+                fontSize: 15, padding: "14px 28px", borderRadius: 999,
+                border: "none", cursor: agreed && !signing ? "pointer" : "not-allowed",
+                boxShadow: agreed ? "0 0 30px rgba(255,208,0,0.4)" : "none",
+                transition: "all 0.3s",
+              }}
+            >
+              {signing ? "Signing..." : <><Check size={16} /> I Sign This Pledge <Zap size={16} /></>}
+            </button>
+            <p style={{ color: "#4A5568", fontSize: 11, marginTop: 12, fontFamily: "Inter, sans-serif", textAlign: "center" }}>
+              Free to join. Your pledge unlocks access to the movement.
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
