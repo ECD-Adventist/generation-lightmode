@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight, Home, Bell, User, Video, Loader2 } from "lucide-react";
+import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight, Home, Bell, User, Video, Loader2, MessageCircle } from "lucide-react";
 import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
+import GroupChatPanel from "@/components/groups/GroupChatPanel";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +15,7 @@ export default function GlowGroups() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("people"); // "people" | "groups" | "leaders"
   const [authChecked, setAuthChecked] = useState(false);
+  const [openChatGroup, setOpenChatGroup] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -276,10 +278,23 @@ export default function GlowGroups() {
               </div>
             )}
 
+            {/* Inline Chat Panel */}
+            {openChatGroup && (
+              <div className="mb-4">
+                <GroupChatPanel
+                  group={openChatGroup}
+                  user={user}
+                  allUsers={users}
+                  onClose={() => setOpenChatGroup(null)}
+                />
+              </div>
+            )}
+
             {filteredGroups.map(group => {
               const isMember = myMemberships.some(m => m.group_id === group.id);
+              const isActiveChat = openChatGroup?.id === group.id;
               return (
-                <div key={group.id} className="flex items-center gap-4 bg-[#121826] border border-white/5 rounded-2xl p-4 hover:border-[#8A5CFF]/40 transition-all">
+                <div key={group.id} className={`flex items-center gap-4 bg-[#121826] border rounded-2xl p-4 transition-all ${isActiveChat ? "border-[#00CFFF]/40 shadow-[0_0_20px_rgba(0,207,255,0.1)]" : "border-white/5 hover:border-[#8A5CFF]/40"}`}>
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#8A5CFF]/30 to-[#00CFFF]/20 flex items-center justify-center text-2xl shrink-0 border border-white/10">
                     ✨
                   </div>
@@ -292,16 +307,32 @@ export default function GlowGroups() {
                       <div className="text-xs text-gray-400 mt-1 line-clamp-1">{group.description}</div>
                     )}
                   </div>
-                  <button
-                    onClick={() => joinMutation.mutate(group.id)}
-                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0 ${
-                      isMember
-                        ? "bg-white/10 text-gray-300 hover:bg-red-500/20 hover:text-red-400"
-                        : "bg-[#8A5CFF] text-white hover:bg-[#7a4de6]"
-                    }`}
-                  >
-                    {isMember ? "Leave" : "Join"}
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {isMember && (
+                      <button
+                        onClick={() => setOpenChatGroup(isActiveChat ? null : group)}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all ${
+                          isActiveChat
+                            ? "bg-[#00CFFF]/20 text-[#00CFFF] border border-[#00CFFF]/30"
+                            : "bg-white/5 text-gray-400 hover:text-[#00CFFF] hover:bg-[#00CFFF]/10 border border-white/10"
+                        }`}
+                        title="Open group chat"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Chat</span>
+                      </button>
+                    )}
+                    <button
+                      onClick={() => joinMutation.mutate(group.id)}
+                      className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
+                        isMember
+                          ? "bg-white/10 text-gray-300 hover:bg-red-500/20 hover:text-red-400"
+                          : "bg-[#8A5CFF] text-white hover:bg-[#7a4de6]"
+                      }`}
+                    >
+                      {isMember ? "Leave" : "Join"}
+                    </button>
+                  </div>
                 </div>
               );
             })}
