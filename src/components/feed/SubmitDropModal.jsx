@@ -26,6 +26,26 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({ verse: "", reflection: "", hashtags: "#FaithAlwaysOn", category: "Devotional" });
+  const [titleLoading, setTitleLoading] = useState(false);
+
+  const handleAutoTitle = async () => {
+    if (!formData.reflection || formData.reflection.length < 10) return;
+    setTitleLoading(true);
+    try {
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt: `Generate an engaging, short Bible verse reference title for a Christian social media post. The user's reflection is: "${formData.reflection}". Find the most relevant Bible verse that matches this reflection. Return JSON: {"verse": "Book Chapter:Verse — 'Quote text'"}. Keep it concise and powerful.`,
+        response_json_schema: { type: "object", properties: { verse: { type: "string" } } }
+      });
+      if (res.verse) {
+        setFormData(prev => ({ ...prev, verse: res.verse }));
+        toast.success("AI generated a title for your post!");
+      }
+    } catch {
+      toast.error("Could not generate title. Try again.");
+    } finally {
+      setTitleLoading(false);
+    }
+  };
 
   const { data: dailyCodes = [] } = useQuery({
     queryKey: ["dailyCodesLatest"],
@@ -275,7 +295,21 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5 block ml-1">Reflection / Testimony</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Reflection / Testimony</label>
+                {formData.reflection && formData.reflection.length > 10 && (
+                  <button
+                    type="button"
+                    disabled={titleLoading}
+                    onClick={handleAutoTitle}
+                    className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-lg transition-all hover:opacity-80"
+                    style={{ background: "rgba(138,92,255,0.15)", color: "#8A5CFF", border: "1px solid rgba(138,92,255,0.3)" }}
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    {titleLoading ? "Generating..." : "AI Title"}
+                  </button>
+                )}
+              </div>
               <Textarea
                 placeholder="Share what's on your heart..."
                 value={formData.reflection}

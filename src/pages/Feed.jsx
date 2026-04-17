@@ -14,6 +14,7 @@ import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import DailyChallenges from "@/components/feed/DailyChallenges";
 // DailyCodeWidget removed - moved to Settings
 import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
+import AIContentSuggestions from "@/components/feed/AIContentSuggestions";
 import { isNotificationEnabled } from "@/lib/notifications";
 import StatusComposerModal from "@/components/feed/StatusComposerModal";
 import StatusViewerModal from "@/components/feed/StatusViewerModal";
@@ -385,7 +386,7 @@ export default function Feed() {
            {/* Logo — BLUE */}
            <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
              <img
-               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png"
+               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png"
                alt="LightMode"
                style={{ height: 112, width: "auto", objectFit: "contain" }}
              />
@@ -491,7 +492,7 @@ export default function Feed() {
               <Menu className="w-6 h-6" />
             </button>
             <img
-              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png"
+              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png"
               alt="Generation LightMode"
               className="h-20 object-contain"
             />
@@ -678,25 +679,40 @@ export default function Feed() {
           
           <DailyChallenges user={user} />
 
-          {/* Trending Vibes — LIGHT BLUE */}
-          <div className="rounded-[24px] p-5 mb-6" style={{ background: "linear-gradient(135deg, #EEF4FF 0%, #E0ECFF 100%)", border: "1px solid #D6E4FF", boxShadow: "0 4px 16px rgba(30, 90, 255, 0.08)" }}>
-            <h3 className="font-black text-xs mb-4 tracking-widest uppercase" style={{ color: "#1E5AFF" }}>Trending Vibes</h3>
+          <AIContentSuggestions
+            user={user}
+            drops={drops}
+            following={following}
+            onSearchTag={(topic) => { setSearchQuery(topic); setActiveFilter("All"); }}
+          />
+
+          {/* Trending Vibes — PREMIUM GLASS */}
+          <div className="rounded-[24px] p-5 mb-6 relative overflow-hidden" style={{ background: "linear-gradient(145deg, #FFFFFF 0%, #F4F7FE 100%)", border: "1px solid #E2EAFC", boxShadow: "0 8px 32px rgba(30, 90, 255, 0.08), 0 2px 4px rgba(0,0,0,0.02)" }}>
+            <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-30 pointer-events-none" style={{ background: "radial-gradient(circle, #5AC8FF, transparent)" }} />
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1.5 h-5 rounded-full" style={{ background: "linear-gradient(180deg, #1E5AFF, #5AC8FF)" }} />
+              <h3 className="font-black text-xs tracking-widest uppercase" style={{ color: "#1E5AFF" }}>Trending Vibes</h3>
+            </div>
             
-            <div className="space-y-4">
+            <div className="space-y-1">
               {trendingTopics.length === 0 ? (
                 <p className="text-xs" style={{ color: "#8A97B5" }}>No live hashtags yet.</p>
-              ) : trendingTopics.map((topic) => (
+              ) : trendingTopics.map((topic, idx) => (
                 <button
                   key={topic.tag}
                   onClick={() => { setSearchQuery(topic.tag); setActiveFilter("All"); }}
-                  className="group text-left w-full"
+                  className="group text-left w-full rounded-xl px-3 py-3 transition-all hover:bg-[#EEF3FF]"
                 >
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#8A97B5" }}>Live hashtag</span>
-                    <MoreHorizontal className="w-3 h-3" style={{ color: "#8A97B5" }} />
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0" style={{ background: idx === 0 ? "linear-gradient(135deg, #1E5AFF, #5AC8FF)" : "linear-gradient(135deg, #E2EAFC, #F0F4FF)", color: idx === 0 ? "#FFFFFF" : "#1E5AFF" }}>
+                      {idx + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-sm transition truncate" style={{ color: "#0B1B3D" }}>{topic.tag}</h4>
+                      <p className="text-[10px] mt-0.5" style={{ color: "#8A97B5" }}>{topic.count} drop{topic.count === 1 ? '' : 's'}</p>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#1E5AFF" }} />
                   </div>
-                  <h4 className="font-bold text-sm transition" style={{ color: "#0B1B3D" }}>{topic.tag}</h4>
-                  <p className="text-[10px] mt-0.5" style={{ color: "#6B7FA0" }}>{topic.count} drop{topic.count === 1 ? '' : 's'}</p>
                 </button>
               ))}
             </div>
@@ -764,7 +780,7 @@ export default function Feed() {
             <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(10, 26, 61, 0.4)" }} onClick={() => setIsMobileNavOpen(false)} />
             <div className="absolute left-0 top-0 bottom-0 w-72 border-r flex flex-col py-8 px-6 overflow-y-auto" style={{ background: "#FFFFFF", borderColor: "#E0EAF5" }}>
               <Link to={createPageUrl("Home")} className="flex items-center mb-10">
-                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 112, width: "auto", objectFit: "contain" }} />
+                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 112, width: "auto", objectFit: "contain" }} />
               </Link>
               <nav className="flex flex-col gap-1 flex-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mb-1.5" style={{ color: "#8A97B5" }}>Main</p>

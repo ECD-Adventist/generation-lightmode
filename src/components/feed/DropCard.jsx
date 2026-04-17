@@ -237,7 +237,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             ? 'aspect-[4/5] sm:aspect-[3/4]'
             : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center'
         }`}
-        style={{ background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(135deg, #EEF4FF 0%, #E0ECFF 60%, #D6E4FF 100%)" }}
+        style={{ background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" }}
         onDoubleClick={() => {
           setLikeBurst(true);
           setTimeout(() => setLikeBurst(false), 600);
@@ -305,20 +305,31 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="w-full h-full object-cover" loading="lazy" />
         )}
 
-        {/* Text Content (if no media) — SOFT BLUE */}
+        {/* Text Content (if no media) — PREMIUM SOFT BLUE with decorative elements */}
         {!drop.media_url && (
-          <div className="p-5 sm:p-8 pr-16 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center">
-            {drop.verse && (
-              <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text mb-4 sm:mb-6 leading-tight" style={{ backgroundImage: "linear-gradient(90deg, #0B3FD9 0%, #1E5AFF 100%)" }}>
-                {drop.verse}
-              </h2>
-            )}
-            {drop.reflection && (
-              <p className="text-base sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md" style={{ color: "#3A4A6B" }}>
-                "{drop.reflection.length > 180 ? drop.reflection.slice(0, 180) + '…' : drop.reflection}"
-              </p>
-            )}
-          </div>
+          <>
+            {/* Decorative background elements */}
+            <div className="absolute top-4 left-4 w-20 h-20 rounded-full blur-2xl opacity-20 pointer-events-none" style={{ background: "#5AC8FF" }} />
+            <div className="absolute bottom-8 right-16 w-32 h-32 rounded-full blur-3xl opacity-15 pointer-events-none" style={{ background: "#1E5AFF" }} />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[60px] opacity-10 pointer-events-none" style={{ background: "radial-gradient(circle, #FFD60A, transparent)" }} />
+            {/* Subtle quote mark decoration */}
+            <div className="absolute top-6 left-6 text-[80px] sm:text-[120px] leading-none font-serif pointer-events-none select-none z-0" style={{ color: "rgba(30, 90, 255, 0.06)" }}>"</div>
+            
+            <div className="p-5 sm:p-8 pr-16 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center">
+              {drop.verse && (
+                <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold font-['Space_Grotesk'] mb-4 sm:mb-6 leading-tight" style={{ color: "#0B3FD9" }}>
+                  {drop.verse}
+                </h2>
+              )}
+              {drop.reflection && (
+                <p className="text-base sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic" style={{ color: "#3A4A6B" }}>
+                  "{drop.reflection.length > 180 ? drop.reflection.slice(0, 180) + '…' : drop.reflection}"
+                </p>
+              )}
+              {/* Subtle bottom accent line */}
+              <div className="mt-6 w-16 h-1 rounded-full" style={{ background: "linear-gradient(90deg, #1E5AFF, #5AC8FF)" }} />
+            </div>
+          </>
         )}
 
         {/* Double-tap floating heart */}
