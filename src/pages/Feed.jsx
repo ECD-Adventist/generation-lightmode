@@ -26,14 +26,14 @@ function SidebarLink({ to, icon, label, active, badge, accent }) {
       to={to}
       className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
         active
-          ? "bg-[#00CFFF]/10 text-[#00CFFF] border border-[#00CFFF]/20"
+          ? "bg-[#0088FF]/20 text-[#0088FF] border border-[#0088FF]/30"
           : accent
-          ? "text-[#8A5CFF] hover:bg-[#8A5CFF]/10 hover:text-[#8A5CFF]"
-          : "text-gray-400 hover:bg-white/5 hover:text-white"
+          ? "text-[#0088FF] hover:bg-[#0088FF]/10 hover:text-[#0088FF]"
+          : "text-[#4a6b6b] hover:bg-white/10 hover:text-[#1a2c2c]"
       }`}
     >
       <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition ${
-        active ? "bg-[#00CFFF]/15" : accent ? "bg-[#8A5CFF]/10 group-hover:bg-[#8A5CFF]/15" : "bg-[#1a2235] group-hover:bg-white/5"
+        active ? "bg-[#0088FF]/20" : accent ? "bg-[#0088FF]/10 group-hover:bg-[#0088FF]/15" : "bg-white/10 group-hover:bg-white/20"
       }`}>
         {icon}
       </div>
@@ -346,14 +346,14 @@ export default function Feed() {
   // Show loading while auth is being checked
   if (!user) {
     return (
-      <div className="h-[100dvh] bg-[#0B0F1A] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" />
+      <div className="h-[100dvh] bg-gradient-to-br from-[#A8F5E6] via-[#D4F8B0] to-[#FFF9C4] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[#00A8A8] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="h-[100dvh] bg-[#0B0F1A] text-white relative overflow-hidden font-['Inter']">
+    <div className="h-[100dvh] bg-gradient-to-br from-[#A8F5E6] via-[#D4F8B0] to-[#FFF9C4] text-[#1a2c2c] relative overflow-hidden font-['Inter']">
       <OnboardingModal
         isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth || !user.city || !user.address || !user.postal_code)}
         onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
@@ -379,10 +379,10 @@ export default function Feed() {
       <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] bg-[#00CFFF] rounded-full blur-[120px] z-0 opacity-[0.08] pointer-events-none animate-[float-light_8s_ease-in-out_infinite]"></div>
       <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] bg-[#00CFFF] rounded-full blur-[140px] z-0 opacity-[0.06] pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]"></div>
 
-      <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 bg-[#0B0F1A]/70 backdrop-blur-[2px]">
+      <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 bg-transparent backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
-        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r border-white/5 bg-[#080C14]/80 backdrop-blur-md overflow-y-auto hide-scrollbar">
+        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r border-[#0088FF]/10 bg-white/40 backdrop-blur-md overflow-y-auto hide-scrollbar">
            {/* Logo */}
            <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
              <img
@@ -395,7 +395,7 @@ export default function Feed() {
            {/* Main Nav */}
            <nav className="flex flex-col gap-1 flex-1">
              {/* Section: Main */}
-             <p className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-600 px-3 mb-1">Main</p>
+             <p className="text-[9px] font-black uppercase tracking-[0.15em] text-[#00A8A8]/60 px-3 mb-1">Main</p>
 
              <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
              <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
@@ -409,24 +409,24 @@ export default function Feed() {
              } label="Profile" />
 
              {/* Section: Tools */}
-             <p className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-600 px-3 mt-4 mb-1">Tools</p>
+             <p className="text-[9px] font-black uppercase tracking-[0.15em] text-[#00A8A8]/60 px-3 mt-4 mb-1">Tools</p>
 
              <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
 
              {/* Resources dropdown */}
              <button
                onClick={() => setIsResourcesOpen(v => !v)}
-               className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all duration-200 w-full text-left"
+               className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#4a6b6b] hover:bg-white/20 hover:text-[#1a2c2c] transition-all duration-200 w-full text-left"
              >
-               <div className="w-8 h-8 rounded-lg bg-[#1a2235] flex items-center justify-center shrink-0 group-hover:bg-[#00CFFF]/10 transition text-sm">📚</div>
+               <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#0088FF]/20 transition text-sm">📚</div>
                <span className="text-sm font-semibold flex-1">Resources</span>
-               <ChevronRight className={`w-3.5 h-3.5 text-gray-600 transition-transform ${isResourcesOpen ? "rotate-90" : ""}`} />
+               <ChevronRight className={`w-3.5 h-3.5 text-[#00A8A8]/50 transition-transform ${isResourcesOpen ? "rotate-90" : ""}`} />
              </button>
              {isResourcesOpen && (
-               <div className="flex flex-col gap-0.5 ml-3 pl-3 border-l border-white/5">
-                 <Link to={createPageUrl("KeepIt100")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><span>💯</span> Keep It 100</Link>
-                 <Link to={createPageUrl("CodesOfTruth")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><span>🔐</span> Codes of Truth</Link>
-                 <Link to={createPageUrl("Resources")} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><span>🌍</span> Other Resources</Link>
+               <div className="flex flex-col gap-0.5 ml-3 pl-3 border-l border-[#0088FF]/10">
+                 <Link to={createPageUrl("KeepIt100")} className="flex items-center gap-2.5 text-xs font-semibold text-[#4a6b6b] hover:text-[#1a2c2c] hover:bg-white/20 px-3 py-2 rounded-lg transition"><span>💯</span> Keep It 100</Link>
+                 <Link to={createPageUrl("CodesOfTruth")} className="flex items-center gap-2.5 text-xs font-semibold text-[#4a6b6b] hover:text-[#1a2c2c] hover:bg-white/20 px-3 py-2 rounded-lg transition"><span>🔐</span> Codes of Truth</Link>
+                 <Link to={createPageUrl("Resources")} className="flex items-center gap-2.5 text-xs font-semibold text-[#4a6b6b] hover:text-[#1a2c2c] hover:bg-white/20 px-3 py-2 rounded-lg transition"><span>🌍</span> Other Resources</Link>
                </div>
              )}
 
@@ -461,7 +461,7 @@ export default function Feed() {
            
            <button
              onClick={() => setIsDropModalOpen(true)}
-             className="mt-6 shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black font-black rounded-2xl w-full py-3.5 text-sm hover:opacity-90 transition-opacity shadow-[0_0_24px_rgba(0,207,255,0.35)]"
+             className="mt-6 shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#0088FF] to-[#00D4FF] text-white font-black rounded-2xl w-full py-3.5 text-sm hover:opacity-90 transition-opacity shadow-[0_0_24px_rgba(0,136,255,0.25)]"
            >
              <Plus className="w-4 h-4" /> NEW DROP
            </button>
@@ -482,9 +482,9 @@ export default function Feed() {
         >
           
           {/* Top Header Mobile */}
-          <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-[#0B0F1A]/80 backdrop-blur-xl border-b border-white/10 lg:hidden">
+          <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 bg-white/30 backdrop-blur-xl border-b border-[#0088FF]/10 lg:hidden">
           <div className="flex items-center gap-3">
-            <button onClick={() => setIsMobileNavOpen(true)} className="text-gray-400 hover:text-white transition">
+            <button onClick={() => setIsMobileNavOpen(true)} className="text-[#00A8A8] hover:text-[#0088FF] transition">
               <Menu className="w-6 h-6" />
             </button>
             <img
@@ -495,32 +495,32 @@ export default function Feed() {
           </div>
           <div className="flex gap-4 items-center shrink-0">
             <Link to={createPageUrl("Notifications")} className="relative">
-              <Heart className="w-6 h-6 text-white" />
+              <Heart className="w-6 h-6 text-[#0088FF]" />
 
               {notifications.length > 0 && (
                 <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
               )}
             </Link>
             <Link to={createPageUrl("Messages")}>
-              <MessageCircle className="w-6 h-6 text-white" />
+              <MessageCircle className="w-6 h-6 text-[#0088FF]" />
             </Link>
           </div>
         </div>
 
         {/* Center Header (Desktop) */}
         <div className="hidden lg:flex items-center justify-between px-4 mb-6 shrink-0 gap-4">
-           <h2 className="text-xl font-bold text-white shrink-0">For You</h2>
+           <h2 className="text-xl font-bold text-[#1a2c2c] shrink-0">For You</h2>
            <div className="relative w-80">
-             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00CFFF] w-4 h-4 pointer-events-none" />
+             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#0088FF] w-4 h-4 pointer-events-none" />
              <input
                type="text"
                value={searchQuery}
                onChange={(e) => setSearchQuery(e.target.value)}
                placeholder="Search drops by verse, reflection, hashtag..."
-               className="w-full bg-[#121826] border border-white/10 rounded-full py-2.5 pl-9 pr-9 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00CFFF]/50 transition"
+               className="w-full bg-white/40 border border-[#0088FF]/20 rounded-full py-2.5 pl-9 pr-9 text-sm text-[#1a2c2c] placeholder-[#4a6b6b] focus:outline-none focus:border-[#0088FF]/50 transition"
              />
              {searchQuery && (
-               <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition">
+               <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4a6b6b] hover:text-[#1a2c2c] transition">
                  <X className="w-4 h-4" />
                </button>
              )}
@@ -528,18 +528,18 @@ export default function Feed() {
         </div>
 
         {/* Mobile Search Bar */}
-        <div className="lg:hidden px-4 mb-4 shrink-0">
-          <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00CFFF] w-4 h-4 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search drops..."
-              className="w-full bg-[#121826] border border-white/10 rounded-full py-2.5 pl-9 pr-9 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00CFFF]/50 transition"
-            />
+         <div className="lg:hidden px-4 mb-4 shrink-0">
+           <div className="relative">
+             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#0088FF] w-4 h-4 pointer-events-none" />
+             <input
+               type="text"
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               placeholder="Search drops..."
+               className="w-full bg-white/40 border border-[#0088FF]/20 rounded-full py-2.5 pl-9 pr-9 text-sm text-[#1a2c2c] placeholder-[#4a6b6b] focus:outline-none focus:border-[#0088FF]/50 transition"
+             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition">
+              <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4a6b6b] hover:text-[#1a2c2c] transition">
                 <X className="w-4 h-4" />
               </button>
             )}
@@ -552,13 +552,13 @@ export default function Feed() {
             onClick={() => user ? setIsStatusModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
             className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0"
           >
-             <div className="relative w-16 h-16 rounded-full p-[2px] bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF]">
-                <div className="w-full h-full rounded-full border-[2px] border-[#0B0F1A] overflow-hidden bg-[#121826] flex items-center justify-center">
+             <div className="relative w-16 h-16 rounded-full p-[2px] bg-gradient-to-br from-[#0088FF] to-[#00D4FF]">
+                <div className="w-full h-full rounded-full border-[2px] border-white overflow-hidden bg-white/20 flex items-center justify-center">
                   <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#00CFFF] text-black text-sm font-black flex items-center justify-center border-2 border-[#0B0F1A]">+</div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#FFD000] text-[#1a2c2c] text-sm font-black flex items-center justify-center border-2 border-white">+</div>
              </div>
-             <span className="text-[10px] font-bold text-[#00CFFF] uppercase tracking-wider">ADD STATUS</span>
+             <span className="text-[10px] font-bold text-[#0088FF] uppercase tracking-wider">ADD STATUS</span>
           </button>
 
           {activeStories.map((story) => {
@@ -577,8 +577,8 @@ export default function Feed() {
                 onClick={() => setSelectedStory(story)}
                 className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0 opacity-90 hover:opacity-100 transition-opacity"
               >
-                <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-br from-[#FFD000] to-[#00CFFF]">
-                  <div className="w-full h-full rounded-full overflow-hidden bg-[#121826] flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-br from-[#FFD000] to-[#00D4FF]">
+                  <div className="w-full h-full rounded-full overflow-hidden bg-white/30 flex items-center justify-center">
                     {story.story_type === "image" && story.media_url ? (
                       <img src={story.media_url} className="w-full h-full object-cover" />
                     ) : (
@@ -588,22 +588,22 @@ export default function Feed() {
                     )}
                   </div>
                 </div>
-                <span className="text-[10px] font-medium text-gray-400 truncate w-16 text-center">{storyUser?.email === user?.email ? "You" : storyUser?.full_name?.split(' ')[0] || "Status"}</span>
+                <span className="text-[10px] font-medium text-[#00A8A8] truncate w-16 text-center">{storyUser?.email === user?.email ? "You" : storyUser?.full_name?.split(' ')[0] || "Status"}</span>
               </button>
             );
           })}
 
           {activeStories.length === 0 && (
-            <div className="flex items-center h-16 px-3 text-xs text-gray-500 whitespace-nowrap">No statuses yet. Be the first to post one.</div>
+            <div className="flex items-center h-16 px-3 text-xs text-[#4a6b6b] whitespace-nowrap">No statuses yet. Be the first to post one.</div>
           )}
         </div>
 
         <div className="flex gap-3 px-4 mb-6 overflow-x-auto hide-scrollbar shrink-0">
-          <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-4 py-2 rounded-full bg-gradient-to-r from-[#00CFFF]/20 to-[#8A5CFF]/20 border border-[#00CFFF]/30 text-sm font-semibold text-[#00CFFF] hover:from-[#00CFFF]/30 hover:to-[#8A5CFF]/30 transition whitespace-nowrap flex items-center gap-1.5"><Plus className="w-4 h-4" />Post</button>
-          <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Messages</Link>
-          <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-semibold text-white hover:bg-white/10 transition whitespace-nowrap">Prayer Wall</Link>
-          <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-sm font-semibold text-[#00CFFF] hover:bg-[#00CFFF]/20 transition whitespace-nowrap">Live</Link>
-          <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full bg-gradient-to-r from-[#8A5CFF]/20 to-[#FFD000]/20 border border-[#00CFFF]/30 text-sm font-semibold text-[#00CFFF] hover:from-[#8A5CFF]/30 hover:to-[#FFD000]/30 transition whitespace-nowrap flex items-center gap-1.5">⚡ Daily Drops</Link>
+          <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-4 py-2 rounded-full bg-[#0088FF]/20 border border-[#0088FF]/30 text-sm font-semibold text-[#0088FF] hover:bg-[#0088FF]/30 transition whitespace-nowrap flex items-center gap-1.5"><Plus className="w-4 h-4" />Post</button>
+          <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full bg-white/20 border border-white/30 text-sm font-semibold text-[#1a2c2c] hover:bg-white/30 transition whitespace-nowrap">Messages</Link>
+          <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full bg-white/20 border border-white/30 text-sm font-semibold text-[#1a2c2c] hover:bg-white/30 transition whitespace-nowrap">Prayer Wall</Link>
+          <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full bg-[#0088FF]/20 border border-[#0088FF]/30 text-sm font-semibold text-[#0088FF] hover:bg-[#0088FF]/30 transition whitespace-nowrap">Live</Link>
+          <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full bg-gradient-to-r from-[#0088FF]/20 to-[#FFD000]/20 border border-[#0088FF]/30 text-sm font-semibold text-[#1a2c2c] hover:from-[#0088FF]/30 hover:to-[#FFD000]/30 transition whitespace-nowrap flex items-center gap-1.5">⚡ Daily Drops</Link>
           </div>
 
         {/* Filter Bar */}
@@ -614,8 +614,8 @@ export default function Feed() {
               onClick={() => setActiveFilter(filter)}
               className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300 ${
                 activeFilter === filter 
-                  ? filter === 'Following' ? 'bg-[#00CFFF]/20 text-[#00CFFF] border border-[#00CFFF]/30' : 'bg-white/10 text-white' 
-                  : 'text-gray-500 hover:text-gray-300'
+                  ? filter === 'Following' ? 'bg-[#0088FF]/30 text-[#0088FF] border border-[#0088FF]/40' : 'bg-white/30 text-[#1a2c2c]' 
+                  : 'text-[#4a6b6b] hover:text-[#00A8A8]'
               }`}
             >
               {filter}
@@ -626,24 +626,24 @@ export default function Feed() {
         {/* Feed */}
         <div className="flex flex-col px-3 sm:px-4 py-4 pb-24 lg:pb-6 max-w-2xl mx-auto w-full flex-none">
           {dropsLoading && drops.length === 0 ? (
-            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>
+            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-[#0088FF] animate-spin" /></div>
           ) : dropsError && filteredDrops.length === 0 ? (
-            <div className="text-center py-20 text-gray-500">
+            <div className="text-center py-20 text-[#4a6b6b]">
               <div className="text-4xl mb-4">↻</div>
               <p>We’re refreshing the feed. Please try again in a moment.</p>
               <button onClick={() => queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] })} className="inline-block mt-4 text-[#00CFFF] hover:underline">Refresh feed</button>
             </div>
           ) : filteredDrops.length === 0 ? (
-            <div className="text-center py-20 text-gray-500">
+            <div className="text-center py-20 text-[#4a6b6b]">
               <div className="text-4xl mb-4">{activeFilter === 'Following' ? '👥' : '✨'}</div>
               <p>{activeFilter === 'Following' 
                 ? 'No posts from people you follow yet. Start following creators to see their content here!'
                 : searchQuery ? 'No Lights found matching your search. Try different keywords!' 
                 : 'No Lights found for this filter. Be the first to share your light!'}</p>
               {activeFilter === 'Following' ? (
-                <button onClick={() => setActiveFilter('All')} className="inline-block mt-4 text-[#00CFFF] hover:underline">Explore all posts</button>
+                <button onClick={() => setActiveFilter('All')} className="inline-block mt-4 text-[#0088FF] hover:underline">Explore all posts</button>
               ) : (
-                <button onClick={() => setIsDropModalOpen(true)} className="inline-block mt-4 text-[#00CFFF] hover:underline">Submit a Light</button>
+                <button onClick={() => setIsDropModalOpen(true)} className="inline-block mt-4 text-[#0088FF] hover:underline">Submit a Light</button>
               )}
             </div>
           ) : (
@@ -661,7 +661,7 @@ export default function Feed() {
                   savedDropRecords={savedDropRecords}
                 />
               ))}
-              <div ref={feedEndRef} className="py-6 text-center text-gray-500 text-sm">
+              <div ref={feedEndRef} className="py-6 text-center text-[#4a6b6b] text-sm">
                 {displayCount < filteredDrops.length ? "Loading more..." : filteredDrops.length === 0 ? "" : `Showing ${filteredDrops.length} posts`}
               </div>
             </>
@@ -671,36 +671,36 @@ export default function Feed() {
         </div>
 
         {/* Right Sidebar (Desktop) */}
-        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l border-white/5 bg-transparent backdrop-blur-md overflow-y-auto hide-scrollbar">
+         <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l border-[#0088FF]/10 bg-white/20 backdrop-blur-md overflow-y-auto hide-scrollbar">
           
           <DailyChallenges user={user} />
 
           {/* Trending Vibes */}
-          <div className="bg-[#121826] rounded-[24px] p-5 mb-6 border border-white/5">
-            <h3 className="font-black text-xs text-[#00CFFF] mb-4 tracking-widest uppercase">Trending Vibes</h3>
+          <div className="bg-white/30 rounded-[24px] p-5 mb-6 border border-[#0088FF]/20">
+            <h3 className="font-black text-xs text-[#0088FF] mb-4 tracking-widest uppercase">Trending Vibes</h3>
             
             <div className="space-y-4">
               {trendingTopics.length === 0 ? (
-                <p className="text-xs text-gray-500">No live hashtags yet.</p>
-              ) : trendingTopics.map((topic) => (
-                <button
-                  key={topic.tag}
-                  onClick={() => { setSearchQuery(topic.tag); setActiveFilter("All"); }}
-                  className="group text-left w-full"
-                >
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Live hashtag</span>
-                    <MoreHorizontal className="w-3 h-3 text-gray-600" />
-                  </div>
-                  <h4 className="font-bold text-sm text-white group-hover:text-[#00CFFF] transition">{topic.tag}</h4>
-                  <p className="text-[10px] text-gray-500 mt-0.5">{topic.count} drop{topic.count === 1 ? '' : 's'}</p>
+                <p className="text-xs text-[#4a6b6b]">No live hashtags yet.</p>
+                ) : trendingTopics.map((topic) => (
+                  <button
+                    key={topic.tag}
+                    onClick={() => { setSearchQuery(topic.tag); setActiveFilter("All"); }}
+                    className="group text-left w-full"
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] text-[#4a6b6b] font-bold uppercase tracking-wider">Live hashtag</span>
+                      <MoreHorizontal className="w-3 h-3 text-[#00A8A8]/40" />
+                    </div>
+                    <h4 className="font-bold text-sm text-[#1a2c2c] group-hover:text-[#0088FF] transition">{topic.tag}</h4>
+                    <p className="text-[10px] text-[#4a6b6b] mt-0.5">{topic.count} drop{topic.count === 1 ? '' : 's'}</p>
                 </button>
               ))}
             </div>
           </div>
 
           {/* People to Connect */}
-          <div className="bg-[#121826] rounded-[24px] p-5 border border-white/5">
+          <div className="bg-white/30 rounded-[24px] p-5 border border-[#0088FF]/20">
             <h3 className="font-black text-xs text-[#FFD000] mb-4 tracking-widest uppercase">People to Connect</h3>
             
             <div className="space-y-4">
@@ -730,12 +730,12 @@ export default function Feed() {
             </div>
           </div>
           
-          <div className="mt-6 text-[9px] text-gray-600 flex flex-col gap-1">
+          <div className="mt-6 text-[9px] text-[#4a6b6b] flex flex-col gap-1">
              <p>© 2026 GENERATION LIGHTMODE. ALL RIGHTS RESERVED.</p>
              <div className="flex gap-2">
-               <a href="#" className="hover:text-gray-400">Privacy</a>
-               <a href="#" className="hover:text-gray-400">Terms</a>
-               <a href="#" className="hover:text-gray-400">Nexus Guide</a>
+               <a href="#" className="hover:text-[#00A8A8]">Privacy</a>
+               <a href="#" className="hover:text-[#00A8A8]">Terms</a>
+               <a href="#" className="hover:text-[#00A8A8]">Nexus Guide</a>
              </div>
           </div>
         </div>
@@ -757,13 +757,13 @@ export default function Feed() {
         {/* Mobile Sidebar Drawer */}
         {isMobileNavOpen && (
           <div className="fixed inset-0 z-[100] lg:hidden">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMobileNavOpen(false)} />
-            <div className="absolute left-0 top-0 bottom-0 w-72 bg-[#0B0F1A] border-r border-white/10 flex flex-col py-8 px-6 overflow-y-auto">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsMobileNavOpen(false)} />
+            <div className="absolute left-0 top-0 bottom-0 w-72 bg-white/40 border-r border-[#0088FF]/10 flex flex-col py-8 px-6 overflow-y-auto">
               <Link to={createPageUrl("Home")} className="flex items-center mb-10">
                 <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="LightMode" className="h-12 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,207,255,0.4)]" />
               </Link>
               <nav className="flex flex-col gap-1 flex-1">
-                <p className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-600 px-3 mb-1">Main</p>
+                <p className="text-[9px] font-black uppercase tracking-[0.15em] text-[#00A8A8]/60 px-3 mb-1">Main</p>
                 <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
                 <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
                 <SidebarLink to={createPageUrl("Discover")} icon={<Compass className="w-[18px] h-[18px]" />} label="Discover" />
@@ -775,20 +775,20 @@ export default function Feed() {
                   </div>
                 } label="Profile" />
 
-                <p className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-600 px-3 mt-4 mb-1">Tools</p>
+                <p className="text-[9px] font-black uppercase tracking-[0.15em] text-[#00A8A8]/60 px-3 mt-4 mb-1">Tools</p>
                 <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
 
                 {/* Resources dropdown */}
-                <button onClick={() => setIsResourcesOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition w-full text-left">
-                  <div className="w-8 h-8 rounded-lg bg-[#1a2235] flex items-center justify-center shrink-0 text-sm">📚</div>
+                <button onClick={() => setIsResourcesOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#4a6b6b] hover:bg-white/20 hover:text-[#1a2c2c] transition w-full text-left">
+                  <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-sm">📚</div>
                   <span className="text-sm font-semibold flex-1">Resources</span>
-                  <ChevronRight className={`w-3.5 h-3.5 text-gray-600 transition-transform ${isResourcesOpen ? "rotate-90" : ""}`} />
+                  <ChevronRight className={`w-3.5 h-3.5 text-[#00A8A8]/50 transition-transform ${isResourcesOpen ? "rotate-90" : ""}`} />
                 </button>
                 {isResourcesOpen && (
-                  <div className="flex flex-col gap-0.5 ml-3 pl-3 border-l border-white/5">
-                    <Link to={createPageUrl("KeepIt100")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><span>💯</span> Keep It 100</Link>
-                    <Link to={createPageUrl("CodesOfTruth")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><span>🔐</span> Codes of Truth</Link>
-                    <Link to={createPageUrl("Resources")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-gray-500 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition"><span>🌍</span> Other Resources</Link>
+                  <div className="flex flex-col gap-0.5 ml-3 pl-3 border-l border-[#0088FF]/10">
+                    <Link to={createPageUrl("KeepIt100")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-[#4a6b6b] hover:text-[#1a2c2c] hover:bg-white/20 px-3 py-2 rounded-lg transition"><span>💯</span> Keep It 100</Link>
+                    <Link to={createPageUrl("CodesOfTruth")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-[#4a6b6b] hover:text-[#1a2c2c] hover:bg-white/20 px-3 py-2 rounded-lg transition"><span>🔐</span> Codes of Truth</Link>
+                    <Link to={createPageUrl("Resources")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold text-[#4a6b6b] hover:text-[#1a2c2c] hover:bg-white/20 px-3 py-2 rounded-lg transition"><span>🌍</span> Other Resources</Link>
                   </div>
                 )}
                 <SidebarLink to={createPageUrl("DailyDevotion")} icon={<BookOpen className="w-[18px] h-[18px]" />} label="Bible School" />
@@ -815,7 +815,7 @@ export default function Feed() {
                   </div>
                 )}
               </nav>
-              <button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black font-black rounded-2xl w-full py-4 text-sm hover:opacity-90 transition-opacity shadow-[0_0_24px_rgba(0,207,255,0.35)]">
+              <button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 bg-gradient-to-r from-[#0088FF] to-[#00D4FF] text-white font-black rounded-2xl w-full py-4 text-sm hover:opacity-90 transition-opacity shadow-[0_0_24px_rgba(0,136,255,0.25)]">
                 <Plus className="w-4 h-4" /> NEW DROP
               </button>
             </div>
@@ -823,14 +823,14 @@ export default function Feed() {
         )}
 
         {/* Bottom Mobile Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F1A]/90 backdrop-blur-xl border-t border-white/10 flex justify-around items-center py-3 px-6 z-50 pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden">
-          <Link to={createPageUrl("Feed")}><Home className="w-6 h-6 text-white" fill="white" /></Link>
-          <button onClick={() => setIsSearchOpen(true)}><SearchIcon className="w-6 h-6 text-white" /></button>
-          <Link to={createPageUrl("Dashboard")}><PlusSquare className="w-6 h-6 text-white" /></Link>
-          <Link to={createPageUrl("GlobalReach")}><Globe className="w-6 h-6 text-white" /></Link>
-          <Link to={createPageUrl("Resources")}><PlaySquare className="w-6 h-6 text-white" /></Link>
+        <div className="fixed bottom-0 left-0 right-0 bg-white/30 backdrop-blur-xl border-t border-[#0088FF]/10 flex justify-around items-center py-3 px-6 z-50 pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden">
+          <Link to={createPageUrl("Feed")}><Home className="w-6 h-6 text-[#0088FF]" fill="currentColor" /></Link>
+          <button onClick={() => setIsSearchOpen(true)}><SearchIcon className="w-6 h-6 text-[#0088FF]" /></button>
+          <Link to={createPageUrl("Dashboard")}><PlusSquare className="w-6 h-6 text-[#0088FF]" /></Link>
+          <Link to={createPageUrl("GlobalReach")}><Globe className="w-6 h-6 text-[#0088FF]" /></Link>
+          <Link to={createPageUrl("Resources")}><PlaySquare className="w-6 h-6 text-[#0088FF]" /></Link>
           <Link to={createPageUrl("Profile")}>
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/20 flex items-center justify-center text-[10px] uppercase font-bold text-white overflow-hidden">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#0088FF] to-[#00D4FF] border border-white/30 flex items-center justify-center text-[10px] uppercase font-bold text-white overflow-hidden">
               <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
             </div>
           </Link>
