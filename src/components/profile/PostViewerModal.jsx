@@ -114,7 +114,7 @@ export default function PostViewerModal({
 
         {/* Scrollable feed */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto hide-scrollbar">
-          <div className="py-2">
+          <div className="py-4 px-2 md:px-4 space-y-4 md:space-y-6">
             {drops.map((drop) => (
               <div
                 key={drop.id}
