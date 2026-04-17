@@ -23,7 +23,7 @@ import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModa
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   const baseStyle = active
-    ? { background: "linear-gradient(90deg, #1E5AFF 0%, #3B7BFF 100%)", color: "#FFFFFF", border: "none", boxShadow: "0 3px 12px rgba(30, 90, 255, 0.3)" }
+    ? { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", border: "none", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }
     : accent
     ? { color: "#1E5AFF", background: "transparent" }
     : { color: "#3A4A6B", background: "transparent" };
