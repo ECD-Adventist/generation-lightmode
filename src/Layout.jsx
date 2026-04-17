@@ -618,21 +618,16 @@ export default function Layout({ children, currentPageName }) {
           .mobile-menu-btn { display: block !important; }
         }
 
-        /* Switch It On — gold light orbiting AROUND the button (not rotating the button itself) */
-        @keyframes glm-orbit {
-          0%   { transform: rotate(0deg)   translateX(var(--orbit-r)) rotate(0deg); }
-          100% { transform: rotate(360deg) translateX(var(--orbit-r)) rotate(-360deg); }
+        /* Switch It On — spinning border + sweep light (same style as profile cover) */
+        @keyframes glm-spin-border {
+          0%   { transform: translate(-50%, -50%) rotate(0deg); }
+          100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
-        @keyframes glm-orbit-reverse {
-          0%   { transform: rotate(0deg)   translateX(var(--orbit-r)) rotate(0deg); }
-          100% { transform: rotate(-360deg) translateX(var(--orbit-r)) rotate(360deg); }
-        }
-        @keyframes glm-switch-pulse {
-          0%, 100% { box-shadow: 0 0 18px rgba(0,207,255,0.35); }
-          50%      { box-shadow: 0 0 34px rgba(0,207,255,0.6); }
+        @keyframes glm-sweep-light {
+          0%   { transform: translateX(-150%) skewX(-20deg); }
+          100% { transform: translateX(300%) skewX(-20deg); }
         }
         .glm-switch-btn {
-          --orbit-r: 58px;
           position: relative;
           display: inline-flex;
           align-items: center;
@@ -642,11 +637,23 @@ export default function Layout({ children, currentPageName }) {
           background: transparent;
           white-space: nowrap;
           flex-shrink: 0;
-          padding: 14px 18px;
+          padding: 2px;
+          border-radius: 999px;
+          overflow: hidden;
           transition: transform 0.3s ease;
-          overflow: visible;
         }
         .glm-switch-btn:hover { transform: translateY(-1px) scale(1.03); }
+        /* Rotating conic-gradient edge light */
+        .glm-switch-btn::before {
+          content: '';
+          position: absolute;
+          top: 50%; left: 50%;
+          width: 300%; height: 300%;
+          background: conic-gradient(from 0deg, transparent 55%, #00CFFF 72%, #8A5CFF 85%, #FFD000 95%, transparent 100%);
+          animation: glm-spin-border 3s linear infinite;
+          z-index: 0;
+          pointer-events: none;
+        }
         .glm-switch-inner {
           position: relative;
           z-index: 2;
@@ -660,30 +667,21 @@ export default function Layout({ children, currentPageName }) {
           font-size: 13px;
           padding: 10px 22px;
           border-radius: 999px;
-          box-shadow: inset 0 0 10px rgba(255,255,255,0.15);
-          animation: glm-switch-pulse 2.8s ease-in-out infinite;
+          overflow: hidden;
         }
-        /* Orbiting light particles — golden dots circling around the button */
-        .glm-switch-orbit {
+        /* Sweeping light pass across the inner pill */
+        .glm-switch-inner::after {
+          content: '';
           position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 10px;
-          height: 10px;
-          margin: -5px 0 0 -5px;
-          border-radius: 50%;
-          background: radial-gradient(circle, #FFE066 0%, #FFD000 40%, rgba(255,165,0,0) 75%);
-          box-shadow: 0 0 16px #FFD000, 0 0 32px rgba(255,208,0,0.55);
+          top: 0; bottom: 0; left: 0;
+          width: 35%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), rgba(255,255,255,0.45), rgba(255,255,255,0.15), transparent);
+          animation: glm-sweep-light 3s infinite ease-in-out;
           pointer-events: none;
-          z-index: 1;
-          will-change: transform;
+          z-index: 3;
         }
-        .glm-switch-orbit.p1 { animation: glm-orbit 3.2s linear infinite; }
-        .glm-switch-orbit.p2 { animation: glm-orbit 3.2s linear infinite; animation-delay: -1.6s; opacity: 0.7; }
-        .glm-switch-orbit.p3 { animation: glm-orbit-reverse 4.6s linear infinite; width: 6px; height: 6px; margin: -3px 0 0 -3px; opacity: 0.5; }
-        @media (max-width: 520px) {
-          .glm-switch-btn { --orbit-r: 48px; padding: 10px 14px; }
-        }
+        /* Hide orbit spans (no longer used) */
+        .glm-switch-orbit { display: none; }
       `}</style>
     </div>
   );
