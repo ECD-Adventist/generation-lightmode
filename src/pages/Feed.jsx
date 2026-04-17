@@ -25,23 +25,22 @@ function SidebarLink({ to, icon, label, active, badge, accent }) {
   const baseStyle = active
     ? { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", border: "none", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }
     : accent
-    ? { color: "#1E5AFF", background: "transparent" }
+    ? { color: "#0B3FD9", background: "transparent" }
     : { color: "#3A4A6B", background: "transparent" };
+  // Icon box: white bg w/ cyan→royal-blue gradient icon (via text color) — matches +Post button family
   const iconBoxStyle = active
     ? { background: "rgba(255,255,255,0.25)", color: "#FFFFFF" }
-    : accent
-    ? { background: "rgba(30, 90, 255, 0.12)", color: "#0B3FD9", border: "1px solid rgba(30, 90, 255, 0.2)" }
-    : { background: "#FFFFFF", color: "#0B1B3D", border: "1px solid #E6D9A8", boxShadow: "0 1px 3px rgba(139, 105, 20, 0.08)" };
+    : { background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #D6E4FF", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.08)" };
   return (
     <Link
       to={to}
-      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-[#F0F4FA]"
+      className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-200 hover:bg-[#F0F4FA]"
       style={baseStyle}
     >
-      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition" style={iconBoxStyle}>
+      <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition" style={iconBoxStyle}>
         {icon}
       </div>
-      <span className="text-sm font-semibold flex-1">{label}</span>
+      <span className="text-[13px] font-semibold flex-1">{label}</span>
       {badge && (
         <span className="font-bold text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ background: active ? "rgba(255,255,255,0.3)" : "#FF5A5A", color: "#FFFFFF" }}>
           {badge}
@@ -379,7 +378,7 @@ export default function Feed() {
       <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] rounded-full blur-[120px] z-0 opacity-30 pointer-events-none animate-[float-light_8s_ease-in-out_infinite]" style={{ background: "#7FE08A" }}></div>
       <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] rounded-full blur-[140px] z-0 opacity-25 pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]" style={{ background: "#5AC8FF" }}></div>
 
-      <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-0 backdrop-blur-[2px]">
+      <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-[240px_1fr_320px] gap-0 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
         <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "linear-gradient(165deg, #FFFEF9 0%, #FFF7DE 35%, #FFEFC7 70%, #FFE9B5 100%)", borderColor: "#F0DFA0", backgroundImage: "radial-gradient(circle at 15% 85%, rgba(255,208,0,0.14) 0%, transparent 55%), radial-gradient(circle at 85% 15%, rgba(255,159,26,0.1) 0%, transparent 55%), radial-gradient(circle at 50% 50%, rgba(255,220,120,0.05) 0%, transparent 70%)", boxShadow: "inset -1px 0 0 rgba(255, 208, 0, 0.15)" }}>
@@ -473,7 +472,7 @@ export default function Feed() {
         {/* Center Feed — LIGHT MODE */}
         <div 
           ref={feedScrollRef} 
-          className="lg:col-span-2 h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8"
+          className="h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8"
           style={{ color: "#0B1B3D", background: "#F6F8FC" }}
           onScroll={(e) => {
             const { scrollTop, scrollHeight, clientHeight } = e.target;

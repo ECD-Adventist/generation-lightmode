@@ -411,30 +411,59 @@ export default function Profile() {
               )}
             </div>
 
-            {/* Cover Photo */}
+            {/* Cover Photo — with rotating border light & sweeping shimmer */}
+            <style>{`
+              @keyframes profile-sweep-light {
+                0% { transform: translateX(-150%) skewX(-20deg); }
+                100% { transform: translateX(300%) skewX(-20deg); }
+              }
+              @keyframes profile-spin-border {
+                0% { transform: translate(-50%, -50%) rotate(0deg); }
+                100% { transform: translate(-50%, -50%) rotate(360deg); }
+              }
+            `}</style>
             <div
-              className={`w-full h-48 sm:h-64 rounded-[1.75rem] mb-8 relative group overflow-hidden ${isOwnProfile ? 'cursor-pointer' : ''}`}
-              style={{ background: "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", border: "1px solid #E6ECF5", boxShadow: "0 4px 20px rgba(11, 63, 217, 0.08)" }}
+              className={`w-full h-48 sm:h-64 rounded-[1.75rem] mb-8 relative group p-[2px] overflow-hidden ${isOwnProfile ? 'cursor-pointer' : ''}`}
+              style={{ boxShadow: "0 8px 28px rgba(11, 63, 217, 0.12)" }}
               onClick={() => isOwnProfile && coverInputRef.current?.click()}
             >
-              {user.cover_picture_url && (
-                <img src={user.cover_picture_url} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
-              )}
-              {isOwnProfile && (
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20" style={{ background: "rgba(11, 27, 61, 0.45)" }}>
-                  <div className="flex items-center gap-2 font-bold px-4 py-2 rounded-lg backdrop-blur-sm" style={{ background: "rgba(255,255,255,0.95)", color: "#0B3FD9" }}>
-                    <Camera className="w-5 h-5" /> Change Cover
+              {/* Rotating Edge Light — cyan→royal-blue→gold */}
+              <div style={{
+                position: "absolute", top: "50%", left: "50%", width: "200%", height: "200%",
+                background: "conic-gradient(from 0deg, transparent 60%, #1FB8FF 78%, #0B3FD9 90%, #FFD000 100%)",
+                animation: "profile-spin-border 4s linear infinite",
+                zIndex: 0
+              }} />
+
+              {/* Inner cover content */}
+              <div
+                className="w-full h-full rounded-[1.6rem] overflow-hidden relative z-10"
+                style={{ background: user.cover_picture_url ? "transparent" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", ...(user.cover_picture_url ? { backgroundImage: `url(${user.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}) }}
+              >
+                {/* Sweeping Light */}
+                <div style={{
+                  position: "absolute", top: 0, bottom: 0, left: 0, width: "30%",
+                  background: "linear-gradient(90deg, transparent, rgba(31,184,255,0.15), rgba(255,255,255,0.4), rgba(31,184,255,0.15), transparent)",
+                  animation: "profile-sweep-light 4s infinite ease-in-out",
+                  zIndex: 1, pointerEvents: "none",
+                }} />
+
+                {isOwnProfile && (
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20" style={{ background: "rgba(11, 27, 61, 0.45)" }}>
+                    <div className="flex items-center gap-2 font-bold px-4 py-2 rounded-lg backdrop-blur-sm" style={{ background: "rgba(255,255,255,0.95)", color: "#0B3FD9" }}>
+                      <Camera className="w-5 h-5" /> Change Cover
+                    </div>
                   </div>
-                </div>
-              )}
-              {!user.cover_picture_url && (
-                <div className="absolute inset-0 flex items-center justify-center" style={{ color: "#8A97B5" }}>
-                  <div className="text-center">
-                    <Camera className="w-10 h-10 mx-auto mb-2 opacity-40" />
-                    <div className="text-sm font-semibold">No Cover Photo</div>
+                )}
+                {!user.cover_picture_url && (
+                  <div className="absolute inset-0 flex items-center justify-center" style={{ color: "#8A97B5" }}>
+                    <div className="text-center">
+                      <Camera className="w-10 h-10 mx-auto mb-2 opacity-40" />
+                      <div className="text-sm font-semibold">No Cover Photo</div>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
             <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "cover")} disabled={uploadingImage} />
 
