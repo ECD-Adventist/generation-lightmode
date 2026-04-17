@@ -636,21 +636,25 @@ export default function Layout({ children, currentPageName }) {
           flex-shrink: 0;
           padding: 2px;
           border-radius: 999px;
-          overflow: hidden;
-          transition: transform 0.2s ease, filter 0.2s ease;
-          filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) drop-shadow(0 1px 2px rgba(0,207,255,0.2));
+          overflow: visible;
+          transition: transform 0.2s ease, filter 0.3s ease, text-shadow 0.3s ease;
+          filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6)) drop-shadow(0 2px 4px rgba(0,207,255,0.25));
         }
         .glm-switch-btn:hover {
-          transform: translateY(-2px) scale(1.03);
-          filter: drop-shadow(0 8px 14px rgba(0,0,0,0.6)) drop-shadow(0 2px 8px rgba(0,207,255,0.35));
+          transform: translateY(-3px);
+          filter: drop-shadow(0 12px 24px rgba(0,0,0,0.7)) drop-shadow(0 4px 12px rgba(255,208,0,0.5)) drop-shadow(0 0px 20px rgba(0,207,255,0.3));
         }
         .glm-switch-btn:active {
-          transform: translateY(1px) scale(0.98);
-          filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5)) drop-shadow(0 0px 2px rgba(0,207,255,0.15));
+          transform: translateY(1px);
+          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)) drop-shadow(0 0px 8px rgba(138,92,255,0.2));
         }
         .glm-switch-btn:hover .glm-switch-inner {
-          background: linear-gradient(180deg, #1a2440 0%, #111827 60%, #0d1220 100%);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -2px 4px rgba(0,0,0,0.4);
+          background: linear-gradient(180deg, #1a2a3a 0%, #0f1820 50%, #0a0e14 100%);
+          box-shadow: 
+            inset 0 1.5px 0 rgba(255,255,255,0.15),
+            inset 0 -3px 8px rgba(0,0,0,0.7),
+            inset 0 0px 12px rgba(255,208,0,0.12),
+            0 6px 12px rgba(0,0,0,0.5);
         }
         .glm-switch-btn:hover .glm-switch-inner .glm-switch-text {
           background-image: linear-gradient(90deg, #ffffff, #FFD000);
@@ -674,14 +678,18 @@ export default function Layout({ children, currentPageName }) {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: linear-gradient(180deg, #141c2e 0%, #0B0F1A 60%, #080b14 100%);
+          background: linear-gradient(180deg, #0F1318 0%, #0B0F1A 50%, #050709 100%);
           font-family: 'Space Grotesk', sans-serif;
           font-weight: 800;
           font-size: 13px;
           padding: 10px 22px;
           border-radius: 999px;
           overflow: hidden;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -2px 4px rgba(0,0,0,0.4);
+          box-shadow: 
+            inset 0 1.5px 0 rgba(255,255,255,0.1),
+            inset 0 -3px 6px rgba(0,0,0,0.6),
+            0 4px 8px rgba(0,0,0,0.4);
+          transition: background 0.3s ease, box-shadow 0.3s ease;
         }
         /* Subtle sweep shimmer on inner pill */
         .glm-switch-inner::after {
