@@ -190,11 +190,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   return (
     <div
-      className="rounded-2xl sm:rounded-[2rem] mb-6 sm:mb-8 p-2 sm:p-3 transition-all duration-300 group"
+      className="rounded-[28px] sm:rounded-[2.25rem] mb-6 sm:mb-8 p-2.5 sm:p-3.5 transition-all duration-300 group"
       style={{
         background: "#FFFFFF",
-        border: "1px solid #E0EAF5",
-        boxShadow: "0 4px 20px rgba(11, 63, 217, 0.06)"
+        border: "1px solid #E6ECF5",
+        boxShadow: "0 14px 34px rgba(15, 23, 42, 0.07), 0 4px 12px rgba(11, 63, 217, 0.05)"
       }}
     >
       <style>{`
