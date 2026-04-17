@@ -474,7 +474,7 @@ export default function Feed() {
         <div 
           ref={feedScrollRef} 
           className="lg:col-span-2 h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8"
-          style={{ color: "#0B1B3D", background: "linear-gradient(180deg, #EDF2F8 0%, #E4EBF5 50%, #DDE5F0 100%)" }}
+          style={{ color: "#0B1B3D", background: "linear-gradient(180deg, #FDF9F0 0%, #F7F3EA 50%, #F2EEE4 100%)" }}
           onScroll={(e) => {
             const { scrollTop, scrollHeight, clientHeight } = e.target;
             if (scrollHeight - scrollTop <= clientHeight + 150) {
