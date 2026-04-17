@@ -357,7 +357,7 @@ export default function Feed() {
   }
 
   return (
-    <div className="h-[100dvh] relative overflow-hidden font-['Inter']" style={{ background: "linear-gradient(135deg, #FFF9E8 0%, #FFF4D6 50%, #FFFDF5 100%)", color: "#0A1A3D" }}>
+    <div className="h-[100dvh] relative overflow-hidden font-['Inter']" style={{ background: "linear-gradient(135deg, #D8F5E0 0%, #EAF6D0 100%)", color: "#0A1A3D" }}>
       <OnboardingModal
         isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth || !user.city || !user.address || !user.postal_code)}
         onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
@@ -376,8 +376,8 @@ export default function Feed() {
       `}</style>
       
       {/* Soft accent lights */}
-      <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] rounded-full blur-[120px] z-0 opacity-20 pointer-events-none animate-[float-light_8s_ease-in-out_infinite]" style={{ background: "#FFD000" }}></div>
-      <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] rounded-full blur-[140px] z-0 opacity-15 pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]" style={{ background: "#FF9F1A" }}></div>
+      <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] rounded-full blur-[120px] z-0 opacity-30 pointer-events-none animate-[float-light_8s_ease-in-out_infinite]" style={{ background: "#7FE08A" }}></div>
+      <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] rounded-full blur-[140px] z-0 opacity-25 pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]" style={{ background: "#5AC8FF" }}></div>
 
       <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 backdrop-blur-[2px]">
         
@@ -486,7 +486,7 @@ export default function Feed() {
         >
           
           {/* Top Header Mobile — LIGHT */}
-          <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 backdrop-blur-xl border-b lg:hidden" style={{ background: "rgba(255, 249, 232, 0.9)", borderColor: "#F0E0B0" }}>
+          <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 backdrop-blur-xl border-b lg:hidden" style={{ background: "rgba(240, 250, 243, 0.85)", borderColor: "#E0EAF5" }}>
           <div className="flex items-center gap-3">
             <button onClick={() => setIsMobileNavOpen(true)} className="transition" style={{ color: "#4A5878" }}>
               <Menu className="w-6 h-6" />
@@ -675,7 +675,7 @@ export default function Feed() {
         </div>
 
         {/* Right Sidebar (Desktop) — LIGHT */}
-        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l backdrop-blur-md overflow-y-auto hide-scrollbar" style={{ borderColor: "#F0E0B0", background: "rgba(255, 249, 232, 0.5)" }}>
+        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l backdrop-blur-md overflow-y-auto hide-scrollbar" style={{ borderColor: "#E0EAF5", background: "rgba(240, 250, 243, 0.4)" }}>
           
           <DailyChallenges user={user} />
 
@@ -843,7 +843,7 @@ export default function Feed() {
         )}
 
         {/* Bottom Mobile Navigation — LIGHT */}
-        <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t flex justify-around items-center py-3 px-6 z-50 pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden" style={{ background: "rgba(255, 249, 232, 0.95)", borderColor: "#F0E0B0" }}>
+        <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t flex justify-around items-center py-3 px-6 z-50 pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden" style={{ background: "rgba(240, 250, 243, 0.95)", borderColor: "#E0EAF5" }}>
           <Link to={createPageUrl("Feed")}><Home className="w-6 h-6" fill="#0B3FD9" style={{ color: "#0B3FD9" }} /></Link>
           <button onClick={() => setIsSearchOpen(true)}><SearchIcon className="w-6 h-6" style={{ color: "#0B1B3D" }} /></button>
           <Link to={createPageUrl("Dashboard")}><PlusSquare className="w-6 h-6" style={{ color: "#0B1B3D" }} /></Link>
