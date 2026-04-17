@@ -16,6 +16,9 @@ import DailyChallenges from "@/components/feed/DailyChallenges";
 import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
 import AIContentSuggestions from "@/components/feed/AIContentSuggestions";
 import { isNotificationEnabled } from "@/lib/notifications";
+import useNetworkStatus from "@/hooks/useNetworkStatus";
+import useOfflineSync from "@/hooks/useOfflineSync";
+import OfflineBanner from "@/components/feed/OfflineBanner";
 import StatusComposerModal from "@/components/feed/StatusComposerModal";
 import StatusViewerModal from "@/components/feed/StatusViewerModal";
 import OnboardingModal from "@/components/dashboard/OnboardingModal";
@@ -88,11 +91,15 @@ export default function Feed() {
     checkAuth();
   }, []);
 
+  const isOnline = useNetworkStatus();
+
   const {
-    data: drops = [],
+    data: liveDrops = [],
     isLoading: dropsLoading,
     isError: dropsError,
   } = useGlowDropsFeed();
+
+  const { drops, lastCached, syncing, syncQueue } = useOfflineSync(liveDrops, isOnline);
 
   const { data: users = [] } = useQuery({
     queryKey: ["allUsers"],
@@ -549,6 +556,8 @@ export default function Feed() {
             )}
           </div>
         </div>
+
+        <OfflineBanner isOnline={isOnline} lastCached={lastCached} syncing={syncing} onSync={syncQueue} />
 
         {/* Stories / Status Row */}
         <div className="flex gap-4 px-4 mb-8 overflow-x-auto hide-scrollbar pb-2 shrink-0 items-start">
