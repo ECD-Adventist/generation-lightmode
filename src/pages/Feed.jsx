@@ -678,13 +678,13 @@ export default function Feed() {
           
           <DailyChallenges user={user} />
 
-          {/* Trending Vibes — DARK BLUE */}
-          <div className="rounded-[24px] p-5 mb-6" style={{ background: "linear-gradient(135deg, #0B1B3D 0%, #1E2D50 100%)", border: "1px solid rgba(30, 90, 255, 0.2)", boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15)" }}>
-            <h3 className="font-black text-xs mb-4 tracking-widest uppercase" style={{ color: "#5AC8FF" }}>Trending Vibes</h3>
+          {/* Trending Vibes — LIGHT BLUE */}
+          <div className="rounded-[24px] p-5 mb-6" style={{ background: "linear-gradient(135deg, #EEF4FF 0%, #E0ECFF 100%)", border: "1px solid #D6E4FF", boxShadow: "0 4px 16px rgba(30, 90, 255, 0.08)" }}>
+            <h3 className="font-black text-xs mb-4 tracking-widest uppercase" style={{ color: "#1E5AFF" }}>Trending Vibes</h3>
             
             <div className="space-y-4">
               {trendingTopics.length === 0 ? (
-                <p className="text-xs" style={{ color: "#6B7FA0" }}>No live hashtags yet.</p>
+                <p className="text-xs" style={{ color: "#8A97B5" }}>No live hashtags yet.</p>
               ) : trendingTopics.map((topic) => (
                 <button
                   key={topic.tag}
@@ -692,10 +692,10 @@ export default function Feed() {
                   className="group text-left w-full"
                 >
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#6B7FA0" }}>Live hashtag</span>
-                    <MoreHorizontal className="w-3 h-3" style={{ color: "#6B7FA0" }} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#8A97B5" }}>Live hashtag</span>
+                    <MoreHorizontal className="w-3 h-3" style={{ color: "#8A97B5" }} />
                   </div>
-                  <h4 className="font-bold text-sm transition" style={{ color: "#FFFFFF" }}>{topic.tag}</h4>
+                  <h4 className="font-bold text-sm transition" style={{ color: "#0B1B3D" }}>{topic.tag}</h4>
                   <p className="text-[10px] mt-0.5" style={{ color: "#6B7FA0" }}>{topic.count} drop{topic.count === 1 ? '' : 's'}</p>
                 </button>
               ))}
