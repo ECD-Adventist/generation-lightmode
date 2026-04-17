@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, PlusSquare, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera, X } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, SquarePlus, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera, X } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -854,13 +854,23 @@ export default function Feed() {
         )}
 
         {/* Bottom Mobile Navigation — LIGHT */}
-        <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t flex justify-around items-center py-3 px-3 sm:px-6 z-50 pb-5 sm:pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden" style={{ background: "rgba(246, 248, 252, 0.95)", borderColor: "#E2E8F0" }}>
-          <Link to={createPageUrl("Feed")}><Home className="w-6 h-6" fill="#0B3FD9" style={{ color: "#0B3FD9" }} /></Link>
-          <button onClick={() => setIsSearchOpen(true)}><SearchIcon className="w-6 h-6" style={{ color: "#0B1B3D" }} /></button>
-          <Link to={createPageUrl("Dashboard")}><PlusSquare className="w-6 h-6" style={{ color: "#0B1B3D" }} /></Link>
-          <Link to={createPageUrl("GlobalReach")}><Globe className="w-6 h-6" style={{ color: "#0B1B3D" }} /></Link>
-          <Link to={createPageUrl("Resources")}><PlaySquare className="w-6 h-6" style={{ color: "#0B1B3D" }} /></Link>
-          <Link to={createPageUrl("Profile")}>
+        <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t flex justify-around items-center py-2.5 px-3 sm:px-6 z-50 pb-4 sm:pb-5 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden" style={{ background: "rgba(246, 248, 252, 0.98)", borderColor: "#E2E8F0", boxShadow: "0 -8px 24px rgba(15, 23, 42, 0.08)" }}>
+          <Link to={createPageUrl("Feed")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Home">
+            <Home className="w-5 h-5" fill="#0B3FD9" style={{ color: "#0B3FD9" }} />
+          </Link>
+          <button onClick={() => setIsSearchOpen(true)} className="flex h-11 w-11 items-center justify-center rounded-full" title="Search">
+            <SearchIcon className="w-5 h-5" style={{ color: "#0B1B3D" }} />
+          </button>
+          <button onClick={() => setIsDropModalOpen(true)} className="flex h-11 w-11 items-center justify-center rounded-full" title="Create post">
+            <SquarePlus className="w-5 h-5" style={{ color: "#0B1B3D" }} />
+          </button>
+          <Link to={createPageUrl("GlobalReach")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Global Reach">
+            <Globe className="w-5 h-5" style={{ color: "#0B1B3D" }} />
+          </Link>
+          <Link to={createPageUrl("DailyTruthFeed")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Daily Drops">
+            <PlaySquare className="w-5 h-5" style={{ color: "#0B1B3D" }} />
+          </Link>
+          <Link to={createPageUrl("Profile")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Profile">
             <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] uppercase font-bold overflow-hidden" style={{ border: "2px solid #1FB8FF" }}>
               <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
             </div>
