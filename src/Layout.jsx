@@ -270,7 +270,7 @@ export default function Layout({ children, currentPageName }) {
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
         background: scrolled ? "rgba(11,15,26,0.85)" : "transparent",
-        backdropFilter: scrolled ? "blur(24px) saturate(1.4)" : "blur(8px)",
+        backdropFilter: scrolled ? "blur(24px) saturate(1.4)" : "none",
         borderBottom: "none",
         transition: "all 0.4s ease",
         padding: "0 24px",
@@ -280,7 +280,7 @@ export default function Layout({ children, currentPageName }) {
           position: "absolute", inset: 0, zIndex: -1,
           background: scrolled
             ? "linear-gradient(180deg, rgba(11,15,26,0.92) 0%, rgba(11,15,26,0.85) 100%)"
-            : "linear-gradient(180deg, rgba(11,15,26,0.75) 0%, rgba(11,15,26,0.35) 50%, rgba(11,15,26,0) 100%)",
+            : "none",
           transition: "all 0.4s ease",
           pointerEvents: "none",
         }} />
