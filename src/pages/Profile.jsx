@@ -1,18 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Clock, XCircle, Zap, Home, Users, Bell, Globe, Trash2, Bookmark, Calendar, Building2, Sparkles } from "lucide-react";
+import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Zap, Home, Users, Bell, Globe, Bookmark, Building2, Sparkles } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import ProfileConnectionsModal from "@/components/profile/ProfileConnectionsModal";
 import ProfileInstitutionsTab from "@/components/institution/ProfileInstitutionsTab";
-import InstitutionOwnerBadge from "@/components/institution/InstitutionOwnerBadge";
 import ExecutiveProfileHeader from "@/components/institution/ExecutiveProfileHeader";
 import { isNotificationEnabled } from "@/lib/notifications";
 import EditProfileModal from "@/components/profile/EditProfileModal";
@@ -53,18 +49,16 @@ export default function Profile() {
         if (isAuth) {
           const me = await base44.auth.me();
           setCurrentUser(me);
-          
-          // If viewing another user's profile
           if (viewUserEmail && viewUserEmail !== me.email) {
-            // We'll set the viewed user from allUsersForProfile once loaded
+            // set later from allUsersForProfile
           } else {
             setUser(me);
-            setEditData({ 
-              full_name: me.full_name || "", 
-              country: me.country || "", 
+            setEditData({
+              full_name: me.full_name || "",
+              country: me.country || "",
               bio: me.bio || "",
               website_url: me.website_url || "",
-              profile_picture_url: me.profile_picture_url || "", 
+              profile_picture_url: me.profile_picture_url || "",
               cover_picture_url: me.cover_picture_url || "",
               gender: me.gender || "",
               date_of_birth: me.date_of_birth || "",
@@ -75,7 +69,6 @@ export default function Profile() {
             });
           }
         } else if (!viewUserEmail) {
-          // Only redirect to login if viewing own profile
           base44.auth.redirectToLogin(window.location.pathname + window.location.search);
         }
       } catch (err) {}
@@ -83,17 +76,16 @@ export default function Profile() {
     checkAuth();
   }, [viewUserEmail]);
 
-  // Set viewed user once allUsersForProfile loads
   useEffect(() => {
     if (viewUserEmail && allUsersForProfile.length > 0) {
       if (currentUser && viewUserEmail === currentUser.email) {
         setUser(currentUser);
-        setEditData({ 
-          full_name: currentUser.full_name || "", 
-          country: currentUser.country || "", 
+        setEditData({
+          full_name: currentUser.full_name || "",
+          country: currentUser.country || "",
           bio: currentUser.bio || "",
           website_url: currentUser.website_url || "",
-          profile_picture_url: currentUser.profile_picture_url || "", 
+          profile_picture_url: currentUser.profile_picture_url || "",
           cover_picture_url: currentUser.cover_picture_url || "",
           gender: currentUser.gender || "",
           date_of_birth: currentUser.date_of_birth || "",
@@ -110,10 +102,9 @@ export default function Profile() {
   }, [viewUserEmail, currentUser, allUsersForProfile]);
 
   const isOwnProfile = currentUser && (!viewUserEmail || viewUserEmail === currentUser.email);
-
   const profileEmail = viewUserEmail || currentUser?.email;
 
-  const { data: myDrops = [], isLoading: dropsLoading } = useQuery({
+  const { data: myDrops = [] } = useQuery({
     queryKey: ["myGlowDropsProfile", profileEmail],
     queryFn: () => base44.entities.GlowDrop.filter({ user_email: profileEmail }, '-created_date'),
     enabled: !!profileEmail
@@ -171,14 +162,12 @@ export default function Profile() {
     enabled: !!profileEmail
   });
 
-  // Check if user is an institution owner (has approved applications)
   const { data: userInstitutionApps = [] } = useQuery({
     queryKey: ["profileInstitutionApps", profileEmail],
     queryFn: () => base44.entities.InstitutionApplication.filter({ user_email: profileEmail, status: "approved" }),
     enabled: !!profileEmail,
   });
 
-  // Follow/unfollow for viewing other profiles
   const { data: currentUserFollowing = [] } = useQuery({
     queryKey: ["currentUserFollowing", currentUser?.email],
     queryFn: () => base44.entities.Follow.filter({ follower_email: currentUser?.email }),
@@ -190,12 +179,10 @@ export default function Profile() {
   const followMutation = useMutation({
     mutationFn: async (targetEmail) => {
       const existingFollow = currentUserFollowing.find(f => f.following_email === targetEmail);
-
       if (existingFollow) {
         await base44.entities.Follow.delete(existingFollow.id);
         return { targetEmail, action: "unfollow" };
       }
-
       await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: targetEmail });
       const targetUser = allUsersForProfile.find(u => u.email === targetEmail);
       if (isNotificationEnabled(targetUser, "follows")) {
@@ -228,52 +215,32 @@ export default function Profile() {
     async function checkCertificates() {
       if (!user || !isOwnProfile || hasCheckedCerts.current) return;
       hasCheckedCerts.current = true;
-
       try {
         const myCerts = await base44.entities.Certificate.filter({ user_email: user.email });
         const newCerts = [];
         const email = user.email;
-        
-        // 30 Days Consistent Posting
+
         if (!myCerts.find(c => c.title === '30 Days Consistent Posting')) {
           const drops = await base44.entities.GlowDrop.filter({ user_email: email });
           const uniqueDays = new Set(drops.map(d => d.created_date?.split('T')[0])).size;
-          if (uniqueDays >= 30) {
-            newCerts.push({ user_email: email, title: '30 Days Consistent Posting', description: 'Posted Glow Drops on 30 distinct days.', icon: '🏅' });
-          }
+          if (uniqueDays >= 30) newCerts.push({ user_email: email, title: '30 Days Consistent Posting', description: 'Posted Glow Drops on 30 distinct days.', icon: '🏅' });
         }
-        
-        // Community Leader
         if (!myCerts.find(c => c.title === 'Community Leader')) {
           const groups = await base44.entities.GlowGroup.filter({ leader_email: email });
-          if (groups.length > 0) {
-            newCerts.push({ user_email: email, title: 'Community Leader', description: 'Led a GlowGroup for the first time.', icon: '👑' });
-          }
+          if (groups.length > 0) newCerts.push({ user_email: email, title: 'Community Leader', description: 'Led a GlowGroup for the first time.', icon: '👑' });
         }
-
-        // 7-Day Glow Streak
         if (!myCerts.find(c => c.title === '7-Day Glow Streak') && (user.faith_streak_count || 0) >= 7) {
           newCerts.push({ user_email: email, title: '7-Day Glow Streak', description: 'Maintained a 7-day consecutive posting streak.', icon: '🔥' });
         }
-
-        // Community Influencer — 50+ total likes across all drops
         if (!myCerts.find(c => c.title === 'Community Influencer')) {
           const drops = await base44.entities.GlowDrop.filter({ user_email: email });
           const totalLikes = drops.reduce((sum, d) => sum + (d.likes_count || 0), 0);
-          if (totalLikes >= 50) {
-            newCerts.push({ user_email: email, title: 'Community Influencer', description: 'Your posts received 50+ total likes — you inspire others!', icon: '⭐' });
-          }
+          if (totalLikes >= 50) newCerts.push({ user_email: email, title: 'Community Influencer', description: 'Your posts received 50+ total likes — you inspire others!', icon: '⭐' });
         }
-
-        // Prayer Warrior — 50+ prayer supports
         if (!myCerts.find(c => c.title === 'Prayer Warrior')) {
           const supports = await base44.entities.PrayerSupport.filter({ user_email: email });
-          if (supports.length >= 50) {
-            newCerts.push({ user_email: email, title: 'Prayer Warrior', description: 'Stood in prayer for 50+ requests. Mighty intercessor!', icon: '🛡️' });
-          }
+          if (supports.length >= 50) newCerts.push({ user_email: email, title: 'Prayer Warrior', description: 'Stood in prayer for 50+ requests. Mighty intercessor!', icon: '🛡️' });
         }
-
-        // Monthly Evangelist — 20+ drops in a single month
         if (!myCerts.find(c => c.title === 'Monthly Evangelist')) {
           const drops = await base44.entities.GlowDrop.filter({ user_email: email });
           const monthCounts = {};
@@ -282,7 +249,6 @@ export default function Profile() {
             newCerts.push({ user_email: email, title: 'Monthly Evangelist', description: 'Posted 20+ Glow Drops in a single month!', icon: '📅' });
           }
         }
-
         if (newCerts.length > 0) {
           await base44.entities.Certificate.bulkCreate(newCerts);
           queryClient.invalidateQueries({ queryKey: ["myCerts"] });
@@ -290,16 +256,12 @@ export default function Profile() {
         }
       } catch (err) {
         hasCheckedCerts.current = false;
-        console.error("Failed to check certificates:", err);
       }
     }
     checkCertificates();
   }, [user?.email, isOwnProfile, queryClient]);
 
   const [uploadingImage, setUploadingImage] = useState(false);
-
-
-
   const [cropData, setCropData] = useState(null);
 
   const profileCompletion = useMemo(() => {
@@ -321,12 +283,10 @@ export default function Profile() {
   const handleShareProfile = async () => {
     const shareUrl = window.location.href;
     const shareText = `${user.full_name || "LightMode Member"} • ${glowRank.name} • ${user.glow_score || 0} Glow Points`;
-
     if (navigator.share) {
       await navigator.share({ title: `${user.full_name || "Profile"} | LightMode`, text: shareText, url: shareUrl });
       return;
     }
-
     await navigator.clipboard.writeText(shareUrl);
     toast.success("Profile link copied");
   };
@@ -335,7 +295,7 @@ export default function Profile() {
     const file = e.target.files[0];
     if (!file) return;
     setCropData({ file, type, aspectRatio: type === 'profile' ? 1 : 3 });
-    e.target.value = null; // reset input
+    e.target.value = null;
   };
 
   const handleCropComplete = async (croppedFile) => {
@@ -345,20 +305,14 @@ export default function Profile() {
     const toastId = toast.loading(`Uploading ${type} photo...`);
     try {
       const res = await base44.integrations.Core.UploadFile({ file: croppedFile });
-      
       const updates = {};
-      if (type === "profile") {
-        updates.profile_picture_url = res.file_url;
-      } else {
-        updates.cover_picture_url = res.file_url;
-      }
-      
+      if (type === "profile") updates.profile_picture_url = res.file_url;
+      else updates.cover_picture_url = res.file_url;
       await base44.auth.updateMe(updates);
       const updated = await base44.auth.me();
       setUser(updated);
       setCurrentUser(updated);
       setEditData(prev => ({ ...prev, ...updates }));
-      
       toast.success(`${type === 'profile' ? 'Profile' : 'Cover'} photo updated!`, { id: toastId });
     } catch (err) {
       toast.error(`Failed to upload ${type} photo`, { id: toastId });
@@ -368,90 +322,60 @@ export default function Profile() {
   };
 
   if (!user) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
+    return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white pb-20 relative overflow-hidden">
+    <div className="min-h-screen pb-20 relative overflow-hidden font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       <style>{`
-        @keyframes pan-map {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
         @keyframes float-light {
           0%, 100% { transform: translateY(0) scale(1); opacity: 0.15; }
           50% { transform: translateY(-30px) scale(1.1); opacity: 0.35; }
         }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #F0F4FA; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #1E5AFF, #5AC8FF); border-radius: 3px; }
       `}</style>
-      
-      {/* Wireframe Map Background */}
-      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none w-[200vw] flex" style={{ animation: "pan-map 180s linear infinite" }}>
-        <div className="h-full w-[100vw] bg-cover bg-center flex-shrink-0" style={{ backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7dea9e31b_digital-world-map-hologram-blue-background.jpg')", filter: "grayscale(1) brightness(0.4) contrast(1.5)" }} />
-        <div className="h-full w-[100vw] bg-cover bg-center flex-shrink-0" style={{ backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7dea9e31b_digital-world-map-hologram-blue-background.jpg')", filter: "grayscale(1) brightness(0.4) contrast(1.5)" }} />
-      </div>
-      
-      {/* Subtle dim accent lights */}
-      <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] bg-[#00CFFF] rounded-full blur-[120px] z-0 opacity-[0.04] pointer-events-none animate-[float-light_8s_ease-in-out_infinite]"></div>
-      <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] bg-[#00CFFF] rounded-full blur-[140px] z-0 opacity-[0.03] pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]"></div>
+
+      {/* Soft accent lights */}
+      <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] rounded-full blur-[120px] z-0 opacity-30 pointer-events-none animate-[float-light_8s_ease-in-out_infinite]" style={{ background: "#5AC8FF" }}></div>
+      <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] rounded-full blur-[140px] z-0 opacity-20 pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]" style={{ background: "#FFD000" }}></div>
 
       {/* Top Nav Bar */}
-      <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5">
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
-            <img
-              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
-              alt="LightMode"
-              style={{ height: 56, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
-            />
+            <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 48, width: "auto" }} />
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
-            <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Home className="w-4 h-4" /><span className="hidden sm:inline">Feed</span>
-            </Link>
-            <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Users className="w-4 h-4" /><span className="hidden sm:inline">Groups</span>
-            </Link>
-            <Link to={createPageUrl("Notifications")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Bell className="w-4 h-4" /><span className="hidden sm:inline">Alerts</span>
-            </Link>
-            <Link to={createPageUrl("Dashboard")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Zap className="w-4 h-4" /><span className="hidden sm:inline">Dashboard</span>
-            </Link>
-            <Link to={createPageUrl("Messages")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <MessageCircle className="w-4 h-4" /><span className="hidden sm:inline">Messages</span>
-            </Link>
-            <Link to={createPageUrl("Home")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-[#00CFFF] hover:bg-white/5 transition text-sm font-medium border border-white/5">
-              <Globe className="w-4 h-4" /> Website
-            </Link>
+            {[
+              { to: "Feed", icon: <Home className="w-4 h-4" />, label: "Feed" },
+              { to: "GlowGroups", icon: <Users className="w-4 h-4" />, label: "Groups" },
+              { to: "Notifications", icon: <Bell className="w-4 h-4" />, label: "Alerts" },
+              { to: "Dashboard", icon: <Zap className="w-4 h-4" />, label: "Dashboard" },
+              { to: "Messages", icon: <MessageCircle className="w-4 h-4" />, label: "Messages" },
+            ].map(item => (
+              <Link key={item.to} to={createPageUrl(item.to)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl transition text-sm font-semibold" style={{ color: "#4A5878" }}
+                onMouseOver={e => { e.currentTarget.style.background = "#EEF3FF"; e.currentTarget.style.color = "#0B3FD9"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#4A5878"; }}
+              >
+                {item.icon}<span className="hidden sm:inline">{item.label}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </div>
 
       {cropData && (
-        <ImageCropperModal
-          file={cropData.file}
-          aspectRatio={cropData.aspectRatio}
-          onCancel={() => setCropData(null)}
-          onCrop={handleCropComplete}
-        />
+        <ImageCropperModal file={cropData.file} aspectRatio={cropData.aspectRatio} onCancel={() => setCropData(null)} onCrop={handleCropComplete} />
       )}
       <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
-      <PledgeModal
-        isOpen={pledgeModalOpen}
-        onClose={() => setPledgeModalOpen(false)}
-        onSigned={async () => {
-          setPledgeModalOpen(false);
-          const updated = await base44.auth.me();
-          setUser(updated);
-          setCurrentUser(updated);
-        }}
-      />
-      <PledgeModal
-        isOpen={viewPledgeOpen}
-        onClose={() => setViewPledgeOpen(false)}
-        readOnly
-        signedAt={user?.pledge_signed_at}
-      />
+      <PledgeModal isOpen={pledgeModalOpen} onClose={() => setPledgeModalOpen(false)} onSigned={async () => {
+        setPledgeModalOpen(false);
+        const updated = await base44.auth.me();
+        setUser(updated); setCurrentUser(updated);
+      }} />
+      <PledgeModal isOpen={viewPledgeOpen} onClose={() => setViewPledgeOpen(false)} readOnly signedAt={user?.pledge_signed_at} />
       <ProfileConnectionsModal
         title={connectionsView}
         items={connectionsView === "Followers" ? myFollowers.map((item) => ({ email: item.follower_email })) : myFollowing.map((item) => ({ email: item.following_email }))}
@@ -461,105 +385,70 @@ export default function Profile() {
         onClose={() => setConnectionsView(null)}
         onToggleFollow={(email) => followMutation.mutate(email)}
       />
-      <div className="max-w-4xl mx-auto relative z-10">
 
+      <div className="max-w-4xl mx-auto relative z-10">
         {userInstitutionApps.length > 0 ? (
-          /* ======= EXECUTIVE PROFILE HEADER for Institution Owners ======= */
           <>
             <ExecutiveProfileHeader
-              user={user}
-              isOwnProfile={isOwnProfile}
-              profileEmail={profileEmail}
-              myDrops={myDrops}
-              myFollowers={myFollowers}
-              myFollowing={myFollowing}
-              onSetConnectionsView={setConnectionsView}
-              onEditProfile={() => setIsEditing(true)}
-              onFollowToggle={() => followMutation.mutate(profileEmail)}
-              isFollowingThisUser={isFollowingThisUser}
-              currentUser={currentUser}
-              onProfileImageSelect={e => handleImageSelect(e, "profile")}
-              onCoverImageSelect={e => handleImageSelect(e, "cover")}
-              uploadingImage={uploadingImage}
+              user={user} isOwnProfile={isOwnProfile} profileEmail={profileEmail}
+              myDrops={myDrops} myFollowers={myFollowers} myFollowing={myFollowing}
+              onSetConnectionsView={setConnectionsView} onEditProfile={() => setIsEditing(true)}
+              onFollowToggle={() => followMutation.mutate(profileEmail)} isFollowingThisUser={isFollowingThisUser}
+              currentUser={currentUser} onProfileImageSelect={e => handleImageSelect(e, "profile")}
+              onCoverImageSelect={e => handleImageSelect(e, "cover")} uploadingImage={uploadingImage}
               institutionApps={userInstitutionApps}
             />
             <div className="h-8" />
           </>
         ) : (
-          /* ======= STANDARD PROFILE HEADER for regular users ======= */
           <div className="px-4">
-            <div className="flex items-center justify-between mb-8 py-4">
-              <div className="font-bold text-lg text-gray-400">{user.full_name || user.email}</div>
+            <div className="flex items-center justify-between mb-6 py-4">
+              <div className="font-bold text-lg" style={{ color: "#0B1B3D" }}>{user.full_name || user.email}</div>
               {isOwnProfile && (
-                <button onClick={() => setIsEditing(!isEditing)} className="text-gray-400 hover:text-white transition">
-                  <Settings className="w-6 h-6" />
+                <button onClick={() => setIsEditing(!isEditing)} className="transition p-2 rounded-full" style={{ color: "#4A5878", background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
+                  <Settings className="w-5 h-5" />
                 </button>
               )}
             </div>
 
             {/* Cover Photo */}
-            <style>{`
-              @keyframes sweep-light {
-                0% { transform: translateX(-150%) skewX(-20deg); }
-                100% { transform: translateX(300%) skewX(-20deg); }
-              }
-              @keyframes spin-border {
-                0% { transform: translate(-50%, -50%) rotate(0deg); }
-                100% { transform: translate(-50%, -50%) rotate(360deg); }
-              }
-            `}</style>
-            <div 
-              className={`w-full h-48 sm:h-64 rounded-2xl mb-8 relative group p-[2px] overflow-hidden shadow-[0_0_30px_rgba(0,207,255,0.15)] ${isOwnProfile ? 'cursor-pointer' : ''}`}
+            <div
+              className={`w-full h-48 sm:h-64 rounded-[1.75rem] mb-8 relative group overflow-hidden ${isOwnProfile ? 'cursor-pointer' : ''}`}
+              style={{ background: "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", border: "1px solid #E6ECF5", boxShadow: "0 4px 20px rgba(11, 63, 217, 0.08)" }}
               onClick={() => isOwnProfile && coverInputRef.current?.click()}
             >
-              {/* Rotating Edge Light */}
-              <div style={{
-                position: "absolute", top: "50%", left: "50%", width: "200%", height: "200%",
-                background: "conic-gradient(from 0deg, transparent 60%, #00CFFF 80%, #8A5CFF 100%)",
-                animation: "spin-border 4s linear infinite",
-                zIndex: 0
-              }} />
-
-              {/* Inner Content Wrapper */}
-              <div 
-                className="w-full h-full rounded-[14px] bg-[#121826] overflow-hidden relative z-10"
-                style={user.cover_picture_url ? { backgroundImage: `url(${user.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-              >
-                {/* Sweeping Light Effect */}
-                <div style={{
-                  position: "absolute", top: 0, bottom: 0, left: 0, width: "30%",
-                  background: "linear-gradient(90deg, transparent, rgba(0,207,255,0.1), rgba(255,255,255,0.3), rgba(0,207,255,0.1), transparent)",
-                  animation: "sweep-light 4s infinite ease-in-out",
-                  zIndex: 1, pointerEvents: "none",
-                  boxShadow: "0 0 20px rgba(0,207,255,0.4)"
-                }} />
-
-                {isOwnProfile && (
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-                    <div className="flex items-center gap-2 text-white font-bold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm">
-                      <Camera className="w-5 h-5" /> Change Cover
-                    </div>
+              {user.cover_picture_url && (
+                <img src={user.cover_picture_url} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
+              )}
+              {isOwnProfile && (
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20" style={{ background: "rgba(11, 27, 61, 0.45)" }}>
+                  <div className="flex items-center gap-2 font-bold px-4 py-2 rounded-lg backdrop-blur-sm" style={{ background: "rgba(255,255,255,0.95)", color: "#0B3FD9" }}>
+                    <Camera className="w-5 h-5" /> Change Cover
                   </div>
-                )}
-                {!user.cover_picture_url && (
-                  <div className="absolute inset-0 flex items-center justify-center text-gray-600 bg-gradient-to-br from-[#0B0F1A] to-[#121826]">
-                    No Cover Photo
+                </div>
+              )}
+              {!user.cover_picture_url && (
+                <div className="absolute inset-0 flex items-center justify-center" style={{ color: "#8A97B5" }}>
+                  <div className="text-center">
+                    <Camera className="w-10 h-10 mx-auto mb-2 opacity-40" />
+                    <div className="text-sm font-semibold">No Cover Photo</div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
             <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "cover")} disabled={uploadingImage} />
 
             {/* Profile Header */}
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-white/5 pb-12 -mt-20 sm:-mt-24 relative z-10 px-4">
-              <div 
-                className={`w-32 h-32 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-1 flex-shrink-0 shadow-[0_0_30px_rgba(0,207,255,0.3)] overflow-hidden group relative ${isOwnProfile ? 'cursor-pointer' : ''}`}
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10 pb-10 -mt-20 sm:-mt-24 relative z-10 px-4 border-b" style={{ borderColor: "#E6ECF5" }}>
+              <div
+                className={`w-32 h-32 rounded-full p-1 flex-shrink-0 overflow-hidden group relative ${isOwnProfile ? 'cursor-pointer' : ''}`}
+                style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", boxShadow: "0 8px 28px rgba(11, 63, 217, 0.25)" }}
                 onClick={() => isOwnProfile && profileInputRef.current?.click()}
               >
-                <div className="w-full h-full rounded-full bg-[#121826] border-4 border-[#0B0F1A] flex items-center justify-center text-5xl font-bold font-['Space_Grotesk'] uppercase overflow-hidden relative">
+                <div className="w-full h-full rounded-full flex items-center justify-center overflow-hidden" style={{ background: "#FFFFFF", border: "4px solid #FFFFFF" }}>
                   <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="Profile" className="w-full h-full object-cover" />
                   {isOwnProfile && (
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10">
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10" style={{ background: "rgba(11, 27, 61, 0.5)" }}>
                       <Camera className="w-6 h-6 text-white mb-1" />
                       <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
                     </div>
@@ -567,123 +456,108 @@ export default function Profile() {
                 </div>
               </div>
               <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "profile")} disabled={uploadingImage} />
-              
+
               <div className="flex-1 text-center md:text-left mt-4 md:mt-16">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
                   <div className="flex flex-col md:flex-row md:items-center gap-3">
-                    <h1 className="text-3xl font-bold font-['Inter']">{user.full_name}</h1>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 w-fit mx-auto md:mx-0">
+                    <h1 className="text-3xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{user.full_name}</h1>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full w-fit mx-auto md:mx-0" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
                       <Sparkles className="w-4 h-4" style={{ color: glowRank.color }} />
-                      <span className="text-sm font-bold text-white">{glowRank.name}</span>
+                      <span className="text-sm font-bold" style={{ color: "#0B1B3D" }}>{glowRank.name}</span>
                     </div>
                   </div>
                   {isOwnProfile && !isEditing && (
-                    <button onClick={() => setIsEditing(true)} className="px-5 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-semibold transition border border-white/5">
+                    <button onClick={() => setIsEditing(true)} className="px-5 py-2 rounded-full text-sm font-bold transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B3FD9", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
                       Edit Profile
                     </button>
                   )}
                   {!isOwnProfile && currentUser && (
                     <div className="flex flex-wrap gap-3">
-                      <button 
-                        onClick={() => followMutation.mutate(profileEmail)} 
-                        className={`px-6 py-2 rounded-lg text-sm font-bold transition border ${isFollowingThisUser ? "bg-white/10 border-white/10 text-gray-300 hover:border-red-500 hover:text-red-400" : "bg-[#00CFFF] border-[#00CFFF] text-black hover:bg-[#00CFFF]/80"}`}
+                      <button
+                        onClick={() => followMutation.mutate(profileEmail)}
+                        className="px-6 py-2 rounded-full text-sm font-bold transition"
+                        style={isFollowingThisUser
+                          ? { background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#4A5878" }
+                          : { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", border: "none", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }}
                       >
                         {isFollowingThisUser ? "Following" : "Follow"}
                       </button>
-                      <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(profileEmail)}`} className="px-6 py-2 rounded-lg text-sm font-bold transition border border-white/10 bg-white/5 text-white hover:bg-white/10">
+                      <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(profileEmail)}`} className="px-6 py-2 rounded-full text-sm font-bold transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D" }}>
                         Message
                       </Link>
                     </div>
                   )}
                 </div>
-                
-                <div className="flex flex-wrap gap-6 justify-center md:justify-start mb-6">
+
+                <div className="flex flex-wrap gap-6 justify-center md:justify-start mb-5">
                   <div className="text-center md:text-left">
-                    <span className="font-bold text-2xl">{myDrops.length}</span>
-                    <span className="text-gray-400 text-sm block md:inline"> posts</span>
+                    <span className="font-bold text-2xl" style={{ color: "#0B1B3D" }}>{myDrops.length}</span>
+                    <span className="text-sm block md:inline ml-1" style={{ color: "#6B7FA0" }}>posts</span>
                   </div>
                   <button type="button" onClick={() => setConnectionsView("Followers")} className="text-center md:text-left transition hover:opacity-80">
-                    <span className="font-bold text-2xl text-white">{myFollowers.length}</span>
-                    <span className="text-gray-400 text-sm block md:inline"> followers</span>
+                    <span className="font-bold text-2xl" style={{ color: "#0B1B3D" }}>{myFollowers.length}</span>
+                    <span className="text-sm block md:inline ml-1" style={{ color: "#6B7FA0" }}>followers</span>
                   </button>
                   <button type="button" onClick={() => setConnectionsView("Following")} className="text-center md:text-left transition hover:opacity-80">
-                    <span className="font-bold text-2xl text-white">{myFollowing.length}</span>
-                    <span className="text-gray-400 text-sm block md:inline"> following</span>
+                    <span className="font-bold text-2xl" style={{ color: "#0B1B3D" }}>{myFollowing.length}</span>
+                    <span className="text-sm block md:inline ml-1" style={{ color: "#6B7FA0" }}>following</span>
                   </button>
                 </div>
 
-                <div className="text-sm text-gray-300 max-w-md mx-auto md:mx-0 space-y-3">
+                <div className="text-sm max-w-md mx-auto md:mx-0 space-y-3" style={{ color: "#3A4A6B" }}>
                   <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                    <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-white uppercase tracking-wider">{user.country || "Global Citizen"}</span>
-                    {myMemberships.length > 0 && <span className="px-3 py-1 rounded-full bg-[#8A5CFF]/10 border border-[#8A5CFF]/20 text-xs font-bold text-[#C9B3FF]">{myMemberships.length} GlowGroup{myMemberships.length > 1 ? "s" : ""}</span>}
-                    {userInstitutionApps.length > 0 && <span className="px-3 py-1 rounded-full bg-[#FFD000]/10 border border-[#FFD000]/20 text-xs font-bold text-[#FFD000]">Institution linked</span>}
+                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" style={{ background: "#EEF3FF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>{user.country || "Global Citizen"}</span>
+                    {myMemberships.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(31, 184, 255, 0.12)", border: "1px solid #B8E5FF", color: "#0B3FD9" }}>{myMemberships.length} GlowGroup{myMemberships.length > 1 ? "s" : ""}</span>}
+                    {userInstitutionApps.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}>Institution linked</span>}
                   </div>
                   <p className="leading-relaxed whitespace-pre-line">
                     {user.bio || "Digital Missionary ⚡ Spreading light through faith in the online world."}
                   </p>
                   {user.website_url && (
-                    <a
-                      href={user.website_url.startsWith("http") ? user.website_url : `https://${user.website_url}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[#00CFFF] font-bold text-xs hover:underline break-all"
-                    >
+                    <a href={user.website_url.startsWith("http") ? user.website_url : `https://${user.website_url}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-bold text-xs hover:underline break-all" style={{ color: "#0B3FD9" }}>
                       🔗 {user.website_url.replace(/^https?:\/\//, "")}
                     </a>
                   )}
-                  <div className="flex items-center gap-2 text-[10px] text-gray-500 mt-1 justify-center md:justify-start">
+                  <div className="flex items-center gap-2 text-[10px] mt-1 justify-center md:justify-start" style={{ color: "#8A97B5" }}>
                     <span>Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}</span>
                   </div>
                 </div>
-
               </div>
             </div>
 
-            {/* Highlights Section — full width below header */}
+            {/* Highlights Section */}
             <div className="px-4 mb-6">
-              <ProfileHighlights
-                user={user}
-                profileCompletion={profileCompletion}
-                nextLevelXp={nextLevelXp}
-                recentActivity={recentActivity}
-                onShare={handleShareProfile}
-              />
+              <ProfileHighlights user={user} profileCompletion={profileCompletion} nextLevelXp={nextLevelXp} recentActivity={recentActivity} onShare={handleShareProfile} />
             </div>
           </div>
         )}
 
-        {/* ===== LIGHTMODE PLEDGE STATUS ===== */}
+        {/* LIGHTMODE PLEDGE STATUS */}
         {isOwnProfile && (
           <div className="mx-4 mb-6">
             {user.pledge_signed ? (
-              <div className="bg-gradient-to-r from-[#FFD000]/10 to-[#00CFFF]/10 border border-[#FFD000]/30 rounded-2xl p-5 flex items-center gap-4 flex-wrap shadow-[0_0_20px_rgba(255,208,0,0.1)]">
-                <div className="w-12 h-12 rounded-full bg-[#FFD000]/15 border border-[#FFD000]/40 flex items-center justify-center text-2xl flex-shrink-0">✋</div>
+              <div className="rounded-[1.5rem] p-5 flex items-center gap-4 flex-wrap" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0", boxShadow: "0 4px 16px rgba(255, 159, 26, 0.12)" }}>
+                <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "#FFFFFF", border: "1px solid #FFD000", boxShadow: "0 2px 8px rgba(255, 208, 0, 0.2)" }}>✋</div>
                 <div className="flex-1 min-w-[180px]">
-                  <div className="text-xs font-bold text-[#FFD000] uppercase tracking-widest font-['Space_Grotesk']">LightMode Pledge</div>
-                  <div className="text-white font-bold font-['Space_Grotesk'] mt-0.5">Pledge Signed ⚡</div>
+                  <div className="text-xs font-bold uppercase tracking-widest font-['Space_Grotesk']" style={{ color: "#CC7A00" }}>LightMode Pledge</div>
+                  <div className="font-bold font-['Space_Grotesk'] mt-0.5" style={{ color: "#0B1B3D" }}>Pledge Signed ⚡</div>
                   {user.pledge_signed_at && (
-                    <div className="text-[11px] text-gray-500 mt-0.5">Signed {new Date(user.pledge_signed_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</div>
+                    <div className="text-[11px] mt-0.5" style={{ color: "#8B6914" }}>Signed {new Date(user.pledge_signed_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</div>
                   )}
                 </div>
-                <button
-                  onClick={() => setViewPledgeOpen(true)}
-                  className="px-4 py-2 rounded-full bg-white/8 hover:bg-white/15 text-[#FFD000] border border-[#FFD000]/40 font-bold text-xs font-['Space_Grotesk'] uppercase tracking-wider transition flex items-center gap-1.5"
-                >
+                <button onClick={() => setViewPledgeOpen(true)} className="px-4 py-2 rounded-full font-bold text-xs font-['Space_Grotesk'] uppercase tracking-wider transition flex items-center gap-1.5" style={{ background: "#FFFFFF", border: "1px solid #FFD000", color: "#CC7A00" }}>
                   📜 View Pledge
                 </button>
               </div>
             ) : (
-              <div className="bg-gradient-to-r from-[#FFD000]/8 to-[#FFA500]/8 border border-[#FFD000]/30 rounded-2xl p-5 flex items-center gap-4 flex-wrap">
-                <div className="w-12 h-12 rounded-full bg-[#FFD000]/15 border border-[#FFD000]/40 flex items-center justify-center text-2xl flex-shrink-0">✋</div>
+              <div className="rounded-[1.5rem] p-5 flex items-center gap-4 flex-wrap" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFEECC 100%)", border: "1px solid #FFE4A0" }}>
+                <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "#FFFFFF", border: "1px solid #FFD000" }}>✋</div>
                 <div className="flex-1 min-w-[180px]">
-                  <div className="text-xs font-bold text-[#FFD000] uppercase tracking-widest font-['Space_Grotesk']">Pledge Required</div>
-                  <div className="text-white font-bold font-['Space_Grotesk'] mt-0.5">Sign the LightMode Pledge</div>
-                  <div className="text-[12px] text-gray-400 mt-1">Commit to always-on faith and unlock the full movement.</div>
+                  <div className="text-xs font-bold uppercase tracking-widest font-['Space_Grotesk']" style={{ color: "#CC7A00" }}>Pledge Required</div>
+                  <div className="font-bold font-['Space_Grotesk'] mt-0.5" style={{ color: "#0B1B3D" }}>Sign the LightMode Pledge</div>
+                  <div className="text-[12px] mt-1" style={{ color: "#6B7FA0" }}>Commit to always-on faith and unlock the full movement.</div>
                 </div>
-                <button
-                  onClick={() => setPledgeModalOpen(true)}
-                  className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#FFD000] to-[#FFA500] text-black font-black text-sm font-['Space_Grotesk'] hover:scale-105 transition shadow-[0_0_20px_rgba(255,208,0,0.4)]"
-                >
+                <button onClick={() => setPledgeModalOpen(true)} className="px-5 py-2.5 rounded-full font-black text-sm font-['Space_Grotesk'] hover:scale-105 transition" style={{ background: "linear-gradient(90deg, #FFD000 0%, #FF9F1A 100%)", color: "#0B1B3D", boxShadow: "0 4px 14px rgba(255, 159, 26, 0.35)" }}>
                   ⚡ Sign Pledge
                 </button>
               </div>
@@ -712,77 +586,87 @@ export default function Profile() {
         )}
 
         {/* Tabs */}
-        <div className="flex border-t border-white/10 mb-2 overflow-x-auto hide-scrollbar mx-4">
-          <div onClick={() => setActiveProfileTab("drops")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "drops" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
-            <Grid className="w-4 h-4" /> DROPS
-          </div>
-          <div onClick={() => setActiveProfileTab("saved")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "saved" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
-            <Bookmark className="w-4 h-4" /> SAVED
-          </div>
-          <div onClick={() => setActiveProfileTab("missions")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "missions" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
-            <Target className="w-4 h-4" /> MISSIONS
-          </div>
-          <div onClick={() => setActiveProfileTab("badges")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "badges" ? "border-[#00CFFF] text-white" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
-            <Award className="w-4 h-4" /> ACHIEVEMENTS
-          </div>
-          <div onClick={() => setActiveProfileTab("institutions")} className={`flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] -mt-[2px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap ${activeProfileTab === "institutions" ? (userInstitutionApps.length > 0 ? "border-[#FFD000] text-[#FFD000]" : "border-[#00CFFF] text-white") : "border-transparent text-gray-500 hover:text-gray-300"}`}>
-            <Building2 className="w-4 h-4" /> INSTITUTIONS
-          </div>
+        <div className="flex border-t border-b mb-2 overflow-x-auto hide-scrollbar mx-4" style={{ borderColor: "#E6ECF5" }}>
+          {[
+            { key: "drops", icon: <Grid className="w-4 h-4" />, label: "DROPS" },
+            { key: "saved", icon: <Bookmark className="w-4 h-4" />, label: "SAVED" },
+            { key: "missions", icon: <Target className="w-4 h-4" />, label: "MISSIONS" },
+            { key: "badges", icon: <Award className="w-4 h-4" />, label: "ACHIEVEMENTS" },
+            { key: "institutions", icon: <Building2 className="w-4 h-4" />, label: "INSTITUTIONS" },
+          ].map(tab => {
+            const isActive = activeProfileTab === tab.key;
+            const isInstitutions = tab.key === "institutions" && userInstitutionApps.length > 0;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveProfileTab(tab.key)}
+                className="flex-1 py-4 flex items-center justify-center gap-2 border-t-[3px] border-b-[3px] -mb-[3px] -mt-[3px] font-bold tracking-widest text-xs cursor-pointer transition whitespace-nowrap"
+                style={isActive
+                  ? { borderTopColor: "transparent", borderBottomColor: isInstitutions ? "#FFD000" : "#0B3FD9", color: isInstitutions ? "#CC7A00" : "#0B3FD9" }
+                  : { borderTopColor: "transparent", borderBottomColor: "transparent", color: "#6B7FA0" }}
+              >
+                {tab.icon} {tab.label}
+              </button>
+            );
+          })}
         </div>
 
+        {/* DROPS TAB */}
         {activeProfileTab === "drops" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 px-4">
-          {myDrops.map(drop => (
-            <Link
-              key={drop.id}
-              to={`${createPageUrl("Post")}?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(profileEmail)}`}
-              className="aspect-[4/5] bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-white/5 relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-3 text-center rounded-2xl"
-            >
-              {drop.media_url ? (
-                <>
-                  <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="absolute inset-0 w-full h-full object-contain bg-black" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-10" />
-                </>
-              ) : (
-                <div className="relative z-10 w-full h-full flex items-center justify-center px-3">
-                  <span className="text-[#00CFFF] font-bold font-['Space_Grotesk'] text-sm sm:text-lg md:text-2xl break-words line-clamp-5 leading-tight drop-shadow-md">
-                    {drop.verse}
-                  </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 px-4">
+            {myDrops.map(drop => (
+              <Link
+                key={drop.id}
+                to={`${createPageUrl("Post")}?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(profileEmail)}`}
+                className="aspect-[4/5] relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-3 text-center rounded-[1.25rem] transition-all hover:-translate-y-0.5"
+                style={{ background: drop.media_url ? "#FFFFFF" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}
+              >
+                {drop.media_url ? (
+                  <>
+                    <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="absolute inset-0 w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10" />
+                  </>
+                ) : (
+                  <div className="relative z-10 w-full h-full flex items-center justify-center px-3">
+                    <span className="font-bold font-['Space_Grotesk'] text-sm sm:text-lg md:text-xl break-words line-clamp-5 leading-tight" style={{ color: "#0B3FD9" }}>
+                      {drop.verse}
+                    </span>
+                  </div>
+                )}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]" style={{ background: "rgba(11, 27, 61, 0.55)" }}>
+                  <div className="flex items-center gap-2 font-bold text-lg md:text-2xl text-white">
+                    <Heart className="w-5 h-5 md:w-7 md:h-7 fill-white" /> {drop.likes_count || 0}
+                  </div>
+                  <div className="text-sm text-white/90 font-medium">Open post</div>
                 </div>
-              )}
-              <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]">
-                <div className="flex items-center gap-2 font-bold text-lg md:text-2xl text-white">
-                  <Heart className="w-5 h-5 md:w-7 md:h-7 fill-white" /> {drop.likes_count || 0}
+              </Link>
+            ))}
+            {myDrops.length === 0 && (
+              <div className="col-span-full py-24 flex flex-col items-center justify-center rounded-[1.5rem]" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
+                <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: "#EEF3FF", border: "2px solid #D6E4FF" }}>
+                  <Grid className="w-10 h-10" style={{ color: "#1FB8FF" }} />
                 </div>
-                <div className="text-sm text-white/90 font-medium">Open post</div>
+                <h2 className="text-2xl font-bold font-['Space_Grotesk'] mb-2" style={{ color: "#0B1B3D" }}>No Drops Yet</h2>
+                <p className="mb-6 text-center max-w-md" style={{ color: "#6B7FA0" }}>When you share verses and reflections, they will appear on your profile grid.</p>
+                {isOwnProfile && (
+                  <button onClick={() => setIsDropModalOpen(true)} className="px-6 py-3 font-bold rounded-full transition" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }}>
+                    Share your first Drop
+                  </button>
+                )}
               </div>
-            </Link>
-          ))}
-          {myDrops.length === 0 && (
-            <div className="col-span-full py-32 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-2xl bg-white/[0.02]">
-              <div className="w-20 h-20 rounded-full border-2 border-gray-600 flex items-center justify-center mb-6">
-                <Grid className="w-10 h-10 text-gray-500" />
-              </div>
-              <h2 className="text-2xl font-bold font-['Space_Grotesk'] mb-2">No Drops Yet</h2>
-              <p className="text-gray-400 mb-6 text-center max-w-md">When you share verses and reflections, they will appear on your profile grid.</p>
-              {isOwnProfile && (
-                <button onClick={() => setIsDropModalOpen(true)} className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition">
-                  Share your first Drop
-                </button>
-              )}
-            </div>
-          )}
-        </div>
+            )}
+          </div>
         )}
 
+        {/* SAVED TAB */}
         {activeProfileTab === "saved" && isOwnProfile && (
           <div className="py-6 px-4">
             {savedDrops.length === 0 ? (
-              <div className="text-center py-20 text-gray-500 bg-[#121826]/50 rounded-2xl border border-white/5">
-                <Bookmark className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                <p className="font-bold text-lg">No saved drops yet.</p>
-                <p className="text-sm mt-1">Bookmark posts you love and they'll appear here.</p>
-                <Link to={createPageUrl("Feed")} className="inline-block mt-4 text-[#00CFFF] font-bold hover:underline">Explore Feed</Link>
+              <div className="text-center py-20 rounded-[1.5rem]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.04)" }}>
+                <Bookmark className="w-10 h-10 mx-auto mb-3" style={{ color: "#8A97B5" }} />
+                <p className="font-bold text-lg" style={{ color: "#0B1B3D" }}>No saved drops yet.</p>
+                <p className="text-sm mt-1" style={{ color: "#6B7FA0" }}>Bookmark posts you love and they'll appear here.</p>
+                <Link to={createPageUrl("Feed")} className="inline-block mt-4 font-bold hover:underline" style={{ color: "#0B3FD9" }}>Explore Feed</Link>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
@@ -790,21 +674,22 @@ export default function Profile() {
                   <Link
                     key={drop.id}
                     to={`${createPageUrl("Post")}?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
-                    className="aspect-[4/5] bg-gradient-to-br from-[#121826] to-[#0B0F1A] border border-white/5 relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-3 text-center rounded-2xl"
+                    className="aspect-[4/5] relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-3 text-center rounded-[1.25rem] transition-all hover:-translate-y-0.5"
+                    style={{ background: drop.media_url ? "#FFFFFF" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}
                   >
                     {drop.media_url ? (
                       <>
-                        <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="absolute inset-0 w-full h-full object-contain bg-black" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-10" />
+                        <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="absolute inset-0 w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10" />
                       </>
                     ) : (
                       <div className="relative z-10 w-full h-full flex items-center justify-center px-3">
-                        <span className="text-[#00CFFF] font-bold font-['Space_Grotesk'] text-sm sm:text-lg md:text-2xl break-words line-clamp-5 leading-tight drop-shadow-md">
+                        <span className="font-bold font-['Space_Grotesk'] text-sm sm:text-lg md:text-xl break-words line-clamp-5 leading-tight" style={{ color: "#0B3FD9" }}>
                           {drop.verse}
                         </span>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]">
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]" style={{ background: "rgba(11, 27, 61, 0.55)" }}>
                       <div className="flex items-center gap-2 font-bold text-lg text-white">
                         <Heart className="w-5 h-5 fill-white" /> {drop.likes_count || 0}
                       </div>
@@ -817,44 +702,42 @@ export default function Profile() {
           </div>
         )}
 
+        {/* MISSIONS TAB */}
         {activeProfileTab === "missions" && (
           <div className="py-6 space-y-6 px-4">
-            {/* Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="bg-[#121826] rounded-2xl p-4 border border-white/5 text-center">
-                <div className="text-2xl font-black text-[#00CFFF] font-['Space_Grotesk']">{myDrops.length}</div>
-                <div className="text-xs text-gray-400 mt-1 uppercase tracking-wider">Drops Shared</div>
-              </div>
-              <div className="bg-[#121826] rounded-2xl p-4 border border-white/5 text-center">
-                <div className="text-2xl font-black text-[#FFD000] font-['Space_Grotesk']">{challengeSubmissions.length}</div>
-                <div className="text-xs text-gray-400 mt-1 uppercase tracking-wider">Challenges Done</div>
-              </div>
-              <div className="bg-[#121826] rounded-2xl p-4 border border-white/5 text-center">
-                <div className="text-2xl font-black text-[#8A5CFF] font-['Space_Grotesk']">{myMemberships.length}</div>
-                <div className="text-xs text-gray-400 mt-1 uppercase tracking-wider">Groups Joined</div>
-              </div>
-              <div className="bg-[#121826] rounded-2xl p-4 border border-white/5 text-center">
-                <div className="text-2xl font-black text-white font-['Space_Grotesk']">{user.glow_score || 0}</div>
-                <div className="text-xs text-gray-400 mt-1 uppercase tracking-wider flex items-center justify-center gap-1"><Zap className="w-3 h-3 text-[#FFD000]" />Total XP</div>
-              </div>
+              {[
+                { value: myDrops.length, label: "Drops Shared", color: "#0B3FD9" },
+                { value: challengeSubmissions.length, label: "Challenges Done", color: "#CC7A00" },
+                { value: myMemberships.length, label: "Groups Joined", color: "#1FB8FF" },
+                { value: user.glow_score || 0, label: "Total XP", color: "#0B1B3D", icon: <Zap className="w-3 h-3" style={{ color: "#FFD000" }} /> },
+              ].map((s, i) => (
+                <div key={i} className="rounded-[1.25rem] p-4 text-center transition-all hover:-translate-y-0.5" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+                  <div className="text-2xl font-black font-['Space_Grotesk']" style={{ color: s.color }}>{s.value}</div>
+                  <div className="text-xs mt-1 uppercase tracking-wider flex items-center justify-center gap-1" style={{ color: "#6B7FA0" }}>{s.icon}{s.label}</div>
+                </div>
+              ))}
             </div>
 
-            {/* Glow Drops Contributions */}
             <div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-[#00CFFF] mb-3 flex items-center gap-2"><Grid className="w-4 h-4" /> Glow Drop Contributions</h3>
+              <h3 className="text-sm font-black uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: "#0B3FD9" }}><Grid className="w-4 h-4" /> Glow Drop Contributions</h3>
               {myDrops.length === 0 ? (
-                <div className="text-center py-10 text-gray-500 bg-[#121826]/50 rounded-2xl border border-white/5">No drops submitted yet.</div>
+                <div className="text-center py-10 rounded-[1.25rem]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#6B7FA0" }}>No drops submitted yet.</div>
               ) : (
                 <div className="space-y-2">
                   {myDrops.map(drop => (
-                    <div key={drop.id} className="bg-[#121826] rounded-xl px-5 py-4 border border-white/5 flex items-center justify-between gap-4">
+                    <div key={drop.id} className="rounded-xl px-5 py-4 flex items-center justify-between gap-4" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}>
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${drop.status === 'approved' ? 'bg-green-400' : drop.status === 'rejected' ? 'bg-red-400' : 'bg-yellow-400'}`} />
-                        <p className="text-sm text-gray-200 truncate">{drop.verse || "(No verse)"}</p>
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: drop.status === 'approved' ? '#22C55E' : drop.status === 'rejected' ? '#EF4444' : '#FFD000' }} />
+                        <p className="text-sm truncate" style={{ color: "#0B1B3D" }}>{drop.verse || "(No verse)"}</p>
                       </div>
                       <div className="flex items-center gap-3 flex-shrink-0">
-                        <span className="flex items-center gap-1 text-xs text-[#FFD000] font-bold"><Heart className="w-3 h-3" />{drop.likes_count || 0}</span>
-                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide ${drop.status === 'approved' ? 'bg-green-500/20 text-green-400' : drop.status === 'rejected' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                        <span className="flex items-center gap-1 text-xs font-bold" style={{ color: "#CC7A00" }}><Heart className="w-3 h-3" />{drop.likes_count || 0}</span>
+                        <span className="text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide" style={
+                          drop.status === 'approved' ? { background: "rgba(34, 197, 94, 0.1)", color: "#16A34A" }
+                          : drop.status === 'rejected' ? { background: "rgba(239, 68, 68, 0.1)", color: "#DC2626" }
+                          : { background: "rgba(255, 208, 0, 0.12)", color: "#CC7A00" }
+                        }>
                           {drop.status || 'pending'}
                         </span>
                       </div>
@@ -864,25 +747,24 @@ export default function Profile() {
               )}
             </div>
 
-            {/* Challenge Submissions */}
             <div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-[#FFD000] mb-3 flex items-center gap-2"><Target className="w-4 h-4" /> Challenge Submissions</h3>
+              <h3 className="text-sm font-black uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: "#CC7A00" }}><Target className="w-4 h-4" /> Challenge Submissions</h3>
               {challengeSubmissions.length === 0 ? (
-                <div className="text-center py-10 text-gray-500 bg-[#121826]/50 rounded-2xl border border-white/5">No challenges submitted yet. Head to Challenges to earn XP!</div>
+                <div className="text-center py-10 rounded-[1.25rem]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#6B7FA0" }}>No challenges submitted yet. Head to Challenges to earn XP!</div>
               ) : (
                 <div className="space-y-2">
                   {challengeSubmissions.map(sub => {
                     const challenge = allChallenges.find(c => c.id === sub.challenge_id);
                     return (
-                      <div key={sub.id} className="bg-[#121826] rounded-xl px-5 py-4 border border-white/5 flex items-center justify-between gap-4">
+                      <div key={sub.id} className="rounded-xl px-5 py-4 flex items-center justify-between gap-4" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}>
                         <div className="flex items-center gap-3 min-w-0">
-                          <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#22C55E" }} />
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-white truncate">{challenge?.title || "Challenge"}</p>
-                            <p className="text-xs text-gray-500 truncate">{sub.submission_url}</p>
+                            <p className="text-sm font-semibold truncate" style={{ color: "#0B1B3D" }}>{challenge?.title || "Challenge"}</p>
+                            <p className="text-xs truncate" style={{ color: "#8A97B5" }}>{sub.submission_url}</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-1 text-[#FFD000] font-black text-sm flex-shrink-0">
+                        <div className="flex items-center gap-1 font-black text-sm flex-shrink-0" style={{ color: "#CC7A00" }}>
                           <Zap className="w-3.5 h-3.5" />+{sub.points_awarded || challenge?.points_reward || 0} XP
                         </div>
                       </div>
@@ -899,16 +781,7 @@ export default function Profile() {
         )}
 
         {activeProfileTab === "badges" && (
-          <AchievementBadges
-            user={user}
-            myDrops={myDrops}
-            myFollowing={myFollowing}
-            myFollowers={myFollowers}
-            myMemberships={myMemberships}
-            mySupports={mySupports}
-            challengeSubmissions={challengeSubmissions}
-            certificates={certificates}
-          />
+          <AchievementBadges user={user} myDrops={myDrops} myFollowing={myFollowing} myFollowers={myFollowers} myMemberships={myMemberships} mySupports={mySupports} challengeSubmissions={challengeSubmissions} certificates={certificates} />
         )}
       </div>
     </div>

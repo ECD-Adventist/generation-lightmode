@@ -50,10 +50,10 @@ const BADGE_DEFINITIONS = [
 ];
 
 const tierStyles = {
-  bronze: { border: "border-[#CD7F32]/30", bg: "from-[#CD7F32]/15 to-[#8B5C2A]/5", glow: "shadow-[0_0_12px_rgba(205,127,50,0.15)]", label: "Bronze", color: "#CD7F32" },
-  silver: { border: "border-[#C0C0C0]/30", bg: "from-[#C0C0C0]/15 to-[#8A8A8A]/5", glow: "shadow-[0_0_12px_rgba(192,192,192,0.15)]", label: "Silver", color: "#C0C0C0" },
-  gold: { border: "border-[#FFD000]/30", bg: "from-[#FFD000]/15 to-[#FF9F1A]/5", glow: "shadow-[0_0_16px_rgba(255,208,0,0.2)]", label: "Gold", color: "#FFD000" },
-  platinum: { border: "border-[#A8C0FF]/30", bg: "from-[#A8C0FF]/15 to-[#8A5CFF]/5", glow: "shadow-[0_0_20px_rgba(168,192,255,0.2)]", label: "Platinum", color: "#A8C0FF" },
+  bronze: { bg: "linear-gradient(135deg, #FDF4E8 0%, #F7E6CF 100%)", border: "#E8C896", glow: "0 4px 16px rgba(205,127,50,0.12)", label: "Bronze", color: "#A16207" },
+  silver: { bg: "linear-gradient(135deg, #F7F9FC 0%, #E8EEF5 100%)", border: "#CBD5E1", glow: "0 4px 16px rgba(148,163,184,0.15)", label: "Silver", color: "#64748B" },
+  gold: { bg: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "#FFE4A0", glow: "0 4px 20px rgba(255,208,0,0.2)", label: "Gold", color: "#CC7A00" },
+  platinum: { bg: "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", border: "#C6D5FF", glow: "0 4px 20px rgba(11,63,217,0.15)", label: "Platinum", color: "#0B3FD9" },
 };
 
 const CATEGORIES = [
@@ -131,17 +131,17 @@ export default function AchievementBadges({ user, myDrops, myFollowing, myFollow
       {/* Certificates Section */}
       {certificates.length > 0 && (
         <div>
-          <h3 className="text-lg font-bold font-['Space_Grotesk'] text-[#FFD000] mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-bold font-['Space_Grotesk'] mb-4 flex items-center gap-2" style={{ color: "#CC7A00" }}>
             <Award className="w-5 h-5" /> Glow Certificates
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {certificates.map(cert => (
-              <div key={cert.id} className="bg-gradient-to-r from-[#121826] to-[#0B0F1A] p-5 rounded-2xl border border-[#FFD000]/30 shadow-[0_0_20px_rgba(255,208,0,0.15)] flex items-center gap-5">
-                <div className="text-4xl drop-shadow-lg bg-black/30 w-16 h-16 rounded-full flex items-center justify-center border-2 border-[#FFD000]/50 shrink-0">{cert.icon}</div>
+              <div key={cert.id} className="p-5 rounded-[1.5rem] flex items-center gap-5" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0", boxShadow: "0 4px 20px rgba(255,208,0,0.15)" }}>
+                <div className="text-4xl w-16 h-16 rounded-full flex items-center justify-center shrink-0" style={{ background: "#FFFFFF", border: "2px solid #FFD000", boxShadow: "0 2px 8px rgba(255,208,0,0.25)" }}>{cert.icon}</div>
                 <div className="min-w-0">
-                  <div className="text-[10px] text-[#FFD000] font-bold uppercase tracking-widest mb-0.5">Official Milestone</div>
-                  <h4 className="text-base font-bold text-white font-['Space_Grotesk'] truncate">{cert.title}</h4>
-                  <p className="text-gray-400 text-xs mt-0.5 line-clamp-2">{cert.description}</p>
+                  <div className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: "#CC7A00" }}>Official Milestone</div>
+                  <h4 className="text-base font-bold font-['Space_Grotesk'] truncate" style={{ color: "#0B1B3D" }}>{cert.title}</h4>
+                  <p className="text-xs mt-0.5 line-clamp-2" style={{ color: "#6B7FA0" }}>{cert.description}</p>
                 </div>
               </div>
             ))}
@@ -150,26 +150,26 @@ export default function AchievementBadges({ user, myDrops, myFollowing, myFollow
       )}
 
       {/* Summary Bar */}
-      <div className="flex items-center gap-6 bg-[#121826] rounded-2xl p-4 border border-white/5">
+      <div className="flex items-center gap-6 rounded-[1.5rem] p-4" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
         <div className="text-center">
-          <div className="text-2xl font-black text-[#00CFFF] font-['Space_Grotesk']">{earned.length}</div>
-          <div className="text-[10px] text-gray-400 uppercase tracking-wider">Earned</div>
+          <div className="text-2xl font-black font-['Space_Grotesk']" style={{ color: "#0B3FD9" }}>{earned.length}</div>
+          <div className="text-[10px] uppercase tracking-wider" style={{ color: "#6B7FA0" }}>Earned</div>
         </div>
-        <div className="w-px h-10 bg-white/10" />
+        <div className="w-px h-10" style={{ background: "#E6ECF5" }} />
         <div className="text-center">
-          <div className="text-2xl font-black text-gray-500 font-['Space_Grotesk']">{locked.length}</div>
-          <div className="text-[10px] text-gray-400 uppercase tracking-wider">Locked</div>
+          <div className="text-2xl font-black font-['Space_Grotesk']" style={{ color: "#8A97B5" }}>{locked.length}</div>
+          <div className="text-[10px] uppercase tracking-wider" style={{ color: "#6B7FA0" }}>Locked</div>
         </div>
-        <div className="w-px h-10 bg-white/10" />
+        <div className="w-px h-10" style={{ background: "#E6ECF5" }} />
         <div className="text-center">
-          <div className="text-2xl font-black text-[#FFD000] font-['Space_Grotesk']">{BADGE_DEFINITIONS.length}</div>
-          <div className="text-[10px] text-gray-400 uppercase tracking-wider">Total</div>
+          <div className="text-2xl font-black font-['Space_Grotesk']" style={{ color: "#CC7A00" }}>{BADGE_DEFINITIONS.length}</div>
+          <div className="text-[10px] uppercase tracking-wider" style={{ color: "#6B7FA0" }}>Total</div>
         </div>
         <div className="flex-1" />
-        <div className="w-24 h-2 bg-white/5 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] rounded-full" style={{ width: `${(earned.length / BADGE_DEFINITIONS.length) * 100}%` }} />
+        <div className="w-24 h-2 rounded-full overflow-hidden" style={{ background: "#EEF3FF" }}>
+          <div className="h-full rounded-full" style={{ width: `${(earned.length / BADGE_DEFINITIONS.length) * 100}%`, background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)" }} />
         </div>
-        <span className="text-xs text-gray-400 font-bold">{Math.round((earned.length / BADGE_DEFINITIONS.length) * 100)}%</span>
+        <span className="text-xs font-bold" style={{ color: "#4A5878" }}>{Math.round((earned.length / BADGE_DEFINITIONS.length) * 100)}%</span>
       </div>
 
       {/* Category Filters */}
@@ -178,11 +178,10 @@ export default function AchievementBadges({ user, myDrops, myFollowing, myFollow
           <button
             key={cat.key}
             onClick={() => setActiveCategory(cat.key)}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
-              activeCategory === cat.key
-                ? "bg-[#00CFFF]/20 text-[#00CFFF] border border-[#00CFFF]/30"
-                : "bg-white/5 text-gray-400 border border-white/10 hover:text-white"
-            }`}
+            className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all"
+            style={activeCategory === cat.key
+              ? { background: "#0B3FD9", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.3)" }
+              : { background: "#FFFFFF", color: "#4A5878", border: "1px solid #E6ECF5" }}
           >
             {cat.label}
           </button>
@@ -192,18 +191,18 @@ export default function AchievementBadges({ user, myDrops, myFollowing, myFollow
       {/* Earned Badges */}
       {filteredEarned.length > 0 && (
         <div>
-          <h3 className="text-sm font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-3 flex items-center gap-2 uppercase tracking-widest">
+          <h3 className="text-sm font-bold font-['Space_Grotesk'] mb-3 flex items-center gap-2 uppercase tracking-widest" style={{ color: "#0B3FD9" }}>
             <Sparkles className="w-4 h-4" /> Earned Badges
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {filteredEarned.map(badge => {
               const style = tierStyles[badge.tier];
               return (
-                <div key={badge.id} className={`bg-gradient-to-br ${style.bg} p-5 rounded-2xl border ${style.border} ${style.glow} text-center flex flex-col items-center`}>
-                  <div className="text-4xl mb-3 drop-shadow-md">{badge.icon}</div>
-                  <div className="font-bold text-white text-sm leading-tight">{badge.name}</div>
-                  <div className="text-xs text-gray-400 mt-1.5 leading-relaxed">{badge.desc}</div>
-                  <div className="mt-2 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider" style={{ color: style.color, background: `${style.color}18`, border: `1px solid ${style.color}30` }}>
+                <div key={badge.id} className="p-5 rounded-[1.25rem] text-center flex flex-col items-center transition-all hover:-translate-y-0.5" style={{ background: style.bg, border: `1px solid ${style.border}`, boxShadow: style.glow }}>
+                  <div className="text-4xl mb-3">{badge.icon}</div>
+                  <div className="font-bold text-sm leading-tight" style={{ color: "#0B1B3D" }}>{badge.name}</div>
+                  <div className="text-xs mt-1.5 leading-relaxed" style={{ color: "#4A5878" }}>{badge.desc}</div>
+                  <div className="mt-2 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider" style={{ color: style.color, background: "#FFFFFF", border: `1px solid ${style.border}` }}>
                     {style.label}
                   </div>
                 </div>
@@ -216,18 +215,18 @@ export default function AchievementBadges({ user, myDrops, myFollowing, myFollow
       {/* Locked Badges */}
       {filteredLocked.length > 0 && (
         <div>
-          <h3 className="text-sm font-bold font-['Space_Grotesk'] text-gray-500 mb-3 flex items-center gap-2 uppercase tracking-widest">
+          <h3 className="text-sm font-bold font-['Space_Grotesk'] mb-3 flex items-center gap-2 uppercase tracking-widest" style={{ color: "#8A97B5" }}>
             🔒 Locked — Keep Going!
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {filteredLocked.map(badge => {
               const style = tierStyles[badge.tier];
               return (
-                <div key={badge.id} className="bg-[#121826]/40 p-5 rounded-2xl border border-white/5 text-center flex flex-col items-center opacity-50">
+                <div key={badge.id} className="p-5 rounded-[1.25rem] text-center flex flex-col items-center" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", opacity: 0.65 }}>
                   <div className="text-4xl mb-3 grayscale">{badge.icon}</div>
-                  <div className="font-bold text-gray-400 text-sm leading-tight">{badge.name}</div>
-                  <div className="text-xs text-gray-600 mt-1.5 leading-relaxed">{badge.desc}</div>
-                  <div className="mt-2 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider text-gray-500 bg-white/5 border border-white/10">
+                  <div className="font-bold text-sm leading-tight" style={{ color: "#6B7FA0" }}>{badge.name}</div>
+                  <div className="text-xs mt-1.5 leading-relaxed" style={{ color: "#8A97B5" }}>{badge.desc}</div>
+                  <div className="mt-2 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider" style={{ color: "#8A97B5", background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
                     {style.label}
                   </div>
                 </div>
@@ -238,7 +237,7 @@ export default function AchievementBadges({ user, myDrops, myFollowing, myFollow
       )}
 
       {filteredEarned.length === 0 && filteredLocked.length === 0 && (
-        <div className="text-center py-10 text-gray-500 bg-[#121826]/50 rounded-2xl border border-white/5">
+        <div className="text-center py-10 rounded-[1.25rem]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#8A97B5" }}>
           No badges in this category.
         </div>
       )}
