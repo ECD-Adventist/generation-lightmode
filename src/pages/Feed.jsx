@@ -382,13 +382,13 @@ export default function Feed() {
       <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
-        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "#FFFFFF", borderColor: "#E0EAF5" }}>
+        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "linear-gradient(180deg, #FFFDF5 0%, #FFF9E6 40%, #FFF4D6 100%)", borderColor: "#F0E0B0", backgroundImage: "radial-gradient(circle at 20% 80%, rgba(255,208,0,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,159,26,0.06) 0%, transparent 50%)" }}>
            {/* Logo — BLUE */}
            <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
              <img
                src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png"
                alt="LightMode"
-               style={{ height: 112, width: "auto", objectFit: "contain" }}
+               style={{ height: 56, width: "auto", objectFit: "contain" }}
              />
            </Link>
 
@@ -780,7 +780,7 @@ export default function Feed() {
             <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(10, 26, 61, 0.4)" }} onClick={() => setIsMobileNavOpen(false)} />
             <div className="absolute left-0 top-0 bottom-0 w-72 border-r flex flex-col py-8 px-6 overflow-y-auto" style={{ background: "#FFFFFF", borderColor: "#E0EAF5" }}>
               <Link to={createPageUrl("Home")} className="flex items-center mb-10">
-                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 112, width: "auto", objectFit: "contain" }} />
+                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 56, width: "auto", objectFit: "contain" }} />
               </Link>
               <nav className="flex flex-col gap-1 flex-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mb-1.5" style={{ color: "#8A97B5" }}>Main</p>
