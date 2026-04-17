@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, X, Send, Image as ImageIcon, Calendar as CalendarIcon, Sparkles } from "lucide-react";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 
 const CATEGORIES = ["Devotional", "Testimony", "Scripture", "Prayer", "Encouragement", "Teaching", "Announcement"];
 const BRAND_EMAIL = "system@lightmode.com";
