@@ -648,21 +648,31 @@ export default function Layout({ children, currentPageName }) {
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
-        /* Static border glow from logo cyan */
+        /* Rotating conic-gradient light on border */
         .glm-switch-btn::before {
+          content: '';
+          position: absolute;
+          top: 50%; left: 50%;
+          width: 300%; height: 300%;
+          background: conic-gradient(from 0deg, transparent 50%, #00CFFF 68%, #8A5CFF 80%, #FFD000 92%, transparent 100%);
+          animation: glm-spin-border 3s linear infinite;
+          z-index: 0;
+          pointer-events: none;
+        }
+        /* Solid border fallback underneath */
+        .glm-switch-btn::after {
           content: '';
           position: absolute;
           inset: 0;
           border-radius: 999px;
-          border: 2px solid #00CFFF;
-          box-shadow: 0 0 14px rgba(0, 207, 255, 0.25), inset 0 0 8px rgba(0, 207, 255, 0.06);
+          border: 1.5px solid rgba(0, 207, 255, 0.3);
           z-index: 1;
           pointer-events: none;
           transition: all 0.3s ease;
         }
-        .glm-switch-btn:hover::before {
-          border-color: #FFD000;
-          box-shadow: 0 0 20px rgba(255, 208, 0, 0.3), inset 0 0 10px rgba(255, 208, 0, 0.08);
+        .glm-switch-btn:hover::after {
+          border-color: rgba(255, 208, 0, 0.4);
+          box-shadow: 0 0 18px rgba(255, 208, 0, 0.2);
         }
         .glm-switch-inner {
           position: relative;
