@@ -641,23 +641,28 @@ export default function Layout({ children, currentPageName }) {
         }
         .glm-switch-btn:hover { transform: translateY(-1px) scale(1.03); }
         .glm-switch-btn:hover .glm-switch-inner {
-          background: linear-gradient(135deg, #FFD000, #FFA500);
+          background: rgba(0, 207, 255, 0.12);
         }
         .glm-switch-btn:hover .glm-switch-inner .glm-switch-text {
-          background-image: linear-gradient(90deg, #0B0F1A, #1a1a2e);
+          background-image: linear-gradient(90deg, #ffffff, #FFD000);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
-        /* Rotating conic-gradient edge light */
+        /* Static border glow from logo cyan */
         .glm-switch-btn::before {
           content: '';
           position: absolute;
-          top: 50%; left: 50%;
-          width: 300%; height: 300%;
-          background: conic-gradient(from 0deg, transparent 55%, #00CFFF 72%, #8A5CFF 85%, #FFD000 95%, transparent 100%);
-          animation: glm-spin-border 3s linear infinite;
-          z-index: 0;
+          inset: 0;
+          border-radius: 999px;
+          border: 2px solid #00CFFF;
+          box-shadow: 0 0 14px rgba(0, 207, 255, 0.25), inset 0 0 8px rgba(0, 207, 255, 0.06);
+          z-index: 1;
           pointer-events: none;
+          transition: all 0.3s ease;
+        }
+        .glm-switch-btn:hover::before {
+          border-color: #FFD000;
+          box-shadow: 0 0 20px rgba(255, 208, 0, 0.3), inset 0 0 10px rgba(255, 208, 0, 0.08);
         }
         .glm-switch-inner {
           position: relative;
@@ -665,7 +670,7 @@ export default function Layout({ children, currentPageName }) {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: linear-gradient(135deg, #0B0F1A, #151C2C);
+          background: transparent;
           font-family: 'Space Grotesk', sans-serif;
           font-weight: 800;
           font-size: 13px;
@@ -673,14 +678,14 @@ export default function Layout({ children, currentPageName }) {
           border-radius: 999px;
           overflow: hidden;
         }
-        /* Sweeping light pass across the inner pill */
+        /* Subtle sweep shimmer on inner pill */
         .glm-switch-inner::after {
           content: '';
           position: absolute;
           top: 0; bottom: 0; left: 0;
           width: 35%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), rgba(255,255,255,0.45), rgba(255,255,255,0.15), transparent);
-          animation: glm-sweep-light 3s infinite ease-in-out;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), rgba(255,255,255,0.12), rgba(255,255,255,0.06), transparent);
+          animation: glm-sweep-light 4s infinite ease-in-out;
           pointer-events: none;
           z-index: 3;
         }
