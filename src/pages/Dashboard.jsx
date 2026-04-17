@@ -42,93 +42,83 @@ export default function Dashboard() {
   }, []);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]"><Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" /></div>;
+    return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
   }
 
   if (!user) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A] text-white">Redirecting to login...</div>;
+    return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>Redirecting to login...</div>;
   }
 
   const needsOnboarding = !user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth;
 
   return (
-    <div className="min-h-screen text-white relative overflow-hidden" style={{ background: "linear-gradient(180deg, #0B0F1A 0%, #121826 100%)" }}>
+    <div className="min-h-screen relative overflow-hidden font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       <OnboardingModal
         isOpen={needsOnboarding}
         onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
       />
-      {/* Background Glows */}
-      <div style={{ position: "absolute", top: "-10%", left: "-10%", width: "50%", height: "50%", borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.08) 0%, transparent 60%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", top: "20%", right: "-10%", width: "40%", height: "40%", borderRadius: "50%", background: "radial-gradient(circle, rgba(138,92,255,0.08) 0%, transparent 60%)", pointerEvents: "none" }} />
+      {/* Soft accent lights */}
+      <div style={{ position: "absolute", top: "-10%", left: "-10%", width: "50%", height: "50%", borderRadius: "50%", background: "radial-gradient(circle, rgba(31,184,255,0.12) 0%, transparent 60%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: "20%", right: "-10%", width: "40%", height: "40%", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,208,0,0.08) 0%, transparent 60%)", pointerEvents: "none" }} />
 
       {/* Top Nav Bar */}
-      <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5">
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
-            <img
-              src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
-              alt="LightMode"
-              style={{ height: 56, width: "auto", filter: "drop-shadow(0 0 6px rgba(0,207,255,0.5))" }}
-            />
+            <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 48, width: "auto" }} />
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
-            <Link to={createPageUrl("Feed")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Home className="w-4 h-4" /><span className="hidden sm:inline">Feed</span>
-            </Link>
-            <Link to={createPageUrl("GlowGroups")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Users className="w-4 h-4" /><span className="hidden sm:inline">Groups</span>
-            </Link>
-            <Link to={createPageUrl("Notifications")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Bell className="w-4 h-4" /><span className="hidden sm:inline">Alerts</span>
-            </Link>
-            <Link to={createPageUrl("Profile")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <User className="w-4 h-4" /><span className="hidden sm:inline">Profile</span>
-            </Link>
-            <Link to={createPageUrl("Milestones")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Zap className="w-4 h-4" /><span className="hidden sm:inline">Milestones</span>
-            </Link>
-            <Link to={createPageUrl("GlobalReach")} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition text-sm font-medium">
-              <Globe className="w-4 h-4" /><span className="hidden sm:inline">Reach</span>
-            </Link>
-            <Link to={createPageUrl("Home")} className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-gray-500 hover:text-[#00CFFF] hover:bg-white/5 transition text-sm font-medium border border-white/5">
-              <Globe className="w-4 h-4" /> Website
-            </Link>
+            {[
+              { to: "Feed", icon: <Home className="w-4 h-4" />, label: "Feed" },
+              { to: "GlowGroups", icon: <Users className="w-4 h-4" />, label: "Groups" },
+              { to: "Notifications", icon: <Bell className="w-4 h-4" />, label: "Alerts" },
+              { to: "Profile", icon: <User className="w-4 h-4" />, label: "Profile" },
+              { to: "Milestones", icon: <Zap className="w-4 h-4" />, label: "Milestones" },
+              { to: "GlobalReach", icon: <Globe className="w-4 h-4" />, label: "Reach" },
+            ].map(item => (
+              <Link key={item.to} to={createPageUrl(item.to)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl transition text-sm font-semibold" style={{ color: "#4A5878" }}
+                onMouseOver={e => { e.currentTarget.style.background = "#EEF3FF"; e.currentTarget.style.color = "#0B3FD9"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#4A5878"; }}
+              >
+                {item.icon}<span className="hidden sm:inline">{item.label}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-12 relative z-10">
         {/* Hero Map Section */}
-        <div className="mb-12 pb-8 border-b border-white/5">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 mb-4">
-            <span className="w-2 h-2 rounded-full bg-[#00CFFF] animate-pulse"></span>
-            <span className="text-[#00CFFF] text-xs font-bold tracking-wider font-['Inter']">GLOBAL WARRIOR MAP</span>
+        <div className="mb-12 pb-8 border-b" style={{ borderColor: "#E6ECF5" }}>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF" }}>
+            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#1FB8FF" }}></span>
+            <span className="text-xs font-bold tracking-wider font-['Inter']" style={{ color: "#0B3FD9" }}>GLOBAL WARRIOR MAP</span>
           </div>
-          <h2 className="text-2xl font-bold font-['Space_Grotesk'] mb-6">Light Warriors Around the World</h2>
+          <h2 className="text-2xl font-bold font-['Space_Grotesk'] mb-6" style={{ color: "#0B1B3D" }}>Light Warriors Around the World</h2>
           <DashboardMapHero userCountry={user?.country} />
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-white/5 pb-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b pb-8" style={{ borderColor: "#E6ECF5" }}>
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 mb-4">
-              <span className="w-2 h-2 rounded-full bg-[#00CFFF] animate-pulse"></span>
-              <span className="text-[#00CFFF] text-xs font-bold tracking-wider font-['Inter']">MISSIONARY PORTAL</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF" }}>
+              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#1FB8FF" }}></span>
+              <span className="text-xs font-bold tracking-wider font-['Inter']" style={{ color: "#0B3FD9" }}>MISSIONARY PORTAL</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold font-['Space_Grotesk'] tracking-tight">
-              Welcome back, <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF]">{user.full_name}</span>
+            <h1 className="text-4xl md:text-5xl font-bold font-['Space_Grotesk'] tracking-tight" style={{ color: "#0B1B3D" }}>
+              Welcome back, <br/><span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)" }}>{user.full_name}</span>
             </h1>
-            <p className="text-gray-400 mt-3 font-['Inter'] text-lg max-w-xl">
+            <p className="mt-3 font-['Inter'] text-lg max-w-xl" style={{ color: "#4A5878" }}>
               Track your impact, complete challenges, and keep your faith always on.
             </p>
           </div>
-          
-          <div className="bg-[#0B0F1A]/80 backdrop-blur-xl border border-white/10 p-5 rounded-2xl flex items-center gap-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-            <div className="w-12 h-12 rounded-full bg-[#FFD000]/10 flex items-center justify-center border border-[#FFD000]/30 shadow-[0_0_15px_rgba(255,208,0,0.2)]">
+
+          <div className="p-5 rounded-[1.5rem] flex items-center gap-6" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0", boxShadow: "0 8px 24px rgba(255, 159, 26, 0.15)" }}>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "#FFFFFF", border: "1px solid #FFD000", boxShadow: "0 2px 10px rgba(255, 208, 0, 0.3)" }}>
               <span className="text-2xl">⚡</span>
             </div>
             <div>
-              <div className="text-3xl font-bold text-[#FFD000] font-['Space_Grotesk'] leading-none mb-1">{user.glow_score || 0}</div>
-              <div className="text-xs text-gray-400 uppercase tracking-widest font-['Inter'] font-semibold">Glow Points</div>
+              <div className="text-3xl font-bold font-['Space_Grotesk'] leading-none mb-1" style={{ color: "#CC7A00" }}>{user.glow_score || 0}</div>
+              <div className="text-xs uppercase tracking-widest font-['Inter'] font-semibold" style={{ color: "#8B6914" }}>Glow Points</div>
             </div>
           </div>
         </div>
@@ -146,43 +136,26 @@ export default function Dashboard() {
               { id: 'prayer-analytics', label: 'Prayer Analytics', icon: '📈' },
               { id: 'ai-coach', label: 'AI Coach', icon: '🧠' }
             ].map(tab => (
-              <TabsTrigger 
+              <TabsTrigger
                 key={tab.id}
-                value={tab.id} 
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#00CFFF]/20 data-[state=active]:to-[#8A5CFF]/20 data-[state=active]:text-white data-[state=active]:border-[#00CFFF]/40 data-[state=active]:shadow-[0_0_20px_rgba(0,207,255,0.15)] bg-[#121826]/80 text-gray-400 border border-white/5 rounded-full px-6 py-2.5 font-['Inter'] font-medium transition-all duration-300"
+                value={tab.id}
+                className="data-[state=active]:!bg-gradient-to-r data-[state=active]:!from-[#1FB8FF] data-[state=active]:!to-[#0B3FD9] data-[state=active]:!text-white data-[state=active]:!border-transparent data-[state=active]:!shadow-[0_4px_14px_rgba(11,63,217,0.35)] rounded-full px-6 py-2.5 font-['Inter'] font-semibold transition-all duration-300"
+                style={{ background: "#FFFFFF", color: "#4A5878", border: "1px solid #E6ECF5" }}
               >
                 <span className="mr-2">{tab.icon}</span> {tab.label}
               </TabsTrigger>
             ))}
           </TabsList>
-          
-          <TabsContent value="overview">
-            <OverviewTab user={user} />
-          </TabsContent>
-          <TabsContent value="drops">
-            <SubmitDropTab user={user} />
-          </TabsContent>
-          <TabsContent value="challenges">
-            <ChallengesTab user={user} />
-          </TabsContent>
-          <TabsContent value="glowgroups">
-            <GlowGroupsTab user={user} />
-          </TabsContent>
-          <TabsContent value="leaderboard">
-            <LeaderboardTab user={user} />
-          </TabsContent>
-          <TabsContent value="prayer">
-            <PrayerRequestsTab user={user} />
-          </TabsContent>
-          <TabsContent value="prayer-analytics">
-            <PrayerAnalyticsTab />
-          </TabsContent>
-          <TabsContent value="territory-leaderboard">
-            <TerritoryLeaderboard userTerritory={user?.country} />
-          </TabsContent>
-          <TabsContent value="ai-coach">
-            <AICoachingTab user={user} />
-          </TabsContent>
+
+          <TabsContent value="overview"><OverviewTab user={user} /></TabsContent>
+          <TabsContent value="drops"><SubmitDropTab user={user} /></TabsContent>
+          <TabsContent value="challenges"><ChallengesTab user={user} /></TabsContent>
+          <TabsContent value="glowgroups"><GlowGroupsTab user={user} /></TabsContent>
+          <TabsContent value="leaderboard"><LeaderboardTab user={user} /></TabsContent>
+          <TabsContent value="prayer"><PrayerRequestsTab user={user} /></TabsContent>
+          <TabsContent value="prayer-analytics"><PrayerAnalyticsTab /></TabsContent>
+          <TabsContent value="territory-leaderboard"><TerritoryLeaderboard userTerritory={user?.country} /></TabsContent>
+          <TabsContent value="ai-coach"><AICoachingTab user={user} /></TabsContent>
         </Tabs>
       </div>
     </div>

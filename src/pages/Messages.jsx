@@ -192,30 +192,36 @@ export default function Messages() {
     else if (conversations[0] && !selectedConversationId) setSelectedConversationId(conversations[0].id);
   }, [conversations.length]);
 
-  if (!user) return <div className="min-h-screen bg-[#0B0F1A] flex items-center justify-center text-white">Loading messages...</div>;
+  if (!user) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>Loading messages...</div>;
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white">
+    <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       {/* Top Nav */}
-      <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5 px-4 py-3">
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b px-4 py-3" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-          <Link to={createPageUrl("Feed")} className="flex items-center gap-2 shrink-0 lg:hidden">
+          <Link to={createPageUrl("Feed")} className="flex items-center gap-2 shrink-0 lg:hidden" style={{ color: "#0B1B3D" }}>
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-xl font-bold">Messages</h1>
+          <h1 className="text-xl font-bold" style={{ color: "#0B1B3D" }}>Messages</h1>
           {/* Tab switcher */}
-          <div className="flex items-center gap-1 bg-[#121826] border border-white/10 rounded-xl p-1">
+          <div className="flex items-center gap-1 rounded-xl p-1" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
             <button
               onClick={() => setActiveTab("dms")}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold transition ${activeTab === "dms" ? "bg-[#00CFFF] text-black" : "text-gray-400 hover:text-white"}`}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold transition"
+              style={activeTab === "dms"
+                ? { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.25)" }
+                : { background: "transparent", color: "#4A5878" }}
             >
               <MessageCircle className="w-4 h-4" /> Direct
             </button>
             <button
               onClick={() => setActiveTab("groups")}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold transition ${activeTab === "groups" ? "bg-[#8A5CFF] text-white" : "text-gray-400 hover:text-white"}`}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold transition"
+              style={activeTab === "groups"
+                ? { background: "linear-gradient(90deg, #FFD000 0%, #FF9F1A 100%)", color: "#0B1B3D", boxShadow: "0 2px 8px rgba(255, 159, 26, 0.3)" }
+                : { background: "transparent", color: "#4A5878" }}
             >
-              <Users className="w-4 h-4" /> Groups {myGroups.length > 0 && <span className="bg-white/20 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{myGroups.length}</span>}
+              <Users className="w-4 h-4" /> Groups {myGroups.length > 0 && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={activeTab === "groups" ? { background: "rgba(11, 27, 61, 0.15)", color: "#0B1B3D" } : { background: "#EEF3FF", color: "#0B3FD9" }}>{myGroups.length}</span>}
             </button>
           </div>
         </div>
@@ -245,36 +251,40 @@ export default function Messages() {
         ) : (
           <>
             {/* Group list */}
-            <div className="bg-[#121826] border border-white/10 rounded-3xl overflow-hidden flex flex-col h-[72vh]">
-              <div className="px-4 py-4 border-b border-white/10">
-                <h2 className="text-lg font-bold text-white">GlowGroups</h2>
-                <p className="text-sm text-gray-400 mt-1">Chat with your group members.</p>
+            <div className="rounded-[1.5rem] overflow-hidden flex flex-col h-[72vh]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+              <div className="px-4 py-4 border-b" style={{ borderColor: "#E6ECF5" }}>
+                <h2 className="text-lg font-bold" style={{ color: "#0B1B3D" }}>GlowGroups</h2>
+                <p className="text-sm mt-1" style={{ color: "#6B7FA0" }}>Chat with your group members.</p>
               </div>
               <div className="flex-1 overflow-y-auto">
                 {myGroups.length === 0 ? (
-                  <div className="text-center py-10 px-4 text-gray-500 text-sm">
-                    <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                  <div className="text-center py-10 px-4 text-sm" style={{ color: "#8A97B5" }}>
+                    <Users className="w-8 h-8 mx-auto mb-2 opacity-40" />
                     You're not in any GlowGroups yet.
                     <br />
-                    <Link to={createPageUrl("GlowGroups")} className="text-[#00CFFF] font-bold hover:underline mt-1 inline-block">Join a group →</Link>
+                    <Link to={createPageUrl("GlowGroups")} className="font-bold hover:underline mt-1 inline-block" style={{ color: "#0B3FD9" }}>Join a group →</Link>
                   </div>
                 ) : myGroups.map(group => {
                   const isLeaderGroup = group.leader_email === user.email;
+                  const isSelected = selectedGroupId === group.id;
                   return (
                     <button
                       key={group.id}
                       onClick={() => setSelectedGroupId(group.id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition border-b border-white/5 ${selectedGroupId === group.id ? "bg-white/10" : "hover:bg-white/5"}`}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left transition border-b"
+                      style={{ borderColor: "#F0F4FA", background: isSelected ? "#EEF3FF" : "transparent" }}
+                      onMouseOver={e => { if (!isSelected) e.currentTarget.style.background = "#F6F8FC"; }}
+                      onMouseOut={e => { if (!isSelected) e.currentTarget.style.background = "transparent"; }}
                     >
-                      <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#8A5CFF] to-[#00CFFF] flex items-center justify-center shrink-0">
+                      <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.2)" }}>
                         <Users className="w-5 h-5 text-white" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="font-semibold text-white truncate flex items-center gap-1.5">
+                        <div className="font-semibold truncate flex items-center gap-1.5" style={{ color: "#0B1B3D" }}>
                           {group.name}
-                          {isLeaderGroup && <span className="text-[10px] bg-[#FFD000]/20 text-[#FFD000] px-1.5 py-0.5 rounded-full font-bold">Leader</span>}
+                          {isLeaderGroup && <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: "rgba(255, 208, 0, 0.18)", color: "#CC7A00" }}>Leader</span>}
                         </div>
-                        <div className="text-xs text-gray-400 truncate">{group.country}</div>
+                        <div className="text-xs truncate" style={{ color: "#6B7FA0" }}>{group.country}</div>
                       </div>
                     </button>
                   );
