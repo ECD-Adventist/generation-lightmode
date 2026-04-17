@@ -474,7 +474,7 @@ export default function Feed() {
         <div 
           ref={feedScrollRef} 
           className="lg:col-span-2 h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8"
-          style={{ color: "#0B1B3D", background: "linear-gradient(180deg, #FFFFFF 0%, #F8FAFF 100%)" }}
+          style={{ color: "#0B1B3D", background: "linear-gradient(180deg, #EDF2F8 0%, #E4EBF5 50%, #DDE5F0 100%)" }}
           onScroll={(e) => {
             const { scrollTop, scrollHeight, clientHeight } = e.target;
             if (scrollHeight - scrollTop <= clientHeight + 150) {
@@ -683,6 +683,8 @@ export default function Feed() {
             user={user}
             drops={drops}
             following={following}
+            userLikes={userLikes}
+            savedDropRecords={savedDropRecords}
             onSearchTag={(topic) => { setSearchQuery(topic); setActiveFilter("All"); }}
           />
 

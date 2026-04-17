@@ -33,7 +33,24 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
     setTitleLoading(true);
     try {
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Generate an engaging, short Bible verse reference title for a Christian social media post. The user's reflection is: "${formData.reflection}". Find the most relevant Bible verse that matches this reflection. Return JSON: {"verse": "Book Chapter:Verse — 'Quote text'"}. Keep it concise and powerful.`,
+        prompt: `You are a Bible-savvy content curator for "Generation LightMode", a Christian youth social platform.
+
+The user wrote this reflection/testimony: "${formData.reflection}"
+${formData.category ? `Category: ${formData.category}` : ""}
+${formData.hashtags ? `Hashtags: ${formData.hashtags}` : ""}
+
+Generate:
+1. The most relevant Bible verse that deeply resonates with this reflection
+2. Format it as an engaging, scroll-stopping title
+
+Return JSON: {"verse": "Book Chapter:Verse — \"Exact verse quote text\""}
+
+RULES:
+- Use NKJV translation
+- The verse must genuinely connect to the reflection's theme/emotion
+- Format: "Book Chapter:Verse — \"Quote\""
+- Keep the quote concise (under 20 words if possible)
+- Choose powerful, emotionally resonant verses`,
         response_json_schema: { type: "object", properties: { verse: { type: "string" } } }
       });
       if (res.verse) {

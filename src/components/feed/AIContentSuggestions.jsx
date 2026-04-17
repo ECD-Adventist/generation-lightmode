@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Sparkles, RefreshCw, ChevronRight } from "lucide-react";
 
-export default function AIContentSuggestions({ user, drops, following, onSearchTag }) {
+export default function AIContentSuggestions({ user, drops, following, onSearchTag, userLikes = [], savedDropRecords = [] }) {
   const [suggestions, setSuggestions] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hasRequested, setHasRequested] = useState(false);
@@ -11,26 +11,53 @@ export default function AIContentSuggestions({ user, drops, following, onSearchT
     setLoading(true);
     setHasRequested(true);
 
+    // Gather engagement data
+    const likedDropIds = new Set(userLikes.map(l => l.drop_id));
+    const savedDropIds = new Set(savedDropRecords.map(s => s.drop_id));
+    const likedDrops = drops.filter(d => likedDropIds.has(d.id)).slice(0, 10);
+    const savedDrops = drops.filter(d => savedDropIds.has(d.id)).slice(0, 5);
     const userDrops = drops.filter(d => d.user_email === user?.email).slice(0, 5);
-    const likedCategories = drops
-      .filter(d => d.likes_count > 2)
-      .map(d => d.category)
-      .filter(Boolean);
-    const topCategories = [...new Set(likedCategories)].slice(0, 3);
+
+    const likedCategories = likedDrops.map(d => d.category).filter(Boolean);
+    const likedHashtags = likedDrops.flatMap(d => (d.hashtags || "").split(/[\s,]+/).filter(t => t.startsWith("#")));
+    const savedCategories = savedDrops.map(d => d.category).filter(Boolean);
+    const likedVerses = likedDrops.map(d => d.verse).filter(Boolean).slice(0, 5);
+
     const followingEmails = new Set(following.map(f => f.following_email));
     const followedCreators = drops
       .filter(d => followingEmails.has(d.user_email))
-      .slice(0, 3)
-      .map(d => d.verse || d.reflection?.slice(0, 50));
+      .slice(0, 5)
+      .map(d => ({ verse: d.verse, category: d.category, hashtags: d.hashtags }));
+
+    // Find most engaging content (high likes)
+    const trendingNow = [...drops].sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0)).slice(0, 5).map(d => ({ verse: d.verse, category: d.category, likes: d.likes_count }));
 
     const context = {
-      userCategories: userDrops.map(d => d.category).filter(Boolean),
-      trendingCategories: topCategories,
-      followedContent: followedCreators,
+      userPostedCategories: [...new Set(userDrops.map(d => d.category).filter(Boolean))],
+      likedCategories: [...new Set(likedCategories)],
+      likedHashtags: [...new Set(likedHashtags)].slice(0, 8),
+      savedCategories: [...new Set(savedCategories)],
+      likedVerseThemes: likedVerses,
+      followedCreatorContent: followedCreators,
+      trendingContent: trendingNow,
+      totalLikes: userLikes.length,
+      totalSaved: savedDropRecords.length,
     };
 
     const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `Based on this user's activity on a Christian faith social platform, suggest 3 personalized content topics they might enjoy. Context: ${JSON.stringify(context)}. Return JSON with "suggestions" array, each with "topic" (short title) and "description" (1 sentence why). Be specific and faith-focused.`,
+      prompt: `You are an AI content recommender for "Generation LightMode", a Christian faith social platform. Based on this user's full engagement data, suggest 3 highly personalized content topics they'd love.
+
+User engagement data:
+${JSON.stringify(context, null, 2)}
+
+RULES:
+- Analyze what categories, hashtags, and Bible verse themes they engage with most
+- Consider what they've saved (bookmarked) as strong interest signals
+- Factor in trending content they haven't seen
+- Suggest specific, actionable topics (not generic)
+- Each suggestion should feel personally curated
+
+Return JSON with "suggestions" array, each with "topic" (compelling short title, 3-6 words) and "description" (1 sentence explaining why this is for them based on their activity).`,
       response_json_schema: {
         type: "object",
         properties: {
