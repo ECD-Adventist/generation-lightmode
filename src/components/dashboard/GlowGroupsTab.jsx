@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
@@ -25,10 +24,7 @@ export default function GlowGroupsTab({ user }) {
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      await base44.entities.GlowGroup.create({
-        leader_email: user.email,
-        ...groupData
-      });
+      await base44.entities.GlowGroup.create({ leader_email: user.email, ...groupData });
       toast.success("GlowGroup created!");
       setGroupData({ name: "", country: "", description: "" });
       setCreating(false);
@@ -38,59 +34,61 @@ export default function GlowGroupsTab({ user }) {
     }
   };
 
+  const inputStyle = { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#0B1B3D" };
+
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 font-['Inter']">
       {activeGroup ? (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => setActiveGroup(null)} className="text-gray-400 hover:text-white p-0 mr-2 h-auto">← Back</Button>
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] flex items-center justify-center font-bold text-black text-xl">
+            <Button variant="ghost" onClick={() => setActiveGroup(null)} className="p-0 mr-2 h-auto" style={{ color: "#4A5878" }}>← Back</Button>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xl" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF" }}>
               {activeGroup.name.charAt(0)}
             </div>
             <div>
-              <h2 className="text-3xl font-bold font-['Space_Grotesk'] text-white">{activeGroup.name}</h2>
-              <p className="text-sm text-[#00CFFF] font-medium font-['Inter'] mt-1">{activeGroup.country}</p>
+              <h2 className="text-3xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{activeGroup.name}</h2>
+              <p className="text-sm font-medium mt-1" style={{ color: "#0B3FD9" }}>{activeGroup.country}</p>
             </div>
           </div>
         </div>
       ) : (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#00CFFF]/10 flex items-center justify-center border border-[#00CFFF]/30 shadow-[0_0_15px_rgba(0,207,255,0.15)]">
-              <Users className="text-[#00CFFF] w-6 h-6" />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #EEF3FF, #DDE7FB)", border: "1px solid #D6E4FF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.1)" }}>
+              <Users className="w-6 h-6" style={{ color: "#0B3FD9" }} />
             </div>
             <div>
-              <h2 className="text-3xl font-bold font-['Space_Grotesk'] text-white">My GlowGroups</h2>
-              <p className="text-sm text-[#00CFFF] font-medium font-['Inter'] mt-1">Micro discipleship pods</p>
+              <h2 className="text-3xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>My GlowGroups</h2>
+              <p className="text-sm font-medium mt-1" style={{ color: "#0B3FD9" }}>Micro discipleship pods</p>
             </div>
           </div>
-          <Button onClick={() => setCreating(!creating)} className="bg-white/5 border border-white/10 text-white hover:bg-gradient-to-r hover:from-[#00CFFF] hover:to-[#8A5CFF] hover:border-transparent hover:text-[#0B0F1A] font-bold font-['Space_Grotesk'] h-12 px-6 rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[0_0_20px_rgba(0,207,255,0.4)]">
+          <Button onClick={() => setCreating(!creating)} className="font-bold font-['Space_Grotesk'] h-12 px-6 rounded-xl transition-all" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", border: "none", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>
             {creating ? "Cancel" : <><Plus className="w-5 h-5 mr-2" /> Start New Group</>}
           </Button>
         </div>
       )}
 
       {creating && !activeGroup && (
-        <div className="bg-[#121826]/90 backdrop-blur-xl border border-[#00CFFF]/30 mb-10 text-white rounded-2xl p-8 shadow-[0_10px_40px_rgba(0,0,0,0.4)] relative overflow-hidden animate-in slide-in-from-top-4">
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, #00CFFF, #8A5CFF, #FFD000)" }} />
-          <h3 className="text-xl font-bold font-['Space_Grotesk'] mb-6">Create a Digital Campfire</h3>
+        <div className="mb-10 rounded-[1.5rem] p-8 relative overflow-hidden animate-in slide-in-from-top-4" style={{ background: "#FFFFFF", border: "1px solid #D6E4FF", boxShadow: "0 8px 32px rgba(11, 63, 217, 0.08)" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, #1FB8FF, #0B3FD9, #FFD000)" }} />
+          <h3 className="text-xl font-bold font-['Space_Grotesk'] mb-6" style={{ color: "#0B1B3D" }}>Create a Digital Campfire</h3>
           <form onSubmit={handleCreate} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <Label className="text-gray-300 text-xs font-bold uppercase tracking-wider ml-1">Group Name</Label>
-                <Input required placeholder="e.g. Nairobi Radiant" value={groupData.name} onChange={e => setGroupData({...groupData, name: e.target.value})} className="bg-[#0B0F1A] border-white/10 text-white h-12 rounded-xl focus-visible:ring-[#00CFFF]/50 focus-visible:border-[#00CFFF]" />
+                <Label className="text-xs font-bold uppercase tracking-wider ml-1" style={{ color: "#6B7FA0" }}>Group Name</Label>
+                <Input required placeholder="e.g. Nairobi Radiant" value={groupData.name} onChange={e => setGroupData({...groupData, name: e.target.value})} className="h-12 rounded-xl" style={inputStyle} />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300 text-xs font-bold uppercase tracking-wider ml-1">City / Country</Label>
-                <Input required placeholder="e.g. Kigali, Rwanda" value={groupData.country} onChange={e => setGroupData({...groupData, country: e.target.value})} className="bg-[#0B0F1A] border-white/10 text-white h-12 rounded-xl focus-visible:ring-[#00CFFF]/50 focus-visible:border-[#00CFFF]" />
+                <Label className="text-xs font-bold uppercase tracking-wider ml-1" style={{ color: "#6B7FA0" }}>City / Country</Label>
+                <Input required placeholder="e.g. Kigali, Rwanda" value={groupData.country} onChange={e => setGroupData({...groupData, country: e.target.value})} className="h-12 rounded-xl" style={inputStyle} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-300 text-xs font-bold uppercase tracking-wider ml-1">Mission Focus (Description)</Label>
-              <Input required placeholder="e.g. Campus outreach and weekly prayer..." value={groupData.description} onChange={e => setGroupData({...groupData, description: e.target.value})} className="bg-[#0B0F1A] border-white/10 text-white h-12 rounded-xl focus-visible:ring-[#00CFFF]/50 focus-visible:border-[#00CFFF]" />
+              <Label className="text-xs font-bold uppercase tracking-wider ml-1" style={{ color: "#6B7FA0" }}>Mission Focus (Description)</Label>
+              <Input required placeholder="e.g. Campus outreach and weekly prayer..." value={groupData.description} onChange={e => setGroupData({...groupData, description: e.target.value})} className="h-12 rounded-xl" style={inputStyle} />
             </div>
             <div className="flex justify-end pt-4">
-              <Button type="submit" className="bg-[#00CFFF] text-[#0B0F1A] hover:bg-white font-bold h-12 px-8 rounded-xl shadow-[0_0_20px_rgba(0,207,255,0.4)] transition-all">Launch Group ⚡</Button>
+              <Button type="submit" className="font-bold h-12 px-8 rounded-xl transition-all" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", border: "none", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>Launch Group ⚡</Button>
             </div>
           </form>
         </div>
@@ -99,37 +97,34 @@ export default function GlowGroupsTab({ user }) {
       {!activeGroup ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {myGroups.length === 0 && !creating ? (
-            <div className="col-span-full bg-[#121826]/50 border border-white/5 rounded-2xl p-16 text-center cursor-pointer hover:bg-[#121826]/80 transition-all border-dashed hover:border-[#00CFFF]/30" onClick={() => setCreating(true)}>
-              <div className="w-20 h-20 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-4">
-                <Users className="w-10 h-10 text-gray-400" />
+            <div className="col-span-full rounded-[1.5rem] p-16 text-center cursor-pointer transition-all" style={{ background: "#FFFFFF", border: "2px dashed #D6E4FF" }} onClick={() => setCreating(true)}>
+              <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4" style={{ background: "#EEF3FF", border: "1px solid #D6E4FF" }}>
+                <Users className="w-10 h-10" style={{ color: "#0B3FD9" }} />
               </div>
-              <h3 className="text-xl font-bold font-['Space_Grotesk'] text-white mb-2">No Groups Yet</h3>
-              <p className="text-gray-400 font-['Inter'] mb-6 max-w-md mx-auto">GlowGroups are small accountability pods of 4-6 friends. Start one today to multiply the light!</p>
-              <span className="inline-block text-[#00CFFF] font-bold pb-1 border-b border-[#00CFFF]/30">Click to create your first group →</span>
+              <h3 className="text-xl font-bold font-['Space_Grotesk'] mb-2" style={{ color: "#0B1B3D" }}>No Groups Yet</h3>
+              <p className="mb-6 max-w-md mx-auto" style={{ color: "#6B7FA0" }}>GlowGroups are small accountability pods of 4-6 friends. Start one today to multiply the light!</p>
+              <span className="inline-block font-bold pb-1 border-b" style={{ color: "#0B3FD9", borderColor: "#D6E4FF" }}>Click to create your first group →</span>
             </div>
           ) : (
             myGroups.map(g => (
-              <div key={g.id} onClick={() => setActiveGroup(g)} className="cursor-pointer bg-[#121826]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 relative overflow-hidden group hover:border-[#00CFFF]/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,207,255,0.15)]">
-                <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl group-hover:opacity-20 transition-opacity transform group-hover:rotate-12">✨</div>
-                
+              <div key={g.id} onClick={() => setActiveGroup(g)} className="cursor-pointer rounded-[1.5rem] p-6 relative overflow-hidden group transition-all duration-300 hover:-translate-y-1" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+                <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl transition-opacity">✨</div>
                 <div className="mb-4">
-                  <h3 className="text-2xl font-bold font-['Space_Grotesk'] text-[#00CFFF] mb-1">{g.name}</h3>
-                  <div className="inline-flex items-center gap-1.5 text-xs text-gray-400 bg-white/5 px-2.5 py-1 rounded-md">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                  <h3 className="text-2xl font-bold font-['Space_Grotesk'] mb-1" style={{ color: "#0B3FD9" }}>{g.name}</h3>
+                  <div className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#6B7FA0" }}>
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#22C55E" }}></span>
                     {g.country}
                   </div>
                 </div>
-                
-                <p className="text-[15px] text-gray-300 mb-6 font-['Inter'] leading-relaxed min-h-[60px]">{g.description}</p>
-                
-                <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                <p className="text-[15px] mb-6 leading-relaxed min-h-[60px]" style={{ color: "#3A4A6B" }}>{g.description}</p>
+                <div className="pt-4 border-t flex items-center justify-between" style={{ borderColor: "#E6ECF5" }}>
                   <div className="flex items-center gap-2">
                     <div className="flex -space-x-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] border-2 border-[#121826] flex items-center justify-center text-xs font-bold text-[#0B0F1A]">YOU</div>
-                      <div className="w-8 h-8 rounded-full bg-[#1A2033] border-2 border-[#121826] border-dashed flex items-center justify-center text-xs text-gray-400">+</div>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)", border: "2px solid #FFFFFF", color: "#FFFFFF" }}>YOU</div>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs" style={{ background: "#F6F8FC", border: "2px dashed #D6E4FF", color: "#8A97B5" }}>+</div>
                     </div>
                   </div>
-                  <div className="text-xs font-semibold text-[#8A5CFF] uppercase tracking-wider bg-[#8A5CFF]/10 px-3 py-1.5 rounded-lg border border-[#8A5CFF]/20">
+                  <div className="text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-lg" style={{ background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}>
                     Leader
                   </div>
                 </div>
@@ -138,19 +133,18 @@ export default function GlowGroupsTab({ user }) {
           )}
         </div>
       ) : (
-        <div className="bg-[#121826]/50 border border-white/10 rounded-2xl overflow-hidden">
-          <div className="flex border-b border-white/10">
-            <button onClick={() => setGroupTab('feed')} className={`flex-1 py-4 font-bold transition ${groupTab === 'feed' ? 'text-[#00CFFF] border-b-2 border-[#00CFFF]' : 'text-gray-400 hover:text-white'}`}>Group Feed</button>
-            <button onClick={() => setGroupTab('chat')} className={`flex-1 py-4 font-bold transition ${groupTab === 'chat' ? 'text-[#00CFFF] border-b-2 border-[#00CFFF]' : 'text-gray-400 hover:text-white'}`}>Chat</button>
-            <button onClick={() => setGroupTab('events')} className={`flex-1 py-4 font-bold transition ${groupTab === 'events' ? 'text-[#00CFFF] border-b-2 border-[#00CFFF]' : 'text-gray-400 hover:text-white'}`}>Events</button>
-            <button onClick={() => setGroupTab('study')} className={`flex-1 py-4 font-bold transition ${groupTab === 'study' ? 'text-[#00CFFF] border-b-2 border-[#00CFFF]' : 'text-gray-400 hover:text-white'}`}>Study Plan</button>
+        <div className="rounded-[1.5rem] overflow-hidden" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+          <div className="flex border-b" style={{ borderColor: "#E6ECF5" }}>
+            {[{ key: 'feed', label: 'Group Feed' }, { key: 'chat', label: 'Chat' }, { key: 'events', label: 'Events' }, { key: 'study', label: 'Study Plan' }].map(tab => (
+              <button key={tab.key} onClick={() => setGroupTab(tab.key)} className="flex-1 py-4 font-bold transition" style={groupTab === tab.key ? { color: "#0B3FD9", borderBottom: "2px solid #0B3FD9" } : { color: "#6B7FA0", borderBottom: "2px solid transparent" }}>{tab.label}</button>
+            ))}
           </div>
           <div className="p-6">
             {groupTab === 'feed' && (
-              <div className="text-center text-gray-400 py-8">
+              <div className="text-center py-8" style={{ color: "#6B7FA0" }}>
                 <div className="text-4xl mb-4">🌱</div>
                 <p>Your group's private feed is growing here. Share updates, prayers, and Glow Drops with your members.</p>
-                <Button className="mt-6 bg-[#00CFFF]/20 text-[#00CFFF] hover:bg-[#00CFFF]/30">Post to Group</Button>
+                <Button className="mt-6" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", border: "none" }}>Post to Group</Button>
               </div>
             )}
             {groupTab === 'chat' && <GlowGroupChat group={activeGroup} user={user} />}

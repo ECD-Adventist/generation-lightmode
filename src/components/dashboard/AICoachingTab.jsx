@@ -56,27 +56,8 @@ Keep the tone warm, encouraging, and Spirit-led — like a caring mentor, not a 
             patterns_summary: { type: "string" },
             emotional_tone: { type: "string" },
             growth_areas: { type: "array", items: { type: "string" } },
-            scripture_encouragements: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  verse: { type: "string" },
-                  reference: { type: "string" },
-                  personal_note: { type: "string" }
-                }
-              }
-            },
-            recommended_challenges: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  title: { type: "string" },
-                  reason: { type: "string" }
-                }
-              }
-            },
+            scripture_encouragements: { type: "array", items: { type: "object", properties: { verse: { type: "string" }, reference: { type: "string" }, personal_note: { type: "string" } } } },
+            recommended_challenges: { type: "array", items: { type: "object", properties: { title: { type: "string" }, reason: { type: "string" } } } },
             personal_message: { type: "string" }
           }
         }
@@ -90,80 +71,69 @@ Keep the tone warm, encouraging, and Spirit-led — like a caring mentor, not a 
     }
   };
 
+  const cardStyle = { background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-['Inter']">
       {/* Header */}
       <div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#8A5CFF]/10 border border-[#8A5CFF]/20 mb-3">
-          <Brain className="w-3.5 h-3.5 text-[#8A5CFF]" />
-          <span className="text-[#8A5CFF] text-xs font-bold uppercase tracking-widest">AI Spiritual Coach</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3" style={{ background: "rgba(11, 63, 217, 0.08)", border: "1px solid #D6E4FF" }}>
+          <Brain className="w-3.5 h-3.5" style={{ color: "#0B3FD9" }} />
+          <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#0B3FD9" }}>AI Spiritual Coach</span>
         </div>
-        <h1 className="text-3xl font-black font-['Space_Grotesk'] text-white">Your Faith Journey Coach</h1>
-        <p className="text-gray-400 mt-1 max-w-xl">
+        <h1 className="text-3xl font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>Your Faith Journey Coach</h1>
+        <p className="mt-1 max-w-xl" style={{ color: "#6B7FA0" }}>
           Our AI coach analyzes your Glow Drops to identify emotional and spiritual patterns, then offers personalized scripture encouragement and challenge recommendations.
         </p>
       </div>
 
-      {/* Drop Count Banner */}
-      <div className="bg-[#121826] border border-white/5 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Banner */}
+      <div className="rounded-[1.5rem] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4" style={cardStyle}>
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-[#8A5CFF]/10 border border-[#8A5CFF]/20 flex items-center justify-center shrink-0">
-            <Sparkles className="w-5 h-5 text-[#8A5CFF]" />
+          <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style={{ background: "#EEF3FF", border: "1px solid #D6E4FF" }}>
+            <Sparkles className="w-5 h-5" style={{ color: "#0B3FD9" }} />
           </div>
           <div>
-            <p className="text-white font-bold">{myDrops.length} Glow Drop{myDrops.length !== 1 ? "s" : ""} available for analysis</p>
-            <p className="text-gray-400 text-sm">The coach analyzes up to your last 20 approved drops</p>
+            <p className="font-bold" style={{ color: "#0B1B3D" }}>{myDrops.length} Glow Drop{myDrops.length !== 1 ? "s" : ""} available for analysis</p>
+            <p className="text-sm" style={{ color: "#6B7FA0" }}>The coach analyzes up to your last 20 approved drops</p>
           </div>
         </div>
-        <Button
-          onClick={runAnalysis}
-          disabled={loading}
-          className="bg-[#8A5CFF] hover:bg-[#8A5CFF]/80 text-white font-bold rounded-xl px-6 h-11 shrink-0"
-        >
-          {loading ? (
-            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analyzing...</>
-          ) : analysis ? (
-            <><RefreshCw className="w-4 h-4 mr-2" /> Re-analyze</>
-          ) : (
-            <><Brain className="w-4 h-4 mr-2" /> Analyze My Journey</>
-          )}
+        <Button onClick={runAnalysis} disabled={loading} className="font-bold rounded-xl px-6 h-11 shrink-0" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", border: "none", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>
+          {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analyzing...</>)
+            : analysis ? (<><RefreshCw className="w-4 h-4 mr-2" /> Re-analyze</>)
+            : (<><Brain className="w-4 h-4 mr-2" /> Analyze My Journey</>)}
         </Button>
       </div>
 
-      {/* Loading */}
       {loading && (
-        <div className="bg-[#121826] border border-[#8A5CFF]/20 rounded-2xl p-10 text-center">
-          <Loader2 className="w-10 h-10 text-[#8A5CFF] animate-spin mx-auto mb-4" />
-          <p className="text-white font-bold font-['Space_Grotesk']">Coach is reading your heart...</p>
-          <p className="text-gray-400 text-sm mt-1">Analyzing patterns across your Glow Drops</p>
+        <div className="rounded-[1.5rem] p-10 text-center" style={{ background: "#FFFFFF", border: "1px solid #D6E4FF" }}>
+          <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" style={{ color: "#0B3FD9" }} />
+          <p className="font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>Coach is reading your heart...</p>
+          <p className="text-sm mt-1" style={{ color: "#6B7FA0" }}>Analyzing patterns across your Glow Drops</p>
         </div>
       )}
 
-      {/* Results */}
       {analysis && !loading && (
         <div className="space-y-6">
-
-          {/* Emotional Tone Badge */}
           <div className="flex flex-wrap gap-3 items-center">
-            <span className="text-gray-400 text-sm">Overall spiritual tone:</span>
-            <span className="px-4 py-1.5 rounded-full bg-[#8A5CFF]/15 border border-[#8A5CFF]/30 text-[#8A5CFF] text-sm font-bold">
+            <span className="text-sm" style={{ color: "#6B7FA0" }}>Overall spiritual tone:</span>
+            <span className="px-4 py-1.5 rounded-full text-sm font-bold" style={{ background: "rgba(11, 63, 217, 0.1)", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>
               {analysis.emotional_tone}
             </span>
           </div>
 
-          {/* Patterns Summary */}
-          <div className="bg-[#121826] border border-white/5 rounded-2xl p-6">
-            <h2 className="text-white font-black font-['Space_Grotesk'] text-lg mb-3 flex items-center gap-2">
+          <div className="rounded-[1.5rem] p-6" style={cardStyle}>
+            <h2 className="font-black font-['Space_Grotesk'] text-lg mb-3 flex items-center gap-2" style={{ color: "#0B1B3D" }}>
               <span className="text-xl">🔍</span> Spiritual Pattern Analysis
             </h2>
-            <p className="text-gray-300 text-sm leading-relaxed">{analysis.patterns_summary}</p>
+            <p className="text-sm leading-relaxed" style={{ color: "#3A4A6B" }}>{analysis.patterns_summary}</p>
 
             {analysis.growth_areas?.length > 0 && (
               <div className="mt-4">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Growth Areas Identified</p>
+                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#8A97B5" }}>Growth Areas Identified</p>
                 <div className="flex flex-wrap gap-2">
                   {analysis.growth_areas.map((area, i) => (
-                    <span key={i} className="px-3 py-1 rounded-full bg-[#00CFFF]/10 border border-[#00CFFF]/20 text-[#00CFFF] text-xs font-semibold">
+                    <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold" style={{ background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF", color: "#0B3FD9" }}>
                       {area}
                     </span>
                   ))}
@@ -172,35 +142,33 @@ Keep the tone warm, encouraging, and Spirit-led — like a caring mentor, not a 
             )}
           </div>
 
-          {/* Scripture Encouragements */}
-          <div className="bg-[#121826] border border-white/5 rounded-2xl p-6">
-            <h2 className="text-white font-black font-['Space_Grotesk'] text-lg mb-4 flex items-center gap-2">
+          <div className="rounded-[1.5rem] p-6" style={cardStyle}>
+            <h2 className="font-black font-['Space_Grotesk'] text-lg mb-4 flex items-center gap-2" style={{ color: "#0B1B3D" }}>
               <span className="text-xl">📖</span> Personalized Scripture for You
             </h2>
             <div className="space-y-4">
               {analysis.scripture_encouragements?.map((item, i) => (
-                <div key={i} className="border-l-2 border-[#FFD000]/50 pl-4 py-1">
-                  <p className="text-[#FFD000] font-bold text-sm mb-1">"{item.verse}"</p>
-                  <p className="text-gray-500 text-xs mb-2 font-semibold">— {item.reference}</p>
-                  <p className="text-gray-300 text-sm leading-relaxed">{item.personal_note}</p>
+                <div key={i} className="border-l-2 pl-4 py-1" style={{ borderColor: "#FFD000" }}>
+                  <p className="font-bold text-sm mb-1" style={{ color: "#CC7A00" }}>"{item.verse}"</p>
+                  <p className="text-xs mb-2 font-semibold" style={{ color: "#8A97B5" }}>— {item.reference}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: "#3A4A6B" }}>{item.personal_note}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Recommended Challenges */}
           {analysis.recommended_challenges?.length > 0 && (
-            <div className="bg-[#121826] border border-white/5 rounded-2xl p-6">
-              <h2 className="text-white font-black font-['Space_Grotesk'] text-lg mb-4 flex items-center gap-2">
+            <div className="rounded-[1.5rem] p-6" style={cardStyle}>
+              <h2 className="font-black font-['Space_Grotesk'] text-lg mb-4 flex items-center gap-2" style={{ color: "#0B1B3D" }}>
                 <span className="text-xl">🎯</span> Recommended Next Steps
               </h2>
               <div className="space-y-3">
                 {analysis.recommended_challenges.map((ch, i) => (
-                  <div key={i} className="flex items-start gap-3 bg-[#0B0F1A] rounded-xl p-4 border border-white/5">
-                    <ChevronRight className="w-4 h-4 text-[#00CFFF] mt-0.5 shrink-0" />
+                  <div key={i} className="flex items-start gap-3 rounded-xl p-4" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                    <ChevronRight className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#0B3FD9" }} />
                     <div>
-                      <p className="text-white font-bold text-sm">{ch.title}</p>
-                      <p className="text-gray-400 text-xs mt-1">{ch.reason}</p>
+                      <p className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{ch.title}</p>
+                      <p className="text-xs mt-1" style={{ color: "#6B7FA0" }}>{ch.reason}</p>
                     </div>
                   </div>
                 ))}
@@ -208,22 +176,19 @@ Keep the tone warm, encouraging, and Spirit-led — like a caring mentor, not a 
             </div>
           )}
 
-          {/* Personal Message */}
-          <div className="bg-gradient-to-br from-[#8A5CFF]/10 to-[#00CFFF]/5 border border-[#8A5CFF]/20 rounded-2xl p-6 text-center">
-            <div className="text-3xl mb-3">💜</div>
-            <h2 className="text-white font-black font-['Space_Grotesk'] text-lg mb-3">A Word for You</h2>
-            <p className="text-gray-200 text-sm leading-relaxed max-w-lg mx-auto italic">"{analysis.personal_message}"</p>
+          <div className="rounded-[1.5rem] p-6 text-center" style={{ background: "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", border: "1px solid #D6E4FF" }}>
+            <div className="text-3xl mb-3">💙</div>
+            <h2 className="font-black font-['Space_Grotesk'] text-lg mb-3" style={{ color: "#0B1B3D" }}>A Word for You</h2>
+            <p className="text-sm leading-relaxed max-w-lg mx-auto italic" style={{ color: "#3A4A6B" }}>"{analysis.personal_message}"</p>
           </div>
-
         </div>
       )}
 
-      {/* Empty State */}
       {!analysis && !loading && (
-        <div className="bg-[#121826] border border-dashed border-white/10 rounded-2xl p-12 text-center">
-          <Brain className="w-12 h-12 text-[#8A5CFF]/40 mx-auto mb-4" />
-          <p className="text-gray-400 text-sm max-w-sm mx-auto">
-            Click <strong className="text-white">"Analyze My Journey"</strong> above and your AI coach will study your Glow Drops to reveal your spiritual patterns and next steps.
+        <div className="rounded-[1.5rem] p-12 text-center" style={{ background: "#FFFFFF", border: "2px dashed #D6E4FF" }}>
+          <Brain className="w-12 h-12 mx-auto mb-4" style={{ color: "#B8E5FF" }} />
+          <p className="text-sm max-w-sm mx-auto" style={{ color: "#6B7FA0" }}>
+            Click <strong style={{ color: "#0B1B3D" }}>"Analyze My Journey"</strong> above and your AI coach will study your Glow Drops to reveal your spiritual patterns and next steps.
           </p>
         </div>
       )}
