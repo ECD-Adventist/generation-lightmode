@@ -35,9 +35,9 @@ const values = [
 export default function AboutValues({ t }) {
   return (
     <section style={{ position: "relative", overflow: "hidden", padding: "clamp(80px, 10vw, 130px) clamp(20px, 6vw, 80px)", background: "linear-gradient(180deg, #0D1220 0%, #0B0F1A 100%)" }}>
-      {/* Lightbulb pattern background */}
-      <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/8f9bf2363_lightbulb-seamless-pattern-background-light-bulb-motif-wallpaper-idea-thinking-creative-electric-energy-solution-vector.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.04, pointerEvents: "none", mixBlendMode: "screen" }} />
-      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 30%, #0D1220 75%)", pointerEvents: "none" }} />
+      {/* Ambient glow */}
+      <div style={{ position: "absolute", top: "-10%", left: "-5%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.06), transparent 65%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: "-10%", right: "-5%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,208,0,0.05), transparent 65%)", pointerEvents: "none" }} />
 
       <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
         <div style={{ textAlign: "center", marginBottom: 56 }}>

@@ -6,6 +6,8 @@ import AboutMission from "../components/about/AboutMission";
 import AboutVision from "../components/about/AboutVision";
 import AboutValues from "../components/about/AboutValues";
 import AboutPartners from "../components/about/AboutPartners";
+import AboutTeam from "../components/about/AboutTeam";
+import AboutStory from "../components/about/AboutStory";
 import AboutCTA from "../components/about/AboutCTA";
 
 export default function About() {
@@ -39,6 +41,10 @@ export default function About() {
 
       <AboutMission t={t} liveImpactStats={liveImpactStats} />
 
+      <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(255,208,0,0.3), transparent)" }} />
+
+      <AboutStory />
+
       <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(0,207,255,0.3), transparent)" }} />
 
       <AboutVision t={t} />
@@ -50,6 +56,10 @@ export default function About() {
       <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(0,207,255,0.3), transparent)" }} />
 
       <AboutPartners t={t} />
+
+      <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(138,92,255,0.3), transparent)" }} />
+
+      <AboutTeam />
 
       <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(255,208,0,0.3), transparent)" }} />
 
