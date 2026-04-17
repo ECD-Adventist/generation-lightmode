@@ -494,9 +494,6 @@ export default function Feed() {
           {/* Top Header Mobile — LIGHT */}
           <div className="flex justify-between items-center px-3 sm:px-4 py-3 sticky top-0 z-50 backdrop-blur-xl border-b lg:hidden gap-3" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <button onClick={() => setIsMobileNavOpen(true)} className="transition shrink-0" style={{ color: "#4A5878" }}>
-              <Menu className="w-6 h-6" />
-            </button>
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png"
               alt="Generation LightMode"
@@ -513,6 +510,9 @@ export default function Feed() {
             <Link to={createPageUrl("Messages")} className="shrink-0" style={{ color: "#0B1B3D" }}>
               <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
             </Link>
+            <button onClick={() => setIsMobileNavOpen(true)} className="transition shrink-0" style={{ color: "#4A5878" }}>
+              <Menu className="w-6 h-6" />
+            </button>
           </div>
         </div>
 
@@ -538,7 +538,7 @@ export default function Feed() {
         </div>
 
         {/* Mobile Search Bar — LIGHT */}
-        <div className="lg:hidden px-4 mb-4 shrink-0">
+        <div className="lg:hidden px-3 sm:px-4 mb-3 shrink-0">
           <div className="relative">
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "#1FB8FF" }} />
             <input
@@ -546,7 +546,7 @@ export default function Feed() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search drops..."
-              className="w-full rounded-full py-2.5 pl-9 pr-9 text-sm focus:outline-none transition"
+              className="w-full rounded-full py-2.5 pl-9 pr-9 text-sm focus:outline-none transition shadow-sm"
               style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
             />
             {searchQuery && (
