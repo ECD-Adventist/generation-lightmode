@@ -382,7 +382,7 @@ export default function Feed() {
       <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-0 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
-        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "linear-gradient(180deg, #FFFDF5 0%, #FFF9E6 40%, #FFF4D6 100%)", borderColor: "#F0E0B0", backgroundImage: "radial-gradient(circle at 20% 80%, rgba(255,208,0,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,159,26,0.06) 0%, transparent 50%)" }}>
+        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "linear-gradient(165deg, #FFFEF9 0%, #FFF7DE 35%, #FFEFC7 70%, #FFE9B5 100%)", borderColor: "#F0DFA0", backgroundImage: "radial-gradient(circle at 15% 85%, rgba(255,208,0,0.14) 0%, transparent 55%), radial-gradient(circle at 85% 15%, rgba(255,159,26,0.1) 0%, transparent 55%), radial-gradient(circle at 50% 50%, rgba(255,220,120,0.05) 0%, transparent 70%)", boxShadow: "inset -1px 0 0 rgba(255, 208, 0, 0.15)" }}>
            {/* Logo — BLUE */}
            <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
              <img
@@ -675,7 +675,7 @@ export default function Feed() {
         </div>
 
         {/* Right Sidebar (Desktop) — LIGHT */}
-        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l backdrop-blur-md overflow-y-auto hide-scrollbar" style={{ borderColor: "#E2E8F0", background: "linear-gradient(180deg, #F8FAFF 0%, #F0F4FA 100%)" }}>
+        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l backdrop-blur-md overflow-y-auto hide-scrollbar" style={{ borderColor: "#EAEEF5", background: "linear-gradient(180deg, #FBFCFE 0%, #F6F9FD 100%)" }}>
           
           <DailyChallenges user={user} />
 
