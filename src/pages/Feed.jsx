@@ -385,7 +385,7 @@ export default function Feed() {
       <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] rounded-full blur-[120px] z-0 opacity-30 pointer-events-none animate-[float-light_8s_ease-in-out_infinite]" style={{ background: "#7FE08A" }}></div>
       <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] rounded-full blur-[140px] z-0 opacity-25 pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]" style={{ background: "#5AC8FF" }}></div>
 
-      <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-[270px_1fr_320px] gap-0 backdrop-blur-[2px]">
+      <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-[240px_1fr_320px] gap-0 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
         <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "linear-gradient(165deg, #FFFEF9 0%, #FFF7DE 35%, #FFEFC7 70%, #FFE9B5 100%)", borderColor: "#F0DFA0", backgroundImage: "radial-gradient(circle at 15% 85%, rgba(255,208,0,0.14) 0%, transparent 55%), radial-gradient(circle at 85% 15%, rgba(255,159,26,0.1) 0%, transparent 55%), radial-gradient(circle at 50% 50%, rgba(255,220,120,0.05) 0%, transparent 70%)", boxShadow: "inset -1px 0 0 rgba(255, 208, 0, 0.15)" }}>
