@@ -497,10 +497,15 @@ export default function Feed() {
             <button onClick={() => setIsMobileNavOpen(true)} className="transition shrink-0" style={{ color: "#4A5878" }}>
               <Menu className="w-6 h-6" />
             </button>
+            <Link to={createPageUrl("Profile")} className="shrink-0">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden" style={{ border: "2px solid #1FB8FF" }}>
+                <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+              </div>
+            </Link>
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png"
               alt="Generation LightMode"
-              className="h-12 sm:h-14 w-auto object-contain max-w-[180px] sm:max-w-[220px]"
+              className="h-12 sm:h-14 w-auto object-contain max-w-[150px] sm:max-w-[220px]"
             />
           </div>
           <div className="flex gap-3 items-center shrink-0">
@@ -538,7 +543,7 @@ export default function Feed() {
         </div>
 
         {/* Mobile Search Bar — LIGHT */}
-        <div className="lg:hidden px-4 mb-4 shrink-0">
+        <div className="lg:hidden px-3 sm:px-4 mb-3 shrink-0">
           <div className="relative">
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "#1FB8FF" }} />
             <input
@@ -546,7 +551,7 @@ export default function Feed() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search drops..."
-              className="w-full rounded-full py-2.5 pl-9 pr-9 text-sm focus:outline-none transition"
+              className="w-full rounded-full py-2.5 pl-9 pr-9 text-sm focus:outline-none transition shadow-sm"
               style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
             />
             {searchQuery && (
