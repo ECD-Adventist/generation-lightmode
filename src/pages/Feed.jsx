@@ -474,7 +474,7 @@ export default function Feed() {
         <div 
           ref={feedScrollRef} 
           className="lg:col-span-2 h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8"
-          style={{ color: "#0B1B3D", background: "linear-gradient(180deg, #FDF9F0 0%, #F7F3EA 50%, #F2EEE4 100%)" }}
+          style={{ color: "#0B1B3D", background: "#F6F8FC" }}
           onScroll={(e) => {
             const { scrollTop, scrollHeight, clientHeight } = e.target;
             if (scrollHeight - scrollTop <= clientHeight + 150) {
@@ -486,7 +486,7 @@ export default function Feed() {
         >
           
           {/* Top Header Mobile — LIGHT */}
-          <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 backdrop-blur-xl border-b lg:hidden" style={{ background: "rgba(240, 250, 243, 0.85)", borderColor: "#E0EAF5" }}>
+          <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 backdrop-blur-xl border-b lg:hidden" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
           <div className="flex items-center gap-3">
             <button onClick={() => setIsMobileNavOpen(true)} className="transition" style={{ color: "#4A5878" }}>
               <Menu className="w-6 h-6" />
@@ -675,7 +675,7 @@ export default function Feed() {
         </div>
 
         {/* Right Sidebar (Desktop) — LIGHT */}
-        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l backdrop-blur-md overflow-y-auto hide-scrollbar" style={{ borderColor: "#E0EAF5", background: "rgba(240, 250, 243, 0.4)" }}>
+        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l backdrop-blur-md overflow-y-auto hide-scrollbar" style={{ borderColor: "#E2E8F0", background: "linear-gradient(180deg, #F8FAFF 0%, #F0F4FA 100%)" }}>
           
           <DailyChallenges user={user} />
 
@@ -845,7 +845,7 @@ export default function Feed() {
         )}
 
         {/* Bottom Mobile Navigation — LIGHT */}
-        <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t flex justify-around items-center py-3 px-6 z-50 pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden" style={{ background: "rgba(240, 250, 243, 0.95)", borderColor: "#E0EAF5" }}>
+        <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t flex justify-around items-center py-3 px-6 z-50 pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden" style={{ background: "rgba(246, 248, 252, 0.95)", borderColor: "#E2E8F0" }}>
           <Link to={createPageUrl("Feed")}><Home className="w-6 h-6" fill="#0B3FD9" style={{ color: "#0B3FD9" }} /></Link>
           <button onClick={() => setIsSearchOpen(true)}><SearchIcon className="w-6 h-6" style={{ color: "#0B1B3D" }} /></button>
           <Link to={createPageUrl("Dashboard")}><PlusSquare className="w-6 h-6" style={{ color: "#0B1B3D" }} /></Link>
