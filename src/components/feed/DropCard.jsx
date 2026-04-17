@@ -316,20 +316,19 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             {/* Subtle quote mark decoration */}
             <div className="absolute top-6 left-6 text-[80px] sm:text-[120px] leading-none font-serif pointer-events-none select-none z-0" style={{ color: "rgba(30, 90, 255, 0.06)" }}>"</div>
             
-            <div className="p-5 sm:p-8 pr-16 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center">
+            <div className="p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center">
               {drop.verse && (
-                <h2 className="text-xl sm:text-3xl lg:text-4xl font-bold font-['Space_Grotesk'] mb-4 sm:mb-6 leading-tight" style={{ color: "#0B3FD9" }}>
+                <h2 className="text-lg sm:text-3xl lg:text-4xl font-bold font-['Space_Grotesk'] mb-3 sm:mb-6 leading-tight line-clamp-4" style={{ color: "#0B3FD9" }}>
                   {drop.verse}
                 </h2>
               )}
               {drop.reflection && (() => {
-                // Strip HTML for the hero preview (keep it clean/italic)
                 const plain = containsHtml(drop.reflection)
                   ? drop.reflection.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
                   : drop.reflection;
                 return (
-                  <p className="text-base sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic" style={{ color: "#3A4A6B" }}>
-                    "{plain.length > 180 ? plain.slice(0, 180) + '…' : plain}"
+                  <p className="text-sm sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic line-clamp-4 sm:line-clamp-none" style={{ color: "#3A4A6B" }}>
+                    "{plain.length > 140 ? plain.slice(0, 140) + '…' : plain}"
                   </p>
                 );
               })()}
@@ -478,7 +477,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
               </span>
             )}
             {drop.hashtags && (
-              <div className="text-[13px] font-medium opacity-90" style={{ color: "#0B3FD9" }}>
+              <div className="text-[12px] sm:text-[13px] font-medium opacity-90 break-words w-full" style={{ color: "#0B3FD9" }}>
                 {drop.hashtags.split(' ').map(t => t.startsWith('#') ? t : `#${t}`).join(' ')}
               </div>
             )}

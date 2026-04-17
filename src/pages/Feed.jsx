@@ -492,26 +492,26 @@ export default function Feed() {
         >
           
           {/* Top Header Mobile — LIGHT */}
-          <div className="flex justify-between items-center px-4 py-3 sticky top-0 z-50 backdrop-blur-xl border-b lg:hidden" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
-          <div className="flex items-center gap-3">
-            <button onClick={() => setIsMobileNavOpen(true)} className="transition" style={{ color: "#4A5878" }}>
+          <div className="flex justify-between items-center px-3 sm:px-4 py-3 sticky top-0 z-50 backdrop-blur-xl border-b lg:hidden gap-3" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <button onClick={() => setIsMobileNavOpen(true)} className="transition shrink-0" style={{ color: "#4A5878" }}>
               <Menu className="w-6 h-6" />
             </button>
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png"
               alt="Generation LightMode"
-              className="h-20 object-contain"
+              className="h-12 sm:h-14 w-auto object-contain max-w-[180px] sm:max-w-[220px]"
             />
           </div>
-          <div className="flex gap-4 items-center shrink-0">
-            <Link to={createPageUrl("Notifications")} className="relative" style={{ color: "#0B1B3D" }}>
-              <Heart className="w-6 h-6" />
+          <div className="flex gap-3 items-center shrink-0">
+            <Link to={createPageUrl("Notifications")} className="relative shrink-0" style={{ color: "#0B1B3D" }}>
+              <Heart className="w-5 h-5 sm:w-6 sm:h-6" />
               {notifications.length > 0 && (
                 <span className="absolute top-0 right-0 w-2 h-2 rounded-full" style={{ background: "#FF9F1A" }}></span>
               )}
             </Link>
-            <Link to={createPageUrl("Messages")} style={{ color: "#0B1B3D" }}>
-              <MessageCircle className="w-6 h-6" />
+            <Link to={createPageUrl("Messages")} className="shrink-0" style={{ color: "#0B1B3D" }}>
+              <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
             </Link>
           </div>
         </div>
@@ -560,7 +560,7 @@ export default function Feed() {
         <OfflineBanner isOnline={isOnline} lastCached={lastCached} syncing={syncing} onSync={syncQueue} />
 
         {/* Stories / Status Row */}
-        <div className="flex gap-4 px-4 mb-8 overflow-x-auto hide-scrollbar pb-2 shrink-0 items-start">
+        <div className="flex gap-3 sm:gap-4 px-3 sm:px-4 mb-6 sm:mb-8 overflow-x-auto hide-scrollbar pb-2 shrink-0 items-start">
           <button
             onClick={() => user ? setIsStatusModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
             className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0"
@@ -611,7 +611,7 @@ export default function Feed() {
           )}
         </div>
 
-        <div className="flex gap-3 px-4 mb-6 overflow-x-auto hide-scrollbar shrink-0">
+        <div className="flex gap-2 sm:gap-3 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">
           <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.25)" }}><Plus className="w-4 h-4" />Post</button>
           <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}>Messages</Link>
           <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}>Prayer Wall</Link>
@@ -620,7 +620,7 @@ export default function Feed() {
           </div>
 
         {/* Filter Bar — LIGHT */}
-        <div className="flex gap-2 px-4 mb-6 overflow-x-auto hide-scrollbar shrink-0">
+        <div className="flex gap-2 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">
           {['All', 'Following', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
             <button
               key={filter}
@@ -854,7 +854,7 @@ export default function Feed() {
         )}
 
         {/* Bottom Mobile Navigation — LIGHT */}
-        <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t flex justify-around items-center py-3 px-6 z-50 pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden" style={{ background: "rgba(246, 248, 252, 0.95)", borderColor: "#E2E8F0" }}>
+        <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t flex justify-around items-center py-3 px-3 sm:px-6 z-50 pb-5 sm:pb-6 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden" style={{ background: "rgba(246, 248, 252, 0.95)", borderColor: "#E2E8F0" }}>
           <Link to={createPageUrl("Feed")}><Home className="w-6 h-6" fill="#0B3FD9" style={{ color: "#0B3FD9" }} /></Link>
           <button onClick={() => setIsSearchOpen(true)}><SearchIcon className="w-6 h-6" style={{ color: "#0B1B3D" }} /></button>
           <Link to={createPageUrl("Dashboard")}><PlusSquare className="w-6 h-6" style={{ color: "#0B1B3D" }} /></Link>
