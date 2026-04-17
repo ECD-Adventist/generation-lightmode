@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import DropCard from "@/components/feed/DropCard";
 
@@ -7,28 +7,16 @@ export default function PostViewerModal({
   user, currentUser, allUsers,
   likeMutation, handleShare, userLikes, savedDropRecords
 }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(null);
-  const [animDir, setAnimDir] = useState(null);
+  const scrollRef = useRef(null);
+  const initialRef = useRef(null);
 
   useEffect(() => {
-    if (isOpen && initialDropId && drops.length > 0) {
-      const idx = drops.findIndex(d => d.id === initialDropId);
-      setCurrentIndex(idx >= 0 ? idx : 0);
-      setAnimDir(null);
+    if (isOpen && initialDropId && initialRef.current) {
+      setTimeout(() => {
+        initialRef.current?.scrollIntoView({ block: "start" });
+      }, 50);
     }
-  }, [isOpen, initialDropId, drops]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKey = (e) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowUp") { e.preventDefault(); goToPrev(); }
-      if (e.key === "ArrowDown") { e.preventDefault(); goToNext(); }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [isOpen, currentIndex, drops.length]);
+  }, [isOpen, initialDropId]);
 
   useEffect(() => {
     if (isOpen) {
@@ -37,43 +25,16 @@ export default function PostViewerModal({
     }
   }, [isOpen]);
 
-  const goToPrev = useCallback(() => {
-    setCurrentIndex(i => {
-      if (i > 0) { setAnimDir("up"); return i - 1; }
-      return i;
-    });
-  }, []);
-
-  const goToNext = useCallback(() => {
-    setCurrentIndex(i => {
-      if (i < drops.length - 1) { setAnimDir("down"); return i + 1; }
-      return i;
-    });
-  }, [drops.length]);
-
-  const handleTouchStart = (e) => setTouchStart(e.touches[0].clientY);
-  const handleTouchEnd = (e) => {
-    if (touchStart === null) return;
-    const diff = touchStart - e.changedTouches[0].clientY;
-    if (Math.abs(diff) > 60) {
-      if (diff > 0) goToNext();
-      else goToPrev();
-    }
-    setTouchStart(null);
-  };
-
-  // Clear animation class after transition
   useEffect(() => {
-    if (animDir) {
-      const t = setTimeout(() => setAnimDir(null), 300);
-      return () => clearTimeout(t);
-    }
-  }, [animDir, currentIndex]);
+    if (!isOpen) return;
+    const handleKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isOpen]);
 
   if (!isOpen || drops.length === 0) return null;
-
-  const drop = drops[currentIndex];
-  if (!drop) return null;
 
   const getUserInfo = (email) => {
     if (currentUser?.email === email) return currentUser;
@@ -83,54 +44,46 @@ export default function PostViewerModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center"
-      onClick={onClose}
-    >
-      <style>{`
-        @keyframes modal-slide-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes modal-slide-down { from { opacity: 0; transform: translateY(-24px); } to { opacity: 1; transform: translateY(0); } }
-        .post-slide-up { animation: modal-slide-up 0.28s ease-out; }
-        .post-slide-down { animation: modal-slide-down 0.28s ease-out; }
-      `}</style>
-
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0" style={{ background: "rgba(0, 0, 0, 0.65)", backdropFilter: "blur(20px) saturate(1.2)" }} />
+      <div className="absolute inset-0" style={{ background: "rgba(0, 0, 0, 0.65)", backdropFilter: "blur(20px)" }} onClick={onClose} />
 
       {/* Close */}
       <button
         onClick={onClose}
-        className="absolute top-5 right-5 z-50 w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
+        className="absolute top-4 right-4 z-50 w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
         style={{ background: "rgba(255,255,255,0.15)", backdropFilter: "blur(8px)", color: "#fff" }}
       >
         <X className="w-4 h-4" />
       </button>
 
-
-
-      {/* Card */}
+      {/* Scrollable feed */}
       <div
-        className={`relative w-full max-w-xl mx-4 rounded-2xl overflow-hidden ${animDir === "up" ? "post-slide-up" : animDir === "down" ? "post-slide-down" : ""}`}
-        style={{
-          maxHeight: "88vh",
-          background: "#FFFFFF",
-          boxShadow: "0 25px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)",
-        }}
+        ref={scrollRef}
+        className="relative w-full max-w-xl mx-4 overflow-y-auto rounded-2xl hide-scrollbar"
+        style={{ maxHeight: "92vh", background: "#F6F8FC" }}
         onClick={(e) => e.stopPropagation()}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
       >
-        <div className="overflow-y-auto" style={{ maxHeight: "88vh" }}>
-          <DropCard
-            drop={drop}
-            user={currentUser}
-            dropUser={getUserInfo(drop.user_email)}
-            likeMutation={likeMutation}
-            handleShare={handleShare}
-            userLikes={userLikes || []}
-            savedDropRecords={savedDropRecords || []}
-            allUsers={allUsers || []}
-          />
+        <div className="flex flex-col">
+          {drops.map((drop) => (
+            <div
+              key={drop.id}
+              ref={drop.id === initialDropId ? initialRef : undefined}
+              className="border-b last:border-b-0"
+              style={{ borderColor: "#E6ECF5" }}
+            >
+              <DropCard
+                drop={drop}
+                user={currentUser}
+                dropUser={getUserInfo(drop.user_email)}
+                likeMutation={likeMutation}
+                handleShare={handleShare}
+                userLikes={userLikes || []}
+                savedDropRecords={savedDropRecords || []}
+                allUsers={allUsers || []}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>
