@@ -176,19 +176,19 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   });
 
   return (
-    <div className="bg-[#121826]/80 backdrop-blur-sm border border-white/10 rounded-[2rem] mb-8 p-3 shadow-2xl hover:border-[#00CFFF]/40 transition-all duration-300 group">
+    <div className="bg-white/40 backdrop-blur-md border border-[#0088FF]/20 rounded-[2rem] mb-8 p-3 shadow-lg hover:border-[#0088FF]/40 transition-all duration-300 group">
       {/* Media / Content Area */}
       <div 
-        className={`relative w-full rounded-[1.5rem] overflow-hidden bg-gradient-to-br from-[#1a1b26] via-[#0B0F1A] to-[#1a103c] shadow-inner ${drop.media_url ? 'aspect-[3/4]' : 'min-h-[520px] flex flex-col justify-center items-center text-center'}`}
+        className={`relative w-full rounded-[1.5rem] overflow-hidden bg-gradient-to-br from-white/50 via-[#E8F8FF] to-[#F0E8FF] shadow-inner ${drop.media_url ? 'aspect-[3/4]' : 'min-h-[520px] flex flex-col justify-center items-center text-center'}`}
         onDoubleClick={() => likeMutation.mutate({id: drop.id, authorEmail: drop.user_email, authorName: dropUser.full_name})}
       >
         {/* Gradient Overlays for readability */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/70 to-transparent pointer-events-none z-0" />
-        <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/40 to-transparent pointer-events-none z-0" />
+        <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-black/50 via-black/20 to-transparent pointer-events-none z-0" />
 
         {/* User Pill (Top Left) */}
         {drop.user_email === "system@lightmode.com" ? (
-          <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-[#FFD000]/30 rounded-full pr-4 pl-1 py-1">
+          <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-white/60 backdrop-blur-md border border-[#FFD000]/40 rounded-full pr-4 pl-1 py-1">
             <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden bg-[#0B0F1A]">
               <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" className="w-full h-full object-cover" />
             </div>
@@ -201,7 +201,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <Link 
             to={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/30 backdrop-blur-md border border-white/10 rounded-full pr-4 pl-1 py-1 cursor-pointer hover:bg-black/50 transition no-underline"
+            className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-white/60 backdrop-blur-md border border-[#0088FF]/20 rounded-full pr-4 pl-1 py-1 cursor-pointer hover:bg-white/80 transition no-underline"
           >
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
               <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
@@ -233,12 +233,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         {!drop.media_url && (
           <div className="p-8 pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center">
             {drop.verse && (
-              <h2 className="text-2xl sm:text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] mb-6 leading-tight drop-shadow-lg">
+              <h2 className="text-2xl sm:text-4xl font-bold font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-[#0088FF] to-[#00D4FF] mb-6 leading-tight drop-shadow-lg">
                 {drop.verse}
               </h2>
             )}
             {drop.reflection && (
-              <p className="text-lg sm:text-xl text-white font-['Inter'] leading-relaxed max-w-md drop-shadow-md">
+              <p className="text-lg sm:text-xl text-[#1a2c2c] font-['Inter'] leading-relaxed max-w-md drop-shadow-md">
                 "{drop.reflection}"
               </p>
             )}
@@ -255,7 +255,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1.5">
             <button 
               onClick={(e) => { e.stopPropagation(); likeMutation.mutate({id: drop.id, authorEmail: drop.user_email, authorName: dropUser.full_name}); }} 
-              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+              className="w-12 h-12 rounded-full bg-white/40 backdrop-blur-xl border border-[#0088FF]/30 flex items-center justify-center hover:bg-white/60 hover:border-[#0088FF] transition-all focus:outline-none"
               title={userHasLiked ? "Unlike this drop" : "Like this drop"}
             >
               <Heart className={`w-6 h-6 transition-all ${userHasLiked ? "text-red-500 fill-red-500 scale-110 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : "text-white hover:scale-110"}`} />
@@ -266,7 +266,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1.5">
             <button 
               onClick={(e) => { e.stopPropagation(); e.preventDefault(); setShowComments(prev => !prev); }} 
-              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+              className="w-12 h-12 rounded-full bg-white/40 backdrop-blur-xl border border-[#0088FF]/30 flex items-center justify-center hover:bg-white/60 hover:border-[#0088FF] transition-all focus:outline-none"
             >
               <MessageCircle className={`w-6 h-6 transition-transform hover:scale-110 ${showComments ? "text-[#00CFFF]" : "text-white"}`} />
             </button>
@@ -276,7 +276,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1.5">
             <button 
               onClick={(e) => { e.stopPropagation(); handleShare(drop); }} 
-              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+              className="w-12 h-12 rounded-full bg-white/40 backdrop-blur-xl border border-[#0088FF]/30 flex items-center justify-center hover:bg-white/60 hover:border-[#0088FF] transition-all focus:outline-none"
             >
               <Share2 className="w-6 h-6 text-white hover:scale-110 transition-transform" />
             </button>
@@ -286,7 +286,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1.5">
             <button 
               onClick={(e) => { e.stopPropagation(); toggleSaveMutation.mutate(); }}
-              className="w-12 h-12 rounded-full bg-black/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/50 hover:border-[#00CFFF] transition-all focus:outline-none"
+              className="w-12 h-12 rounded-full bg-white/40 backdrop-blur-xl border border-[#0088FF]/30 flex items-center justify-center hover:bg-white/60 hover:border-[#0088FF] transition-all focus:outline-none"
             >
               <Bookmark className={`w-6 h-6 transition-transform hover:scale-110 ${isSaved ? "text-[#00CFFF] fill-[#00CFFF]" : "text-white"}`} />
             </button>
@@ -334,8 +334,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       {/* Verse & Reflection — always shown BELOW the image */}
       {(drop.verse || drop.reflection) && (
         <div className="px-4 pt-3 pb-1">
-          {drop.verse && <div className="font-bold text-[#00CFFF] text-sm mb-1">{drop.verse}</div>}
-          {drop.reflection && <p className="text-gray-200 text-sm leading-relaxed">{drop.reflection}</p>}
+          {drop.verse && <div className="font-bold text-[#0088FF] text-sm mb-1">{drop.verse}</div>}
+          {drop.reflection && <p className="text-[#1a2c2c] text-sm leading-relaxed">{drop.reflection}</p>}
         </div>
       )}
 
@@ -344,12 +344,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         <div className="px-2 pt-3 pb-1">
           <div className="flex items-center gap-2 flex-wrap">
             {drop.category && (
-              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#8A5CFF]/20 to-[#00CFFF]/20 text-white text-[11px] font-bold border border-white/10 backdrop-blur-sm uppercase tracking-wider">
+              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#0088FF]/20 to-[#00D4FF]/20 text-[#0088FF] text-[11px] font-bold border border-[#0088FF]/30 backdrop-blur-sm uppercase tracking-wider">
                 {drop.category}
               </span>
             )}
             {drop.hashtags && (
-              <div className="text-[13px] text-[#00CFFF] font-medium opacity-90">
+              <div className="text-[13px] text-[#0088FF] font-medium opacity-90">
                 {drop.hashtags.split(' ').map(t => t.startsWith('#') ? t : `#${t}`).join(' ')}
               </div>
             )}
@@ -358,8 +358,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       )}
 
       {/* Engagement Metrics */}
-      <div className="px-4 pt-4 pb-2 flex items-center gap-6 text-xs text-gray-400 border-t border-white/5">
-        <div className="flex items-center gap-1.5 hover:text-[#00CFFF] transition cursor-default">
+      <div className="px-4 pt-4 pb-2 flex items-center gap-6 text-xs text-[#4a6b6b] border-t border-[#0088FF]/10">
+        <div className="flex items-center gap-1.5 hover:text-[#0088FF] transition cursor-default">
           <Heart className="w-4 h-4" fill="currentColor" />
           <span className="font-semibold">{drop.likes_count || 0}</span>
           <span>Lights</span>
@@ -385,16 +385,16 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
       {/* Comments Drawer/Section */}
       {showComments && (
-        <div className="mt-3 px-3 py-4 bg-[#0B0F1A]/60 rounded-2xl border border-white/5 space-y-4 shadow-inner">
+        <div className="mt-3 px-3 py-4 bg-white/20 rounded-2xl border border-[#0088FF]/10 space-y-4 shadow-inner">
           <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
             {visibleComments.map(c => (
               <div key={c.id} className="flex gap-3 text-sm group/comment">
                 <div className="w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center shrink-0 font-bold text-[10px] uppercase text-white shadow-md">
                   <img src={getCommentUser(c.user_email)?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full rounded-full object-cover" />
                 </div>
-                <div className="bg-[#121826]/80 backdrop-blur-md px-3.5 py-2.5 rounded-2xl rounded-tl-none border border-white/5 flex-1 shadow-sm relative">
-                  <div className="flex justify-between items-start gap-2">
-                    <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.user_email)}`} className="font-bold text-[#00CFFF] text-xs block mb-1 no-underline hover:underline">{getCommentUser(c.user_email).full_name}</Link>
+                <div className="bg-white/30 backdrop-blur-md px-3.5 py-2.5 rounded-2xl rounded-tl-none border border-[#0088FF]/20 flex-1 shadow-sm relative">
+                   <div className="flex justify-between items-start gap-2">
+                     <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.user_email)}`} className="font-bold text-[#0088FF] text-xs block mb-1 no-underline hover:underline">{getCommentUser(c.user_email).full_name}</Link>
                     
                     {user && (
                       <DropdownMenu>
@@ -403,7 +403,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                             <MoreHorizontal className="w-4 h-4" />
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40 bg-[#121826] border-white/10 text-white">
+                        <DropdownMenuContent align="end" className="w-40 bg-white/80 border-[#0088FF]/20 text-[#1a2c2c]">
                           {c.user_email === user.email && (
                             <>
                               <DropdownMenuItem onClick={() => { setEditingCommentId(c.id); setEditContent(c.content); }} className="hover:bg-white/10 cursor-pointer">
@@ -445,25 +445,25 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                       <Button size="sm" variant="ghost" className="h-8" onClick={() => setEditingCommentId(null)}>Cancel</Button>
                     </div>
                   ) : (
-                    <span className="text-gray-200 leading-snug">{c.content}</span>
+                    <span className="text-[#1a2c2c] leading-snug">{c.content}</span>
                   )}
                 </div>
               </div>
             ))}
-            {visibleComments.length === 0 && <div className="text-xs text-gray-500 italic text-center py-6">No comments yet. Ignite the conversation! 🔥</div>}
+            {visibleComments.length === 0 && <div className="text-xs text-[#4a6b6b] italic text-center py-6">No comments yet. Ignite the conversation! 🔥</div>}
           </div>
           <form onSubmit={submitComment} className="flex gap-2 relative mt-2">
             <Input 
               value={newComment} 
               onChange={(e) => setNewComment(e.target.value)} 
               placeholder="Add a comment..." 
-              className="bg-[#121826] border-white/10 text-white h-12 pl-4 pr-20 rounded-full text-sm focus-visible:ring-[#00CFFF]/50 shadow-inner"
+              className="bg-white/30 border-[#0088FF]/20 text-[#1a2c2c] h-12 pl-4 pr-20 rounded-full text-sm focus-visible:ring-[#0088FF]/50 shadow-inner"
             />
             <Button 
               type="submit" 
               disabled={!newComment.trim() || commentMutation.isPending} 
               size="sm" 
-              className="absolute right-1 top-1 bottom-1 h-10 rounded-full bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black font-bold hover:opacity-90 px-4 transition-all"
+              className="absolute right-1 top-1 bottom-1 h-10 rounded-full bg-gradient-to-r from-[#0088FF] to-[#00D4FF] text-white font-bold hover:opacity-90 px-4 transition-all"
             >
               Post
             </Button>

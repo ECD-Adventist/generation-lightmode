@@ -38,8 +38,8 @@ export default function DailyChallenges({ user }) {
   if (!user) return null;
 
   return (
-    <div className="bg-[#121826] rounded-[24px] p-5 border border-white/5 mb-6 relative overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FFD000] to-[#FF5500]"></div>
+    <div className="bg-white/30 rounded-[24px] p-5 border border-[#0088FF]/20 mb-6 relative overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FFD000] to-[#0088FF]"></div>
       <div className="flex items-center gap-2 mb-4">
         <Target className="text-[#FFD000] w-5 h-5" />
         <h3 className="font-black text-xs text-[#FFD000] tracking-widest uppercase">Daily Missions</h3>
@@ -49,18 +49,18 @@ export default function DailyChallenges({ user }) {
         {challenges.map(challenge => {
           const isCompleted = progress.some(p => p.challenge_id === challenge.id);
           return (
-            <div key={challenge.id} className={`p-3 rounded-xl border transition-all ${isCompleted ? 'bg-[#0B0F1A]/50 border-green-500/20 opacity-60' : 'bg-[#0B0F1A] border-white/5 hover:border-[#FFD000]/30'}`}>
+            <div key={challenge.id} className={`p-3 rounded-xl border transition-all ${isCompleted ? 'bg-white/20 border-green-500/30 opacity-60' : 'bg-white/20 border-[#0088FF]/20 hover:border-[#FFD000]/40'}`}>
               <div className="flex justify-between items-center">
                 <div>
-                  <h4 className={`font-bold text-sm ${isCompleted ? 'text-gray-400 line-through' : 'text-white'}`}>{challenge.title}</h4>
-                  <p className="text-[10px] text-gray-500 mt-0.5">{challenge.description}</p>
+                  <h4 className={`font-bold text-sm ${isCompleted ? 'text-[#4a6b6b] line-through' : 'text-[#1a2c2c]'}`}>{challenge.title}</h4>
+                   <p className="text-[10px] text-[#4a6b6b] mt-0.5">{challenge.description}</p>
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <span className="text-[10px] font-bold text-[#FFD000] bg-[#FFD000]/10 px-2 py-0.5 rounded-full">+{challenge.xp} XP</span>
                   {isCompleted ? (
                     <CheckCircle2 className="w-4 h-4 text-green-500" />
                   ) : (
-                    <span className="text-[9px] font-bold text-gray-500 bg-white/5 px-2 py-1 rounded">
+                    <span className="text-[9px] font-bold text-[#4a6b6b] bg-white/20 px-2 py-1 rounded">
                       PENDING
                     </span>
                   )}
