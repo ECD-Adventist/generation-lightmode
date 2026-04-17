@@ -22,19 +22,19 @@ import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModa
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   const baseStyle = active
-    ? { background: "rgba(30, 90, 255, 0.1)", color: "#1E5AFF", border: "1px solid rgba(30, 90, 255, 0.25)" }
+    ? { background: "linear-gradient(90deg, rgba(255, 208, 0, 0.18) 0%, rgba(255, 159, 26, 0.12) 100%)", color: "#0A1A3D", border: "1px solid rgba(255, 208, 0, 0.5)", boxShadow: "0 2px 8px rgba(255, 208, 0, 0.15)" }
     : accent
     ? { color: "#1E5AFF", background: "transparent" }
     : { color: "#4A5878", background: "transparent" };
   const iconBoxStyle = active
-    ? { background: "rgba(30, 90, 255, 0.18)", color: "#1E5AFF" }
+    ? { background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)", color: "#0A1A3D", boxShadow: "0 2px 6px rgba(255, 159, 26, 0.35)" }
     : accent
     ? { background: "rgba(30, 90, 255, 0.08)", color: "#1E5AFF" }
     : { background: "#F0F5FB", color: "#4A5878" };
   return (
     <Link
       to={to}
-      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-[#E8F0FF]"
+      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-[#FFF8E0]"
       style={baseStyle}
     >
       <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition" style={iconBoxStyle}>
@@ -42,7 +42,7 @@ function SidebarLink({ to, icon, label, active, badge, accent }) {
       </div>
       <span className="text-sm font-semibold flex-1">{label}</span>
       {badge && (
-        <span className="text-white text-[9px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ background: "#FF5A5A" }}>
+        <span className="font-bold text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ background: "#FFD000", color: "#0A1A3D" }}>
           {badge}
         </span>
       )}
@@ -374,14 +374,14 @@ export default function Feed() {
 
       <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 backdrop-blur-[2px]">
         
-        {/* Left Sidebar (Desktop) — LIGHT */}
-        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar" style={{ background: "rgba(255,255,255,0.75)", borderColor: "#D5E3F0" }}>
+        {/* Left Sidebar (Desktop) — LIGHT with GOLD accent border */}
+        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative" style={{ background: "rgba(255,255,255,0.75)", borderColor: "#FFD000", borderRightWidth: "2px" }}>
            {/* Logo — BLUE */}
            <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
              <img
                src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png"
                alt="LightMode"
-               className="h-12 w-auto object-contain"
+               className="h-20 w-auto object-contain"
              />
            </Link>
 
@@ -487,7 +487,7 @@ export default function Feed() {
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png"
               alt="Generation LightMode"
-              className="h-14 object-contain"
+              className="h-20 object-contain"
             />
           </div>
           <div className="flex gap-4 items-center shrink-0">
@@ -758,7 +758,7 @@ export default function Feed() {
             <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(10, 26, 61, 0.4)" }} onClick={() => setIsMobileNavOpen(false)} />
             <div className="absolute left-0 top-0 bottom-0 w-72 border-r flex flex-col py-8 px-6 overflow-y-auto" style={{ background: "#FFFFFF", borderColor: "#D5E3F0" }}>
               <Link to={createPageUrl("Home")} className="flex items-center mb-10">
-                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" className="h-12 w-auto object-contain" />
+                <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7b9aca3ef_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" className="h-20 w-auto object-contain" />
               </Link>
               <nav className="flex flex-col gap-1 flex-1">
                 <p className="text-[9px] font-black uppercase tracking-[0.15em] px-3 mb-1" style={{ color: "#8A97B5" }}>Main</p>
