@@ -43,7 +43,7 @@ export default function MyGlowGroupsSidebar({ userEmail }) {
           return (
             <Link
               key={group.id}
-              to={`${createPageUrl("Messages")}?tab=groups`}
+              to={createPageUrl("GlowGroups")}
               className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-200 hover:bg-[#F0F4FA] no-underline"
             >
               <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(31,184,255,0.1)", border: "1px solid #D6E4FF" }}>
