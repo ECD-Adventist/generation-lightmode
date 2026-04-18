@@ -169,17 +169,27 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
     return () => window.removeEventListener("keydown", handler);
   }, [isOpen, goNext, goPrev, onClose]);
 
-  // Track view when story changes
+  // Track view when story changes — dedupe per (story, viewer)
   useEffect(() => {
     if (!isOpen || !currentStory || !currentUser) return;
     if (currentStory.user_email === currentUser.email) return;
     if (viewedStoriesRef.current.has(currentStory.id)) return;
-    
+
     viewedStoriesRef.current.add(currentStory.id);
-    base44.entities.StoryView.create({
-      story_id: currentStory.id,
-      viewer_email: currentUser.email,
-    }).catch(() => {});
+    (async () => {
+      try {
+        const existing = await base44.entities.StoryView.filter({
+          story_id: currentStory.id,
+          viewer_email: currentUser.email,
+        });
+        if (!existing || existing.length === 0) {
+          await base44.entities.StoryView.create({
+            story_id: currentStory.id,
+            viewer_email: currentUser.email,
+          });
+        }
+      } catch (e) { /* ignore */ }
+    })();
   }, [isOpen, currentStory?.id, currentUser?.email]);
 
   // Reset viewed set when modal closes

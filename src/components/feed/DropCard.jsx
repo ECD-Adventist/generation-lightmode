@@ -311,17 +311,43 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
               </Link>
             </HoverCardTrigger>
             {drop.user_email !== "system@lightmode.com" && (
-              <HoverCardContent className="bg-white border border-[#E6ECF5] shadow-xl rounded-2xl p-4 w-72" align="start">
-                <div className="flex items-start gap-3">
-                  <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-12 h-12 rounded-full object-cover" />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{dropUser.full_name}</p>
-                    <p className="text-xs mt-2 leading-relaxed" style={{ color: "#4A5878" }}>{dropUser.bio || dropUser.country || "LightMode member"}</p>
-                    {dropUser.country && (
-                      <div className="flex items-center gap-1 mt-2 text-[11px]" style={{ color: "#8A97B5" }}>
-                        <span className="text-xs">🌍</span> {dropUser.country}
-                      </div>
+              <HoverCardContent
+                align="start"
+                className="p-0 rounded-2xl overflow-hidden w-80 border-0"
+                style={{ boxShadow: "0 20px 60px rgba(11, 63, 217, 0.18), 0 4px 16px rgba(11, 63, 217, 0.08)" }}
+              >
+                {/* Gradient header */}
+                <div className="relative h-16" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 60%, #FFD000 130%)" }}>
+                  <div className="absolute inset-0 opacity-30" style={{ background: "radial-gradient(circle at 80% 50%, rgba(255,208,0,0.4), transparent 60%)" }} />
+                </div>
+                {/* Content */}
+                <div className="bg-white px-4 pb-4 -mt-8">
+                  <div className="w-16 h-16 rounded-full p-[2.5px] bg-white shadow-lg mb-2.5" style={{ boxShadow: "0 4px 14px rgba(11, 63, 217, 0.2)" }}>
+                    <div className="w-full h-full rounded-full overflow-hidden border-2 border-white">
+                      <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="font-bold text-base truncate" style={{ color: "#0B1B3D" }}>{dropUser.full_name}</p>
+                    {isSuperCreator && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "linear-gradient(90deg, rgba(31,184,255,0.12), rgba(255,208,0,0.12))", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>⚡ Creator</span>
                     )}
+                  </div>
+                  {dropUser.country && (
+                    <div className="flex items-center gap-1 text-[11px] mb-2" style={{ color: "#6B7FA0" }}>
+                      <span>🌍</span> {dropUser.country}
+                    </div>
+                  )}
+                  {dropUser.bio && (
+                    <p className="text-xs leading-relaxed line-clamp-3" style={{ color: "#4A5878" }}>{dropUser.bio}</p>
+                  )}
+                  <div className="flex items-center gap-3 mt-3 pt-3 border-t text-xs" style={{ borderColor: "#F0F4FA" }}>
+                    <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`} className="font-bold flex-1 text-center py-2 rounded-full transition no-underline" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF" }}>
+                      View Profile
+                    </Link>
+                    <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(dropUser.email)}`} className="font-bold flex-1 text-center py-2 rounded-full transition no-underline" style={{ background: "#F6F8FC", color: "#0B1B3D", border: "1px solid #E6ECF5" }}>
+                      Message
+                    </Link>
                   </div>
                 </div>
               </HoverCardContent>

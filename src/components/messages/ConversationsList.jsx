@@ -34,8 +34,21 @@ export default function ConversationsList({
     [conversations, currentUserEmail]
   );
 
+  // Deduplicate: keep only one conversation per unique participant pair (the most recent one)
+  const uniqueConversations = useMemo(() => {
+    const byOther = new Map();
+    [...conversations]
+      .sort((a, b) => new Date(b.last_message_at || b.updated_date || 0) - new Date(a.last_message_at || a.updated_date || 0))
+      .forEach((c) => {
+        const otherEmail = c.participant_a_email === currentUserEmail ? c.participant_b_email : c.participant_a_email;
+        if (!otherEmail) return;
+        if (!byOther.has(otherEmail)) byOther.set(otherEmail, c);
+      });
+    return Array.from(byOther.values());
+  }, [conversations, currentUserEmail]);
+
   const filteredConversations = useMemo(() => {
-    return conversations.filter((c) => {
+    return uniqueConversations.filter((c) => {
       const otherEmail = c.participant_a_email === currentUserEmail ? c.participant_b_email : c.participant_a_email;
       const otherUser = getUser(otherEmail);
       const q = searchQuery.toLowerCase();
@@ -46,7 +59,7 @@ export default function ConversationsList({
       const isArchived = archivedIds.has(c.id);
       return matchesSearch && (showArchived ? isArchived : !isArchived);
     });
-  }, [conversations, currentUserEmail, searchQuery, showArchived, archivedIds, allUsers]);
+  }, [uniqueConversations, currentUserEmail, searchQuery, showArchived, archivedIds, allUsers]);
 
   const newChatResults = useMemo(() => {
     const q = newChatQuery.trim().toLowerCase();
@@ -86,7 +99,7 @@ export default function ConversationsList({
               Chats
             </h2>
             <p className="text-xs mt-0.5" style={{ color: "#6B7FA0" }}>
-              {conversations.length} conversation{conversations.length !== 1 ? "s" : ""}
+              {uniqueConversations.length} conversation{uniqueConversations.length !== 1 ? "s" : ""}
             </p>
           </div>
           <button

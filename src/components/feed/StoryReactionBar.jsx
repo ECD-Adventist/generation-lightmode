@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Heart, Send } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Heart, Send, Eye } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
@@ -15,33 +16,64 @@ const EMOJI_REACTIONS = [
 export default function StoryReactionBar({ story, currentUser, storyAuthor, onPause, onResume }) {
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
-  const [liked, setLiked] = useState(false);
   const [showEmojis, setShowEmojis] = useState(false);
   const [flyEmoji, setFlyEmoji] = useState(null);
+  const queryClient = useQueryClient();
 
   const isOwnStory = currentUser?.email === story?.user_email;
 
+  // Live reactions and views for this story
+  const { data: reactions = [] } = useQuery({
+    queryKey: ["storyReactions", story?.id],
+    queryFn: () => base44.entities.StoryReaction.filter({ story_id: story.id }),
+    enabled: !!story?.id,
+  });
+
+  const { data: views = [] } = useQuery({
+    queryKey: ["storyViews", story?.id],
+    queryFn: () => base44.entities.StoryView.filter({ story_id: story.id }),
+    enabled: !!story?.id && isOwnStory,
+  });
+
+  const myReaction = reactions.find(r => r.user_email === currentUser?.email);
+  const liked = !!myReaction;
+  const uniqueViewers = new Set(views.map(v => v.viewer_email)).size;
+
   const handleLike = async () => {
-    if (!currentUser || liked) return;
-    setLiked(true);
+    if (!currentUser) return;
+    if (liked) {
+      // Unlike
+      setFlyEmoji(null);
+      try {
+        await base44.entities.StoryReaction.delete(myReaction.id);
+        queryClient.invalidateQueries({ queryKey: ["storyReactions", story.id] });
+      } catch (e) { toast.error("Could not unlike"); }
+      return;
+    }
+
     setFlyEmoji("❤️");
     setTimeout(() => setFlyEmoji(null), 1200);
 
-    await base44.entities.StoryReaction.create({
-      story_id: story.id,
-      user_email: currentUser.email,
-      reaction_type: "like",
-    });
-
-    if (!isOwnStory) {
-      await base44.entities.Notification.create({
-        user_email: story.user_email,
-        type: "like",
-        message: `${currentUser.full_name || "Someone"} liked your story`,
-        link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`,
+    try {
+      await base44.entities.StoryReaction.create({
+        story_id: story.id,
+        user_email: currentUser.email,
+        reaction_type: "like",
       });
+      queryClient.invalidateQueries({ queryKey: ["storyReactions", story.id] });
+
+      if (!isOwnStory) {
+        base44.entities.Notification.create({
+          user_email: story.user_email,
+          type: "like",
+          message: `${currentUser.full_name || "Someone"} liked your story`,
+          link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`,
+        }).catch(() => {});
+      }
+      toast.success("Liked! ❤️");
+    } catch (e) {
+      toast.error("Could not like story");
     }
-    toast.success("Liked! ❤️");
   };
 
   const handleEmojiReaction = async (reaction) => {
@@ -50,19 +82,26 @@ export default function StoryReactionBar({ story, currentUser, storyAuthor, onPa
     setShowEmojis(false);
     setTimeout(() => setFlyEmoji(null), 1200);
 
-    await base44.entities.StoryReaction.create({
-      story_id: story.id,
-      user_email: currentUser.email,
-      reaction_type: reaction.type,
-    });
-
-    if (!isOwnStory) {
-      await base44.entities.Notification.create({
-        user_email: story.user_email,
-        type: "like",
-        message: `${currentUser.full_name || "Someone"} reacted ${reaction.emoji} to your story`,
-        link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`,
+    try {
+      // Remove existing reaction first to keep one per user
+      if (myReaction) await base44.entities.StoryReaction.delete(myReaction.id);
+      await base44.entities.StoryReaction.create({
+        story_id: story.id,
+        user_email: currentUser.email,
+        reaction_type: reaction.type,
       });
+      queryClient.invalidateQueries({ queryKey: ["storyReactions", story.id] });
+
+      if (!isOwnStory) {
+        base44.entities.Notification.create({
+          user_email: story.user_email,
+          type: "like",
+          message: `${currentUser.full_name || "Someone"} reacted ${reaction.emoji} to your story`,
+          link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`,
+        }).catch(() => {});
+      }
+    } catch (e) {
+      toast.error("Could not react");
     }
   };
 
@@ -193,10 +232,10 @@ export default function StoryReactionBar({ story, currentUser, storyAuthor, onPa
             )}
           </form>
         ) : (
-          <div className="flex items-center justify-center gap-2 text-white/60 text-xs">
-            <span>👁 {story.view_count || 0} views</span>
-            <span>·</span>
-            <span>❤️ {story.likes_count || 0} likes</span>
+          <div className="flex items-center justify-center gap-3 text-white/80 text-xs font-medium">
+            <span className="flex items-center gap-1.5"><Eye className="w-3.5 h-3.5" /> {uniqueViewers} view{uniqueViewers !== 1 ? "s" : ""}</span>
+            <span className="opacity-40">·</span>
+            <span className="flex items-center gap-1.5"><Heart className="w-3.5 h-3.5" fill="currentColor" /> {reactions.length} reaction{reactions.length !== 1 ? "s" : ""}</span>
           </div>
         )}
       </div>

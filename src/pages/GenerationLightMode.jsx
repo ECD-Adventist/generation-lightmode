@@ -9,7 +9,7 @@ import { format, formatDistanceToNow } from "date-fns";
 const ACCOUNT_EMAIL = "system@lightmode.com";
 const ACCOUNT_NAME = "Generation LightMode";
 const ACCOUNT_IMAGE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg";
-const COVER_GRADIENT = "linear-gradient(90deg, #0B1B3D 0%, #0B3FD9 40%, #1FB8FF 70%, #FFD000 100%)";
+const COVER_GRADIENT = "linear-gradient(100deg, #0B1B3D 0%, #0B3FD9 35%, #1FB8FF 65%, #FFD000 100%)";
 
 export default function GenerationLightMode() {
   const queryClient = useQueryClient();
@@ -56,19 +56,31 @@ export default function GenerationLightMode() {
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
-      <div className="max-w-4xl mx-auto">
-        {/* Cover Section */}
+      <div className="max-w-4xl mx-auto pt-4 sm:pt-6 px-3 sm:px-4">
+        {/* Cover Section — rounded, contained, doesn't bleed under top nav */}
         <div className="relative">
-          <div className="h-48 sm:h-64 w-full relative overflow-hidden" style={{ background: COVER_GRADIENT }}>
-            <div className="absolute inset-0 opacity-20" style={{ background: "radial-gradient(circle at 30% 50%, rgba(255,255,255,0.3), transparent 50%)" }} />
-            <div className="absolute inset-0 opacity-10" style={{ background: "radial-gradient(circle at 80% 30%, rgba(255,208,0,0.5), transparent 40%)" }} />
+          <div className="h-52 sm:h-72 w-full relative overflow-hidden rounded-t-[2rem]" style={{ background: COVER_GRADIENT, boxShadow: "0 8px 32px rgba(11, 63, 217, 0.2)" }}>
+            {/* Light sweeps */}
+            <div className="absolute inset-0 opacity-25" style={{ background: "radial-gradient(circle at 25% 50%, rgba(255,255,255,0.35), transparent 55%)" }} />
+            <div className="absolute inset-0 opacity-20" style={{ background: "radial-gradient(circle at 90% 20%, rgba(255,208,0,0.6), transparent 45%)" }} />
+            <div className="absolute inset-0 opacity-15" style={{ background: "radial-gradient(circle at 50% 100%, rgba(31,184,255,0.5), transparent 50%)" }} />
+            {/* Decorative orbs */}
+            <div className="absolute top-8 left-12 w-3 h-3 rounded-full" style={{ background: "#FFD000", boxShadow: "0 0 20px #FFD000" }} />
+            <div className="absolute bottom-16 left-24 w-2 h-2 rounded-full" style={{ background: "#1FB8FF", boxShadow: "0 0 16px #1FB8FF" }} />
+            <div className="absolute top-16 right-20 w-2.5 h-2.5 rounded-full" style={{ background: "#FFFFFF", boxShadow: "0 0 14px rgba(255,255,255,0.8)" }} />
+            {/* Tagline */}
+            <div className="absolute top-6 sm:top-8 left-6 sm:left-8 z-10">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md" style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", color: "#FFFFFF" }}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#FFD000", boxShadow: "0 0 8px #FFD000" }} /> Faith. Always On.
+              </div>
+            </div>
             {/* Brand text watermark */}
-            <div className="absolute bottom-4 right-6 text-white/10 text-6xl sm:text-8xl font-black font-['Space_Grotesk'] select-none pointer-events-none tracking-tighter">GLM</div>
+            <div className="absolute bottom-2 sm:bottom-4 right-4 sm:right-6 text-white/15 text-5xl sm:text-7xl font-black font-['Space_Grotesk'] select-none pointer-events-none tracking-tighter leading-none">GLM ⚡</div>
           </div>
 
           {/* Profile card overlapping cover */}
-          <div className="relative -mt-20 px-4 sm:px-6 pb-6">
-            <div className="rounded-[2rem] overflow-hidden bg-white border border-[#E6ECF5]" style={{ boxShadow: "0 12px 48px rgba(11,63,217,0.1)" }}>
+          <div className="relative -mt-16 sm:-mt-20 pb-6">
+            <div className="rounded-b-[2rem] rounded-t-[2rem] overflow-hidden bg-white border border-[#E6ECF5]" style={{ boxShadow: "0 12px 48px rgba(11,63,217,0.1)" }}>
               <div className="p-6 sm:p-8">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
                   {/* Avatar */}
@@ -115,7 +127,7 @@ export default function GenerationLightMode() {
         </div>
 
         {/* Content Categories Stats */}
-        <div className="px-4 sm:px-6 mb-6">
+        <div className="mb-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { icon: "🔐", label: "Codes of Truth", count: codeOfTruthCount, color: "#0B3FD9", bg: "rgba(11,63,217,0.06)", border: "#D6E4FF", tab: "codes_of_truth" },
@@ -142,7 +154,7 @@ export default function GenerationLightMode() {
         </div>
 
         {/* Latest Posts */}
-        <div className="px-4 sm:px-6 pb-12">
+        <div className="pb-12">
           <div className="rounded-[2rem] bg-white border border-[#E6ECF5] overflow-hidden" style={{ boxShadow: "0 8px 32px rgba(11,63,217,0.06)" }}>
             <div className="flex items-center justify-between p-6 pb-4 border-b" style={{ borderColor: "#E6ECF5" }}>
               <h2 className="text-xl font-bold font-['Space_Grotesk']">Latest Posts</h2>

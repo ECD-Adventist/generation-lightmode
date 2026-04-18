@@ -22,7 +22,7 @@ export default function ProfileConnectionsModal({ title, items, allUsers, curren
           {items.length === 0 ? (
             <div className="px-5 py-10 text-center text-[#6B7FA0]">No {title.toLowerCase()} yet.</div>
           ) : (
-            items.map(({ email }) => {
+            Array.from(new Map(items.filter(i => i.email).map(i => [i.email, i])).values()).map(({ email }) => {
               const person = allUsers.find((u) => u.email === email);
               const isCurrentUser = email === currentUserEmail;
               const isFollowing = currentUserFollowing.some((f) => f.following_email === email);
