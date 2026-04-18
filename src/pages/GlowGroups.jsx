@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight, Home, Bell, User, Video, Loader2, MessageCircle } from "lucide-react";
 import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
+import CreateGroupModal from "@/components/groups/CreateGroupModal";
 import { createPageUrl } from "@/utils";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -16,6 +17,7 @@ export default function GlowGroups() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("groups"); // "people" | "groups" | "leaders"
   const [authChecked, setAuthChecked] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -295,7 +297,7 @@ export default function GlowGroups() {
         {activeTab === "groups" && (
           <div className="space-y-4">
             {/* Create Group CTA */}
-            <Link to={createPageUrl("Dashboard")} className="flex items-center gap-3 rounded-2xl p-4 transition-all group hover:-translate-y-0.5" style={{ background: "rgba(31, 184, 255, 0.06)", border: "1px dashed #B8E5FF" }}>
+            <button onClick={() => setIsCreateOpen(true)} className="w-full flex items-center gap-3 rounded-2xl p-4 transition-all group hover:-translate-y-0.5 text-left" style={{ background: "rgba(31, 184, 255, 0.06)", border: "1px dashed #B8E5FF" }}>
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(31, 184, 255, 0.12)" }}>
                 <Plus className="w-5 h-5" style={{ color: "#0B3FD9" }} />
               </div>
@@ -304,7 +306,7 @@ export default function GlowGroups() {
                 <div className="text-xs" style={{ color: "#6B7FA0" }}>Create your own accountability community</div>
               </div>
               <ChevronRight className="w-4 h-4 ml-auto" style={{ color: "#0B3FD9" }} />
-            </Link>
+            </button>
 
             {filteredGroups.length === 0 && (
               <div className="text-center py-16" style={{ color: "#8A97B5" }}>
@@ -417,6 +419,7 @@ export default function GlowGroups() {
           </div>
         )}
       </div>
+      <CreateGroupModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} user={user} />
       <AppFooter />
     </div>
   );

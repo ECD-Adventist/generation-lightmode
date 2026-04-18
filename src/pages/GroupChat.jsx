@@ -5,7 +5,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { format, isToday, isYesterday } from "date-fns";
-import { Send, Paperclip, Users, Crown, ArrowLeft, MoreVertical, Trash2, Smile, Info, Calendar, Image as ImageIcon, X, MessageCircle, Loader2, LogOut, Bell, BellOff, Search, Check, UserPlus } from "lucide-react";
+import { Send, Paperclip, Users, Crown, ArrowLeft, MoreVertical, Trash2, Smile, Info, Calendar, Image as ImageIcon, X, MessageCircle, Loader2, LogOut, Bell, BellOff, Search, Check, UserPlus, BarChart3, ChevronDown } from "lucide-react";
+import GroupAnalyticsPanel from "@/components/groups/GroupAnalyticsPanel";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 const EMOJIS = ["👍","❤️","🙏","🔥","🎉","😊","😂","😢","💯","✨","🕊️","🙌"];
@@ -65,6 +66,7 @@ export default function GroupChat() {
   const [showSearch, setShowSearch] = useState(false);
   const [mentionQuery, setMentionQuery] = useState(null); // null when not mentioning; string when "@..." is being typed
   const [mentionIndex, setMentionIndex] = useState(0);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const fileInputRef = useRef(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
@@ -517,6 +519,24 @@ export default function GroupChat() {
                   <div><div className="font-bold text-lg" style={{ color: "#0B3FD9" }}>{events.length}</div><div className="text-[10px] uppercase font-bold" style={{ color: "#8A97B5" }}>Events</div></div>
                 </div>
               </div>
+
+              {/* Analytics — Leader only */}
+              {isLeader && (
+                <div className="border-b" style={{ borderColor: "#E6ECF5" }}>
+                  <button onClick={() => setShowAnalytics(v => !v)} className="w-full px-5 py-3 flex items-center justify-between transition" style={{ background: showAnalytics ? "#EEF3FF" : "#FFFFFF" }}>
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4" style={{ color: "#0B3FD9" }} />
+                      <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "#0B3FD9" }}>Leader Analytics</span>
+                    </div>
+                    <ChevronDown className="w-4 h-4 transition-transform" style={{ color: "#0B3FD9", transform: showAnalytics ? "rotate(180deg)" : "none" }} />
+                  </button>
+                  {showAnalytics && (
+                    <div className="px-4 pb-4 pt-2" style={{ background: "#F6F8FC" }}>
+                      <GroupAnalyticsPanel group={group} messages={messages} members={members} allUsers={allUsers} />
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Pending Join Requests — Leader only */}
               {isLeader && joinRequests.length > 0 && (
