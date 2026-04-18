@@ -79,32 +79,32 @@ export default function GenerationLightMode() {
           </div>
 
           {/* Profile card overlapping cover */}
-          <div className="relative -mt-16 sm:-mt-20 pb-6 px-4">
-            <div className="rounded-[2rem] overflow-hidden bg-white border border-[#E6ECF5]" style={{ boxShadow: "0 12px 48px rgba(11,63,217,0.1)" }}>
+          <div className="relative -mt-16 sm:-mt-20 pb-6">
+            <div className="rounded-b-[2rem] rounded-t-[2rem] overflow-hidden bg-white border border-[#E6ECF5]" style={{ boxShadow: "0 12px 48px rgba(11,63,217,0.1)" }}>
               <div className="p-6 sm:p-8">
-                <div className="flex flex-col items-center sm:items-start gap-5">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
                   {/* Avatar */}
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1 shrink-0 -mt-20 sm:-mt-24 mx-auto sm:mx-0" style={{ background: "linear-gradient(135deg, #FFD000 0%, #1FB8FF 50%, #0B3FD9 100%)", boxShadow: "0 8px 32px rgba(11,63,217,0.2)" }}>
-                    <div className="w-full h-full rounded-full overflow-hidden bg-white border-2 border-white">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1 shrink-0 -mt-20 sm:-mt-24" style={{ background: "linear-gradient(135deg, #FFD000 0%, #1FB8FF 50%, #0B3FD9 100%)", boxShadow: "0 8px 32px rgba(11,63,217,0.2)" }}>
+                    <div className="w-full h-full rounded-full overflow-hidden bg-white p-0.5">
                       <img src={ACCOUNT_IMAGE} alt={ACCOUNT_NAME} className="w-full h-full rounded-full object-cover" />
                     </div>
                   </div>
 
                   {/* Info */}
-                  <div className="flex-1 w-full text-center sm:text-left mt-2">
-                    <div className="flex flex-col sm:flex-row items-center gap-3 mb-3">
-                      <h1 className="text-3xl sm:text-4xl font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{ACCOUNT_NAME}</h1>
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold" style={{ background: "linear-gradient(90deg, rgba(31,184,255,0.12), rgba(11,63,217,0.1))", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>
+                  <div className="flex-1 text-center sm:text-left mt-2">
+                    <div className="flex flex-col sm:flex-row items-center gap-3 mb-2">
+                      <h1 className="text-2xl sm:text-3xl font-black font-['Space_Grotesk']">{ACCOUNT_NAME}</h1>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold" style={{ background: "linear-gradient(90deg, rgba(31,184,255,0.1), rgba(11,63,217,0.08))", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>
                         <Sparkles className="w-3 h-3" /> Official Account
                       </span>
                     </div>
-                    <p className="text-base leading-relaxed max-w-2xl mb-5" style={{ color: "#4A5878" }}>
+                    <p className="text-sm leading-relaxed max-w-xl mb-4" style={{ color: "#4A5878" }}>
                       The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
                     </p>
-                    <div className="flex items-center gap-6 text-sm flex-wrap justify-center sm:justify-start" style={{ color: "#6B7FA0" }}>
-                      <span className="flex items-center gap-2"><Users className="w-4 h-4" style={{ color: "#0B3FD9" }} /> <strong className="text-lg" style={{ color: "#0B1B3D" }}>{follows.length}</strong> followers</span>
-                      <span className="flex items-center gap-2"><BookOpen className="w-4 h-4" style={{ color: "#CC7A00" }} /> <strong className="text-lg" style={{ color: "#0B1B3D" }}>{posts.length}</strong> posts</span>
-                      <span className="flex items-center gap-2"><Globe className="w-4 h-4" style={{ color: "#1FB8FF" }} /> <strong className="text-base" style={{ color: "#0B1B3D" }}>Global</strong> movement</span>
+                    <div className="flex items-center gap-5 text-sm flex-wrap justify-center sm:justify-start" style={{ color: "#6B7FA0" }}>
+                      <span className="flex items-center gap-1.5"><Users className="w-4 h-4" style={{ color: "#0B3FD9" }} /> <strong style={{ color: "#0B1B3D" }}>{follows.length}</strong> followers</span>
+                      <span className="flex items-center gap-1.5"><BookOpen className="w-4 h-4" style={{ color: "#CC7A00" }} /> <strong style={{ color: "#0B1B3D" }}>{posts.length}</strong> posts</span>
+                      <span className="flex items-center gap-1.5"><Globe className="w-4 h-4" style={{ color: "#1FB8FF" }} /> Global movement</span>
                     </div>
                   </div>
 
