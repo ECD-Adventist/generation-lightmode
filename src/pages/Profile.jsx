@@ -456,7 +456,7 @@ export default function Profile() {
               }
             `}</style>
             <div
-              className={`w-full h-48 sm:h-64 rounded-[1.75rem] mb-6 sm:mb-8 relative group p-[2px] overflow-hidden ${isOwnProfile ? 'cursor-pointer' : ''}`}
+              className={`w-full h-48 sm:h-64 rounded-[1.75rem] mb-3 sm:mb-4 relative group p-[2px] overflow-hidden ${isOwnProfile ? 'cursor-pointer' : ''}`}
               style={{ boxShadow: "0 8px 28px rgba(11, 63, 217, 0.12)" }}
               onClick={() => isOwnProfile && coverInputRef.current?.click()}
             >
