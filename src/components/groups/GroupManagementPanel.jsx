@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
-import { Shield, Crown, UserX, Trash2, Edit3, ChevronDown, Loader2, X, AlertTriangle, Camera, Image as ImageIcon, Lock, Globe2, Sparkles } from "lucide-react";
+import { Shield, Crown, UserX, Trash2, Edit3, ChevronDown, Loader2, X, AlertTriangle, Camera, Image as ImageIcon, Lock, Globe2, Sparkles, Users } from "lucide-react";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
@@ -177,12 +177,20 @@ function EditGroupModal({ group, onClose, onSave, isBusy }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(11, 27, 61, 0.5)" }} onClick={onClose}>
-      <div className="w-full max-w-lg rounded-2xl overflow-hidden flex flex-col" style={{ background: "#FFFFFF", boxShadow: "0 20px 60px rgba(11, 63, 217, 0.25)", maxHeight: "90vh" }} onClick={e => e.stopPropagation()}>
-        <div style={{ height: 3, background: "linear-gradient(90deg, #1FB8FF, #0B3FD9, #FFD000)" }} />
-        <div className="px-6 py-4 flex items-center justify-between border-b shrink-0" style={{ borderColor: "#E6ECF5" }}>
-          <h3 className="font-bold text-lg flex items-center gap-2" style={{ color: "#0B1B3D" }}><Edit3 className="w-4 h-4" style={{ color: "#0B3FD9" }} /> Edit Group</h3>
-          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}><X className="w-4 h-4" /></button>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(11, 27, 61, 0.6)", backdropFilter: "blur(4px)" }} onClick={onClose}>
+      <div className="w-full max-w-lg rounded-3xl overflow-hidden flex flex-col" style={{ background: "#FFFFFF", boxShadow: "0 30px 80px rgba(11, 63, 217, 0.35)", maxHeight: "92vh" }} onClick={e => e.stopPropagation()}>
+        <div style={{ height: 4, background: "linear-gradient(90deg, #1FB8FF, #0B3FD9, #FFD000)" }} />
+        <div className="px-6 py-4 flex items-center justify-between border-b shrink-0" style={{ borderColor: "#E6ECF5", background: "linear-gradient(180deg, #F6F8FC 0%, #FFFFFF 100%)" }}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>
+              <Edit3 className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg leading-tight" style={{ color: "#0B1B3D", fontFamily: "Space Grotesk, sans-serif" }}>Edit Group</h3>
+              <p className="text-[11px]" style={{ color: "#6B7FA0" }}>Customize how your group looks & feels</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center transition hover:rotate-90" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}><X className="w-4 h-4" /></button>
         </div>
         <form onSubmit={(e) => { e.preventDefault(); onSave(form); }} className="p-6 space-y-4 overflow-y-auto">
           {/* Cover + Avatar preview */}
