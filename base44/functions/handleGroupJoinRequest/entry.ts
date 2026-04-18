@@ -1,5 +1,37 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
+async function sendInboxMessage(base44, senderEmail, recipientEmail, content) {
+  if (senderEmail === recipientEmail) return;
+  // Find or create the conversation
+  const [a, b] = [senderEmail, recipientEmail].sort();
+  let convs = await base44.asServiceRole.entities.DirectConversation.filter({
+    participant_a_email: a,
+    participant_b_email: b,
+  });
+  let conv = convs[0];
+  if (!conv) {
+    conv = await base44.asServiceRole.entities.DirectConversation.create({
+      participant_a_email: a,
+      participant_b_email: b,
+      last_message_at: new Date().toISOString(),
+      last_message: content,
+    });
+  } else {
+    await base44.asServiceRole.entities.DirectConversation.update(conv.id, {
+      last_message_at: new Date().toISOString(),
+      last_message: content,
+    });
+  }
+  await base44.asServiceRole.entities.DirectMessage.create({
+    conversation_id: conv.id,
+    sender_email: senderEmail,
+    recipient_email: recipientEmail,
+    content,
+    status: 'delivered',
+    read: false,
+  });
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -38,7 +70,6 @@ Deno.serve(async (req) => {
     });
 
     if (action === 'approve') {
-      // Check if not already a member
       const existing = await base44.asServiceRole.entities.GlowGroupMember.filter({
         group_id: request.group_id,
         user_email: request.user_email,
@@ -52,7 +83,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Notify the requester
+    // 1. Notification (bell)
     await base44.asServiceRole.entities.Notification.create({
       user_email: request.user_email,
       type: 'system',
@@ -61,6 +92,12 @@ Deno.serve(async (req) => {
         : `Your request to join "${group.name}" was declined.`,
       link: action === 'approve' ? `/GroupChat?id=${group.id}` : `/GlowGroups`,
     });
+
+    // 2. Inbox message from the leader
+    const inboxContent = action === 'approve'
+      ? `🎉 Welcome to "${group.name}"! Your request has been approved. Tap here to jump into the group: /GroupChat?id=${group.id}`
+      : `Hi, your request to join "${group.name}" was not approved at this time.`;
+    await sendInboxMessage(base44, user.email, request.user_email, inboxContent);
 
     return Response.json({ success: true, status: newStatus });
   } catch (error) {

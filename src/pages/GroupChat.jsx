@@ -156,22 +156,21 @@ export default function GroupChat() {
         group_id: groupId, user_email: currentUser.email, content, file_url: file_url || undefined,
       });
 
-      // Handle @mention notifications (members + any platform user tagged)
+      // Handle @mention notifications + inbox messages (members only)
       const slugs = extractMentionSlugs(content);
       if (slugs.length > 0) {
-        const mentionedEmails = new Set();
+        const mentionedEmails = [];
         slugs.forEach(slug => {
           const u = mentionMap[slug];
-          if (u && u.email !== currentUser.email) mentionedEmails.add(u.email);
+          if (u && u.email !== currentUser.email) mentionedEmails.push(u.email);
         });
-        await Promise.all([...mentionedEmails].map(email =>
-          base44.entities.Notification.create({
-            user_email: email,
-            type: "message",
-            message: `${currentUser.full_name || "Someone"} mentioned you in "${group.name}": "${content.slice(0, 80)}${content.length > 80 ? "..." : ""}"`,
-            link: `/GroupChat?id=${groupId}`,
-          }).catch(() => {})
-        ));
+        if (mentionedEmails.length > 0) {
+          base44.functions.invoke("sendGroupMentionInbox", {
+            group_id: groupId,
+            mentioned_emails: [...new Set(mentionedEmails)],
+            message_preview: content,
+          }).catch(() => {});
+        }
       }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["groupMessages", groupId] }),
@@ -227,15 +226,14 @@ export default function GroupChat() {
     return list;
   }, [members, group, allUsers, currentUser]);
 
-  // Map of slug -> { email, full_name } for rendering mentions in message content (members + all users)
+  // Map of slug -> { email, full_name } — ONLY members (so only members render as clickable mentions)
   const mentionMap = useMemo(() => {
     const map = {};
     memberDetails.forEach(m => { if (m.full_name) map[slugifyName(m.full_name)] = { email: m.email, full_name: m.full_name }; });
-    allUsers.forEach(u => { if (u.full_name && !map[slugifyName(u.full_name)]) map[slugifyName(u.full_name)] = { email: u.email, full_name: u.full_name }; });
     return map;
-  }, [memberDetails, allUsers]);
+  }, [memberDetails]);
 
-  // Mention autocomplete candidates — group members first, then all platform users matching the query
+  // Mention autocomplete — ONLY accepted group members (image 2 feedback)
   const mentionCandidates = useMemo(() => {
     if (mentionQuery === null) return [];
     const q = mentionQuery.toLowerCase().trim();
@@ -248,14 +246,8 @@ export default function GroupChat() {
       return name.includes(q) || slug.includes(q) || (u.email || "").toLowerCase().includes(q);
     };
 
-    const memberEmails = new Set(memberDetails.map(m => m.email));
-    const membersMatched = memberDetails.filter(matches).map(m => ({ ...m, _source: "member" }));
-    const othersMatched = allUsers
-      .filter(u => !memberEmails.has(u.email) && matches(u))
-      .map(u => ({ ...u, _source: "other" }));
-
-    return [...membersMatched, ...othersMatched].slice(0, 8);
-  }, [mentionQuery, memberDetails, allUsers, currentUser]);
+    return memberDetails.filter(matches).slice(0, 8);
+  }, [mentionQuery, memberDetails, currentUser]);
 
   const handleDraftChange = (value) => {
     setDraft(value);
@@ -309,27 +301,46 @@ export default function GroupChat() {
       <div className="max-w-7xl mx-auto flex h-screen">
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col min-w-0 border-r" style={{ borderColor: "#E6ECF5", background: "#FFFFFF" }}>
-          {/* Header */}
-          <div className="px-4 sm:px-6 py-3 border-b flex items-center gap-3 shrink-0" style={{ borderColor: "#E6ECF5", background: "#F6F8FC" }}>
-            <Link to={createPageUrl("GlowGroups")} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D" }}>
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
-            <button onClick={() => setShowInfoPanel(v => !v)} className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
-              <Users className="w-5 h-5 text-white" />
-            </button>
-            <button onClick={() => setShowInfoPanel(v => !v)} className="flex-1 min-w-0 text-left">
-              <div className="font-bold truncate" style={{ color: "#0B1B3D" }}>{group.name}</div>
-              <div className="text-xs flex items-center gap-1 truncate" style={{ color: "#6B7FA0" }}>
-                <Users className="w-3 h-3 shrink-0" /> <span>{members.length} member{members.length !== 1 ? "s" : ""}</span>
-                {group.country && <><span className="mx-1">·</span><span className="truncate">{group.country}</span></>}
-              </div>
-            </button>
-            <button onClick={() => setShowSearch(v => !v)} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#4A5878" }}>
-              <Search className="w-4 h-4" />
-            </button>
-            <button onClick={() => setShowInfoPanel(v => !v)} className="hidden sm:flex w-9 h-9 rounded-full items-center justify-center shrink-0 transition lg:hidden" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#4A5878" }}>
-              <Info className="w-4 h-4" />
-            </button>
+          {/* Header — cinematic hero style with cover/avatar */}
+          <div className="relative shrink-0 overflow-hidden border-b" style={{ borderColor: "#E6ECF5" }}>
+            {/* Cover background */}
+            <div className="absolute inset-0" style={{
+              background: group.cover_picture_url
+                ? `url(${group.cover_picture_url}) center/cover`
+                : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 60%, #0B1B3D 100%)"
+            }} />
+            {/* Dark overlay for readability */}
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(11,27,61,0.25) 0%, rgba(11,27,61,0.65) 100%)" }} />
+
+            <div className="relative px-4 sm:px-6 py-3 flex items-center gap-3">
+              <Link to={createPageUrl("GlowGroups")} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition backdrop-blur-md" style={{ background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", color: "#FFFFFF" }}>
+                <ArrowLeft className="w-4 h-4" />
+              </Link>
+
+              <button onClick={() => setShowInfoPanel(v => !v)} className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden" style={{
+                background: group.profile_picture_url ? `url(${group.profile_picture_url}) center/cover` : "linear-gradient(135deg, #FFD000, #FF9F1A)",
+                border: "2px solid rgba(255,255,255,0.8)",
+                boxShadow: "0 4px 14px rgba(0,0,0,0.3)"
+              }}>
+                {!group.profile_picture_url && <span className="text-xl">✨</span>}
+              </button>
+
+              <button onClick={() => setShowInfoPanel(v => !v)} className="flex-1 min-w-0 text-left">
+                <div className="font-bold text-lg truncate text-white drop-shadow">{group.name}</div>
+                <div className="text-xs flex items-center gap-1.5 truncate text-white/85">
+                  <Users className="w-3 h-3 shrink-0" /> <span>{members.length} member{members.length !== 1 ? "s" : ""}</span>
+                  {group.country && <><span className="opacity-60">·</span><span className="truncate">📍 {group.country}</span></>}
+                  {group.privacy === "private" && <><span className="opacity-60">·</span><span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold" style={{ background: "rgba(255,208,0,0.25)", border: "1px solid rgba(255,208,0,0.4)" }}>🔒 PRIVATE</span></>}
+                </div>
+              </button>
+
+              <button onClick={() => setShowSearch(v => !v)} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition backdrop-blur-md" style={{ background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", color: "#FFFFFF" }}>
+                <Search className="w-4 h-4" />
+              </button>
+              <button onClick={() => setShowInfoPanel(v => !v)} className="lg:hidden w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition backdrop-blur-md" style={{ background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", color: "#FFFFFF" }}>
+                <Info className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* View tabs: Chat | Resources */}
@@ -450,10 +461,10 @@ export default function GroupChat() {
           {/* Composer */}
           {isMember ? (
             <form onSubmit={(e) => { e.preventDefault(); if (!draft.trim()) return; sendContent(draft); setDraft(""); setMentionQuery(null); }} className="px-3 sm:px-4 py-3 border-t flex items-center gap-2 shrink-0 relative" style={{ borderColor: "#E6ECF5", background: "#FFFFFF" }}>
-              {/* @Mention autocomplete dropdown */}
+              {/* @Mention autocomplete — members only */}
               {mentionQuery !== null && mentionCandidates.length > 0 && (
                 <div className="absolute bottom-full left-3 right-3 sm:left-4 sm:right-4 mb-2 rounded-2xl p-1.5 z-50 max-h-64 overflow-y-auto" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.15)" }}>
-                  <div className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5" style={{ color: "#8A97B5" }}>Tag someone {mentionQuery && <span style={{ color: "#0B3FD9" }}>· matching "{mentionQuery}"</span>}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5" style={{ color: "#8A97B5" }}>Tag a group member {mentionQuery && <span style={{ color: "#0B3FD9" }}>· matching "{mentionQuery}"</span>}</div>
                   {mentionCandidates.map((u, i) => (
                     <button
                       key={u.email}
@@ -468,12 +479,17 @@ export default function GroupChat() {
                         <div className="font-semibold text-sm truncate flex items-center gap-1" style={{ color: "#0B1B3D" }}>
                           {u.full_name}
                           {u.isLeader && <Crown className="w-3 h-3" style={{ color: "#CC7A00" }} />}
-                          {u._source === "other" && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full ml-1" style={{ background: "#F6F8FC", color: "#8A97B5", border: "1px solid #E6ECF5" }}>not in group</span>}
                         </div>
                         <div className="text-[10px] truncate" style={{ color: "#8A97B5" }}>@{slugifyName(u.full_name)}</div>
                       </div>
                     </button>
                   ))}
+                </div>
+              )}
+              {mentionQuery !== null && mentionCandidates.length === 0 && (
+                <div className="absolute bottom-full left-3 right-3 sm:left-4 sm:right-4 mb-2 rounded-2xl p-4 z-50 text-center" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.15)" }}>
+                  <div className="text-xs font-semibold" style={{ color: "#6B7FA0" }}>No group members match "{mentionQuery}"</div>
+                  <div className="text-[10px] mt-0.5" style={{ color: "#8A97B5" }}>You can only tag accepted members of this group.</div>
                 </div>
               )}
               <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingFile || sendMutation.isPending} className="w-11 h-11 rounded-2xl flex items-center justify-center disabled:opacity-50 transition shrink-0" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}>
@@ -540,18 +556,59 @@ export default function GroupChat() {
             </div>
 
             <div className="flex-1 overflow-y-auto">
-              {/* Group Header */}
-              <div className="px-5 py-6 text-center border-b" style={{ borderColor: "#E6ECF5" }}>
-                <div className="w-20 h-20 mx-auto mb-3 rounded-2xl flex items-center justify-center text-3xl" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF" }}>✨</div>
-                <div className="font-bold text-lg" style={{ color: "#0B1B3D" }}>{group.name}</div>
-                {group.country && <div className="text-xs mt-1" style={{ color: "#6B7FA0" }}>📍 {group.country}</div>}
-                {group.description && <div className="text-sm mt-3 leading-relaxed" style={{ color: "#4A5878" }}>{group.description}</div>}
-                <div className="flex justify-center gap-4 mt-4 text-center">
-                  <div><div className="font-bold text-lg" style={{ color: "#0B3FD9" }}>{members.length}</div><div className="text-[10px] uppercase font-bold" style={{ color: "#8A97B5" }}>Members</div></div>
-                  <div><div className="font-bold text-lg" style={{ color: "#0B3FD9" }}>{messages.length}</div><div className="text-[10px] uppercase font-bold" style={{ color: "#8A97B5" }}>Messages</div></div>
-                  <div><div className="font-bold text-lg" style={{ color: "#0B3FD9" }}>{events.length}</div><div className="text-[10px] uppercase font-bold" style={{ color: "#8A97B5" }}>Events</div></div>
+              {/* Group Hero — cinematic cover + avatar */}
+              <div className="relative border-b overflow-hidden" style={{ borderColor: "#E6ECF5" }}>
+                <div className="relative h-28" style={{ background: group.cover_picture_url ? `url(${group.cover_picture_url}) center/cover` : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 60%, #0B1B3D 100%)" }}>
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(11,27,61,0.15) 0%, rgba(11,27,61,0.5) 100%)" }} />
+                </div>
+                <div className="px-5 pb-5 -mt-10 relative">
+                  <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl mb-3" style={{
+                    background: group.profile_picture_url ? `url(${group.profile_picture_url}) center/cover` : "linear-gradient(135deg, #FFD000, #FF9F1A)",
+                    border: "4px solid #FFFFFF",
+                    boxShadow: "0 6px 20px rgba(11, 63, 217, 0.25)",
+                    color: "#FFFFFF"
+                  }}>{!group.profile_picture_url && "✨"}</div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="font-bold text-lg" style={{ color: "#0B1B3D" }}>{group.name}</div>
+                    {group.privacy === "private" && <span className="px-2 py-0.5 rounded-full text-[9px] font-bold" style={{ background: "#FFF8E6", color: "#CC7A00", border: "1px solid #FFE4A0" }}>🔒 PRIVATE</span>}
+                  </div>
+                  {group.country && <div className="text-xs mt-1 flex items-center gap-1" style={{ color: "#6B7FA0" }}>📍 {group.country}</div>}
+                  {group.tags && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {group.tags.split(",").map(t => t.trim()).filter(Boolean).slice(0, 5).map(tag => (
+                        <span key={tag} className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: "#EEF3FF", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>#{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                  {group.description && <div className="text-sm mt-3 leading-relaxed" style={{ color: "#4A5878" }}>{group.description}</div>}
+
+                  {/* Stat cards */}
+                  <div className="grid grid-cols-3 gap-2 mt-4">
+                    {[
+                      { label: "Members", value: members.length, color: "#0B3FD9", bg: "#EEF3FF" },
+                      { label: "Messages", value: messages.length, color: "#CC7A00", bg: "#FFF8E6" },
+                      { label: "Events", value: events.length, color: "#16A34A", bg: "#DCFCE7" },
+                    ].map(s => (
+                      <div key={s.label} className="rounded-xl p-2.5 text-center" style={{ background: s.bg, border: `1px solid ${s.color}20` }}>
+                        <div className="font-black text-lg" style={{ color: s.color }}>{s.value}</div>
+                        <div className="text-[9px] uppercase font-bold tracking-wider" style={{ color: s.color, opacity: 0.8 }}>{s.label}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
+
+              {/* Welcome message (if set) */}
+              {group.welcome_message && (
+                <div className="px-5 py-4 border-b" style={{ borderColor: "#E6ECF5" }}>
+                  <div className="rounded-2xl p-4" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0" }}>
+                    <div className="text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 mb-1.5" style={{ color: "#CC7A00" }}>
+                      <span>✨</span> Welcome Message
+                    </div>
+                    <div className="text-sm leading-relaxed italic" style={{ color: "#0B1B3D" }}>"{group.welcome_message}"</div>
+                  </div>
+                </div>
+              )}
 
               {/* Analytics — Leader only */}
               {isLeader && (
