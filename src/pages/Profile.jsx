@@ -501,7 +501,7 @@ export default function Profile() {
             <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "cover")} disabled={uploadingImage} />
 
             {/* Profile Header */}
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-5 mb-6 pb-6 relative z-10 px-4 border-b -mt-16 md:-mt-20" style={{ borderColor: "#E6ECF5" }}>
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-5 mb-6 pb-6 relative z-10 px-4 border-b -mt-14 md:-mt-14" style={{ borderColor: "#E6ECF5" }}>
               <div
                 className={`w-32 h-32 rounded-full p-1 flex-shrink-0 overflow-hidden group relative ${isOwnProfile ? 'cursor-pointer' : ''}`}
                 style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", boxShadow: "0 8px 28px rgba(11, 63, 217, 0.25)" }}
@@ -519,7 +519,7 @@ export default function Profile() {
               </div>
               <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "profile")} disabled={uploadingImage} />
 
-              <div className="flex-1 text-center md:text-left mt-2 md:mt-24">
+              <div className="flex-1 text-center md:text-left mt-2 md:mt-16">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
                   <div className="flex flex-col md:flex-row md:items-center gap-3">
                     <h1 className="text-3xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{user.full_name}</h1>
