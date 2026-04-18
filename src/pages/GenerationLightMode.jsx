@@ -9,7 +9,7 @@ import { format, formatDistanceToNow } from "date-fns";
 const ACCOUNT_EMAIL = "system@lightmode.com";
 const ACCOUNT_NAME = "Generation LightMode";
 const ACCOUNT_IMAGE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg";
-const COVER_GRADIENT = "linear-gradient(100deg, #0B1B3D 0%, #0B3FD9 35%, #1FB8FF 65%, #FFD000 100%)";
+const COVER_GRADIENT = "linear-gradient(120deg, #0B1B3D 0%, #0B2870 25%, #0B3FD9 50%, #1FB8FF 80%, #5AD8FF 100%)";
 
 export default function GenerationLightMode() {
   const queryClient = useQueryClient();
@@ -57,69 +57,81 @@ export default function GenerationLightMode() {
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       <div className="max-w-4xl mx-auto pt-4 sm:pt-6 px-3 sm:px-4">
-        {/* Cover Section — rounded, contained, doesn't bleed under top nav */}
+        {/* Cover Section */}
         <div className="relative">
           <div className="h-52 sm:h-72 w-full relative overflow-hidden rounded-t-[2rem]" style={{ background: COVER_GRADIENT, boxShadow: "0 8px 32px rgba(11, 63, 217, 0.2)" }}>
-            {/* Light sweeps */}
-            <div className="absolute inset-0 opacity-25" style={{ background: "radial-gradient(circle at 25% 50%, rgba(255,255,255,0.35), transparent 55%)" }} />
-            <div className="absolute inset-0 opacity-20" style={{ background: "radial-gradient(circle at 90% 20%, rgba(255,208,0,0.6), transparent 45%)" }} />
-            <div className="absolute inset-0 opacity-15" style={{ background: "radial-gradient(circle at 50% 100%, rgba(31,184,255,0.5), transparent 50%)" }} />
+            {/* Light sweeps — on-brand blues only */}
+            <div className="absolute inset-0 opacity-20" style={{ background: "radial-gradient(circle at 25% 50%, rgba(255,255,255,0.35), transparent 55%)" }} />
+            <div className="absolute inset-0 opacity-15" style={{ background: "radial-gradient(circle at 80% 30%, rgba(90,216,255,0.5), transparent 45%)" }} />
             {/* Decorative orbs */}
-            <div className="absolute top-8 left-12 w-3 h-3 rounded-full" style={{ background: "#FFD000", boxShadow: "0 0 20px #FFD000" }} />
-            <div className="absolute bottom-16 left-24 w-2 h-2 rounded-full" style={{ background: "#1FB8FF", boxShadow: "0 0 16px #1FB8FF" }} />
+            <div className="absolute top-8 left-12 w-3 h-3 rounded-full" style={{ background: "#FFFFFF", boxShadow: "0 0 20px rgba(255,255,255,0.6)" }} />
+            <div className="absolute bottom-16 left-24 w-2 h-2 rounded-full" style={{ background: "#5AD8FF", boxShadow: "0 0 16px #5AD8FF" }} />
             <div className="absolute top-16 right-20 w-2.5 h-2.5 rounded-full" style={{ background: "#FFFFFF", boxShadow: "0 0 14px rgba(255,255,255,0.8)" }} />
             {/* Tagline */}
             <div className="absolute top-6 sm:top-8 left-6 sm:left-8 z-10">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md" style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", color: "#FFFFFF" }}>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", color: "#FFFFFF" }}>
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#FFD000", boxShadow: "0 0 8px #FFD000" }} /> Faith. Always On.
               </div>
             </div>
             {/* Brand text watermark */}
-            <div className="absolute bottom-2 sm:bottom-4 right-4 sm:right-6 text-white/15 text-5xl sm:text-7xl font-black font-['Space_Grotesk'] select-none pointer-events-none tracking-tighter leading-none">GLM ⚡</div>
+            <div className="absolute bottom-2 sm:bottom-4 right-4 sm:right-6 text-white/10 text-5xl sm:text-7xl font-black font-['Space_Grotesk'] select-none pointer-events-none tracking-tighter leading-none">GLM ⚡</div>
           </div>
 
-          {/* Profile card overlapping cover */}
-          <div className="relative -mt-16 sm:-mt-20 pb-6">
-            <div className="rounded-b-[2rem] rounded-t-[2rem] overflow-hidden bg-white border border-[#E6ECF5]" style={{ boxShadow: "0 12px 48px rgba(11,63,217,0.1)" }}>
-              <div className="p-6 sm:p-8">
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-                  {/* Avatar */}
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1 shrink-0 -mt-20 sm:-mt-24" style={{ background: "linear-gradient(135deg, #FFD000 0%, #1FB8FF 50%, #0B3FD9 100%)", boxShadow: "0 8px 32px rgba(11,63,217,0.2)" }}>
-                    <div className="w-full h-full rounded-full overflow-hidden bg-white p-0.5">
-                      <img src={ACCOUNT_IMAGE} alt={ACCOUNT_NAME} className="w-full h-full rounded-full object-cover" />
-                    </div>
+          {/* Profile card overlapping cover — redesigned */}
+          <div className="relative -mt-16 sm:-mt-20 pb-6 px-2 sm:px-0">
+            <div className="rounded-[2rem] overflow-visible bg-white border border-[#E6ECF5]" style={{ boxShadow: "0 12px 48px rgba(11,63,217,0.1)" }}>
+              {/* Top section: Avatar centered, overlapping */}
+              <div className="flex flex-col items-center -mt-14 sm:-mt-16 pt-0 px-6 sm:px-8">
+                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 50%, #0B2870 100%)", boxShadow: "0 8px 32px rgba(11,63,217,0.25)" }}>
+                  <div className="w-full h-full rounded-full overflow-hidden bg-white p-[2px]">
+                    <img src={ACCOUNT_IMAGE} alt={ACCOUNT_NAME} className="w-full h-full rounded-full object-cover" />
                   </div>
+                </div>
 
-                  {/* Info */}
-                  <div className="flex-1 text-center sm:text-left mt-2">
-                    <div className="flex flex-col sm:flex-row items-center gap-3 mb-2">
-                      <h1 className="text-2xl sm:text-3xl font-black font-['Space_Grotesk']">{ACCOUNT_NAME}</h1>
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold" style={{ background: "linear-gradient(90deg, rgba(31,184,255,0.1), rgba(11,63,217,0.08))", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>
-                        <Sparkles className="w-3 h-3" /> Official Account
-                      </span>
-                    </div>
-                    <p className="text-sm leading-relaxed max-w-xl mb-4" style={{ color: "#4A5878" }}>
-                      The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
-                    </p>
-                    <div className="flex items-center gap-5 text-sm flex-wrap justify-center sm:justify-start" style={{ color: "#6B7FA0" }}>
-                      <span className="flex items-center gap-1.5"><Users className="w-4 h-4" style={{ color: "#0B3FD9" }} /> <strong style={{ color: "#0B1B3D" }}>{follows.length}</strong> followers</span>
-                      <span className="flex items-center gap-1.5"><BookOpen className="w-4 h-4" style={{ color: "#CC7A00" }} /> <strong style={{ color: "#0B1B3D" }}>{posts.length}</strong> posts</span>
-                      <span className="flex items-center gap-1.5"><Globe className="w-4 h-4" style={{ color: "#1FB8FF" }} /> Global movement</span>
-                    </div>
+                {/* Name + badge row */}
+                <div className="flex flex-wrap items-center justify-center gap-2 mt-4 mb-1">
+                  <h1 className="text-2xl sm:text-3xl font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{ACCOUNT_NAME}</h1>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold" style={{ background: "#EEF3FF", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>
+                    <Sparkles className="w-3 h-3" /> Official
+                  </span>
+                </div>
+
+                {/* Description */}
+                <p className="text-sm text-center leading-relaxed max-w-lg mb-5" style={{ color: "#4A5878" }}>
+                  The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
+                </p>
+
+                {/* Follow button */}
+                {me?.email && me.email !== ACCOUNT_EMAIL && (
+                  <button
+                    onClick={() => followMutation.mutate()}
+                    className="px-8 py-2.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 mb-5"
+                    style={isFollowing
+                      ? { background: "#F6F8FC", color: "#4A5878", border: "1px solid #E6ECF5" }
+                      : { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 16px rgba(11,63,217,0.3)" }}
+                  >
+                    {isFollowing ? <><UserCheck className="w-4 h-4" /> Following</> : <><UserPlus className="w-4 h-4" /> Follow</>}
+                  </button>
+                )}
+              </div>
+
+              {/* Stats row */}
+              <div className="border-t border-[#E6ECF5] px-6 sm:px-8 py-4">
+                <div className="flex items-center justify-center gap-8 text-sm" style={{ color: "#6B7FA0" }}>
+                  <div className="flex flex-col items-center">
+                    <span className="font-black text-xl" style={{ color: "#0B1B3D" }}>{follows.length}</span>
+                    <span className="text-xs">followers</span>
                   </div>
-
-                  {/* Follow Button */}
-                  {me?.email && me.email !== ACCOUNT_EMAIL && (
-                    <button
-                      onClick={() => followMutation.mutate()}
-                      className="mt-4 sm:mt-0 px-7 py-3 rounded-full font-bold text-sm transition-all shrink-0 flex items-center gap-2"
-                      style={isFollowing
-                        ? { background: "#F6F8FC", color: "#4A5878", border: "1px solid #E6ECF5" }
-                        : { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 16px rgba(11,63,217,0.3)" }}
-                    >
-                      {isFollowing ? <><UserCheck className="w-4 h-4" /> Following</> : <><UserPlus className="w-4 h-4" /> Follow</>}
-                    </button>
-                  )}
+                  <div className="w-px h-8" style={{ background: "#E6ECF5" }} />
+                  <div className="flex flex-col items-center">
+                    <span className="font-black text-xl" style={{ color: "#0B1B3D" }}>{posts.length}</span>
+                    <span className="text-xs">posts</span>
+                  </div>
+                  <div className="w-px h-8" style={{ background: "#E6ECF5" }} />
+                  <div className="flex flex-col items-center">
+                    <span className="font-black text-xl" style={{ color: "#0B1B3D" }}>3</span>
+                    <span className="text-xs">categories</span>
+                  </div>
                 </div>
               </div>
             </div>

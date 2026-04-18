@@ -13,6 +13,7 @@ import { isNotificationEnabled } from "@/lib/notifications";
 import ReadMoreText from "@/components/feed/ReadMoreText";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
+import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [] }) {
   const [showComments, setShowComments] = useState(false);
@@ -312,40 +313,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             </HoverCardTrigger>
             {drop.user_email !== "system@lightmode.com" && (
               <HoverCardContent
-               align="start"
-               sideOffset={8}
-               className="p-0 rounded-2xl overflow-hidden w-72 border-0 z-[100]"
-               style={{ boxShadow: "0 20px 60px rgba(11, 63, 217, 0.18), 0 4px 16px rgba(11, 63, 217, 0.08)" }}
+                align="start"
+                sideOffset={8}
+                className="p-0 rounded-2xl overflow-hidden w-80 border-0 z-[100]"
+                style={{ boxShadow: "0 20px 60px rgba(11, 63, 217, 0.18), 0 4px 16px rgba(11, 63, 217, 0.08)", maxWidth: "90vw" }}
               >
-               {/* Gradient header */}
-               <div className="relative h-14 shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 60%, #FFD000 130%)" }}>
-                 <div className="absolute inset-0 opacity-30" style={{ background: "radial-gradient(circle at 80% 50%, rgba(255,208,0,0.4), transparent 60%)" }} />
-               </div>
-               {/* Content */}
-               <div className="bg-white px-4 pb-4 -mt-7 relative">
-                 <div className="w-14 h-14 rounded-full p-[2px] bg-white mb-2 relative z-10" style={{ boxShadow: "0 4px 14px rgba(11, 63, 217, 0.2)" }}>
-                   <div className="w-full h-full rounded-full overflow-hidden border-2 border-white">
-                     <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-                   </div>
-                 </div>
-                 <p className="font-bold text-sm truncate mb-0.5" style={{ color: "#0B1B3D" }}>{dropUser.full_name}</p>
-                 {dropUser.country && (
-                   <div className="flex items-center gap-1 text-[11px] mb-1.5" style={{ color: "#6B7FA0" }}>
-                     <span>🌍</span> {dropUser.country}
-                   </div>
-                 )}
-                 {dropUser.bio && (
-                   <p className="text-[11px] leading-relaxed mb-3 break-words" style={{ color: "#4A5878", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", wordBreak: "break-word" }}>{dropUser.bio}</p>
-                 )}
-                 <div className="flex items-center gap-2 pt-2 border-t" style={{ borderColor: "#F0F4FA" }}>
-                   <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`} className="font-bold flex-1 text-center py-2 rounded-full text-xs transition no-underline" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11,63,217,0.2)" }}>
-                     View Profile
-                   </Link>
-                   <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(dropUser.email)}`} className="font-bold flex-1 text-center py-2 rounded-full text-xs transition no-underline" style={{ background: "#FFFFFF", color: "#0B1B3D", border: "1.5px solid #E6ECF5" }}>
-                     Message
-                   </Link>
-                 </div>
-               </div>
+                <ProfileHoverSummary dropUser={dropUser} />
               </HoverCardContent>
             )}
           </HoverCard>
