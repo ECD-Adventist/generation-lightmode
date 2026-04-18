@@ -13,7 +13,7 @@ export default function DailyDropsPage() {
   const [user, setUser] = useState(null);
   const urlParams = new URLSearchParams(window.location.search);
   const initialTab = urlParams.get("tab") || "codes_of_truth";
-  const [activeTab, setActiveTab] = useState(initialTab === "keeping_it_100" ? "keeping_it_100" : "codes_of_truth");
+  const [activeTab, setActiveTab] = useState(["codes_of_truth", "keeping_it_100", "daily_verse"].includes(initialTab) ? initialTab : "codes_of_truth");
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -31,11 +31,13 @@ export default function DailyDropsPage() {
   // Filter by category (reliable) — hashtags may be null on older drops
   const codeTruthDrops = useMemo(() => drops.filter(d => d.category === "Code of Truth"), [drops]);
   const keepIt100Drops = useMemo(() => drops.filter(d => d.category === "Keep It 100"), [drops]);
+  const dailyVerseDrops = useMemo(() => drops.filter(d => d.category === "Daily Verse"), [drops]);
 
-  const activeDrops = activeTab === "codes_of_truth" ? codeTruthDrops : keepIt100Drops;
+  const activeDrops = activeTab === "codes_of_truth" ? codeTruthDrops : activeTab === "keeping_it_100" ? keepIt100Drops : dailyVerseDrops;
 
   const handleShare = async (drop) => {
-    const text = `✨ ${activeTab === "codes_of_truth" ? "Code of Truth" : "Keep It 100"}\n\n"${drop.reflection || drop.verse || ''}"\n\n${drop.verse && drop.reflection ? drop.verse : ''}\n\nJoin Generation LightMode: ${window.location.origin}`;
+    const catLabel = activeTab === "codes_of_truth" ? "Code of Truth" : activeTab === "keeping_it_100" ? "Keep It 100" : "Daily Verse";
+    const text = `✨ ${catLabel}\n\n"${drop.reflection || drop.verse || ''}"\n\n${drop.verse && drop.reflection ? drop.verse : ''}\n\nJoin Generation LightMode: ${window.location.origin}`;
     
     if (navigator.share) {
       try {
@@ -63,7 +65,7 @@ export default function DailyDropsPage() {
 
       {/* Tabs */}
       <div className="max-w-2xl mx-auto px-4 pt-4">
-        <div className="flex gap-3 mb-6">
+        <div className="flex gap-2 mb-6">
           <button
             onClick={() => setActiveTab("codes_of_truth")}
             className="flex-1 py-3 rounded-2xl text-sm font-bold transition-all"
@@ -81,6 +83,15 @@ export default function DailyDropsPage() {
               : { background: "#FFFFFF", color: "#6B7FA0", border: "1px solid #E6ECF5" }}
           >
             💯 Keep It 100
+          </button>
+          <button
+            onClick={() => setActiveTab("daily_verse")}
+            className="flex-1 py-3 rounded-2xl text-sm font-bold transition-all"
+            style={activeTab === "daily_verse"
+              ? { background: "rgba(138, 92, 255, 0.1)", color: "#8A5CFF", border: "1px solid rgba(138, 92, 255, 0.3)" }
+              : { background: "#FFFFFF", color: "#6B7FA0", border: "1px solid #E6ECF5" }}
+          >
+            📖 Daily Verse
           </button>
         </div>
 
@@ -111,7 +122,7 @@ export default function DailyDropsPage() {
           </div>
         ) : activeDrops.length === 0 ? (
           <div className="text-center py-20" style={{ color: "#8A97B5" }}>
-            <div className="text-4xl mb-4">{activeTab === "codes_of_truth" ? "🔐" : "💯"}</div>
+            <div className="text-4xl mb-4">{activeTab === "codes_of_truth" ? "🔐" : activeTab === "keeping_it_100" ? "💯" : "📖"}</div>
             <p>No daily posts yet. Check back soon!</p>
           </div>
         ) : null}

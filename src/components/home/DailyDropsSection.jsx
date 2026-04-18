@@ -6,32 +6,49 @@ import { BookOpen, Heart, Share2, Loader2, ArrowRight, Zap } from "lucide-react"
 import { format } from "date-fns";
 import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
 
-const themes = [
-  {
+const categoryThemes = {
+  "Code of Truth": {
     accent: "#00CFFF",
     accentSoft: "rgba(0,207,255,0.12)",
     glow: "rgba(0,207,255,0.2)",
     gradientBg: "linear-gradient(145deg, rgba(0,207,255,0.07) 0%, rgba(11,15,26,0.97) 100%)",
     borderColor: "rgba(0,207,255,0.2)",
-    label: "Glow Drop",
+    label: "Code of Truth",
+    icon: "🔐",
+    hashtag: "#CodeOfTruth",
   },
-  {
+  "Keep It 100": {
     accent: "#FFD000",
     accentSoft: "rgba(255,208,0,0.1)",
     glow: "rgba(255,208,0,0.18)",
     gradientBg: "linear-gradient(145deg, rgba(255,208,0,0.07) 0%, rgba(11,15,26,0.97) 100%)",
     borderColor: "rgba(255,208,0,0.2)",
-    label: "Glow Drop",
+    label: "Keep It 100",
+    icon: "💯",
+    hashtag: "#KeepIt100",
   },
-  {
+  "Daily Verse": {
     accent: "#8A5CFF",
     accentSoft: "rgba(138,92,255,0.1)",
     glow: "rgba(138,92,255,0.2)",
     gradientBg: "linear-gradient(145deg, rgba(138,92,255,0.08) 0%, rgba(11,15,26,0.97) 100%)",
     borderColor: "rgba(138,92,255,0.2)",
-    label: "Glow Drop",
+    label: "Daily Verse",
+    icon: "📖",
+    hashtag: "#DailyVerse",
   },
-];
+};
+
+const fallbackTheme = {
+  accent: "#00CFFF",
+  accentSoft: "rgba(0,207,255,0.12)",
+  glow: "rgba(0,207,255,0.2)",
+  gradientBg: "linear-gradient(145deg, rgba(0,207,255,0.07) 0%, rgba(11,15,26,0.97) 100%)",
+  borderColor: "rgba(0,207,255,0.2)",
+  label: "Daily Drop",
+  icon: "✨",
+  hashtag: "#DailyDrops",
+};
 
 export default function DailyDropsSection() {
   const { data: drops = [], isLoading } = useQuery({
@@ -81,7 +98,7 @@ export default function DailyDropsSection() {
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24, marginBottom: 40 }}>
             {displayDrops.map((drop, idx) => {
-              const theme = themes[idx % themes.length];
+              const theme = categoryThemes[drop.category] || fallbackTheme;
               return (
                 <div key={drop.id}
                   style={{
@@ -107,8 +124,8 @@ export default function DailyDropsSection() {
                     {/* Label row */}
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 7, background: theme.accentSoft, borderRadius: 999, padding: "4px 12px" }}>
-                        <BookOpen style={{ width: 12, height: 12, color: theme.accent }} />
-                        <span style={{ fontSize: 10, fontWeight: 900, color: theme.accent, textTransform: "uppercase", letterSpacing: "0.1em" }}>Scripture</span>
+                        <span style={{ fontSize: 12 }}>{theme.icon}</span>
+                        <span style={{ fontSize: 10, fontWeight: 900, color: theme.accent, textTransform: "uppercase", letterSpacing: "0.1em" }}>{theme.label}</span>
                       </div>
                       <span style={{ fontSize: 11, color: "#5A6478", fontFamily: "Inter, sans-serif" }}>{postedDate(drop)}</span>
                     </div>
@@ -191,7 +208,7 @@ export default function DailyDropsSection() {
                         background: theme.accentSoft, borderRadius: 999,
                         padding: "3px 10px", letterSpacing: "0.06em"
                       }}>
-                        #GlowDrop
+                        {theme.hashtag}
                       </div>
                     </div>
                   </div>

@@ -442,15 +442,6 @@ export default function Profile() {
           </>
         ) : (
           <div className="px-4">
-            <div className="flex items-center justify-between mb-6 py-4">
-              <div className="font-bold text-lg" style={{ color: "#0B1B3D" }}>{user.full_name || user.email}</div>
-              {isOwnProfile && (
-                <button onClick={() => setIsEditing(!isEditing)} className="transition p-2 rounded-full" style={{ color: "#4A5878", background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
-                  <Settings className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-
             {/* Cover Photo — with rotating border light & sweeping shimmer */}
             <style>{`
               @keyframes profile-sweep-light {

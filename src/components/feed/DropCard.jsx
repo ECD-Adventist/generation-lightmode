@@ -39,7 +39,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   const getRepostOwner = (reflection) => {
     const matches = Array.from(reflection?.matchAll(/\[Reposted from (.+?)\]\s*/gi) || []);
-    return matches.length ? matches[matches.length - 1][1] : null;
+    if (!matches.length) return null;
+    const name = matches[matches.length - 1][1];
+    // Map legacy "system" name to branded name
+    if (name.toLowerCase() === "system") return "Generation LightMode";
+    return name;
   };
 
   const cleanReflection = (reflection) => reflection?.replace(/^(\[Reposted from .+?\]\s*)+/i, "").trim() || "";
