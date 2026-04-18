@@ -96,7 +96,6 @@ export default function GenerationLightMode() {
           </div>
         </div>
       </div>
-      </div>
-      </div>
-      );
-      }
+    </div>
+  );
+}
