@@ -45,7 +45,6 @@ export default function OverviewTab({ user }) {
 
   const getDisplayName = (email) => userMap.get(email)?.full_name || email?.split('@')[0] || "Community Member";
   const getProfilePicture = (email) => userMap.get(email)?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
-  const getFollowerCount = (email) => allUsersForProfile.filter(u => u.email && myFollowers.some(f => f.follower_email === u.email) && email === profileEmail).length;
   const getProfileSummary = (email) => {
     if (email === "system@lightmode.com") return "Official LightMode account • Daily Drops • Follow for updates";
     const profile = userMap.get(email);
