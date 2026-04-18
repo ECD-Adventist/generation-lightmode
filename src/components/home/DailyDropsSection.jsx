@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { BookOpen, Heart, Share2, Loader2, ArrowRight, Zap } from "lucide-react";
 import { format } from "date-fns";
+import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
 
 const themes = [
   {
@@ -127,18 +128,34 @@ export default function DailyDropsSection() {
 
                     {/* Reflection */}
                     {drop.reflection && (
-                      <p style={{
-                        fontSize: 13,
-                        color: "#A0AABB",
-                        marginBottom: 22,
-                        lineHeight: 1.75,
-                        fontStyle: "italic",
-                        fontFamily: "Inter, sans-serif",
-                        borderLeft: `2px solid ${theme.accent}50`,
-                        paddingLeft: 12,
-                      }}>
-                        {drop.reflection}
-                      </p>
+                      containsHtml(drop.reflection) ? (
+                        <div
+                          style={{
+                            fontSize: 13,
+                            color: "#A0AABB",
+                            marginBottom: 22,
+                            lineHeight: 1.75,
+                            fontStyle: "italic",
+                            fontFamily: "Inter, sans-serif",
+                            borderLeft: `2px solid ${theme.accent}50`,
+                            paddingLeft: 12,
+                          }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(drop.reflection) }}
+                        />
+                      ) : (
+                        <p style={{
+                          fontSize: 13,
+                          color: "#A0AABB",
+                          marginBottom: 22,
+                          lineHeight: 1.75,
+                          fontStyle: "italic",
+                          fontFamily: "Inter, sans-serif",
+                          borderLeft: `2px solid ${theme.accent}50`,
+                          paddingLeft: 12,
+                        }}>
+                          {drop.reflection}
+                        </p>
+                      )
                     )}
 
                     {/* Footer */}
