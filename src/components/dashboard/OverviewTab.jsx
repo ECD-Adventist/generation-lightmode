@@ -196,7 +196,7 @@ export default function OverviewTab({ user }) {
                       </div>
                       {repostOwner && (
                         <p className="text-xs mb-1" style={{ color: "#6B7FA0" }}>
-                          Reposted from <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(repostOwner === "Generation LightMode" ? "system@lightmode.com" : drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{repostOwner}</Link>
+                          Reposted from <Link to={repostOwner === "Generation LightMode" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{repostOwner}</Link>
                         </p>
                       )}
                       <p className="text-xs font-bold mb-1 break-words" style={{ color: "#0B3FD9" }}>{drop.verse}</p>

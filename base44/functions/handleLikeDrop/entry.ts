@@ -43,6 +43,14 @@ Deno.serve(async (req) => {
       await base44.entities.GlowDropLike.create({ drop_id, user_email: user.email });
       const newCount = (drop.likes_count || 0) + 1;
       await base44.asServiceRole.entities.GlowDrop.update(drop_id, { likes_count: newCount });
+      
+      // Update Daily Challenge: Spread the Light
+      const todayStr = new Date().toISOString().split('T')[0];
+      const todayChallenges = await base44.asServiceRole.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: todayStr });
+      if (!todayChallenges.some(c => c.challenge_id === 'like_drops')) {
+        await base44.asServiceRole.entities.UserDailyChallenge.create({ user_email: user.email, date_string: todayStr, challenge_id: 'like_drops' });
+        await base44.asServiceRole.auth.updateUser(user.id, { glow_score: (user.glow_score || 0) + 5 });
+      }
 
       // Notify real drop author (server-side lookup — not from client)
       if (authorEmail && authorEmail !== user.email) {

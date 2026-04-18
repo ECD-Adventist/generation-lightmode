@@ -9,7 +9,7 @@ import { format, formatDistanceToNow } from "date-fns";
 const ACCOUNT_EMAIL = "system@lightmode.com";
 const ACCOUNT_NAME = "Generation LightMode";
 const ACCOUNT_IMAGE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg";
-const COVER_GRADIENT = "linear-gradient(135deg, #0B0F1A 0%, #0B3FD9 40%, #1FB8FF 65%, #FFD000 100%)";
+const COVER_GRADIENT = "linear-gradient(90deg, #0B1B3D 0%, #0B3FD9 40%, #1FB8FF 70%, #FFD000 100%)";
 
 export default function GenerationLightMode() {
   const queryClient = useQueryClient();
@@ -70,7 +70,7 @@ export default function GenerationLightMode() {
           <div className="relative -mt-20 px-4 sm:px-6 pb-6">
             <div className="rounded-[2rem] overflow-hidden bg-white border border-[#E6ECF5]" style={{ boxShadow: "0 12px 48px rgba(11,63,217,0.1)" }}>
               <div className="p-6 sm:p-8">
-                <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
                   {/* Avatar */}
                   <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1 shrink-0 -mt-20 sm:-mt-24" style={{ background: "linear-gradient(135deg, #FFD000 0%, #1FB8FF 50%, #0B3FD9 100%)", boxShadow: "0 8px 32px rgba(11,63,217,0.2)" }}>
                     <div className="w-full h-full rounded-full overflow-hidden bg-white p-0.5">
@@ -79,7 +79,7 @@ export default function GenerationLightMode() {
                   </div>
 
                   {/* Info */}
-                  <div className="flex-1 text-center sm:text-left">
+                  <div className="flex-1 text-center sm:text-left mt-2">
                     <div className="flex flex-col sm:flex-row items-center gap-3 mb-2">
                       <h1 className="text-2xl sm:text-3xl font-black font-['Space_Grotesk']">{ACCOUNT_NAME}</h1>
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold" style={{ background: "linear-gradient(90deg, rgba(31,184,255,0.1), rgba(11,63,217,0.08))", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>
@@ -100,7 +100,7 @@ export default function GenerationLightMode() {
                   {me?.email && me.email !== ACCOUNT_EMAIL && (
                     <button
                       onClick={() => followMutation.mutate()}
-                      className="px-7 py-3 rounded-full font-bold text-sm transition-all shrink-0 flex items-center gap-2"
+                      className="mt-4 sm:mt-0 px-7 py-3 rounded-full font-bold text-sm transition-all shrink-0 flex items-center gap-2"
                       style={isFollowing
                         ? { background: "#F6F8FC", color: "#4A5878", border: "1px solid #E6ECF5" }
                         : { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 16px rgba(11,63,217,0.3)" }}

@@ -673,41 +673,7 @@ export default function Feed() {
               {filteredDrops.slice(0, displayCount).map(drop => {
                 const dropUser = getUserInfo(drop.user_email);
                 return (
-                  <div key={drop.id} className="space-y-2">
-                    <div className="px-1">
-                      <HoverCard>
-                        <HoverCardTrigger asChild>
-                          <Link to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="inline-flex items-center gap-2 no-underline">
-                            <div className="w-9 h-9 rounded-full overflow-hidden border border-[#D6E4FF] bg-white shrink-0">
-                              <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{dropUser.full_name}</p>
-                              <p className="text-[11px]" style={{ color: "#8A97B5" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</p>
-                            </div>
-                          </Link>
-                        </HoverCardTrigger>
-                        <HoverCardContent className="bg-white border border-[#E6ECF5] shadow-xl rounded-2xl p-4 w-72" align="start">
-                          <div className="flex items-start gap-3">
-                            <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-12 h-12 rounded-full object-cover" />
-                            <div className="min-w-0 flex-1">
-                              <p className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{dropUser.full_name}</p>
-                              <div className="flex items-center gap-3 mt-1 text-[11px]" style={{ color: "#6B7FA0" }}>
-                                <span className="font-semibold">{drops.filter(d => d.user_email === drop.user_email).length} posts</span>
-                                <span>{following.filter(f => f.following_email === drop.user_email).length} following</span>
-                                <span>{users.filter(u => u.email === drop.user_email).length ? 'Member' : 'Profile'}</span>
-                              </div>
-                              <p className="text-xs mt-2 leading-relaxed" style={{ color: "#4A5878" }}>{dropUser.bio || dropUser.country || "LightMode member"}</p>
-                              {dropUser.country && (
-                                <div className="flex items-center gap-1 mt-2 text-[11px]" style={{ color: "#8A97B5" }}>
-                                  <Globe className="w-3 h-3" /> {dropUser.country}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </HoverCardContent>
-                      </HoverCard>
-                    </div>
+                  <div key={drop.id}>
                     <DropCard 
                       drop={drop} 
                       user={user} 

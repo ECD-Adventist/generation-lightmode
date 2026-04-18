@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { isNotificationEnabled } from "@/lib/notifications";
 import ReadMoreText from "@/components/feed/ReadMoreText";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [] }) {
@@ -84,6 +85,15 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         user_email: user.email,
         content: content.trim()
       });
+      
+      // Update Daily Challenge: Encourage Someone
+      const todayStr = new Date().toISOString().split('T')[0];
+      const todayChallenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: todayStr });
+      if (!todayChallenges.some(c => c.challenge_id === 'comment')) {
+        await base44.entities.UserDailyChallenge.create({ user_email: user.email, date_string: todayStr, challenge_id: 'comment' });
+        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
+      }
+
       if (drop.user_email && drop.user_email !== user.email && isNotificationEnabled(dropUser, "comments")) {
         base44.entities.Notification.create({
           user_email: drop.user_email,
@@ -265,52 +275,59 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         )}
 
         {/* User Pill (Top Left) */}
-        {drop.user_email === "system@lightmode.com" ? (
-          <div
-            className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20 flex items-center gap-2 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1"
-            style={{
-              background: drop.media_url ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.75)",
-              border: `1px solid ${drop.media_url ? "rgba(255, 208, 0, 0.4)" : "#FFD60A"}`
-            }}
-          >
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full shrink-0 overflow-hidden" style={{ background: "#FFFFFF" }}>
-              <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" className="w-full h-full object-cover" />
-            </div>
-            <div className="flex flex-col items-start justify-center">
-              <span className="font-bold font-['Inter'] text-[11px] sm:text-xs leading-none mb-0.5" style={{ color: drop.media_url ? "#FFD60A" : "#0B3FD9" }}>Generation LightMode</span>
-              <span className="text-[9px] sm:text-[10px] font-medium leading-none" style={{ color: drop.media_url ? "#E0EAF5" : "#4A5878" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
-            </div>
-          </div>
-        ) : (
-          <Link
-            to={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
-            onClick={(e) => e.stopPropagation()}
-            className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20 flex items-center gap-2 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1 cursor-pointer transition no-underline"
-            style={{
-              background: drop.media_url ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.8)",
-              border: `1px solid ${drop.media_url ? "rgba(255,255,255,0.15)" : "#D6E4FF"}`
-            }}
-          >
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
-              <div className="w-full h-full rounded-full flex items-center justify-center font-bold text-xs uppercase overflow-hidden" style={{ background: "#FFFFFF" }}>
-                <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-              </div>
-            </div>
-            <div className="flex flex-col items-start justify-center min-w-0">
-              <span className="font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 truncate max-w-[140px] sm:max-w-none" style={{ color: drop.media_url ? "#FFFFFF" : "#0B1B3D" }}>
-                {dropUser.full_name || dropUser.email?.split('@')[0] || "Glow Believer"}
-                {isSuperCreator && (
-                  <span className="flex items-center justify-center w-3.5 h-3.5 rounded-sm rotate-45 shadow-[0_0_10px_rgba(31,184,255,0.6)] ml-0.5" style={{ background: "linear-gradient(135deg, #1FB8FF, #FFD60A)" }}>
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-2.5 h-2.5 -rotate-45" style={{ color: "#0B1B3D" }}>
-                      <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/>
-                    </svg>
+        <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20" onClick={(e) => e.stopPropagation()}>
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <Link
+                to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
+                className="flex items-center gap-2 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1 cursor-pointer transition no-underline"
+                style={{
+                  background: drop.media_url ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.8)",
+                  border: `1px solid ${drop.media_url ? "rgba(255,255,255,0.15)" : "#D6E4FF"}`
+                }}
+              >
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full p-[2px] shrink-0" style={{ background: drop.user_email === "system@lightmode.com" ? "linear-gradient(135deg, #FFD000 0%, #1FB8FF 50%, #0B3FD9 100%)" : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
+                  <div className="w-full h-full rounded-full flex items-center justify-center font-bold text-xs uppercase overflow-hidden" style={{ background: "#FFFFFF" }}>
+                    <img src={drop.user_email === "system@lightmode.com" ? "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" : (dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png")} className="w-full h-full object-cover" />
+                  </div>
+                </div>
+                <div className="flex flex-col items-start justify-center min-w-0">
+                  <span className="font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 truncate max-w-[140px] sm:max-w-none" style={{ color: drop.media_url ? "#FFFFFF" : "#0B1B3D" }}>
+                    {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : (dropUser.full_name || dropUser.email?.split('@')[0] || "Glow Believer")}
+                    {drop.user_email === "system@lightmode.com" ? (
+                       <span className="flex items-center justify-center w-3 h-3 rounded-full ml-0.5" style={{ background: "#1FB8FF", color: "#FFFFFF" }}>
+                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-2 h-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                       </span>
+                    ) : isSuperCreator && (
+                      <span className="flex items-center justify-center w-3.5 h-3.5 rounded-sm rotate-45 shadow-[0_0_10px_rgba(31,184,255,0.6)] ml-0.5" style={{ background: "linear-gradient(135deg, #1FB8FF, #FFD60A)" }}>
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-2.5 h-2.5 -rotate-45" style={{ color: "#0B1B3D" }}>
+                          <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/>
+                        </svg>
+                      </span>
+                    )}
                   </span>
-                )}
-              </span>
-              <span className="text-[9px] sm:text-[10px] font-medium leading-none" style={{ color: drop.media_url ? "#E0EAF5" : "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
-            </div>
-          </Link>
-        )}
+                  <span className="text-[9px] sm:text-[10px] font-medium leading-none" style={{ color: drop.media_url ? "#E0EAF5" : "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
+                </div>
+              </Link>
+            </HoverCardTrigger>
+            {drop.user_email !== "system@lightmode.com" && (
+              <HoverCardContent className="bg-white border border-[#E6ECF5] shadow-xl rounded-2xl p-4 w-72" align="start">
+                <div className="flex items-start gap-3">
+                  <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-12 h-12 rounded-full object-cover" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{dropUser.full_name}</p>
+                    <p className="text-xs mt-2 leading-relaxed" style={{ color: "#4A5878" }}>{dropUser.bio || dropUser.country || "LightMode member"}</p>
+                    {dropUser.country && (
+                      <div className="flex items-center gap-1 mt-2 text-[11px]" style={{ color: "#8A97B5" }}>
+                        <span className="text-xs">🌍</span> {dropUser.country}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </HoverCardContent>
+            )}
+          </HoverCard>
+        </div>
 
         {/* Media Image */}
         {drop.media_url && (
@@ -456,7 +473,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         <div className="px-3 sm:px-4 pt-3 pb-1">
           {getRepostOwner(drop.reflection) && (
             <p className="text-xs mb-2" style={{ color: "#6B7FA0" }}>
-              Reposted from <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(getRepostOwner(drop.reflection) === "Generation LightMode" ? "system@lightmode.com" : drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{getRepostOwner(drop.reflection)}</Link>
+              Reposted from <Link to={getRepostOwner(drop.reflection) === "Generation LightMode" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{getRepostOwner(drop.reflection)}</Link>
             </p>
           )}
           {drop.verse && (
