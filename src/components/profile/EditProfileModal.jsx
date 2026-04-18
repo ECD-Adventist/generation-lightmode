@@ -87,6 +87,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
     try {
       const res = await base44.functions.invoke("updateProfile", editData);
       if (!res.data?.success) throw new Error(res.data?.error || "Save failed");
+      await base44.auth.updateMe(editData);
 
       // Small delay then re-fetch fresh user
       await new Promise(r => setTimeout(r, 200));

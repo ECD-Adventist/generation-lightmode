@@ -45,7 +45,17 @@ export default function OverviewTab({ user }) {
 
   const getDisplayName = (email) => userMap.get(email)?.full_name || email?.split('@')[0] || "Community Member";
   const getProfilePicture = (email) => userMap.get(email)?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
-  const getProfileSummary = (email) => userMap.get(email)?.bio || userMap.get(email)?.country || "LightMode member";
+  const getFollowerCount = (email) => allUsersForProfile.filter(u => u.email && myFollowers.some(f => f.follower_email === u.email) && email === profileEmail).length;
+  const getProfileSummary = (email) => {
+    if (email === "system@lightmode.com") return "Official LightMode account • Daily Drops • Follow for updates";
+    const profile = userMap.get(email);
+    if (!profile) return "LightMode member";
+    const details = [
+      profile.country,
+      profile.bio
+    ].filter(Boolean);
+    return details.slice(0, 2).join(" • ") || "LightMode member";
+  };
 
   const getRepostOwner = (reflection) => {
     const matches = Array.from(reflection?.matchAll(/\[Reposted from (.+?)\]\s*/gi) || []);
@@ -177,14 +187,14 @@ export default function OverviewTab({ user }) {
                       <div className="flex items-center justify-between gap-3 mb-1">
                         <HoverCard>
                           <HoverCardTrigger asChild>
-                            <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-bold text-sm truncate hover:underline" style={{ color: "#0B1B3D" }}>{getDisplayName(drop.user_email)}</Link>
+                            <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-bold text-sm truncate hover:underline" style={{ color: "#0B1B3D" }}>{drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(drop.user_email)}</Link>
                           </HoverCardTrigger>
                           <HoverCardContent className="bg-white border border-[#E6ECF5] shadow-xl rounded-2xl p-4" align="start">
                             <div className="flex items-start gap-3">
                               <img src={getProfilePicture(drop.user_email)} alt={getDisplayName(drop.user_email)} className="w-12 h-12 rounded-full object-cover" />
                               <div className="min-w-0">
-                                <p className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{getDisplayName(drop.user_email)}</p>
-                                <p className="text-xs mt-1" style={{ color: "#6B7FA0" }}>{getProfileSummary(drop.user_email)}</p>
+                                <p className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{getDisplayName(drop.user_email === "system@lightmode.com" ? "system@lightmode.com" : drop.user_email)}</p>
+                                <p className="text-xs mt-1" style={{ color: "#6B7FA0" }}>{drop.user_email === "system@lightmode.com" ? "Official LightMode account • Daily Drops • Follow for updates" : getProfileSummary(drop.user_email)}</p>
                               </div>
                             </div>
                           </HoverCardContent>

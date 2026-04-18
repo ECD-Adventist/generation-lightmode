@@ -59,7 +59,7 @@ export default function DailyDropsSection() {
             <span style={{ color: "#00CFFF", fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>Live from the Movement</span>
           </div>
           <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 52px)", marginBottom: 14 }}>
-            Daily Truth Drops
+            Daily Drops
           </h2>
           <p className="glm-body" style={{ fontSize: 17, maxWidth: 580, margin: "0 auto", lineHeight: 1.7 }}>
             Scripture-rooted reflections posted daily to flood your feed with the light of Christ.
@@ -74,7 +74,7 @@ export default function DailyDropsSection() {
           <div style={{ textAlign: "center", padding: "48px 32px", background: "#121826", borderRadius: 24, border: "1px solid rgba(255,255,255,0.06)" }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>📖</div>
             <p className="glm-body" style={{ fontSize: 16, marginBottom: 24 }}>Daily drops coming soon — stay tuned for inspiring truth.</p>
-            <Link to="/DailyTruthFeed" style={{ display: "inline-block", padding: "12px 28px", borderRadius: 50, background: "#00CFFF", color: "#0B0F1A", fontWeight: 800, fontFamily: "Space Grotesk, sans-serif", textDecoration: "none", fontSize: 14 }}>
+            <Link to="/DailyDrops" style={{ display: "inline-block", padding: "12px 28px", borderRadius: 50, background: "#00CFFF", color: "#0B0F1A", fontWeight: 800, fontFamily: "Space Grotesk, sans-serif", textDecoration: "none", fontSize: 14 }}>
               View All Drops
             </Link>
           </div>
@@ -204,7 +204,7 @@ export default function DailyDropsSection() {
         {!isLoading && displayDrops.length > 0 && (
           <div style={{ textAlign: "center" }}>
             <Link
-              to="/DailyTruthFeed"
+              to="/DailyDrops"
               style={{
                 display: "inline-flex", alignItems: "center", gap: 10,
                 padding: "14px 32px", borderRadius: 999,

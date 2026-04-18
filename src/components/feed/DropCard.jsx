@@ -452,7 +452,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         <div className="px-3 sm:px-4 pt-3 pb-1">
           {getRepostOwner(drop.reflection) && (
             <p className="text-xs mb-2" style={{ color: "#6B7FA0" }}>
-              Reposted from <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(getRepostOwner(drop.reflection) === "Generation LightMode" ? "system@lightmode.com" : drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{getRepostOwner(drop.reflection)}</Link>
+              Reposted from <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(getRepostOwner(drop.reflection) === "system" ? "system@lightmode.com" : getRepostOwner(drop.reflection) === "Generation LightMode" ? "system@lightmode.com" : drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{getRepostOwner(drop.reflection) === "system" ? "Generation LightMode" : getRepostOwner(drop.reflection)}</Link>
             </p>
           )}
           {drop.verse && (
