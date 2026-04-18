@@ -407,7 +407,16 @@ export default function GroupChat() {
         </div>
       </div>
 
-      <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Override global cyan/violet scrollbar to match blue palette on this page */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CFD9EA; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #B8C5DC; }
+        * { scrollbar-width: thin; scrollbar-color: #CFD9EA transparent; }
+      `}</style>
     </div>
   );
 }
