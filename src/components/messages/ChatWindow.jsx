@@ -10,14 +10,15 @@ const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1
 
 function formatMessageTime(dateStr) {
   if (!dateStr) return "";
-  const d = new Date(dateStr);
+  const d = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z');
   if (isToday(d)) return format(d, "HH:mm");
   if (isYesterday(d)) return "Yesterday " + format(d, "HH:mm");
   return format(d, "MMM d, HH:mm");
 }
 
 function formatDayDivider(dateStr) {
-  const d = new Date(dateStr);
+  if (!dateStr) return "";
+  const d = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z');
   if (isToday(d)) return "Today";
   if (isYesterday(d)) return "Yesterday";
   return format(d, "MMMM d, yyyy");

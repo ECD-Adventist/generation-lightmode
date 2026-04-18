@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark } from "lucide-react";
+import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, Globe } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -321,31 +321,31 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   <div className="absolute inset-0 opacity-30" style={{ background: "radial-gradient(circle at 80% 50%, rgba(255,208,0,0.4), transparent 60%)" }} />
                 </div>
                 {/* Content */}
-                <div className="bg-white px-4 pb-4 -mt-8">
-                  <div className="w-16 h-16 rounded-full p-[2.5px] bg-white shadow-lg mb-2.5" style={{ boxShadow: "0 4px 14px rgba(11, 63, 217, 0.2)" }}>
-                    <div className="w-full h-full rounded-full overflow-hidden border-2 border-white">
+                <div className="bg-white px-5 pb-5 -mt-10 flex flex-col items-center text-center">
+                  <div className="w-20 h-20 rounded-full p-1 bg-white shadow-xl mb-3 relative" style={{ boxShadow: "0 8px 24px rgba(11, 63, 217, 0.15)" }}>
+                    <div className="w-full h-full rounded-full overflow-hidden border border-[#E6ECF5]">
                       <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                     </div>
                   </div>
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <p className="font-bold text-base truncate" style={{ color: "#0B1B3D" }}>{dropUser.full_name}</p>
+                  <div className="flex items-center justify-center gap-2 mb-1 w-full">
+                    <p className="font-bold text-lg truncate" style={{ color: "#0B1B3D" }}>{dropUser.full_name}</p>
                     {isSuperCreator && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "linear-gradient(90deg, rgba(31,184,255,0.12), rgba(255,208,0,0.12))", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>⚡ Creator</span>
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full" style={{ background: "linear-gradient(90deg, #FFD000, #FF9F1A)", color: "#0B1B3D" }}>⚡</span>
                     )}
                   </div>
                   {dropUser.country && (
-                    <div className="flex items-center gap-1 text-[11px] mb-2" style={{ color: "#6B7FA0" }}>
-                      <span>🌍</span> {dropUser.country}
+                    <div className="flex items-center justify-center gap-1 text-xs mb-3 font-medium" style={{ color: "#6B7FA0" }}>
+                      <Globe className="w-3.5 h-3.5" /> {dropUser.country}
                     </div>
                   )}
                   {dropUser.bio && (
-                    <p className="text-xs leading-relaxed line-clamp-3" style={{ color: "#4A5878" }}>{dropUser.bio}</p>
+                    <p className="text-sm leading-relaxed line-clamp-3 px-2" style={{ color: "#4A5878" }}>{dropUser.bio}</p>
                   )}
-                  <div className="flex items-center gap-3 mt-3 pt-3 border-t text-xs" style={{ borderColor: "#F0F4FA" }}>
-                    <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`} className="font-bold flex-1 text-center py-2 rounded-full transition no-underline" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF" }}>
+                  <div className="flex items-center gap-3 mt-5 pt-4 border-t w-full" style={{ borderColor: "#F0F4FA" }}>
+                    <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`} className="font-bold flex-1 text-center py-2.5 rounded-xl transition no-underline text-sm" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.2)" }}>
                       View Profile
                     </Link>
-                    <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(dropUser.email)}`} className="font-bold flex-1 text-center py-2 rounded-full transition no-underline" style={{ background: "#F6F8FC", color: "#0B1B3D", border: "1px solid #E6ECF5" }}>
+                    <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(dropUser.email)}`} className="font-bold flex-1 text-center py-2.5 rounded-xl transition no-underline text-sm" style={{ background: "#F6F8FC", color: "#0B1B3D", border: "1px solid #E6ECF5" }}>
                       Message
                     </Link>
                   </div>

@@ -16,6 +16,8 @@ import PledgeModal from "@/components/pledge/PledgeModal";
 import ProfileHighlights, { getGlowRank } from "@/components/profile/ProfileHighlights";
 import AchievementBadges from "@/components/profile/AchievementBadges";
 import PostViewerModal from "@/components/profile/PostViewerModal";
+import StoryAnalyticsDashboard from "@/components/profile/StoryAnalyticsDashboard";
+import { BarChart3 } from "lucide-react";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -29,6 +31,7 @@ export default function Profile() {
   const [pledgeModalOpen, setPledgeModalOpen] = useState(false);
   const [viewPledgeOpen, setViewPledgeOpen] = useState(false);
   const [viewingDropId, setViewingDropId] = useState(null);
+  const [showStoryAnalytics, setShowStoryAnalytics] = useState(false);
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
@@ -527,9 +530,14 @@ export default function Profile() {
                     </div>
                   </div>
                   {isOwnProfile && !isEditing && (
-                    <button onClick={() => setIsEditing(true)} className="px-5 py-2 rounded-full text-sm font-bold transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B3FD9", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
-                      Edit Profile
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => setIsEditing(true)} className="px-5 py-2 rounded-full text-sm font-bold transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B3FD9", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
+                        Edit Profile
+                      </button>
+                      <button onClick={() => setShowStoryAnalytics(true)} className="px-5 py-2 rounded-full text-sm font-bold transition flex items-center gap-2" style={{ background: "linear-gradient(90deg, #1FB8FF, #8A5CFF)", border: "none", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(31, 184, 255, 0.3)" }}>
+                        <BarChart3 className="w-4 h-4" /> Story Analytics
+                      </button>
+                    </div>
                   )}
                   {!isOwnProfile && currentUser && (
                     <div className="flex flex-wrap gap-3">
@@ -844,6 +852,8 @@ export default function Profile() {
           <AchievementBadges user={user} myDrops={myDrops} myFollowing={myFollowing} myFollowers={myFollowers} myMemberships={myMemberships} mySupports={mySupports} challengeSubmissions={challengeSubmissions} certificates={certificates} />
         )}
       </div>
+
+      <StoryAnalyticsDashboard isOpen={showStoryAnalytics} onClose={() => setShowStoryAnalytics(false)} user={currentUser} />
 
       {/* Instagram-style Post Viewer Modal */}
       <PostViewerModal
