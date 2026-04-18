@@ -7,7 +7,14 @@ import { base44 } from "@/api/base44Client";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
-export default function StoryViewersModal({ storyId, isOpen, onClose, allUsers = [] }) {
+export default function StoryViewersModal({ storyId, isOpen, onClose, allUsers: propUsers }) {
+  const { data: fetchedUsers = [] } = useQuery({
+    queryKey: ["viewerModalUsers"],
+    queryFn: async () => { const res = await base44.functions.invoke("listPublicUsers", {}); return res.data; },
+    enabled: isOpen,
+  });
+  const allUsers = propUsers?.length > 0 ? propUsers : fetchedUsers;
+
   const { data: views = [], isLoading } = useQuery({
     queryKey: ["storyViewersModal", storyId],
     queryFn: () => base44.entities.StoryView.filter({ story_id: storyId }),

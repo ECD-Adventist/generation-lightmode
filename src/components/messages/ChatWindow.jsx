@@ -8,16 +8,22 @@ import { format, isToday, isYesterday } from "date-fns";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
+function parseDate(dateStr) {
+  if (!dateStr) return null;
+  return new Date(dateStr.endsWith("Z") ? dateStr : dateStr + "Z");
+}
+
 function formatMessageTime(dateStr) {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
+  const d = parseDate(dateStr);
+  if (!d) return "";
   if (isToday(d)) return format(d, "HH:mm");
   if (isYesterday(d)) return "Yesterday " + format(d, "HH:mm");
   return format(d, "MMM d, HH:mm");
 }
 
 function formatDayDivider(dateStr) {
-  const d = new Date(dateStr);
+  const d = parseDate(dateStr);
+  if (!d) return "";
   if (isToday(d)) return "Today";
   if (isYesterday(d)) return "Yesterday";
   return format(d, "MMMM d, yyyy");

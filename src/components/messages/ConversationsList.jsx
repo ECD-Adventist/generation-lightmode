@@ -198,7 +198,7 @@ export default function ConversationsList({
                     </div>
                     {lastAt && (
                       <div className="text-[10px] flex-shrink-0" style={{ color: "#8A97B5" }}>
-                        {formatDistanceToNow(new Date(lastAt), { addSuffix: false })}
+                        {formatDistanceToNow(new Date(lastAt.endsWith?.("Z") ? lastAt : lastAt + "Z"), { addSuffix: false })}
                       </div>
                     )}
                   </div>
