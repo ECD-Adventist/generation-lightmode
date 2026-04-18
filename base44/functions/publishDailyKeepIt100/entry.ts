@@ -12,7 +12,13 @@ Deno.serve(async (req) => {
             return Response.json({ message: "No Keep It 100 codes available" });
         }
 
-        // Get recently used codes to avoid repeats
+        const today = new Date().toISOString().split('T')[0];
+        const existingToday = await base44.asServiceRole.entities.GlowDrop.filter({ user_email: "system@lightmode.com", category: "Keep It 100" }, '-created_date', 10);
+        const alreadyPublishedToday = existingToday.some((drop) => drop.created_date?.startsWith(today));
+        if (alreadyPublishedToday) {
+            return Response.json({ success: true, skipped: true, reason: "Already published today" });
+        }
+
         const recentDrops = await base44.asServiceRole.entities.GlowDrop.filter({ category: "Keep It 100" }, '-created_date', 50);
         const recentReflections = new Set(recentDrops.map(d => d.reflection));
 
@@ -27,7 +33,7 @@ Deno.serve(async (req) => {
             media_url: selectedCode.poster_image_url || null,
             status: "approved",
             category: "Keep It 100",
-            hashtags: "#KeepIt100 #DailyTruth #GenerationLightMode"
+            hashtags: "#KeepIt100 #DailyDrops #GenerationLightMode"
         });
 
         return Response.json({ success: true, type: "keeping_it_100", code_id: selectedCode.id });

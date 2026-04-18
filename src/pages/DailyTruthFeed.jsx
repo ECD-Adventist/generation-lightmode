@@ -9,11 +9,11 @@ import { format } from "date-fns";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import TruthCardComments from "@/components/daily-drops/TruthCardComments";
 
-export default function DailyDrops() {
+export default function DailyDropsPage() {
   const [user, setUser] = useState(null);
   const urlParams = new URLSearchParams(window.location.search);
   const initialTab = urlParams.get("tab") || "codes_of_truth";
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState(initialTab === "keeping_it_100" ? "keeping_it_100" : "codes_of_truth");
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -163,15 +163,15 @@ function TruthCard({ drop, onShare, user, featured }) {
       )}
       <div className="p-5">
          {isSystemPost ? (
-           <div className="flex items-center gap-2 mb-4 pb-4 border-b" style={{ borderColor: "#E6ECF5" }}>
-              <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden" style={{ border: "1px solid #FFE4A0", background: "#FFFFFF" }}>
-               <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" className="w-full h-full object-cover" />
-             </div>
-             <div className="flex-1 min-w-0">
-               <div className="text-sm font-bold truncate" style={{ color: "#CC7A00" }}>Generation LightMode</div>
-               <div className="text-[10px]" style={{ color: "#8A97B5" }}>Official Daily Drop</div>
-             </div>
-           </div>
+           <Link to={createPageUrl("GenerationLightMode")} className="flex items-center gap-2 mb-4 pb-4 border-b hover:opacity-80 transition" style={{ borderColor: "#E6ECF5" }}>
+             <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden" style={{ border: "1px solid #FFE4A0", background: "#FFFFFF" }}>
+              <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" className="w-full h-full object-cover" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-bold truncate" style={{ color: "#CC7A00" }}>Generation LightMode</div>
+              <div className="text-[10px]" style={{ color: "#8A97B5" }}>Official Daily Drop</div>
+            </div>
+           </Link>
          ) : creatorUser && (
            <Link to={`${createPageUrl("Profile")}?user=${encodeURIComponent(drop.user_email)}`} className="flex items-center gap-2 mb-4 pb-4 border-b hover:opacity-80 transition" style={{ borderColor: "#E6ECF5" }}>
               <div className="w-8 h-8 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>

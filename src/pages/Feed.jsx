@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, SquarePlus, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera, X } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, SquarePlus, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera, X, Flame } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { formatDistanceToNow } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import DropCard from "@/components/feed/DropCard";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import DailyChallenges from "@/components/feed/DailyChallenges";
@@ -282,6 +283,15 @@ export default function Feed() {
   };
 
   const getUserInfo = (email) => {
+    if (email === "system@lightmode.com") {
+      return {
+        email: "system@lightmode.com",
+        full_name: "Generation LightMode",
+        bio: "Official Generation LightMode account sharing daily drops, updates, and movement highlights.",
+        profile_picture_url: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg",
+        country: "Global",
+      };
+    }
     if (user?.email === email) return user;
     const found = users.find(u => u.email === email);
     if (found) return found;
@@ -660,19 +670,57 @@ export default function Feed() {
             </div>
           ) : (
             <>
-              {filteredDrops.slice(0, displayCount).map(drop => (
-                <DropCard 
-                  key={drop.id} 
-                  drop={drop} 
-                  user={user} 
-                  dropUser={getUserInfo(drop.user_email)}
-                  likeMutation={likeMutation}
-                  handleShare={handleShare}
-                  userLikes={userLikes}
-                  allUsers={users}
-                  savedDropRecords={savedDropRecords}
-                />
-              ))}
+              {filteredDrops.slice(0, displayCount).map(drop => {
+                const dropUser = getUserInfo(drop.user_email);
+                return (
+                  <div key={drop.id} className="space-y-2">
+                    <div className="px-1">
+                      <HoverCard>
+                        <HoverCardTrigger asChild>
+                          <Link to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="inline-flex items-center gap-2 no-underline">
+                            <div className="w-9 h-9 rounded-full overflow-hidden border border-[#D6E4FF] bg-white shrink-0">
+                              <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{dropUser.full_name}</p>
+                              <p className="text-[11px]" style={{ color: "#8A97B5" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</p>
+                            </div>
+                          </Link>
+                        </HoverCardTrigger>
+                        <HoverCardContent className="bg-white border border-[#E6ECF5] shadow-xl rounded-2xl p-4 w-72" align="start">
+                          <div className="flex items-start gap-3">
+                            <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-12 h-12 rounded-full object-cover" />
+                            <div className="min-w-0 flex-1">
+                              <p className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{dropUser.full_name}</p>
+                              <div className="flex items-center gap-3 mt-1 text-[11px]" style={{ color: "#6B7FA0" }}>
+                                <span className="font-semibold">{drops.filter(d => d.user_email === drop.user_email).length} posts</span>
+                                <span>{following.filter(f => f.following_email === drop.user_email).length} following</span>
+                                <span>{users.filter(u => u.email === drop.user_email).length ? 'Member' : 'Profile'}</span>
+                              </div>
+                              <p className="text-xs mt-2 leading-relaxed" style={{ color: "#4A5878" }}>{dropUser.bio || dropUser.country || "LightMode member"}</p>
+                              {dropUser.country && (
+                                <div className="flex items-center gap-1 mt-2 text-[11px]" style={{ color: "#8A97B5" }}>
+                                  <Globe className="w-3 h-3" /> {dropUser.country}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
+                    </div>
+                    <DropCard 
+                      drop={drop} 
+                      user={user} 
+                      dropUser={dropUser}
+                      likeMutation={likeMutation}
+                      handleShare={handleShare}
+                      userLikes={userLikes}
+                      allUsers={users}
+                      savedDropRecords={savedDropRecords}
+                    />
+                  </div>
+                );
+              })}
               <div ref={feedEndRef} className="py-6 text-center text-sm" style={{ color: "#8A97B5" }}>
                 {displayCount < filteredDrops.length ? "Loading more..." : filteredDrops.length === 0 ? "" : `Showing ${filteredDrops.length} posts`}
               </div>

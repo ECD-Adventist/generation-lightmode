@@ -22,6 +22,7 @@ import ComplianceReporting from './pages/ComplianceReporting';
 import InstitutionDashboard from './pages/InstitutionDashboard';
 import InstitutionControlCenter from './pages/InstitutionControlCenter';
 import GlowFeed from './pages/GlowFeed';
+import GenerationLightMode from './pages/GenerationLightMode';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -88,6 +89,7 @@ const AuthenticatedApp = () => {
       <Route path="/InstitutionDashboard" element={<LayoutWrapper currentPageName="InstitutionDashboard"><InstitutionDashboard /></LayoutWrapper>} />
       <Route path="/InstitutionControlCenter" element={<LayoutWrapper currentPageName="InstitutionControlCenter"><InstitutionControlCenter /></LayoutWrapper>} />
       <Route path="/GlowFeed" element={<LayoutWrapper currentPageName="GlowFeed"><GlowFeed /></LayoutWrapper>} />
+      <Route path="/GenerationLightMode" element={<LayoutWrapper currentPageName="GenerationLightMode"><GenerationLightMode /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

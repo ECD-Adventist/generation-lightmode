@@ -20,6 +20,10 @@ Deno.serve(async (req) => {
         const selectedCode = candidates[Math.floor(Math.random() * candidates.length)];
 
         const today = new Date().toISOString().split('T')[0];
+        const existingToday = await base44.asServiceRole.entities.DailyCode.filter({ date_published: today });
+        if (existingToday.length > 0) {
+            return Response.json({ success: true, skipped: true, reason: "Already published today" });
+        }
 
         await base44.asServiceRole.entities.DailyCode.create({
             code_id: selectedCode.id,
@@ -33,7 +37,7 @@ Deno.serve(async (req) => {
             media_url: selectedCode.poster_image_url || null,
             status: "approved",
             category: "Code of Truth",
-            hashtags: "#CodeOfTruth #DailyTruth #GenerationLightMode"
+            hashtags: "#CodeOfTruth #DailyDrops #GenerationLightMode"
         });
 
         return Response.json({ success: true, type: "codes_of_truth", code_id: selectedCode.id });

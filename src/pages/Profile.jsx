@@ -580,7 +580,7 @@ export default function Profile() {
                     {userInstitutionApps.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}>Institution linked</span>}
                   </div>
                   <p className="leading-relaxed whitespace-pre-line">
-                    {user.bio || "Digital Missionary ⚡ Spreading light through faith in the online world."}
+                    {(isOwnProfile ? currentUser?.bio : user?.bio) || "Digital Missionary ⚡ Spreading light through faith in the online world."}
                   </p>
                   {user.website_url && (
                     <a href={user.website_url.startsWith("http") ? user.website_url : `https://${user.website_url}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-bold text-xs hover:underline break-all" style={{ color: "#0B3FD9" }}>

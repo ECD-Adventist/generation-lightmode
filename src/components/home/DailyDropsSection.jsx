@@ -59,7 +59,7 @@ export default function DailyDropsSection() {
             <span style={{ color: "#00CFFF", fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase" }}>Live from the Movement</span>
           </div>
           <h2 className="glm-headline glm-gradient-text" style={{ fontSize: "clamp(28px, 4vw, 52px)", marginBottom: 14 }}>
-            Daily Truth Drops
+            Daily Drops
           </h2>
           <p className="glm-body" style={{ fontSize: 17, maxWidth: 580, margin: "0 auto", lineHeight: 1.7 }}>
             Scripture-rooted reflections posted daily to flood your feed with the light of Christ.
