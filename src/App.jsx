@@ -23,6 +23,7 @@ import InstitutionDashboard from './pages/InstitutionDashboard';
 import InstitutionControlCenter from './pages/InstitutionControlCenter';
 import GlowFeed from './pages/GlowFeed';
 import GenerationLightMode from './pages/GenerationLightMode';
+import GroupChat from './pages/GroupChat';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -90,6 +91,7 @@ const AuthenticatedApp = () => {
       <Route path="/InstitutionControlCenter" element={<LayoutWrapper currentPageName="InstitutionControlCenter"><InstitutionControlCenter /></LayoutWrapper>} />
       <Route path="/GlowFeed" element={<LayoutWrapper currentPageName="GlowFeed"><GlowFeed /></LayoutWrapper>} />
       <Route path="/GenerationLightMode" element={<LayoutWrapper currentPageName="GenerationLightMode"><GenerationLightMode /></LayoutWrapper>} />
+      <Route path="/GroupChat" element={<LayoutWrapper currentPageName="GroupChat"><GroupChat /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

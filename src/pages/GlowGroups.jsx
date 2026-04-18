@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight, Home, Bell, User, Video, Loader2, MessageCircle } from "lucide-react";
 import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
-import GroupChatPanel from "@/components/groups/GroupChatPanel";
 import { createPageUrl } from "@/utils";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -16,8 +16,8 @@ export default function GlowGroups() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("groups"); // "people" | "groups" | "leaders"
   const [authChecked, setAuthChecked] = useState(false);
-  const [openChatGroup, setOpenChatGroup] = useState(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   useEffect(() => {
     base44.auth.isAuthenticated().then(isAuth => {
@@ -26,28 +26,15 @@ export default function GlowGroups() {
     });
   }, []);
 
-  // Auto-open a specific group chat when ?group=<id> is present in URL
-  const { data: realGroupsForOpen = [] } = useQuery({
-    queryKey: ["allGroupsForOpen"],
-    queryFn: () => base44.entities.GlowGroup.list(),
-    enabled: authChecked,
-  });
+  // Auto-redirect to dedicated GroupChat page when ?group=<id> is present
   useEffect(() => {
+    if (!authChecked) return;
     const params = new URLSearchParams(window.location.search);
     const groupId = params.get("group");
-    if (groupId && realGroupsForOpen.length > 0) {
-      const target = realGroupsForOpen.find(g => g.id === groupId);
-      if (target) {
-        setActiveTab("groups");
-        setOpenChatGroup(target);
-        // scroll to chat panel after a tick
-        setTimeout(() => {
-          const el = document.getElementById("group-chat-panel");
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 150);
-      }
+    if (groupId) {
+      navigate(createPageUrl("GroupChat") + `?id=${encodeURIComponent(groupId)}`, { replace: true });
     }
-  }, [realGroupsForOpen]);
+  }, [authChecked, navigate]);
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
@@ -296,23 +283,10 @@ export default function GlowGroups() {
               </div>
             )}
 
-            {/* Inline Chat Panel */}
-            {openChatGroup && (
-              <div id="group-chat-panel" className="mb-4">
-                <GroupChatPanel
-                  group={openChatGroup}
-                  user={user}
-                  allUsers={users}
-                  onClose={() => setOpenChatGroup(null)}
-                />
-              </div>
-            )}
-
             {filteredGroups.map(group => {
               const isMember = myMemberships.some(m => m.group_id === group.id);
-              const isActiveChat = openChatGroup?.id === group.id;
               return (
-                <div key={group.id} className="flex items-center gap-4 rounded-2xl p-4 transition-all hover:-translate-y-0.5" style={{ background: "#FFFFFF", border: isActiveChat ? "1px solid #B8E5FF" : "1px solid #E6ECF5", boxShadow: isActiveChat ? "0 4px 16px rgba(31, 184, 255, 0.1)" : "0 2px 8px rgba(11, 63, 217, 0.04)" }}>
+                <div key={group.id} className="flex items-center gap-4 rounded-2xl p-4 transition-all hover:-translate-y-0.5" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}>
                   <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0" style={{ background: "linear-gradient(135deg, rgba(31,184,255,0.1), rgba(11,63,217,0.08))", border: "1px solid #D6E4FF" }}>
                     ✨
                   </div>
@@ -328,11 +302,9 @@ export default function GlowGroups() {
                   <div className="flex items-center gap-2 shrink-0">
                     {isMember && (
                       <button
-                        onClick={() => setOpenChatGroup(isActiveChat ? null : group)}
+                        onClick={() => navigate(createPageUrl("GroupChat") + `?id=${encodeURIComponent(group.id)}`)}
                         className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all"
-                        style={isActiveChat
-                          ? { background: "rgba(31, 184, 255, 0.1)", color: "#0B3FD9", border: "1px solid #B8E5FF" }
-                          : { background: "#F6F8FC", color: "#4A5878", border: "1px solid #E6ECF5" }}
+                        style={{ background: "rgba(31, 184, 255, 0.1)", color: "#0B3FD9", border: "1px solid #B8E5FF" }}
                         title="Open group chat"
                       >
                         <MessageCircle className="w-3.5 h-3.5" />
