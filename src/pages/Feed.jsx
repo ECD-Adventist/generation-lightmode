@@ -24,6 +24,7 @@ import StatusComposerModal from "@/components/feed/StatusComposerModal";
 import StatusViewerModal from "@/components/feed/StatusViewerModal";
 import OnboardingModal from "@/components/dashboard/OnboardingModal";
 import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModal";
+import MyGlowGroupsSidebar from "@/components/feed/MyGlowGroupsSidebar";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   const baseStyle = active
@@ -449,6 +450,9 @@ export default function Feed() {
 
              <SidebarLink to={createPageUrl("DailyDevotion")} icon={<BookOpen className="w-[18px] h-[18px]" />} label="Bible School" />
              <SidebarLink to={createPageUrl("Home")} icon={<ExternalLink className="w-[18px] h-[18px]" />} label="Back to Website" />
+
+             {/* My GlowGroups */}
+             <MyGlowGroupsSidebar userEmail={user?.email} />
 
              {/* Section: More */}
              <button

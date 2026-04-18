@@ -13,7 +13,7 @@ const rankColors = { Champion: "#FFD000", Trendsetter: "#8A5CFF", Warrior: "#1DA
 
 export default function GlowGroups() {
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState("people"); // "people" | "groups" | "leaders"
+  const [activeTab, setActiveTab] = useState("groups"); // "people" | "groups" | "leaders"
   const [authChecked, setAuthChecked] = useState(false);
   const [openChatGroup, setOpenChatGroup] = useState(null);
   const queryClient = useQueryClient();
