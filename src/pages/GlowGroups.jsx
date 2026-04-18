@@ -25,6 +25,29 @@ export default function GlowGroups() {
     });
   }, []);
 
+  // Auto-open a specific group chat when ?group=<id> is present in URL
+  const { data: realGroupsForOpen = [] } = useQuery({
+    queryKey: ["allGroupsForOpen"],
+    queryFn: () => base44.entities.GlowGroup.list(),
+    enabled: authChecked,
+  });
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const groupId = params.get("group");
+    if (groupId && realGroupsForOpen.length > 0) {
+      const target = realGroupsForOpen.find(g => g.id === groupId);
+      if (target) {
+        setActiveTab("groups");
+        setOpenChatGroup(target);
+        // scroll to chat panel after a tick
+        setTimeout(() => {
+          const el = document.getElementById("group-chat-panel");
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 150);
+      }
+    }
+  }, [realGroupsForOpen]);
+
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
     queryFn: () => base44.auth.me(),
@@ -274,7 +297,7 @@ export default function GlowGroups() {
 
             {/* Inline Chat Panel */}
             {openChatGroup && (
-              <div className="mb-4">
+              <div id="group-chat-panel" className="mb-4">
                 <GroupChatPanel
                   group={openChatGroup}
                   user={user}

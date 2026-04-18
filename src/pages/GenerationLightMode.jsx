@@ -72,12 +72,12 @@ export default function GenerationLightMode() {
           </div>
 
           {/* Profile card overlapping cover — original side-by-side layout */}
-          <div className="relative -mt-16 sm:-mt-20 pb-6 px-2 sm:px-0">
+          <div className="relative pb-6 px-2 sm:px-0">
             <div className="rounded-b-[2rem] rounded-t-[2rem] overflow-hidden bg-white border border-[#E6ECF5]" style={{ boxShadow: "0 12px 48px rgba(11,63,217,0.1)" }}>
               <div className="p-6 sm:p-8">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
                   {/* Avatar */}
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] shrink-0 -mt-14 sm:-mt-16" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 50%, #0B2870 100%)", boxShadow: "0 8px 32px rgba(11,63,217,0.25)" }}>
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 50%, #0B2870 100%)", boxShadow: "0 8px 32px rgba(11,63,217,0.25)" }}>
                     <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "3px solid #FFFFFF" }}>
                       <img src={ACCOUNT_IMAGE} alt={ACCOUNT_NAME} className="w-full h-full object-cover" />
                     </div>
