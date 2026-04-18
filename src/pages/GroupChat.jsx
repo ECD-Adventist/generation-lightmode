@@ -14,6 +14,42 @@ function parseDate(s) { if (!s) return null; return new Date(s.endsWith("Z") ? s
 function formatMessageTime(s) { const d = parseDate(s); if (!d) return ""; if (isToday(d)) return format(d, "HH:mm"); if (isYesterday(d)) return "Yesterday " + format(d, "HH:mm"); return format(d, "MMM d, HH:mm"); }
 function formatDayDivider(s) { const d = parseDate(s); if (!d) return ""; if (isToday(d)) return "Today"; if (isYesterday(d)) return "Yesterday"; return format(d, "MMMM d, yyyy"); }
 
+// Build a slug key from a full name for @mention matching: "Jane Doe" -> "jane_doe"
+function slugifyName(name) { return (name || "").trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, ""); }
+
+// Extract @mention slugs from a message. Matches @letters/digits/underscore (up to 40 chars).
+function extractMentionSlugs(text) {
+  if (!text) return [];
+  const matches = text.match(/@([a-zA-Z0-9_]{1,40})/g) || [];
+  return [...new Set(matches.map(m => m.slice(1).toLowerCase()))];
+}
+
+// Render message text with clickable @mentions. mentionMap: slug -> {email, full_name}
+function renderMessageContent(text, mentionMap, isMine) {
+  if (!text) return null;
+  const parts = text.split(/(@[a-zA-Z0-9_]{1,40})/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("@")) {
+      const slug = part.slice(1).toLowerCase();
+      const u = mentionMap[slug];
+      if (u) {
+        return (
+          <Link
+            key={i}
+            to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`}
+            onClick={(e) => e.stopPropagation()}
+            className="font-bold hover:underline"
+            style={{ color: isMine ? "#FFD000" : "#0B3FD9" }}
+          >
+            @{u.full_name.replace(/\s+/g, " ")}
+          </Link>
+        );
+      }
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
 export default function GroupChat() {
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
@@ -27,6 +63,8 @@ export default function GroupChat() {
   const [showInfoPanel, setShowInfoPanel] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState(null); // null when not mentioning; string when "@..." is being typed
+  const [mentionIndex, setMentionIndex] = useState(0);
   const fileInputRef = useRef(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
@@ -111,6 +149,24 @@ export default function GroupChat() {
       await base44.entities.GlowGroupMessage.create({
         group_id: groupId, user_email: currentUser.email, content, file_url: file_url || undefined,
       });
+
+      // Handle @mention notifications
+      const slugs = extractMentionSlugs(content);
+      if (slugs.length > 0) {
+        const mentionedEmails = new Set();
+        slugs.forEach(slug => {
+          const u = memberDetails.find(m => slugifyName(m.full_name) === slug);
+          if (u && u.email !== currentUser.email) mentionedEmails.add(u.email);
+        });
+        await Promise.all([...mentionedEmails].map(email =>
+          base44.entities.Notification.create({
+            user_email: email,
+            type: "message",
+            message: `${currentUser.full_name || "Someone"} mentioned you in "${group.name}": "${content.slice(0, 80)}${content.length > 80 ? "..." : ""}"`,
+            link: `/GroupChat?id=${groupId}`,
+          }).catch(() => {})
+        ));
+      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["groupMessages", groupId] }),
     onError: () => toast.error("Failed to send message"),
@@ -164,6 +220,51 @@ export default function GroupChat() {
     members.forEach(m => { if (!seen.has(m.user_email)) { list.push({ ...getUser(m.user_email), isLeader: false }); seen.add(m.user_email); } });
     return list;
   }, [members, group, allUsers, currentUser]);
+
+  // Map of slug -> { email, full_name } for rendering mentions in message content
+  const mentionMap = useMemo(() => {
+    const map = {};
+    memberDetails.forEach(m => { if (m.full_name) map[slugifyName(m.full_name)] = { email: m.email, full_name: m.full_name }; });
+    return map;
+  }, [memberDetails]);
+
+  // Mention autocomplete candidates
+  const mentionCandidates = useMemo(() => {
+    if (mentionQuery === null) return [];
+    const q = mentionQuery.toLowerCase();
+    return memberDetails
+      .filter(m => m.email !== currentUser?.email && m.full_name && (q === "" || m.full_name.toLowerCase().includes(q) || slugifyName(m.full_name).includes(q)))
+      .slice(0, 6);
+  }, [mentionQuery, memberDetails, currentUser]);
+
+  const handleDraftChange = (value) => {
+    setDraft(value);
+    const el = inputRef.current;
+    const cursorPos = el ? el.selectionStart : value.length;
+    // Find the last "@" before cursor that starts a mention token (preceded by whitespace or start)
+    const before = value.slice(0, cursorPos);
+    const match = before.match(/(?:^|\s)@([a-zA-Z0-9_]*)$/);
+    if (match) {
+      setMentionQuery(match[1]);
+      setMentionIndex(0);
+    } else {
+      setMentionQuery(null);
+    }
+  };
+
+  const insertMention = (user) => {
+    const el = inputRef.current;
+    const cursorPos = el ? el.selectionStart : draft.length;
+    const before = draft.slice(0, cursorPos);
+    const after = draft.slice(cursorPos);
+    const newBefore = before.replace(/@([a-zA-Z0-9_]*)$/, `@${slugifyName(user.full_name)} `);
+    const newValue = newBefore + after;
+    setDraft(newValue);
+    setMentionQuery(null);
+    setTimeout(() => {
+      if (el) { el.focus(); const newPos = newBefore.length; el.setSelectionRange(newPos, newPos); }
+    }, 0);
+  };
 
   if (!groupId || userLoading || groupLoading || !currentUser) {
     return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
@@ -290,7 +391,7 @@ export default function GroupChat() {
                           </div>
                         )}
                         <div className="px-4 py-2.5 rounded-2xl text-sm break-words" style={isMine ? { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", borderTopRightRadius: "0.375rem", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.2)" } : { background: "#FFFFFF", color: "#0B1B3D", border: "1px solid #E6ECF5", borderTopLeftRadius: "0.375rem" }}>
-                          <div className="whitespace-pre-wrap">{msg.content}</div>
+                          <div className="whitespace-pre-wrap">{renderMessageContent(msg.content, mentionMap, isMine)}</div>
                           {msg.file_url && (
                             <div className="mt-2">
                               {/\.(png|jpe?g|gif|webp)$/i.test(msg.file_url) ? (
@@ -315,7 +416,32 @@ export default function GroupChat() {
 
           {/* Composer */}
           {isMember ? (
-            <form onSubmit={(e) => { e.preventDefault(); if (!draft.trim()) return; sendContent(draft); setDraft(""); }} className="px-3 sm:px-4 py-3 border-t flex items-center gap-2 shrink-0 relative" style={{ borderColor: "#E6ECF5", background: "#FFFFFF" }}>
+            <form onSubmit={(e) => { e.preventDefault(); if (!draft.trim()) return; sendContent(draft); setDraft(""); setMentionQuery(null); }} className="px-3 sm:px-4 py-3 border-t flex items-center gap-2 shrink-0 relative" style={{ borderColor: "#E6ECF5", background: "#FFFFFF" }}>
+              {/* @Mention autocomplete dropdown */}
+              {mentionQuery !== null && mentionCandidates.length > 0 && (
+                <div className="absolute bottom-full left-3 right-3 sm:left-4 sm:right-4 mb-2 rounded-2xl p-1.5 z-50 max-h-64 overflow-y-auto" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.15)" }}>
+                  <div className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5" style={{ color: "#8A97B5" }}>Tag someone</div>
+                  {mentionCandidates.map((u, i) => (
+                    <button
+                      key={u.email}
+                      type="button"
+                      onClick={() => insertMention(u)}
+                      onMouseEnter={() => setMentionIndex(i)}
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition text-left"
+                      style={{ background: i === mentionIndex ? "#EEF3FF" : "transparent" }}
+                    >
+                      <img src={u.profile_picture_url || defaultAvatar} className="w-8 h-8 rounded-full object-cover shrink-0" style={{ border: "1px solid #E6ECF5" }} alt={u.full_name} />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-sm truncate flex items-center gap-1" style={{ color: "#0B1B3D" }}>
+                          {u.full_name}
+                          {u.isLeader && <Crown className="w-3 h-3" style={{ color: "#CC7A00" }} />}
+                        </div>
+                        <div className="text-[10px] truncate" style={{ color: "#8A97B5" }}>@{slugifyName(u.full_name)}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
               <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingFile || sendMutation.isPending} className="w-11 h-11 rounded-2xl flex items-center justify-center disabled:opacity-50 transition shrink-0" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}>
                 <Paperclip className="w-4 h-4" />
               </button>
@@ -343,7 +469,22 @@ export default function GroupChat() {
                 )}
               </div>
 
-              <input ref={inputRef} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={`Message ${group.name}...`} className="flex-1 h-11 rounded-2xl px-4 focus:outline-none min-w-0" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#0B1B3D" }} />
+              <input
+                ref={inputRef}
+                value={draft}
+                onChange={(e) => handleDraftChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (mentionQuery !== null && mentionCandidates.length > 0) {
+                    if (e.key === "ArrowDown") { e.preventDefault(); setMentionIndex(i => (i + 1) % mentionCandidates.length); }
+                    else if (e.key === "ArrowUp") { e.preventDefault(); setMentionIndex(i => (i - 1 + mentionCandidates.length) % mentionCandidates.length); }
+                    else if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); insertMention(mentionCandidates[mentionIndex]); }
+                    else if (e.key === "Escape") { setMentionQuery(null); }
+                  }
+                }}
+                placeholder={`Message ${group.name}... (type @ to tag)`}
+                className="flex-1 h-11 rounded-2xl px-4 focus:outline-none min-w-0"
+                style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#0B1B3D" }}
+              />
               <button type="submit" disabled={!draft.trim() || sendMutation.isPending || uploadingFile} className="w-11 h-11 rounded-2xl flex items-center justify-center disabled:opacity-50 transition shrink-0" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>
                 {sendMutation.isPending || uploadingFile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
