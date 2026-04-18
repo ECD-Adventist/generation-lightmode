@@ -456,7 +456,7 @@ export default function Profile() {
               }
             `}</style>
             <div
-              className={`w-full h-48 sm:h-64 rounded-[1.75rem] mb-8 relative group p-[2px] overflow-hidden ${isOwnProfile ? 'cursor-pointer' : ''}`}
+              className={`w-full h-48 sm:h-64 rounded-[1.75rem] mb-16 sm:mb-20 relative group p-[2px] overflow-hidden ${isOwnProfile ? 'cursor-pointer' : ''}`}
               style={{ boxShadow: "0 8px 28px rgba(11, 63, 217, 0.12)" }}
               onClick={() => isOwnProfile && coverInputRef.current?.click()}
             >
@@ -501,7 +501,7 @@ export default function Profile() {
             <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "cover")} disabled={uploadingImage} />
 
             {/* Profile Header */}
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10 pb-10 -mt-20 sm:-mt-24 relative z-10 px-4 border-b" style={{ borderColor: "#E6ECF5" }}>
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10 pb-10 relative z-10 px-4 border-b" style={{ borderColor: "#E6ECF5" }}>
               <div
                 className={`w-32 h-32 rounded-full p-1 flex-shrink-0 overflow-hidden group relative ${isOwnProfile ? 'cursor-pointer' : ''}`}
                 style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", boxShadow: "0 8px 28px rgba(11, 63, 217, 0.25)" }}
