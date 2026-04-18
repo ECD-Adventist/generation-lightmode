@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { format, isToday, isYesterday } from "date-fns";
-import { Send, Paperclip, Users, Crown, ArrowLeft, MoreVertical, Trash2, Smile, Info, Calendar, Image as ImageIcon, X, MessageCircle, Loader2, LogOut, Bell, BellOff, Search } from "lucide-react";
+import { Send, Paperclip, Users, Crown, ArrowLeft, MoreVertical, Trash2, Smile, Info, Calendar, Image as ImageIcon, X, MessageCircle, Loader2, LogOut, Bell, BellOff, Search, Check, UserPlus } from "lucide-react";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 const EMOJIS = ["👍","❤️","🙏","🔥","🎉","😊","😂","😢","💯","✨","🕊️","🙌"];
@@ -78,6 +78,12 @@ export default function GroupChat() {
     enabled: !!groupId,
   });
 
+  const { data: joinRequests = [] } = useQuery({
+    queryKey: ["groupJoinRequests", groupId],
+    queryFn: () => base44.entities.GlowGroupJoinRequest.filter({ group_id: groupId, status: "pending" }, "-created_date"),
+    enabled: !!groupId,
+  });
+
   // Real-time
   useEffect(() => {
     if (!groupId) return;
@@ -123,6 +129,20 @@ export default function GroupChat() {
     },
     onSuccess: () => { toast.success("Left the group"); navigate(createPageUrl("GlowGroups")); },
     onError: () => toast.error("Could not leave group"),
+  });
+
+  const decideRequestMutation = useMutation({
+    mutationFn: async ({ request_id, action }) => {
+      const res = await base44.functions.invoke("handleGroupJoinRequest", { request_id, action });
+      if (!res.data?.success) throw new Error(res.data?.error || "Failed");
+      return res.data;
+    },
+    onSuccess: (data, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["groupJoinRequests", groupId] });
+      queryClient.invalidateQueries({ queryKey: ["groupMembers", groupId] });
+      toast.success(vars.action === "approve" ? "Member approved ✅" : "Request declined");
+    },
+    onError: (err) => toast.error(err.message || "Could not process request"),
   });
 
   const getUser = (email) => email === currentUser?.email ? currentUser : allUsers.find(u => u.email === email) || { full_name: email?.split("@")[0] || "Member", email };
@@ -329,10 +349,7 @@ export default function GroupChat() {
               </button>
             </form>
           ) : (
-            <div className="px-4 py-4 border-t flex items-center justify-between gap-3 shrink-0" style={{ borderColor: "#E6ECF5", background: "#FFFBEB" }}>
-              <div className="text-sm" style={{ color: "#854D0E" }}>Join this group to send messages.</div>
-              <button onClick={async () => { await base44.entities.GlowGroupMember.create({ user_email: currentUser.email, group_id: groupId }); queryClient.invalidateQueries({ queryKey: ["groupMembers", groupId] }); toast.success("Joined group! +20 XP ⚡"); }} className="px-4 py-2 rounded-full text-xs font-bold" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}>Join Group</button>
-            </div>
+            <JoinRequestBanner group={group} currentUser={currentUser} groupId={groupId} queryClient={queryClient} />
           )}
         </div>
 
@@ -359,6 +376,38 @@ export default function GroupChat() {
                   <div><div className="font-bold text-lg" style={{ color: "#0B3FD9" }}>{events.length}</div><div className="text-[10px] uppercase font-bold" style={{ color: "#8A97B5" }}>Events</div></div>
                 </div>
               </div>
+
+              {/* Pending Join Requests — Leader only */}
+              {isLeader && joinRequests.length > 0 && (
+                <div className="px-5 py-4 border-b" style={{ borderColor: "#E6ECF5", background: "#FFF8E6" }}>
+                  <div className="text-[11px] font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: "#CC7A00" }}>
+                    <UserPlus className="w-3.5 h-3.5" /> Pending Requests ({joinRequests.length})
+                  </div>
+                  <div className="space-y-2">
+                    {joinRequests.map(req => {
+                      const requester = getUser(req.user_email);
+                      const isBusy = decideRequestMutation.isPending && decideRequestMutation.variables?.request_id === req.id;
+                      return (
+                        <div key={req.id} className="rounded-xl p-3 flex items-center gap-3" style={{ background: "#FFFFFF", border: "1px solid #FFE4A0" }}>
+                          <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(req.user_email)}`} className="shrink-0">
+                            <img src={requester.profile_picture_url || defaultAvatar} className="w-9 h-9 rounded-full object-cover" style={{ border: "1px solid #E6ECF5" }} alt={requester.full_name} />
+                          </Link>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-sm truncate" style={{ color: "#0B1B3D" }}>{requester.full_name}</div>
+                            <div className="text-[10px] truncate" style={{ color: "#6B7FA0" }}>wants to join</div>
+                          </div>
+                          <button onClick={() => decideRequestMutation.mutate({ request_id: req.id, action: "approve" })} disabled={isBusy} className="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-50" style={{ background: "#DCFCE7", color: "#16A34A", border: "1px solid #86EFAC" }} title="Approve">
+                            {isBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-4 h-4" />}
+                          </button>
+                          <button onClick={() => decideRequestMutation.mutate({ request_id: req.id, action: "reject" })} disabled={isBusy} className="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-50" style={{ background: "#FEE2E2", color: "#DC2626", border: "1px solid #FECACA" }} title="Reject">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Upcoming Events */}
               {events.length > 0 && (
@@ -417,6 +466,57 @@ export default function GroupChat() {
         ::-webkit-scrollbar-thumb:hover { background: #B8C5DC; }
         * { scrollbar-width: thin; scrollbar-color: #CFD9EA transparent; }
       `}</style>
+    </div>
+  );
+}
+
+function JoinRequestBanner({ group, currentUser, groupId, queryClient }) {
+  const { data: myRequests = [] } = useQuery({
+    queryKey: ["myRequestForGroup", groupId, currentUser?.email],
+    queryFn: () => base44.entities.GlowGroupJoinRequest.filter({ group_id: groupId, user_email: currentUser?.email }, "-created_date"),
+    enabled: !!groupId && !!currentUser,
+  });
+  const latest = myRequests[0];
+  const isPending = latest?.status === "pending";
+  const isRejected = latest?.status === "rejected";
+
+  const requestMutation = useMutation({
+    mutationFn: async () => {
+      await base44.entities.GlowGroupJoinRequest.create({
+        user_email: currentUser.email,
+        group_id: groupId,
+        status: "pending",
+      });
+      await base44.entities.Notification.create({
+        user_email: group.leader_email,
+        type: "system",
+        message: `${currentUser.full_name || "Someone"} requested to join your group "${group.name}".`,
+        link: `/GroupChat?id=${groupId}`,
+      }).catch(() => {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myRequestForGroup", groupId, currentUser?.email] });
+      toast.success("Request sent. Awaiting leader approval. ⏳");
+    },
+    onError: () => toast.error("Could not send request"),
+  });
+
+  if (isPending) {
+    return (
+      <div className="px-4 py-4 border-t flex items-center justify-between gap-3 shrink-0" style={{ borderColor: "#E6ECF5", background: "#FFF8E6" }}>
+        <div className="text-sm" style={{ color: "#854D0E" }}>⏳ Your join request is awaiting leader approval.</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-4 py-4 border-t flex items-center justify-between gap-3 shrink-0" style={{ borderColor: "#E6ECF5", background: isRejected ? "#FEF2F2" : "#FFFBEB" }}>
+      <div className="text-sm" style={{ color: isRejected ? "#991B1B" : "#854D0E" }}>
+        {isRejected ? "Your previous request was declined. You can request again." : "Request to join this group to participate."}
+      </div>
+      <button onClick={() => requestMutation.mutate()} disabled={requestMutation.isPending} className="px-4 py-2 rounded-full text-xs font-bold disabled:opacity-60" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}>
+        {requestMutation.isPending ? "Sending..." : "Request to Join"}
+      </button>
     </div>
   );
 }

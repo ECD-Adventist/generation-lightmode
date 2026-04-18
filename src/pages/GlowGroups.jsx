@@ -73,6 +73,12 @@ export default function GlowGroups() {
     enabled: !!user
   });
 
+  const { data: myJoinRequests = [] } = useQuery({
+    queryKey: ["myJoinRequests", user?.email],
+    queryFn: () => base44.entities.GlowGroupJoinRequest.filter({ user_email: user?.email }),
+    enabled: !!user
+  });
+
   const followMutation = useMutation({
     mutationFn: async (targetEmail) => {
       if (!user) { toast.error("Please log in to follow"); throw new Error("Not logged in"); }
@@ -102,21 +108,45 @@ export default function GlowGroups() {
   });
 
   const joinMutation = useMutation({
-    mutationFn: async (groupId) => {
+    mutationFn: async (group) => {
       if (!user) { toast.error("Please log in"); throw new Error("Not logged in"); }
-      const isMember = myMemberships.some(m => m.group_id === groupId);
+      const isMember = myMemberships.some(m => m.group_id === group.id);
       if (isMember) {
-        const rec = myMemberships.find(m => m.group_id === groupId);
+        const rec = myMemberships.find(m => m.group_id === group.id);
         await base44.entities.GlowGroupMember.delete(rec.id);
-      } else {
-        await base44.entities.GlowGroupMember.create({ user_email: user.email, group_id: groupId });
-        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 20 });
+        return { action: "left" };
       }
-      return isMember;
+      // Leader auto-joins their own group
+      if (group.leader_email === user.email) {
+        await base44.entities.GlowGroupMember.create({ user_email: user.email, group_id: group.id });
+        return { action: "joined" };
+      }
+      // Already has a pending request?
+      const pending = myJoinRequests.find(r => r.group_id === group.id && r.status === "pending");
+      if (pending) return { action: "already_pending" };
+
+      // Create a join request
+      await base44.entities.GlowGroupJoinRequest.create({
+        user_email: user.email,
+        group_id: group.id,
+        status: "pending",
+      });
+      // Notify leader
+      await base44.entities.Notification.create({
+        user_email: group.leader_email,
+        type: "system",
+        message: `${user.full_name || "Someone"} requested to join your group "${group.name}".`,
+        link: `/GroupChat?id=${group.id}`,
+      }).catch(() => {});
+      return { action: "requested" };
     },
-    onSuccess: (wasMember) => {
+    onSuccess: ({ action }) => {
       queryClient.invalidateQueries({ queryKey: ["myMemberships", user?.email] });
-      toast.success(wasMember ? "Left group." : "Joined group! +20 XP ⚡");
+      queryClient.invalidateQueries({ queryKey: ["myJoinRequests", user?.email] });
+      if (action === "left") toast.success("Left group.");
+      else if (action === "joined") toast.success("Joined group! +20 XP ⚡");
+      else if (action === "requested") toast.success("Request sent. Awaiting leader approval. ⏳");
+      else if (action === "already_pending") toast("Your request is pending approval.", { icon: "⏳" });
     }
   });
 
@@ -285,6 +315,7 @@ export default function GlowGroups() {
 
             {filteredGroups.map(group => {
               const isMember = myMemberships.some(m => m.group_id === group.id);
+              const hasPending = myJoinRequests.some(r => r.group_id === group.id && r.status === "pending");
               return (
                 <div key={group.id} className="flex items-center gap-4 rounded-2xl p-4 transition-all hover:-translate-y-0.5" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}>
                   <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0" style={{ background: "linear-gradient(135deg, rgba(31,184,255,0.1), rgba(11,63,217,0.08))", border: "1px solid #D6E4FF" }}>
@@ -312,13 +343,16 @@ export default function GlowGroups() {
                       </button>
                     )}
                     <button
-                      onClick={() => joinMutation.mutate(group.id)}
-                      className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+                      onClick={() => joinMutation.mutate(group)}
+                      disabled={hasPending && !isMember}
+                      className="px-4 py-2 rounded-full text-xs font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                       style={isMember
                         ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }
+                        : hasPending
+                        ? { background: "#FFF8E6", border: "1px solid #FFE4A0", color: "#CC7A00" }
                         : { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.25)" }}
                     >
-                      {isMember ? "Leave" : "Join"}
+                      {isMember ? "Leave" : hasPending ? "Pending" : "Request"}
                     </button>
                   </div>
                 </div>
