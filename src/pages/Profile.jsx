@@ -16,7 +16,6 @@ import PledgeModal from "@/components/pledge/PledgeModal";
 import ProfileHighlights, { getGlowRank } from "@/components/profile/ProfileHighlights";
 import AchievementBadges from "@/components/profile/AchievementBadges";
 import PostViewerModal from "@/components/profile/PostViewerModal";
-import StoryAnalyticsPanel from "@/components/profile/StoryAnalyticsPanel";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -162,24 +161,6 @@ export default function Profile() {
   const { data: challengeSubmissions = [] } = useQuery({
     queryKey: ["myChallengeSubmissions", profileEmail],
     queryFn: () => base44.entities.ChallengeSubmission.filter({ user_email: profileEmail }, '-created_date'),
-    enabled: !!profileEmail
-  });
-
-  const { data: userStories = [] } = useQuery({
-    queryKey: ["profileStories", profileEmail],
-    queryFn: () => base44.entities.Story.filter({ user_email: profileEmail }, '-created_date'),
-    enabled: !!profileEmail
-  });
-
-  const { data: allStoryViews = [] } = useQuery({
-    queryKey: ["profileStoryViews", profileEmail],
-    queryFn: () => base44.entities.StoryView.list('-created_date', 500),
-    enabled: !!profileEmail
-  });
-
-  const { data: allStoryReactions = [] } = useQuery({
-    queryKey: ["profileStoryReactions", profileEmail],
-    queryFn: () => base44.entities.StoryReaction.list('-created_date', 500),
     enabled: !!profileEmail
   });
 
@@ -672,7 +653,6 @@ export default function Profile() {
             { key: "missions", icon: <Target className="w-4 h-4" />, label: "MISSIONS" },
             { key: "badges", icon: <Award className="w-4 h-4" />, label: "ACHIEVEMENTS" },
             { key: "institutions", icon: <Building2 className="w-4 h-4" />, label: "INSTITUTIONS" },
-            { key: "story_analytics", icon: <Sparkles className="w-4 h-4" />, label: "STORY ANALYTICS" },
           ].map(tab => {
             const isActive = activeProfileTab === tab.key;
             const isInstitutions = tab.key === "institutions" && userInstitutionApps.length > 0;
@@ -858,15 +838,6 @@ export default function Profile() {
 
         {activeProfileTab === "institutions" && (
           <div className="px-4"><ProfileInstitutionsTab profileEmail={profileEmail} isOwnProfile={isOwnProfile} /></div>
-        )}
-
-        {activeProfileTab === "story_analytics" && (
-          <StoryAnalyticsPanel
-            stories={userStories}
-            storyViews={allStoryViews.filter(view => userStories.some(story => story.id === view.story_id))}
-            storyReactions={allStoryReactions.filter(reaction => userStories.some(story => story.id === reaction.story_id))}
-            allUsers={allUsersForProfile}
-          />
         )}
 
         {activeProfileTab === "badges" && (
