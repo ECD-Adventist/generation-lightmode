@@ -428,7 +428,7 @@ export default function Profile() {
         onToggleFollow={(email) => followMutation.mutate(email)}
       />
 
-      <div className="max-w-4xl mx-auto relative z-10">
+      <div className="max-w-4xl mx-auto relative z-10 pt-6 sm:pt-8">
         {userInstitutionApps.length > 0 ? (
           <>
             <ExecutiveProfileHeader
