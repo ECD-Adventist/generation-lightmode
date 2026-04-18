@@ -7,6 +7,7 @@ import { Search, TrendingUp, Heart, Zap, Home, Bell, User, Globe, Users, Flame, 
 import { useNavigate } from "react-router-dom";
 import DropCard from "@/components/feed/DropCard";
 import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
+import AppFooter from "@/components/AppFooter";
 
 export default function Discover() {
   const navigate = useNavigate();
@@ -210,6 +211,7 @@ export default function Discover() {
           </div>
         </div>
       </div>
+      <AppFooter />
     </div>
   );
 }

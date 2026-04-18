@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { getNotificationCategory, notificationCategoryLabels, isNotificationEnabled } from "@/lib/notifications";
+import AppFooter from "@/components/AppFooter";
 
 const typeIcon = {
   like: <Heart className="w-4 h-4" style={{ color: "#EF4444" }} />,
@@ -367,6 +368,7 @@ export default function Notifications() {
           </div>
         </div>
       </div>
+      <AppFooter />
     </div>
   );
 }

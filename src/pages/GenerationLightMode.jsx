@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Globe, Heart, Sparkles, Bell, Users, BookOpen, ArrowRight, Share2, MessageCircle, UserPlus, UserCheck, Home, Zap } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
+import AppFooter from "@/components/AppFooter";
 
 const ACCOUNT_EMAIL = "system@lightmode.com";
 const ACCOUNT_NAME = "Generation LightMode";
@@ -221,6 +222,7 @@ export default function GenerationLightMode() {
           </div>
         </div>
       </div>
+      <AppFooter />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import OnboardingModal from "../components/dashboard/OnboardingModal";
 import AICoachingTab from "../components/dashboard/AICoachingTab";
 import TerritoryLeaderboard from "../components/leaderboard/TerritoryLeaderboard";
 import { applyDailyCheckIn } from "@/lib/gamification";
+import AppFooter from "@/components/AppFooter";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -158,6 +159,7 @@ export default function Dashboard() {
           <TabsContent value="ai-coach"><AICoachingTab user={user} /></TabsContent>
         </Tabs>
       </div>
+      <AppFooter />
     </div>
   );
 }

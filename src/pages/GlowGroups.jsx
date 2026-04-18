@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import { isNotificationEnabled } from "@/lib/notifications";
+import AppFooter from "@/components/AppFooter";
 
 const rankColors = { Champion: "#FFD000", Trendsetter: "#8A5CFF", Warrior: "#1DA1FF", Starter: "#00CFFF" };
 
@@ -410,6 +411,7 @@ export default function GlowGroups() {
           </div>
         )}
       </div>
+      <AppFooter />
     </div>
   );
 }

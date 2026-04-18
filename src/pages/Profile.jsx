@@ -17,6 +17,7 @@ import ProfileHighlights, { getGlowRank } from "@/components/profile/ProfileHigh
 import AchievementBadges from "@/components/profile/AchievementBadges";
 import PostViewerModal from "@/components/profile/PostViewerModal";
 import StoryAnalyticsDashboard from "@/components/profile/StoryAnalyticsDashboard";
+import AppFooter from "@/components/AppFooter";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -867,6 +868,7 @@ export default function Profile() {
         userLikes={profileUserLikes}
         savedDropRecords={profileSavedDrops}
       />
+      <AppFooter />
     </div>
   );
 }
