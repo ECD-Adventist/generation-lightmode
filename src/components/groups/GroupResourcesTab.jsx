@@ -23,7 +23,7 @@ const TYPE_COLORS = {
   image: "#1FB8FF",
 };
 
-export default function GroupResourcesTab({ group, currentUser, isLeader }) {
+export default function GroupResourcesTab({ group, currentUser, isLeader, myMembership }) {
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
   const [category, setCategory] = useState("All");
@@ -35,6 +35,9 @@ export default function GroupResourcesTab({ group, currentUser, isLeader }) {
     enabled: !!group?.id,
   });
 
+  // Only leaders, moderators, coordinators, and scribes can add resources
+  const ADD_ROLES = new Set(["moderator", "coordinator", "scribe"]);
+  const canAddResources = isLeader || (myMembership && ADD_ROLES.has(myMembership.role));
   const canManage = (res) => isLeader || res.added_by === currentUser?.email || res.created_by === currentUser?.email;
 
   const pinMutation = useMutation({
@@ -117,9 +120,11 @@ export default function GroupResourcesTab({ group, currentUser, isLeader }) {
           </h3>
           <p className="text-xs mt-0.5" style={{ color: "#6B7FA0" }}>Pinned guides, PDFs, and helpful links for this group.</p>
         </div>
-        <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.25)" }}>
-          <Plus className="w-4 h-4" /> Add Resource
-        </button>
+        {canAddResources && (
+          <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.25)" }}>
+            <Plus className="w-4 h-4" /> Add Resource
+          </button>
+        )}
       </div>
 
       {/* Filters */}

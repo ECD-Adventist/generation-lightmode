@@ -81,31 +81,10 @@ export default function GroupManagementPanel({ group, members, allUsers, current
                   <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: meta.color }}>{meta.label}</div>
                 </div>
 
-                {/* Role selector */}
-                <div className="relative shrink-0">
-                  <button onClick={() => setOpenMenuFor(openMenuFor === m.id ? null : m.id)} className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }} title="Change role">
-                    {isBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                  </button>
-                  {openMenuFor === m.id && (
-                    <div className="absolute right-0 top-full mt-1 rounded-xl overflow-hidden z-50 min-w-[160px]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.15)" }}>
-                      <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider border-b" style={{ color: "#8A97B5", borderColor: "#F0F4FA" }}>Assign Role</div>
-                      {ROLE_OPTIONS.map(opt => (
-                        <button key={opt.value} onClick={() => manageMutation.mutate({ action: "set_role", target_email: m.user_email, role: opt.value })} className="w-full text-left px-3 py-2 text-xs font-semibold transition flex items-center gap-2 hover:bg-[#F6F8FC]" style={{ color: opt.color }}>
-                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: opt.color }} /> {opt.label}
-                          {role === opt.value && <span className="ml-auto text-[10px]" style={{ color: "#8A97B5" }}>current</span>}
-                        </button>
-                      ))}
-                      <div className="border-t" style={{ borderColor: "#F0F4FA" }}>
-                        <button onClick={() => setShowTransferConfirm(m.user_email)} className="w-full text-left px-3 py-2 text-xs font-semibold flex items-center gap-2 hover:bg-[#FFF8E6]" style={{ color: "#CC7A00" }}>
-                          <Crown className="w-3 h-3" /> Transfer Leadership
-                        </button>
-                        <button onClick={() => { if (confirm(`Remove ${u.full_name} from the group?`)) manageMutation.mutate({ action: "remove_member", target_email: m.user_email }); }} className="w-full text-left px-3 py-2 text-xs font-semibold flex items-center gap-2 hover:bg-[#FEF2F2]" style={{ color: "#DC2626" }}>
-                          <UserX className="w-3 h-3" /> Remove from Group
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                {/* Role selector — opens an overlay sheet to avoid sidebar clipping */}
+                <button onClick={() => setOpenMenuFor(m)} className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }} title="Change role">
+                  {isBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
               </div>
             );
           })}
@@ -118,6 +97,18 @@ export default function GroupManagementPanel({ group, members, allUsers, current
       </button>
 
       {/* Modals */}
+      {openMenuFor && (
+        <RolePickerModal
+          member={openMenuFor}
+          user={getUser(openMenuFor.user_email)}
+          isBusy={manageMutation.isPending}
+          onClose={() => setOpenMenuFor(null)}
+          onSetRole={(role) => manageMutation.mutate({ action: "set_role", target_email: openMenuFor.user_email, role })}
+          onTransfer={() => { setShowTransferConfirm(openMenuFor.user_email); setOpenMenuFor(null); }}
+          onRemove={() => { if (confirm(`Remove ${getUser(openMenuFor.user_email).full_name} from the group?`)) { manageMutation.mutate({ action: "remove_member", target_email: openMenuFor.user_email }); } }}
+        />
+      )}
+
       {showEdit && <EditGroupModal group={group} onClose={() => setShowEdit(false)} onSave={(data) => manageMutation.mutate({ action: "update_group", ...data })} isBusy={manageMutation.isPending} />}
 
       {showTransferConfirm && (
@@ -261,6 +252,59 @@ function EditGroupModal({ group, onClose, onSave, isBusy }) {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+function RolePickerModal({ member, user, isBusy, onClose, onSetRole, onTransfer, onRemove }) {
+  const currentRole = member.role || "member";
+  return (
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" style={{ background: "rgba(11, 27, 61, 0.55)" }} onClick={onClose}>
+      <div className="w-full max-w-md rounded-t-2xl sm:rounded-2xl overflow-hidden" style={{ background: "#FFFFFF", boxShadow: "0 20px 60px rgba(11, 27, 61, 0.3)" }} onClick={e => e.stopPropagation()}>
+        <div style={{ height: 3, background: "linear-gradient(90deg, #1FB8FF, #0B3FD9, #FFD000)" }} />
+        <div className="px-5 py-4 flex items-center gap-3 border-b" style={{ borderColor: "#E6ECF5" }}>
+          <img src={user.profile_picture_url || defaultAvatar} className="w-10 h-10 rounded-full object-cover" style={{ border: "1px solid #E6ECF5" }} alt={user.full_name} />
+          <div className="flex-1 min-w-0">
+            <div className="font-bold truncate" style={{ color: "#0B1B3D" }}>{user.full_name}</div>
+            <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ROLE_META[currentRole]?.color || "#6B7FA0" }}>Currently: {ROLE_META[currentRole]?.label || "Member"}</div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}><X className="w-4 h-4" /></button>
+        </div>
+
+        <div className="p-3">
+          <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider" style={{ color: "#8A97B5" }}>Assign Role</div>
+          <div className="grid grid-cols-1 gap-1">
+            {ROLE_OPTIONS.map(opt => {
+              const isCurrent = currentRole === opt.value;
+              return (
+                <button key={opt.value} disabled={isBusy} onClick={() => onSetRole(opt.value)} className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-3 disabled:opacity-60" style={{ background: isCurrent ? `${opt.color}12` : "transparent", border: isCurrent ? `1px solid ${opt.color}40` : "1px solid transparent", color: opt.color }}
+                  onMouseOver={e => { if (!isCurrent) e.currentTarget.style.background = "#F6F8FC"; }}
+                  onMouseOut={e => { if (!isCurrent) e.currentTarget.style.background = "transparent"; }}
+                >
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: opt.color }} />
+                  <span className="flex-1">{opt.label}</span>
+                  {isCurrent && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: opt.color, color: "#FFFFFF" }}>Current</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="border-t mt-3 pt-2" style={{ borderColor: "#F0F4FA" }}>
+            <button disabled={isBusy} onClick={onTransfer} className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-3 disabled:opacity-60" style={{ color: "#CC7A00" }}
+              onMouseOver={e => e.currentTarget.style.background = "#FFF8E6"}
+              onMouseOut={e => e.currentTarget.style.background = "transparent"}
+            >
+              <Crown className="w-4 h-4" /> Transfer Leadership
+            </button>
+            <button disabled={isBusy} onClick={onRemove} className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-3 disabled:opacity-60" style={{ color: "#DC2626" }}
+              onMouseOver={e => e.currentTarget.style.background = "#FEF2F2"}
+              onMouseOut={e => e.currentTarget.style.background = "transparent"}
+            >
+              <UserX className="w-4 h-4" /> Remove from Group
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

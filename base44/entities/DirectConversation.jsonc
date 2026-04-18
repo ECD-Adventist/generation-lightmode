@@ -2,10 +2,10 @@
   "name": "DirectConversation",
   "type": "object",
   "properties": {
-    "participant_a": {
+    "participant_a_email": {
       "type": "string"
     },
-    "participant_b": {
+    "participant_b_email": {
       "type": "string"
     },
     "last_message": {
@@ -17,18 +17,18 @@
     }
   },
   "required": [
-    "participant_a",
-    "participant_b"
+    "participant_a_email",
+    "participant_b_email"
   ],
   "rls": {
     "create": true,
     "read": {
       "$or": [
         {
-          "data.participant_a": "{{user.email}}"
+          "data.participant_a_email": "{{user.email}}"
         },
         {
-          "data.participant_b": "{{user.email}}"
+          "data.participant_b_email": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -45,10 +45,10 @@
     "update": {
       "$or": [
         {
-          "data.participant_a": "{{user.email}}"
+          "data.participant_a_email": "{{user.email}}"
         },
         {
-          "data.participant_b": "{{user.email}}"
+          "data.participant_b_email": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -64,12 +64,6 @@
     },
     "delete": {
       "$or": [
-        {
-          "data.participant_a": "{{user.email}}"
-        },
-        {
-          "data.participant_b": "{{user.email}}"
-        },
         {
           "user_condition": {
             "role": "admin"

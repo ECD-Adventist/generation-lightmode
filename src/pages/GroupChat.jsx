@@ -380,14 +380,17 @@ export default function GroupChat() {
           )}
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-1" style={{ background: "#F6F8FC" }}>
+          <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-1" style={{ background: "linear-gradient(180deg, #F6F8FC 0%, #EEF3FF 100%)" }}>
             {filteredMessages.length === 0 && (
-              <div className="text-center py-16">
-                <div className="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
-                  <MessageCircle className="w-5 h-5" style={{ color: "#0B3FD9" }} />
+              <div className="flex flex-col items-center justify-center h-full py-16">
+                <div className="relative mb-5">
+                  <div className="absolute inset-0 rounded-full blur-2xl opacity-50" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }} />
+                  <div className="relative w-20 h-20 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #FFFFFF 0%, #EEF3FF 100%)", border: "2px solid #FFFFFF", boxShadow: "0 10px 30px rgba(11, 63, 217, 0.15)" }}>
+                    <MessageCircle className="w-8 h-8" style={{ color: "#0B3FD9" }} />
+                  </div>
                 </div>
-                <p className="text-sm font-semibold" style={{ color: "#0B1B3D" }}>{searchTerm ? "No matching messages" : "No messages yet"}</p>
-                <p className="text-xs mt-1" style={{ color: "#8A97B5" }}>{searchTerm ? "Try a different search term." : "Be the first to greet the group!"}</p>
+                <p className="text-lg font-bold" style={{ color: "#0B1B3D", fontFamily: "Space Grotesk, sans-serif" }}>{searchTerm ? "No matching messages" : "No messages yet"}</p>
+                <p className="text-sm mt-1.5 text-center max-w-xs" style={{ color: "#6B7FA0" }}>{searchTerm ? "Try a different search term." : "Be the first to spark a conversation ✨ Greet the group and set the tone!"}</p>
               </div>
             )}
             {filteredMessages.map((msg) => {
@@ -492,7 +495,7 @@ export default function GroupChat() {
                   <div className="text-[10px] mt-0.5" style={{ color: "#8A97B5" }}>You can only tag accepted members of this group.</div>
                 </div>
               )}
-              <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingFile || sendMutation.isPending} className="w-11 h-11 rounded-2xl flex items-center justify-center disabled:opacity-50 transition shrink-0" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}>
+              <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingFile || sendMutation.isPending} className="w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-50 transition shrink-0 hover:scale-105" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }} title="Attach file">
                 <Paperclip className="w-4 h-4" />
               </button>
               <input ref={fileInputRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={async (e) => {
@@ -507,7 +510,7 @@ export default function GroupChat() {
 
               {/* Emoji */}
               <div className="relative">
-                <button type="button" onClick={(e) => { e.stopPropagation(); setShowEmoji(v => !v); }} className="w-11 h-11 rounded-2xl flex items-center justify-center transition shrink-0" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}>
+                <button type="button" onClick={(e) => { e.stopPropagation(); setShowEmoji(v => !v); }} className="w-10 h-10 rounded-full flex items-center justify-center transition shrink-0 hover:scale-105" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }} title="Emoji">
                   <Smile className="w-4 h-4" />
                 </button>
                 {showEmoji && (
@@ -532,10 +535,10 @@ export default function GroupChat() {
                   }
                 }}
                 placeholder={`Message ${group.name}... (type @ to tag)`}
-                className="flex-1 h-11 rounded-2xl px-4 focus:outline-none min-w-0"
+                className="flex-1 h-11 rounded-full px-5 text-sm focus:outline-none min-w-0 focus:ring-2 focus:ring-offset-0 transition-all"
                 style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#0B1B3D" }}
               />
-              <button type="submit" disabled={!draft.trim() || sendMutation.isPending || uploadingFile} className="w-11 h-11 rounded-2xl flex items-center justify-center disabled:opacity-50 transition shrink-0" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>
+              <button type="submit" disabled={!draft.trim() || sendMutation.isPending || uploadingFile} className="w-11 h-11 rounded-full flex items-center justify-center disabled:opacity-50 transition shrink-0 hover:scale-105" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 6px 18px rgba(11, 63, 217, 0.4)" }} title="Send">
                 {sendMutation.isPending || uploadingFile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
             </form>
