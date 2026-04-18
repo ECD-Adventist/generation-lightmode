@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
-import { Shield, Crown, UserX, Trash2, Edit3, ChevronDown, Loader2, X, AlertTriangle } from "lucide-react";
+import { Shield, Crown, UserX, Trash2, Edit3, ChevronDown, Loader2, X, AlertTriangle, Camera, Image as ImageIcon, Lock, Globe2, Sparkles } from "lucide-react";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
@@ -152,32 +152,111 @@ export default function GroupManagementPanel({ group, members, allUsers, current
 }
 
 function EditGroupModal({ group, onClose, onSave, isBusy }) {
-  const [form, setForm] = useState({ name: group.name || "", country: group.country || "", description: group.description || "" });
+  const [form, setForm] = useState({
+    name: group.name || "",
+    country: group.country || "",
+    description: group.description || "",
+    welcome_message: group.welcome_message || "",
+    privacy: group.privacy || "public",
+    tags: group.tags || "",
+    profile_picture_url: group.profile_picture_url || "",
+    cover_picture_url: group.cover_picture_url || "",
+  });
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const avatarInputRef = React.useRef(null);
+  const coverInputRef = React.useRef(null);
+
   const inputStyle = { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#0B1B3D" };
+
+  const handleUpload = async (file, type) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    const setUploading = type === "avatar" ? setUploadingAvatar : setUploadingCover;
+    setUploading(true);
+    try {
+      const res = await base44.integrations.Core.UploadFile({ file });
+      setForm(f => ({ ...f, [type === "avatar" ? "profile_picture_url" : "cover_picture_url"]: res.file_url }));
+      toast.success(`${type === "avatar" ? "Profile picture" : "Cover"} uploaded`);
+    } catch {
+      toast.error("Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(11, 27, 61, 0.5)" }} onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl overflow-hidden" style={{ background: "#FFFFFF", boxShadow: "0 20px 60px rgba(11, 63, 217, 0.25)" }} onClick={e => e.stopPropagation()}>
+      <div className="w-full max-w-lg rounded-2xl overflow-hidden flex flex-col" style={{ background: "#FFFFFF", boxShadow: "0 20px 60px rgba(11, 63, 217, 0.25)", maxHeight: "90vh" }} onClick={e => e.stopPropagation()}>
         <div style={{ height: 3, background: "linear-gradient(90deg, #1FB8FF, #0B3FD9, #FFD000)" }} />
-        <div className="px-6 py-4 flex items-center justify-between border-b" style={{ borderColor: "#E6ECF5" }}>
-          <h3 className="font-bold text-lg" style={{ color: "#0B1B3D" }}>Edit Group</h3>
+        <div className="px-6 py-4 flex items-center justify-between border-b shrink-0" style={{ borderColor: "#E6ECF5" }}>
+          <h3 className="font-bold text-lg flex items-center gap-2" style={{ color: "#0B1B3D" }}><Edit3 className="w-4 h-4" style={{ color: "#0B3FD9" }} /> Edit Group</h3>
           <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}><X className="w-4 h-4" /></button>
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); onSave(form); }} className="p-6 space-y-3">
+        <form onSubmit={(e) => { e.preventDefault(); onSave(form); }} className="p-6 space-y-4 overflow-y-auto">
+          {/* Cover + Avatar preview */}
+          <div className="relative rounded-2xl overflow-hidden" style={{ height: 120, background: form.cover_picture_url ? `url(${form.cover_picture_url}) center/cover` : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
+            <button type="button" onClick={() => coverInputRef.current?.click()} disabled={uploadingCover} className="absolute top-2 right-2 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shrink-0 disabled:opacity-60" style={{ background: "rgba(255,255,255,0.95)", color: "#0B3FD9", backdropFilter: "blur(8px)" }}>
+              {uploadingCover ? <Loader2 className="w-3 h-3 animate-spin" /> : <ImageIcon className="w-3 h-3" />} Cover
+            </button>
+            <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleUpload(e.target.files?.[0], "cover")} />
+
+            {/* Avatar */}
+            <div className="absolute -bottom-8 left-4">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-2xl overflow-hidden flex items-center justify-center text-3xl" style={{ background: form.profile_picture_url ? `url(${form.profile_picture_url}) center/cover` : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", border: "4px solid #FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.2)" }}>
+                  {!form.profile_picture_url && "✨"}
+                </div>
+                <button type="button" onClick={() => avatarInputRef.current?.click()} disabled={uploadingAvatar} className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center disabled:opacity-60" style={{ background: "#0B3FD9", color: "#FFFFFF", border: "2px solid #FFFFFF", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.3)" }}>
+                  {uploadingAvatar ? <Loader2 className="w-3 h-3 animate-spin" /> : <Camera className="w-3 h-3" />}
+                </button>
+                <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleUpload(e.target.files?.[0], "avatar")} />
+              </div>
+            </div>
+          </div>
+          <div className="h-10" />
+
           <div>
             <label className="text-[11px] font-bold uppercase tracking-wider block mb-1.5" style={{ color: "#6B7FA0" }}>Group Name</label>
-            <input required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full h-11 rounded-xl px-4 text-sm focus:outline-none" style={inputStyle} />
+            <input required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full h-11 rounded-xl px-4 text-sm focus:outline-none" style={inputStyle} placeholder="e.g. LightMode Champions | Tanzania" />
           </div>
-          <div>
-            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1.5" style={{ color: "#6B7FA0" }}>City / Country</label>
-            <input value={form.country} onChange={e => setForm({ ...form, country: e.target.value })} className="w-full h-11 rounded-xl px-4 text-sm focus:outline-none" style={inputStyle} />
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[11px] font-bold uppercase tracking-wider block mb-1.5" style={{ color: "#6B7FA0" }}>City / Country</label>
+              <input value={form.country} onChange={e => setForm({ ...form, country: e.target.value })} className="w-full h-11 rounded-xl px-4 text-sm focus:outline-none" style={inputStyle} placeholder="Nairobi, Kenya" />
+            </div>
+            <div>
+              <label className="text-[11px] font-bold uppercase tracking-wider block mb-1.5" style={{ color: "#6B7FA0" }}>Privacy</label>
+              <div className="flex gap-1 rounded-xl p-1" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                <button type="button" onClick={() => setForm({ ...form, privacy: "public" })} className="flex-1 flex items-center justify-center gap-1 h-9 rounded-lg text-xs font-bold transition" style={form.privacy === "public" ? { background: "#FFFFFF", color: "#0B3FD9", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.1)" } : { background: "transparent", color: "#6B7FA0" }}>
+                  <Globe2 className="w-3 h-3" /> Public
+                </button>
+                <button type="button" onClick={() => setForm({ ...form, privacy: "private" })} className="flex-1 flex items-center justify-center gap-1 h-9 rounded-lg text-xs font-bold transition" style={form.privacy === "private" ? { background: "#FFFFFF", color: "#CC7A00", boxShadow: "0 2px 6px rgba(204, 122, 0, 0.1)" } : { background: "transparent", color: "#6B7FA0" }}>
+                  <Lock className="w-3 h-3" /> Private
+                </button>
+              </div>
+            </div>
           </div>
+
           <div>
             <label className="text-[11px] font-bold uppercase tracking-wider block mb-1.5" style={{ color: "#6B7FA0" }}>Description</label>
-            <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none resize-none" style={inputStyle} />
+            <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none resize-none" style={inputStyle} placeholder="What's this group about?" />
           </div>
-          <div className="flex justify-end gap-2 pt-2">
+
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1.5 flex items-center gap-1.5" style={{ color: "#6B7FA0" }}><Sparkles className="w-3 h-3" /> Welcome Message</label>
+            <textarea value={form.welcome_message} onChange={e => setForm({ ...form, welcome_message: e.target.value })} rows={2} className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none resize-none" style={inputStyle} placeholder="Greeting shown to new members when they join" />
+          </div>
+
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1.5" style={{ color: "#6B7FA0" }}>Tags</label>
+            <input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })} className="w-full h-11 rounded-xl px-4 text-sm focus:outline-none" style={inputStyle} placeholder="prayer, youth, worship (comma-separated)" />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 sticky bottom-0 bg-white">
             <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-full text-sm font-bold" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}>Cancel</button>
-            <button type="submit" disabled={isBusy} className="px-6 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 disabled:opacity-60" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF" }}>
+            <button type="submit" disabled={isBusy || uploadingAvatar || uploadingCover} className="px-6 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 disabled:opacity-60" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>
               {isBusy && <Loader2 className="w-4 h-4 animate-spin" />} Save Changes
             </button>
           </div>

@@ -156,12 +156,12 @@ export default function GroupChat() {
         group_id: groupId, user_email: currentUser.email, content, file_url: file_url || undefined,
       });
 
-      // Handle @mention notifications
+      // Handle @mention notifications (members + any platform user tagged)
       const slugs = extractMentionSlugs(content);
       if (slugs.length > 0) {
         const mentionedEmails = new Set();
         slugs.forEach(slug => {
-          const u = memberDetails.find(m => slugifyName(m.full_name) === slug);
+          const u = mentionMap[slug];
           if (u && u.email !== currentUser.email) mentionedEmails.add(u.email);
         });
         await Promise.all([...mentionedEmails].map(email =>
@@ -227,21 +227,35 @@ export default function GroupChat() {
     return list;
   }, [members, group, allUsers, currentUser]);
 
-  // Map of slug -> { email, full_name } for rendering mentions in message content
+  // Map of slug -> { email, full_name } for rendering mentions in message content (members + all users)
   const mentionMap = useMemo(() => {
     const map = {};
     memberDetails.forEach(m => { if (m.full_name) map[slugifyName(m.full_name)] = { email: m.email, full_name: m.full_name }; });
+    allUsers.forEach(u => { if (u.full_name && !map[slugifyName(u.full_name)]) map[slugifyName(u.full_name)] = { email: u.email, full_name: u.full_name }; });
     return map;
-  }, [memberDetails]);
+  }, [memberDetails, allUsers]);
 
-  // Mention autocomplete candidates
+  // Mention autocomplete candidates — group members first, then all platform users matching the query
   const mentionCandidates = useMemo(() => {
     if (mentionQuery === null) return [];
-    const q = mentionQuery.toLowerCase();
-    return memberDetails
-      .filter(m => m.email !== currentUser?.email && m.full_name && (q === "" || m.full_name.toLowerCase().includes(q) || slugifyName(m.full_name).includes(q)))
-      .slice(0, 6);
-  }, [mentionQuery, memberDetails, currentUser]);
+    const q = mentionQuery.toLowerCase().trim();
+
+    const matches = (u) => {
+      if (!u?.full_name || u.email === currentUser?.email) return false;
+      if (q === "") return true;
+      const name = u.full_name.toLowerCase();
+      const slug = slugifyName(u.full_name);
+      return name.includes(q) || slug.includes(q) || (u.email || "").toLowerCase().includes(q);
+    };
+
+    const memberEmails = new Set(memberDetails.map(m => m.email));
+    const membersMatched = memberDetails.filter(matches).map(m => ({ ...m, _source: "member" }));
+    const othersMatched = allUsers
+      .filter(u => !memberEmails.has(u.email) && matches(u))
+      .map(u => ({ ...u, _source: "other" }));
+
+    return [...membersMatched, ...othersMatched].slice(0, 8);
+  }, [mentionQuery, memberDetails, allUsers, currentUser]);
 
   const handleDraftChange = (value) => {
     setDraft(value);
@@ -439,7 +453,7 @@ export default function GroupChat() {
               {/* @Mention autocomplete dropdown */}
               {mentionQuery !== null && mentionCandidates.length > 0 && (
                 <div className="absolute bottom-full left-3 right-3 sm:left-4 sm:right-4 mb-2 rounded-2xl p-1.5 z-50 max-h-64 overflow-y-auto" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.15)" }}>
-                  <div className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5" style={{ color: "#8A97B5" }}>Tag someone</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5" style={{ color: "#8A97B5" }}>Tag someone {mentionQuery && <span style={{ color: "#0B3FD9" }}>· matching "{mentionQuery}"</span>}</div>
                   {mentionCandidates.map((u, i) => (
                     <button
                       key={u.email}
@@ -454,6 +468,7 @@ export default function GroupChat() {
                         <div className="font-semibold text-sm truncate flex items-center gap-1" style={{ color: "#0B1B3D" }}>
                           {u.full_name}
                           {u.isLeader && <Crown className="w-3 h-3" style={{ color: "#CC7A00" }} />}
+                          {u._source === "other" && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full ml-1" style={{ background: "#F6F8FC", color: "#8A97B5", border: "1px solid #E6ECF5" }}>not in group</span>}
                         </div>
                         <div className="text-[10px] truncate" style={{ color: "#8A97B5" }}>@{slugifyName(u.full_name)}</div>
                       </div>

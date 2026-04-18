@@ -13,6 +13,31 @@
     },
     "description": {
       "type": "string"
+    },
+    "profile_picture_url": {
+      "type": "string",
+      "description": "Group profile/avatar image URL"
+    },
+    "cover_picture_url": {
+      "type": "string",
+      "description": "Group cover/banner image URL"
+    },
+    "welcome_message": {
+      "type": "string",
+      "description": "Pinned greeting shown to new members"
+    },
+    "privacy": {
+      "type": "string",
+      "enum": [
+        "public",
+        "private"
+      ],
+      "default": "public",
+      "description": "Public groups are discoverable; private groups require leader approval and don't appear in open search"
+    },
+    "tags": {
+      "type": "string",
+      "description": "Comma-separated tags/focus areas e.g. 'prayer, youth, worship'"
     }
   },
   "required": [
@@ -21,7 +46,9 @@
     "leader_email"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.leader_email": "{{user.email}}"
+    },
     "read": true,
     "update": {
       "$or": [

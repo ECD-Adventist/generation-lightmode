@@ -161,11 +161,16 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'update_group') {
-      const { name, country, description } = body;
+      const { name, country, description, profile_picture_url, cover_picture_url, welcome_message, privacy, tags } = body;
       const updates = {};
       if (typeof name === 'string' && name.trim()) updates.name = name.trim();
       if (typeof country === 'string') updates.country = country.trim();
       if (typeof description === 'string') updates.description = description.trim();
+      if (typeof profile_picture_url === 'string') updates.profile_picture_url = profile_picture_url;
+      if (typeof cover_picture_url === 'string') updates.cover_picture_url = cover_picture_url;
+      if (typeof welcome_message === 'string') updates.welcome_message = welcome_message.trim();
+      if (privacy === 'public' || privacy === 'private') updates.privacy = privacy;
+      if (typeof tags === 'string') updates.tags = tags.trim();
       if (Object.keys(updates).length === 0) return Response.json({ error: 'No valid fields to update' }, { status: 400 });
 
       await base44.asServiceRole.entities.GlowGroup.update(group_id, updates);
