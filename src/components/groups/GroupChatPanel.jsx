@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Send, Loader2, X, ArrowLeft, Users, MessageCircle } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
@@ -65,7 +65,7 @@ export default function GroupChatPanel({ group, user, onClose, allUsers = [] }) 
               <div className={`flex flex-col ${isMe ? "items-end" : "items-start"} max-w-[75%]`}>
                 {showAvatar && <span className="text-[11px] mb-1 px-1 font-semibold" style={{ color: "#6B7FA0" }}>{sender.full_name}</span>}
                 <div className="px-4 py-2.5 text-sm leading-relaxed rounded-2xl" style={isMe ? { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", borderBottomRightRadius: "0.25rem", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.2)" } : { background: "#FFFFFF", color: "#0B1B3D", border: "1px solid #E6ECF5", borderBottomLeftRadius: "0.25rem" }}>{msg.content}</div>
-                <span className="text-[10px] mt-1 px-1" style={{ color: "#8A97B5" }}>{msg.created_date ? formatDistanceToNow(new Date(msg.created_date), { addSuffix: true }) : "just now"}</span>
+                <span className="text-[10px] mt-1 px-1" style={{ color: "#8A97B5" }}>{msg.created_date ? `${formatDistanceToNowStrict(new Date(msg.created_date))} ago` : "just now"}</span>
               </div>
             </div>
           );

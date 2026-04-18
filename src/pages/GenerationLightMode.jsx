@@ -128,6 +128,32 @@ export default function GenerationLightMode() {
 
         {/* Content Categories Stats */}
         <div className="mb-6">
+          <div className="rounded-[2rem] p-5 sm:p-6 mb-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #0B1B3D 0%, #0B3FD9 42%, #1FB8FF 78%, rgba(255,208,0,0.92) 110%)", boxShadow: "0 10px 36px rgba(11,63,217,0.18)" }}>
+            <div className="absolute inset-0 opacity-20" style={{ background: "radial-gradient(circle at 15% 30%, rgba(255,255,255,0.45), transparent 35%)" }} />
+            <div className="absolute inset-0 opacity-20" style={{ background: "radial-gradient(circle at 85% 70%, rgba(255,208,0,0.5), transparent 30%)" }} />
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.22em]" style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.25)", color: "#FFFFFF" }}>
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#FFD000", boxShadow: "0 0 10px #FFD000" }} /> Official movement hub
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black mt-3 font-['Space_Grotesk'] text-white">What this page should add</h2>
+                <p className="text-sm sm:text-base max-w-2xl mt-2 text-white/85 leading-relaxed">This page should do more than list posts — it should feel like the official command center for announcements, campaigns, featured series, and movement highlights.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 min-w-[220px]">
+                {[
+                  ["Featured campaign", "Missing"],
+                  ["Pinned announcement", "Missing"],
+                  ["Media gallery", "Missing"],
+                  ["Community CTA", "Weak"],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-2xl px-4 py-3" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)", backdropFilter: "blur(12px)" }}>
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-white/70 font-bold">{label}</div>
+                    <div className="text-sm font-bold mt-1 text-white">{value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { icon: "🔐", label: "Codes of Truth", count: codeOfTruthCount, color: "#0B3FD9", bg: "rgba(11,63,217,0.06)", border: "#D6E4FF", tab: "codes_of_truth" },
@@ -155,6 +181,36 @@ export default function GenerationLightMode() {
 
         {/* Latest Posts */}
         <div className="pb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            {[
+              {
+                title: "Pinned announcement",
+                text: "Show one highlighted update above the feed so users instantly see the main message.",
+                accent: "#0B3FD9",
+                bg: "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)",
+                border: "#D6E4FF"
+              },
+              {
+                title: "Campaign spotlight",
+                text: "Feature active campaigns, challenges, or launch moments with one strong visual card.",
+                accent: "#1FB8FF",
+                bg: "linear-gradient(135deg, #EEF8FF 0%, #DDF0FF 100%)",
+                border: "#B8E5FF"
+              },
+              {
+                title: "Join the movement",
+                text: "Add stronger calls to action for following, sharing, joining challenges, and exploring drops.",
+                accent: "#CC7A00",
+                bg: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)",
+                border: "#FFE4A0"
+              }
+            ].map((item) => (
+              <div key={item.title} className="rounded-[1.5rem] p-5" style={{ background: item.bg, border: `1px solid ${item.border}`, boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+                <div className="text-[11px] uppercase tracking-[0.2em] font-bold" style={{ color: item.accent }}>{item.title}</div>
+                <p className="text-sm mt-2 leading-relaxed" style={{ color: "#3A4A6B" }}>{item.text}</p>
+              </div>
+            ))}
+          </div>
           <div className="rounded-[2rem] bg-white border border-[#E6ECF5] overflow-hidden" style={{ boxShadow: "0 8px 32px rgba(11,63,217,0.06)" }}>
             <div className="flex items-center justify-between p-6 pb-4 border-b" style={{ borderColor: "#E6ECF5" }}>
               <h2 className="text-xl font-bold font-['Space_Grotesk']">Latest Posts</h2>
