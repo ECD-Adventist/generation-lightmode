@@ -133,6 +133,7 @@ export default function Post() {
           likeMutation={likeMutation}
           handleShare={handleShare}
           userLikes={userLikes}
+          allUsers={allUsers}
         />
       </div>
     </div>

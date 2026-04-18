@@ -37,6 +37,13 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   const isSuperCreator = (dropUser.drop_count || 0) >= 9;
   const users = allUsers;
 
+  const getRepostOwner = (reflection) => {
+    const matches = Array.from(reflection?.matchAll(/\[Reposted from (.+?)\]\s*/gi) || []);
+    return matches.length ? matches[matches.length - 1][1] : null;
+  };
+
+  const cleanReflection = (reflection) => reflection?.replace(/^(\[Reposted from .+?\]\s*)+/i, "").trim() || "";
+
   const savedForThisDrop = savedDropRecords.filter(s => s.drop_id === drop.id);
   const isSaved = savedForThisDrop.length > 0;
   const visibleComments = comments;
@@ -443,23 +450,28 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       {/* Verse & Reflection — BELOW the image, LIGHT with READ MORE */}
       {(drop.verse || drop.reflection) && (
         <div className="px-3 sm:px-4 pt-3 pb-1">
+          {getRepostOwner(drop.reflection) && (
+            <p className="text-xs mb-2" style={{ color: "#6B7FA0" }}>
+              Reposted from <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(getRepostOwner(drop.reflection) === "Generation LightMode" ? "system@lightmode.com" : drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{getRepostOwner(drop.reflection)}</Link>
+            </p>
+          )}
           {drop.verse && (
-            <div className="font-bold text-sm mb-1" style={{ color: "#0B3FD9" }}>
+            <div className="font-bold text-sm mb-1 break-words" style={{ color: "#0B3FD9" }}>
               {drop.verse}
             </div>
           )}
-          {drop.reflection && (
-            containsHtml(drop.reflection) ? (
+          {cleanReflection(drop.reflection) && (
+            containsHtml(cleanReflection(drop.reflection)) ? (
               <div
-                className="text-sm leading-relaxed prose prose-sm max-w-none prose-a:text-[#0B3FD9] prose-strong:text-[#0B1B3D] prose-headings:text-[#0B1B3D] [&_iframe]:w-full [&_iframe]:rounded-lg [&_iframe]:aspect-video [&_img]:rounded-lg [&_img]:max-w-full"
+                className="text-sm leading-relaxed prose prose-sm max-w-none break-words prose-a:text-[#0B3FD9] prose-strong:text-[#0B1B3D] prose-headings:text-[#0B1B3D] [&_iframe]:w-full [&_iframe]:rounded-lg [&_iframe]:aspect-video [&_img]:rounded-lg [&_img]:max-w-full [&_p]:break-words [&_a]:break-all"
                 style={{ color: "#3A4A6B" }}
-                dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(drop.reflection) }}
+                dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(cleanReflection(drop.reflection)) }}
               />
             ) : (
               <ReadMoreText
-                text={drop.reflection}
+                text={cleanReflection(drop.reflection)}
                 lines={3}
-                className="text-sm leading-relaxed"
+                className="text-sm leading-relaxed break-words"
                 toggleColor="#0B3FD9"
               />
             )

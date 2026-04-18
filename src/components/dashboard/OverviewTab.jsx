@@ -6,6 +6,7 @@ import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import SubmitDropModal from "../feed/SubmitDropModal";
 import LevelProgressCard from "./LevelProgressCard";
 import StreakSummaryCard from "./StreakSummaryCard";
@@ -43,13 +44,15 @@ export default function OverviewTab({ user }) {
   }, [publicUsers]);
 
   const getDisplayName = (email) => userMap.get(email)?.full_name || email?.split('@')[0] || "Community Member";
+  const getProfilePicture = (email) => userMap.get(email)?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
+  const getProfileSummary = (email) => userMap.get(email)?.bio || userMap.get(email)?.country || "LightMode member";
 
   const getRepostOwner = (reflection) => {
-    const match = reflection?.match(/^\[Reposted from (.+?)\]\s*/i);
-    return match ? match[1] : null;
+    const matches = Array.from(reflection?.matchAll(/\[Reposted from (.+?)\]\s*/gi) || []);
+    return matches.length ? matches[matches.length - 1][1] : null;
   };
 
-  const cleanReflection = (reflection) => reflection?.replace(/^\[Reposted from .+?\]\s*/i, "").trim() || "";
+  const cleanReflection = (reflection) => reflection?.replace(/^(\[Reposted from .+?\]\s*)+/i, "").trim() || "";
 
   let rank = "Glow Starter", rankColor = "#1FB8FF";
   if (score >= 500) { rank = "Glow Champion"; rankColor = "#CC7A00"; }
@@ -154,25 +157,51 @@ export default function OverviewTab({ user }) {
                 const visibleReflection = cleanReflection(drop.reflection);
                 return (
                   <div key={drop.id} className="p-4 rounded-2xl flex gap-4" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
-                    <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center font-bold text-sm" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#4A5878" }}>
-                      {getDisplayName(drop.user_email)?.charAt(0).toUpperCase()}
-                    </div>
+                    <HoverCard>
+                      <HoverCardTrigger asChild>
+                        <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="w-10 h-10 rounded-full shrink-0 overflow-hidden block" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
+                          <img src={getProfilePicture(drop.user_email)} alt={getDisplayName(drop.user_email)} className="w-full h-full object-cover" />
+                        </Link>
+                      </HoverCardTrigger>
+                      <HoverCardContent className="bg-white border border-[#E6ECF5] shadow-xl rounded-2xl p-4" align="start">
+                        <div className="flex items-start gap-3">
+                          <img src={getProfilePicture(drop.user_email)} alt={getDisplayName(drop.user_email)} className="w-12 h-12 rounded-full object-cover" />
+                          <div className="min-w-0">
+                            <p className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{getDisplayName(drop.user_email)}</p>
+                            <p className="text-xs mt-1" style={{ color: "#6B7FA0" }}>{getProfileSummary(drop.user_email)}</p>
+                          </div>
+                        </div>
+                      </HoverCardContent>
+                    </HoverCard>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(drop.user_email)}</p>
-                        <span className="text-[10px]" style={{ color: "#8A97B5" }}>{new Date(drop.created_date).toLocaleDateString()}</span>
+                      <div className="flex items-center justify-between gap-3 mb-1">
+                        <HoverCard>
+                          <HoverCardTrigger asChild>
+                            <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-bold text-sm truncate hover:underline" style={{ color: "#0B1B3D" }}>{getDisplayName(drop.user_email)}</Link>
+                          </HoverCardTrigger>
+                          <HoverCardContent className="bg-white border border-[#E6ECF5] shadow-xl rounded-2xl p-4" align="start">
+                            <div className="flex items-start gap-3">
+                              <img src={getProfilePicture(drop.user_email)} alt={getDisplayName(drop.user_email)} className="w-12 h-12 rounded-full object-cover" />
+                              <div className="min-w-0">
+                                <p className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{getDisplayName(drop.user_email)}</p>
+                                <p className="text-xs mt-1" style={{ color: "#6B7FA0" }}>{getProfileSummary(drop.user_email)}</p>
+                              </div>
+                            </div>
+                          </HoverCardContent>
+                        </HoverCard>
+                        <span className="text-[10px] shrink-0" style={{ color: "#8A97B5" }}>{new Date(drop.created_date).toLocaleDateString()}</span>
                       </div>
                       {repostOwner && (
                         <p className="text-xs mb-1" style={{ color: "#6B7FA0" }}>
-                          Reposted from <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email === "system@lightmode.com" ? "system@lightmode.com" : drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{repostOwner}</Link>
+                          Reposted from <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(repostOwner === "Generation LightMode" ? "system@lightmode.com" : drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{repostOwner}</Link>
                         </p>
                       )}
-                      <p className="text-xs font-bold mb-1" style={{ color: "#0B3FD9" }}>{drop.verse}</p>
+                      <p className="text-xs font-bold mb-1 break-words" style={{ color: "#0B3FD9" }}>{drop.verse}</p>
                       {visibleReflection && (
                         containsHtml(visibleReflection) ? (
-                          <div className="text-sm line-clamp-2 mb-3 overflow-hidden" style={{ color: "#3A4A6B" }} dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(visibleReflection) }} />
+                          <div className="text-sm mb-3 overflow-hidden break-words [&_p]:mb-2 [&_p:last-child]:mb-0 [&_a]:break-all" style={{ color: "#3A4A6B", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical" }} dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(visibleReflection) }} />
                         ) : (
-                          <p className="text-sm line-clamp-2 mb-3" style={{ color: "#3A4A6B" }}>{visibleReflection}</p>
+                          <p className="text-sm mb-3 break-words" style={{ color: "#3A4A6B", display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{visibleReflection}</p>
                         )
                       )}
                       <div className="flex items-center gap-4" style={{ color: "#8A97B5" }}>

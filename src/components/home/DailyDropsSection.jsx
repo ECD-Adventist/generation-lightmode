@@ -130,6 +130,7 @@ export default function DailyDropsSection() {
                     {drop.reflection && (
                       containsHtml(drop.reflection) ? (
                         <div
+                          className="break-words [&_p]:mb-3 [&_p:last-child]:mb-0 [&_a]:break-all"
                           style={{
                             fontSize: 13,
                             color: "#A0AABB",
@@ -139,20 +140,31 @@ export default function DailyDropsSection() {
                             fontFamily: "Inter, sans-serif",
                             borderLeft: `2px solid ${theme.accent}50`,
                             paddingLeft: 12,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 4,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
                           }}
                           dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(drop.reflection) }}
                         />
                       ) : (
-                        <p style={{
-                          fontSize: 13,
-                          color: "#A0AABB",
-                          marginBottom: 22,
-                          lineHeight: 1.75,
-                          fontStyle: "italic",
-                          fontFamily: "Inter, sans-serif",
-                          borderLeft: `2px solid ${theme.accent}50`,
-                          paddingLeft: 12,
-                        }}>
+                        <p
+                          className="break-words"
+                          style={{
+                            fontSize: 13,
+                            color: "#A0AABB",
+                            marginBottom: 22,
+                            lineHeight: 1.75,
+                            fontStyle: "italic",
+                            fontFamily: "Inter, sans-serif",
+                            borderLeft: `2px solid ${theme.accent}50`,
+                            paddingLeft: 12,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 4,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                          }}
+                        >
                           {drop.reflection}
                         </p>
                       )
