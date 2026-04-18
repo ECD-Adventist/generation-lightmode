@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { X, ChevronLeft, ChevronRight, Pause, Play, Eye } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Pause, Play, Eye, Share2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 import StoryReactionBar from "./StoryReactionBar";
 
 const themeClasses = {
@@ -280,6 +281,16 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
           <div className="flex items-center gap-2">
             <button onClick={() => setIsPaused(p => !p)} className="w-8 h-8 flex items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50 transition">
               {isPaused ? <Play className="w-4 h-4" fill="white" /> : <Pause className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={() => {
+                const text = `✨ Check out this story on Generation LightMode!\n${window.location.origin}/Feed`;
+                if (navigator.share) { navigator.share({ text }).catch(() => {}); }
+                else { navigator.clipboard.writeText(text); toast.success("Link copied!"); }
+              }}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50 transition"
+            >
+              <Share2 className="w-4 h-4" />
             </button>
             <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50 transition">
               <X className="w-5 h-5" />

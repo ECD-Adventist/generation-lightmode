@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
+import StoryViewersModal from "./StoryViewersModal";
 
 const EMOJI_REACTIONS = [
   { type: "fire", emoji: "🔥" },
@@ -18,6 +19,7 @@ export default function StoryReactionBar({ story, currentUser, storyAuthor, onPa
   const [sending, setSending] = useState(false);
   const [showEmojis, setShowEmojis] = useState(false);
   const [flyEmoji, setFlyEmoji] = useState(null);
+  const [showViewers, setShowViewers] = useState(false);
   const queryClient = useQueryClient();
 
   const isOwnStory = currentUser?.email === story?.user_email;
@@ -232,11 +234,22 @@ export default function StoryReactionBar({ story, currentUser, storyAuthor, onPa
             )}
           </form>
         ) : (
-          <div className="flex items-center justify-center gap-3 text-white/80 text-xs font-medium">
-            <span className="flex items-center gap-1.5"><Eye className="w-3.5 h-3.5" /> {uniqueViewers} view{uniqueViewers !== 1 ? "s" : ""}</span>
-            <span className="opacity-40">·</span>
-            <span className="flex items-center gap-1.5"><Heart className="w-3.5 h-3.5" fill="currentColor" /> {reactions.length} reaction{reactions.length !== 1 ? "s" : ""}</span>
-          </div>
+          <>
+            <button
+              onClick={() => setShowViewers(true)}
+              className="flex items-center justify-center gap-3 text-white/80 text-xs font-medium w-full hover:text-white transition"
+            >
+              <span className="flex items-center gap-1.5"><Eye className="w-3.5 h-3.5" /> {uniqueViewers} view{uniqueViewers !== 1 ? "s" : ""}</span>
+              <span className="opacity-40">·</span>
+              <span className="flex items-center gap-1.5"><Heart className="w-3.5 h-3.5" fill="currentColor" /> {reactions.length} reaction{reactions.length !== 1 ? "s" : ""}</span>
+            </button>
+            <StoryViewersModal
+              storyId={story?.id}
+              isOpen={showViewers}
+              onClose={() => setShowViewers(false)}
+              allUsers={[]}
+            />
+          </>
         )}
       </div>
     </>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Zap, Home, Users, Bell, Globe, Bookmark, Building2, Sparkles } from "lucide-react";
+import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Zap, Home, Users, Bell, Globe, Bookmark, Building2, Sparkles, BarChart3 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -16,6 +16,7 @@ import PledgeModal from "@/components/pledge/PledgeModal";
 import ProfileHighlights, { getGlowRank } from "@/components/profile/ProfileHighlights";
 import AchievementBadges from "@/components/profile/AchievementBadges";
 import PostViewerModal from "@/components/profile/PostViewerModal";
+import StoryAnalyticsDashboard from "@/components/profile/StoryAnalyticsDashboard";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -649,6 +650,7 @@ export default function Profile() {
         <div className="flex border-t border-b mb-2 overflow-x-auto hide-scrollbar mx-4" style={{ borderColor: "#E6ECF5" }}>
           {[
             { key: "drops", icon: <Grid className="w-4 h-4" />, label: "DROPS" },
+            ...(isOwnProfile ? [{ key: "story_analytics", icon: <BarChart3 className="w-4 h-4" />, label: "STORIES" }] : []),
             { key: "saved", icon: <Bookmark className="w-4 h-4" />, label: "SAVED" },
             { key: "missions", icon: <Target className="w-4 h-4" />, label: "MISSIONS" },
             { key: "badges", icon: <Award className="w-4 h-4" />, label: "ACHIEVEMENTS" },
@@ -833,6 +835,12 @@ export default function Profile() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {activeProfileTab === "story_analytics" && isOwnProfile && (
+          <div className="px-4">
+            <StoryAnalyticsDashboard profileEmail={profileEmail} allUsers={allUsersForProfile} />
           </div>
         )}
 
