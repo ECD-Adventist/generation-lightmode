@@ -99,25 +99,11 @@ export default function Profile() {
       } else {
         const found = allUsersForProfile.find(u => u.email === viewUserEmail);
         if (found) setUser(found);
-        else if (viewUserEmail === "system@lightmode.com") {
-          setUser({
-            email: "system@lightmode.com",
-            full_name: "Generation LightMode",
-            bio: "Official LightMode account • Daily Drops • Movement updates • Follow for daily inspiration.",
-            country: "Global",
-            website_url: "lightmode.ecd.adventist.org",
-            profile_picture_url: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg",
-            cover_picture_url: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png",
-            created_date: new Date().toISOString(),
-            glow_score: 1000
-          });
-        }
       }
     }
   }, [viewUserEmail, currentUser, allUsersForProfile]);
 
-  const isSystemProfile = viewUserEmail === "system@lightmode.com";
-  const isOwnProfile = currentUser && !isSystemProfile && (!viewUserEmail || viewUserEmail === currentUser.email);
+  const isOwnProfile = currentUser && (!viewUserEmail || viewUserEmail === currentUser.email);
   const profileEmail = viewUserEmail || currentUser?.email;
 
   const { data: myDrops = [] } = useQuery({
@@ -545,8 +531,8 @@ export default function Profile() {
                   <div className="flex flex-col md:flex-row md:items-center gap-3">
                     <h1 className="text-3xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{user.full_name}</h1>
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full w-fit mx-auto md:mx-0" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
-                      <Sparkles className="w-4 h-4" style={{ color: isSystemProfile ? "#CC7A00" : glowRank.color }} />
-                      <span className="text-sm font-bold" style={{ color: "#0B1B3D" }}>{isSystemProfile ? "Official Account" : glowRank.name}</span>
+                      <Sparkles className="w-4 h-4" style={{ color: glowRank.color }} />
+                      <span className="text-sm font-bold" style={{ color: "#0B1B3D" }}>{glowRank.name}</span>
                     </div>
                   </div>
                   {isOwnProfile && !isEditing && (
@@ -594,7 +580,7 @@ export default function Profile() {
                     {userInstitutionApps.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}>Institution linked</span>}
                   </div>
                   <p className="leading-relaxed whitespace-pre-line">
-                    {user.bio || (isSystemProfile ? "Official LightMode account • Daily Drops • Movement updates • Follow for daily inspiration." : "Digital Missionary ⚡ Spreading light through faith in the online world.")}
+                    {user.bio || "Digital Missionary ⚡ Spreading light through faith in the online world."}
                   </p>
                   {user.website_url && (
                     <a href={user.website_url.startsWith("http") ? user.website_url : `https://${user.website_url}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-bold text-xs hover:underline break-all" style={{ color: "#0B3FD9" }}>
