@@ -58,8 +58,8 @@ export default function GenerationLightMode() {
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       <div className="max-w-4xl mx-auto pt-4 sm:pt-6 px-3 sm:px-4">
         {/* Cover Section */}
-        <div className="relative">
-          <div className="h-52 sm:h-72 w-full relative overflow-hidden rounded-t-[2rem]" style={{ background: COVER_GRADIENT, boxShadow: "0 8px 32px rgba(11, 63, 217, 0.2)" }}>
+        <div className="relative rounded-[2rem] overflow-hidden" style={{ boxShadow: "0 12px 48px rgba(11,63,217,0.1)" }}>
+          <div className="h-52 sm:h-72 w-full relative overflow-hidden" style={{ background: COVER_GRADIENT }}>
             {/* Light sweeps — on-brand blues only */}
             <div className="absolute inset-0 opacity-20" style={{ background: "radial-gradient(circle at 25% 50%, rgba(255,255,255,0.35), transparent 55%)" }} />
             <div className="absolute inset-0 opacity-15" style={{ background: "radial-gradient(circle at 80% 30%, rgba(90,216,255,0.5), transparent 45%)" }} />
@@ -71,9 +71,9 @@ export default function GenerationLightMode() {
             <div className="absolute bottom-2 sm:bottom-4 right-4 sm:right-6 text-white/10 text-5xl sm:text-7xl font-black font-['Space_Grotesk'] select-none pointer-events-none tracking-tighter leading-none">GLM ⚡</div>
           </div>
 
-          {/* Profile card overlapping cover — original side-by-side layout */}
-          <div className="relative pb-6 px-2 sm:px-0">
-            <div className="rounded-b-[2rem] rounded-t-[2rem] overflow-hidden bg-white border border-[#E6ECF5]" style={{ boxShadow: "0 12px 48px rgba(11,63,217,0.1)" }}>
+          {/* Profile card — seamless continuation of cover */}
+          <div className="relative">
+            <div className="bg-white border-t border-[#E6ECF5]">
               <div className="p-6 sm:p-8">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
                   {/* Avatar */}
@@ -118,6 +118,7 @@ export default function GenerationLightMode() {
             </div>
           </div>
         </div>
+        <div className="h-6" />
 
         {/* Content Categories Stats */}
         <div className="mb-6">
