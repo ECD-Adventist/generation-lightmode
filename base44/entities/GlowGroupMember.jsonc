@@ -11,6 +11,19 @@
     "joined_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "member",
+        "moderator",
+        "scribe",
+        "coordinator",
+        "worship_lead",
+        "prayer_lead"
+      ],
+      "default": "member",
+      "description": "Role within the group. Leader is tracked on GlowGroup.leader_email."
     }
   },
   "required": [
@@ -18,22 +31,19 @@
     "group_id"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
     "read": true,
     "update": false,
     "delete": {
       "$or": [
         {
-          "created_by": "{{user.email}}"
+          "data.user_email": "{{user.email}}"
         },
         {
           "user_condition": {
             "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "super_admin"
           }
         }
       ]

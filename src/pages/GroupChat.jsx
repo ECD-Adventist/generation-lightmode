@@ -5,8 +5,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { format, isToday, isYesterday } from "date-fns";
-import { Send, Paperclip, Users, Crown, ArrowLeft, MoreVertical, Trash2, Smile, Info, Calendar, Image as ImageIcon, X, MessageCircle, Loader2, LogOut, Bell, BellOff, Search, Check, UserPlus, BarChart3, ChevronDown } from "lucide-react";
+import { Send, Paperclip, Users, Crown, ArrowLeft, MoreVertical, Trash2, Smile, Info, Calendar, Image as ImageIcon, X, MessageCircle, Loader2, LogOut, Bell, BellOff, Search, Check, UserPlus, BarChart3, ChevronDown, BookOpen, Shield } from "lucide-react";
 import GroupAnalyticsPanel from "@/components/groups/GroupAnalyticsPanel";
+import GroupResourcesTab from "@/components/groups/GroupResourcesTab";
+import GroupManagementPanel, { ROLE_META } from "@/components/groups/GroupManagementPanel";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 const EMOJIS = ["👍","❤️","🙏","🔥","🎉","😊","😂","😢","💯","✨","🕊️","🙌"];
@@ -67,6 +69,8 @@ export default function GroupChat() {
   const [mentionQuery, setMentionQuery] = useState(null); // null when not mentioning; string when "@..." is being typed
   const [mentionIndex, setMentionIndex] = useState(0);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showManagement, setShowManagement] = useState(false);
+  const [activeView, setActiveView] = useState("chat"); // "chat" | "resources"
   const fileInputRef = useRef(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
@@ -218,8 +222,8 @@ export default function GroupChat() {
     const seen = new Set();
     const list = [];
     // Leader first
-    if (group?.leader_email) { list.push({ ...getUser(group.leader_email), isLeader: true }); seen.add(group.leader_email); }
-    members.forEach(m => { if (!seen.has(m.user_email)) { list.push({ ...getUser(m.user_email), isLeader: false }); seen.add(m.user_email); } });
+    if (group?.leader_email) { list.push({ ...getUser(group.leader_email), isLeader: true, role: null }); seen.add(group.leader_email); }
+    members.forEach(m => { if (!seen.has(m.user_email)) { list.push({ ...getUser(m.user_email), isLeader: false, role: m.role || "member" }); seen.add(m.user_email); } });
     return list;
   }, [members, group, allUsers, currentUser]);
 
@@ -314,6 +318,19 @@ export default function GroupChat() {
             </button>
           </div>
 
+          {/* View tabs: Chat | Resources */}
+          <div className="px-4 sm:px-6 py-2 border-b flex items-center gap-1 shrink-0" style={{ borderColor: "#E6ECF5", background: "#FFFFFF" }}>
+            <button onClick={() => setActiveView("chat")} className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition" style={activeView === "chat" ? { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.2)" } : { background: "transparent", color: "#4A5878" }}>
+              <MessageCircle className="w-3.5 h-3.5" /> Chat
+            </button>
+            <button onClick={() => setActiveView("resources")} className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition" style={activeView === "resources" ? { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.2)" } : { background: "transparent", color: "#4A5878" }}>
+              <BookOpen className="w-3.5 h-3.5" /> Resources
+            </button>
+          </div>
+
+          {activeView === "resources" ? (
+            <GroupResourcesTab group={group} currentUser={currentUser} isLeader={isLeader} />
+          ) : (<>
           {/* Search bar */}
           {showSearch && (
             <div className="px-4 py-2 border-b shrink-0" style={{ borderColor: "#E6ECF5", background: "#FFFFFF" }}>
@@ -494,6 +511,7 @@ export default function GroupChat() {
           ) : (
             <JoinRequestBanner group={group} currentUser={currentUser} groupId={groupId} queryClient={queryClient} />
           )}
+          </>)}
         </div>
 
         {/* Info / Members Sidebar (desktop + toggleable mobile) */}
@@ -533,6 +551,24 @@ export default function GroupChat() {
                   {showAnalytics && (
                     <div className="px-4 pb-4 pt-2" style={{ background: "#F6F8FC" }}>
                       <GroupAnalyticsPanel group={group} messages={messages} members={members} allUsers={allUsers} />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Management — Leader only */}
+              {isLeader && (
+                <div className="border-b" style={{ borderColor: "#E6ECF5" }}>
+                  <button onClick={() => setShowManagement(v => !v)} className="w-full px-5 py-3 flex items-center justify-between transition" style={{ background: showManagement ? "#EEF3FF" : "#FFFFFF" }}>
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4" style={{ color: "#0B3FD9" }} />
+                      <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "#0B3FD9" }}>Leader Controls</span>
+                    </div>
+                    <ChevronDown className="w-4 h-4 transition-transform" style={{ color: "#0B3FD9", transform: showManagement ? "rotate(180deg)" : "none" }} />
+                  </button>
+                  {showManagement && (
+                    <div className="px-4 pb-4 pt-2" style={{ background: "#F6F8FC" }}>
+                      <GroupManagementPanel group={group} members={members} allUsers={allUsers} currentUser={currentUser} />
                     </div>
                   )}
                 </div>
@@ -590,17 +626,26 @@ export default function GroupChat() {
               <div className="px-5 py-4">
                 <div className="text-[11px] font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: "#6B7FA0" }}><Users className="w-3.5 h-3.5" /> Members ({memberDetails.length})</div>
                 <div className="space-y-1">
-                  {memberDetails.map(m => (
-                    <Link key={m.email} to={createPageUrl("Profile") + `?user=${encodeURIComponent(m.email)}`} className="flex items-center gap-3 px-2 py-2 rounded-lg transition hover:bg-[#F6F8FC] no-underline">
-                      <img src={m.profile_picture_url || defaultAvatar} className="w-9 h-9 rounded-full object-cover" style={{ border: "1px solid #E6ECF5" }} alt={m.full_name} />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-sm truncate flex items-center gap-1" style={{ color: "#0B1B3D" }}>
-                          {m.full_name} {m.email === currentUser?.email && <span className="text-[10px] font-normal" style={{ color: "#8A97B5" }}>(You)</span>}
+                  {memberDetails.map(m => {
+                    const roleMeta = m.role && m.role !== "member" ? ROLE_META[m.role] : null;
+                    return (
+                      <Link key={m.email} to={createPageUrl("Profile") + `?user=${encodeURIComponent(m.email)}`} className="flex items-center gap-3 px-2 py-2 rounded-lg transition hover:bg-[#F6F8FC] no-underline">
+                        <img src={m.profile_picture_url || defaultAvatar} className="w-9 h-9 rounded-full object-cover" style={{ border: "1px solid #E6ECF5" }} alt={m.full_name} />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-sm truncate flex items-center gap-1" style={{ color: "#0B1B3D" }}>
+                            {m.full_name} {m.email === currentUser?.email && <span className="text-[10px] font-normal" style={{ color: "#8A97B5" }}>(You)</span>}
+                          </div>
+                          {m.isLeader ? (
+                            <div className="text-[10px] flex items-center gap-1 font-bold" style={{ color: "#CC7A00" }}><Crown className="w-3 h-3" /> Leader</div>
+                          ) : roleMeta && (
+                            <div className="text-[10px] flex items-center gap-1 font-bold" style={{ color: roleMeta.color }}>
+                              <span className="w-1.5 h-1.5 rounded-full" style={{ background: roleMeta.color }} /> {roleMeta.label}
+                            </div>
+                          )}
                         </div>
-                        {m.isLeader && <div className="text-[10px] flex items-center gap-1 font-bold" style={{ color: "#CC7A00" }}><Crown className="w-3 h-3" /> Leader</div>}
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </div>
