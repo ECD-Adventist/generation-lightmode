@@ -27,6 +27,14 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({ verse: "", reflection: "", hashtags: "#FaithAlwaysOn", category: "Devotional" });
   const [titleLoading, setTitleLoading] = useState(false);
+  const [sizeInfo, setSizeInfo] = useState(null); // { originalKB, compressedKB, savedPercent }
+  const [compressing, setCompressing] = useState(false);
+
+  const formatSize = (bytes) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   const handleAutoTitle = async () => {
     if (!formData.reflection || formData.reflection.length < 10) return;
@@ -86,8 +94,30 @@ RULES:
       return;
     }
 
+    // Hard upper cap — reject absurdly large files outright (50MB+)
+    const MAX_INPUT_BYTES = 50 * 1024 * 1024;
+    if (selected.size > MAX_INPUT_BYTES) {
+      toast.error(`Image is too large (${formatSize(selected.size)}). Max 50MB.`);
+      return;
+    }
+
+    setCompressing(true);
+    const originalSize = selected.size;
+
     // Compress to under 2MB automatically
     const compressed = await compressImageUnder2MB(selected);
+    const compressedSize = compressed.size;
+    const savedPercent = originalSize > compressedSize
+      ? Math.round((1 - compressedSize / originalSize) * 100)
+      : 0;
+
+    setSizeInfo({
+      original: formatSize(originalSize),
+      compressed: formatSize(compressedSize),
+      savedPercent,
+      wasCompressed: compressedSize < originalSize,
+    });
+    setCompressing(false);
 
     const reader = new FileReader();
     reader.onload = (ev) => setCropSrc(ev.target.result);
@@ -113,6 +143,7 @@ RULES:
     if (preview?.startsWith("blob:")) URL.revokeObjectURL(preview);
     setFile(null);
     setPreview(null);
+    setSizeInfo(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -160,6 +191,8 @@ RULES:
     setShowSuggestion(true);
     setUploadProgress(0);
     setUploadStage("");
+    setSizeInfo(null);
+    setCompressing(false);
     onClose();
   };
 
@@ -230,7 +263,16 @@ RULES:
       resetAndClose();
     } catch (error) {
       console.error("Glow Drop upload failed:", error);
-      toast.error(error?.message || "Failed to post. Try again.");
+      const msg = (error?.message || "").toLowerCase();
+      if (msg.includes("too large") || msg.includes("size") || msg.includes("413")) {
+        toast.error("Photo is too large to upload. Try a smaller image.");
+      } else if (msg.includes("network") || msg.includes("timeout") || msg.includes("fetch")) {
+        toast.error("Network issue. Check your connection and try again.");
+      } else if (msg.includes("rate limit") || msg.includes("429")) {
+        toast.error("You've reached today's post limit (10 per 24h).");
+      } else {
+        toast.error(error?.message || "Failed to post. Try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -370,7 +412,23 @@ RULES:
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest mb-2 block ml-1" style={{ color: "#6B7FA0" }}>Attach Photo</label>
+              <div className="flex items-center justify-between mb-2 ml-1">
+                <label className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#6B7FA0" }}>Attach Photo</label>
+                {compressing && (
+                  <span className="text-[10px] font-bold flex items-center gap-1" style={{ color: "#0B3FD9" }}>
+                    <Loader2 className="w-3 h-3 animate-spin" /> Optimizing...
+                  </span>
+                )}
+                {!compressing && sizeInfo && (
+                  <span className="text-[10px] font-bold flex items-center gap-1.5 px-2 py-0.5 rounded-full" style={{ background: sizeInfo.wasCompressed ? "rgba(34,197,94,0.1)" : "rgba(31,184,255,0.1)", color: sizeInfo.wasCompressed ? "#16A34A" : "#0B3FD9", border: sizeInfo.wasCompressed ? "1px solid #86EFAC" : "1px solid #B8E5FF" }}>
+                    {sizeInfo.wasCompressed ? (
+                      <>📦 {sizeInfo.original} → {sizeInfo.compressed} (-{sizeInfo.savedPercent}%)</>
+                    ) : (
+                      <>✓ {sizeInfo.compressed}</>
+                    )}
+                  </span>
+                )}
+              </div>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
 
               {preview ? (
