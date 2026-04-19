@@ -1,72 +1,159 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, TrendingUp } from "lucide-react";
+import { TrendingUp, ArrowUpRight } from "lucide-react";
+import { AnimatedNumber } from "./useCountUp";
 
-function MiniProgressRing({ percent, color, size = 38, strokeWidth = 3 }) {
+/* ─── Progress Ring (animated draw-in) ─────────────────────────────────── */
+function ProgressRing({ percent, color, size = 44, strokeWidth = 3.5, delay = 0 }) {
   const r = (size - strokeWidth) / 2;
   const circ = 2 * Math.PI * r;
   const offset = circ - (Math.min(percent, 100) / 100) * circ;
+  const gradId = `grad-ring-${color.replace("#", "")}-${Math.round(percent)}`;
 
   return (
     <svg width={size} height={size} className="shrink-0">
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={`${color}15`} strokeWidth={strokeWidth} />
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={strokeWidth}
-        strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+      <defs>
+        <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={color} stopOpacity="1" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.5" />
+        </linearGradient>
+      </defs>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={`${color}12`} strokeWidth={strokeWidth} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={`url(#${gradId})`} strokeWidth={strokeWidth}
+        strokeDasharray={circ} strokeDashoffset={circ} strokeLinecap="round"
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        style={{ transition: "stroke-dashoffset 1s ease" }} />
+        style={{
+          animation: `ring-draw 1.4s cubic-bezier(0.22,1,0.36,1) ${delay}ms forwards`,
+          "--final-offset": offset,
+        }} />
+      <style>{`@keyframes ring-draw { to { stroke-dashoffset: var(--final-offset); } }`}</style>
+    </svg>
+  );
+}
+
+/* ─── Inline Sparkline ─────────────────────────────────────────────────── */
+function Sparkline({ color, delay = 0 }) {
+  // Deterministic but playful pseudo-trend
+  const points = [6, 10, 8, 14, 12, 18, 16, 22, 20, 26];
+  const max = Math.max(...points);
+  const min = Math.min(...points);
+  const w = 100, h = 28;
+  const path = points.map((p, i) => {
+    const x = (i / (points.length - 1)) * w;
+    const y = h - ((p - min) / (max - min || 1)) * h;
+    return `${i === 0 ? "M" : "L"}${x},${y}`;
+  }).join(" ");
+
+  return (
+    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full">
+      <defs>
+        <linearGradient id={`sp-${color.replace("#", "")}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={`${path} L${w},${h} L0,${h} Z`} fill={`url(#sp-${color.replace("#", "")})`} />
+      <path d={path} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+        style={{
+          strokeDasharray: 200, strokeDashoffset: 200,
+          animation: `spark-draw 1.6s cubic-bezier(0.22,1,0.36,1) ${delay}ms forwards`
+        }} />
+      <style>{`@keyframes spark-draw { to { stroke-dashoffset: 0; } }`}</style>
     </svg>
   );
 }
 
 export default function DashboardStats({ stats, t, isDark }) {
-  // Calculate a pseudo "progress" for the ring based on value
   const maxVal = Math.max(...stats.map(s => typeof s.value === "number" ? s.value : 0), 1);
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
-      {stats.map((s, i) => {
-        const Icon = s.icon;
-        const pct = typeof s.value === "number" ? Math.min((s.value / maxVal) * 100, 100) : 50;
-        const card = (
-          <div key={i} className="group relative rounded-[1.25rem] p-4 border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer overflow-hidden" style={{
-            background: isDark ? t.surface : "#FFFFFF",
-            borderColor: isDark ? t.border : "rgba(0,0,0,0.04)",
-            boxShadow: isDark ? "0 2px 10px rgba(0,0,0,0.2)" : "0 2px 8px rgba(0,0,0,0.03)"
-          }}>
-            {/* Glow effect on hover */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{
-              background: `radial-gradient(circle at 70% 30%, ${s.color}12, transparent 70%)`
-            }} />
-            {/* Top accent line */}
-            <div className="absolute top-0 left-0 right-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: s.color }} />
+    <>
+      <style>{`
+        @keyframes bento-fade-up {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+      {/* BENTO GRID — varied sizes: first card is hero (2x), others are compact */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        {stats.map((s, i) => {
+          const Icon = s.icon;
+          const pct = typeof s.value === "number" ? Math.min((s.value / maxVal) * 100, 100) : 50;
+          const isHero = i === 0; // First stat takes 2x width on larger screens
+          const delay = i * 80;
 
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-3">
-                <div className="relative">
-                  <MiniProgressRing percent={pct} color={s.color} />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Icon size={15} style={{ color: s.color }} />
-                  </div>
+          const card = (
+            <div className="group relative rounded-[1.25rem] p-4 border transition-all duration-300 hover:-translate-y-1 overflow-hidden h-full"
+              style={{
+                background: isDark
+                  ? `linear-gradient(135deg, ${t.surface} 0%, ${t.surface} 70%, ${s.color}08 100%)`
+                  : `linear-gradient(135deg, #FFFFFF 0%, #FFFFFF 70%, ${s.color}06 100%)`,
+                borderColor: isDark ? t.border : "rgba(0,0,0,0.04)",
+                boxShadow: isDark ? "0 2px 16px rgba(0,0,0,0.25)" : "0 2px 12px rgba(15,23,42,0.04)",
+                animation: `bento-fade-up 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}ms both`,
+              }}>
+              {/* Hover glow */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{
+                background: `radial-gradient(circle at 80% 20%, ${s.color}18, transparent 65%)`
+              }} />
+              {/* Top gradient accent line */}
+              <div className="absolute top-0 left-4 right-4 h-[2px] rounded-full opacity-60"
+                style={{ background: `linear-gradient(90deg, transparent, ${s.color}, transparent)` }} />
+              {/* Arrow on hover */}
+              {s.to && (
+                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0 -translate-x-1">
+                  <ArrowUpRight size={14} style={{ color: s.color }} />
                 </div>
-                {s.trend && (
-                  <div className="flex items-center gap-0.5 px-2 py-1 rounded-lg" style={{
-                    background: isDark ? "rgba(34,197,94,0.1)" : "rgba(34,197,94,0.06)",
-                    border: `1px solid ${isDark ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)"}`
-                  }}>
-                    <TrendingUp size={9} className={isDark ? "text-green-400" : "text-green-600"} />
-                    <span className="text-[8px] font-bold" style={{ color: isDark ? "#4ade80" : "#16a34a" }}>{s.trend}</span>
+              )}
+
+              <div className="relative z-10 flex flex-col h-full">
+                {/* Header row: ring + icon + trend */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="relative">
+                    <ProgressRing percent={pct} color={s.color} delay={delay + 200} />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Icon size={16} style={{ color: s.color }} />
+                    </div>
+                  </div>
+                  {s.trend && (
+                    <div className="flex items-center gap-0.5 px-2 py-1 rounded-lg" style={{
+                      background: isDark ? "rgba(34,197,94,0.1)" : "rgba(34,197,94,0.06)",
+                      border: `1px solid ${isDark ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)"}`
+                    }}>
+                      <TrendingUp size={9} className={isDark ? "text-green-400" : "text-green-600"} />
+                      <span className="text-[8px] font-bold" style={{ color: isDark ? "#4ade80" : "#16a34a" }}>{s.trend}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Big animated number */}
+                <p className={`${isHero ? "text-[34px]" : "text-[26px]"} font-black font-['Space_Grotesk'] leading-none tracking-tight`} style={{ color: t.textPrimary }}>
+                  {typeof s.value === "number"
+                    ? <AnimatedNumber value={s.value} duration={1600} />
+                    : s.value}
+                </p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] mt-1.5" style={{ color: t.textMuted }}>{s.label}</p>
+
+                {/* Sparkline on hero card only */}
+                {isHero && (
+                  <div className="mt-3 opacity-80">
+                    <Sparkline color={s.color} delay={delay + 300} />
                   </div>
                 )}
               </div>
-              <p className="text-[26px] font-black font-['Space_Grotesk'] leading-none tracking-tight" style={{ color: t.textPrimary }}>
-                {typeof s.value === "number" ? s.value.toLocaleString() : s.value}
-              </p>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] mt-1" style={{ color: t.textMuted }}>{s.label}</p>
             </div>
-          </div>
-        );
-        return s.to ? <Link key={i} to={s.to} className="block">{card}</Link> : <div key={i}>{card}</div>;
-      })}
-    </div>
+          );
+
+          // Bento sizing: first card spans 2 cols on md+
+          const wrapperClass = isHero ? "md:col-span-2" : "";
+
+          return s.to ? (
+            <Link key={i} to={s.to} className={`block ${wrapperClass}`}>{card}</Link>
+          ) : (
+            <div key={i} className={wrapperClass}>{card}</div>
+          );
+        })}
+      </div>
+    </>
   );
 }
