@@ -7,8 +7,15 @@ import { AnimatedNumber } from "./useCountUp";
 function ProgressRing({ percent, color, size = 44, strokeWidth = 3.5, delay = 0 }) {
   const r = (size - strokeWidth) / 2;
   const circ = 2 * Math.PI * r;
-  const offset = circ - (Math.min(percent, 100) / 100) * circ;
+  const target = circ - (Math.min(percent, 100) / 100) * circ;
   const gradId = `grad-ring-${color.replace("#", "")}-${Math.round(percent)}`;
+  const [offset, setOffset] = React.useState(circ);
+
+  React.useEffect(() => {
+    setOffset(circ);
+    const timer = setTimeout(() => setOffset(target), delay + 50);
+    return () => clearTimeout(timer);
+  }, [target, delay, circ]);
 
   return (
     <svg width={size} height={size} className="shrink-0">
@@ -18,47 +25,73 @@ function ProgressRing({ percent, color, size = 44, strokeWidth = 3.5, delay = 0 
           <stop offset="100%" stopColor={color} stopOpacity="0.5" />
         </linearGradient>
       </defs>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={`${color}12`} strokeWidth={strokeWidth} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={`${color}18`} strokeWidth={strokeWidth} />
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={`url(#${gradId})`} strokeWidth={strokeWidth}
-        strokeDasharray={circ} strokeDashoffset={circ} strokeLinecap="round"
+        strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
         style={{
-          animation: `ring-draw 1.4s cubic-bezier(0.22,1,0.36,1) ${delay}ms forwards`,
-          "--final-offset": offset,
+          transition: "stroke-dashoffset 1.6s cubic-bezier(0.22,1,0.36,1)",
+          filter: `drop-shadow(0 0 3px ${color}80)`,
         }} />
-      <style>{`@keyframes ring-draw { to { stroke-dashoffset: var(--final-offset); } }`}</style>
     </svg>
   );
 }
 
-/* ─── Inline Sparkline ─────────────────────────────────────────────────── */
+/* ─── Inline Sparkline (trace animation + pulsing endpoint) ─────────────── */
 function Sparkline({ color, delay = 0 }) {
+  const pathRef = React.useRef(null);
+  const [length, setLength] = React.useState(0);
+  const [drawn, setDrawn] = React.useState(false);
+
   // Deterministic but playful pseudo-trend
   const points = [6, 10, 8, 14, 12, 18, 16, 22, 20, 26];
   const max = Math.max(...points);
   const min = Math.min(...points);
   const w = 100, h = 28;
-  const path = points.map((p, i) => {
-    const x = (i / (points.length - 1)) * w;
-    const y = h - ((p - min) / (max - min || 1)) * h;
-    return `${i === 0 ? "M" : "L"}${x},${y}`;
-  }).join(" ");
+  const coords = points.map((p, i) => ({
+    x: (i / (points.length - 1)) * w,
+    y: h - ((p - min) / (max - min || 1)) * h,
+  }));
+  const path = coords.map((c, i) => `${i === 0 ? "M" : "L"}${c.x},${c.y}`).join(" ");
+  const last = coords[coords.length - 1];
+
+  React.useEffect(() => {
+    if (pathRef.current) {
+      const len = pathRef.current.getTotalLength();
+      setLength(len);
+      setDrawn(false);
+      const timer = setTimeout(() => setDrawn(true), delay + 50);
+      return () => clearTimeout(timer);
+    }
+  }, [delay]);
+
+  const gradId = `sp-${color.replace("#", "")}`;
 
   return (
-    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full">
+    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="w-full overflow-visible">
       <defs>
-        <linearGradient id={`sp-${color.replace("#", "")}`} x1="0" x2="0" y1="0" y2="1">
+        <linearGradient id={gradId} x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.35" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <path d={`${path} L${w},${h} L0,${h} Z`} fill={`url(#sp-${color.replace("#", "")})`} />
-      <path d={path} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+      {/* Area fill fades in after line is drawn */}
+      <path d={`${path} L${w},${h} L0,${h} Z`} fill={`url(#${gradId})`}
+        style={{ opacity: drawn ? 1 : 0, transition: `opacity 0.8s ease ${delay + 800}ms` }} />
+      {/* Line traces from left to right */}
+      <path ref={pathRef} d={path} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
         style={{
-          strokeDasharray: 200, strokeDashoffset: 200,
-          animation: `spark-draw 1.6s cubic-bezier(0.22,1,0.36,1) ${delay}ms forwards`
+          strokeDasharray: length,
+          strokeDashoffset: drawn ? 0 : length,
+          transition: "stroke-dashoffset 1.8s cubic-bezier(0.22,1,0.36,1)",
+          filter: `drop-shadow(0 0 3px ${color}aa)`,
         }} />
-      <style>{`@keyframes spark-draw { to { stroke-dashoffset: 0; } }`}</style>
+      {/* Pulsing endpoint dot */}
+      {drawn && (
+        <circle cx={last.x} cy={last.y} r="2.2" fill={color}
+          style={{ animation: "spark-pulse 1.6s ease-in-out infinite", filter: `drop-shadow(0 0 4px ${color})` }} />
+      )}
+      <style>{`@keyframes spark-pulse { 0%,100% { opacity: 1; r: 2.2; } 50% { opacity: 0.5; r: 3.2; } }`}</style>
     </svg>
   );
 }
