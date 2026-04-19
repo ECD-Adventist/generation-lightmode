@@ -5,14 +5,34 @@
     "admin_email": {
       "type": "string"
     },
-    "action": {
+    "admin_name": {
       "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "description": "Type of action e.g. permission_update, setting_change, institution_approval"
     },
     "target": {
-      "type": "string"
+      "type": "string",
+      "description": "What was affected e.g. tab name, user email, entity id"
     },
     "details": {
-      "type": "string"
+      "type": "string",
+      "description": "Human-readable summary of the change"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "permissions",
+        "settings",
+        "institutions",
+        "moderation",
+        "users",
+        "content",
+        "territory",
+        "other"
+      ],
+      "default": "other"
     }
   },
   "required": [
@@ -36,6 +56,31 @@
           "user_condition": {
             "role": "moderator"
           }
+        },
+        {
+          "user_condition": {
+            "role": "ecd_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "country_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "union_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "conference_field_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
+          }
         }
       ]
     },
@@ -49,11 +94,6 @@
         {
           "user_condition": {
             "role": "super_admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "moderator"
           }
         }
       ]

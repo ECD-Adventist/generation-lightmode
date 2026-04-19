@@ -30,6 +30,9 @@ import AdminInstitutionTab from "../components/admin/AdminInstitutionTab";
 import AdminGrowthAnalyticsTab from "../components/admin/AdminGrowthAnalyticsTab";
 import AdminCustomPostTab from "../components/admin/AdminCustomPostTab";
 import AdminPermissionMatrixTab from "../components/admin/AdminPermissionMatrixTab";
+import AdminAuditLogsTab from "../components/admin/AdminAuditLogsTab";
+import AdminGlobalLeaderboardsTab from "../components/admin/AdminGlobalLeaderboardsTab";
+import AdminTerritoryAlertsTab from "../components/admin/AdminTerritoryAlertsTab";
 import { AdminThemeProvider, useAdminTheme, getAdminTokens } from "../components/admin/AdminThemeContext";
 import AdminThemeToggle from "../components/admin/AdminThemeToggle";
 
@@ -174,6 +177,9 @@ function AdminCenterInner() {
       case "custom-posts": return isSuperAdmin ? <AdminCustomPostTab user={user} /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to create custom posts.</div>;
       case "settings": return isSuperAdmin ? <AdminSettingsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view system settings.</div>;
       case "permissions": return isSuperAdmin ? <AdminPermissionMatrixTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to manage permissions.</div>;
+      case "audit-logs": return isSuperAdmin ? <AdminAuditLogsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view audit logs.</div>;
+      case "global-leaderboards": return <AdminGlobalLeaderboardsTab />;
+      case "territory-alerts": return <AdminTerritoryAlertsTab currentUser={user} />;
       default: return <AdminDashboardTab />;
     }
   };

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map, UserCheck, PieChart, Flag, TrendingUp, ChevronDown, ChevronRight, Building2, Sparkles, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map, UserCheck, PieChart, Flag, TrendingUp, ChevronDown, ChevronRight, Building2, Sparkles, ShieldCheck, FileText, Medal, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
@@ -106,6 +106,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
         <SidebarSection label="Growth" isDark={isDark}>
           <SidebarItem id="challenges" icon={<Target size={16} />} label="Challenges" />
           <SidebarItem id="leaderboards" icon={<Trophy size={16} />} label="Leaderboards" />
+          <SidebarItem id="global-leaderboards" icon={<Medal size={16} />} label="Season Leaderboards" />
           <SidebarItem id="badges" icon={<Award size={16} />} label="Badges & Ranks" />
         </SidebarSection>
 
@@ -114,6 +115,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
           <SidebarItem id="territory-map" icon={<Map size={16} />} label="Territory Map" />
           <SidebarItem id="territory-assign" icon={<UserCheck size={16} />} label="Territory Assign" />
           <SidebarItem id="territory-challenges" icon={<Target size={16} />} label="Territory Challenges" />
+          <SidebarItem id="territory-alerts" icon={<AlertTriangle size={16} />} label="Territory Alerts" />
         </SidebarSection>
 
         <SidebarSection label="Analytics" isDark={isDark}>
@@ -141,6 +143,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
             <SidebarItem id="custom-posts" icon={<Sparkles size={16} />} label="Custom Posts" />
             <SidebarItem id="settings" icon={<Settings size={16} />} label="System Settings" />
             <SidebarItem id="permissions" icon={<ShieldCheck size={16} />} label="Permissions" />
+            <SidebarItem id="audit-logs" icon={<FileText size={16} />} label="Audit Logs" />
           </SidebarSection>
         )}
 
