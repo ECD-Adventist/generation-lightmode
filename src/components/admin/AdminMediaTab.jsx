@@ -2,8 +2,13 @@ import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Image, Film, FileText, Loader2, ExternalLink, Download } from "lucide-react";
+import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 
 export default function AdminMediaTab() {
+  const { theme } = useAdminTheme();
+  const t = getAdminTokens(theme);
+  const isDark = theme === "dark";
+
   const [filter, setFilter] = useState("all");
 
   const { data: drops = [], isLoading: dropsLoading } = useQuery({
@@ -56,25 +61,25 @@ export default function AdminMediaTab() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold font-['Space_Grotesk'] text-white">Media Library</h1>
-        <p className="text-gray-400 text-sm mt-1">All user-uploaded images across Glow Drops, Stories, and Profiles.</p>
+        <h1 className="text-2xl font-bold font-['Space_Grotesk']" style={{ color: t.textPrimary }}>Media Library</h1>
+        <p className="text-sm mt-1" style={{ color: t.textSecondary }}>All user-uploaded images across Glow Drops, Stories, and Profiles.</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Media", value: stats.total, icon: <Image className="w-4 h-4" />, color: "#00CFFF" },
-          { label: "Drop Images", value: stats.drops, icon: <Film className="w-4 h-4" />, color: "#FFD000" },
-          { label: "Story Images", value: stats.stories, icon: <Image className="w-4 h-4" />, color: "#8A5CFF" },
-          { label: "Profile Photos", value: stats.profiles, icon: <FileText className="w-4 h-4" />, color: "#22c55e" },
+          { label: "Total Media", value: stats.total, icon: <Image className="w-4 h-4" />, color: isDark ? "#00CFFF" : "#0B3FD9" },
+          { label: "Drop Images", value: stats.drops, icon: <Film className="w-4 h-4" />, color: isDark ? "#FFD000" : "#d97706" },
+          { label: "Story Images", value: stats.stories, icon: <Image className="w-4 h-4" />, color: isDark ? "#8A5CFF" : "#7e22ce" },
+          { label: "Profile Photos", value: stats.profiles, icon: <FileText className="w-4 h-4" />, color: isDark ? "#22c55e" : "#16a34a" },
         ].map(s => (
-          <div key={s.label} className="bg-[#121826] border border-white/5 rounded-2xl p-5 flex items-center gap-4">
+          <div key={s.label} className="border rounded-2xl p-5 flex items-center gap-4" style={{ background: t.surface, borderColor: t.border }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${s.color}18` }}>
               <span style={{ color: s.color }}>{s.icon}</span>
             </div>
             <div>
-              <div className="text-2xl font-black text-white font-['Space_Grotesk']">{s.value}</div>
-              <div className="text-xs text-gray-500 uppercase tracking-wider">{s.label}</div>
+              <div className="text-2xl font-black font-['Space_Grotesk']" style={{ color: t.textPrimary }}>{s.value}</div>
+              <div className="text-xs uppercase tracking-wider" style={{ color: t.textMuted }}>{s.label}</div>
             </div>
           </div>
         ))}
@@ -82,19 +87,20 @@ export default function AdminMediaTab() {
 
       {/* Filter */}
       <div className="flex gap-2 flex-wrap">
-        {["all", "drop", "story", "profile", "cover"].map(t => (
-          <button key={t} onClick={() => setFilter(t)}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition border ${filter === t ? "bg-[#00CFFF]/10 border-[#00CFFF]/30 text-[#00CFFF]" : "bg-[#121826] border-white/5 text-gray-400 hover:text-white"}`}>
-            {t === "all" ? `All (${allMedia.length})` : `${t.charAt(0).toUpperCase() + t.slice(1)}s`}
+        {["all", "drop", "story", "profile", "cover"].map(type => (
+          <button key={type} onClick={() => setFilter(type)}
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition border`}
+            style={filter === type ? { background: t.accentSoft, borderColor: t.borderStrong, color: t.accent } : { background: t.surface, borderColor: t.border, color: t.textSecondary }}>
+            {type === "all" ? `All (${allMedia.length})` : `${type.charAt(0).toUpperCase() + type.slice(1)}s`}
           </button>
         ))}
       </div>
 
       {/* Grid */}
       {dropsLoading ? (
-        <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 text-[#00CFFF] animate-spin" /></div>
+        <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin" style={{ color: t.accent }} /></div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-gray-500 bg-[#121826] border border-white/5 rounded-2xl">
+        <div className="text-center py-20 border rounded-2xl" style={{ background: t.surface, borderColor: t.border, color: t.textMuted }}>
           <Image className="w-10 h-10 mx-auto mb-3 opacity-20" />
           <p>No media files found.</p>
         </div>
@@ -103,7 +109,7 @@ export default function AdminMediaTab() {
           {filtered.map(item => {
             const owner = userMap[item.owner];
             return (
-              <div key={item.id} className="group relative aspect-square bg-[#121826] border border-white/5 rounded-xl overflow-hidden">
+              <div key={item.id} className="group relative aspect-square border rounded-xl overflow-hidden" style={{ background: t.surface, borderColor: t.border }}>
                 <img src={item.url} alt={item.label} className="w-full h-full object-cover" loading="lazy" />
                 <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
                   <div className="flex items-center justify-between">

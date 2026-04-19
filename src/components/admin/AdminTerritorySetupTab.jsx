@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Upload, Map, CheckCircle2, Loader2, Shield, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 
 const TERRITORY_LEVELS = [
   { value: "ecd", label: "ECD" },
@@ -15,6 +16,10 @@ const TERRITORY_LEVELS = [
 ];
 
 export default function AdminTerritorySetupTab({ user }) {
+  const { theme } = useAdminTheme();
+  const t = getAdminTokens(theme);
+  const isDark = theme === "dark";
+
   const queryClient = useQueryClient();
   const [territoryName, setTerritoryName] = useState(user?.territory_name || "");
   const [territoryLevel, setTerritoryLevel] = useState(user?.territory_level || "");
@@ -43,7 +48,7 @@ export default function AdminTerritorySetupTab({ user }) {
 
   if (!isRegionalAdmin) {
     return (
-      <div className="bg-[#121826] border border-white/10 rounded-2xl p-6 text-sm text-gray-400">
+      <div className="border rounded-2xl p-6 text-sm" style={{ background: t.surface, borderColor: t.border, color: t.textSecondary }}>
         Territory setup is available for regional admin roles only.
       </div>
     );
@@ -120,52 +125,53 @@ export default function AdminTerritorySetupTab({ user }) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white">Territory Setup</h1>
-        <p className="text-sm text-gray-400 mt-1">Upload your map, review the extracted region details, then confirm access scope.</p>
+        <h1 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk']" style={{ color: t.textPrimary }}>Territory Setup</h1>
+        <p className="text-sm mt-1" style={{ color: t.textSecondary }}>Upload your map, review the extracted region details, then confirm access scope.</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="bg-[#121826] border border-white/10 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center gap-3 text-[#00CFFF] font-bold text-sm">
+        <div className="border rounded-2xl p-6 space-y-4" style={{ background: t.surface, borderColor: t.border }}>
+          <div className="flex items-center gap-3 font-bold text-sm" style={{ color: t.accent }}>
             <Map className="w-4 h-4" /> Uploaded Territory Map
           </div>
           {review.mapUrl ? (
-            <img src={review.mapUrl} alt="Territory map" className="w-full max-h-[420px] object-contain rounded-xl border border-white/10 bg-[#0B0F1A]" />
+            <img src={review.mapUrl} alt="Territory map" className="w-full max-h-[420px] object-contain rounded-xl border" style={{ background: t.surfaceMuted, borderColor: t.border }} />
           ) : (
-            <div className="border border-dashed border-white/10 rounded-xl h-64 flex items-center justify-center text-sm text-gray-500 bg-[#0B0F1A]">
+            <div className="border border-dashed rounded-xl h-64 flex items-center justify-center text-sm" style={{ background: t.surfaceMuted, borderColor: t.border, color: t.textMuted }}>
               No map uploaded yet.
             </div>
           )}
 
           <label className="block">
             <input type="file" accept="image/*,.pdf" className="hidden" onChange={handleUpload} />
-            <div className="w-full border border-[#00CFFF]/30 bg-[#00CFFF]/10 hover:bg-[#00CFFF]/15 rounded-xl px-4 py-3 text-sm font-bold text-[#00CFFF] flex items-center justify-center gap-2 cursor-pointer transition">
+            <div className="w-full border rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer transition hover:opacity-80"
+                 style={{ background: t.accentSoft, borderColor: t.borderStrong, color: t.accent }}>
               {(uploading || extracting) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
               {uploading || extracting ? "Processing map..." : "Upload Territory Map"}
             </div>
           </label>
         </div>
 
-        <div className="bg-[#121826] border border-white/10 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center gap-3 text-[#FFD000] font-bold text-sm">
+        <div className="border rounded-2xl p-6 space-y-4" style={{ background: t.surface, borderColor: t.border }}>
+          <div className="flex items-center gap-3 font-bold text-sm" style={{ color: isDark ? "#FFD000" : "#d97706" }}>
             <FileText className="w-4 h-4" /> Review Extracted Territory
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-wider text-gray-500 mb-2">Role</p>
-            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 text-sm text-white">
-              <Shield className="w-4 h-4 text-[#00CFFF]" /> {me?.role?.replace(/_/g, " ")}
+            <p className="text-xs uppercase tracking-wider mb-2" style={{ color: t.textSecondary }}>Role</p>
+            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full border text-sm" style={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }}>
+              <Shield className="w-4 h-4" style={{ color: t.accent }} /> {me?.role?.replace(/_/g, " ")}
             </div>
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-wider text-gray-500 mb-2">Territory Name</p>
-            <Input value={territoryName} onChange={(e) => setTerritoryName(e.target.value)} className="bg-[#0B0F1A] border-white/10" />
+            <p className="text-xs uppercase tracking-wider mb-2" style={{ color: t.textSecondary }}>Territory Name</p>
+            <Input value={territoryName} onChange={(e) => setTerritoryName(e.target.value)} className="rounded-xl focus:outline-none transition" style={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }} />
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-wider text-gray-500 mb-2">Territory Level</p>
-            <select value={territoryLevel} onChange={(e) => setTerritoryLevel(e.target.value)} className="w-full h-10 rounded-md border border-white/10 bg-[#0B0F1A] px-3 text-sm text-white">
+            <p className="text-xs uppercase tracking-wider mb-2" style={{ color: t.textSecondary }}>Territory Level</p>
+            <select value={territoryLevel} onChange={(e) => setTerritoryLevel(e.target.value)} className="w-full h-10 rounded-xl border px-3 text-sm focus:outline-none transition" style={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }}>
               <option value="">Select territory level</option>
               {TERRITORY_LEVELS.map((item) => (
                 <option key={item.value} value={item.value}>{item.label}</option>
@@ -174,21 +180,21 @@ export default function AdminTerritorySetupTab({ user }) {
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-wider text-gray-500 mb-2">Countries / Regions</p>
-            <textarea value={review.countries} onChange={(e) => setReview(prev => ({ ...prev, countries: e.target.value }))} className="w-full min-h-[92px] rounded-xl border border-white/10 bg-[#0B0F1A] px-3 py-3 text-sm text-white" />
+            <p className="text-xs uppercase tracking-wider mb-2" style={{ color: t.textSecondary }}>Countries / Regions</p>
+            <textarea value={review.countries} onChange={(e) => setReview(prev => ({ ...prev, countries: e.target.value }))} className="w-full min-h-[92px] rounded-xl border px-3 py-3 text-sm focus:outline-none transition" style={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }} />
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-wider text-gray-500 mb-2">Extraction Notes</p>
-            <textarea value={review.notes} onChange={(e) => setReview(prev => ({ ...prev, notes: e.target.value }))} className="w-full min-h-[110px] rounded-xl border border-white/10 bg-[#0B0F1A] px-3 py-3 text-sm text-white" />
+            <p className="text-xs uppercase tracking-wider mb-2" style={{ color: t.textSecondary }}>Extraction Notes</p>
+            <textarea value={review.notes} onChange={(e) => setReview(prev => ({ ...prev, notes: e.target.value }))} className="w-full min-h-[110px] rounded-xl border px-3 py-3 text-sm focus:outline-none transition" style={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }} />
           </div>
 
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#0B0F1A] px-4 py-3">
+          <div className="flex items-center justify-between gap-3 rounded-xl border px-4 py-3" style={{ background: t.surfaceMuted, borderColor: t.border }}>
             <div>
-              <p className="text-xs uppercase tracking-wider text-gray-500">Status</p>
-              <p className="text-sm font-semibold text-white">{(me?.territory_status || "not_submitted").replace(/_/g, " ")}</p>
+              <p className="text-xs uppercase tracking-wider" style={{ color: t.textSecondary }}>Status</p>
+              <p className="text-sm font-semibold" style={{ color: t.textPrimary }}>{(me?.territory_status || "not_submitted").replace(/_/g, " ")}</p>
             </div>
-            <Button onClick={handleConfirm} disabled={!territoryName || !territoryLevel || !review.mapUrl} className="bg-[#00CFFF] text-black hover:bg-[#00CFFF]/80 font-bold">
+            <Button onClick={handleConfirm} disabled={!territoryName || !territoryLevel || !review.mapUrl} className="font-bold transition hover:opacity-90 disabled:opacity-50" style={{ background: t.accent, color: "#fff", border: "none" }}>
               <CheckCircle2 className="w-4 h-4 mr-2" /> Confirm Territory
             </Button>
           </div>

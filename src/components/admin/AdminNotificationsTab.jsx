@@ -5,8 +5,13 @@ import { Bell, Send, Trash2, CheckCheck, Loader2, Users, Zap, Info } from "lucid
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 
 export default function AdminNotificationsTab() {
+  const { theme } = useAdminTheme();
+  const t = getAdminTokens(theme);
+  const isDark = theme === "dark";
+
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ message: "", type: "system", link: "" });
   const [sending, setSending] = useState(false);
@@ -63,8 +68,12 @@ export default function AdminNotificationsTab() {
   const filtered = notifications.filter(n => filter === "all" ? true : n.type === filter);
 
   const typeColor = {
-    like: "text-red-400", reply: "text-blue-400", message: "text-blue-400",
-    milestone: "text-yellow-400", system: "text-violet-400", follow: "text-green-400"
+    like: isDark ? "text-red-400" : "text-red-600",
+    reply: isDark ? "text-blue-400" : "text-blue-600",
+    message: isDark ? "text-blue-400" : "text-blue-600",
+    milestone: isDark ? "text-yellow-400" : "text-yellow-600",
+    system: isDark ? "text-violet-400" : "text-violet-600",
+    follow: isDark ? "text-green-400" : "text-green-600"
   };
 
   const stats = {
@@ -76,52 +85,54 @@ export default function AdminNotificationsTab() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold font-['Space_Grotesk'] text-white">Push Notifications</h1>
-        <p className="text-gray-400 text-sm mt-1">Broadcast messages to all members and monitor platform alerts.</p>
+        <h1 className="text-2xl font-bold font-['Space_Grotesk']" style={{ color: t.textPrimary }}>Push Notifications</h1>
+        <p className="mt-1 text-sm" style={{ color: t.textSecondary }}>Broadcast messages to all members and monitor platform alerts.</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Total Sent", value: stats.total, icon: <Bell className="w-4 h-4" />, color: "#00CFFF" },
-          { label: "Unread", value: stats.unread, icon: <Zap className="w-4 h-4" />, color: "#FFD000" },
-          { label: "Today", value: stats.today, icon: <Info className="w-4 h-4" />, color: "#8A5CFF" },
+          { label: "Total Sent", value: stats.total, icon: <Bell className="w-4 h-4" />, color: isDark ? "#00CFFF" : "#0B3FD9" },
+          { label: "Unread", value: stats.unread, icon: <Zap className="w-4 h-4" />, color: isDark ? "#FFD000" : "#d97706" },
+          { label: "Today", value: stats.today, icon: <Info className="w-4 h-4" />, color: isDark ? "#8A5CFF" : "#7e22ce" },
         ].map(s => (
-          <div key={s.label} className="bg-[#121826] border border-white/5 rounded-2xl p-5 flex items-center gap-4">
+          <div key={s.label} className="border rounded-2xl p-5 flex items-center gap-4" style={{ background: t.surface, borderColor: t.border }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${s.color}18`, border: `1px solid ${s.color}30` }}>
               <span style={{ color: s.color }}>{s.icon}</span>
             </div>
             <div>
-              <div className="text-2xl font-black text-white font-['Space_Grotesk']">{s.value}</div>
-              <div className="text-xs text-gray-500 uppercase tracking-wider">{s.label}</div>
+              <div className="text-2xl font-black font-['Space_Grotesk']" style={{ color: t.textPrimary }}>{s.value}</div>
+              <div className="text-xs uppercase tracking-wider" style={{ color: t.textMuted }}>{s.label}</div>
             </div>
           </div>
         ))}
       </div>
 
       {/* Broadcast Composer */}
-      <div className="bg-[#121826] border border-[#00CFFF]/20 rounded-2xl p-6 space-y-4">
+      <div className="border rounded-2xl p-6 space-y-4 shadow-sm" style={{ background: t.surface, borderColor: t.borderStrong }}>
         <div className="flex items-center gap-2 mb-2">
-          <Users className="w-4 h-4 text-[#00CFFF]" />
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider">Broadcast to All Members</h3>
-          <span className="ml-auto text-xs text-gray-500">{users.length} recipients</span>
+          <Users className="w-4 h-4" style={{ color: t.accent }} />
+          <h3 className="text-sm font-bold uppercase tracking-wider" style={{ color: t.textPrimary }}>Broadcast to All Members</h3>
+          <span className="ml-auto text-xs" style={{ color: t.textMuted }}>{users.length} recipients</span>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="text-xs text-gray-400 uppercase tracking-wider mb-1.5 block">Message *</label>
+            <label className="text-xs uppercase tracking-wider mb-1.5 block font-bold" style={{ color: t.textSecondary }}>Message *</label>
             <Input
               value={form.message}
               onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
               placeholder="Write your broadcast message..."
-              className="bg-[#0B0F1A] border-white/10 rounded-xl h-11"
+              className="rounded-xl h-11 border transition"
+              style={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }}
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 uppercase tracking-wider mb-1.5 block">Type</label>
+            <label className="text-xs uppercase tracking-wider mb-1.5 block font-bold" style={{ color: t.textSecondary }}>Type</label>
             <select
               value={form.type}
               onChange={e => setForm(p => ({ ...p, type: e.target.value }))}
-              className="w-full bg-[#0B0F1A] border border-white/10 rounded-xl px-3 h-11 text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#00CFFF]/50"
+              className="w-full border rounded-xl px-3 h-11 text-sm focus:outline-none transition"
+              style={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }}
             >
               <option value="system">System</option>
               <option value="milestone">Milestone</option>
@@ -131,19 +142,21 @@ export default function AdminNotificationsTab() {
           </div>
         </div>
         <div>
-          <label className="text-xs text-gray-400 uppercase tracking-wider mb-1.5 block">Link (optional)</label>
+          <label className="text-xs uppercase tracking-wider mb-1.5 block font-bold" style={{ color: t.textSecondary }}>Link (optional)</label>
           <Input
             value={form.link}
             onChange={e => setForm(p => ({ ...p, link: e.target.value }))}
             placeholder="/Feed or https://..."
-            className="bg-[#0B0F1A] border-white/10 rounded-xl h-11"
+            className="rounded-xl h-11 border transition"
+            style={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }}
           />
         </div>
         <div className="flex justify-end">
           <Button
             onClick={handleBroadcast}
             disabled={sending || !form.message.trim()}
-            className="bg-[#00CFFF] text-black font-bold rounded-xl px-6 h-11 hover:bg-[#00CFFF]/90 flex items-center gap-2"
+            className="font-bold rounded-xl px-6 h-11 flex items-center gap-2 transition disabled:opacity-50"
+            style={{ background: t.accent, color: "#fff", border: "none" }}
           >
             {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             {sending ? "Sending..." : `Broadcast to ${users.length} Members`}
@@ -152,45 +165,46 @@ export default function AdminNotificationsTab() {
       </div>
 
       {/* Filter & List */}
-      <div className="bg-[#121826] border border-white/5 rounded-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 flex-wrap gap-3">
-          <h3 className="text-sm font-bold text-white">Recent Notifications</h3>
+      <div className="border rounded-2xl overflow-hidden shadow-sm" style={{ background: t.surface, borderColor: t.border }}>
+        <div className="flex items-center justify-between px-5 py-4 border-b flex-wrap gap-3" style={{ borderColor: t.border }}>
+          <h3 className="text-sm font-bold" style={{ color: t.textPrimary }}>Recent Notifications</h3>
           <div className="flex gap-1">
-            {["all","system","like","follow","milestone"].map(t => (
-              <button key={t} onClick={() => setFilter(t)}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition ${filter === t ? "bg-[#00CFFF]/10 text-[#00CFFF] border border-[#00CFFF]/20" : "text-gray-500 hover:text-white"}`}>
-                {t}
+            {["all","system","like","follow","milestone"].map(type => (
+              <button key={type} onClick={() => setFilter(type)}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition`}
+                style={filter === type ? { background: t.accentSoft, color: t.accent, border: `1px solid ${t.borderStrong}` } : { color: t.textSecondary, background: "transparent", border: "1px solid transparent" }}>
+                {type}
               </button>
             ))}
           </div>
         </div>
 
         {isLoading ? (
-          <div className="py-12 flex justify-center"><Loader2 className="w-6 h-6 text-[#00CFFF] animate-spin" /></div>
+          <div className="py-12 flex justify-center"><Loader2 className="w-6 h-6 animate-spin" style={{ color: t.accent }} /></div>
         ) : filtered.length === 0 ? (
-          <div className="py-12 text-center text-gray-500 text-sm">No notifications found.</div>
+          <div className="py-12 text-center text-sm" style={{ color: t.textMuted }}>No notifications found.</div>
         ) : (
-          <div className="divide-y divide-white/5">
+          <div className="divide-y" style={{ borderColor: t.border }}>
             {filtered.map(n => (
-              <div key={n.id} className={`flex items-start gap-3 px-5 py-3 hover:bg-white/[0.02] transition ${n.read ? "opacity-60" : ""}`}>
-                <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${!n.read ? "bg-[#00CFFF]" : "bg-gray-600"}`} />
+              <div key={n.id} className={`flex items-start gap-3 px-5 py-3 transition hover:opacity-80 ${n.read ? "opacity-60" : ""}`} style={{ background: isDark ? "rgba(255,255,255,0.02)" : "transparent" }}>
+                <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${!n.read ? (isDark ? "bg-[#00CFFF]" : "bg-[#0B3FD9]") : (isDark ? "bg-gray-600" : "bg-gray-300")}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white truncate">{n.message}</p>
+                  <p className="text-sm truncate" style={{ color: t.textPrimary }}>{n.message}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className={`text-[10px] font-bold uppercase ${typeColor[n.type] || "text-gray-400"}`}>{n.type}</span>
-                    <span className="text-[10px] text-gray-600">→ {n.user_email}</span>
-                    {n.created_date && <span className="text-[10px] text-gray-600">{new Date(n.created_date).toLocaleDateString()}</span>}
+                    <span className={`text-[10px] font-bold uppercase ${typeColor[n.type] || t.textSecondary}`}>{n.type}</span>
+                    <span className="text-[10px]" style={{ color: t.textMuted }}>→ {n.user_email}</span>
+                    {n.created_date && <span className="text-[10px]" style={{ color: t.textMuted }}>{new Date(n.created_date).toLocaleDateString()}</span>}
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0">
                   {!n.read && (
                     <button onClick={() => markReadMutation.mutate(n.id)}
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-500 hover:text-[#00CFFF] hover:bg-[#00CFFF]/10 transition">
+                      className="w-7 h-7 rounded-lg flex items-center justify-center transition hover:opacity-70" style={{ color: t.textSecondary, background: t.surfaceMuted }}>
                       <CheckCheck className="w-3.5 h-3.5" />
                     </button>
                   )}
                   <button onClick={() => deleteMutation.mutate(n.id)}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition">
+                    className="w-7 h-7 rounded-lg flex items-center justify-center transition hover:opacity-70" style={{ color: "#ef4444", background: isDark ? "rgba(239,68,68,0.1)" : "#fee2e2" }}>
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>

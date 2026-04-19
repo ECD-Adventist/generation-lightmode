@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Users, MapPin, Building2, ChevronDown, ChevronRight, Search, Zap } from "lucide-react";
+import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 
 const ROLE_LABELS = {
   church_admin: "Church",
@@ -13,17 +14,22 @@ const ROLE_LABELS = {
   super_admin: "Super Admin",
 };
 
-const LEVEL_COLORS = {
-  church_admin: "#8A5CFF",
-  conference_field_admin: "#00CFFF",
-  union_admin: "#FFD000",
-  country_admin: "#22c55e",
-  ecd_admin: "#f97316",
-};
+const getLevelColors = (isDark) => ({
+  church_admin: isDark ? "#8A5CFF" : "#7e22ce",
+  conference_field_admin: isDark ? "#00CFFF" : "#0B3FD9",
+  union_admin: isDark ? "#FFD000" : "#d97706",
+  country_admin: isDark ? "#22c55e" : "#16a34a",
+  ecd_admin: isDark ? "#f97316" : "#ea580c",
+});
 
 export default function AdminTerritoryMapTab({ currentUser }) {
+  const { theme } = useAdminTheme();
+  const t = getAdminTokens(theme);
+  const isDark = theme === "dark";
+  const LEVEL_COLORS = getLevelColors(isDark);
+
   const [search, setSearch] = useState("");
-  const [groupBy, setGroupBy] = useState("country"); // country | city | postal_code
+  const [groupBy, setGroupBy] = useState("country");
   const [expanded, setExpanded] = useState({});
 
   const { data: rawUsers = [], isLoading } = useQuery({
@@ -31,7 +37,6 @@ export default function AdminTerritoryMapTab({ currentUser }) {
     queryFn: () => base44.functions.invoke("listAllUsersAdmin", {}).then(r => r.data || []),
   });
 
-  // Fallback to listPublicUsers if admin endpoint unavailable
   const { data: pubUsers = [] } = useQuery({
     queryKey: ["pub_users_territory"],
     queryFn: () => base44.functions.invoke("listPublicUsers", {}).then(r => r.data || []),
@@ -69,25 +74,25 @@ export default function AdminTerritoryMapTab({ currentUser }) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold font-['Space_Grotesk'] text-white">🗺️ Territory Distribution Map</h1>
-        <p className="text-gray-400 text-sm mt-1">User density across territories based on city, country & postal code data.</p>
+        <h1 className="text-2xl font-bold font-['Space_Grotesk']" style={{ color: t.textPrimary }}>🗺️ Territory Distribution Map</h1>
+        <p className="mt-1 text-sm" style={{ color: t.textSecondary }}>User density across territories based on city, country & postal code data.</p>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Members", value: totalUsers, color: "#00CFFF", icon: Users },
-          { label: "Location Complete", value: totalWithAddress, color: "#22c55e", icon: MapPin },
-          { label: "Missing Location", value: totalUsers - totalWithAddress, color: "#f97316", icon: MapPin },
-          { label: "Unique Cities", value: new Set(users.map(u => u.city).filter(Boolean)).size, color: "#8A5CFF", icon: Building2 },
+          { label: "Total Members", value: totalUsers, color: isDark ? "#00CFFF" : "#0B3FD9", icon: Users },
+          { label: "Location Complete", value: totalWithAddress, color: isDark ? "#22c55e" : "#16a34a", icon: MapPin },
+          { label: "Missing Location", value: totalUsers - totalWithAddress, color: isDark ? "#f97316" : "#ea580c", icon: MapPin },
+          { label: "Unique Cities", value: new Set(users.map(u => u.city).filter(Boolean)).size, color: isDark ? "#8A5CFF" : "#7e22ce", icon: Building2 },
         ].map((s, i) => (
-          <div key={i} className="bg-[#121826] border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+          <div key={i} className="border rounded-2xl p-4 flex items-center gap-3" style={{ background: t.surface, borderColor: t.border }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${s.color}18`, border: `1px solid ${s.color}30` }}>
               <s.icon size={18} style={{ color: s.color }} />
             </div>
             <div>
-              <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">{s.label}</p>
-              <p className="text-xl font-black text-white font-['Space_Grotesk']">{s.value}</p>
+              <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: t.textMuted }}>{s.label}</p>
+              <p className="text-xl font-black font-['Space_Grotesk']" style={{ color: t.textPrimary }}>{s.value}</p>
             </div>
           </div>
         ))}
@@ -96,12 +101,13 @@ export default function AdminTerritoryMapTab({ currentUser }) {
       {/* Controls */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: t.textMuted }} />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name, country, city or postal code…"
-            className="w-full bg-[#121826] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#00CFFF]/40"
+            className="w-full border rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none transition-colors"
+            style={{ background: t.surface, borderColor: t.border, color: t.textPrimary }}
           />
         </div>
         <div className="flex gap-2">
@@ -109,7 +115,8 @@ export default function AdminTerritoryMapTab({ currentUser }) {
             <button
               key={val}
               onClick={() => setGroupBy(val)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold border transition ${groupBy === val ? "bg-[#00CFFF]/15 border-[#00CFFF]/40 text-[#00CFFF]" : "border-white/10 text-gray-400 hover:border-white/20 hover:text-white"}`}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold border transition`}
+              style={groupBy === val ? { background: t.accentSoft, borderColor: t.borderStrong, color: t.accent } : { borderColor: t.border, color: t.textSecondary, background: "transparent" }}
             >
               {label}
             </button>
@@ -119,9 +126,9 @@ export default function AdminTerritoryMapTab({ currentUser }) {
 
       {/* Territory Groups */}
       {isLoading ? (
-        <div className="text-center py-20 text-gray-500 text-sm">Loading territory data…</div>
+        <div className="text-center py-20 text-sm" style={{ color: t.textMuted }}>Loading territory data…</div>
       ) : grouped.length === 0 ? (
-        <div className="text-center py-20 text-gray-500 text-sm bg-[#121826] rounded-2xl border border-white/5">No data found.</div>
+        <div className="text-center py-20 text-sm rounded-2xl border" style={{ background: t.surface, borderColor: t.border, color: t.textMuted }}>No data found.</div>
       ) : (
         <div className="space-y-3">
           {grouped.map(([key, members]) => {
@@ -129,50 +136,50 @@ export default function AdminTerritoryMapTab({ currentUser }) {
             const pct = Math.round((members.length / totalUsers) * 100);
             const admins = members.filter(u => Object.keys(ROLE_LABELS).includes(u.role));
             return (
-              <div key={key} className="bg-[#121826] border border-white/5 rounded-2xl overflow-hidden">
+              <div key={key} className="border rounded-2xl overflow-hidden" style={{ background: t.surface, borderColor: t.border }}>
                 <button
                   onClick={() => toggle(key)}
-                  className="w-full flex items-center gap-4 px-5 py-4 hover:bg-white/[0.02] transition text-left"
+                  className="w-full flex items-center gap-4 px-5 py-4 transition text-left hover:opacity-80"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-bold text-white text-sm truncate">{key}</span>
+                      <span className="font-bold text-sm truncate" style={{ color: t.textPrimary }}>{key}</span>
                       <div className="flex items-center gap-3 shrink-0 ml-3">
                         {admins.length > 0 && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFD000]/15 text-[#FFD000] border border-[#FFD000]/20">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border" style={{ background: "rgba(255,208,0,0.15)", color: isDark ? "#FFD000" : "#d97706", borderColor: "rgba(255,208,0,0.2)" }}>
                             {admins.length} admin{admins.length > 1 ? "s" : ""}
                           </span>
                         )}
-                        <span className="text-xs font-bold text-gray-400">{members.length} member{members.length !== 1 ? "s" : ""}</span>
-                        <span className="text-xs text-gray-600">{pct}%</span>
+                        <span className="text-xs font-bold" style={{ color: t.textSecondary }}>{members.length} member{members.length !== 1 ? "s" : ""}</span>
+                        <span className="text-xs" style={{ color: t.textMuted }}>{pct}%</span>
                       </div>
                     </div>
-                    <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full rounded-full bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] transition-all" style={{ width: `${pct}%` }} />
+                    <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: t.surfaceMuted }}>
+                      <div className="h-full rounded-full transition-all" style={{ background: t.gradient, width: `${pct}%` }} />
                     </div>
                   </div>
-                  {isOpen ? <ChevronDown size={16} className="text-gray-500 shrink-0" /> : <ChevronRight size={16} className="text-gray-500 shrink-0" />}
+                  {isOpen ? <ChevronDown size={16} className="shrink-0" style={{ color: t.textMuted }} /> : <ChevronRight size={16} className="shrink-0" style={{ color: t.textMuted }} />}
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-white/5 divide-y divide-white/5">
+                  <div className="border-t divide-y" style={{ borderColor: t.border }}>
                     {members.map(u => (
-                      <div key={u.id} className="flex items-center gap-3 px-5 py-3 hover:bg-white/[0.02] transition">
+                      <div key={u.id} className="flex items-center gap-3 px-5 py-3 transition hover:opacity-80" style={{ background: isDark ? "rgba(255,255,255,0.02)" : "rgba(11,27,61,0.02)" }}>
                         <img
                           src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
-                          className="w-8 h-8 rounded-full object-cover border border-white/10 shrink-0"
+                          className="w-8 h-8 rounded-full object-cover border shrink-0" style={{ borderColor: t.border }}
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-white truncate">{u.full_name || u.email}</p>
-                          <p className="text-[11px] text-gray-500 truncate">{[u.address, u.city, u.postal_code, u.country].filter(Boolean).join(", ")}</p>
+                          <p className="text-sm font-semibold truncate" style={{ color: t.textPrimary }}>{u.full_name || u.email}</p>
+                          <p className="text-[11px] truncate" style={{ color: t.textMuted }}>{[u.address, u.city, u.postal_code, u.country].filter(Boolean).join(", ")}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <span className="flex items-center gap-1 text-[10px] font-bold text-[#FFD000]">
+                          <span className="flex items-center gap-1 text-[10px] font-bold" style={{ color: isDark ? "#FFD000" : "#d97706" }}>
                             <Zap size={10} />{u.glow_score || 0}
                           </span>
                           {ROLE_LABELS[u.role] && (
                             <span className="text-[9px] font-bold px-2 py-0.5 rounded-full border"
-                              style={{ color: LEVEL_COLORS[u.role] || "#C8D0E0", borderColor: `${LEVEL_COLORS[u.role] || "#444"}40`, background: `${LEVEL_COLORS[u.role] || "#444"}10` }}>
+                              style={{ color: LEVEL_COLORS[u.role] || t.textSecondary, borderColor: `${LEVEL_COLORS[u.role] || "#444"}40`, background: `${LEVEL_COLORS[u.role] || "#444"}10` }}>
                               {ROLE_LABELS[u.role]}
                             </span>
                           )}
