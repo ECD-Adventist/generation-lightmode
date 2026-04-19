@@ -141,12 +141,8 @@ export default function AdminUsersTab({ user }) {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin_users_full"],
     queryFn: async () => {
-      try {
-        const res = await base44.functions.invoke("listPublicUsers", {});
-        return res.data || [];
-      } catch {
-        return [];
-      }
+      const res = await base44.functions.invoke("adminListUsers", {});
+      return res.data || [];
     }
   });
 
@@ -218,16 +214,19 @@ export default function AdminUsersTab({ user }) {
     }
   };
 
-  const handleSaveRole = async (email, newRole) => {
+  const handleSaveRole = async (targetUserId, newRole) => {
+    if (!targetUserId) {
+      toast.error("Could not identify user. Please refresh and try again.");
+      return;
+    }
     try {
-      const targetUsers = await base44.entities.User.filter({ email });
-      if (targetUsers.length > 0) {
-        await base44.functions.invoke("adminUpdateUserRole", { targetUserId: targetUsers[0].id, newRole });
-        toast.success(`Role updated to "${newRole}"`);
-        queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
-      }
+      await base44.functions.invoke("adminUpdateUserRole", { targetUserId, newRole });
+      toast.success(`Role updated to "${newRole}"`);
+      queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
     } catch (err) {
-      toast.error(err?.response?.data?.error || "Failed to update role.");
+      const msg = err?.response?.data?.error || err?.message || "Failed to update role.";
+      toast.error(msg);
+      console.error("Role update failed:", err);
     }
   };
 
@@ -237,9 +236,9 @@ export default function AdminUsersTab({ user }) {
     let success = 0;
     for (const email of selectedUsers) {
       try {
-        const targetUsers = await base44.entities.User.filter({ email });
-        if (targetUsers.length > 0) {
-          await base44.functions.invoke("assignUserTerritory", { userId: targetUsers[0].id, status: bulkStatus });
+        const target = users.find(u => u.email === email);
+        if (target?.id) {
+          await base44.functions.invoke("assignUserTerritory", { userId: target.id, status: bulkStatus });
           success++;
         }
       } catch { }
@@ -268,22 +267,25 @@ export default function AdminUsersTab({ user }) {
   };
 
   const handleDeleteUser = async (targetUser) => {
+    if (!targetUser?.id) {
+      toast.error("Could not identify user. Please refresh and try again.");
+      return;
+    }
     try {
-      const allUsers = await base44.entities.User.filter({ email: targetUser.email });
-      if (allUsers.length > 0) {
-        await base44.entities.User.delete(allUsers[0].id);
-        toast.success(`${targetUser.full_name || targetUser.email} removed.`);
-        queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
-      }
-    } catch {
-      toast.error("Failed to remove user.");
+      await base44.functions.invoke("adminDeleteUser", { targetUserId: targetUser.id });
+      toast.success(`${targetUser.full_name || targetUser.email} removed.`);
+      queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.message || "Failed to remove user.";
+      toast.error(msg);
+      console.error("Delete user failed:", err);
     }
   };
 
   return (
     <div className="space-y-6">
       {editingUser && (
-        <EditRoleModal targetUser={editingUser} allRoles={allRoles} onClose={() => setEditingUser(null)} onSave={handleSaveRole} t={t} isDark={isDark} />
+        <EditRoleModal targetUser={editingUser} allRoles={allRoles} onClose={() => setEditingUser(null)} onSave={(_email, newRole) => handleSaveRole(editingUser.id, newRole)} t={t} isDark={isDark} />
       )}
       {deletingUser && (
         <DeleteConfirmModal targetUser={deletingUser} onClose={() => setDeletingUser(null)} onConfirm={() => handleDeleteUser(deletingUser)} t={t} />
