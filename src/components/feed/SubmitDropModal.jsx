@@ -8,7 +8,6 @@ import { Loader2, Sparkles, ImagePlus, X, Zap, Hash, BookOpen, ChevronRight } fr
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
-import ImageCropperModal from "@/components/feed/ImageCropperModal";
 import { compressImageUnder2MB } from "@/lib/imageUtils";
 
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
@@ -18,7 +17,6 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [aiLoading, setAiLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [cropSrc, setCropSrc] = useState(null);
   const [mood, setMood] = useState("");
   const [showSuggestion, setShowSuggestion] = useState(true);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -112,24 +110,12 @@ RULES:
     });
     setCompressing(false);
 
-    const reader = new FileReader();
-    reader.onload = (ev) => setCropSrc(ev.target.result);
-    reader.onerror = () => toast.error("Couldn't read that image");
-    reader.readAsDataURL(compressed);
+    // Show the photo preview immediately — no cropper step.
+    const finalFile = new File([compressed], `glow-drop-${Date.now()}.jpg`, { type: "image/jpeg" });
+    setFile(finalFile);
+    if (preview?.startsWith("blob:")) URL.revokeObjectURL(preview);
+    setPreview(URL.createObjectURL(finalFile));
     e.target.value = "";
-  };
-
-  const handleCropDone = (blob) => {
-    if (!blob) {
-      toast.error("Couldn't prepare the photo. Try again.");
-      return;
-    }
-
-    const croppedFile = new File([blob], `glow-drop-${Date.now()}.jpg`, { type: "image/jpeg" });
-    setFile(croppedFile);
-    const previewUrl = URL.createObjectURL(croppedFile);
-    setPreview(previewUrl);
-    setCropSrc(null);
   };
 
   const clearFile = () => {
@@ -179,7 +165,6 @@ RULES:
     setFormData({ verse: "", reflection: "", hashtags: "#FaithAlwaysOn", category: "Devotional" });
     setFile(null);
     setPreview(null);
-    setCropSrc(null);
     setMood("");
     setShowSuggestion(true);
     setUploadProgress(0);
@@ -281,14 +266,6 @@ RULES:
 
   return (
     <>
-      {cropSrc && (
-        <ImageCropperModal
-          src={cropSrc}
-          onCrop={handleCropDone}
-          onCancel={() => setCropSrc(null)}
-        />
-      )}
-
       <Dialog open={isOpen} onOpenChange={resetAndClose}>
         <DialogContent className="sm:max-w-lg max-h-[92vh] overflow-y-auto z-[2000] p-0 rounded-3xl [&>button]:text-[#4A5878] [&>button]:hover:text-[#0B3FD9]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D", boxShadow: "0 16px 48px rgba(11, 63, 217, 0.18)" }}>
           <div className="relative px-6 pt-6 pb-4">
