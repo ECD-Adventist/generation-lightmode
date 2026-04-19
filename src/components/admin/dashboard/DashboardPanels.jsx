@@ -67,8 +67,8 @@ function PanelShell({ title, subtitle, icon: Icon, iconColor, t, isDark, childre
   return (
     <div className="rounded-[1.5rem] border overflow-hidden relative group" style={{
       background: isDark ? t.surface : "#FFFFFF",
-      borderColor: isDark ? t.border : "rgba(0,0,0,0.04)",
-      boxShadow: isDark ? "0 8px 28px rgba(0,0,0,0.3)" : "0 8px 28px rgba(15,23,42,0.06)",
+      borderColor: isDark ? t.border : "rgba(11,63,217,0.1)",
+      boxShadow: isDark ? "0 8px 28px rgba(0,0,0,0.3)" : "0 6px 22px rgba(11,63,217,0.08)",
       animation: `panel-fade 0.8s cubic-bezier(0.22,1,0.36,1) ${delay}ms both`,
     }}>
       <style>{`@keyframes panel-fade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }`}</style>
@@ -100,12 +100,12 @@ function PanelShell({ title, subtitle, icon: Icon, iconColor, t, isDark, childre
 /* ─── Engagement / Community Health ────────────────────────────────────── */
 export function EngagementPanel({ engagementRate, avgLikes, approvedDrops, recentDrops, t, isDark }) {
   const engagePct = Math.min(parseFloat(engagementRate) || 0, 100);
-  const mainColor = isDark ? "#00CFFF" : "#0B3FD9";
+  const mainColor = isDark ? "#1FB8FF" : "#0B3FD9";
 
   const items = [
     { label: "Avg Likes", value: avgLikes, icon: Heart, color: isDark ? "#f43f5e" : "#e11d48", pct: Math.min((parseFloat(avgLikes) / 10) * 100, 100), decimals: 1 },
     { label: "Approved", value: approvedDrops, icon: CheckCircle2, color: isDark ? "#22c55e" : "#16a34a", pct: 75 },
-    { label: "This Week", value: recentDrops, icon: Flame, color: isDark ? "#FFD000" : "#d97706", pct: Math.min((recentDrops / 20) * 100, 100) },
+    { label: "This Week", value: recentDrops, icon: Flame, color: isDark ? "#FFD60A" : "#D97706", pct: Math.min((recentDrops / 20) * 100, 100) },
   ];
 
   return (
@@ -156,12 +156,12 @@ export function EngagementPanel({ engagementRate, avgLikes, approvedDrops, recen
 /* ─── Top Performers ───────────────────────────────────────────────────── */
 export function TopPerformersPanel({ performers, t, isDark }) {
   const medalStyles = [
-    { bg: isDark ? "linear-gradient(135deg, rgba(255,208,0,0.18), rgba(255,159,26,0.08))" : "linear-gradient(135deg, #FFFBEB, #FEF3C7)", border: isDark ? "rgba(255,208,0,0.25)" : "#FDE68A", ring: "#FFD000" },
+    { bg: isDark ? "linear-gradient(135deg, rgba(255,214,10,0.2), rgba(255,159,26,0.1))" : "linear-gradient(135deg, #FFFBEB, #FEF3C7)", border: isDark ? "rgba(255,214,10,0.3)" : "#FCD34D", ring: "#FFD60A" },
     { bg: isDark ? "linear-gradient(135deg, rgba(192,192,192,0.12), rgba(156,163,175,0.05))" : "linear-gradient(135deg, #F9FAFB, #F3F4F6)", border: isDark ? "rgba(192,192,192,0.2)" : "#E5E7EB", ring: "#9CA3AF" },
     { bg: isDark ? "linear-gradient(135deg, rgba(205,127,50,0.12), rgba(180,83,9,0.05))" : "linear-gradient(135deg, #FFF7ED, #FFEDD5)", border: isDark ? "rgba(205,127,50,0.2)" : "#FED7AA", ring: "#CD7F32" },
   ];
   const medals = ["🥇", "🥈", "🥉"];
-  const goldColor = isDark ? "#FFD000" : "#d97706";
+  const goldColor = isDark ? "#FFD60A" : "#D97706";
   const maxLikes = Math.max(...performers.map(p => p.likes), 1);
 
   return (

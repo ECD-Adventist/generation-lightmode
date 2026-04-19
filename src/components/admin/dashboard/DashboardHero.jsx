@@ -57,7 +57,7 @@ export default function DashboardHero({ user, pendingDrops, pendingTerritories, 
       <div className="absolute inset-0" style={{
         background: isDark
           ? "linear-gradient(135deg, #060B18 0%, #0B1226 25%, #0F1730 50%, #0A1F4A 75%, #060B18 100%)"
-          : "linear-gradient(135deg, #EBF1FF 0%, #E3EAFF 25%, #EDE5FF 50%, #F0ECFF 75%, #EBF1FF 100%)"
+          : "linear-gradient(135deg, #F4F8FF 0%, #E8F1FF 25%, #F0F4FF 50%, #FFF9E6 75%, #F4F8FF 100%)"
       }} />
 
       {/* Faded B&W hero image — same image from website Home hero */}
@@ -73,13 +73,13 @@ export default function DashboardHero({ user, pendingDrops, pendingTerritories, 
       <div className="absolute inset-0 pointer-events-none" style={{
         background: isDark
           ? "linear-gradient(90deg, rgba(6,11,24,0.94) 0%, rgba(6,11,24,0.78) 40%, rgba(6,11,24,0.4) 100%)"
-          : "linear-gradient(90deg, rgba(235,241,255,0.92) 0%, rgba(235,241,255,0.75) 40%, rgba(235,241,255,0.45) 100%)",
+          : "linear-gradient(90deg, rgba(244,248,255,0.94) 0%, rgba(244,248,255,0.78) 40%, rgba(244,248,255,0.48) 100%)",
       }} />
 
       {/* Animated orbs — Feed's sky→royal-blue + gold */}
-      <div className="absolute top-[-80px] right-[-60px] w-[280px] h-[280px] rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ background: isDark ? "rgba(31,184,255,0.18)" : "rgba(11,63,217,0.08)", animationDuration: "4s" }} />
-      <div className="absolute bottom-[-60px] left-[10%] w-[220px] h-[220px] rounded-full blur-[90px] pointer-events-none animate-pulse" style={{ background: isDark ? "rgba(11,63,217,0.16)" : "rgba(138,92,255,0.06)", animationDuration: "6s" }} />
-      <div className="absolute top-[30%] left-[60%] w-[150px] h-[150px] rounded-full blur-[70px] pointer-events-none animate-pulse" style={{ background: isDark ? "rgba(255,214,10,0.08)" : "rgba(255,159,26,0.04)", animationDuration: "5s" }} />
+      <div className="absolute top-[-80px] right-[-60px] w-[280px] h-[280px] rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ background: isDark ? "rgba(31,184,255,0.18)" : "rgba(31,184,255,0.18)", animationDuration: "4s" }} />
+      <div className="absolute bottom-[-60px] left-[10%] w-[220px] h-[220px] rounded-full blur-[90px] pointer-events-none animate-pulse" style={{ background: isDark ? "rgba(11,63,217,0.16)" : "rgba(11,63,217,0.12)", animationDuration: "6s" }} />
+      <div className="absolute top-[30%] left-[60%] w-[150px] h-[150px] rounded-full blur-[70px] pointer-events-none animate-pulse" style={{ background: isDark ? "rgba(255,214,10,0.08)" : "rgba(255,214,10,0.14)", animationDuration: "5s" }} />
 
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{
@@ -110,7 +110,7 @@ export default function DashboardHero({ user, pendingDrops, pendingTerritories, 
             <h1 className="text-3xl md:text-4xl font-black font-['Space_Grotesk'] tracking-tight leading-tight" style={{ color: t.textPrimary }}>
               {greeting},{" "}
               <span style={{
-                backgroundImage: isDark ? "linear-gradient(135deg, #5AC8FF 0%, #1FB8FF 50%, #0B3FD9 100%)" : "linear-gradient(135deg, #0B3FD9, #7e22ce)",
+                backgroundImage: isDark ? "linear-gradient(135deg, #5AC8FF 0%, #1FB8FF 50%, #0B3FD9 100%)" : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -142,10 +142,10 @@ export default function DashboardHero({ user, pendingDrops, pendingTerritories, 
               </Link>
             )}
             <Link to={`${createPageUrl("AdminCenter")}?tab=notifications`} className="group flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-xs transition-all hover:scale-[1.02] backdrop-blur-sm" style={{
-              background: isDark ? "linear-gradient(135deg, rgba(31,184,255,0.15), rgba(11,63,217,0.1))" : "rgba(11,63,217,0.06)",
+              background: isDark ? "linear-gradient(135deg, rgba(31,184,255,0.15), rgba(11,63,217,0.1))" : "linear-gradient(135deg, rgba(31,184,255,0.12), rgba(11,63,217,0.08))",
               color: isDark ? "#5AC8FF" : "#0B3FD9",
-              border: `1px solid ${isDark ? "rgba(31,184,255,0.3)" : "rgba(11,63,217,0.1)"}`,
-              boxShadow: isDark ? "0 4px 20px rgba(31,184,255,0.12)" : "0 4px 16px rgba(11,63,217,0.08)"
+              border: `1px solid ${isDark ? "rgba(31,184,255,0.3)" : "rgba(11,63,217,0.25)"}`,
+              boxShadow: isDark ? "0 4px 20px rgba(31,184,255,0.12)" : "0 4px 14px rgba(11,63,217,0.14)"
             }}>
               <Send size={14} />
               <span>Broadcast</span>

@@ -9,8 +9,8 @@ function PanelShell({ title, subtitle, icon: Icon, iconColor, t, isDark, childre
   return (
     <div className="rounded-[1.5rem] border overflow-hidden relative" style={{
       background: isDark ? t.surface : "#FFFFFF",
-      borderColor: isDark ? t.border : "rgba(0,0,0,0.04)",
-      boxShadow: isDark ? "0 8px 28px rgba(0,0,0,0.3)" : "0 8px 28px rgba(15,23,42,0.06)",
+      borderColor: isDark ? t.border : "rgba(11,63,217,0.1)",
+      boxShadow: isDark ? "0 8px 28px rgba(0,0,0,0.3)" : "0 6px 22px rgba(11,63,217,0.08)",
       animation: `dx-panel-fade 0.8s cubic-bezier(0.22,1,0.36,1) ${delay}ms both`,
     }}>
       <style>{`@keyframes dx-panel-fade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }`}</style>
@@ -64,7 +64,7 @@ function AnimatedBar({ percent, color, delay = 0 }) {
 
 /* ─── Leading Countries ────────────────────────────────────────────────── */
 export function LeadingCountriesPanel({ users, drops, t, isDark }) {
-  const goldColor = isDark ? "#FFD000" : "#d97706";
+  const goldColor = isDark ? "#FFD60A" : "#D97706";
 
   const ranked = useMemo(() => {
     const map = {};
@@ -99,8 +99,8 @@ export function LeadingCountriesPanel({ users, drops, t, isDark }) {
         <div className="px-4 pb-4 space-y-2">
           {ranked.map((c, i) => {
             const pct = (c.score / maxScore) * 100;
-            const rankColors = ["#FFD000", "#9CA3AF", "#CD7F32"];
-            const barColor = i < 3 ? rankColors[i] : (isDark ? "#00CFFF" : "#0B3FD9");
+            const rankColors = ["#FFD60A", "#9CA3AF", "#CD7F32"];
+            const barColor = i < 3 ? rankColors[i] : (isDark ? "#1FB8FF" : "#0B3FD9");
             return (
               <div key={c.country} className="relative rounded-xl p-2.5" style={{
                 background: i < 3 ? `${barColor}08` : "transparent",
@@ -132,7 +132,7 @@ export function LeadingCountriesPanel({ users, drops, t, isDark }) {
 
 /* ─── Challenge Impact ─────────────────────────────────────────────────── */
 export function ChallengeImpactPanel({ t, isDark }) {
-  const accentColor = isDark ? "#8A5CFF" : "#7e22ce";
+  const accentColor = isDark ? "#5AC8FF" : "#0B3FD9";
 
   const { data: challenges = [] } = useQuery({ queryKey: ["dx_challenges"], queryFn: () => base44.entities.Challenge.list("-created_date", 20) });
   const { data: submissions = [] } = useQuery({ queryKey: ["dx_submissions"], queryFn: () => base44.entities.ChallengeSubmission.list("-created_date", 200) });
@@ -157,9 +157,9 @@ export function ChallengeImpactPanel({ t, isDark }) {
       {/* Top stats row */}
       <div className="grid grid-cols-3 px-5 pb-4 gap-2">
         {[
-          { label: "Submissions", value: stats.totalSubs, icon: Zap, color: isDark ? "#00CFFF" : "#0B3FD9" },
+          { label: "Submissions", value: stats.totalSubs, icon: Zap, color: isDark ? "#1FB8FF" : "#0B3FD9" },
           { label: "Participants", value: stats.uniqueParticipants, icon: Users2, color: isDark ? "#22c55e" : "#16a34a" },
-          { label: "XP Awarded", value: stats.totalPoints, icon: Flame, color: isDark ? "#FFD000" : "#d97706" },
+          { label: "XP Awarded", value: stats.totalPoints, icon: Flame, color: isDark ? "#FFD60A" : "#D97706" },
         ].map((m, i) => {
           const Icon = m.icon;
           return (
@@ -177,7 +177,7 @@ export function ChallengeImpactPanel({ t, isDark }) {
       </div>
 
       {/* Top challenges */}
-      <div className="px-4 pb-4 border-t pt-3" style={{ borderColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)" }}>
+      <div className="px-4 pb-4 border-t pt-3" style={{ borderColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(11,63,217,0.06)" }}>
         <p className="text-[9px] font-bold uppercase tracking-wider px-1 mb-2" style={{ color: t.textMuted }}>Top Active Challenges</p>
         {stats.topChallenges.length === 0 ? (
           <p className="text-xs py-6 text-center" style={{ color: t.textMuted }}>No active challenges</p>
@@ -187,7 +187,7 @@ export function ChallengeImpactPanel({ t, isDark }) {
               const pct = (c.subCount / maxSubs) * 100;
               return (
                 <div key={c.id} className="rounded-lg p-2" style={{
-                  background: isDark ? "rgba(138,92,255,0.05)" : "rgba(126,34,206,0.04)",
+                  background: isDark ? "rgba(90,200,255,0.06)" : "rgba(11,63,217,0.05)",
                   animation: `dx-panel-fade 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 80 + 300}ms both`,
                 }}>
                   <div className="flex items-center justify-between gap-2 mb-1.5">
@@ -243,9 +243,9 @@ export function CommunityPulsePanel({ scopedGroups, t, isDark }) {
   const categoryColors = {
     Health: isDark ? "#22c55e" : "#16a34a",
     Family: isDark ? "#f43f5e" : "#e11d48",
-    Finance: isDark ? "#FFD000" : "#d97706",
-    Guidance: isDark ? "#00CFFF" : "#0B3FD9",
-    Other: isDark ? "#8A5CFF" : "#7e22ce",
+    Finance: isDark ? "#FFD60A" : "#D97706",
+    Guidance: isDark ? "#1FB8FF" : "#0B3FD9",
+    Other: isDark ? "#5AC8FF" : "#1FB8FF",
   };
 
   return (
@@ -294,7 +294,7 @@ export function CommunityPulsePanel({ scopedGroups, t, isDark }) {
         </div>
 
         {/* Top groups */}
-        <div className="pt-3 border-t" style={{ borderColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)" }}>
+        <div className="pt-3 border-t" style={{ borderColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(11,63,217,0.06)" }}>
           <div className="flex items-center justify-between mb-2">
             <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: t.textMuted }}>Top GlowGroups</p>
             <span className="text-[9px] font-bold" style={{ color: t.textMuted }}>
@@ -307,7 +307,7 @@ export function CommunityPulsePanel({ scopedGroups, t, isDark }) {
             <div className="space-y-1.5">
               {stats.topGroups.map((g, i) => {
                 const pct = (g.memberCount / maxMemberCount) * 100;
-                const color = isDark ? "#00CFFF" : "#0B3FD9";
+                const color = isDark ? "#1FB8FF" : "#0B3FD9";
                 return (
                   <div key={g.id} className="flex items-center gap-2" style={{ animation: `dx-panel-fade 0.5s cubic-bezier(0.22,1,0.36,1) ${i * 80 + 400}ms both` }}>
                     <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0" style={{ background: `${color}10`, border: `1px solid ${color}20` }}>

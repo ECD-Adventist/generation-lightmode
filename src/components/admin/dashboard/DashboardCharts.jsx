@@ -26,8 +26,8 @@ function ChartCard({ title, subtitle, icon: Icon, color, badge, children, t, isD
   return (
     <div className="rounded-[1.5rem] border relative overflow-hidden group" style={{
       background: isDark ? t.surface : "#FFFFFF",
-      borderColor: isDark ? t.border : "rgba(0,0,0,0.04)",
-      boxShadow: isDark ? "0 8px 28px rgba(0,0,0,0.3)" : "0 8px 28px rgba(15,23,42,0.06)",
+      borderColor: isDark ? t.border : "rgba(11,63,217,0.1)",
+      boxShadow: isDark ? "0 8px 28px rgba(0,0,0,0.3)" : "0 6px 22px rgba(11,63,217,0.08)",
       animation: `chart-fade-in 0.8s cubic-bezier(0.22,1,0.36,1) ${delay}ms both`,
     }}>
       {/* Gradient top border */}
@@ -69,9 +69,9 @@ function ChartCard({ title, subtitle, icon: Icon, color, badge, children, t, isD
 export default function DashboardCharts({ growthData, dropsData, scopedUsers, recentDrops, t, isDark }) {
   const axis = isDark ? "#3A4A6B" : "#b0bbd0";
   const grid = isDark ? "rgba(255,255,255,0.03)" : "rgba(15,23,42,0.04)";
-  const mainColor = isDark ? "#00CFFF" : "#0B3FD9";
-  const goldColor = isDark ? "#FFD000" : "#d97706";
-  const purpleColor = isDark ? "#8A5CFF" : "#7e22ce";
+  const mainColor = isDark ? "#1FB8FF" : "#0B3FD9";
+  const goldColor = isDark ? "#FFD60A" : "#d97706";
+  const purpleColor = isDark ? "#5AC8FF" : "#1FB8FF";
 
   const maxDropsDay = Math.max(...dropsData.map(d => d.drops), 0);
 

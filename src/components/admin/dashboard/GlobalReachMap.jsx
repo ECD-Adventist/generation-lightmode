@@ -11,8 +11,8 @@ function PanelShell({ title, subtitle, icon: Icon, iconColor, t, isDark, childre
   return (
     <div className="rounded-[1.5rem] border overflow-hidden relative" style={{
       background: isDark ? t.surface : "#FFFFFF",
-      borderColor: isDark ? t.border : "rgba(0,0,0,0.04)",
-      boxShadow: isDark ? "0 8px 28px rgba(0,0,0,0.3)" : "0 8px 28px rgba(15,23,42,0.06)",
+      borderColor: isDark ? t.border : "rgba(11,63,217,0.1)",
+      boxShadow: isDark ? "0 8px 28px rgba(0,0,0,0.3)" : "0 6px 22px rgba(11,63,217,0.08)",
       animation: `grm-panel-fade 0.8s cubic-bezier(0.22,1,0.36,1) ${delay}ms both`,
     }}>
       <style>{`@keyframes grm-panel-fade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }`}</style>

@@ -65,17 +65,17 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
   }, [scopedDrops, users]);
 
   const stats = [
-    { label: "Users", value: scopedUsers.length, icon: Users, color: isDark ? "#00CFFF" : "#0B3FD9", to: `${createPageUrl("AdminCenter")}?tab=users` },
-    { label: "Drops", value: scopedDrops.length, icon: Zap, color: isDark ? "#FFD000" : "#d97706", trend: `${recentDrops} this wk`, to: `${createPageUrl("AdminCenter")}?tab=drops` },
-    { label: "Groups", value: scopedGroups.length, icon: Activity, color: isDark ? "#8A5CFF" : "#7e22ce", to: `${createPageUrl("AdminCenter")}?tab=groups` },
+    { label: "Users", value: scopedUsers.length, icon: Users, color: isDark ? "#1FB8FF" : "#0B3FD9", to: `${createPageUrl("AdminCenter")}?tab=users` },
+    { label: "Drops", value: scopedDrops.length, icon: Zap, color: isDark ? "#FFD60A" : "#D97706", trend: `${recentDrops} this wk`, to: `${createPageUrl("AdminCenter")}?tab=drops` },
+    { label: "Groups", value: scopedGroups.length, icon: Activity, color: isDark ? "#5AC8FF" : "#1FB8FF", to: `${createPageUrl("AdminCenter")}?tab=groups` },
     { label: "Challenges", value: challenges.filter(c => c.active).length, icon: Target, color: isDark ? "#ef4444" : "#dc2626", to: `${createPageUrl("AdminCenter")}?tab=challenges` },
     { label: "Countries", value: uniqueCountries, icon: Globe, color: isDark ? "#22c55e" : "#16a34a", to: `${createPageUrl("AdminCenter")}?tab=countries` },
     { label: "Likes", value: totalLikes, icon: Heart, color: isDark ? "#f43f5e" : "#e11d48" },
     { label: "Pending Review", value: pendingDrops, icon: Shield, color: isDark ? "#f59e0b" : "#b45309", trend: pendingDrops > 0 ? "needs action" : null, to: `${createPageUrl("AdminCenter")}?tab=drops` },
-    { label: "Engagement", value: parseFloat(engagementRate) || 0, icon: TrendingUp, color: isDark ? "#06b6d4" : "#0891b2", suffix: "%", decimals: 1 },
+    { label: "Engagement", value: parseFloat(engagementRate) || 0, icon: TrendingUp, color: isDark ? "#06b6d4" : "#0B3FD9", suffix: "%", decimals: 1 },
     { label: "Avg Likes", value: parseFloat(avgLikes) || 0, icon: Sparkles, color: isDark ? "#ec4899" : "#db2777", decimals: 1 },
     { label: "This Week", value: recentDrops, icon: Flame, color: isDark ? "#fb923c" : "#ea580c" },
-    { label: "Total Groups", value: scopedGroups.length, icon: MessageSquare, color: isDark ? "#a78bfa" : "#7c3aed", to: `${createPageUrl("AdminCenter")}?tab=groups` },
+    { label: "Total Groups", value: scopedGroups.length, icon: MessageSquare, color: isDark ? "#5AC8FF" : "#0B3FD9", to: `${createPageUrl("AdminCenter")}?tab=groups` },
   ];
 
   if (territoryRestricted && !territoryApproved) {
