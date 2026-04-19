@@ -600,9 +600,9 @@ export default function GroupChat() {
                   <Smile className="w-4 h-4" />
                 </button>
                 {showEmoji && (
-                  <div className="absolute bottom-full mb-2 left-0 rounded-2xl p-2 grid grid-cols-6 gap-1 z-50" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.15)" }}>
+                  <div className="absolute bottom-full mb-2 left-0 rounded-2xl p-2 grid grid-cols-6 gap-1 z-50 w-[280px]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.15)" }}>
                     {EMOJIS.map(e => (
-                      <button key={e} type="button" onClick={(ev) => { ev.stopPropagation(); setDraft(d => d + e); setShowEmoji(false); inputRef.current?.focus(); }} className="w-9 h-9 rounded-lg text-lg hover:bg-[#F6F8FC] transition">{e}</button>
+                      <button key={e} type="button" onClick={(ev) => { ev.stopPropagation(); setDraft(d => d + e); setShowEmoji(false); inputRef.current?.focus(); }} className="w-10 h-10 flex items-center justify-center rounded-lg text-xl hover:bg-[#F6F8FC] transition">{e}</button>
                     ))}
                   </div>
                 )}
