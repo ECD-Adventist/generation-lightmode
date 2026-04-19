@@ -5,6 +5,8 @@ import { Loader2, Trophy, Star, ChevronRight, RotateCcw, Home, Zap, CheckCircle,
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
+import AppTopNav from "@/components/AppTopNav";
+import AppFooter from "@/components/AppFooter";
 
 // Quiz questions generated from Keep It 100 content
 const QUIZ_QUESTIONS = [
@@ -99,8 +101,9 @@ export default function FaithQuiz() {
 
   return (
     <div style={{ background: "#F6F8FC", minHeight: "100vh", fontFamily: "Inter, sans-serif", color: "#0B1B3D" }}>
-      {/* Nav */}
-      <div style={{ background: "rgba(246, 248, 252, 0.9)", backdropFilter: "blur(20px)", borderBottom: "1px solid #E2E8F0", padding: "16px 24px", position: "sticky", top: 0, zIndex: 50 }}>
+      <AppTopNav />
+      {/* Sub-nav */}
+      <div style={{ background: "#FFFFFF", borderBottom: "1px solid #E6ECF5", padding: "12px 24px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Link to={createPageUrl("Feed")} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "#4A5878", fontSize: 14, fontWeight: 600 }}>
             <Home size={16} /> Back to Feed
@@ -295,6 +298,7 @@ export default function FaithQuiz() {
           </div>
         )}
       </div>
+      <AppFooter />
     </div>
   );
 }

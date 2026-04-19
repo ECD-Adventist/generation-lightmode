@@ -164,9 +164,9 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
       )}
 
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="bg-[#121826] border-white/10 text-white max-w-2xl">
+        <DialogContent className="max-w-2xl font-['Inter']" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D", boxShadow: "0 16px 48px rgba(11, 63, 217, 0.18)" }}>
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-[#00CFFF]">
+            <DialogTitle className="text-2xl font-bold font-['Space_Grotesk']" style={{ color: "#0B3FD9" }}>
               {step === 1 ? "Institution Details" : "Commitment & Procedures"}
             </DialogTitle>
           </DialogHeader>
@@ -175,22 +175,24 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
             {step === 1 ? (
               <>
                 <div>
-                  <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Institution Name *</label>
+                  <label className="text-xs uppercase tracking-wider mb-2 block font-bold" style={{ color: "#6B7FA0" }}>Institution Name *</label>
                   <Input
                     required
                     value={formData.institution_name}
                     onChange={(e) => setFormData({ ...formData, institution_name: e.target.value })}
-                    className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl"
+                    className="h-12 rounded-xl"
+                    style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
                     placeholder="e.g. Grace Community Church"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Institution Type *</label>
+                  <label className="text-xs uppercase tracking-wider mb-2 block font-bold" style={{ color: "#6B7FA0" }}>Institution Type *</label>
                   <select
                     value={formData.institution_type}
                     onChange={(e) => setFormData({ ...formData, institution_type: e.target.value })}
-                    className="w-full bg-[#0B0F1A] border border-white/10 rounded-xl px-4 h-12 text-white focus:outline-none focus:ring-1 focus:ring-[#00CFFF]/50"
+                    className="w-full rounded-xl px-4 h-12 focus:outline-none focus:ring-1"
+                    style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
                   >
                     <option value="church">Church</option>
                     <option value="school">School</option>
@@ -202,62 +204,67 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Country *</label>
+                    <label className="text-xs uppercase tracking-wider mb-2 block font-bold" style={{ color: "#6B7FA0" }}>Country *</label>
                     <Input
                       required
                       value={formData.country}
                       onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                      className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl"
+                      className="h-12 rounded-xl"
+                      style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
                     />
                   </div>
                   <div>
-                    <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Contact Person *</label>
+                    <label className="text-xs uppercase tracking-wider mb-2 block font-bold" style={{ color: "#6B7FA0" }}>Contact Person *</label>
                     <Input
                       required
                       value={formData.contact_person}
                       onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
-                      className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl"
+                      className="h-12 rounded-xl"
+                      style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Email *</label>
+                    <label className="text-xs uppercase tracking-wider mb-2 block font-bold" style={{ color: "#6B7FA0" }}>Email *</label>
                     <Input
                       required
                       type="email"
                       value={formData.contact_email}
                       onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
-                      className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl"
+                      className="h-12 rounded-xl"
+                      style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
                     />
                   </div>
                   <div>
-                    <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Phone</label>
+                    <label className="text-xs uppercase tracking-wider mb-2 block font-bold" style={{ color: "#6B7FA0" }}>Phone</label>
                     <Input
                       value={formData.contact_phone}
                       onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                      className="bg-[#0B0F1A] border-white/10 h-12 rounded-xl"
+                      className="h-12 rounded-xl"
+                      style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Institution Logo (Optional)</label>
+                  <label className="text-xs uppercase tracking-wider mb-2 block font-bold" style={{ color: "#6B7FA0" }}>Institution Logo (Optional)</label>
                   <button
                     type="button"
                     onClick={() => logoInputRef.current?.click()}
-                    className="w-full border-2 border-dashed border-white/10 rounded-xl p-6 hover:border-[#00CFFF]/30 transition text-center"
+                    className="w-full border-2 border-dashed rounded-xl p-6 transition text-center hover:opacity-90"
+                    style={{ borderColor: "#D6E4FF", background: "#F6F8FC" }}
                   >
                     {logoPreview ? (
                       <div className="flex flex-col items-center gap-2">
                         <img src={logoPreview} alt="Logo" className="w-16 h-16 rounded-lg object-cover" />
-                        <span className="text-xs text-gray-400">Click to change</span>
+                        <span className="text-xs" style={{ color: "#6B7FA0" }}>Click to change</span>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center gap-2">
-                        <Upload className="w-6 h-6 text-gray-500" />
-                        <span className="text-sm text-gray-400">Upload logo (square recommended)</span>
+                        <Upload className="w-6 h-6" style={{ color: "#8A97B5" }} />
+                        <span className="text-sm" style={{ color: "#8A97B5" }}>Upload logo (square recommended)</span>
                       </div>
                     )}
                   </button>
@@ -265,21 +272,22 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                 </div>
 
                 <div>
-                  <label className="text-xs uppercase tracking-wider text-gray-400 mb-2 block">Organization Map / Structure (Optional)</label>
+                  <label className="text-xs uppercase tracking-wider mb-2 block font-bold" style={{ color: "#6B7FA0" }}>Organization Map / Structure (Optional)</label>
                   <button
                     type="button"
                     onClick={() => orgMapInputRef.current?.click()}
-                    className="w-full border-2 border-dashed border-white/10 rounded-xl p-6 hover:border-[#FFD000]/30 transition text-center"
+                    className="w-full border-2 border-dashed rounded-xl p-6 transition text-center hover:opacity-90"
+                    style={{ borderColor: "#D6E4FF", background: "#F6F8FC" }}
                   >
                     {orgMapPreview ? (
                       <div className="flex flex-col items-center gap-2">
                         <img src={orgMapPreview} alt="Org Map" className="w-full max-h-32 rounded-lg object-contain" />
-                        <span className="text-xs text-gray-400">Click to change</span>
+                        <span className="text-xs" style={{ color: "#6B7FA0" }}>Click to change</span>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center gap-2">
-                        <Upload className="w-6 h-6 text-gray-500" />
-                        <span className="text-sm text-gray-400">Upload your organization map/structure image</span>
+                        <Upload className="w-6 h-6" style={{ color: "#8A97B5" }} />
+                        <span className="text-sm" style={{ color: "#8A97B5" }}>Upload your organization map/structure image</span>
                       </div>
                     )}
                   </button>
@@ -289,62 +297,66 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
             ) : (
               <>
                 <div className="space-y-4">
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-4">
-                    <h3 className="text-sm font-bold text-white">Commitment & Procedures</h3>
-                    
-                    <label className="flex items-start gap-3 cursor-pointer hover:bg-white/5 p-3 rounded-lg transition">
+                  <div className="rounded-xl p-4 space-y-4" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                    <h3 className="text-sm font-bold" style={{ color: "#0B1B3D" }}>Commitment & Procedures</h3>
+
+                    <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
                       <input
                         type="checkbox"
                         checked={formData.agree_procedures}
                         onChange={(e) => setFormData({ ...formData, agree_procedures: e.target.checked })}
-                        className="mt-1 w-4 h-4 rounded border-white/20 bg-[#0B0F1A] accent-[#00CFFF]"
+                        className="mt-1 w-4 h-4 rounded"
+                        style={{ accentColor: "#0B3FD9" }}
                       />
-                      <span className="text-xs text-gray-300 leading-relaxed">
-                        I agree to maintain and enforce clear member <strong>procedures, rules, and guidelines</strong> that align with Generation LightMode standards and ECD compliance requirements.
+                      <span className="text-xs leading-relaxed" style={{ color: "#3A4A6B" }}>
+                        I agree to maintain and enforce clear member <strong style={{ color: "#0B1B3D" }}>procedures, rules, and guidelines</strong> that align with Generation LightMode standards and ECD compliance requirements.
                       </span>
                     </label>
 
-                    <label className="flex items-start gap-3 cursor-pointer hover:bg-white/5 p-3 rounded-lg transition">
+                    <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
                       <input
                         type="checkbox"
                         checked={formData.agree_commitment}
                         onChange={(e) => setFormData({ ...formData, agree_commitment: e.target.checked })}
-                        className="mt-1 w-4 h-4 rounded border-white/20 bg-[#0B0F1A] accent-[#00CFFF]"
+                        className="mt-1 w-4 h-4 rounded"
+                        style={{ accentColor: "#0B3FD9" }}
                       />
-                      <span className="text-xs text-gray-300 leading-relaxed">
-                        I commit to upholding core <strong>spiritual values and faith-based principles</strong> as the foundation of our institution's mission and territory administration.
+                      <span className="text-xs leading-relaxed" style={{ color: "#3A4A6B" }}>
+                        I commit to upholding core <strong style={{ color: "#0B1B3D" }}>spiritual values and faith-based principles</strong> as the foundation of our institution's mission and territory administration.
                       </span>
                     </label>
 
-                    <label className="flex items-start gap-3 cursor-pointer hover:bg-white/5 p-3 rounded-lg transition">
+                    <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
                       <input
                         type="checkbox"
                         checked={formData.agree_ecd_supervision}
                         onChange={(e) => setFormData({ ...formData, agree_ecd_supervision: e.target.checked })}
-                        className="mt-1 w-4 h-4 rounded border-white/20 bg-[#0B0F1A] accent-[#00CFFF]"
+                        className="mt-1 w-4 h-4 rounded"
+                        style={{ accentColor: "#0B3FD9" }}
                       />
-                      <span className="text-xs text-gray-300 leading-relaxed">
-                        I agree to <strong>administer and supervise all assigned territories</strong> according to ECD (East Central Africa Division of the Seventh-day Adventist Church) standards, including mandatory oversight protocols, compliance audits, and member supervision requirements.
+                      <span className="text-xs leading-relaxed" style={{ color: "#3A4A6B" }}>
+                        I agree to <strong style={{ color: "#0B1B3D" }}>administer and supervise all assigned territories</strong> according to ECD (East Central Africa Division of the Seventh-day Adventist Church) standards, including mandatory oversight protocols, compliance audits, and member supervision requirements.
                       </span>
                     </label>
                   </div>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <p className="text-xs text-gray-400 leading-relaxed">
+                <div className="rounded-xl p-4" style={{ background: "rgba(255, 208, 0, 0.06)", border: "1px solid #FFE4A0" }}>
+                  <p className="text-xs leading-relaxed" style={{ color: "#8B6914" }}>
                     Your Institution Dashboard application will be reviewed by our super admin team. You'll be notified once it's approved or if additional information is needed.
                   </p>
                 </div>
               </>
             )}
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+            <div className="flex justify-end gap-3 pt-4 border-t" style={{ borderColor: "#E6ECF5" }}>
               {step === 2 && (
                 <Button
                   type="button"
                   variant="ghost"
                   onClick={() => setStep(1)}
                   className="h-12 px-6"
+                  style={{ color: "#4A5878" }}
                 >
                   Back
                 </Button>
@@ -354,13 +366,15 @@ export default function ClaimInstitutionModal({ isOpen, onClose, user }) {
                 variant="ghost"
                 onClick={onClose}
                 className="h-12 px-6"
+                style={{ color: "#4A5878" }}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={loading}
-                className="bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black font-bold h-12 px-8 rounded-xl"
+                className="font-black h-12 px-8 rounded-xl hover:opacity-90 transition"
+                style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }}
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : step === 1 ? "Next" : "Submit Application"}
               </Button>

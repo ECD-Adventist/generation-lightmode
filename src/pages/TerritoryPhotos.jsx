@@ -8,6 +8,8 @@ import { createPageUrl } from "@/utils";
 import TerritoryPhotoCard from "@/components/territory/TerritoryPhotoCard";
 import TerritoryPhotoUploadModal from "@/components/territory/TerritoryPhotoUploadModal";
 import TerritoryModerationQueue from "@/components/territory/TerritoryModerationQueue";
+import AppTopNav from "@/components/AppTopNav";
+import AppFooter from "@/components/AppFooter";
 
 const LEADER_ROLES = ["admin", "super_admin", "moderator", "church_admin", "conference_field_admin", "union_admin", "country_admin", "ecd_admin", "GlowGroup Leader"];
 
@@ -72,30 +74,32 @@ export default function TerritoryPhotos() {
   };
 
   if (!user) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0B0F1A]">
-      <Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" />
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}>
+      <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white pb-20">
-      {/* Header */}
-      <div className="sticky top-0 z-50 bg-[#0B0F1A]/90 backdrop-blur-xl border-b border-white/5">
+    <div className="min-h-screen pb-12 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+      <AppTopNav />
+      {/* Sub-header */}
+      <div className="border-b" style={{ background: "#FFFFFF", borderColor: "#E6ECF5" }}>
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Link to={createPageUrl("Feed")} className="text-gray-400 hover:text-white transition">
+            <Link to={createPageUrl("Feed")} className="transition" style={{ color: "#6B7FA0" }}>
               <ChevronLeft className="w-5 h-5" />
             </Link>
             <div className="flex items-center gap-2">
-              <Camera className="w-5 h-5 text-[#00CFFF]" />
-              <h1 className="text-lg font-black font-['Space_Grotesk'] text-white">Territory Moments</h1>
+              <Camera className="w-5 h-5" style={{ color: "#1FB8FF" }} />
+              <h1 className="text-lg font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>Territory Moments</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {canModerate && pendingPhotos.length > 0 && (
               <button
                 onClick={() => setModQueue(true)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FFD000]/10 border border-[#FFD000]/30 text-[#FFD000] text-xs font-bold hover:bg-[#FFD000]/20 transition"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition"
+                style={{ background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}
               >
                 <Shield className="w-3.5 h-3.5" />
                 Review ({pendingPhotos.length})
@@ -103,7 +107,8 @@ export default function TerritoryPhotos() {
             )}
             <button
               onClick={() => setUploadOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#00CFFF] to-[#8A5CFF] text-black text-xs font-black hover:opacity-90 transition"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black hover:opacity-90 transition"
+              style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }}
             >
               <Upload className="w-3.5 h-3.5" /> Share Photo
             </button>
@@ -113,41 +118,47 @@ export default function TerritoryPhotos() {
 
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Subtitle */}
-        <div className="mb-6 flex items-center gap-2 text-sm text-gray-400">
-          <MapPin className="w-4 h-4 text-[#00CFFF]" />
+        <div className="mb-6 flex items-center gap-2 text-sm" style={{ color: "#6B7FA0" }}>
+          <MapPin className="w-4 h-4" style={{ color: "#1FB8FF" }} />
           <span>Community events, service moments, and faith in action across territories</span>
         </div>
 
         {/* Territory filter */}
         {territories.length > 1 && (
           <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2 mb-6">
-            {territories.map(t => (
-              <button
-                key={t}
-                onClick={() => setFilterTerritory(t)}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
-                  filterTerritory === t
-                    ? "bg-[#00CFFF]/20 text-[#00CFFF] border border-[#00CFFF]/30"
-                    : "text-gray-500 hover:text-gray-300"
-                }`}
-              >
-                {t}
-              </button>
-            ))}
+            {territories.map(t => {
+              const active = filterTerritory === t;
+              return (
+                <button
+                  key={t}
+                  onClick={() => setFilterTerritory(t)}
+                  className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all"
+                  style={active
+                    ? { background: "rgba(31, 184, 255, 0.12)", color: "#0B3FD9", border: "1px solid #B8E5FF" }
+                    : { background: "#FFFFFF", color: "#6B7FA0", border: "1px solid #E6ECF5" }}
+                >
+                  {t}
+                </button>
+              );
+            })}
           </div>
         )}
 
         {/* Feed */}
         {isLoading ? (
           <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" />
+            <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} />
           </div>
         ) : filteredPhotos.length === 0 ? (
-          <div className="text-center py-24 text-gray-500">
-            <Camera className="w-14 h-14 mx-auto mb-4 opacity-20" />
-            <p className="font-bold text-lg">No moments yet.</p>
-            <p className="text-sm mt-1">Be the first to share a community photo from your territory!</p>
-            <button onClick={() => setUploadOpen(true)} className="mt-5 px-6 py-2.5 rounded-xl bg-[#00CFFF] text-black font-bold text-sm hover:bg-[#00CFFF]/80 transition">
+          <div className="text-center py-24 rounded-[1.5rem]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.04)" }}>
+            <Camera className="w-14 h-14 mx-auto mb-4 opacity-40" style={{ color: "#8A97B5" }} />
+            <p className="font-bold text-lg" style={{ color: "#0B1B3D" }}>No moments yet.</p>
+            <p className="text-sm mt-1" style={{ color: "#6B7FA0" }}>Be the first to share a community photo from your territory!</p>
+            <button
+              onClick={() => setUploadOpen(true)}
+              className="mt-5 px-6 py-2.5 rounded-full font-bold text-sm hover:opacity-90 transition"
+              style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }}
+            >
               Share First Photo
             </button>
           </div>
@@ -170,6 +181,7 @@ export default function TerritoryPhotos() {
           </div>
         )}
       </div>
+      <AppFooter />
 
       {uploadOpen && (
         <TerritoryPhotoUploadModal

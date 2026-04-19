@@ -4,6 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { Sparkles, RefreshCw, BookOpen, CheckCircle2, Zap, Home, ChevronRight, Loader2 } from "lucide-react";
+import AppTopNav from "@/components/AppTopNav";
+import AppFooter from "@/components/AppFooter";
 
 const STORAGE_KEY = "lightReflections_cache";
 
@@ -151,7 +153,8 @@ Return a JSON object with EXACTLY this structure:
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
-      {/* Header */}
+      <AppTopNav />
+      {/* Sub-header */}
       <div className="border-b px-6 py-4 flex items-center justify-between" style={{ background: "#FFFFFF", borderColor: "#E6ECF5" }}>
         <Link to={createPageUrl("Dashboard")} className="flex items-center gap-2 transition text-sm" style={{ color: "#4A5878" }}>
           <Home className="w-4 h-4" /> Dashboard
@@ -279,6 +282,7 @@ Return a JSON object with EXACTLY this structure:
           </div>
         )}
       </div>
+      <AppFooter />
     </div>
   );
 }
