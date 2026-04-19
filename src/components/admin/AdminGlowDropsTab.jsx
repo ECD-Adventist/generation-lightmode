@@ -8,6 +8,7 @@ import GlowDropsStats from "./drops/GlowDropsStats";
 import GlowDropsFilterBar from "./drops/GlowDropsFilterBar";
 import GlowDropCard from "./drops/GlowDropCard";
 import BulkActionsBar from "./drops/BulkActionsBar";
+import DropPreviewModal from "./drops/DropPreviewModal";
 
 export default function AdminGlowDropsTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
   const { theme } = useAdminTheme();
@@ -21,6 +22,7 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
   const [filterCategory, setFilterCategory] = useState("all");
   const [selected, setSelected] = useState(new Set());
   const [busy, setBusy] = useState(false);
+  const [previewDrop, setPreviewDrop] = useState(null);
 
   const { data: drops = [], isLoading } = useQuery({
     queryKey: ["admin_drops_all"],
@@ -40,12 +42,11 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
 
   // Counts per tab
   const counts = useMemo(() => {
-    const c = { all: scopedDrops.length, approved: 0, rejected: 0, pending: 0, hidden: 0 };
+    const c = { all: scopedDrops.length, approved: 0, rejected: 0, hidden: 0 };
     scopedDrops.forEach(d => {
       const status = d.status || "approved";
       if (status === "approved") c.approved++;
       else if (status === "rejected") c.rejected++;
-      else if (status === "pending") c.pending++;
       if (d.hidden) c.hidden++;
     });
     return c;
@@ -59,7 +60,6 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
       total: scopedDrops.length,
       approved: counts.approved,
       rejected: counts.rejected,
-      pending: counts.pending,
       hidden: counts.hidden,
       last24h,
     };
@@ -99,6 +99,8 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
     try {
       await base44.entities.GlowDrop.update(id, updates);
       if (successMsg) toast.success(successMsg);
+      // Keep preview in sync if the drop being edited is open
+      setPreviewDrop(prev => (prev && prev.id === id) ? { ...prev, ...updates } : prev);
       refresh();
     } catch (err) {
       toast.error(err?.message || "Update failed");
@@ -118,6 +120,7 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
     try {
       await base44.entities.GlowDrop.delete(drop.id);
       toast.success("Deleted");
+      if (previewDrop?.id === drop.id) setPreviewDrop(null);
       refresh();
     } catch (err) {
       toast.error(err?.message || "Delete failed");
@@ -210,6 +213,7 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
               drop={drop}
               selected={selected.has(drop.id)}
               onToggleSelect={() => toggleSelect(drop.id)}
+              onPreview={() => setPreviewDrop(drop)}
               onApprove={() => handleApprove(drop)}
               onReject={() => handleReject(drop)}
               onHide={() => handleHide(drop)}
@@ -219,6 +223,19 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
             />
           ))}
         </div>
+      )}
+
+      {previewDrop && (
+        <DropPreviewModal
+          drop={previewDrop}
+          onClose={() => setPreviewDrop(null)}
+          onApprove={() => handleApprove(previewDrop)}
+          onReject={() => handleReject(previewDrop)}
+          onHide={() => handleHide(previewDrop)}
+          onUnhide={() => handleUnhide(previewDrop)}
+          onDelete={() => handleDelete(previewDrop)}
+          t={t} isDark={isDark}
+        />
       )}
     </div>
   );

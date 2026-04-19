@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { Heart, MoreVertical, CheckCircle2, XCircle, EyeOff, Clock, CheckSquare, Square, Eye } from "lucide-react";
+import { Heart, MoreVertical, CheckCircle2, XCircle, EyeOff, CheckSquare, Square, Eye, Maximize2 } from "lucide-react";
 import DropActionsMenu from "./DropActionsMenu";
 
 function StatusChip({ status, hidden, t }) {
   const map = {
     approved: { bg: "rgba(34,197,94,0.15)",  color: "#22c55e", icon: <CheckCircle2 size={10} />, label: "Approved" },
     rejected: { bg: "rgba(239,68,68,0.15)",  color: "#ef4444", icon: <XCircle size={10} />,      label: "Rejected" },
-    pending:  { bg: "rgba(245,158,11,0.15)", color: "#f59e0b", icon: <Clock size={10} />,        label: "Pending" },
   };
-  const s = map[status] || map.pending;
+  const s = map[status] || map.approved;
   return (
     <div className="flex items-center gap-1.5 shrink-0">
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border" style={{ background: s.bg, color: s.color, borderColor: `${s.color}40` }}>
@@ -23,7 +22,7 @@ function StatusChip({ status, hidden, t }) {
   );
 }
 
-export default function GlowDropCard({ drop, selected, onToggleSelect, onApprove, onReject, onHide, onUnhide, onDelete, t, isDark }) {
+export default function GlowDropCard({ drop, selected, onToggleSelect, onPreview, onApprove, onReject, onHide, onUnhide, onDelete, t, isDark }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const tags = (drop.hashtags || "").split(/[,\s#]+/).map(s => s.trim()).filter(Boolean).slice(0, 4);
 
@@ -54,6 +53,16 @@ export default function GlowDropCard({ drop, selected, onToggleSelect, onApprove
 
         <div className="flex items-center gap-2 shrink-0">
           <StatusChip status={drop.status || "approved"} hidden={drop.hidden} t={t} />
+          {onPreview && (
+            <button
+              onClick={onPreview}
+              className="p-1.5 rounded-lg transition hover:opacity-70"
+              style={{ color: t.accent, background: t.accentSoft }}
+              title="Preview drop"
+            >
+              <Maximize2 size={14} />
+            </button>
+          )}
           <div className="relative">
             <button
               onClick={() => setMenuOpen(v => !v)}
@@ -79,8 +88,12 @@ export default function GlowDropCard({ drop, selected, onToggleSelect, onApprove
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 rounded-xl p-4 border" style={{ background: t.surfaceMuted, borderColor: t.border }}>
+      {/* Content — click to preview */}
+      <div
+        className="flex-1 rounded-xl p-4 border cursor-pointer transition hover:opacity-95"
+        style={{ background: t.surfaceMuted, borderColor: t.border }}
+        onClick={onPreview}
+      >
         <p className="font-bold mb-2 text-sm" style={{ color: t.accent }}>
           {drop.verse || <span style={{ color: t.textMuted }}>No verse attached</span>}
         </p>
