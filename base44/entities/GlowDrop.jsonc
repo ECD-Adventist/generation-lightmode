@@ -21,7 +21,20 @@
         "approved",
         "rejected"
       ],
-      "default": "pending"
+      "default": "approved"
+    },
+    "hidden": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, the drop is hidden from public feeds but not deleted. Admins can unhide."
+    },
+    "hidden_reason": {
+      "type": "string",
+      "description": "Reason recorded by admin when hiding a drop"
+    },
+    "moderation_note": {
+      "type": "string",
+      "description": "Internal admin note about moderation decisions"
     },
     "likes_count": {
       "type": "number",
@@ -38,12 +51,33 @@
     "user_email"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "moderator"
+          }
+        }
+      ]
+    },
     "read": true,
     "update": {
       "$or": [
         {
-          "created_by": "{{user.email}}"
+          "data.user_email": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -65,7 +99,7 @@
     "delete": {
       "$or": [
         {
-          "created_by": "{{user.email}}"
+          "data.user_email": "{{user.email}}"
         },
         {
           "user_condition": {

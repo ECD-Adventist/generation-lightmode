@@ -47,6 +47,8 @@ Deno.serve(async (req) => {
       hashtags: (hashtags || '').slice(0, 200),
       category: category || 'Devotional',
       media_url: media_url || null,
+      status: 'approved',
+      hidden: false,
     });
 
     return Response.json({ success: true, drop });
