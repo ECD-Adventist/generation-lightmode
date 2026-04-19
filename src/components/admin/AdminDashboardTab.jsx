@@ -8,7 +8,8 @@ import DashboardHero from "./dashboard/DashboardHero";
 import DashboardStats from "./dashboard/DashboardStats";
 import DashboardCharts from "./dashboard/DashboardCharts";
 import { EngagementPanel, TopPerformersPanel, RecentActivityPanel } from "./dashboard/DashboardPanels";
-import { GlobalReachPanel, LeadingCountriesPanel, ChallengeImpactPanel, CommunityPulsePanel } from "./dashboard/DashboardExtras";
+import { LeadingCountriesPanel, ChallengeImpactPanel, CommunityPulsePanel } from "./dashboard/DashboardExtras";
+import GlobalReachMap from "./dashboard/GlobalReachMap";
 
 export default function AdminDashboardTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
   const { theme } = useAdminTheme();
@@ -95,7 +96,7 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
       {/* ─── Extra live intelligence panels ─────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
-          <GlobalReachPanel users={scopedUsers} t={t} isDark={isDark} />
+          <GlobalReachMap users={scopedUsers} t={t} isDark={isDark} />
         </div>
         <LeadingCountriesPanel users={scopedUsers} drops={scopedDrops} t={t} isDark={isDark} />
       </div>

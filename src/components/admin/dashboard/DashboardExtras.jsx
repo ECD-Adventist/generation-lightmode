@@ -1,9 +1,8 @@
 import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Globe2, Crown, Target, HandHeart, Users2, MessageCircle, Flame, CheckCircle2, Zap, MapPin } from "lucide-react";
+import { Crown, Target, HandHeart, Users2, MessageCircle, Flame, CheckCircle2, Zap } from "lucide-react";
 import { AnimatedNumber } from "./useCountUp";
-import { countryCoordinates } from "@/lib/countryCoordinates";
 
 /* ─── Shared PanelShell (kept local so this file stays independent) ──── */
 function PanelShell({ title, subtitle, icon: Icon, iconColor, t, isDark, children, delay = 0, badge = null }) {
@@ -60,115 +59,6 @@ function AnimatedBar({ percent, color, delay = 0 }) {
         boxShadow: `0 0 8px ${color}60`,
       }} />
     </div>
-  );
-}
-
-/* ─── Global Reach Map ─────────────────────────────────────────────────── */
-export function GlobalReachPanel({ users, t, isDark }) {
-  const accentColor = isDark ? "#00CFFF" : "#0B3FD9";
-
-  // equirectangular projection: lng [-180,180] → x [0,100], lat [90,-90] → y [0,100]
-  const project = (lat, lng) => ({ x: ((lng + 180) / 360) * 100, y: ((90 - lat) / 180) * 100 });
-
-  const countryPoints = useMemo(() => {
-    const counts = {};
-    users.forEach(u => { if (u.country) counts[u.country] = (counts[u.country] || 0) + 1; });
-    return Object.entries(counts)
-      .map(([country, count]) => {
-        const coords = countryCoordinates[country];
-        if (!coords) return null;
-        const pt = project(coords[0], coords[1]);
-        return { country, count, ...pt };
-      })
-      .filter(Boolean);
-  }, [users]);
-
-  const maxCount = Math.max(...countryPoints.map(p => p.count), 1);
-  const totalCountries = countryPoints.length;
-  const totalWarriors = countryPoints.reduce((s, p) => s + p.count, 0);
-
-  return (
-    <PanelShell title="Global Reach" subtitle="Live warrior distribution" icon={Globe2} iconColor={accentColor} t={t} isDark={isDark} delay={0}
-      badge={<><AnimatedNumber value={totalCountries} duration={1400} /> countries</>}>
-      <div className="px-5 pb-5">
-        {/* Map */}
-        <div className="relative rounded-2xl overflow-hidden" style={{
-          aspectRatio: "2 / 1",
-          background: isDark
-            ? "radial-gradient(ellipse at center, rgba(0,207,255,0.08) 0%, rgba(11,15,26,0.8) 70%)"
-            : "radial-gradient(ellipse at center, rgba(11,63,217,0.06) 0%, #F4F7FE 70%)",
-          border: `1px solid ${isDark ? "rgba(0,207,255,0.1)" : "rgba(11,63,217,0.08)"}`,
-        }}>
-          {/* Grid lines */}
-          <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none" className="absolute inset-0">
-            <defs>
-              <pattern id="gr-grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke={isDark ? "rgba(0,207,255,0.06)" : "rgba(11,63,217,0.05)"} strokeWidth="0.1" />
-              </pattern>
-            </defs>
-            <rect width="100" height="50" fill="url(#gr-grid)" />
-            {/* Equator */}
-            <line x1="0" y1="25" x2="100" y2="25" stroke={isDark ? "rgba(0,207,255,0.2)" : "rgba(11,63,217,0.15)"} strokeWidth="0.1" strokeDasharray="0.5,0.5" />
-          </svg>
-
-          {/* Animated pulse dots */}
-          {countryPoints.map((p, i) => {
-            const intensity = (p.count / maxCount);
-            const radius = 0.8 + intensity * 2.2;
-            return (
-              <div key={p.country} className="absolute" style={{
-                left: `${p.x}%`,
-                top: `${(p.y / 100) * 50 * 2}%`,
-                transform: "translate(-50%, -50%)",
-                animation: `dx-dot-appear 0.6s cubic-bezier(0.22,1,0.36,1) ${200 + i * 40}ms both`,
-              }}>
-                <div className="relative group cursor-pointer">
-                  {/* Pulse ring */}
-                  <div className="absolute inset-0 rounded-full" style={{
-                    width: `${radius * 8}px`,
-                    height: `${radius * 8}px`,
-                    transform: "translate(-50%, -50%)",
-                    background: accentColor,
-                    opacity: 0.3,
-                    animation: `dx-pulse 2s ease-in-out ${i * 200}ms infinite`,
-                  }} />
-                  {/* Core dot */}
-                  <div className="rounded-full" style={{
-                    width: `${radius * 3.5}px`,
-                    height: `${radius * 3.5}px`,
-                    background: `radial-gradient(circle, ${accentColor}, ${accentColor}cc)`,
-                    boxShadow: `0 0 ${radius * 4}px ${accentColor}`,
-                  }} />
-                  {/* Tooltip */}
-                  <div className="absolute left-1/2 -translate-x-1/2 -top-7 px-2 py-1 rounded-md text-[9px] font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none z-10" style={{
-                    background: isDark ? "rgba(18,24,38,0.95)" : "#fff",
-                    color: t.textPrimary,
-                    border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
-                  }}>
-                    {p.country}: {p.count}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-          <style>{`
-            @keyframes dx-pulse { 0%,100% { transform: translate(-50%,-50%) scale(0.9); opacity: 0.4; } 50% { transform: translate(-50%,-50%) scale(1.8); opacity: 0; } }
-            @keyframes dx-dot-appear { from { opacity: 0; transform: translate(-50%,-50%) scale(0); } to { opacity: 1; transform: translate(-50%,-50%) scale(1); } }
-          `}</style>
-
-          {/* Corner stats overlay */}
-          <div className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 rounded-xl backdrop-blur-md" style={{
-            background: isDark ? "rgba(11,15,26,0.6)" : "rgba(255,255,255,0.85)",
-            border: `1px solid ${isDark ? "rgba(0,207,255,0.15)" : "rgba(11,63,217,0.08)"}`,
-          }}>
-            <MapPin size={11} style={{ color: accentColor }} />
-            <span className="text-[10px] font-bold" style={{ color: t.textPrimary }}>
-              <AnimatedNumber value={totalWarriors} duration={1400} /> warriors live
-            </span>
-          </div>
-        </div>
-      </div>
-    </PanelShell>
   );
 }
 
