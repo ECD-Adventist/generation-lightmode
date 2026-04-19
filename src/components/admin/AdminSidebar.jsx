@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map, UserCheck, PieChart, Flag, TrendingUp, ChevronDown, ChevronRight, Building2, Sparkles } from "lucide-react";
+import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map, UserCheck, PieChart, Flag, TrendingUp, ChevronDown, ChevronRight, Building2, Sparkles, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
@@ -140,6 +140,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
             <SidebarItem id="assistant-training" icon={<Brain size={16} />} label="AI Training" />
             <SidebarItem id="custom-posts" icon={<Sparkles size={16} />} label="Custom Posts" />
             <SidebarItem id="settings" icon={<Settings size={16} />} label="System Settings" />
+            <SidebarItem id="permissions" icon={<ShieldCheck size={16} />} label="Permissions" />
           </SidebarSection>
         )}
 

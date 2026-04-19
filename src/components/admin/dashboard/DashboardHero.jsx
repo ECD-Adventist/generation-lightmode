@@ -1,62 +1,95 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Zap, Send, Calendar } from "lucide-react";
+import { Zap, Send, Calendar, ArrowRight, Shield } from "lucide-react";
 
 export default function DashboardHero({ user, pendingDrops, pendingTerritories, t, isDark }) {
   const firstName = user?.full_name?.split(" ")[0] || "Admin";
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-  const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  const totalPending = pendingDrops + pendingTerritories;
 
   return (
-    <div className="relative rounded-3xl overflow-hidden p-6 md:p-8" style={{
-      background: isDark
-        ? "linear-gradient(135deg, #0D1B3E 0%, #162044 40%, #1A1040 100%)"
-        : "linear-gradient(135deg, #EEF4FF 0%, #E8EDFF 40%, #F0E6FF 100%)",
-      border: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(11,63,217,0.08)"}`,
+    <div className="relative rounded-[1.75rem] overflow-hidden" style={{
+      border: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(11,63,217,0.06)"}`,
     }}>
-      {/* Decorative orbs */}
-      <div className="absolute top-[-60px] right-[-40px] w-[200px] h-[200px] rounded-full blur-[80px] pointer-events-none" style={{ background: isDark ? "rgba(0,207,255,0.15)" : "rgba(11,63,217,0.1)" }} />
-      <div className="absolute bottom-[-40px] left-[20%] w-[160px] h-[160px] rounded-full blur-[70px] pointer-events-none" style={{ background: isDark ? "rgba(138,92,255,0.12)" : "rgba(138,92,255,0.08)" }} />
+      {/* Animated mesh gradient background */}
+      <div className="absolute inset-0" style={{
+        background: isDark
+          ? "linear-gradient(135deg, #0A1628 0%, #0F1F42 25%, #1A1345 50%, #0D1B3E 75%, #0A1628 100%)"
+          : "linear-gradient(135deg, #EBF1FF 0%, #E3EAFF 25%, #EDE5FF 50%, #F0ECFF 75%, #EBF1FF 100%)"
+      }} />
+      
+      {/* Animated orbs */}
+      <div className="absolute top-[-80px] right-[-60px] w-[280px] h-[280px] rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ background: isDark ? "rgba(0,207,255,0.12)" : "rgba(11,63,217,0.08)", animationDuration: "4s" }} />
+      <div className="absolute bottom-[-60px] left-[10%] w-[220px] h-[220px] rounded-full blur-[90px] pointer-events-none animate-pulse" style={{ background: isDark ? "rgba(138,92,255,0.1)" : "rgba(138,92,255,0.06)", animationDuration: "6s" }} />
+      <div className="absolute top-[30%] left-[60%] w-[150px] h-[150px] rounded-full blur-[70px] pointer-events-none animate-pulse" style={{ background: isDark ? "rgba(255,208,0,0.06)" : "rgba(255,159,26,0.04)", animationDuration: "5s" }} />
 
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Calendar size={14} style={{ color: t.textMuted }} />
-            <span className="text-xs font-medium" style={{ color: t.textMuted }}>{dateStr}</span>
+      {/* Grid pattern overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{
+        backgroundImage: `linear-gradient(${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"} 1px, transparent 1px), linear-gradient(90deg, ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"} 1px, transparent 1px)`,
+        backgroundSize: "40px 40px"
+      }} />
+
+      <div className="relative z-10 p-6 md:p-8">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-sm" style={{
+                background: isDark ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.7)",
+                border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(11,63,217,0.08)"}`
+              }}>
+                <Calendar size={12} style={{ color: t.textMuted }} />
+                <span className="text-[11px] font-medium" style={{ color: t.textSecondary }}>{dateStr}</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full" style={{
+                background: isDark ? "rgba(34,197,94,0.12)" : "rgba(34,197,94,0.08)",
+                border: `1px solid ${isDark ? "rgba(34,197,94,0.2)" : "rgba(34,197,94,0.15)"}`
+              }}>
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[10px] font-bold text-green-500 uppercase tracking-wider">Live</span>
+              </div>
+            </div>
+            
+            <h1 className="text-3xl md:text-4xl font-black font-['Space_Grotesk'] tracking-tight leading-tight" style={{ color: t.textPrimary }}>
+              {greeting}, <span style={{ background: isDark ? "linear-gradient(135deg, #00CFFF, #8A5CFF)" : "linear-gradient(135deg, #0B3FD9, #7e22ce)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{firstName}</span>
+            </h1>
+            <p className="text-sm mt-2 max-w-md leading-relaxed" style={{ color: t.textSecondary }}>
+              Your movement command center is ready. Monitor engagement, manage content, and grow the community.
+            </p>
           </div>
-          <h1 className="text-2xl md:text-3xl font-black font-['Space_Grotesk'] tracking-tight" style={{ color: t.textPrimary }}>
-            {greeting}, {firstName} 👋
-          </h1>
-          <p className="text-sm mt-1" style={{ color: t.textSecondary }}>
-            Here's your movement overview.
-            {(pendingDrops > 0 || pendingTerritories > 0) && (
-              <span className="ml-1 font-semibold" style={{ color: isDark ? "#FFD000" : "#d97706" }}>
-                {pendingDrops + pendingTerritories} items need attention.
-              </span>
-            )}
-          </p>
-        </div>
 
-        <div className="flex flex-wrap gap-2 shrink-0">
-          {pendingDrops > 0 && (
-            <Link to={`${createPageUrl("AdminCenter")}?tab=drops`} className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl font-bold text-xs transition-all hover:scale-[1.02] shadow-sm" style={{
-              background: isDark ? "rgba(255,208,0,0.15)" : "#FEF3C7",
-              color: isDark ? "#FFD000" : "#92400E",
-              border: `1px solid ${isDark ? "rgba(255,208,0,0.25)" : "#FDE68A"}`
+          <div className="flex flex-wrap gap-2.5 shrink-0">
+            {totalPending > 0 && (
+              <Link to={`${createPageUrl("AdminCenter")}?tab=drops`} className="group relative flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-xs transition-all hover:scale-[1.02] overflow-hidden" style={{
+                background: isDark ? "linear-gradient(135deg, rgba(255,208,0,0.15), rgba(255,159,26,0.1))" : "linear-gradient(135deg, #FEF3C7, #FDE68A)",
+                color: isDark ? "#FFD000" : "#92400E",
+                border: `1px solid ${isDark ? "rgba(255,208,0,0.25)" : "#FCD34D"}`,
+                boxShadow: isDark ? "0 4px 20px rgba(255,208,0,0.1)" : "0 4px 16px rgba(255,159,26,0.15)"
+              }}>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: isDark ? "rgba(255,208,0,0.2)" : "rgba(217,119,6,0.12)" }}>
+                  <Shield size={14} />
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider opacity-70">Needs Review</div>
+                  <div className="font-black">{totalPending} Pending</div>
+                </div>
+                <ArrowRight size={14} className="ml-1 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            )}
+            <Link to={`${createPageUrl("AdminCenter")}?tab=notifications`} className="group flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-xs transition-all hover:scale-[1.02] backdrop-blur-sm" style={{
+              background: isDark ? "rgba(0,207,255,0.1)" : "rgba(11,63,217,0.06)",
+              color: isDark ? "#00CFFF" : "#0B3FD9",
+              border: `1px solid ${isDark ? "rgba(0,207,255,0.2)" : "rgba(11,63,217,0.1)"}`,
+              boxShadow: isDark ? "0 4px 20px rgba(0,207,255,0.08)" : "0 4px 16px rgba(11,63,217,0.08)"
             }}>
-              <Zap size={14} /> {pendingDrops} Pending
+              <Send size={14} />
+              <span>Broadcast</span>
+              <ArrowRight size={14} className="ml-0.5 group-hover:translate-x-0.5 transition-transform" />
             </Link>
-          )}
-          <Link to={`${createPageUrl("AdminCenter")}?tab=notifications`} className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl font-bold text-xs transition-all hover:scale-[1.02] shadow-sm" style={{
-            background: isDark ? "rgba(0,207,255,0.12)" : "rgba(11,63,217,0.08)",
-            color: isDark ? "#00CFFF" : "#0B3FD9",
-            border: `1px solid ${isDark ? "rgba(0,207,255,0.2)" : "rgba(11,63,217,0.12)"}`
-          }}>
-            <Send size={14} /> Broadcast
-          </Link>
+          </div>
         </div>
       </div>
     </div>

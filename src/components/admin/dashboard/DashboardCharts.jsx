@@ -1,12 +1,17 @@
 import React from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Area, AreaChart } from "recharts";
+import { TrendingUp, BarChart3 } from "lucide-react";
 
-const ChartTooltip = ({ active, payload, label, color, t }) => {
+const ChartTooltip = ({ active, payload, label, color, t, isDark }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-lg px-3 py-2 shadow-xl border backdrop-blur-md" style={{ background: t.surface, borderColor: t.border }}>
-        <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: t.textMuted }}>{label}</p>
-        <p className="text-base font-black" style={{ color }}>{payload[0].value.toLocaleString()}</p>
+      <div className="rounded-xl px-4 py-3 border backdrop-blur-xl" style={{
+        background: isDark ? "rgba(18,24,38,0.95)" : "rgba(255,255,255,0.97)",
+        borderColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+        boxShadow: isDark ? "0 12px 40px rgba(0,0,0,0.5)" : "0 12px 40px rgba(0,0,0,0.12)"
+      }}>
+        <p className="text-[9px] font-bold uppercase tracking-[0.15em] mb-1" style={{ color: t.textMuted }}>{label}</p>
+        <p className="text-xl font-black font-['Space_Grotesk']" style={{ color }}>{payload[0].value.toLocaleString()}</p>
       </div>
     );
   }
@@ -14,68 +19,108 @@ const ChartTooltip = ({ active, payload, label, color, t }) => {
 };
 
 export default function DashboardCharts({ growthData, dropsData, scopedUsers, recentDrops, t, isDark }) {
-  const axis = isDark ? "#4B5C7A" : "#94a3b8";
-  const grid = isDark ? "rgba(255,255,255,0.03)" : "rgba(15,23,42,0.04)";
+  const axis = isDark ? "#3A4A6B" : "#b0bbd0";
+  const grid = isDark ? "rgba(255,255,255,0.025)" : "rgba(15,23,42,0.035)";
   const mainColor = isDark ? "#00CFFF" : "#0B3FD9";
   const goldColor = isDark ? "#FFD000" : "#d97706";
+
+  const chartCardStyle = {
+    background: isDark ? t.surface : "#FFFFFF",
+    borderColor: isDark ? t.border : "rgba(0,0,0,0.04)",
+    boxShadow: isDark ? "0 4px 20px rgba(0,0,0,0.25)" : "0 4px 20px rgba(0,0,0,0.04)"
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* User Growth */}
-      <div className="rounded-2xl p-5 border relative overflow-hidden" style={{ background: t.surface, borderColor: t.border }}>
-        <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: t.gradient }} />
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h3 className="text-sm font-bold font-['Space_Grotesk']" style={{ color: t.textPrimary }}>User Growth</h3>
-            <p className="text-[10px]" style={{ color: t.textMuted }}>6 month registration trend</p>
+      <div className="rounded-[1.25rem] border relative overflow-hidden" style={chartCardStyle}>
+        {/* Top gradient bar */}
+        <div className="h-1" style={{ background: `linear-gradient(90deg, ${mainColor}, ${isDark ? "#8A5CFF" : "#7e22ce"})` }} />
+        <div className="p-5">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{
+                background: `${mainColor}10`,
+                border: `1px solid ${mainColor}18`,
+                boxShadow: `0 0 20px ${mainColor}08`
+              }}>
+                <TrendingUp size={16} style={{ color: mainColor }} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold font-['Space_Grotesk']" style={{ color: t.textPrimary }}>User Growth</h3>
+                <p className="text-[10px]" style={{ color: t.textMuted }}>6 month registration trend</p>
+              </div>
+            </div>
+            <div className="px-3 py-1.5 rounded-xl text-[11px] font-black" style={{
+              background: `${mainColor}08`,
+              color: mainColor,
+              border: `1px solid ${mainColor}15`
+            }}>{scopedUsers.toLocaleString()} total</div>
           </div>
-          <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg" style={{ background: `${mainColor}12`, color: mainColor }}>{scopedUsers} total</span>
-        </div>
-        <div className="h-52">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={growthData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
-              <defs>
-                <linearGradient id="ugFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={mainColor} stopOpacity={0.2} />
-                  <stop offset="95%" stopColor={mainColor} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid stroke={grid} vertical={false} />
-              <XAxis dataKey="name" stroke={axis} fontSize={10} tickLine={false} axisLine={false} />
-              <YAxis stroke={axis} fontSize={10} tickLine={false} axisLine={false} />
-              <Tooltip content={<ChartTooltip color={mainColor} t={t} />} cursor={{ stroke: axis, strokeDasharray: "3 3" }} />
-              <Area type="monotone" dataKey="users" stroke={mainColor} strokeWidth={2} fill="url(#ugFill)" dot={{ r: 3, fill: mainColor, strokeWidth: 0 }} activeDot={{ r: 5 }} />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={growthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="ugFillPrem" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={mainColor} stopOpacity={0.25} />
+                    <stop offset="50%" stopColor={mainColor} stopOpacity={0.08} />
+                    <stop offset="100%" stopColor={mainColor} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke={grid} vertical={false} strokeDasharray="3 3" />
+                <XAxis dataKey="name" stroke={axis} fontSize={10} fontWeight={600} tickLine={false} axisLine={false} />
+                <YAxis stroke={axis} fontSize={10} fontWeight={600} tickLine={false} axisLine={false} />
+                <Tooltip content={<ChartTooltip color={mainColor} t={t} isDark={isDark} />} cursor={{ stroke: mainColor, strokeOpacity: 0.15, strokeWidth: 1.5 }} />
+                <Area type="monotone" dataKey="users" stroke={mainColor} strokeWidth={2.5} fill="url(#ugFillPrem)"
+                  dot={{ r: 4, fill: isDark ? "#121826" : "#fff", stroke: mainColor, strokeWidth: 2.5 }}
+                  activeDot={{ r: 6, fill: mainColor, stroke: isDark ? "#121826" : "#fff", strokeWidth: 3 }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
       {/* Weekly Drops */}
-      <div className="rounded-2xl p-5 border relative overflow-hidden" style={{ background: t.surface, borderColor: t.border }}>
-        <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: t.gold }} />
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h3 className="text-sm font-bold font-['Space_Grotesk']" style={{ color: t.textPrimary }}>Weekly Drops</h3>
-            <p className="text-[10px]" style={{ color: t.textMuted }}>Content created by day</p>
+      <div className="rounded-[1.25rem] border relative overflow-hidden" style={chartCardStyle}>
+        <div className="h-1" style={{ background: `linear-gradient(90deg, ${goldColor}, ${isDark ? "#f97316" : "#ea580c"})` }} />
+        <div className="p-5">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{
+                background: `${goldColor}10`,
+                border: `1px solid ${goldColor}18`,
+                boxShadow: `0 0 20px ${goldColor}08`
+              }}>
+                <BarChart3 size={16} style={{ color: goldColor }} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold font-['Space_Grotesk']" style={{ color: t.textPrimary }}>Weekly Drops</h3>
+                <p className="text-[10px]" style={{ color: t.textMuted }}>Content created by day</p>
+              </div>
+            </div>
+            <div className="px-3 py-1.5 rounded-xl text-[11px] font-black" style={{
+              background: `${goldColor}08`,
+              color: goldColor,
+              border: `1px solid ${goldColor}15`
+            }}>{recentDrops} this wk</div>
           </div>
-          <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg" style={{ background: `${goldColor}12`, color: goldColor }}>{recentDrops} this wk</span>
-        </div>
-        <div className="h-52">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={dropsData} barSize={28} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
-              <defs>
-                <linearGradient id="bgFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={goldColor} stopOpacity={0.9} />
-                  <stop offset="100%" stopColor={goldColor} stopOpacity={0.4} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid stroke={grid} vertical={false} />
-              <XAxis dataKey="name" stroke={axis} fontSize={10} tickLine={false} axisLine={false} />
-              <YAxis stroke={axis} fontSize={10} tickLine={false} axisLine={false} />
-              <Tooltip content={<ChartTooltip color={goldColor} t={t} />} cursor={{ fill: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)", radius: 6 }} />
-              <Bar dataKey="drops" fill="url(#bgFill)" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={dropsData} barSize={32} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="bgFillPrem" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={goldColor} stopOpacity={0.95} />
+                    <stop offset="100%" stopColor={goldColor} stopOpacity={0.35} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke={grid} vertical={false} strokeDasharray="3 3" />
+                <XAxis dataKey="name" stroke={axis} fontSize={10} fontWeight={600} tickLine={false} axisLine={false} />
+                <YAxis stroke={axis} fontSize={10} fontWeight={600} tickLine={false} axisLine={false} />
+                <Tooltip content={<ChartTooltip color={goldColor} t={t} isDark={isDark} />} cursor={{ fill: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)", radius: 8 }} />
+                <Bar dataKey="drops" fill="url(#bgFillPrem)" radius={[10, 10, 2, 2]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>

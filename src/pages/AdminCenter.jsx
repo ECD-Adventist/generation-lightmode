@@ -29,6 +29,7 @@ import AdminCommentsTab from "../components/admin/AdminCommentsTab";
 import AdminInstitutionTab from "../components/admin/AdminInstitutionTab";
 import AdminGrowthAnalyticsTab from "../components/admin/AdminGrowthAnalyticsTab";
 import AdminCustomPostTab from "../components/admin/AdminCustomPostTab";
+import AdminPermissionMatrixTab from "../components/admin/AdminPermissionMatrixTab";
 import { AdminThemeProvider, useAdminTheme, getAdminTokens } from "../components/admin/AdminThemeContext";
 import AdminThemeToggle from "../components/admin/AdminThemeToggle";
 
@@ -172,6 +173,7 @@ function AdminCenterInner() {
       case "institutions": return isSuperAdmin ? <AdminInstitutionTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view institution applications.</div>;
       case "custom-posts": return isSuperAdmin ? <AdminCustomPostTab user={user} /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to create custom posts.</div>;
       case "settings": return isSuperAdmin ? <AdminSettingsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view system settings.</div>;
+      case "permissions": return isSuperAdmin ? <AdminPermissionMatrixTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to manage permissions.</div>;
       default: return <AdminDashboardTab />;
     }
   };

@@ -1,0 +1,84 @@
+{
+  "name": "AdminPermission",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "description": "The admin role this permission row applies to"
+    },
+    "tab_id": {
+      "type": "string",
+      "description": "The Admin Center tab identifier"
+    },
+    "can_view": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this role can view the tab"
+    },
+    "can_edit": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this role can edit/modify within the tab"
+    }
+  },
+  "required": [
+    "role",
+    "tab_id"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "ecd_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "country_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "union_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "conference_field_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    }
+  }
+}
