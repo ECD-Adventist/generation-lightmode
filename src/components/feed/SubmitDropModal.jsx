@@ -9,6 +9,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
 import { compressImageUnder2MB } from "@/lib/imageUtils";
+import PhotoEditorModal from "@/components/feed/PhotoEditorModal";
 
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
 
@@ -27,6 +28,7 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [titleLoading, setTitleLoading] = useState(false);
   const [sizeInfo, setSizeInfo] = useState(null); // { originalKB, compressedKB, savedPercent }
   const [compressing, setCompressing] = useState(false);
+  const [editorFile, setEditorFile] = useState(null); // file currently open in photo editor
 
   const formatSize = (bytes) => {
     if (bytes < 1024) return `${bytes} B`;
@@ -110,12 +112,32 @@ RULES:
     });
     setCompressing(false);
 
-    // Show the photo preview immediately — no cropper step.
+    // Open the photo editor so the user can crop/rotate/zoom before posting.
     const finalFile = new File([compressed], `glow-drop-${Date.now()}.jpg`, { type: "image/jpeg" });
+    setEditorFile(finalFile);
+    e.target.value = "";
+  };
+
+  const handleEditorApply = async (editedFile) => {
+    // Recompress after edit to keep things lean
+    let finalFile = editedFile;
+    if (editedFile.size > 2 * 1024 * 1024) {
+      const recompressed = await compressImageUnder2MB(editedFile);
+      finalFile = new File([recompressed], `glow-drop-${Date.now()}.jpg`, { type: "image/jpeg" });
+      setSizeInfo((prev) => prev ? { ...prev, compressed: formatSize(finalFile.size) } : prev);
+    }
     setFile(finalFile);
     if (preview?.startsWith("blob:")) URL.revokeObjectURL(preview);
     setPreview(URL.createObjectURL(finalFile));
-    e.target.value = "";
+    setEditorFile(null);
+  };
+
+  const handleEditorCancel = () => {
+    setEditorFile(null);
+  };
+
+  const handleEditCurrentPhoto = () => {
+    if (file) setEditorFile(file);
   };
 
   const clearFile = () => {
@@ -266,6 +288,13 @@ RULES:
 
   return (
     <>
+      {editorFile && (
+        <PhotoEditorModal
+          file={editorFile}
+          onApply={handleEditorApply}
+          onCancel={handleEditorCancel}
+        />
+      )}
       <Dialog open={isOpen} onOpenChange={resetAndClose}>
         <DialogContent className="sm:max-w-lg max-h-[92vh] overflow-y-auto z-[2000] p-0 rounded-3xl [&>button]:text-[#4A5878] [&>button]:hover:text-[#0B3FD9]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D", boxShadow: "0 16px 48px rgba(11, 63, 217, 0.18)" }}>
           <div className="relative px-6 pt-6 pb-4">
@@ -410,16 +439,26 @@ RULES:
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
 
               {preview ? (
-                <div className="relative rounded-2xl overflow-hidden" style={{ border: "1px solid #E6ECF5", background: "#F6F8FC" }}>
-                  <img src={preview} alt="Preview" className="w-full max-h-[28rem] object-contain bg-black/50" />
-                  <button
-                    type="button"
-                    onClick={clearFile}
-                    disabled={loading}
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/70 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-red-500/80 transition-colors disabled:opacity-50"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                <div className="relative rounded-2xl overflow-hidden flex items-center justify-center" style={{ border: "1px solid #E6ECF5", background: "#0B1B3D", minHeight: "12rem", maxHeight: "32rem" }}>
+                  <img src={preview} alt="Preview" className="max-w-full max-h-[32rem] w-auto h-auto object-contain" />
+                  <div className="absolute top-3 right-3 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleEditCurrentPhoto}
+                      disabled={loading}
+                      className="px-3 h-8 rounded-full bg-black/70 backdrop-blur-sm border border-white/20 flex items-center gap-1.5 text-white text-xs font-bold hover:bg-white/10 transition-colors disabled:opacity-50"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={clearFile}
+                      disabled={loading}
+                      className="w-8 h-8 rounded-full bg-black/70 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-red-500/80 transition-colors disabled:opacity-50"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                   {loading && file && (
                     <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
                       <div className="flex items-center justify-between text-[11px] font-bold text-white mb-1.5">
