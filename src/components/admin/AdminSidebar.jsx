@@ -38,7 +38,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
 
-  const logoUrl = LOGO_BLUE;
+  const logoUrl = isDark ? LOGO_GOLD : LOGO_BLUE;
 
   const SidebarItem = ({ id, icon, label }) => {
     const active = activeTab === id;
