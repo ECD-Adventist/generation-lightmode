@@ -60,20 +60,20 @@ export default function DashboardHero({ user, pendingDrops, pendingTerritories, 
           : "linear-gradient(135deg, #EBF1FF 0%, #E3EAFF 25%, #EDE5FF 50%, #F0ECFF 75%, #EBF1FF 100%)"
       }} />
 
-      {/* Faded B&W hero image — same image from website Home hero */}
+      {/* Hero image — same image from website Home hero, now much more visible */}
       <div className="absolute inset-0 pointer-events-none" style={{
         backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png')",
         backgroundSize: "cover",
         backgroundPosition: "center 30%",
-        filter: "grayscale(100%) contrast(1.1)",
-        opacity: isDark ? 0.22 : 0.14,
-        mixBlendMode: isDark ? "luminosity" : "multiply",
+        filter: isDark ? "grayscale(40%) contrast(1.15) brightness(0.95)" : "grayscale(20%) contrast(1.08) saturate(1.1)",
+        opacity: isDark ? 0.55 : 0.72,
+        mixBlendMode: isDark ? "luminosity" : "normal",
       }} />
-      {/* Gradient fade from left to keep text readable */}
+      {/* Gradient fade from left — subtler so the image shows through the right side */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background: isDark
-          ? "linear-gradient(90deg, rgba(6,11,24,0.94) 0%, rgba(6,11,24,0.78) 40%, rgba(6,11,24,0.4) 100%)"
-          : "linear-gradient(90deg, rgba(235,241,255,0.92) 0%, rgba(235,241,255,0.75) 40%, rgba(235,241,255,0.45) 100%)",
+          ? "linear-gradient(90deg, rgba(6,11,24,0.9) 0%, rgba(6,11,24,0.6) 45%, rgba(6,11,24,0.15) 100%)"
+          : "linear-gradient(90deg, rgba(244,248,255,0.94) 0%, rgba(244,248,255,0.62) 45%, rgba(244,248,255,0.08) 100%)",
       }} />
 
       {/* Animated orbs — Feed's sky→royal-blue + gold */}
@@ -110,7 +110,7 @@ export default function DashboardHero({ user, pendingDrops, pendingTerritories, 
             <h1 className="text-3xl md:text-4xl font-black font-['Space_Grotesk'] tracking-tight leading-tight" style={{ color: t.textPrimary }}>
               {greeting},{" "}
               <span style={{
-                backgroundImage: isDark ? "linear-gradient(135deg, #5AC8FF 0%, #1FB8FF 50%, #0B3FD9 100%)" : "linear-gradient(135deg, #0B3FD9, #7e22ce)",
+                backgroundImage: isDark ? "linear-gradient(135deg, #5AC8FF 0%, #1FB8FF 50%, #0B3FD9 100%)" : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 WebkitTextFillColor: "transparent",

@@ -62,22 +62,24 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
     );
   };
 
-  // Determine sidebar background
+  // Determine sidebar background — Feed-inspired deep navy/royal blue gradient
   const sidebarBg = isDark
-    ? t.surface
-    : "linear-gradient(165deg, #FFFEF9 0%, #FFF7DE 35%, #FFEFC7 70%, #FFE9B5 100%)";
-  const sidebarBorder = isDark ? t.border : "#F0DFA0";
+    ? "linear-gradient(180deg, #0A1226 0%, #0B1730 50%, #0A1226 100%)"
+    : "linear-gradient(180deg, #FFFFFF 0%, #F4F8FF 55%, #EAF2FF 100%)";
+  const sidebarBorder = isDark ? "rgba(31,184,255,0.12)" : "#DCE6F7";
 
   return (
     <div className="w-full md:w-[260px] md:h-screen flex flex-col shrink-0 md:sticky top-0 z-10 overflow-hidden relative"
       style={{ background: sidebarBg, borderRight: `1px solid ${sidebarBorder}` }}>
-      {/* Light mode radial glow overlay */}
-      {!isDark && (
-        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 15% 85%, rgba(255,208,0,0.12) 0%, transparent 55%), radial-gradient(circle at 85% 15%, rgba(255,159,26,0.08) 0%, transparent 55%)" }} />
-      )}
+      {/* Ambient radial glow overlay — royal blue + gold accent */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: isDark
+          ? "radial-gradient(circle at 15% 90%, rgba(31,184,255,0.14) 0%, transparent 55%), radial-gradient(circle at 85% 10%, rgba(255,214,10,0.06) 0%, transparent 50%)"
+          : "radial-gradient(circle at 15% 90%, rgba(31,184,255,0.12) 0%, transparent 55%), radial-gradient(circle at 85% 10%, rgba(255,208,0,0.08) 0%, transparent 50%)"
+      }} />
 
       {/* Logo Area */}
-      <div className="px-5 pt-5 pb-4 relative z-10" style={{ borderBottom: `1px solid ${isDark ? t.border : 'rgba(240,223,160,0.5)'}` }}>
+      <div className="px-5 pt-5 pb-4 relative z-10" style={{ borderBottom: `1px solid ${isDark ? "rgba(31,184,255,0.1)" : "rgba(11,63,217,0.08)"}` }}>
         <Link to={createPageUrl("Home")} className="block">
           <img
             src={logoUrl}
@@ -85,7 +87,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
             style={{ height: 34, width: "auto", objectFit: "contain" }}
           />
         </Link>
-        <p className="text-[9px] font-black uppercase tracking-[0.2em] mt-2.5" style={{ color: isDark ? "#6B7FA0" : "#B8A060" }}>Control Center</p>
+        <p className="text-[9px] font-black uppercase tracking-[0.2em] mt-2.5" style={{ color: isDark ? "#5AC8FF" : "#0B3FD9" }}>Control Center</p>
       </div>
 
       {/* Scrollable Nav */}
@@ -149,9 +151,9 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
 
         {/* Back to App link */}
         <div className="mt-auto pt-4 pb-3 px-4 hidden md:block">
-          <Link to={createPageUrl("Feed")} className="flex items-center gap-2 text-xs font-semibold transition" style={{ color: isDark ? "#6B7FA0" : "#B8A060" }}
-            onMouseOver={e => e.currentTarget.style.color = isDark ? "#fff" : "#0B3FD9"}
-            onMouseOut={e => e.currentTarget.style.color = isDark ? "#6B7FA0" : "#B8A060"}>
+          <Link to={createPageUrl("Feed")} className="flex items-center gap-2 text-xs font-semibold transition" style={{ color: isDark ? "#6B7FA0" : "#4A5878" }}
+            onMouseOver={e => e.currentTarget.style.color = isDark ? "#5AC8FF" : "#0B3FD9"}
+            onMouseOut={e => e.currentTarget.style.color = isDark ? "#6B7FA0" : "#4A5878"}>
             <Home size={14} /> Back to App
           </Link>
         </div>
