@@ -40,8 +40,16 @@ function roleColor(role, isDark) {
 function EditRoleModal({ targetUser, allRoles, onClose, onSave, t, isDark }) {
   const [role, setRole] = useState(targetUser.role || "user");
   const [saving, setSaving] = useState(false);
+  const trackBg = isDark ? "rgba(255,255,255,0.04)" : "#EEF3FC";
+  const thumbBg = isDark ? "linear-gradient(180deg, #1FB8FF, #0B3FD9)" : "linear-gradient(180deg, #1FB8FF, #0B3FD9)";
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <style>{`
+        .admin-role-scroll::-webkit-scrollbar { width: 6px; }
+        .admin-role-scroll::-webkit-scrollbar-track { background: ${trackBg}; border-radius: 3px; }
+        .admin-role-scroll::-webkit-scrollbar-thumb { background: ${thumbBg}; border-radius: 3px; }
+        .admin-role-scroll { scrollbar-width: thin; scrollbar-color: #0B3FD9 ${trackBg}; }
+      `}</style>
       <div className="border rounded-2xl p-6 w-full max-w-sm shadow-2xl" style={{ background: t.surface, borderColor: t.border }}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-lg" style={{ color: t.textPrimary }}>Edit Role</h3>
@@ -50,7 +58,7 @@ function EditRoleModal({ targetUser, allRoles, onClose, onSave, t, isDark }) {
         <p className="text-sm mb-4" style={{ color: t.textSecondary }}>
           Changing role for <span className="font-semibold" style={{ color: t.textPrimary }}>{targetUser.full_name || targetUser.email}</span>
         </p>
-        <div className="space-y-2 mb-6 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+        <div className="space-y-2 mb-6 max-h-64 overflow-y-auto pr-2 admin-role-scroll">
           {allRoles.map(r => (
             <button key={r} onClick={() => setRole(r)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium transition`}

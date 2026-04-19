@@ -10,6 +10,7 @@ import DashboardCharts from "./dashboard/DashboardCharts";
 import { EngagementPanel, TopPerformersPanel, RecentActivityPanel } from "./dashboard/DashboardPanels";
 import { LeadingCountriesPanel, ChallengeImpactPanel, CommunityPulsePanel } from "./dashboard/DashboardExtras";
 import GlobalReachMap from "./dashboard/GlobalReachMap";
+import LiveOverviewPanel from "./dashboard/LiveOverviewPanel";
 
 export default function AdminDashboardTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
   const { theme } = useAdminTheme();
@@ -85,6 +86,7 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
   return (
     <div className="space-y-5 pb-12">
       <DashboardHero user={user} pendingDrops={pendingDrops} pendingTerritories={pendingTerritories} t={t} isDark={isDark} />
+      <LiveOverviewPanel t={t} isDark={isDark} />
       <DashboardStats stats={stats} t={t} isDark={isDark} />
       <DashboardCharts growthData={growthData} dropsData={dropsData} scopedUsers={scopedUsers.length} recentDrops={recentDrops} t={t} isDark={isDark} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
