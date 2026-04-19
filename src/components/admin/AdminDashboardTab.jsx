@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
-import { Users, Zap, Target, Globe, Activity, Heart } from "lucide-react";
+import { Users, Zap, Target, Globe, Activity, Heart, Shield, TrendingUp, CheckCircle2, Flame, MessageSquare, Sparkles } from "lucide-react";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import DashboardHero from "./dashboard/DashboardHero";
 import DashboardStats from "./dashboard/DashboardStats";
@@ -69,6 +69,12 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
     { label: "Challenges", value: challenges.filter(c => c.active).length, icon: Target, color: isDark ? "#ef4444" : "#dc2626", to: `${createPageUrl("AdminCenter")}?tab=challenges` },
     { label: "Countries", value: uniqueCountries, icon: Globe, color: isDark ? "#22c55e" : "#16a34a", to: `${createPageUrl("AdminCenter")}?tab=countries` },
     { label: "Likes", value: totalLikes, icon: Heart, color: isDark ? "#f43f5e" : "#e11d48" },
+    { label: "Pending Review", value: pendingDrops, icon: Shield, color: isDark ? "#f59e0b" : "#b45309", trend: pendingDrops > 0 ? "needs action" : null, to: `${createPageUrl("AdminCenter")}?tab=drops` },
+    { label: "Approved", value: approvedDrops, icon: CheckCircle2, color: isDark ? "#10b981" : "#059669", to: `${createPageUrl("AdminCenter")}?tab=drops` },
+    { label: "Engagement", value: parseFloat(engagementRate) || 0, icon: TrendingUp, color: isDark ? "#06b6d4" : "#0891b2", suffix: "%", decimals: 1 },
+    { label: "Avg Likes", value: parseFloat(avgLikes) || 0, icon: Sparkles, color: isDark ? "#ec4899" : "#db2777", decimals: 1 },
+    { label: "This Week", value: recentDrops, icon: Flame, color: isDark ? "#fb923c" : "#ea580c" },
+    { label: "Total Groups", value: scopedGroups.length, icon: MessageSquare, color: isDark ? "#a78bfa" : "#7c3aed", to: `${createPageUrl("AdminCenter")}?tab=groups` },
   ];
 
   if (territoryRestricted && !territoryApproved) {

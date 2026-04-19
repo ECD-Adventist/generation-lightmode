@@ -129,7 +129,7 @@ export default function DashboardStats({ stats, t, isDark }) {
                 {/* Big animated number */}
                 <p className={`${isHero ? "text-[34px]" : "text-[26px]"} font-black font-['Space_Grotesk'] leading-none tracking-tight`} style={{ color: t.textPrimary }}>
                   {typeof s.value === "number"
-                    ? <AnimatedNumber value={s.value} duration={1600} />
+                    ? <AnimatedNumber value={s.value} duration={1600} decimals={s.decimals || 0} suffix={s.suffix || ""} />
                     : s.value}
                 </p>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] mt-1.5" style={{ color: t.textMuted }}>{s.label}</p>
