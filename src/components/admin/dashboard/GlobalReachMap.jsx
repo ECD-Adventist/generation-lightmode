@@ -42,10 +42,11 @@ function PanelShell({ title, subtitle, icon: Icon, iconColor, t, isDark, childre
 }
 
 export default function GlobalReachMap({ users, t, isDark }) {
-  const accentColor = isDark ? "#00CFFF" : "#0B3FD9";
-  const landFill = isDark ? "#1A2540" : "#E6ECF7";
-  const landStroke = isDark ? "#2B3A5F" : "#CBD5EF";
-  const waterColor = isDark ? "#0A1020" : "#F4F7FE";
+  // Feed-inspired dark palette: sky blue on deep navy
+  const accentColor = isDark ? "#1FB8FF" : "#0B3FD9";
+  const landFill = isDark ? "#132247" : "#E6ECF7";
+  const landStroke = isDark ? "#1F3264" : "#CBD5EF";
+  const waterColor = isDark ? "#06101F" : "#F4F7FE";
 
   const countryPoints = useMemo(() => {
     const counts = {};
@@ -122,13 +123,13 @@ export default function GlobalReachMap({ users, t, isDark }) {
                         onMouseLeave={() => setHovered(null)}
                         style={{
                           default: {
-                            fill: isActive ? (isDark ? "#1E3560" : "#CFDBF5") : landFill,
+                            fill: isActive ? (isDark ? "#1E3B7A" : "#CFDBF5") : landFill,
                             stroke: landStroke,
                             strokeWidth: 0.4,
                             outline: "none",
                             transition: "fill 0.2s",
                           },
-                          hover: { fill: isDark ? "#2A3F6B" : "#BBCBEF", outline: "none", cursor: "pointer" },
+                          hover: { fill: isDark ? "#2A4E90" : "#BBCBEF", outline: "none", cursor: "pointer" },
                           pressed: { fill: landFill, outline: "none" },
                         }}
                       />
