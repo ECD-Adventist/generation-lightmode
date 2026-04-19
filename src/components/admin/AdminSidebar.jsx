@@ -10,7 +10,7 @@ const LOGO_GOLD = "https://media.base44.com/images/public/69a6fca6155ae283f1b551
 function SidebarSection({ label, children, isDark }) {
   return (
     <div className="mb-1">
-      <p className="text-[9px] font-black uppercase tracking-[0.2em] px-4 pt-4 pb-1.5" style={{ color: isDark ? "#6B7FA0" : "#5E6B3A" }}>{label}</p>
+      <p className="text-[9px] font-black uppercase tracking-[0.2em] px-4 pt-4 pb-1.5" style={{ color: isDark ? "#6B7FA0" : "#8A97B5" }}>{label}</p>
       {children}
     </div>
   );
@@ -52,9 +52,9 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
               color: isDark ? "#00CFFF" : "#FFFFFF",
               boxShadow: isDark ? "0 0 12px rgba(0,207,255,0.08)" : "0 4px 14px rgba(11,63,217,0.25)"
             }
-          : { color: isDark ? "#C8D0E0" : "#1B2A4E", background: "transparent" }}
-        onMouseOver={e => { if (!active) { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.55)"; e.currentTarget.style.color = isDark ? "#fff" : "#0B3FD9"; } }}
-        onMouseOut={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = isDark ? "#C8D0E0" : "#1B2A4E"; } }}
+          : { color: isDark ? "#C8D0E0" : "#334261", background: "transparent" }}
+        onMouseOver={e => { if (!active) { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(11,63,217,0.05)"; e.currentTarget.style.color = isDark ? "#fff" : "#0B3FD9"; } }}
+        onMouseOut={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = isDark ? "#C8D0E0" : "#334261"; } }}
       >
         <span className="shrink-0 w-5 h-5 flex items-center justify-center">{icon}</span>
         {label}
@@ -62,11 +62,11 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
     );
   };
 
-  // Determine sidebar background — soft mint→white→yellow radial gradient (light) / deep navy (dark)
+  // Determine sidebar background — premium frosted pearl (light) / deep navy (dark)
   const sidebarBg = isDark
     ? "linear-gradient(180deg, #0A1226 0%, #0B1730 50%, #0A1226 100%)"
-    : "radial-gradient(circle at 45% 35%, #FFFFFF 0%, #F0FBEC 22%, #D9F5D0 48%, #F0F79A 72%, #FFF44D 100%)";
-  const sidebarBorder = isDark ? "rgba(31,184,255,0.12)" : "rgba(212,228,160,0.6)";
+    : "linear-gradient(180deg, #FDFEFF 0%, #F6F9FE 40%, #EEF3FC 100%)";
+  const sidebarBorder = isDark ? "rgba(31,184,255,0.12)" : "rgba(11,63,217,0.08)";
 
   return (
     <div className="w-full md:w-[260px] md:h-screen flex flex-col shrink-0 md:sticky top-0 z-10 overflow-hidden relative"
@@ -75,8 +75,15 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
       <div className="absolute inset-0 pointer-events-none" style={{
         backgroundImage: isDark
           ? "radial-gradient(circle at 15% 90%, rgba(31,184,255,0.14) 0%, transparent 55%), radial-gradient(circle at 85% 10%, rgba(255,214,10,0.06) 0%, transparent 50%)"
-          : "radial-gradient(circle at 15% 90%, rgba(31,184,255,0.12) 0%, transparent 55%), radial-gradient(circle at 85% 10%, rgba(255,208,0,0.08) 0%, transparent 50%)"
+          : "radial-gradient(circle at 10% 15%, rgba(31,184,255,0.10) 0%, transparent 45%), radial-gradient(circle at 90% 85%, rgba(138,92,255,0.07) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(255,208,0,0.04) 0%, transparent 60%)"
       }} />
+
+      {/* Subtle grain texture for premium feel (light mode only) */}
+      {!isDark && (
+        <div className="absolute inset-0 pointer-events-none opacity-[0.015]" style={{
+          backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")"
+        }} />
+      )}
 
       {/* Logo Area */}
       <div className="pl-2 pr-3 pt-5 pb-4 relative z-10" style={{ borderBottom: `1px solid ${isDark ? "rgba(31,184,255,0.1)" : "rgba(11,63,217,0.08)"}` }}>
