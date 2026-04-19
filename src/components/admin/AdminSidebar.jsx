@@ -79,7 +79,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
       }} />
 
       {/* Logo Area */}
-      <div className="px-5 pt-5 pb-4 relative z-10" style={{ borderBottom: `1px solid ${isDark ? "rgba(31,184,255,0.1)" : "rgba(11,63,217,0.08)"}` }}>
+      <div className="pl-2 pr-3 pt-5 pb-4 relative z-10" style={{ borderBottom: `1px solid ${isDark ? "rgba(31,184,255,0.1)" : "rgba(11,63,217,0.08)"}` }}>
         <Link to={createPageUrl("Home")} className="block">
           <img
             src={logoUrl}
