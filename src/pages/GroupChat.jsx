@@ -113,6 +113,12 @@ export default function GroupChat() {
     enabled: !!groupId,
   });
 
+  const { data: reactions = [] } = useQuery({
+    queryKey: ["groupReactions", groupId],
+    queryFn: () => base44.entities.GlowGroupMessageReaction.filter({ group_id: groupId }),
+    enabled: !!groupId,
+  });
+
   const { data: members = [] } = useQuery({
     queryKey: ["groupMembers", groupId],
     queryFn: () => base44.entities.GlowGroupMember.filter({ group_id: groupId }),
@@ -144,7 +150,12 @@ export default function GroupChat() {
         queryClient.invalidateQueries({ queryKey: ["groupMessages", groupId] });
       }
     });
-    return unsub;
+    const unsubR = base44.entities.GlowGroupMessageReaction.subscribe((event) => {
+      if (event.data?.group_id === groupId) {
+        queryClient.invalidateQueries({ queryKey: ["groupReactions", groupId] });
+      }
+    });
+    return () => { unsub(); unsubR(); };
   }, [groupId, queryClient]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages.length]);
@@ -189,6 +200,23 @@ export default function GroupChat() {
     mutationFn: async (id) => { await base44.entities.GlowGroupMessage.delete(id); },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["groupMessages", groupId] }); toast.success("Message deleted"); },
     onError: () => toast.error("Failed to delete"),
+  });
+
+  const reactMutation = useMutation({
+    mutationFn: async ({ message_id, emoji }) => {
+      const existing = reactions.find(r => r.message_id === message_id && r.user_email === currentUser.email && r.emoji === emoji);
+      if (existing) {
+        await base44.entities.GlowGroupMessageReaction.delete(existing.id);
+      } else {
+        await base44.entities.GlowGroupMessageReaction.create({
+          group_id: groupId,
+          message_id,
+          user_email: currentUser.email,
+          emoji
+        });
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["groupReactions", groupId] })
   });
 
   const leaveMutation = useMutation({
@@ -410,6 +438,12 @@ export default function GroupChat() {
               lastDay = msgDay;
               const canDelete = isMine || isLeader;
 
+              const msgReactions = reactions.filter(r => r.message_id === msg.id);
+              const groupedReactions = msgReactions.reduce((acc, r) => {
+                acc[r.emoji] = (acc[r.emoji] || 0) + 1;
+                return acc;
+              }, {});
+
               return (
                 <React.Fragment key={msg.id}>
                   {showDayDivider && (
@@ -430,22 +464,48 @@ export default function GroupChat() {
                           {senderIsLeader && <Crown className="w-3 h-3" style={{ color: "#CC7A00" }} />}
                         </div>
                       )}
-                      <div className="flex items-center gap-1">
-                        {isMine && canDelete && (
+                      <div className={`flex items-center gap-1 ${isMine ? "flex-row" : "flex-row-reverse"}`}>
+                        <div className="relative opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+                          {canDelete && (
+                            <>
+                              <button onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === msg.id ? null : msg.id); }} className="w-7 h-7 rounded-full flex items-center justify-center transition hover:bg-slate-100" style={{ color: "#6B7FA0" }}>
+                                <MoreVertical className="w-3.5 h-3.5" />
+                              </button>
+                              {menuOpenId === msg.id && (
+                                <div className={`absolute ${isMine ? 'right-0' : 'left-0'} mt-8 rounded-lg z-50 overflow-hidden`} style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.12)" }}>
+                                  <button onClick={(e) => { e.stopPropagation(); setMenuOpenId(null); deleteMutation.mutate(msg.id); }} className="flex items-center gap-2 px-4 py-2 text-sm whitespace-nowrap transition hover:bg-red-50" style={{ color: "#DC2626" }}>
+                                    <Trash2 className="w-3.5 h-3.5" /> Delete
+                                  </button>
+                                </div>
+                              )}
+                            </>
+                          )}
                           <div className="relative">
-                            <button onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === msg.id ? null : msg.id); }} className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-full flex items-center justify-center transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#6B7FA0" }}>
-                              <MoreVertical className="w-3.5 h-3.5" />
+                            <button onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === `emoji-${msg.id}` ? null : `emoji-${msg.id}`); }} className="w-7 h-7 rounded-full flex items-center justify-center transition hover:bg-slate-100" style={{ color: "#6B7FA0" }}>
+                              <Smile className="w-3.5 h-3.5" />
                             </button>
-                            {menuOpenId === msg.id && (
-                              <div className="absolute right-0 mt-1 rounded-lg z-50 overflow-hidden" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.12)" }}>
-                                <button onClick={(e) => { e.stopPropagation(); setMenuOpenId(null); deleteMutation.mutate(msg.id); }} className="flex items-center gap-2 px-4 py-2 text-sm whitespace-nowrap transition" style={{ color: "#DC2626" }}>
-                                  <Trash2 className="w-3.5 h-3.5" /> Delete
-                                </button>
+                            {menuOpenId === `emoji-${msg.id}` && (
+                              <div className={`absolute ${isMine ? 'right-0' : 'left-0'} bottom-full mb-1 bg-white border rounded-2xl shadow-lg p-2 z-50 flex gap-1`} style={{ borderColor: "#E6ECF5" }}>
+                                {["👍","❤️","🙏","😂","😢","🔥"].map(emoji => (
+                                  <button
+                                    key={emoji}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setMenuOpenId(null);
+                                      reactMutation.mutate({ message_id: msg.id, emoji });
+                                    }}
+                                    className="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded-lg text-lg transition"
+                                  >
+                                    {emoji}
+                                  </button>
+                                ))}
                               </div>
                             )}
                           </div>
-                        )}
-                        <div className="px-4 py-2.5 rounded-2xl text-sm break-words" style={isMine ? { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", borderTopRightRadius: "0.375rem", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.2)" } : { background: "#FFFFFF", color: "#0B1B3D", border: "1px solid #E6ECF5", borderTopLeftRadius: "0.375rem" }}>
+                        </div>
+
+                        <div className="relative">
+                          <div className="px-4 py-2.5 rounded-2xl text-sm break-words" style={isMine ? { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", borderTopRightRadius: "0.375rem", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.2)" } : { background: "#FFFFFF", color: "#0B1B3D", border: "1px solid #E6ECF5", borderTopLeftRadius: "0.375rem" }}>
                           <div className="whitespace-pre-wrap">{renderMessageContent(msg.content, mentionMap, isMine)}</div>
                           {msg.file_url && (
                             <div className="mt-2">
@@ -458,9 +518,16 @@ export default function GroupChat() {
                               )}
                             </div>
                           )}
+                          {msgReactions.length > 0 && (
+                            <div className={`absolute ${isMine ? 'right-0' : 'left-0'} -bottom-3 flex items-center bg-white border border-gray-200 rounded-full px-1.5 py-0.5 shadow-sm text-[10px]`}>
+                              {Object.entries(groupedReactions).map(([emoji, count]) => (
+                                <span key={emoji} className="mr-1">{emoji} {count > 1 ? count : ''}</span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <div className="text-[10px] mt-0.5 px-1" style={{ color: "#8A97B5" }}>{formatMessageTime(msg.created_date)}</div>
+                      <div className="text-[10px] mt-2 px-1" style={{ color: "#8A97B5" }}>{formatMessageTime(msg.created_date)}</div>
                     </div>
                   </div>
                 </React.Fragment>

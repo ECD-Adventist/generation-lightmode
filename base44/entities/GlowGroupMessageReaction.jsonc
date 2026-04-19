@@ -2,6 +2,9 @@
   "name": "GlowGroupMessageReaction",
   "type": "object",
   "properties": {
+    "group_id": {
+      "type": "string"
+    },
     "message_id": {
       "type": "string"
     },
@@ -13,6 +16,7 @@
     }
   },
   "required": [
+    "group_id",
     "message_id",
     "user_email",
     "emoji"
