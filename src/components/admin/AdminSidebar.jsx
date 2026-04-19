@@ -60,11 +60,24 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
     ? "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
     : "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png";
 
+  const lightSidebarBg = "linear-gradient(165deg, #FFFEF9 0%, #FFF7DE 35%, #FFEFC7 70%, #FFE9B5 100%)";
+  const lightSidebarBorder = "#F0DFA0";
+  const lightSidebarShadow = "inset -1px 0 0 rgba(255, 208, 0, 0.15)";
+  
   return (
-    <div className="w-full md:w-64 md:h-screen flex flex-col shrink-0 md:sticky top-0 z-10 overflow-hidden"
-      style={{ background: t.surface, borderRight: `1px solid ${t.border}` }}>
+    <div className="w-full md:w-64 md:h-screen flex flex-col shrink-0 md:sticky top-0 z-10 overflow-hidden relative"
+      style={{ 
+        background: isDark ? t.surface : lightSidebarBg, 
+        borderRight: `1px solid ${isDark ? t.border : lightSidebarBorder}`,
+        boxShadow: isDark ? "none" : lightSidebarShadow
+      }}>
+      {!isDark && (
+        <div className="absolute inset-0 pointer-events-none opacity-60"
+          style={{ backgroundImage: "radial-gradient(circle at 15% 85%, rgba(255,208,0,0.14) 0%, transparent 55%), radial-gradient(circle at 85% 15%, rgba(255,159,26,0.1) 0%, transparent 55%), radial-gradient(circle at 50% 50%, rgba(255,220,120,0.05) 0%, transparent 70%)" }}
+        />
+      )}
       {/* Logo */}
-      <div className="p-5 flex items-center justify-between" style={{ borderBottom: `1px solid ${t.border}` }}>
+      <div className="p-5 flex items-center justify-between relative z-10" style={{ borderBottom: `1px solid ${isDark ? t.border : 'rgba(255,208,0,0.2)'}` }}>
         <Link to={createPageUrl("Home")} className="flex items-center gap-3">
           <img
             src={logoUrl}
@@ -76,12 +89,12 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
           <Home size={20} />
         </Link>
       </div>
-      <div className="px-5 py-3" style={{ borderBottom: `1px solid ${t.border}` }}>
-        <h2 className="text-base font-bold font-['Space_Grotesk']" style={{ color: t.accent }}>Control Center</h2>
-        <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: t.textMuted }}>LightMode Admin</p>
+      <div className="px-5 py-3 relative z-10" style={{ borderBottom: `1px solid ${isDark ? t.border : 'rgba(255,208,0,0.2)'}` }}>
+        <h2 className="text-base font-bold font-['Space_Grotesk']" style={{ color: isDark ? t.accent : "#0B3FD9" }}>Control Center</h2>
+        <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: isDark ? t.textMuted : "#8A97B5" }}>LightMode Admin</p>
       </div>
 
-      <div className="flex-1 overflow-x-auto md:overflow-y-auto py-3 md:py-4 px-3 flex md:flex-col gap-2 md:gap-1 hide-scrollbar">
+      <div className="flex-1 overflow-x-auto md:overflow-y-auto py-3 md:py-4 px-3 flex md:flex-col gap-2 md:gap-1 hide-scrollbar relative z-10">
         {menuItems.map(item => {
           const active = activeTab === item.id;
           return (
@@ -90,10 +103,15 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
               onClick={() => setActiveTab(item.id)}
               className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap md:whitespace-normal shrink-0"
               style={active
-                ? { background: t.accentSoft, color: t.accent, border: `1px solid ${t.borderStrong}`, boxShadow: isDark ? "0 0 15px rgba(0,207,255,0.1)" : "0 2px 8px rgba(11,63,217,0.1)" }
-                : { color: t.textSecondary, background: "transparent", border: "1px solid transparent" }}
-              onMouseOver={e => { if (!active) { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "#F0F4FA"; e.currentTarget.style.color = t.textPrimary; } }}
-              onMouseOut={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = t.textSecondary; } }}
+                ? { 
+                    background: isDark ? t.accentSoft : "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", 
+                    color: isDark ? t.accent : "#FFFFFF", 
+                    border: isDark ? `1px solid ${t.borderStrong}` : "none", 
+                    boxShadow: isDark ? "0 0 15px rgba(0,207,255,0.1)" : "0 4px 14px rgba(11, 63, 217, 0.35)" 
+                  }
+                : { color: isDark ? t.textSecondary : "#3A4A6B", background: "transparent", border: isDark ? "1px solid transparent" : "none" }}
+              onMouseOver={e => { if (!active) { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.5)"; e.currentTarget.style.color = isDark ? t.textPrimary : "#0B3FD9"; } }}
+              onMouseOut={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = isDark ? t.textSecondary : "#3A4A6B"; } }}
             >
               {item.icon}
               {item.label}
@@ -101,8 +119,8 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
           );
         })}
 
-        <div className="mt-auto pt-6 pb-2 px-2 hidden md:block">
-          <Link to={createPageUrl("Feed")} className="flex items-center gap-2 text-sm transition" style={{ color: t.textMuted }}>
+        <div className="mt-auto pt-6 pb-2 px-2 hidden md:block relative z-10">
+          <Link to={createPageUrl("Feed")} className="flex items-center gap-2 text-sm transition" style={{ color: isDark ? t.textMuted : "#8A97B5" }} onMouseOver={e => e.currentTarget.style.color = isDark ? "#fff" : "#0B3FD9"} onMouseOut={e => e.currentTarget.style.color = isDark ? t.textMuted : "#8A97B5"}>
             <Home size={16} /> Back to App
           </Link>
         </div>
