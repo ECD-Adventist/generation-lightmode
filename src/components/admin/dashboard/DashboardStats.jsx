@@ -132,8 +132,8 @@ export default function DashboardStats({ stats, t, isDark }) {
                 background: isDark
                   ? `linear-gradient(135deg, ${t.surface} 0%, ${t.surface} 70%, ${s.color}08 100%)`
                   : `linear-gradient(135deg, #FFFFFF 0%, #FFFFFF 70%, ${s.color}06 100%)`,
-                borderColor: isDark ? t.border : "rgba(11,63,217,0.08)",
-                boxShadow: isDark ? "0 2px 16px rgba(0,0,0,0.25)" : "0 2px 10px rgba(11,63,217,0.06)",
+                borderColor: isDark ? t.border : "rgba(0,0,0,0.04)",
+                boxShadow: isDark ? "0 2px 16px rgba(0,0,0,0.25)" : "0 2px 12px rgba(15,23,42,0.04)",
                 animation: `bento-fade-up 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}ms both`,
               }}>
               {/* Hover glow */}
