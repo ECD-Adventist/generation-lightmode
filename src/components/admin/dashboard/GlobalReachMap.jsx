@@ -96,10 +96,10 @@ export default function GlobalReachMap({ users, t, isDark }) {
           }} />
 
           <ComposableMap
-            projection="geoEqualEarth"
-            projectionConfig={{ scale: 165, center: [10, 10] }}
+            projection="geoMercator"
+            projectionConfig={{ scale: 120, center: [10, 20] }}
             width={800}
-            height={400}
+            height={420}
             style={{ width: "100%", height: "100%", display: "block" }}
           >
             <ZoomableGroup
