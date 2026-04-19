@@ -6,7 +6,6 @@ const TABS = [
   { key: "approved", label: "Approved", color: "#22c55e" },
   { key: "rejected", label: "Rejected", color: "#ef4444" },
   { key: "hidden",   label: "Hidden",   color: "#8A5CFF" },
-  { key: "pending",  label: "Pending",  color: "#f59e0b" },
   { key: "all",      label: "All",      color: null },
 ];
 
