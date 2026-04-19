@@ -62,20 +62,20 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
     );
   };
 
-  // Determine sidebar background — mint → white glow → yellow design
+  // Determine sidebar background — refined mint → soft glow → warm sunlight gradient
   const sidebarBg = isDark
     ? "linear-gradient(180deg, #0A1226 0%, #0B1730 50%, #0A1226 100%)"
-    : "radial-gradient(ellipse at 50% 30%, #FFFFFF 0%, #F5FFEC 25%, #D4F7E8 55%, #FBF5A8 85%, #F7EC5F 100%)";
-  const sidebarBorder = isDark ? "rgba(31,184,255,0.12)" : "#E8E5A0";
+    : "linear-gradient(165deg, #E8FBF2 0%, #F4FFF3 30%, #FEFDF0 65%, #FFF8D6 100%)";
+  const sidebarBorder = isDark ? "rgba(31,184,255,0.12)" : "rgba(212,230,200,0.6)";
 
   return (
     <div className="w-full md:w-[260px] md:h-screen flex flex-col shrink-0 md:sticky top-0 z-10 overflow-hidden relative"
       style={{ background: sidebarBg, borderRight: `1px solid ${sidebarBorder}` }}>
-      {/* Ambient radial glow overlay */}
+      {/* Ambient radial glow overlay — soft sunlight bloom */}
       <div className="absolute inset-0 pointer-events-none" style={{
         backgroundImage: isDark
           ? "radial-gradient(circle at 15% 90%, rgba(31,184,255,0.14) 0%, transparent 55%), radial-gradient(circle at 85% 10%, rgba(255,214,10,0.06) 0%, transparent 50%)"
-          : "radial-gradient(circle at 30% 15%, rgba(255,255,255,0.7) 0%, transparent 45%), radial-gradient(circle at 85% 95%, rgba(247,236,95,0.35) 0%, transparent 50%)"
+          : "radial-gradient(ellipse 60% 45% at 55% 35%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 70%), radial-gradient(circle at 10% 10%, rgba(160,230,200,0.25) 0%, transparent 45%), radial-gradient(circle at 95% 100%, rgba(250,225,120,0.3) 0%, transparent 55%)"
       }} />
 
       {/* Logo Area */}
