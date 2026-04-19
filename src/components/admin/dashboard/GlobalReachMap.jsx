@@ -86,7 +86,7 @@ export default function GlobalReachMap({ users, t, isDark }) {
         <div className="relative rounded-2xl overflow-hidden" style={{
           background: waterColor,
           border: `1px solid ${isDark ? "rgba(0,207,255,0.12)" : "rgba(11,63,217,0.08)"}`,
-          aspectRatio: "16 / 9",
+          aspectRatio: "2 / 1",
         }}>
           {/* Ambient glow */}
           <div className="absolute inset-0 pointer-events-none" style={{
@@ -97,9 +97,9 @@ export default function GlobalReachMap({ users, t, isDark }) {
 
           <ComposableMap
             projection="geoEqualEarth"
-            projectionConfig={{ scale: 155, center: [0, 15] }}
+            projectionConfig={{ scale: 165, center: [10, 10] }}
             width={800}
-            height={450}
+            height={400}
             style={{ width: "100%", height: "100%", display: "block" }}
           >
             <ZoomableGroup
