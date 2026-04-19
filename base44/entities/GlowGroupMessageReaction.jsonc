@@ -1,0 +1,35 @@
+{
+  "name": "GlowGroupMessageReaction",
+  "type": "object",
+  "properties": {
+    "message_id": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "emoji": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "message_id",
+    "user_email",
+    "emoji"
+  ],
+  "rls": {
+    "create": true,
+    "read": true,
+    "update": false,
+    "delete": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "data.user_email": "{{user.email}}"
+        }
+      ]
+    }
+  }
+}

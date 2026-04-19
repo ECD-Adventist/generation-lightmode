@@ -1,0 +1,34 @@
+{
+  "name": "GroupDevotional",
+  "type": "object",
+  "properties": {
+    "group_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "author_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "group_id",
+    "title",
+    "content",
+    "author_email"
+  ],
+  "rls": {
+    "create": true,
+    "read": true,
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "GroupDevotionalRead",
+  "type": "object",
+  "properties": {
+    "devotional_id": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "devotional_id",
+    "user_email"
+  ],
+  "rls": {
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": true,
+    "update": false,
+    "delete": {
+      "data.user_email": "{{user.email}}"
+    }
+  }
+}
