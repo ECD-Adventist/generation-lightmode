@@ -10,7 +10,7 @@ const LOGO_GOLD = "https://media.base44.com/images/public/69a6fca6155ae283f1b551
 function SidebarSection({ label, children, isDark }) {
   return (
     <div className="mb-1">
-      <p className="text-[9px] font-black uppercase tracking-[0.2em] px-4 pt-4 pb-1.5" style={{ color: isDark ? "#6B7FA0" : "#8A97B5" }}>{label}</p>
+      <p className="text-[9px] font-black uppercase tracking-[0.2em] px-4 pt-4 pb-1.5" style={{ color: isDark ? "#6B7FA0" : "#5E6B3A" }}>{label}</p>
       {children}
     </div>
   );
@@ -38,7 +38,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
 
-  const logoUrl = isDark ? LOGO_GOLD : LOGO_BLUE;
+  const logoUrl = LOGO_BLUE;
 
   const SidebarItem = ({ id, icon, label }) => {
     const active = activeTab === id;
@@ -52,9 +52,9 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
               color: isDark ? "#00CFFF" : "#FFFFFF",
               boxShadow: isDark ? "0 0 12px rgba(0,207,255,0.08)" : "0 4px 14px rgba(11,63,217,0.25)"
             }
-          : { color: isDark ? "#C8D0E0" : "#3A4A6B", background: "transparent" }}
-        onMouseOver={e => { if (!active) { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(11,63,217,0.04)"; e.currentTarget.style.color = isDark ? "#fff" : "#0B3FD9"; } }}
-        onMouseOut={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = isDark ? "#C8D0E0" : "#3A4A6B"; } }}
+          : { color: isDark ? "#C8D0E0" : "#1B2A4E", background: "transparent" }}
+        onMouseOver={e => { if (!active) { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.55)"; e.currentTarget.style.color = isDark ? "#fff" : "#0B3FD9"; } }}
+        onMouseOut={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = isDark ? "#C8D0E0" : "#1B2A4E"; } }}
       >
         <span className="shrink-0 w-5 h-5 flex items-center justify-center">{icon}</span>
         {label}
@@ -62,11 +62,11 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
     );
   };
 
-  // Determine sidebar background — Feed-inspired deep navy/royal blue gradient
+  // Determine sidebar background — soft mint→white→yellow radial gradient (light) / deep navy (dark)
   const sidebarBg = isDark
     ? "linear-gradient(180deg, #0A1226 0%, #0B1730 50%, #0A1226 100%)"
-    : "linear-gradient(180deg, #FFFFFF 0%, #F4F8FF 55%, #EAF2FF 100%)";
-  const sidebarBorder = isDark ? "rgba(31,184,255,0.12)" : "#DCE6F7";
+    : "radial-gradient(circle at 45% 35%, #FFFFFF 0%, #F0FBEC 22%, #D9F5D0 48%, #F0F79A 72%, #FFF44D 100%)";
+  const sidebarBorder = isDark ? "rgba(31,184,255,0.12)" : "rgba(212,228,160,0.6)";
 
   return (
     <div className="w-full md:w-[260px] md:h-screen flex flex-col shrink-0 md:sticky top-0 z-10 overflow-hidden relative"
