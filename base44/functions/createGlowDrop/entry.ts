@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     const { verse, reflection, hashtags, category, media_url: rawMediaUrl } = body;
 
     // Validate media_url — only allow known CDN domains
-    const ALLOWED_CDN_HOSTS = ["media.base44.com", "images.unsplash.com", "res.cloudinary.com"];
+    const ALLOWED_CDN_HOSTS = ["media.base44.com", "base44.app", "images.unsplash.com", "res.cloudinary.com"];
     let media_url = null;
     if (rawMediaUrl) {
       try {
