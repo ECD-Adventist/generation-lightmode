@@ -84,7 +84,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
           <img
             src={logoUrl}
             alt="Generation LightMode"
-            style={{ height: 34, width: "auto", objectFit: "contain" }}
+            style={{ height: 52, width: "auto", objectFit: "contain" }}
           />
         </Link>
         <p className="text-[9px] font-black uppercase tracking-[0.2em] mt-2.5" style={{ color: isDark ? "#5AC8FF" : "#0B3FD9" }}>Control Center</p>
