@@ -60,13 +60,13 @@ export default function DashboardHero({ user, pendingDrops, pendingTerritories, 
           : "linear-gradient(135deg, #EBF1FF 0%, #E3EAFF 25%, #EDE5FF 50%, #F0ECFF 75%, #EBF1FF 100%)"
       }} />
 
-      {/* Faded B&W hero image — community worship silhouette */}
+      {/* Faded B&W hero image — same image from website Home hero */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        backgroundImage: "url('https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=1600&q=80')",
+        backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png')",
         backgroundSize: "cover",
-        backgroundPosition: "center 35%",
+        backgroundPosition: "center 30%",
         filter: "grayscale(100%) contrast(1.1)",
-        opacity: isDark ? 0.18 : 0.12,
+        opacity: isDark ? 0.22 : 0.14,
         mixBlendMode: isDark ? "luminosity" : "multiply",
       }} />
       {/* Gradient fade from left to keep text readable */}
