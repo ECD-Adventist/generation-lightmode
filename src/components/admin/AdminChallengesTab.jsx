@@ -9,6 +9,10 @@ import ChallengesToolbar from "./challenges/ChallengesToolbar";
 import ChallengeCard from "./challenges/ChallengeCard";
 import ChallengeFormModal from "./challenges/ChallengeFormModal";
 import ChallengeDetailDrawer from "./challenges/ChallengeDetailDrawer";
+import ChallengesEmptyState from "./challenges/ChallengesEmptyState";
+import ChallengesBulkBar from "./challenges/ChallengesBulkBar";
+import ChallengesAnalytics from "./challenges/ChallengesAnalytics";
+import { templateToChallenge } from "./ChallengeTemplates.js";
 import { getChallengeStatus, computeChallengeStats } from "./challenges/challengeHelpers";
 
 export default function AdminChallengesTab() {
@@ -24,7 +28,9 @@ export default function AdminChallengesTab() {
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [prefill, setPrefill] = useState(null);
   const [viewing, setViewing] = useState(null);
+  const [selected, setSelected] = useState(new Set());
 
   const { data: challenges = [], isLoading } = useQuery({
     queryKey: ["admin_challenges"],
@@ -61,7 +67,6 @@ export default function AdminChallengesTab() {
       return true;
     });
 
-    const sub = (id) => submissions.filter(s => s.challenge_id === id).length;
     const participants = (id) => new Set(submissions.filter(s => s.challenge_id === id).map(s => s.user_email)).size;
 
     if (sortBy === "ending_soon") {
@@ -71,7 +76,6 @@ export default function AdminChallengesTab() {
     } else if (sortBy === "highest_reward") {
       list = list.slice().sort((a, b) => (b.points_reward || 0) - (a.points_reward || 0));
     }
-    // "newest" is default from the list() call
     return list;
   }, [challenges, submissions, filter, territoryFilter, search, sortBy]);
 
@@ -80,8 +84,9 @@ export default function AdminChallengesTab() {
     queryClient.invalidateQueries({ queryKey: ["admin_challenge_submissions"] });
   };
 
-  const handleCreate = () => { setEditing(null); setFormOpen(true); };
-  const handleEdit = (c) => { setEditing(c); setFormOpen(true); };
+  const handleCreate = () => { setEditing(null); setPrefill(null); setFormOpen(true); };
+  const handleUseTemplate = (tpl) => { setEditing(null); setPrefill(templateToChallenge(tpl)); setFormOpen(true); };
+  const handleEdit = (c) => { setEditing(c); setPrefill(null); setFormOpen(true); };
 
   const handleDuplicate = async (c) => {
     try {
@@ -107,6 +112,16 @@ export default function AdminChallengesTab() {
     } catch (err) { toast.error(err?.message || "Delete failed"); }
   };
 
+  const toggleSelect = (id) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const showEmptyState = !isLoading && challenges.length === 0;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -119,32 +134,43 @@ export default function AdminChallengesTab() {
         </button>
       </div>
 
-      <ChallengesStats stats={stats} t={t} />
+      {!showEmptyState && (
+        <>
+          <ChallengesStats stats={stats} t={t} />
 
-      <ChallengesToolbar
-        filter={filter} setFilter={setFilter}
-        search={search} setSearch={setSearch}
-        territoryFilter={territoryFilter} setTerritoryFilter={setTerritoryFilter}
-        sortBy={sortBy} setSortBy={setSortBy}
-        territories={territories}
-        counts={counts}
-        t={t}
-      />
+          <ChallengesAnalytics challenges={challenges} submissions={submissions} t={t} isDark={isDark} />
 
-      <p className="text-xs" style={{ color: t.textSecondary }}>
-        Showing <span className="font-bold" style={{ color: t.textPrimary }}>{displayed.length}</span> of {challenges.length} challenge{challenges.length === 1 ? "" : "s"}
-        {isLoading && <span className="ml-2" style={{ color: t.textMuted }}>· loading...</span>}
-      </p>
+          <ChallengesToolbar
+            filter={filter} setFilter={setFilter}
+            search={search} setSearch={setSearch}
+            territoryFilter={territoryFilter} setTerritoryFilter={setTerritoryFilter}
+            sortBy={sortBy} setSortBy={setSortBy}
+            territories={territories}
+            counts={counts}
+            t={t}
+          />
+
+          <ChallengesBulkBar
+            selected={selected} setSelected={setSelected}
+            challenges={challenges} submissions={submissions}
+            onRefresh={refresh} t={t}
+          />
+
+          <p className="text-xs" style={{ color: t.textSecondary }}>
+            Showing <span className="font-bold" style={{ color: t.textPrimary }}>{displayed.length}</span> of {challenges.length} challenge{challenges.length === 1 ? "" : "s"}
+            {isLoading && <span className="ml-2" style={{ color: t.textMuted }}>· loading...</span>}
+          </p>
+        </>
+      )}
 
       {isLoading ? (
         <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin" style={{ color: t.accent }} /></div>
+      ) : showEmptyState ? (
+        <ChallengesEmptyState onUseTemplate={handleUseTemplate} onCreate={handleCreate} t={t} />
       ) : displayed.length === 0 ? (
         <div className="py-16 text-center rounded-2xl border border-dashed" style={{ background: t.surface, borderColor: t.border, color: t.textMuted }}>
           <Target className="w-12 h-12 mx-auto mb-4 opacity-30" />
           <p className="text-lg font-medium">No challenges match your filters.</p>
-          <button onClick={handleCreate} className="mt-4 flex items-center gap-1.5 px-4 py-2 rounded-lg font-bold text-sm mx-auto transition hover:opacity-90" style={{ background: "linear-gradient(90deg, #FFD000 0%, #FF9F1A 100%)", color: "#0B1B3D" }}>
-            <Plus size={14} /> Create your first challenge
-          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -153,6 +179,8 @@ export default function AdminChallengesTab() {
               key={c.id}
               challenge={c}
               submissions={submissions}
+              selected={selected.has(c.id)}
+              onToggleSelect={() => toggleSelect(c.id)}
               onView={() => setViewing(c)}
               onEdit={() => handleEdit(c)}
               onDuplicate={() => handleDuplicate(c)}
@@ -165,8 +193,8 @@ export default function AdminChallengesTab() {
 
       {formOpen && (
         <ChallengeFormModal
-          challenge={editing}
-          onClose={() => { setFormOpen(false); setEditing(null); }}
+          challenge={editing || prefill}
+          onClose={() => { setFormOpen(false); setEditing(null); setPrefill(null); }}
           onSaved={refresh}
           t={t}
         />

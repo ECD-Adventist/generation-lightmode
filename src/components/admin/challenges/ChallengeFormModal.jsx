@@ -24,6 +24,7 @@ export default function ChallengeFormModal({ challenge, onClose, onSaved, t }) {
     territory_scope: "",
     territory_metric: "",
   });
+  const [notifyOnLaunch, setNotifyOnLaunch] = useState(false);
 
   useEffect(() => {
     if (challenge) {
@@ -62,8 +63,29 @@ export default function ChallengeFormModal({ challenge, onClose, onSaved, t }) {
 
     setBusy(true);
     try {
-      if (isEdit) await base44.entities.Challenge.update(challenge.id, payload);
-      else await base44.entities.Challenge.create(payload);
+      if (isEdit) {
+        await base44.entities.Challenge.update(challenge.id, payload);
+      } else {
+        const created = await base44.entities.Challenge.create(payload);
+        // Notify users on launch — broadcast in-app notification to recent users
+        if (publish && notifyOnLaunch) {
+          try {
+            const users = await base44.entities.User.list("-updated_date", 500);
+            await Promise.all(users.slice(0, 500).map(u =>
+              base44.entities.Notification.create({
+                user_email: u.email,
+                type: "system",
+                message: `🎯 New challenge: ${payload.title}`,
+                read: false,
+                link: "/Challenges",
+              }).catch(() => null)
+            ));
+            toast.success(`Notified ${users.length} users`);
+          } catch (e) {
+            console.error("Notify failed", e);
+          }
+        }
+      }
       toast.success(isEdit ? "Challenge updated" : publish ? "Challenge published" : "Saved as draft");
       onSaved?.();
       onClose();
@@ -137,6 +159,16 @@ export default function ChallengeFormModal({ challenge, onClose, onSaved, t }) {
             <input type="checkbox" checked={form.active} onChange={e => set("active", e.target.checked)} className="w-4 h-4 rounded" />
             <span className="text-sm font-semibold" style={{ color: t.textPrimary }}>Active (visible to users)</span>
           </label>
+
+          {!isEdit && (
+            <label className="flex items-start gap-2 cursor-pointer rounded-lg p-3 border" style={{ background: t.accentSoft, borderColor: `${t.accent}30` }}>
+              <input type="checkbox" checked={notifyOnLaunch} onChange={e => setNotifyOnLaunch(e.target.checked)} className="w-4 h-4 rounded mt-0.5" />
+              <div>
+                <span className="text-sm font-semibold block" style={{ color: t.textPrimary }}>🔔 Notify users when published</span>
+                <span className="text-[11px]" style={{ color: t.textMuted }}>Sends an in-app notification to all users.</span>
+              </div>
+            </label>
+          )}
         </div>
 
         <div className="flex gap-2 p-4 border-t" style={{ borderColor: t.border, background: t.surfaceMuted }}>

@@ -2,7 +2,7 @@ import React from "react";
 import { Target, Users, FileText, Award, MapPin, Edit2, Trash2, Eye, Calendar, Copy } from "lucide-react";
 import { getChallengeStatus, statusTheme, timeUntil, countParticipants, countSubmissions } from "./challengeHelpers";
 
-export default function ChallengeCard({ challenge, submissions, onView, onEdit, onDelete, onDuplicate, t, isDark }) {
+export default function ChallengeCard({ challenge, submissions, onView, onEdit, onDelete, onDuplicate, selected, onToggleSelect, t, isDark }) {
   const status = getChallengeStatus(challenge);
   const s = statusTheme(status);
   const participants = countParticipants(challenge.id, submissions);
@@ -15,12 +15,18 @@ export default function ChallengeCard({ challenge, submissions, onView, onEdit, 
 
   return (
     <div
-      className="border rounded-2xl p-5 flex flex-col gap-3 transition cursor-pointer hover:opacity-95"
-      style={{ background: t.surface, borderColor: t.border, boxShadow: t.shadow }}
+      className="border rounded-2xl p-5 flex flex-col gap-3 transition cursor-pointer hover:opacity-95 relative"
+      style={{ background: t.surface, borderColor: selected ? t.accent : t.border, boxShadow: t.shadow }}
       onClick={onView}
     >
+      {onToggleSelect && (
+        <label className="absolute top-3 right-3 cursor-pointer" onClick={e => e.stopPropagation()}>
+          <input type="checkbox" checked={!!selected} onChange={onToggleSelect} className="w-4 h-4 rounded cursor-pointer" />
+        </label>
+      )}
+
       {/* Header */}
-      <div className="flex justify-between items-start gap-3">
+      <div className="flex justify-between items-start gap-3 pr-6">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-11 h-11 rounded-xl flex items-center justify-center border shrink-0" style={{ background: "rgba(255,208,0,0.1)", borderColor: "rgba(255,208,0,0.2)" }}>
             <Target className="w-5 h-5" style={{ color: isDark ? "#FFD000" : "#d97706" }} />
