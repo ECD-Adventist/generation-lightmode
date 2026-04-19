@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
-import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
-import { Globe2, MapPin } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
+import { Globe2, MapPin, Plus, Minus, RotateCcw } from "lucide-react";
 import { AnimatedNumber } from "./useCountUp";
 import { countryCoordinates } from "@/lib/countryCoordinates";
 
@@ -65,6 +65,20 @@ export default function GlobalReachMap({ users, t, isDark }) {
   const totalCountries = countryPoints.length;
   const totalWarriors = countryPoints.reduce((s, p) => s + p.count, 0);
 
+  // Interactive state
+  const [position, setPosition] = useState({ coordinates: [0, 20], zoom: 1 });
+  const [hovered, setHovered] = useState(null);
+  const [selected, setSelected] = useState(null);
+
+  const handleZoomIn = () => setPosition(p => ({ ...p, zoom: Math.min(p.zoom * 1.5, 8) }));
+  const handleZoomOut = () => setPosition(p => ({ ...p, zoom: Math.max(p.zoom / 1.5, 1) }));
+  const handleReset = () => { setPosition({ coordinates: [0, 20], zoom: 1 }); setSelected(null); };
+  const handleMoveEnd = (pos) => setPosition(pos);
+  const handleMarkerClick = (point) => {
+    setSelected(point);
+    setPosition({ coordinates: point.coordinates, zoom: 4 });
+  };
+
   return (
     <PanelShell title="Global Reach" subtitle="Live warrior distribution" icon={Globe2} iconColor={accentColor} t={t} isDark={isDark} delay={0}
       badge={<><AnimatedNumber value={totalCountries} duration={1400} /> countries</>}>
@@ -88,48 +102,130 @@ export default function GlobalReachMap({ users, t, isDark }) {
             height={400}
             style={{ width: "100%", height: "100%" }}
           >
-            <Geographies geography={GEO_URL}>
-              {({ geographies }) =>
-                geographies.map((geo) => (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    style={{
-                      default: { fill: landFill, stroke: landStroke, strokeWidth: 0.4, outline: "none" },
-                      hover: { fill: isDark ? "#24335A" : "#D5DFF5", outline: "none" },
-                      pressed: { fill: landFill, outline: "none" },
-                    }}
-                  />
-                ))
-              }
-            </Geographies>
+            <ZoomableGroup
+              center={position.coordinates}
+              zoom={position.zoom}
+              onMoveEnd={handleMoveEnd}
+              minZoom={1}
+              maxZoom={8}
+            >
+              <Geographies geography={GEO_URL}>
+                {({ geographies }) =>
+                  geographies.map((geo) => {
+                    const name = geo.properties.name;
+                    const isActive = countryPoints.some(p => p.country === name);
+                    return (
+                      <Geography
+                        key={geo.rsmKey}
+                        geography={geo}
+                        onMouseEnter={() => setHovered(name)}
+                        onMouseLeave={() => setHovered(null)}
+                        style={{
+                          default: {
+                            fill: isActive ? (isDark ? "#1E3560" : "#CFDBF5") : landFill,
+                            stroke: landStroke,
+                            strokeWidth: 0.4,
+                            outline: "none",
+                            transition: "fill 0.2s",
+                          },
+                          hover: { fill: isDark ? "#2A3F6B" : "#BBCBEF", outline: "none", cursor: "pointer" },
+                          pressed: { fill: landFill, outline: "none" },
+                        }}
+                      />
+                    );
+                  })
+                }
+              </Geographies>
 
-            {countryPoints.map((p, i) => {
-              const intensity = p.count / maxCount;
-              const coreR = 2.5 + intensity * 4.5;
-              const pulseR = coreR + 4;
-              return (
-                <Marker key={p.country} coordinates={p.coordinates}>
-                  {/* Pulsing ring */}
-                  <circle r={pulseR} fill={accentColor} opacity={0.25} style={{
-                    animation: `grm-pulse 2.2s ease-in-out ${i * 150}ms infinite`,
-                    transformOrigin: "center",
-                    transformBox: "fill-box",
-                  }} />
-                  {/* Core dot */}
-                  <circle r={coreR} fill={accentColor} stroke={isDark ? "#0A1020" : "#FFFFFF"} strokeWidth={1}
-                    style={{
-                      filter: `drop-shadow(0 0 ${coreR}px ${accentColor})`,
-                      animation: `grm-appear 0.6s cubic-bezier(0.22,1,0.36,1) ${150 + i * 60}ms both`,
+              {countryPoints.map((p, i) => {
+                const intensity = p.count / maxCount;
+                const coreR = (2.5 + intensity * 4.5) / Math.sqrt(position.zoom);
+                const pulseR = coreR + 4 / Math.sqrt(position.zoom);
+                const isSelected = selected?.country === p.country;
+                return (
+                  <Marker
+                    key={p.country}
+                    coordinates={p.coordinates}
+                    onClick={() => handleMarkerClick(p)}
+                    onMouseEnter={() => setHovered(p.country)}
+                    onMouseLeave={() => setHovered(null)}
+                    style={{ default: { cursor: "pointer" } }}
+                  >
+                    <circle r={pulseR} fill={accentColor} opacity={0.25} style={{
+                      animation: `grm-pulse 2.2s ease-in-out ${i * 150}ms infinite`,
                       transformOrigin: "center",
                       transformBox: "fill-box",
+                      pointerEvents: "none",
                     }} />
-                  {/* Label shown on hover via <title> */}
-                  <title>{p.country}: {p.count} warrior{p.count === 1 ? "" : "s"}</title>
-                </Marker>
-              );
-            })}
+                    <circle
+                      r={isSelected ? coreR * 1.4 : coreR}
+                      fill={accentColor}
+                      stroke={isSelected ? "#FFD000" : (isDark ? "#0A1020" : "#FFFFFF")}
+                      strokeWidth={isSelected ? 1.5 : 1}
+                      style={{
+                        filter: `drop-shadow(0 0 ${coreR}px ${accentColor})`,
+                        animation: `grm-appear 0.6s cubic-bezier(0.22,1,0.36,1) ${150 + i * 60}ms both`,
+                        transformOrigin: "center",
+                        transformBox: "fill-box",
+                        transition: "r 0.2s, stroke 0.2s",
+                      }} />
+                    <title>{p.country}: {p.count} warrior{p.count === 1 ? "" : "s"} — click to focus</title>
+                  </Marker>
+                );
+              })}
+            </ZoomableGroup>
           </ComposableMap>
+
+          {/* Zoom controls */}
+          <div className="absolute top-3 right-3 flex flex-col gap-1.5">
+            <button onClick={handleZoomIn} className="w-8 h-8 rounded-lg flex items-center justify-center transition hover:scale-105 backdrop-blur-md" style={{
+              background: isDark ? "rgba(11,15,26,0.8)" : "rgba(255,255,255,0.95)",
+              border: `1px solid ${isDark ? "rgba(0,207,255,0.25)" : "rgba(11,63,217,0.15)"}`,
+              color: accentColor,
+            }} title="Zoom in">
+              <Plus size={14} strokeWidth={2.5} />
+            </button>
+            <button onClick={handleZoomOut} className="w-8 h-8 rounded-lg flex items-center justify-center transition hover:scale-105 backdrop-blur-md" style={{
+              background: isDark ? "rgba(11,15,26,0.8)" : "rgba(255,255,255,0.95)",
+              border: `1px solid ${isDark ? "rgba(0,207,255,0.25)" : "rgba(11,63,217,0.15)"}`,
+              color: accentColor,
+            }} title="Zoom out">
+              <Minus size={14} strokeWidth={2.5} />
+            </button>
+            <button onClick={handleReset} className="w-8 h-8 rounded-lg flex items-center justify-center transition hover:scale-105 backdrop-blur-md" style={{
+              background: isDark ? "rgba(11,15,26,0.8)" : "rgba(255,255,255,0.95)",
+              border: `1px solid ${isDark ? "rgba(0,207,255,0.25)" : "rgba(11,63,217,0.15)"}`,
+              color: accentColor,
+            }} title="Reset view">
+              <RotateCcw size={13} strokeWidth={2.5} />
+            </button>
+          </div>
+
+          {/* Hover / selected tooltip */}
+          {(hovered || selected) && (
+            <div className="absolute top-3 left-3 px-3 py-2 rounded-xl backdrop-blur-md pointer-events-none" style={{
+              background: isDark ? "rgba(11,15,26,0.85)" : "rgba(255,255,255,0.95)",
+              border: `1px solid ${accentColor}40`,
+              boxShadow: `0 4px 16px ${accentColor}20`,
+            }}>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: t.textMuted }}>
+                {selected && !hovered ? "Focused" : "Hover"}
+              </p>
+              <p className="text-[13px] font-black" style={{ color: t.textPrimary }}>
+                {hovered || selected?.country}
+              </p>
+              {(() => {
+                const active = countryPoints.find(p => p.country === (hovered || selected?.country));
+                return active ? (
+                  <p className="text-[10px] font-bold mt-0.5" style={{ color: accentColor }}>
+                    {active.count} warrior{active.count === 1 ? "" : "s"}
+                  </p>
+                ) : (
+                  <p className="text-[9px] mt-0.5" style={{ color: t.textMuted }}>No warriors yet</p>
+                );
+              })()}
+            </div>
+          )}
 
           <style>{`
             @keyframes grm-pulse { 0%,100% { transform: scale(0.8); opacity: 0.4; } 50% { transform: scale(1.8); opacity: 0; } }
