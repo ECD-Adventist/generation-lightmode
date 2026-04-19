@@ -526,6 +526,7 @@ export default function GroupChat() {
                             </div>
                           )}
                         </div>
+                        </div>
                       </div>
                       <div className="text-[10px] mt-2 px-1" style={{ color: "#8A97B5" }}>{formatMessageTime(msg.created_date)}</div>
                     </div>
