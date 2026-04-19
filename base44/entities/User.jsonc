@@ -19,77 +19,27 @@
       ],
       "default": "user"
     },
-    "privacy_consent_given": {
-      "type": "boolean",
-      "default": false
-    },
-    "gender": {
+    "status": {
       "type": "string",
       "enum": [
-        "male",
-        "female",
-        "prefer_not_to_say"
-      ]
-    },
-    "date_of_birth": {
-      "type": "string",
-      "format": "date"
-    },
-    "bio": {
-      "type": "string"
-    },
-    "country": {
-      "type": "string"
-    },
-    "city": {
-      "type": "string",
-      "description": "User's city or town"
-    },
-    "address": {
-      "type": "string",
-      "description": "User's street address"
-    },
-    "postal_code": {
-      "type": "string",
-      "description": "User's postal / zip code"
-    },
-    "phone": {
-      "type": "string"
-    },
-    "glow_score": {
-      "type": "number",
-      "default": 0
-    },
-    "profile_picture_url": {
-      "type": "string"
-    },
-    "cover_picture_url": {
-      "type": "string"
-    },
-    "website_url": {
-      "type": "string"
-    },
-    "territory_name": {
-      "type": "string"
-    },
-    "territory_level": {
-      "type": "string"
-    },
-    "territory_countries": {
-      "type": "string"
-    },
-    "territory_map_url": {
-      "type": "string"
-    },
-    "territory_status": {
-      "type": "string",
-      "enum": [
-        "pending",
-        "approved",
-        "rejected"
+        "active",
+        "suspended"
       ],
-      "default": "pending"
+      "default": "active",
+      "description": "Account status \u2014 suspended users cannot post, like, or comment."
+    },
+    "suspended_reason": {
+      "type": "string",
+      "description": "Reason logged when a user was suspended."
+    },
+    "suspended_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the user was suspended."
+    },
+    "suspended_by": {
+      "type": "string",
+      "description": "Email of the admin who suspended the user."
     }
-  },
-  "required": []
+  }
 }

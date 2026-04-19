@@ -1,7 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-// Admin-only endpoint that returns the full user list including real roles.
-// Used by the Admin Center → Users tab where admins need to see/manage everyone.
+// Admin-only endpoint that returns the full user list including real roles + status.
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -21,12 +20,14 @@ Deno.serve(async (req) => {
 
     const allUsers = await base44.asServiceRole.entities.User.list('-created_date');
 
-    // Return everything admin panels typically need (id + real role included)
     const adminUsers = allUsers.map(u => ({
       id: u.id,
       full_name: u.full_name,
       email: u.email,
       role: u.role || 'user',
+      status: u.status || 'active',
+      suspended_reason: u.suspended_reason,
+      suspended_at: u.suspended_at,
       profile_picture_url: u.profile_picture_url,
       country: u.country,
       city: u.city,
@@ -38,6 +39,7 @@ Deno.serve(async (req) => {
       pledge_signed: u.pledge_signed,
       pledge_signed_at: u.pledge_signed_at,
       created_date: u.created_date,
+      updated_date: u.updated_date,
       territory_name: u.territory_name,
       territory_countries: u.territory_countries,
       territory_status: u.territory_status,

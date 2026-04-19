@@ -19,7 +19,6 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Cannot delete your own account' }, { status: 403 });
     }
 
-    // Prevent deleting other super_admins unless you are super_admin
     const target = await base44.asServiceRole.entities.User.get(targetUserId).catch(() => null);
     if (!target) return Response.json({ error: 'User not found' }, { status: 404 });
 
@@ -28,6 +27,16 @@ Deno.serve(async (req) => {
     }
 
     await base44.asServiceRole.entities.User.delete(targetUserId);
+
+    // Audit log
+    await base44.asServiceRole.entities.AdminLog.create({
+      admin_email: caller.email,
+      admin_name: caller.full_name || caller.email,
+      action: 'user_deleted',
+      target: target.email,
+      details: `Deleted user ${target.full_name || target.email} (role: ${target.role || 'user'})`,
+      category: 'users',
+    }).catch(e => console.error('Audit log failed:', e.message));
 
     return Response.json({ success: true });
   } catch (error) {

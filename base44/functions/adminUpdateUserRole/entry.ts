@@ -42,7 +42,22 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Cannot grant a role equal to or higher than your own" }, { status: 403 });
     }
 
+    const target = await base44.asServiceRole.entities.User.get(targetUserId).catch(() => null);
+    if (!target) return Response.json({ error: "User not found" }, { status: 404 });
+
+    const oldRole = target.role || "user";
+
     await base44.asServiceRole.entities.User.update(targetUserId, { role: newRole });
+
+    // Audit log
+    await base44.asServiceRole.entities.AdminLog.create({
+      admin_email: caller.email,
+      admin_name: caller.full_name || caller.email,
+      action: "role_changed",
+      target: target.email,
+      details: `Changed role of ${target.full_name || target.email} from "${oldRole}" to "${newRole}"`,
+      category: "users",
+    }).catch(e => console.error("Audit log failed:", e.message));
 
     return Response.json({ success: true, targetUserId, newRole });
   } catch (error) {
