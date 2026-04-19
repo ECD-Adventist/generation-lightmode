@@ -5,16 +5,31 @@ import { AnimatedNumber } from "./useCountUp";
 
 /* ─── Animated Progress Bar ────────────────────────────────────────────── */
 function AnimatedBar({ percent, color, delay = 0 }) {
+  const [width, setWidth] = React.useState(0);
+  const target = Math.max(2, Math.min(percent, 100));
+
+  React.useEffect(() => {
+    setWidth(0);
+    const timer = setTimeout(() => setWidth(target), delay);
+    return () => clearTimeout(timer);
+  }, [target, delay]);
+
   return (
-    <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: `${color}10` }}>
+    <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background: `${color}15` }}>
       <div className="absolute inset-y-0 left-0 rounded-full"
         style={{
           background: `linear-gradient(90deg, ${color}, ${color}cc)`,
-          width: "0%",
-          animation: `bar-grow 1.4s cubic-bezier(0.22,1,0.36,1) ${delay}ms forwards`,
-          "--target-width": `${Math.min(percent, 100)}%`,
+          width: `${width}%`,
+          transition: "width 1.4s cubic-bezier(0.22,1,0.36,1)",
+          boxShadow: `0 0 8px ${color}60`,
         }} />
-      <style>{`@keyframes bar-grow { to { width: var(--target-width); } }`}</style>
+      {/* Shimmer overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-60" style={{
+        background: `linear-gradient(90deg, transparent 0%, ${color}30 50%, transparent 100%)`,
+        animation: width > 0 ? `bar-shimmer 2.5s ease-in-out ${delay + 1400}ms infinite` : "none",
+        backgroundSize: "200% 100%",
+      }} />
+      <style>{`@keyframes bar-shimmer { 0%,100% { background-position: -100% 0; } 50% { background-position: 200% 0; } }`}</style>
     </div>
   );
 }
