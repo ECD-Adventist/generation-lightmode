@@ -18,34 +18,42 @@ function formatMessageTime(s) { const d = parseDate(s); if (!d) return ""; if (i
 function formatDayDivider(s) { const d = parseDate(s); if (!d) return ""; if (isToday(d)) return "Today"; if (isYesterday(d)) return "Yesterday"; return format(d, "MMMM d, yyyy"); }
 
 // Build a slug key from a full name for @mention matching: "Jane Doe" -> "jane_doe"
-function slugifyName(name) { return (name || "").trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, ""); }
+function slugifyName(name) { return (name || "").trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_.]/g, ""); }
 
-// Extract @mention slugs from a message. Matches @letters/digits/underscore (up to 40 chars).
+// Extract @mention slugs from a message. Matches @letters/digits/underscore/dots (up to 40 chars).
 function extractMentionSlugs(text) {
   if (!text) return [];
-  const matches = text.match(/@([a-zA-Z0-9_]{1,40})/g) || [];
-  return [...new Set(matches.map(m => m.slice(1).toLowerCase()))];
+  const matches = text.match(/@([a-zA-Z0-9_.]{1,40})/g) || [];
+  return [...new Set(matches.map(m => {
+    let slug = m.slice(1).toLowerCase();
+    while(slug.endsWith('.')) slug = slug.slice(0, -1);
+    return slug;
+  }))];
 }
 
 // Render message text with clickable @mentions. mentionMap: slug -> {email, full_name}
 function renderMessageContent(text, mentionMap, isMine) {
   if (!text) return null;
-  const parts = text.split(/(@[a-zA-Z0-9_]{1,40})/g);
+  const parts = text.split(/(@[a-zA-Z0-9_.]{1,40})/g);
   return parts.map((part, i) => {
     if (part.startsWith("@")) {
-      const slug = part.slice(1).toLowerCase();
+      let slug = part.slice(1).toLowerCase();
+      let trailing = "";
+      while(slug.endsWith('.')) { trailing += "."; slug = slug.slice(0, -1); }
       const u = mentionMap[slug];
       if (u) {
         return (
-          <Link
-            key={i}
-            to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`}
-            onClick={(e) => e.stopPropagation()}
-            className="font-bold hover:underline"
-            style={{ color: isMine ? "#FFD000" : "#0B3FD9" }}
-          >
-            @{u.full_name.replace(/\s+/g, " ")}
-          </Link>
+          <React.Fragment key={i}>
+            <Link
+              to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`}
+              onClick={(e) => e.stopPropagation()}
+              className="font-bold hover:underline"
+              style={{ color: isMine ? "#FFD000" : "#0B3FD9" }}
+            >
+              @{u.full_name.replace(/\s+/g, " ")}
+            </Link>
+            {trailing}
+          </React.Fragment>
         );
       }
     }

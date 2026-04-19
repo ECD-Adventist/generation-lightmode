@@ -51,6 +51,40 @@ export default function TruthCardComments({ dropId, user }) {
 
   const getUserInfo = (email) => allUsers.find((u) => u.email === email) || { full_name: email?.split("@")[0] };
 
+  const renderCommentContent = (text) => {
+    if (!text) return null;
+    const parts = text.split(/(@[a-zA-Z0-9_.]{1,40})/g);
+    return parts.map((part, i) => {
+      if (part.startsWith("@")) {
+        let slug = part.slice(1).toLowerCase();
+        let trailing = "";
+        while(slug.endsWith('.')) { trailing += "."; slug = slug.slice(0, -1); }
+        
+        const u = allUsers.find(user => {
+           if (!user.full_name) return false;
+           const s = user.full_name.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_.]/g, "");
+           return s === slug;
+        });
+
+        if (u) {
+          return (
+            <React.Fragment key={i}>
+              <Link
+                to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`}
+                className="font-bold hover:underline"
+                style={{ color: "#0B3FD9" }}
+              >
+                @{u.full_name}
+              </Link>
+              {trailing}
+            </React.Fragment>
+          );
+        }
+      }
+      return <span key={i}>{part}</span>;
+    });
+  };
+
   return (
     <div className="mt-3">
       <button
@@ -117,7 +151,7 @@ export default function TruthCardComments({ dropId, user }) {
                         >
                           {commenter.full_name || c.user_email?.split("@")[0]}
                         </Link>
-                        <p className="text-xs mt-0.5 whitespace-pre-line" style={{ color: "#4A5878" }}>{c.content}</p>
+                        <p className="text-xs mt-0.5 whitespace-pre-line" style={{ color: "#4A5878" }}>{renderCommentContent(c.content)}</p>
                       </div>
                       <div className="flex items-center gap-3 mt-1 px-1">
                         <span className="text-[10px]" style={{ color: "#8A97B5" }}>

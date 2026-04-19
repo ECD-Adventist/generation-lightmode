@@ -56,6 +56,11 @@ Deno.serve(async (req) => {
     const memberEmails = new Set(members.map(m => m.user_email));
     if (group.leader_email) memberEmails.add(group.leader_email);
 
+    // Prevent non-members from sending mentions (e.g. via backend testing dashboard)
+    if (!memberEmails.has(user.email)) {
+      return Response.json({ error: 'Sender is not a member of this group' }, { status: 403 });
+    }
+
     const validMentions = mentioned_emails.filter(e => memberEmails.has(e) && e !== user.email);
     if (validMentions.length === 0) {
       return Response.json({ success: true, notified: 0 });

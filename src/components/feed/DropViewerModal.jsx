@@ -151,6 +151,41 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
   const isOwner = user?.email === drop.user_email;
   const dropAuthor = getCommentUser(drop.user_email);
 
+  const renderCommentContent = (text) => {
+    if (!text) return null;
+    const parts = text.split(/(@[a-zA-Z0-9_.]{1,40})/g);
+    return parts.map((part, i) => {
+      if (part.startsWith("@")) {
+        let slug = part.slice(1).toLowerCase();
+        let trailing = "";
+        while(slug.endsWith('.')) { trailing += "."; slug = slug.slice(0, -1); }
+        
+        const u = allUsers.find(user => {
+           if (!user.full_name) return false;
+           const s = user.full_name.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_.]/g, "");
+           return s === slug;
+        });
+
+        if (u) {
+          return (
+            <React.Fragment key={i}>
+              <Link
+                to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`}
+                onClick={(e) => e.stopPropagation()}
+                className="font-bold hover:underline"
+                style={{ color: "#0B3FD9" }}
+              >
+                @{u.full_name}
+              </Link>
+              {trailing}
+            </React.Fragment>
+          );
+        }
+      }
+      return <span key={i}>{part}</span>;
+    });
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0B1B3D]/80 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       {/* Close */}
@@ -302,7 +337,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                   <div className="flex-1 min-w-0">
                     <div className="text-sm">
                       <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.user_email)}`} onClick={onClose} className="font-bold text-[#0B1B3D] mr-1.5 no-underline hover:underline">{cu.full_name}</Link>
-                      <span className="text-[#3A4A6B]">{c.content}</span>
+                      <span className="text-[#3A4A6B] whitespace-pre-line">{renderCommentContent(c.content)}</span>
                     </div>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-[11px] text-[#8A97B5]">

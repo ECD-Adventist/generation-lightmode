@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
 import { Shield, Crown, UserX, Trash2, Edit3, ChevronDown, Loader2, X, AlertTriangle, Camera, Image as ImageIcon, Lock, Globe2, Sparkles, Users } from "lucide-react";
+import ImageCropperModal from "@/components/ui/ImageCropperModal";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
@@ -155,18 +156,26 @@ function EditGroupModal({ group, onClose, onSave, isBusy }) {
   });
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [cropData, setCropData] = useState(null);
   const avatarInputRef = React.useRef(null);
   const coverInputRef = React.useRef(null);
 
   const inputStyle = { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#0B1B3D" };
 
-  const handleUpload = async (file, type) => {
+  const handleImageSelect = (e, type) => {
+    const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    setCropData({ file, type, aspectRatio: type === 'avatar' ? 1 : 3 });
+    e.target.value = null;
+  };
+
+  const handleCropComplete = async (croppedFile) => {
+    const type = cropData.type;
+    setCropData(null);
     const setUploading = type === "avatar" ? setUploadingAvatar : setUploadingCover;
     setUploading(true);
     try {
-      const res = await base44.integrations.Core.UploadFile({ file });
+      const res = await base44.integrations.Core.UploadFile({ file: croppedFile });
       setForm(f => ({ ...f, [type === "avatar" ? "profile_picture_url" : "cover_picture_url"]: res.file_url }));
       toast.success(`${type === "avatar" ? "Profile picture" : "Cover"} uploaded`);
     } catch {
@@ -192,13 +201,16 @@ function EditGroupModal({ group, onClose, onSave, isBusy }) {
           </div>
           <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center transition hover:rotate-90" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}><X className="w-4 h-4" /></button>
         </div>
+        {cropData && (
+          <ImageCropperModal file={cropData.file} aspectRatio={cropData.aspectRatio} onCancel={() => setCropData(null)} onCrop={handleCropComplete} />
+        )}
         <form onSubmit={(e) => { e.preventDefault(); onSave(form); }} className="p-6 space-y-4 overflow-y-auto">
           {/* Cover + Avatar preview */}
           <div className="relative rounded-2xl overflow-hidden" style={{ height: 120, background: form.cover_picture_url ? `url(${form.cover_picture_url}) center/cover` : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
             <button type="button" onClick={() => coverInputRef.current?.click()} disabled={uploadingCover} className="absolute top-2 right-2 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shrink-0 disabled:opacity-60" style={{ background: "rgba(255,255,255,0.95)", color: "#0B3FD9", backdropFilter: "blur(8px)" }}>
               {uploadingCover ? <Loader2 className="w-3 h-3 animate-spin" /> : <ImageIcon className="w-3 h-3" />} Cover
             </button>
-            <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleUpload(e.target.files?.[0], "cover")} />
+            <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "cover")} />
 
             {/* Avatar */}
             <div className="absolute -bottom-8 left-4">
@@ -209,7 +221,7 @@ function EditGroupModal({ group, onClose, onSave, isBusy }) {
                 <button type="button" onClick={() => avatarInputRef.current?.click()} disabled={uploadingAvatar} className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center disabled:opacity-60" style={{ background: "#0B3FD9", color: "#FFFFFF", border: "2px solid #FFFFFF", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.3)" }}>
                   {uploadingAvatar ? <Loader2 className="w-3 h-3 animate-spin" /> : <Camera className="w-3 h-3" />}
                 </button>
-                <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleUpload(e.target.files?.[0], "avatar")} />
+                <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={e => handleImageSelect(e, "avatar")} />
               </div>
             </div>
           </div>
