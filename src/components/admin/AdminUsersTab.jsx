@@ -5,7 +5,7 @@ import {
   Search, Edit2, Trash2, Shield, Loader2, Calendar, Users, Activity,
   Filter, MapPin, Zap, AlertCircle, Mail, X, Check, User, Clock, Map,
   CheckSquare, Square, RefreshCw, Ban, Download, UserPlus, MoreVertical,
-  ArrowUp, ArrowDown, ChevronsUpDown
+  ArrowUp, ArrowDown, ChevronsUpDown, AlertTriangle
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -28,6 +28,14 @@ import UserActivityDot from "./users/UserActivityDot";
 import VerificationBadges from "./users/VerificationBadges";
 import EngagementMeter from "./users/EngagementMeter";
 import { computeEngagementScore } from "./users/userEngagement";
+import ProfileCompletenessBar from "./users/ProfileCompletenessBar";
+import TerritoryQuickView from "./users/TerritoryQuickView";
+import DuplicateRowBadge from "./users/DuplicateRowBadge";
+import DuplicateDetectionPanel from "./users/DuplicateDetectionPanel";
+import CohortRetentionGrid from "./users/CohortRetentionGrid";
+import UsersHeatmap from "./users/UsersHeatmap";
+import ViewModeToggle from "./users/ViewModeToggle";
+import { detectDuplicates, buildDuplicateSuspectSet, computeProfileCompleteness } from "./users/userAnalytics";
 
 function calcAge(dob) {
   if (!dob) return null;
@@ -160,6 +168,10 @@ export default function AdminUsersTab({ user: currentAdmin }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
 
+  // Phase 3 — view mode + duplicate panel
+  const [viewMode, setViewMode] = useState("table"); // "table" | "heatmap" | "cohorts"
+  const [duplicatePanelOpen, setDuplicatePanelOpen] = useState(false);
+
   const queryClient = useQueryClient();
 
   const { data: users = [], isLoading } = useQuery({
@@ -233,6 +245,7 @@ export default function AdminUsersTab({ user: currentAdmin }) {
       let av = a[key]; let bv = b[key];
       if (key === "age") { av = calcAge(a.date_of_birth); bv = calcAge(b.date_of_birth); }
       if (key === "engagement") { av = computeEngagementScore(a); bv = computeEngagementScore(b); }
+      if (key === "completeness") { av = computeProfileCompleteness(a).score; bv = computeProfileCompleteness(b).score; }
       if (key === "full_name") { av = (a.full_name || "").toLowerCase(); bv = (b.full_name || "").toLowerCase(); }
       if (av == null) av = dir === "asc" ? Infinity : -Infinity;
       if (bv == null) bv = dir === "asc" ? Infinity : -Infinity;
@@ -257,6 +270,18 @@ export default function AdminUsersTab({ user: currentAdmin }) {
     () => users.filter(u => selectedUsers.has(u.email)),
     [users, selectedUsers]
   );
+
+  // Phase 3 — duplicate detection (computed once, reused for inline badges and panel)
+  const duplicateGroups = useMemo(() => detectDuplicates(users), [users]);
+  const duplicateSuspects = useMemo(() => buildDuplicateSuspectSet(duplicateGroups), [duplicateGroups]);
+
+  // Lookup severity for a single user row
+  const getUserDuplicateSeverity = (email) => {
+    for (const g of duplicateGroups) {
+      if (g.users.some(u => u.email === email)) return g.severity;
+    }
+    return null;
+  };
 
   // Current filter snapshot for presets
   const currentFilters = {
@@ -476,7 +501,26 @@ export default function AdminUsersTab({ user: currentAdmin }) {
           <h1 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk']" style={{ color: t.textPrimary }}>Users Directory</h1>
           <p className="mt-1 text-sm" style={{ color: t.textSecondary }}>Monitor and manage your community members.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <ViewModeToggle mode={viewMode} onChange={setViewMode} t={t} />
+          <button
+            onClick={() => setDuplicatePanelOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold border transition relative"
+            style={{
+              borderColor: duplicateGroups.length > 0 ? "#ef4444" : t.border,
+              color: duplicateGroups.length > 0 ? "#ef4444" : t.textSecondary,
+              background: duplicateGroups.length > 0 ? "rgba(239,68,68,0.08)" : t.surface,
+            }}
+            title={duplicateGroups.length > 0 ? `${duplicateGroups.length} potential duplicates found` : "No duplicates detected"}
+          >
+            <AlertTriangle size={13} />
+            Duplicates
+            {duplicateGroups.length > 0 && (
+              <span className="ml-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold" style={{ background: "#ef4444", color: "#fff" }}>
+                {duplicateGroups.length}
+              </span>
+            )}
+          </button>
           <FilterPresets currentFilters={currentFilters} onApply={applyPreset} t={t} isDark={isDark} />
           <button
             onClick={handleExportCsv}
@@ -494,6 +538,16 @@ export default function AdminUsersTab({ user: currentAdmin }) {
           </button>
         </div>
       </div>
+
+      {/* Phase 3 — Duplicate panel */}
+      {duplicatePanelOpen && (
+        <DuplicateDetectionPanel
+          users={users}
+          onClose={() => setDuplicatePanelOpen(false)}
+          onOpenUser={(u) => { setDuplicatePanelOpen(false); setDetailUser(u); }}
+          t={t}
+        />
+      )}
 
       {/* ── Incomplete banner ─────────────────── */}
       {incompleteCount > 0 && (
@@ -548,7 +602,8 @@ export default function AdminUsersTab({ user: currentAdmin }) {
         ))}
       </div>
 
-      {/* ── Filters ───────────────────────────── */}
+      {/* ── Filters (table view only) ─────────── */}
+      {viewMode === "table" && (
       <div className="border rounded-2xl p-4 flex flex-col gap-3" style={{ background: t.surface, borderColor: t.border }}>
         <div className="flex flex-wrap gap-3 items-center">
           <div className="flex items-center gap-2 border rounded-lg px-3 py-2" style={{ background: t.surfaceMuted, borderColor: t.border }}>
@@ -649,8 +704,27 @@ export default function AdminUsersTab({ user: currentAdmin }) {
           t={t}
         />
       </div>
+      )}
+
+      {/* ── Heatmap view ─────────────────────── */}
+      {viewMode === "heatmap" && (
+        <UsersHeatmap
+          users={users}
+          onCountryClick={(country) => {
+            setFilterCountry(country);
+            setViewMode("table");
+          }}
+          t={t}
+        />
+      )}
+
+      {/* ── Cohorts view ─────────────────────── */}
+      {viewMode === "cohorts" && (
+        <CohortRetentionGrid users={users} t={t} />
+      )}
 
       {/* ── Table ─────────────────────────────── */}
+      {viewMode === "table" && (
       <div className="border rounded-2xl overflow-hidden shadow-xl" style={{ background: t.surface, borderColor: t.border }}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse whitespace-nowrap">
@@ -672,6 +746,7 @@ export default function AdminUsersTab({ user: currentAdmin }) {
                 <SortableTh label="Territory" sortKey="territory_name" currentSort={sort} onSort={handleSort} t={t} />
                 <SortableTh label="XP" sortKey="glow_score" currentSort={sort} onSort={handleSort} t={t} />
                 <SortableTh label="Engagement" sortKey="engagement" currentSort={sort} onSort={handleSort} t={t} />
+                <SortableTh label="Profile" sortKey="completeness" currentSort={sort} onSort={handleSort} t={t} />
                 <SortableTh label="Last Active" sortKey="updated_date" currentSort={sort} onSort={handleSort} t={t} />
                 <SortableTh label="Joined" sortKey="created_date" currentSort={sort} onSort={handleSort} t={t} />
                 <th className="p-4 font-semibold text-xs uppercase tracking-wider text-right" style={{ color: t.textSecondary }}>Actions</th>
@@ -679,9 +754,9 @@ export default function AdminUsersTab({ user: currentAdmin }) {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan="13" className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto" style={{ color: t.accent }} /></td></tr>
+                <tr><td colSpan="14" className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto" style={{ color: t.accent }} /></td></tr>
               ) : filteredUsers.length === 0 ? (
-                <tr><td colSpan="13" className="p-8 text-center" style={{ color: t.textMuted }}>No users match your filters.</td></tr>
+                <tr><td colSpan="14" className="p-8 text-center" style={{ color: t.textMuted }}>No users match your filters.</td></tr>
               ) : (
                 pagedUsers.map(u => {
                   const age = calcAge(u.date_of_birth);
@@ -703,9 +778,16 @@ export default function AdminUsersTab({ user: currentAdmin }) {
                             {isSuspended && <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-red-500 border-2 rounded-full flex items-center justify-center" style={{ borderColor: t.surface }}><Ban size={8} className="text-white" /></span>}
                           </div>
                           <div>
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 flex-wrap">
                               <p className="font-bold text-sm hover:underline" style={{ color: t.textPrimary }}>{u.full_name || 'Unknown'}</p>
                               <VerificationBadges user={u} />
+                              {duplicateSuspects.has(u.email) && (
+                                <DuplicateRowBadge
+                                  severity={getUserDuplicateSeverity(u.email)}
+                                  onClick={(e) => { e.stopPropagation(); setDuplicatePanelOpen(true); }}
+                                  t={t}
+                                />
+                              )}
                             </div>
                             <p className="text-[11px]" style={{ color: t.textMuted }}>{u.email}</p>
                           </div>
@@ -740,21 +822,7 @@ export default function AdminUsersTab({ user: currentAdmin }) {
                         )}
                       </td>
                       <td className="p-4 text-sm" style={{ color: t.textSecondary }}>
-                        {u.territory_name ? (
-                          <div className="flex flex-col gap-1">
-                            <span className="flex items-center gap-1 text-xs"><Map size={12} style={{ color: t.accent }} />{u.territory_name}</span>
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider w-fit ${
-                              u.territory_status === "approved" ? (isDark ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-green-100 text-green-700 border-green-200") :
-                              u.territory_status === "pending" ? (isDark ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30" : "bg-yellow-100 text-yellow-700 border-yellow-200") :
-                              u.territory_status === "rejected" ? (isDark ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-red-100 text-red-700 border-red-200") :
-                              (isDark ? "bg-white/5 text-gray-500 border border-white/10" : "bg-gray-100 text-gray-600 border-gray-200")
-                            }`}>
-                              {u.territory_status || "not set"}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-xs" style={{ color: t.textMuted }}>Not set</span>
-                        )}
+                        <TerritoryQuickView user={u} t={t} />
                       </td>
                       <td className="p-4">
                         <span className="flex items-center gap-1 text-xs font-bold text-[#FFD000]">
@@ -763,6 +831,9 @@ export default function AdminUsersTab({ user: currentAdmin }) {
                       </td>
                       <td className="p-4">
                         <EngagementMeter user={u} t={t} />
+                      </td>
+                      <td className="p-4">
+                        <ProfileCompletenessBar user={u} t={t} />
                       </td>
                       <td className="p-4">
                         <UserActivityDot user={u} t={t} />
@@ -809,6 +880,7 @@ export default function AdminUsersTab({ user: currentAdmin }) {
           t={t}
         />
       </div>
+      )}
     </div>
   );
 }
