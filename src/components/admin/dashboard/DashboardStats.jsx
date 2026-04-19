@@ -66,6 +66,17 @@ function Sparkline({ color, delay = 0 }) {
 export default function DashboardStats({ stats, t, isDark }) {
   const maxVal = Math.max(...stats.map(s => typeof s.value === "number" ? s.value : 0), 1);
 
+  // Each card gets a distinct ring percentage so every ring animates visibly.
+  // Non-zero values get at least 35% fill (scaled by their relative size) for visual rhythm.
+  const getRingPercent = (s) => {
+    if (typeof s.value !== "number") return 60;
+    if (s.value === 0) return 8;
+    if (s.suffix === "%") return Math.min(s.value, 100);
+    // Scale relative to max but ensure minimum visible progress
+    const rel = (s.value / maxVal) * 100;
+    return Math.max(rel, 35);
+  };
+
   return (
     <>
       <style>{`
@@ -78,7 +89,7 @@ export default function DashboardStats({ stats, t, isDark }) {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {stats.map((s, i) => {
           const Icon = s.icon;
-          const pct = typeof s.value === "number" ? Math.min((s.value / maxVal) * 100, 100) : 50;
+          const pct = getRingPercent(s);
           const isHero = i === 0; // First stat takes 2x width on larger screens
           const delay = i * 80;
 
