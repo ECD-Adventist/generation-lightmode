@@ -1,0 +1,96 @@
+{
+  "name": "LeaderboardSeason",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Season name e.g. Monthly Glow Leaders - April 2026"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "metric": {
+      "type": "string",
+      "enum": [
+        "likes",
+        "drops",
+        "combined"
+      ],
+      "default": "combined",
+      "description": "How rankings are calculated"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "show_on_public": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to show this leaderboard on the public user dashboard"
+    },
+    "hidden_users": {
+      "type": "string",
+      "description": "Comma-separated emails of users to hide from this leaderboard"
+    },
+    "top_count": {
+      "type": "number",
+      "default": 10,
+      "description": "Number of top performers to show"
+    }
+  },
+  "required": [
+    "title",
+    "start_date",
+    "end_date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "read": true,
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
+}

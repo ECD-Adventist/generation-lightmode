@@ -1,0 +1,108 @@
+{
+  "name": "TerritoryAlert",
+  "type": "object",
+  "properties": {
+    "admin_email": {
+      "type": "string",
+      "description": "Regional admin who receives this alert"
+    },
+    "alert_type": {
+      "type": "string",
+      "enum": [
+        "new_drop",
+        "new_group",
+        "new_user"
+      ],
+      "description": "What triggered the alert"
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "ID of the drop/group/user that triggered the alert"
+    },
+    "country": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Human-readable summary"
+    },
+    "actor_email": {
+      "type": "string",
+      "description": "User who created the drop/group"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false
+    },
+    "flagged": {
+      "type": "boolean",
+      "default": false
+    },
+    "action_taken": {
+      "type": "string",
+      "enum": [
+        "none",
+        "moderated",
+        "flagged",
+        "approved"
+      ],
+      "default": "none"
+    }
+  },
+  "required": [
+    "admin_email",
+    "alert_type",
+    "summary"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.admin_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.admin_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
+}
