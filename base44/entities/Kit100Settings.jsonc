@@ -1,0 +1,65 @@
+{
+  "name": "Kit100Settings",
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "string",
+      "enum": [
+        "keeping_it_100",
+        "codes_of_truth"
+      ],
+      "default": "keeping_it_100",
+      "description": "Which section this shared background applies to"
+    },
+    "background_url": {
+      "type": "string",
+      "description": "Shared background image applied to all posters in this scope that don't have their own image"
+    }
+  },
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "read": true,
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  },
+  "required": []
+}

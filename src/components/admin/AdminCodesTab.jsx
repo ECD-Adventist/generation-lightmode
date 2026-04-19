@@ -3,35 +3,48 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Loader2, Plus, Edit2, Trash2, Image as ImageIcon, CheckCircle,
-  XCircle, Wand2, Eye, Square, CheckSquare, Sparkles
+  XCircle, Wand2, Eye, Square, CheckSquare, Sparkles, ImagePlus
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Kit100BackgroundModal from "@/components/admin/Kit100BackgroundModal";
 
 // ─── Poster Preview (used in both grid card and modal) ───────────────────────
-function PosterPreview({ code, size = "full" }) {
+// Renders: per-poster image (if set) → else shared background (if set) → else gradient fallback.
+// Slogan/title/reference always overlay on top for quick visual scan.
+function PosterPreview({ code, size = "full", sharedBackgroundUrl = "" }) {
   const isSmall = size === "small";
-  if (code.poster_image_url) {
-    return <img src={code.poster_image_url} alt={code.title} className="w-full h-full object-cover" />;
-  }
+  const bg = code.poster_image_url || sharedBackgroundUrl;
+
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-gradient-to-br from-[#0B0F1A] via-[#121826] to-[#0B0F1A] relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-[#00CFFF]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#8A5CFF]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className={`${isSmall ? "text-xl" : "text-3xl"} mb-2 relative z-10`}>💯</div>
-      <h3 className={`${isSmall ? "text-xs" : "text-lg"} font-black font-['Space_Grotesk'] text-white leading-tight relative z-10`}>
-        {code.title || code.slogan_text}
-      </h3>
-      {code.title && (
-        <p className={`${isSmall ? "text-[10px]" : "text-xs"} text-gray-300 mt-1 leading-snug relative z-10`}>{code.slogan_text}</p>
+    <div className="w-full h-full relative overflow-hidden bg-gradient-to-br from-[#0B0F1A] via-[#121826] to-[#0B0F1A]">
+      {bg ? (
+        <img src={bg} alt={code.title || code.slogan_text} className="absolute inset-0 w-full h-full object-cover" />
+      ) : (
+        <>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#00CFFF]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#8A5CFF]/10 rounded-full blur-3xl pointer-events-none" />
+        </>
       )}
-      {code.bible_reference && (
-        <p className={`${isSmall ? "text-[9px]" : "text-[11px]"} text-[#00CFFF] font-bold mt-2 border border-[#00CFFF]/30 px-2 py-0.5 rounded-full relative z-10`}>
-          {code.bible_reference}
-        </p>
-      )}
-      <div className="absolute bottom-3 opacity-30 relative z-10">
+      {/* Readability overlay — stronger when we have an image behind */}
+      {bg && <div className="absolute inset-0 bg-black/45" />}
+      {/* Text overlay */}
+      <div className="relative z-10 w-full h-full flex flex-col items-center justify-center p-4 text-center">
+        <div className={`${isSmall ? "text-xl" : "text-3xl"} mb-2`}>💯</div>
+        <h3 className={`${isSmall ? "text-xs" : "text-lg"} font-black font-['Space_Grotesk'] text-white leading-tight drop-shadow`}>
+          {code.title || code.slogan_text}
+        </h3>
+        {code.title && (
+          <p className={`${isSmall ? "text-[10px]" : "text-xs"} text-gray-200 mt-1 leading-snug drop-shadow`}>{code.slogan_text}</p>
+        )}
+        {code.bible_reference && (
+          <p className={`${isSmall ? "text-[9px]" : "text-[11px]"} text-[#00CFFF] font-bold mt-2 border border-[#00CFFF]/40 bg-black/30 px-2 py-0.5 rounded-full`}>
+            {code.bible_reference}
+          </p>
+        )}
+      </div>
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-30 z-10">
         <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7e2f8baa1_FAVICON.png" alt="GLM" className="w-5 h-5 grayscale brightness-200" />
       </div>
     </div>
@@ -39,7 +52,7 @@ function PosterPreview({ code, size = "full" }) {
 }
 
 // ─── Edit / Preview Modal ────────────────────────────────────────────────────
-function CodeEditModal({ code, sourceFilter, onClose, onSave }) {
+function CodeEditModal({ code, sourceFilter, onClose, onSave, sharedBackgroundUrl = "" }) {
   const [formData, setFormData] = useState({
     title: code?.title || "",
     slogan_text: code?.slogan_text || "",
@@ -120,7 +133,7 @@ Clean, Gen-Z Christian aesthetic. No white backgrounds. Portrait orientation 4:5
               {/* Poster preview */}
               <div className="w-full md:w-72 flex-shrink-0">
                 <div className="aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_30px_rgba(0,207,255,0.1)]">
-                  <PosterPreview code={formData} />
+                  <PosterPreview code={formData} sharedBackgroundUrl={sharedBackgroundUrl} />
                 </div>
               </div>
               {/* Metadata */}
@@ -204,7 +217,7 @@ Clean, Gen-Z Christian aesthetic. No white backgrounds. Portrait orientation 4:5
                 <label className="text-xs text-gray-400 uppercase tracking-wider block">Poster Image</label>
                 {/* Live preview */}
                 <div className="aspect-[4/5] rounded-xl overflow-hidden border border-white/10 bg-[#0B0F1A]">
-                  <PosterPreview code={formData} />
+                  <PosterPreview code={formData} sharedBackgroundUrl={sharedBackgroundUrl} />
                 </div>
                 {/* Image actions */}
                 <div className="flex flex-col gap-2">
@@ -246,6 +259,7 @@ Clean, Gen-Z Christian aesthetic. No white backgrounds. Portrait orientation 4:5
 export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
   const queryClient = useQueryClient();
   const [modalCode, setModalCode] = useState(null);   // null = closed, "new" = new, or a code object
+  const [bgModalOpen, setBgModalOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const [selected, setSelected] = useState(new Set());
 
@@ -255,6 +269,14 @@ export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
       ? base44.entities.CodeOfTruth.filter({ source_document: sourceFilter }, '-created_date')
       : base44.entities.CodeOfTruth.list('-created_date'),
   });
+
+  // Shared background for this section
+  const { data: settingsList = [] } = useQuery({
+    queryKey: ["kit100Settings", sourceFilter],
+    queryFn: () => base44.entities.Kit100Settings.filter({ scope: sourceFilter || "keeping_it_100" }),
+  });
+  const settings = settingsList[0] || null;
+  const sharedBackgroundUrl = settings?.background_url || "";
 
   const visibleCodes = codes.filter(c => statusFilter === "all" || (c.status || "pending") === statusFilter);
 
@@ -330,8 +352,12 @@ export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
               <CheckCircle className="w-4 h-4 mr-2" /> Approve All Pending ({pendingCount})
             </Button>
           )}
-          <Button onClick={() => setModalCode("new")} className="bg-[#00CFFF] text-black hover:bg-[#00CFFF]/80 font-bold">
-            <Plus className="w-4 h-4 mr-2" /> Add Poster
+          <Button onClick={() => setBgModalOpen(true)} className="bg-[#00CFFF] text-black hover:bg-[#00CFFF]/80 font-bold">
+            <ImagePlus className="w-4 h-4 mr-2" /> Background
+            {sharedBackgroundUrl && <span className="ml-2 w-2 h-2 rounded-full bg-green-400" title="Background set" />}
+          </Button>
+          <Button onClick={() => setModalCode("new")} className="bg-white/5 text-white hover:bg-white/10 border border-white/10 font-bold">
+            <Plus className="w-4 h-4 mr-2" /> New Poster
           </Button>
           <Button
             onClick={async () => {
@@ -401,7 +427,7 @@ export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
                   className={`bg-[#121826] border rounded-2xl overflow-hidden flex flex-col transition-all ${isSelected ? "border-[#00CFFF]/60 ring-2 ring-[#00CFFF]/30" : status === "approved" ? "border-green-500/25" : status === "rejected" ? "border-red-500/20" : "border-yellow-500/20"}`}>
                   {/* Poster */}
                   <div className="aspect-[4/5] relative cursor-pointer" onClick={() => toggleSelect(code.id)}>
-                    <PosterPreview code={code} size="small" />
+                    <PosterPreview code={code} size="small" sharedBackgroundUrl={sharedBackgroundUrl} />
                     {/* Checkbox overlay */}
                     <div className={`absolute top-2 left-2 w-6 h-6 rounded-md flex items-center justify-center transition ${isSelected ? "bg-[#00CFFF] text-black" : "bg-black/50 text-white border border-white/30"}`}>
                       {isSelected ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
@@ -467,6 +493,16 @@ export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
           sourceFilter={sourceFilter}
           onClose={() => setModalCode(null)}
           onSave={handleSave}
+          sharedBackgroundUrl={sharedBackgroundUrl}
+        />
+      )}
+
+      {/* Shared Background Modal */}
+      {bgModalOpen && (
+        <Kit100BackgroundModal
+          settings={settings}
+          sourceFilter={sourceFilter}
+          onClose={() => setBgModalOpen(false)}
         />
       )}
     </div>
