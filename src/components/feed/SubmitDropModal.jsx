@@ -411,7 +411,7 @@ RULES:
 
               {preview ? (
                 <div className="relative rounded-2xl overflow-hidden" style={{ border: "1px solid #E6ECF5", background: "#F6F8FC" }}>
-                  <img src={preview} alt="Preview" className="w-full max-h-60 object-contain bg-black/50" />
+                  <img src={preview} alt="Preview" className="w-full max-h-[28rem] object-contain bg-black/50" />
                   <button
                     type="button"
                     onClick={clearFile}
