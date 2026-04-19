@@ -59,7 +59,23 @@ export default function DashboardHero({ user, pendingDrops, pendingTerritories, 
           ? "linear-gradient(135deg, #0A1628 0%, #0F1F42 25%, #1A1345 50%, #0D1B3E 75%, #0A1628 100%)"
           : "linear-gradient(135deg, #EBF1FF 0%, #E3EAFF 25%, #EDE5FF 50%, #F0ECFF 75%, #EBF1FF 100%)"
       }} />
-      
+
+      {/* Faded B&W hero image — community worship silhouette */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: "url('https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=1600&q=80')",
+        backgroundSize: "cover",
+        backgroundPosition: "center 35%",
+        filter: "grayscale(100%) contrast(1.1)",
+        opacity: isDark ? 0.18 : 0.12,
+        mixBlendMode: isDark ? "luminosity" : "multiply",
+      }} />
+      {/* Gradient fade from left to keep text readable */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: isDark
+          ? "linear-gradient(90deg, rgba(10,22,40,0.92) 0%, rgba(10,22,40,0.75) 40%, rgba(10,22,40,0.4) 100%)"
+          : "linear-gradient(90deg, rgba(235,241,255,0.92) 0%, rgba(235,241,255,0.75) 40%, rgba(235,241,255,0.45) 100%)",
+      }} />
+
       {/* Animated orbs */}
       <div className="absolute top-[-80px] right-[-60px] w-[280px] h-[280px] rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ background: isDark ? "rgba(0,207,255,0.12)" : "rgba(11,63,217,0.08)", animationDuration: "4s" }} />
       <div className="absolute bottom-[-60px] left-[10%] w-[220px] h-[220px] rounded-full blur-[90px] pointer-events-none animate-pulse" style={{ background: isDark ? "rgba(138,92,255,0.1)" : "rgba(138,92,255,0.06)", animationDuration: "6s" }} />
