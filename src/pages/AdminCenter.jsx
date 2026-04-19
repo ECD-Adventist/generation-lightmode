@@ -176,32 +176,42 @@ function AdminCenterInner() {
     }
   };
 
-  const topBarBg = theme === "dark" ? "rgba(11,15,26,0.9)" : "rgba(246,248,252,0.9)";
-  const contentBg = theme === "dark" ? "#080C14" : "#F6F8FC";
+  const isDark = theme === "dark";
+  const topBarBg = isDark ? "rgba(11,15,26,0.92)" : "rgba(255,255,255,0.85)";
+  const contentBg = isDark ? "#080C14" : "#F4F6FA";
+
+  const LOGO_SKYBLUE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/d2dd1714d_LOGO-LANDSCAPE-SKYBLUE.png";
+  const LOGO_WHITE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b905a4243_LOGO-LANDSCAPE-WHITE.png";
+  const topBarLogo = isDark ? LOGO_WHITE : LOGO_SKYBLUE;
 
   return (
     <div className="flex flex-col md:flex-row" style={{ minHeight: "100vh", background: t.appBg, color: t.textPrimary }}>
       <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} isRegionalAdmin={isRegionalAdmin} />
       <div className="flex-1 flex flex-col h-screen overflow-hidden" style={{ background: contentBg }}>
         {/* Top Nav Bar */}
-        <div className="sticky top-0 z-50 backdrop-blur-xl shrink-0 hidden md:block" style={{ background: topBarBg, borderBottom: `1px solid ${t.border}` }}>
-          <div className="px-6 py-3 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div>
-                <h1 className="text-lg font-bold font-['Space_Grotesk']" style={{ color: t.textPrimary }}>Control Center</h1>
-                <p className="text-[10px] uppercase tracking-widest" style={{ color: t.textMuted }}>{user?.full_name || user?.email} · {user?.role?.replace(/_/g, " ")}</p>
+        <div className="sticky top-0 z-50 backdrop-blur-2xl shrink-0 hidden md:block" style={{ background: topBarBg, borderBottom: `1px solid ${t.border}` }}>
+          <div className="px-8 py-3 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "rgba(11,63,217,0.06)" }}>
+                  <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover rounded-xl" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold" style={{ color: t.textPrimary }}>{user?.full_name || "Admin"}</p>
+                  <p className="text-[10px] uppercase tracking-widest font-bold" style={{ color: t.textMuted }}>{user?.role?.replace(/_/g, " ")}</p>
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <AdminThemeToggle />
-              <Link to={createPageUrl("Feed")} className="font-medium text-sm transition" style={{ color: t.textSecondary }}>
-                Switch It On
+              <Link to={createPageUrl("Feed")} className="px-4 py-2 rounded-lg font-bold text-xs transition flex items-center gap-1.5" style={{ background: isDark ? "rgba(0,207,255,0.1)" : "rgba(11,63,217,0.06)", color: isDark ? "#00CFFF" : "#0B3FD9", border: `1px solid ${isDark ? "rgba(0,207,255,0.2)" : "rgba(11,63,217,0.12)"}` }}>
+                ⚡ Switch It On
               </Link>
-              <Link to={createPageUrl("Notifications")} className="relative w-10 h-10 rounded-full flex items-center justify-center transition" style={{ background: t.surface, border: `1px solid ${t.border}` }}>
-                <Bell className="w-5 h-5" style={{ color: t.textSecondary }} />
+              <Link to={createPageUrl("Notifications")} className="relative w-9 h-9 rounded-xl flex items-center justify-center transition" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "rgba(11,63,217,0.05)", border: `1px solid ${t.border}` }}>
+                <Bell className="w-4 h-4" style={{ color: t.textSecondary }} />
               </Link>
-              <Link to={createPageUrl("Profile")} className="w-10 h-10 rounded-full p-[2px]" title="Profile" style={{ background: t.gradient }}>
-                <div className="w-full h-full rounded-full flex items-center justify-center overflow-hidden" style={{ background: t.surface }}>
+              <Link to={createPageUrl("Profile")} className="w-9 h-9 rounded-xl p-[2px] flex items-center justify-center" title="Profile" style={{ background: t.gradient }}>
+                <div className="w-full h-full rounded-[10px] flex items-center justify-center overflow-hidden" style={{ background: t.surface }}>
                   <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                 </div>
               </Link>
@@ -209,9 +219,9 @@ function AdminCenterInner() {
           </div>
         </div>
 
-        {/* Mobile top bar with theme toggle */}
+        {/* Mobile top bar */}
         <div className="md:hidden flex items-center justify-between px-4 py-3" style={{ background: t.surface, borderBottom: `1px solid ${t.border}` }}>
-          <h1 className="text-base font-bold font-['Space_Grotesk']" style={{ color: t.textPrimary }}>Control Center</h1>
+          <img src={isDark ? "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/77c1a906e_LOGO-LANDSCAPE-GOLD.png" : "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/ce3018808_LOGO-LANDSCAPE-BLUE.png"} alt="LightMode" style={{ height: 28, width: "auto" }} />
           <AdminThemeToggle />
         </div>
 
