@@ -12,9 +12,47 @@ export default function DashboardHero({ user, pendingDrops, pendingTerritories, 
   const totalPending = pendingDrops + pendingTerritories;
 
   return (
-    <div className="relative rounded-[1.75rem] overflow-hidden" style={{
-      border: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(11,63,217,0.06)"}`,
-    }}>
+    <div className="glm-hero-banner relative rounded-[1.75rem] overflow-hidden p-[2px]">
+      <style>{`
+        /* Spinning gradient border (same as "Switch It On" button) */
+        @keyframes glm-hero-spin {
+          0%   { transform: translate(-50%, -50%) rotate(0deg); }
+          100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @keyframes glm-hero-sweep {
+          0%   { transform: translateX(-150%) skewX(-20deg); }
+          100% { transform: translateX(300%) skewX(-20deg); }
+        }
+        .glm-hero-banner::before {
+          content: '';
+          position: absolute;
+          top: 50%; left: 50%;
+          width: 200%; height: 600%;
+          background: conic-gradient(from 0deg, transparent 55%, #00CFFF 70%, #8A5CFF 82%, #FFD000 93%, transparent 100%);
+          animation: glm-hero-spin 8s linear infinite;
+          z-index: 0;
+          pointer-events: none;
+          opacity: ${isDark ? 0.9 : 0.75};
+        }
+        .glm-hero-inner {
+          position: relative;
+          z-index: 2;
+          border-radius: calc(1.75rem - 2px);
+          overflow: hidden;
+        }
+        /* Sweep shimmer */
+        .glm-hero-inner::after {
+          content: '';
+          position: absolute;
+          top: 0; bottom: 0; left: 0;
+          width: 30%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,${isDark ? 0.04 : 0.18}), transparent);
+          animation: glm-hero-sweep 6s infinite ease-in-out;
+          pointer-events: none;
+          z-index: 3;
+        }
+      `}</style>
+      <div className="glm-hero-inner">
       {/* Animated mesh gradient background */}
       <div className="absolute inset-0" style={{
         background: isDark
@@ -54,7 +92,15 @@ export default function DashboardHero({ user, pendingDrops, pendingTerritories, 
             </div>
             
             <h1 className="text-3xl md:text-4xl font-black font-['Space_Grotesk'] tracking-tight leading-tight" style={{ color: t.textPrimary }}>
-              {greeting}, <span style={{ background: isDark ? "linear-gradient(135deg, #00CFFF, #8A5CFF)" : "linear-gradient(135deg, #0B3FD9, #7e22ce)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{firstName}</span>
+              {greeting},{" "}
+              <span style={{
+                backgroundImage: isDark ? "linear-gradient(135deg, #00CFFF, #8A5CFF)" : "linear-gradient(135deg, #0B3FD9, #7e22ce)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                color: "transparent",
+                display: "inline",
+              }}>{firstName || "Admin"}</span>
             </h1>
             <p className="text-sm mt-2 max-w-md leading-relaxed" style={{ color: t.textSecondary }}>
               Your movement command center is ready. Monitor engagement, manage content, and grow the community.
@@ -91,6 +137,7 @@ export default function DashboardHero({ user, pendingDrops, pendingTerritories, 
             </Link>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
