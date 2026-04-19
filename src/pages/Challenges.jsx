@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Zap, Clock, Users, Star, CheckCircle } from "lucide-react";
 import LiveChallengesPage from "@/components/challenges/LiveChallengesPage";
+import AppTopNav from "@/components/AppTopNav";
+import AppFooter from "@/components/AppFooter";
 
 const challenges = [
   {
@@ -52,5 +54,11 @@ const difficultyColors = {
 };
 
 export default function Challenges() {
-  return <LiveChallengesPage />;
+  return (
+    <div style={{ background: "#F6F8FC", minHeight: "100vh" }}>
+      <AppTopNav />
+      <LiveChallengesPage />
+      <AppFooter />
+    </div>
+  );
 }

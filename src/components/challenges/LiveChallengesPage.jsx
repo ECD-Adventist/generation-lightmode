@@ -17,7 +17,7 @@ export default function LiveChallengesPage() {
 
   return (
     <div style={{ background: "#F6F8FC", minHeight: "100vh", fontFamily: "Inter, sans-serif", color: "#0B1B3D" }}>
-      <section style={{ padding: "100px 24px 60px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+      <section style={{ padding: "48px 24px 60px", textAlign: "center", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "relative", zIndex: 1 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.12)", border: "1px solid #FFE4A0", borderRadius: 50, padding: "8px 20px", marginBottom: 24 }}>
             <Target size={14} color="#CC7A00" />
