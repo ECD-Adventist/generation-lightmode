@@ -10,7 +10,7 @@ const LOGO_GOLD = "https://media.base44.com/images/public/69a6fca6155ae283f1b551
 function SidebarSection({ label, children, isDark }) {
   return (
     <div className="mb-1">
-      <p className="text-[9px] font-black uppercase tracking-[0.2em] px-4 pt-4 pb-1.5" style={{ color: isDark ? "#6B7FA0" : "rgba(255,255,255,0.55)" }}>{label}</p>
+      <p className="text-[9px] font-black uppercase tracking-[0.2em] px-4 pt-4 pb-1.5" style={{ color: isDark ? "#6B7FA0" : "#8A97B5" }}>{label}</p>
       {children}
     </div>
   );
@@ -38,7 +38,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
 
-  const logoUrl = LOGO_GOLD;
+  const logoUrl = isDark ? LOGO_GOLD : LOGO_BLUE;
 
   const SidebarItem = ({ id, icon, label }) => {
     const active = activeTab === id;
@@ -48,13 +48,13 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
         className="w-full flex items-center gap-2.5 px-4 py-2 rounded-xl text-[13px] font-semibold transition-all whitespace-nowrap md:whitespace-normal shrink-0"
         style={active
           ? {
-              background: isDark ? "rgba(0,207,255,0.12)" : "rgba(255,255,255,0.18)",
+              background: isDark ? "rgba(0,207,255,0.12)" : "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)",
               color: isDark ? "#00CFFF" : "#FFFFFF",
-              boxShadow: isDark ? "0 0 12px rgba(0,207,255,0.08)" : "inset 0 0 0 1px rgba(255,255,255,0.15)"
+              boxShadow: isDark ? "0 0 12px rgba(0,207,255,0.08)" : "0 4px 14px rgba(11,63,217,0.25)"
             }
-          : { color: isDark ? "#C8D0E0" : "rgba(255,255,255,0.82)", background: "transparent" }}
-        onMouseOver={e => { if (!active) { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#FFFFFF"; } }}
-        onMouseOut={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = isDark ? "#C8D0E0" : "rgba(255,255,255,0.82)"; } }}
+          : { color: isDark ? "#C8D0E0" : "#3A4A6B", background: "transparent" }}
+        onMouseOver={e => { if (!active) { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(11,63,217,0.04)"; e.currentTarget.style.color = isDark ? "#fff" : "#0B3FD9"; } }}
+        onMouseOut={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = isDark ? "#C8D0E0" : "#3A4A6B"; } }}
       >
         <span className="shrink-0 w-5 h-5 flex items-center justify-center">{icon}</span>
         {label}
@@ -65,8 +65,8 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
   // Determine sidebar background — Feed-inspired deep navy/royal blue gradient
   const sidebarBg = isDark
     ? "linear-gradient(180deg, #0A1226 0%, #0B1730 50%, #0A1226 100%)"
-    : "linear-gradient(180deg, #0B3FD9 0%, #1353E6 50%, #0B2FA8 100%)";
-  const sidebarBorder = isDark ? "rgba(31,184,255,0.12)" : "rgba(11,63,217,0.3)";
+    : "linear-gradient(180deg, #FFFFFF 0%, #F4F8FF 55%, #EAF2FF 100%)";
+  const sidebarBorder = isDark ? "rgba(31,184,255,0.12)" : "#DCE6F7";
 
   return (
     <div className="w-full md:w-[260px] md:h-screen flex flex-col shrink-0 md:sticky top-0 z-10 overflow-hidden relative"
@@ -87,7 +87,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
             style={{ height: 52, width: "auto", objectFit: "contain" }}
           />
         </Link>
-        <p className="text-[9px] font-black uppercase tracking-[0.2em] mt-2.5 pl-2" style={{ color: isDark ? "#5AC8FF" : "#FFD000" }}>Control Center</p>
+        <p className="text-[9px] font-black uppercase tracking-[0.2em] mt-2.5 pl-2" style={{ color: isDark ? "#5AC8FF" : "#0B3FD9" }}>Control Center</p>
       </div>
 
       {/* Scrollable Nav */}
@@ -151,9 +151,9 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
 
         {/* Back to App link */}
         <div className="mt-auto pt-4 pb-3 px-4 hidden md:block">
-          <Link to={createPageUrl("Feed")} className="flex items-center gap-2 text-xs font-semibold transition" style={{ color: isDark ? "#6B7FA0" : "rgba(255,255,255,0.7)" }}
-            onMouseOver={e => e.currentTarget.style.color = isDark ? "#5AC8FF" : "#FFD000"}
-            onMouseOut={e => e.currentTarget.style.color = isDark ? "#6B7FA0" : "rgba(255,255,255,0.7)"}>
+          <Link to={createPageUrl("Feed")} className="flex items-center gap-2 text-xs font-semibold transition" style={{ color: isDark ? "#6B7FA0" : "#4A5878" }}
+            onMouseOver={e => e.currentTarget.style.color = isDark ? "#5AC8FF" : "#0B3FD9"}
+            onMouseOut={e => e.currentTarget.style.color = isDark ? "#6B7FA0" : "#4A5878"}>
             <Home size={14} /> Back to App
           </Link>
         </div>
