@@ -8,6 +8,7 @@ import DashboardHero from "./dashboard/DashboardHero";
 import DashboardStats from "./dashboard/DashboardStats";
 import DashboardCharts from "./dashboard/DashboardCharts";
 import { EngagementPanel, TopPerformersPanel, RecentActivityPanel } from "./dashboard/DashboardPanels";
+import { GlobalReachPanel, LeadingCountriesPanel, ChallengeImpactPanel, CommunityPulsePanel } from "./dashboard/DashboardExtras";
 
 export default function AdminDashboardTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
   const { theme } = useAdminTheme();
@@ -89,6 +90,18 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
         <EngagementPanel engagementRate={engagementRate} avgLikes={avgLikes} approvedDrops={approvedDrops} recentDrops={recentDrops} t={t} isDark={isDark} />
         <TopPerformersPanel performers={topPerformers} t={t} isDark={isDark} />
         <RecentActivityPanel activity={recentActivity} t={t} isDark={isDark} />
+      </div>
+
+      {/* ─── Extra live intelligence panels ─────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <GlobalReachPanel users={scopedUsers} t={t} isDark={isDark} />
+        </div>
+        <LeadingCountriesPanel users={scopedUsers} drops={scopedDrops} t={t} isDark={isDark} />
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <ChallengeImpactPanel t={t} isDark={isDark} />
+        <CommunityPulsePanel scopedGroups={scopedGroups} t={t} isDark={isDark} />
       </div>
     </div>
   );
