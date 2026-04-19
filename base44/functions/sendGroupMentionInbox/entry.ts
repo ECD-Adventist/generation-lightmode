@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { group_id, mentioned_emails, message_preview } = await req.json();
+    const { group_id, mentioned_emails, message_preview, sender_email, sender_name } = await req.json();
     if (!group_id || !Array.isArray(mentioned_emails) || mentioned_emails.length === 0) {
       return Response.json({ error: 'Invalid parameters' }, { status: 400 });
     }
@@ -56,17 +56,20 @@ Deno.serve(async (req) => {
     const memberEmails = new Set(members.map(m => m.user_email));
     if (group.leader_email) memberEmails.add(group.leader_email);
 
-    // Prevent non-members from sending mentions (e.g. via backend testing dashboard)
-    if (!memberEmails.has(user.email)) {
+    // Use sender_email from payload if provided (more reliable than service role user.email)
+    const actualSenderEmail = sender_email || user.email;
+    const actualSenderName = sender_name || user.full_name || user.email?.split('@')[0] || 'Someone';
+
+    // Prevent non-members from sending mentions
+    if (!memberEmails.has(actualSenderEmail)) {
       return Response.json({ error: 'Sender is not a member of this group' }, { status: 403 });
     }
 
-    const validMentions = mentioned_emails.filter(e => memberEmails.has(e) && e !== user.email);
+    const validMentions = mentioned_emails.filter(e => memberEmails.has(e) && e !== actualSenderEmail);
     if (validMentions.length === 0) {
       return Response.json({ success: true, notified: 0 });
     }
 
-    const senderName = user.full_name || user.email?.split('@')[0] || 'Someone';
     const preview = (message_preview || '').slice(0, 120);
 
     // Fire bell notification + inbox message for each valid mention
@@ -75,14 +78,14 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.Notification.create({
         user_email: email,
         type: 'message',
-        message: `${senderName} mentioned you in "${group.name}": "${preview}${preview.length >= 120 ? '...' : ''}"`,
+        message: `${actualSenderName} mentioned you in "${group.name}": "${preview}${preview.length >= 120 ? '...' : ''}"`,
         link: `/GroupChat?id=${group_id}`,
       }).catch(() => {});
 
-      // Inbox message
-      const inboxContent = `@${senderName} tagged you in "${group.name}": "${preview}${preview.length >= 120 ? '...' : ''}" — Open group: /GroupChat?id=${group_id}`;
+      // Inbox message — send FROM the actual human sender, not the service account
+      const inboxContent = `${actualSenderName} tagged you in "${group.name}": "${preview}${preview.length >= 120 ? '...' : ''}" — Open group: /GroupChat?id=${group_id}`;
       try {
-        await sendInboxMessage(base44, user.email, email, inboxContent);
+        await sendInboxMessage(base44, actualSenderEmail, email, inboxContent);
       } catch (err) {
         console.error('Failed to send inbox message to', email, err.message);
       }

@@ -102,7 +102,7 @@ export default function ChatWindow({ conversation, currentUser, otherUser, messa
         </Link>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-1" style={{ background: "#F6F8FC" }}>
+      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-1 messages-scroll" style={{ background: "linear-gradient(180deg, #F6F8FC 0%, #EEF3FF 100%)" }}>
         {messages.length === 0 && (
           <div className="text-center py-16">
             <div className="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
@@ -213,11 +213,11 @@ export default function ChatWindow({ conversation, currentUser, otherUser, messa
                   >
                     <span>{formatMessageTime(message.created_date)}</span>
                     {isMine && (
-                      <>
-                        {message.status === "sent" && <Clock className="w-3 h-3" />}
-                        {message.status === "delivered" && <Check className="w-3 h-3" />}
-                        {message.status === "read" && <CheckCheck className="w-3 h-3" style={{ color: "#0B3FD9" }} />}
-                      </>
+                      <span title={message.status === "read" ? "Seen" : message.status === "delivered" ? "Delivered" : "Sent"}>
+                        {message.status === "sent" && <Clock className="w-3 h-3 opacity-60" />}
+                        {message.status === "delivered" && <Check className="w-3 h-3" style={{ color: "#94A3B8" }} />}
+                        {message.status === "read" && <CheckCheck className="w-3.5 h-3.5" style={{ color: "#1FB8FF" }} />}
+                      </span>
                     )}
                   </div>
                 </div>

@@ -208,6 +208,14 @@ export default function Messages() {
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+      <style>{`
+        /* Messages page — clean blue scrollbar */
+        .messages-scroll::-webkit-scrollbar { width: 5px; }
+        .messages-scroll::-webkit-scrollbar-track { background: transparent; }
+        .messages-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #1FB8FF, #0B3FD9); border-radius: 3px; }
+        .messages-scroll::-webkit-scrollbar-thumb:hover { background: #0B3FD9; }
+        .messages-scroll { scrollbar-width: thin; scrollbar-color: #1FB8FF transparent; }
+      `}</style>
       {/* Top Nav */}
       <div className="sticky top-0 z-50 backdrop-blur-xl border-b px-4 py-3" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">

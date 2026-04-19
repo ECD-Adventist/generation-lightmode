@@ -188,6 +188,8 @@ export default function GroupChat() {
             group_id: groupId,
             mentioned_emails: [...new Set(mentionedEmails)],
             message_preview: content,
+            sender_email: currentUser.email,
+            sender_name: currentUser.full_name || currentUser.email?.split('@')[0] || 'Someone',
           }).catch(() => {});
         }
       }
@@ -465,23 +467,16 @@ export default function GroupChat() {
                         </div>
                       )}
                       <div className={`flex items-center gap-1 ${isMine ? "flex-row" : "flex-row-reverse"}`}>
-                        <div className="relative opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
-                          {canDelete && (
-                            <>
-                              <button onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === msg.id ? null : msg.id); }} className="w-7 h-7 rounded-full flex items-center justify-center transition hover:bg-slate-100" style={{ color: "#6B7FA0" }}>
-                                <MoreVertical className="w-3.5 h-3.5" />
-                              </button>
-                              {menuOpenId === msg.id && (
-                                <div className={`absolute ${isMine ? 'right-0' : 'left-0'} mt-8 rounded-lg z-50 overflow-hidden`} style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.12)" }}>
-                                  <button onClick={(e) => { e.stopPropagation(); setMenuOpenId(null); deleteMutation.mutate(msg.id); }} className="flex items-center gap-2 px-4 py-2 text-sm whitespace-nowrap transition hover:bg-red-50" style={{ color: "#DC2626" }}>
-                                    <Trash2 className="w-3.5 h-3.5" /> Delete
-                                  </button>
-                                </div>
-                              )}
-                            </>
-                          )}
+                        {/* Actions: always-visible emoji react + hover-only delete */}
+                        <div className="relative flex items-center gap-1">
+                          {/* Emoji reaction button — always visible */}
                           <div className="relative">
-                            <button onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === `emoji-${msg.id}` ? null : `emoji-${msg.id}`); }} className="w-7 h-7 rounded-full flex items-center justify-center transition hover:bg-slate-100" style={{ color: "#6B7FA0" }}>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === `emoji-${msg.id}` ? null : `emoji-${msg.id}`); }}
+                              className="w-7 h-7 rounded-full flex items-center justify-center transition"
+                              style={{ background: "#F0F4FA", border: "1px solid #E0E8F5", color: "#6B7FA0" }}
+                              title="React"
+                            >
                               <Smile className="w-3.5 h-3.5" />
                             </button>
                             {menuOpenId === `emoji-${msg.id}` && (
@@ -494,7 +489,7 @@ export default function GroupChat() {
                                       setMenuOpenId(null);
                                       reactMutation.mutate({ message_id: msg.id, emoji });
                                     }}
-                                    className="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded-lg text-lg transition"
+                                    className="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded-lg text-xl transition"
                                   >
                                     {emoji}
                                   </button>
@@ -502,6 +497,21 @@ export default function GroupChat() {
                               </div>
                             )}
                           </div>
+                          {/* Delete button — only on hover */}
+                          {canDelete && (
+                            <div className="relative opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === msg.id ? null : msg.id); }} className="w-7 h-7 rounded-full flex items-center justify-center transition hover:bg-slate-100" style={{ color: "#6B7FA0" }}>
+                                <MoreVertical className="w-3.5 h-3.5" />
+                              </button>
+                              {menuOpenId === msg.id && (
+                                <div className={`absolute ${isMine ? 'right-0' : 'left-0'} mt-8 rounded-lg z-50 overflow-hidden`} style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.12)" }}>
+                                  <button onClick={(e) => { e.stopPropagation(); setMenuOpenId(null); deleteMutation.mutate(msg.id); }} className="flex items-center gap-2 px-4 py-2 text-sm whitespace-nowrap transition hover:bg-red-50" style={{ color: "#DC2626" }}>
+                                    <Trash2 className="w-3.5 h-3.5" /> Delete
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         <div className="relative">

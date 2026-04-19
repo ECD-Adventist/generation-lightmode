@@ -188,21 +188,28 @@ export default function ConversationsList({
                     src={otherUser.profile_picture_url || defaultAvatar}
                     alt={otherUser.full_name}
                     className="w-11 h-11 rounded-full object-cover"
-                    style={{ border: "1px solid #E6ECF5" }}
+                    style={{ border: isSelected ? "2px solid #1FB8FF" : "1px solid #E6ECF5" }}
                   />
+                  {/* Unread indicator — shown when this conversation has an unread last message not from me */}
+                  {!isSelected && conversation.last_message && conversation.participant_a_email !== currentUserEmail
+                    ? null
+                    : null
+                  }
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <div className="font-semibold truncate" style={{ color: "#0B1B3D" }}>
                       {otherUser.full_name}
                     </div>
-                    {lastAt && (
-                      <div className="text-[10px] flex-shrink-0" style={{ color: "#8A97B5" }}>
-                        {formatDistanceToNow(new Date(lastAt.endsWith?.("Z") ? lastAt : lastAt + "Z"), { addSuffix: false })}
-                      </div>
-                    )}
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {lastAt && (
+                        <div className="text-[10px]" style={{ color: "#8A97B5" }}>
+                          {formatDistanceToNow(new Date(lastAt.endsWith?.("Z") ? lastAt : lastAt + "Z"), { addSuffix: false })}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-sm truncate mt-0.5" style={{ color: "#6B7FA0" }}>
+                  <div className="text-sm truncate mt-0.5" style={{ color: isSelected ? "#4A5878" : "#6B7FA0" }}>
                     {conversation.last_message || "Start chatting"}
                   </div>
                 </div>
