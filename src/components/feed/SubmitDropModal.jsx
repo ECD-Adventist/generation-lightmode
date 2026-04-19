@@ -285,7 +285,7 @@ RULES:
         <ImageCropperModal
           src={cropSrc}
           onCrop={handleCropDone}
-          onCancel={() => { setCropSrc(null); setSizeInfo(null); }}
+          onCancel={() => setCropSrc(null)}
         />
       )}
 
