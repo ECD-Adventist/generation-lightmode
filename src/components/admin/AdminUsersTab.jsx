@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import {
@@ -18,6 +18,16 @@ import DeleteUserModal from "./users/DeleteUserModal";
 import SendNotificationModal from "./users/SendNotificationModal";
 import UserQuickActionsMenu from "./users/UserQuickActionsMenu";
 import { exportUsersToCsv } from "./users/exportUsersCsv";
+import FilterPresets from "./users/FilterPresets";
+import UsersPagination from "./users/UsersPagination";
+import BulkActionsBar from "./users/BulkActionsBar";
+import BulkSuspendModal from "./users/BulkSuspendModal";
+import BulkRoleModal from "./users/BulkRoleModal";
+import BulkNotifyModal from "./users/BulkNotifyModal";
+import UserActivityDot from "./users/UserActivityDot";
+import VerificationBadges from "./users/VerificationBadges";
+import EngagementMeter from "./users/EngagementMeter";
+import { computeEngagementScore } from "./users/userEngagement";
 
 function calcAge(dob) {
   if (!dob) return null;
@@ -142,6 +152,13 @@ export default function AdminUsersTab({ user: currentAdmin }) {
   const [selectedUsers, setSelectedUsers] = useState(new Set());
   const [bulkStatus, setBulkStatus] = useState("approved");
   const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [bulkSuspendAction, setBulkSuspendAction] = useState(null); // "suspend" | "activate"
+  const [bulkRoleOpen, setBulkRoleOpen] = useState(false);
+  const [bulkNotifyOpen, setBulkNotifyOpen] = useState(false);
+
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
 
   const queryClient = useQueryClient();
 
@@ -215,6 +232,7 @@ export default function AdminUsersTab({ user: currentAdmin }) {
       const { key, dir } = sort;
       let av = a[key]; let bv = b[key];
       if (key === "age") { av = calcAge(a.date_of_birth); bv = calcAge(b.date_of_birth); }
+      if (key === "engagement") { av = computeEngagementScore(a); bv = computeEngagementScore(b); }
       if (key === "full_name") { av = (a.full_name || "").toLowerCase(); bv = (b.full_name || "").toLowerCase(); }
       if (av == null) av = dir === "asc" ? Infinity : -Infinity;
       if (bv == null) bv = dir === "asc" ? Infinity : -Infinity;
@@ -224,6 +242,38 @@ export default function AdminUsersTab({ user: currentAdmin }) {
       return 0;
     });
   }, [users, search, filterRole, filterGender, filterCountry, filterStatus, timeFilter, filterIncomplete, filterTerritoryStatus, sort]);
+
+  // Reset to page 1 whenever filters/sort change
+  useEffect(() => { setPage(1); }, [search, filterRole, filterGender, filterCountry, filterStatus, timeFilter, filterIncomplete, filterTerritoryStatus, sort, pageSize]);
+
+  // Paginated slice for rendering
+  const pagedUsers = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredUsers.slice(start, start + pageSize);
+  }, [filteredUsers, page, pageSize]);
+
+  // Selected user objects (for bulk modals)
+  const selectedUserObjects = useMemo(
+    () => users.filter(u => selectedUsers.has(u.email)),
+    [users, selectedUsers]
+  );
+
+  // Current filter snapshot for presets
+  const currentFilters = {
+    search, filterRole, filterGender, filterCountry, filterStatus,
+    filterTerritoryStatus, timeFilter, filterIncomplete,
+  };
+
+  const applyPreset = (f) => {
+    setSearch(f.search || "");
+    setFilterRole(f.filterRole || "all");
+    setFilterGender(f.filterGender || "all");
+    setFilterCountry(f.filterCountry || "all");
+    setFilterStatus(f.filterStatus || "all");
+    setFilterTerritoryStatus(f.filterTerritoryStatus || "all");
+    setTimeFilter(f.timeFilter || "all");
+    setFilterIncomplete(!!f.filterIncomplete);
+  };
 
   const handleSort = (key) => {
     setSort(prev => prev.key === key
@@ -321,6 +371,11 @@ export default function AdminUsersTab({ user: currentAdmin }) {
     toast.success(`Exported ${filteredUsers.length} user(s) to CSV`);
   };
 
+  const handleExportSelected = () => {
+    exportUsersToCsv(selectedUserObjects, "users-selected.csv");
+    toast.success(`Exported ${selectedUserObjects.length} selected user(s)`);
+  };
+
   const refreshAll = () => queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
 
   return (
@@ -386,6 +441,34 @@ export default function AdminUsersTab({ user: currentAdmin }) {
           t={t} isDark={isDark}
         />
       )}
+      {bulkSuspendAction && (
+        <BulkSuspendModal
+          users={bulkSuspendAction === "suspend"
+            ? selectedUserObjects.filter(u => u.status !== "suspended")
+            : selectedUserObjects.filter(u => u.status === "suspended")}
+          action={bulkSuspendAction}
+          onClose={() => setBulkSuspendAction(null)}
+          onDone={() => { setSelectedUsers(new Set()); refreshAll(); }}
+          t={t}
+        />
+      )}
+      {bulkRoleOpen && (
+        <BulkRoleModal
+          users={selectedUserObjects}
+          allRoles={allRoles}
+          onClose={() => setBulkRoleOpen(false)}
+          onDone={() => { setSelectedUsers(new Set()); refreshAll(); }}
+          t={t}
+        />
+      )}
+      {bulkNotifyOpen && (
+        <BulkNotifyModal
+          users={selectedUserObjects}
+          onClose={() => setBulkNotifyOpen(false)}
+          onDone={() => { setSelectedUsers(new Set()); refreshAll(); }}
+          t={t}
+        />
+      )}
 
       {/* ── Header ─────────────────────────────── */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -394,6 +477,7 @@ export default function AdminUsersTab({ user: currentAdmin }) {
           <p className="mt-1 text-sm" style={{ color: t.textSecondary }}>Monitor and manage your community members.</p>
         </div>
         <div className="flex items-center gap-2">
+          <FilterPresets currentFilters={currentFilters} onApply={applyPreset} t={t} isDark={isDark} />
           <button
             onClick={handleExportCsv}
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold border transition"
@@ -547,38 +631,23 @@ export default function AdminUsersTab({ user: currentAdmin }) {
             {selectedUsers.size > 0 && <span className="ml-2 font-bold" style={{ color: t.accent }}>· {selectedUsers.size} selected</span>}
           </p>
 
-          {selectedUsers.size > 0 && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold" style={{ color: t.textSecondary }}>Bulk set territory status:</span>
-              <select
-                value={bulkStatus}
-                onChange={e => setBulkStatus(e.target.value)}
-                className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none"
-                style={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }}
-              >
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-                <option value="rejected">Rejected</option>
-              </select>
-              <button
-                onClick={handleBulkStatusUpdate}
-                disabled={bulkUpdating}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-white text-xs font-bold transition disabled:opacity-50"
-                style={{ background: t.accent, border: "none" }}
-              >
-                {bulkUpdating ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
-                Apply to {selectedUsers.size} user(s)
-              </button>
-              <button
-                onClick={() => setSelectedUsers(new Set())}
-                className="px-3 py-1.5 rounded-lg border text-xs transition"
-                style={{ borderColor: t.border, color: t.textSecondary, background: "transparent" }}
-              >
-                Clear
-              </button>
-            </div>
-          )}
         </div>
+
+        <BulkActionsBar
+          selectedCount={selectedUsers.size}
+          selectedUsers={selectedUserObjects}
+          bulkStatus={bulkStatus}
+          setBulkStatus={setBulkStatus}
+          onApplyTerritory={handleBulkStatusUpdate}
+          territoryUpdating={bulkUpdating}
+          onBulkSuspend={() => setBulkSuspendAction("suspend")}
+          onBulkReactivate={() => setBulkSuspendAction("activate")}
+          onBulkRole={() => setBulkRoleOpen(true)}
+          onBulkNotify={() => setBulkNotifyOpen(true)}
+          onExportSelected={handleExportSelected}
+          onClear={() => setSelectedUsers(new Set())}
+          t={t}
+        />
       </div>
 
       {/* ── Table ─────────────────────────────── */}
@@ -602,17 +671,19 @@ export default function AdminUsersTab({ user: currentAdmin }) {
                 <SortableTh label="Status" sortKey="status" currentSort={sort} onSort={handleSort} t={t} />
                 <SortableTh label="Territory" sortKey="territory_name" currentSort={sort} onSort={handleSort} t={t} />
                 <SortableTh label="XP" sortKey="glow_score" currentSort={sort} onSort={handleSort} t={t} />
+                <SortableTh label="Engagement" sortKey="engagement" currentSort={sort} onSort={handleSort} t={t} />
+                <SortableTh label="Last Active" sortKey="updated_date" currentSort={sort} onSort={handleSort} t={t} />
                 <SortableTh label="Joined" sortKey="created_date" currentSort={sort} onSort={handleSort} t={t} />
                 <th className="p-4 font-semibold text-xs uppercase tracking-wider text-right" style={{ color: t.textSecondary }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan="11" className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto" style={{ color: t.accent }} /></td></tr>
+                <tr><td colSpan="13" className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto" style={{ color: t.accent }} /></td></tr>
               ) : filteredUsers.length === 0 ? (
-                <tr><td colSpan="11" className="p-8 text-center" style={{ color: t.textMuted }}>No users match your filters.</td></tr>
+                <tr><td colSpan="13" className="p-8 text-center" style={{ color: t.textMuted }}>No users match your filters.</td></tr>
               ) : (
-                filteredUsers.map(u => {
+                pagedUsers.map(u => {
                   const age = calcAge(u.date_of_birth);
                   const isNew = u.created_date && ((new Date() - new Date(u.created_date)) / (1000 * 60 * 60)) <= 24;
                   const isSelected = selectedUsers.has(u.email);
@@ -632,7 +703,10 @@ export default function AdminUsersTab({ user: currentAdmin }) {
                             {isSuspended && <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-red-500 border-2 rounded-full flex items-center justify-center" style={{ borderColor: t.surface }}><Ban size={8} className="text-white" /></span>}
                           </div>
                           <div>
-                            <p className="font-bold text-sm hover:underline" style={{ color: t.textPrimary }}>{u.full_name || 'Unknown'}</p>
+                            <div className="flex items-center gap-1.5">
+                              <p className="font-bold text-sm hover:underline" style={{ color: t.textPrimary }}>{u.full_name || 'Unknown'}</p>
+                              <VerificationBadges user={u} />
+                            </div>
                             <p className="text-[11px]" style={{ color: t.textMuted }}>{u.email}</p>
                           </div>
                         </div>
@@ -687,6 +761,12 @@ export default function AdminUsersTab({ user: currentAdmin }) {
                           <Zap size={12} />{u.glow_score || 0}
                         </span>
                       </td>
+                      <td className="p-4">
+                        <EngagementMeter user={u} t={t} />
+                      </td>
+                      <td className="p-4">
+                        <UserActivityDot user={u} t={t} />
+                      </td>
                       <td className="p-4 text-sm" style={{ color: t.textSecondary }}>
                         <div className="flex flex-col gap-0.5">
                           <span>{u.created_date ? new Date(u.created_date).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "N/A"}</span>
@@ -720,6 +800,14 @@ export default function AdminUsersTab({ user: currentAdmin }) {
             </tbody>
           </table>
         </div>
+        <UsersPagination
+          page={page}
+          pageSize={pageSize}
+          totalItems={filteredUsers.length}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          t={t}
+        />
       </div>
     </div>
   );
