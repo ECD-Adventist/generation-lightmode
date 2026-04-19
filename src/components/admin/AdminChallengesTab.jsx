@@ -12,7 +12,7 @@ import ChallengeDetailDrawer from "./challenges/ChallengeDetailDrawer";
 import ChallengesEmptyState from "./challenges/ChallengesEmptyState";
 import ChallengesBulkBar from "./challenges/ChallengesBulkBar";
 import ChallengesAnalytics from "./challenges/ChallengesAnalytics";
-import { templateToChallenge } from "./ChallengeTemplates.js";
+import { templateToChallenge } from "./challenges/ChallengeTemplates";
 import { getChallengeStatus, computeChallengeStats } from "./challenges/challengeHelpers";
 
 export default function AdminChallengesTab() {
