@@ -94,17 +94,10 @@ RULES:
       return;
     }
 
-    // Hard upper cap — reject absurdly large files outright (50MB+)
-    const MAX_INPUT_BYTES = 50 * 1024 * 1024;
-    if (selected.size > MAX_INPUT_BYTES) {
-      toast.error(`Image is too large (${formatSize(selected.size)}). Max 50MB.`);
-      return;
-    }
-
     setCompressing(true);
     const originalSize = selected.size;
 
-    // Compress to under 2MB automatically
+    // Always compress large images — never reject. Users expect to just post their photos.
     const compressed = await compressImageUnder2MB(selected);
     const compressedSize = compressed.size;
     const savedPercent = originalSize > compressedSize
@@ -212,15 +205,25 @@ RULES:
       let uploadedMediaUrl = null;
 
       if (file) {
+        // Calibrate progress speed to file size — bigger files advance slower,
+        // so the bar reflects actual upload time instead of zipping to 90%.
+        // Typical mobile upload: ~300KB/sec. Cap at 90% until upload resolves.
+        const fileSizeMB = file.size / (1024 * 1024);
+        const estimatedSeconds = Math.max(2, Math.min(30, fileSizeMB * 3)); // 3s per MB, 2s min, 30s max
+        const tickMs = 200;
+        const totalTicks = (estimatedSeconds * 1000) / tickMs;
+        const increment = 85 / totalTicks; // reach 90 over estimated time
+
+        setUploadProgress(5);
         const uploadPromise = base44.integrations.Core.UploadFile({ file });
         const progressTimer = window.setInterval(() => {
-          setUploadProgress((current) => (current < 85 ? current + 5 : current));
-        }, 250);
+          setUploadProgress((current) => (current < 90 ? Math.min(90, current + increment) : current));
+        }, tickMs);
 
         const uploadRes = await uploadPromise;
         window.clearInterval(progressTimer);
         uploadedMediaUrl = uploadRes.file_url;
-        setUploadProgress(90);
+        setUploadProgress(95);
         setUploadStage("Saving post...");
       } else {
         setUploadProgress(90);
@@ -264,9 +267,7 @@ RULES:
     } catch (error) {
       console.error("Glow Drop upload failed:", error);
       const msg = (error?.message || "").toLowerCase();
-      if (msg.includes("too large") || msg.includes("size") || msg.includes("413")) {
-        toast.error("Photo is too large to upload. Try a smaller image.");
-      } else if (msg.includes("network") || msg.includes("timeout") || msg.includes("fetch")) {
+      if (msg.includes("network") || msg.includes("timeout") || msg.includes("fetch")) {
         toast.error("Network issue. Check your connection and try again.");
       } else if (msg.includes("rate limit") || msg.includes("429")) {
         toast.error("You've reached today's post limit (10 per 24h).");
@@ -446,7 +447,7 @@ RULES:
                     <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
                       <div className="flex items-center justify-between text-[11px] font-bold text-white mb-1.5">
                         <span>{uploadStage}</span>
-                        <span>{uploadProgress}%</span>
+                        <span>{Math.round(uploadProgress)}%</span>
                       </div>
                       <div className="h-2 rounded-full bg-white/10 overflow-hidden">
                         <div
