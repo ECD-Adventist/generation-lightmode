@@ -1,10 +1,9 @@
-/* ════════════════════════════════════════════════════════════════════
-   ADMIN CONTROL CENTER — Global Theme (Dashboard DNA)
-   Utility classes that any tab can use without touching its JS.
-   Toggled by `data-admin-theme="dark|light"` on <html>.
-════════════════════════════════════════════════════════════════════ */
+import React from "react";
 
-/* ─── CSS variables keyed to theme attribute ───────────────────────── */
+// Injects global admin-theme utility styles via a <style> tag.
+// Avoids Vite CSS-import issues; stays co-located with AdminThemeContext.
+const CSS = `
+/* ── CSS variables keyed to theme attribute ─────────────────────── */
 html[data-admin-theme="dark"] {
   --adm-bg: #060B18;
   --adm-surface: #0F1421;
@@ -53,7 +52,6 @@ html[data-admin-theme="light"] {
   --adm-gradient-mesh: linear-gradient(135deg, #EBF1FF 0%, #E3EAFF 25%, #EDE5FF 50%, #F0ECFF 75%, #EBF1FF 100%);
 }
 
-/* Default (before JS sets the attribute) — avoid FOUC */
 html:not([data-admin-theme]) {
   --adm-bg: #060B18;
   --adm-surface: #0F1421;
@@ -61,25 +59,21 @@ html:not([data-admin-theme]) {
   --adm-accent: #5AC8FF;
 }
 
-/* ─── Reusable utility classes ─────────────────────────────────────── */
-
-/* Shell backgrounds */
+/* ── Reusable utility classes ───────────────────────────────────── */
 .adm-bg       { background: var(--adm-bg) !important; }
 .adm-surface  { background: var(--adm-surface) !important; }
 .adm-surface-muted { background: var(--adm-surface-muted) !important; }
 
-/* Text */
 .adm-text            { color: var(--adm-text) !important; }
 .adm-text-secondary  { color: var(--adm-text-secondary) !important; }
 .adm-text-muted      { color: var(--adm-text-muted) !important; }
 .adm-text-accent     { color: var(--adm-accent) !important; }
 .adm-text-gold       { color: var(--adm-gold) !important; }
 
-/* Borders */
 .adm-border          { border-color: var(--adm-border) !important; }
 .adm-border-strong   { border-color: var(--adm-border-strong) !important; }
 
-/* ─── Premium card (Dashboard bento DNA) ───────────────────────────── */
+/* ── Premium card (Dashboard bento DNA) ─────────────────────────── */
 .adm-card {
   position: relative;
   border-radius: 1.25rem;
@@ -95,7 +89,6 @@ html:not([data-admin-theme]) {
   box-shadow: var(--adm-shadow-lg);
   border-color: var(--adm-border-strong);
 }
-/* Optional top accent line */
 .adm-card-accent::before {
   content: "";
   position: absolute;
@@ -106,7 +99,7 @@ html:not([data-admin-theme]) {
   opacity: 0.7;
 }
 
-/* ─── Hero block (Dashboard hero DNA) ──────────────────────────────── */
+/* ── Hero block (Dashboard hero DNA) ────────────────────────────── */
 .adm-hero {
   position: relative;
   border-radius: 1.75rem;
@@ -155,7 +148,7 @@ html[data-admin-theme="light"] .adm-hero-inner::after {
   100% { transform: translateX(300%) skewX(-20deg); }
 }
 
-/* ─── Section header pill (uppercase eyebrow like Dashboard) ───────── */
+/* ── Section eyebrow / big numbers ──────────────────────────────── */
 .adm-eyebrow {
   display: inline-flex;
   align-items: center;
@@ -166,8 +159,6 @@ html[data-admin-theme="light"] .adm-hero-inner::after {
   text-transform: uppercase;
   color: var(--adm-accent);
 }
-
-/* ─── Big numbers (Dashboard stat DNA) ─────────────────────────────── */
 .adm-stat-big {
   font-family: 'Space Grotesk', 'Inter', sans-serif;
   font-weight: 900;
@@ -186,7 +177,7 @@ html[data-admin-theme="light"] .adm-hero-inner::after {
   margin-top: 6px;
 }
 
-/* ─── Buttons ──────────────────────────────────────────────────────── */
+/* ── Buttons ────────────────────────────────────────────────────── */
 .adm-btn-primary {
   display: inline-flex; align-items: center; justify-content: center;
   gap: 6px;
@@ -222,7 +213,7 @@ html[data-admin-theme="light"] .adm-hero-inner::after {
   background: var(--adm-accent-soft);
 }
 
-/* ─── Badge ─────────────────────────────────────────────────────────── */
+/* ── Badges ─────────────────────────────────────────────────────── */
 .adm-badge {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 2px 8px;
@@ -239,27 +230,27 @@ html[data-admin-theme="light"] .adm-hero-inner::after {
 .adm-badge-success { background: rgba(34,197,94,0.12); color: var(--adm-success); border-color: rgba(34,197,94,0.25); }
 .adm-badge-danger  { background: rgba(239,68,68,0.12); color: var(--adm-danger); border-color: rgba(239,68,68,0.25); }
 
-/* ─── Scrollbar styling inside admin panels ────────────────────────── */
+/* ── Scrollbar ──────────────────────────────────────────────────── */
 html[data-admin-theme="dark"] .adm-scroll::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.12); border-radius: 3px; }
 html[data-admin-theme="light"] .adm-scroll::-webkit-scrollbar-thumb { background: rgba(11,63,217,0.15); border-radius: 3px; }
 .adm-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
 .adm-scroll::-webkit-scrollbar-track { background: transparent; }
 
-/* ─── Fade-up entrance (Dashboard bento animation) ─────────────────── */
 @keyframes adm-fade-up {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .adm-fade-up { animation: adm-fade-up 0.7s cubic-bezier(0.22,1,0.36,1) both; }
 
-/* ─── Date/time input icon visibility (theme-aware) ────────────────── */
+/* ── Theme-aware native date inputs ─────────────────────────────── */
 html[data-admin-theme="dark"] input[type="date"],
 html[data-admin-theme="dark"] input[type="datetime-local"],
-html[data-admin-theme="dark"] input[type="time"] {
-  color-scheme: dark;
-}
+html[data-admin-theme="dark"] input[type="time"] { color-scheme: dark; }
 html[data-admin-theme="light"] input[type="date"],
 html[data-admin-theme="light"] input[type="datetime-local"],
-html[data-admin-theme="light"] input[type="time"] {
-  color-scheme: light;
+html[data-admin-theme="light"] input[type="time"] { color-scheme: light; }
+`;
+
+export function AdminThemeStyles() {
+  return <style dangerouslySetInnerHTML={{ __html: CSS }} />;
 }

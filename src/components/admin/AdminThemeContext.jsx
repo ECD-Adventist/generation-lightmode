@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import "./admin-theme.css";
+import { AdminThemeStyles } from "./AdminThemeStyles";
 
 // Minimal theme context for the Control Center only.
 // Persists choice in localStorage under "admin_theme".
@@ -24,6 +24,7 @@ export function AdminThemeProvider({ children }) {
 
   return (
     <AdminThemeContext.Provider value={{ theme, toggleTheme, isDark: theme === "dark" }}>
+      <AdminThemeStyles />
       {children}
     </AdminThemeContext.Provider>
   );
