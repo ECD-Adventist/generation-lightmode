@@ -1,5 +1,6 @@
 import React from "react";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 
 export default function UsersPagination({ page, pageSize, totalItems, onPageChange, onPageSizeChange, t }) {
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
@@ -25,14 +26,18 @@ export default function UsersPagination({ page, pageSize, totalItems, onPageChan
         <span>Showing <span className="font-bold" style={{ color: t.textPrimary }}>{start}–{end}</span> of <span className="font-bold" style={{ color: t.textPrimary }}>{totalItems}</span></span>
         <span className="mx-1 opacity-40">·</span>
         <span className="text-[10px] uppercase tracking-wider" style={{ color: t.textMuted }}>Rows per page:</span>
-        <select
-          value={pageSize}
-          onChange={e => onPageSizeChange(Number(e.target.value))}
-          className="bg-transparent text-xs font-semibold focus:outline-none rounded border px-1.5 py-0.5"
-          style={{ borderColor: t.border, color: t.textPrimary }}
-        >
-          {[25, 50, 100, 200].map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
+        <BottomSheetSelect
+          value={String(pageSize)}
+          onChange={(val) => onPageSizeChange(Number(val))}
+          options={[
+            { value: "25", label: "25" },
+            { value: "50", label: "50" },
+            { value: "100", label: "100" },
+            { value: "200", label: "200" }
+          ]}
+          triggerClassName="!py-0.5 !px-1.5 !text-xs !font-semibold !rounded !min-w-[60px]"
+          triggerStyle={{ background: "transparent", borderColor: t.border, color: t.textPrimary }}
+        />
       </div>
 
       <div className="flex items-center gap-1.5">

@@ -104,13 +104,34 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         }).catch(() => {});
       }
     },
-    onSuccess: () => {
+    onMutate: async (content) => {
+      await queryClient.cancelQueries({ queryKey: ["comments", drop.id] });
+      const previousComments = queryClient.getQueryData(["comments", drop.id]);
+      
+      const tempComment = {
+        id: `temp-${Date.now()}`,
+        drop_id: drop.id,
+        user_email: user?.email,
+        content: content.trim(),
+        created_date: new Date().toISOString()
+      };
+      
+      queryClient.setQueryData(["comments", drop.id], old => [...(old || []), tempComment]);
       setNewComment("");
-      queryClient.invalidateQueries({ queryKey: ["comments", drop.id] });
-      toast.success("Comment posted!");
+      
+      return { previousComments };
     },
-    onError: () => {
+    onError: (err, newComment, context) => {
+      if (context?.previousComments) {
+        queryClient.setQueryData(["comments", drop.id], context.previousComments);
+      }
       toast.error("Failed to post comment. Try again.");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments", drop.id] });
+    },
+    onSuccess: () => {
+      toast.success("Comment posted!");
     }
   });
 

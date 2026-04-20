@@ -69,7 +69,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-screen pb-20 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+    <div className="min-h-screen pb-20 font-['Inter'] bg-background text-foreground">
       {/* Nav */}
       <div className="sticky top-0 z-50 backdrop-blur-xl border-b px-6 py-3 flex items-center gap-4" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
         <Link to={createPageUrl("Feed")} className="flex items-center gap-2 transition" style={{ color: "#4A5878" }}>

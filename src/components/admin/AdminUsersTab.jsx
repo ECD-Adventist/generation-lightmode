@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import UserDetailDrawer from "./users/UserDetailDrawer";
 import InviteUserModal from "./users/InviteUserModal";
@@ -606,62 +607,88 @@ export default function AdminUsersTab({ user: currentAdmin }) {
       {viewMode === "table" && (
       <div className="border rounded-2xl p-4 flex flex-col gap-3" style={{ background: t.surface, borderColor: t.border }}>
         <div className="flex flex-wrap gap-3 items-center">
-          <div className="flex items-center gap-2 border rounded-lg px-3 py-2" style={{ background: t.surfaceMuted, borderColor: t.border }}>
-            <Filter size={14} style={{ color: t.textMuted }} />
-            <select className="bg-transparent text-sm focus:outline-none" style={{ color: t.textPrimary }} value={filterRole} onChange={e => setFilterRole(e.target.value)}>
-              <option value="all">All Roles</option>
-              {allRoles.map(r => <option key={r} value={r}>{r.replace(/_/g, " ")}</option>)}
-            </select>
+          <div className="flex items-center gap-2 border rounded-lg px-1 py-1" style={{ background: t.surfaceMuted, borderColor: t.border }}>
+            <Filter size={14} className="ml-2" style={{ color: t.textMuted }} />
+            <BottomSheetSelect
+              value={filterRole}
+              onChange={setFilterRole}
+              options={[{ value: "all", label: "All Roles" }, ...allRoles.map(r => ({ value: r, label: r.replace(/_/g, " ") }))]}
+              triggerClassName="!border-0 !bg-transparent !py-1 !px-2 !min-w-[120px] !text-sm"
+              triggerStyle={{ color: t.textPrimary }}
+            />
           </div>
 
-          <div className="flex items-center gap-2 border rounded-lg px-3 py-2" style={{ background: t.surfaceMuted, borderColor: t.border }}>
-            <Ban size={14} style={{ color: t.textMuted }} />
-            <select className="bg-transparent text-sm focus:outline-none" style={{ color: t.textPrimary }} value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="suspended">Suspended</option>
-            </select>
+          <div className="flex items-center gap-2 border rounded-lg px-1 py-1" style={{ background: t.surfaceMuted, borderColor: t.border }}>
+            <Ban size={14} className="ml-2" style={{ color: t.textMuted }} />
+            <BottomSheetSelect
+              value={filterStatus}
+              onChange={setFilterStatus}
+              options={[{ value: "all", label: "All Status" }, { value: "active", label: "Active" }, { value: "suspended", label: "Suspended" }]}
+              triggerClassName="!border-0 !bg-transparent !py-1 !px-2 !min-w-[120px] !text-sm"
+              triggerStyle={{ color: t.textPrimary }}
+            />
           </div>
 
-          <div className="flex items-center gap-2 border rounded-lg px-3 py-2" style={{ background: t.surfaceMuted, borderColor: t.border }}>
-            <User size={14} style={{ color: t.textMuted }} />
-            <select className="bg-transparent text-sm focus:outline-none" style={{ color: t.textPrimary }} value={filterGender} onChange={e => setFilterGender(e.target.value)}>
-              <option value="all">All Genders</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="prefer_not_to_say">Prefer not to say</option>
-            </select>
+          <div className="flex items-center gap-2 border rounded-lg px-1 py-1" style={{ background: t.surfaceMuted, borderColor: t.border }}>
+            <User size={14} className="ml-2" style={{ color: t.textMuted }} />
+            <BottomSheetSelect
+              value={filterGender}
+              onChange={setFilterGender}
+              options={[
+                { value: "all", label: "All Genders" },
+                { value: "male", label: "Male" },
+                { value: "female", label: "Female" },
+                { value: "prefer_not_to_say", label: "Prefer not to say" }
+              ]}
+              triggerClassName="!border-0 !bg-transparent !py-1 !px-2 !min-w-[120px] !text-sm"
+              triggerStyle={{ color: t.textPrimary }}
+            />
           </div>
 
-          <div className="flex items-center gap-2 border rounded-lg px-3 py-2" style={{ background: t.surfaceMuted, borderColor: t.border }}>
-            <MapPin size={14} style={{ color: t.textMuted }} />
-            <select className="bg-transparent text-sm focus:outline-none max-w-[140px]" style={{ color: t.textPrimary }} value={filterCountry} onChange={e => setFilterCountry(e.target.value)}>
-              <option value="all">All Countries</option>
-              {allCountries.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+          <div className="flex items-center gap-2 border rounded-lg px-1 py-1" style={{ background: t.surfaceMuted, borderColor: t.border }}>
+            <MapPin size={14} className="ml-2" style={{ color: t.textMuted }} />
+            <BottomSheetSelect
+              value={filterCountry}
+              onChange={setFilterCountry}
+              options={[{ value: "all", label: "All Countries" }, ...allCountries.map(c => ({ value: c, label: c }))]}
+              triggerClassName="!border-0 !bg-transparent !py-1 !px-2 !min-w-[140px] !text-sm"
+              triggerStyle={{ color: t.textPrimary }}
+            />
           </div>
 
-          <div className="flex items-center gap-2 border rounded-lg px-3 py-2" style={{ background: t.surfaceMuted, borderColor: t.border }}>
-            <Clock size={14} style={{ color: t.textMuted }} />
-            <select className="bg-transparent text-sm focus:outline-none" style={{ color: t.textPrimary }} value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
-              <option value="all">Any Time</option>
-              <option value="24h">Last 24 Hours</option>
-              <option value="7days">Last 7 Days</option>
-              <option value="30days">Last 30 Days</option>
-              <option value="6months">Last 6 Months</option>
-              <option value="1year">Last 1 Year</option>
-            </select>
+          <div className="flex items-center gap-2 border rounded-lg px-1 py-1" style={{ background: t.surfaceMuted, borderColor: t.border }}>
+            <Clock size={14} className="ml-2" style={{ color: t.textMuted }} />
+            <BottomSheetSelect
+              value={timeFilter}
+              onChange={setTimeFilter}
+              options={[
+                { value: "all", label: "Any Time" },
+                { value: "24h", label: "Last 24 Hours" },
+                { value: "7days", label: "Last 7 Days" },
+                { value: "30days", label: "Last 30 Days" },
+                { value: "6months", label: "Last 6 Months" },
+                { value: "1year", label: "Last 1 Year" }
+              ]}
+              triggerClassName="!border-0 !bg-transparent !py-1 !px-2 !min-w-[140px] !text-sm"
+              triggerStyle={{ color: t.textPrimary }}
+            />
           </div>
 
-          <div className="flex items-center gap-2 border rounded-lg px-3 py-2" style={{ background: t.surfaceMuted, borderColor: t.border }}>
-            <Map size={14} style={{ color: t.textMuted }} />
-            <select className="bg-transparent text-sm focus:outline-none" style={{ color: t.textPrimary }} value={filterTerritoryStatus} onChange={e => setFilterTerritoryStatus(e.target.value)}>
-              <option value="all">All Territory Status</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="none">Not Set</option>
-            </select>
+          <div className="flex items-center gap-2 border rounded-lg px-1 py-1" style={{ background: t.surfaceMuted, borderColor: t.border }}>
+            <Map size={14} className="ml-2" style={{ color: t.textMuted }} />
+            <BottomSheetSelect
+              value={filterTerritoryStatus}
+              onChange={setFilterTerritoryStatus}
+              options={[
+                { value: "all", label: "All Territory Status" },
+                { value: "pending", label: "Pending" },
+                { value: "approved", label: "Approved" },
+                { value: "rejected", label: "Rejected" },
+                { value: "none", label: "Not Set" }
+              ]}
+              triggerClassName="!border-0 !bg-transparent !py-1 !px-2 !min-w-[160px] !text-sm"
+              triggerStyle={{ color: t.textPrimary }}
+            />
           </div>
 
           <div className="relative flex-1 min-w-[200px]">

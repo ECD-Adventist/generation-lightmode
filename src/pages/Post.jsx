@@ -118,7 +118,7 @@ export default function Post() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-6 md:py-8 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+    <div className="min-h-screen px-4 py-6 md:py-8 font-['Inter'] bg-background text-foreground">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <Link to={backUrl} className="inline-flex items-center gap-2 transition" style={{ color: "#4A5878" }}>

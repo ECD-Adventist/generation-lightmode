@@ -236,6 +236,24 @@ RULES:
         setUploadProgress(90);
       }
 
+      // Optimistic update
+      const tempDrop = {
+        id: `temp-${Date.now()}`,
+        verse: formData.verse,
+        reflection: formData.reflection,
+        category: formData.category,
+        hashtags: formData.hashtags,
+        media_url: uploadedMediaUrl,
+        user_email: user.email,
+        created_date: new Date().toISOString(),
+        likes_count: 0,
+        shares_count: 0,
+        reposts_count: 0,
+        status: 'approved'
+      };
+      queryClient.setQueryData(["allGlowDrops"], old => [tempDrop, ...(old || [])]);
+      queryClient.setQueryData(["glowFeed"], old => [tempDrop, ...(old || [])]);
+
       await base44.functions.invoke('createGlowDrop', {
         ...formData,
         media_url: uploadedMediaUrl,

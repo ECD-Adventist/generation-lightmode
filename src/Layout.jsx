@@ -94,7 +94,7 @@ export default function Layout({ children, currentPageName }) {
   }, [location.pathname, location.search, location.hash]);
 
   return (
-    <div dir={isRTL ? "rtl" : "ltr"} style={{ background: "#0B0F1A", minHeight: "100vh", fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
+    <div dir={isRTL ? "rtl" : "ltr"} className="bg-background min-h-screen text-foreground" style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
@@ -113,7 +113,7 @@ export default function Layout({ children, currentPageName }) {
           --gradient-gold: linear-gradient(90deg, #FFD000 0%, #00CFFF 100%);
         }
 
-        body { background: #0B0F1A; color: #FFFFFF; }
+        body { @apply bg-background text-foreground; }
 
         .glm-headline {
           font-family: 'Space Grotesk', sans-serif;

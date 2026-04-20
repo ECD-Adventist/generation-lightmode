@@ -107,7 +107,7 @@ export default function GlowFeed() {
   const statsTotalLikes = drops.reduce((s, d) => s + (d.likes_count || 0), 0);
 
   return (
-    <div ref={scrollRef} className="min-h-screen bg-[#0B0F1A] text-white" style={{ overflowY: "auto" }}>
+    <div ref={scrollRef} className="min-h-screen bg-background text-foreground" style={{ overflowY: "auto" }}>
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} threshold={threshold} />
       {/* Top Nav */}
       <div className="sticky top-0 z-50 bg-[#0B0F1A]/95 backdrop-blur-xl border-b border-white/5">

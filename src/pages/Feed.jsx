@@ -382,7 +382,7 @@ export default function Feed() {
   }
 
   return (
-    <div className="h-[100dvh] relative overflow-hidden font-['Inter']" style={{ background: "linear-gradient(135deg, #D8F5E0 0%, #EAF6D0 100%)", color: "#0A1A3D" }}>
+    <div className="h-[100dvh] relative overflow-hidden font-['Inter'] bg-background text-foreground">
       <OnboardingModal
         isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth || !user.city || !user.address || !user.postal_code)}
         onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
@@ -498,11 +498,10 @@ export default function Feed() {
            </button>
         </div>
 
-        {/* Center Feed — LIGHT MODE */}
+        {/* Center Feed */}
         <div 
           ref={feedScrollRef} 
-          className="h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8"
-          style={{ color: "#0B1B3D", background: "#F6F8FC" }}
+          className="h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8 bg-background text-foreground"
           onScroll={(e) => {
             const { scrollTop, scrollHeight, clientHeight } = e.target;
             if (scrollHeight - scrollTop <= clientHeight + 150) {
