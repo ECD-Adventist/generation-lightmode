@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Loader2, Bell, Shield, LogOut, Home, ChevronRight, Globe, BookOpen } from "lucide-react";
+import { Loader2, Bell, Shield, LogOut, Home, ChevronRight, Globe, BookOpen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 const NOTIF_KEYS = [
@@ -46,6 +46,19 @@ export default function Settings() {
   };
 
   const handleLogout = () => base44.auth.logout(createPageUrl("Home"));
+
+  const handleDeleteAccount = () => {
+    const confirmed = window.confirm(
+      "Delete your account?\n\nThis will permanently remove your profile, posts, and activity. This action cannot be undone.\n\nTo proceed, we'll open an email to our support team who will verify and complete the deletion within 30 days."
+    );
+    if (!confirmed) return;
+    const subject = encodeURIComponent("Account Deletion Request");
+    const body = encodeURIComponent(
+      `Hello,\n\nI am requesting permanent deletion of my Generation LightMode account.\n\nEmail: ${user?.email || ""}\nName: ${user?.full_name || ""}\n\nPlease confirm and process this within 30 days.\n\nThank you.`
+    );
+    window.location.href = `mailto:privacy@generationlightmode.org?subject=${subject}&body=${body}`;
+    toast("Opening email to support — we'll process your request within 30 days.");
+  };
 
   if (loading) {
     return (
@@ -144,9 +157,26 @@ export default function Settings() {
         </div>
 
         {/* Sign Out */}
-        <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border transition font-bold text-sm" style={{ borderColor: "rgba(239, 68, 68, 0.2)", color: "#EF4444" }}>
+        <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border transition font-bold text-sm" style={{ minHeight: 44, borderColor: "rgba(239, 68, 68, 0.2)", color: "#EF4444" }}>
           <LogOut className="w-4 h-4" /> Sign Out
         </button>
+
+        {/* Delete Account */}
+        <div className="rounded-2xl p-6" style={{ background: "#FFFFFF", border: "1px solid #FECACA" }}>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2" style={{ color: "#DC2626" }}>
+            <Trash2 className="w-3.5 h-3.5" /> Danger Zone
+          </h2>
+          <p className="text-sm mb-4" style={{ color: "#6B7FA0" }}>
+            Permanently delete your account and all associated data. This cannot be undone.
+          </p>
+          <button
+            onClick={handleDeleteAccount}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition"
+            style={{ minHeight: 44, background: "#FEE2E2", color: "#DC2626", border: "1px solid #FECACA" }}
+          >
+            <Trash2 className="w-4 h-4" /> Delete My Account
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -5,6 +5,8 @@ import { Menu, X, Bell, LayoutDashboard, Users, Flag, BarChart3, MessageSquare, 
 import LanguageSelector from "./components/LanguageSelector";
 import { useAppLanguage } from "./components/i18n/useAppLanguage";
 import { useSwitchItOn } from "./components/pledge/SwitchItOnProvider";
+import MobileBottomNav from "./components/mobile/MobileBottomNav";
+import MobileSubPageHeader from "./components/mobile/MobileSubPageHeader";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -16,6 +18,9 @@ const navLinks = [
 ];
 
 const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","GroupChat","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession","DailyDevotion","Discover","Leaderboard","DailyTruthFeed","InstitutionPage","InstitutionDashboard","InstitutionControlCenter","Settings","Post","GlowFeed","GenerationLightMode","Challenges","LightReflections","FaithQuiz","TerritoryPhotos"];
+
+// Pages where the mobile bottom nav primary tabs live (no back button needed on mobile)
+const mobilePrimaryPages = ["Feed","GlowFeed","GlowGroups","Profile"];
 
 export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -537,10 +542,18 @@ export default function Layout({ children, currentPageName }) {
       </nav>
       )}
 
+      {/* Mobile sub-page back header — only for app-shell sub-pages (not primary tabs) */}
+      {isAppShellPage && !mobilePrimaryPages.includes(currentPageName) && (
+        <MobileSubPageHeader title={currentPageName} />
+      )}
+
       {/* Page Content */}
-      <main className={isAppShellPage || currentPageName === "Home" ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"}>
+      <main className={`${isAppShellPage || currentPageName === "Home" ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"} ${isAppShellPage ? "has-mobile-bottom-nav" : ""}`}>
         {children}
       </main>
+
+      {/* Mobile bottom nav — app-shell pages only */}
+      {isAppShellPage && <MobileBottomNav currentPageName={currentPageName} />}
 
       {/* FOOTER — public-site only */}
       {!isAppShellPage ? (
