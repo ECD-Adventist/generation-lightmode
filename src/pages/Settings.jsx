@@ -51,10 +51,12 @@ export default function Settings() {
 
   const handleDeleteAccount = () => setDeleteOpen(true);
 
-  // Simulated account deletion — integrate with a backend function when ready.
+  // Calls the backend function to permanently delete the user's content + record,
+  // then signs them out and returns them to the public homepage.
   const submitDeletion = async () => {
-    await new Promise((r) => setTimeout(r, 1200));
-    toast.success("Your deletion request has been submitted. Signing you out…");
+    const res = await base44.functions.invoke("deleteMyAccount", {});
+    if (res?.data?.error) throw new Error(res.data.error);
+    toast.success("Your account has been deleted. Signing you out…");
     setTimeout(() => base44.auth.logout(createPageUrl("Home")), 1500);
   };
 
@@ -165,7 +167,7 @@ export default function Settings() {
             <Trash2 className="w-3.5 h-3.5" /> Danger Zone
           </h2>
           <p className="text-sm mb-4" style={{ color: "#6B7FA0" }}>
-            Permanently delete your account and all associated data. This cannot be undone.
+            Permanently delete your account. This removes <strong>all your Glow Drops, comments, prayer requests, follows, and group memberships</strong>. This action cannot be undone.
           </p>
           <button
             onClick={handleDeleteAccount}
