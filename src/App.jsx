@@ -7,6 +7,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { SwitchItOnProvider } from '@/components/pledge/SwitchItOnProvider';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import LightReflections from './pages/LightReflections';
 import Leaderboard from './pages/Leaderboard';
 import Discover from './pages/Discover';
@@ -101,16 +102,18 @@ const AuthenticatedApp = () => {
 function App() {
 
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <SwitchItOnProvider>
-            <AuthenticatedApp />
-          </SwitchItOnProvider>
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
-    </AuthProvider>
+    <ThemeProvider defaultTheme="system">
+      <AuthProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <SwitchItOnProvider>
+              <AuthenticatedApp />
+            </SwitchItOnProvider>
+          </Router>
+          <Toaster />
+        </QueryClientProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 
