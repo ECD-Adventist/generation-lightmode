@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bell, Heart, MessageCircle, Zap, Info, CheckCheck, Trash2, Loader2, Home, Users, User, Globe, UserPlus } from "lucide-react";
@@ -8,6 +8,8 @@ import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { getNotificationCategory, notificationCategoryLabels, isNotificationEnabled } from "@/lib/notifications";
 import AppFooter from "@/components/AppFooter";
+import usePullToRefresh from "@/hooks/usePullToRefresh";
+import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 
 const typeIcon = {
   like: <Heart className="w-4 h-4" style={{ color: "#EF4444" }} />,
@@ -31,6 +33,12 @@ export default function Notifications() {
   const [user, setUser] = useState(null);
   const [activeCategory, setActiveCategory] = useState("all");
   const queryClient = useQueryClient();
+  const scrollRef = useRef(null);
+
+  const { pullDistance, isRefreshing, threshold } = usePullToRefresh(scrollRef, async () => {
+    await queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.email] });
+    await queryClient.invalidateQueries({ queryKey: ["notifications", user?.email] });
+  });
 
   useEffect(() => {
     base44.auth.isAuthenticated().then(isAuth => {
@@ -164,7 +172,8 @@ export default function Notifications() {
   const cardStyle = { background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
 
   return (
-    <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+    <div ref={scrollRef} className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D", overflowY: "auto" }}>
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} threshold={threshold} />
       <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">

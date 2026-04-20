@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Globe, Flame, Sparkles, Clock, Search, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import GlowFeedCard from "@/components/feed/GlowFeedCard";
+import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
+import usePullToRefresh from "@/hooks/usePullToRefresh";
+import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 
 const FILTERS = [
   { id: "latest", label: "Latest", icon: Clock },
@@ -20,6 +23,13 @@ export default function GlowFeed() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTerritory, setSelectedTerritory] = useState("All");
+  const queryClient = useQueryClient();
+  const scrollRef = useRef(null);
+
+  const { pullDistance, isRefreshing, threshold } = usePullToRefresh(scrollRef, async () => {
+    await queryClient.invalidateQueries({ queryKey: ["glowFeed"] });
+    await queryClient.invalidateQueries({ queryKey: ["glowFeedLikes"] });
+  });
 
   useEffect(() => {
     base44.auth.isAuthenticated().then(isAuth => {
@@ -97,7 +107,8 @@ export default function GlowFeed() {
   const statsTotalLikes = drops.reduce((s, d) => s + (d.likes_count || 0), 0);
 
   return (
-    <div className="min-h-screen bg-[#0B0F1A] text-white">
+    <div ref={scrollRef} className="min-h-screen bg-[#0B0F1A] text-white" style={{ overflowY: "auto" }}>
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} threshold={threshold} />
       {/* Top Nav */}
       <div className="sticky top-0 z-50 bg-[#0B0F1A]/95 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
@@ -214,13 +225,16 @@ export default function GlowFeed() {
           </div>
 
           {territories.length > 2 && (
-            <select
-              value={selectedTerritory}
-              onChange={e => setSelectedTerritory(e.target.value)}
-              className="ml-auto bg-[#121826] border border-white/10 text-gray-300 text-xs rounded-full px-4 py-1.5 focus:outline-none focus:border-[#00CFFF]/40"
-            >
-              {territories.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
+            <div className="ml-auto w-full sm:w-56">
+              <BottomSheetSelect
+                value={selectedTerritory}
+                onChange={setSelectedTerritory}
+                options={territories}
+                placeholder="Filter by territory"
+                triggerClassName="!py-2 !px-4 !text-xs !rounded-full"
+                triggerStyle={{ background: "#121826", border: "1px solid rgba(255,255,255,0.1)", color: "#D1D5DB" }}
+              />
+            </div>
           )}
         </div>
 

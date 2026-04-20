@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { SwitchItOnProvider } from '@/components/pledge/SwitchItOnProvider';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
+import PageTransition from '@/components/transitions/PageTransition';
 
 // Code-split route pages — loaded on demand to reduce initial bundle.
 const LightReflections = lazy(() => import('./pages/LightReflections'));
@@ -41,8 +42,8 @@ const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
-  <Layout currentPageName={currentPageName}>{children}</Layout>
-  : <>{children}</>;
+  <Layout currentPageName={currentPageName}><PageTransition>{children}</PageTransition></Layout>
+  : <PageTransition>{children}</PageTransition>;
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();

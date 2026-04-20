@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { ShieldCheck, User, MapPin, ChevronRight, Upload, Loader2 } from "lucide-react";
+import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 
 const COUNTRIES = [
   "Afghanistan","Albania","Algeria","Angola","Argentina","Australia","Austria","Bangladesh","Belgium","Benin",
@@ -155,7 +156,7 @@ export default function OnboardingModal({ isOpen, onCompleted }) {
           {step === 1 && (
             <>
               <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Full Name <span style={{ color: "#EF4444" }}>*</span></label><input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" className={inputStyle} style={inputColors} /></div>
-              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Country <span style={{ color: "#EF4444" }}>*</span></label><select value={country} onChange={e => setCountry(e.target.value)} className={inputStyle + " appearance-none"} style={inputColors}><option value="">Select your country…</option>{COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
+              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Country <span style={{ color: "#EF4444" }}>*</span></label><BottomSheetSelect value={country} onChange={setCountry} options={COUNTRIES} placeholder="Select your country…" /></div>
               <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Gender <span style={{ color: "#EF4444" }}>*</span></label>
                 <div className="flex gap-2">{[["male","Male"],["female","Female"],["prefer_not_to_say","Prefer not to say"]].map(([val, label]) => (
                   <button key={val} type="button" onClick={() => setGender(val)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition" style={gender === val ? { background: "rgba(11,63,217,0.08)", border: "1px solid #D6E4FF", color: "#0B3FD9" } : { border: "1px solid #E6ECF5", color: "#6B7FA0" }}>{label}</button>
