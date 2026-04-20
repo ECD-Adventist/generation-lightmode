@@ -14,7 +14,7 @@ export default function RoleElevationConfirm({ targetUser, newRole, onCancel, on
   };
 
   return (
-    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)", paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}>
       <div className="border rounded-2xl p-6 w-full max-w-md shadow-2xl" style={{ background: t.surface, borderColor: "rgba(239,68,68,0.4)" }}>
         <div className="flex items-start gap-3 mb-4">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(239,68,68,0.12)" }}>

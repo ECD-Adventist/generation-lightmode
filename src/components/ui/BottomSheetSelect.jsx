@@ -85,7 +85,7 @@ export default function BottomSheetSelect({
             {/* Sheet */}
             <motion.div
               className="relative w-full sm:max-w-md sm:mx-4 rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden"
-              style={{ background: "#FFFFFF", maxHeight: "min(80vh, 640px)", boxShadow: "0 -12px 40px rgba(11, 27, 61, 0.25)" }}
+              style={{ background: "#FFFFFF", maxHeight: "min(calc(100dvh - env(safe-area-inset-top) - 1rem), 640px)", boxShadow: "0 -12px 40px rgba(11, 27, 61, 0.25)" }}
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}

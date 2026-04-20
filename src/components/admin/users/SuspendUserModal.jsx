@@ -36,7 +36,7 @@ export default function SuspendUserModal({ targetUser, action, onClose, onDone, 
   };
 
   return (
-    <div className="fixed inset-0 z-[210] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[210] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)", paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}>
       <div className="border rounded-2xl p-6 w-full max-w-md shadow-2xl" style={{ background: t.surface, borderColor: isSuspend ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)" }}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">

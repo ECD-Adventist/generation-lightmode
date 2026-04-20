@@ -71,7 +71,7 @@ function EditRoleModal({ targetUser, allRoles, onClose, onSave, t, isDark }) {
   const trackBg = isDark ? "rgba(255,255,255,0.04)" : "#EEF3FC";
   const thumbBg = "linear-gradient(180deg, #1FB8FF, #0B3FD9)";
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)", paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}>
       <style>{`
         .admin-role-scroll::-webkit-scrollbar { width: 6px; }
         .admin-role-scroll::-webkit-scrollbar-track { background: ${trackBg}; border-radius: 3px; }

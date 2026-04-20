@@ -31,7 +31,7 @@ export default function BulkSuspendModal({ users, action, onClose, onDone, t }) 
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)", paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}>
       <div className="border rounded-2xl p-6 w-full max-w-md" style={{ background: t.surface, borderColor: t.border, boxShadow: t.shadowXl }}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
