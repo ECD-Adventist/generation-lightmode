@@ -48,7 +48,7 @@ export default function DeleteAccountModal({ isOpen, onClose, userEmail, onConfi
                 Delete your account?
               </h2>
               <p className="text-sm mt-1" style={{ color: "#6B7FA0" }}>
-                This will permanently remove your profile, all your <strong>Glow Drops</strong>, comments, prayer requests, follows, and <strong>group memberships</strong>. This action cannot be undone.
+                This will permanently remove your profile, all your <strong>Glow Drops</strong>, messages, comments, prayer requests, follows, and <strong>group memberships</strong>. This action cannot be undone.
               </p>
             </div>
           </div>
@@ -56,7 +56,7 @@ export default function DeleteAccountModal({ isOpen, onClose, userEmail, onConfi
           <div className="rounded-xl p-3 mb-4 text-sm" style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#991B1B" }}>
             <p className="font-bold mb-1">What happens next:</p>
             <ul className="list-disc pl-5 space-y-0.5 text-[13px]">
-              <li>Your Glow Drops, comments, and prayer requests are permanently deleted.</li>
+              <li>Your Glow Drops, messages, comments, and prayer requests are permanently deleted.</li>
               <li>Your follows and group memberships are removed.</li>
               <li>Your account record is deleted and you'll be signed out.</li>
             </ul>

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
+import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 
 export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   const [saving, setSaving] = useState(false);
@@ -211,17 +212,16 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Gender</Label>
-                <select
+                <BottomSheetSelect
                   value={editData.gender}
-                  onChange={e => set("gender", e.target.value)}
-                  className="w-full rounded-xl px-3 h-11 text-sm focus:outline-none"
-                  style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
-                >
-                  <option value="">Select…</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="prefer_not_to_say">Prefer not to say</option>
-                </select>
+                  onChange={v => set("gender", v)}
+                  options={[
+                    { value: "male", label: "Male" },
+                    { value: "female", label: "Female" },
+                    { value: "prefer_not_to_say", label: "Prefer not to say" }
+                  ]}
+                  placeholder="Select…"
+                />
               </div>
               <div>
                 <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Date of Birth</Label>
