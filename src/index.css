@@ -82,6 +82,11 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    /* Theme-aware root background so OS light/dark is respected below the app shell */
+    background-color: hsl(var(--background));
+  }
+
   body {
     @apply bg-background text-foreground;
     /* iOS: prevent rubber-band scroll bounce */

@@ -1,30 +1,40 @@
+import { Suspense, lazy } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { SwitchItOnProvider } from '@/components/pledge/SwitchItOnProvider';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
-import LightReflections from './pages/LightReflections';
-import Leaderboard from './pages/Leaderboard';
-import Discover from './pages/Discover';
-import DailyDevotion from './pages/DailyDevotion';
-import DailyTruthFeed from './pages/DailyTruthFeed';
-import InstitutionPageView from './pages/InstitutionPage';
-import About from './pages/About';
-import Privacy from './pages/Privacy';
-import Settings from './pages/Settings';
-import TerritoryPhotos from './pages/TerritoryPhotos';
-import ClaimInstitutionDashboard from './pages/ClaimInstitutionDashboard';
-import ComplianceReporting from './pages/ComplianceReporting';
-import InstitutionDashboard from './pages/InstitutionDashboard';
-import InstitutionControlCenter from './pages/InstitutionControlCenter';
-import GlowFeed from './pages/GlowFeed';
-import GenerationLightMode from './pages/GenerationLightMode';
-import GroupChat from './pages/GroupChat';
+
+// Code-split route pages — loaded on demand to reduce initial bundle.
+const LightReflections = lazy(() => import('./pages/LightReflections'));
+const Leaderboard = lazy(() => import('./pages/Leaderboard'));
+const Discover = lazy(() => import('./pages/Discover'));
+const DailyDevotion = lazy(() => import('./pages/DailyDevotion'));
+const DailyTruthFeed = lazy(() => import('./pages/DailyTruthFeed'));
+const InstitutionPageView = lazy(() => import('./pages/InstitutionPage'));
+const About = lazy(() => import('./pages/About'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Settings = lazy(() => import('./pages/Settings'));
+const TerritoryPhotos = lazy(() => import('./pages/TerritoryPhotos'));
+const ClaimInstitutionDashboard = lazy(() => import('./pages/ClaimInstitutionDashboard'));
+const ComplianceReporting = lazy(() => import('./pages/ComplianceReporting'));
+const InstitutionDashboard = lazy(() => import('./pages/InstitutionDashboard'));
+const InstitutionControlCenter = lazy(() => import('./pages/InstitutionControlCenter'));
+const GlowFeed = lazy(() => import('./pages/GlowFeed'));
+const GenerationLightMode = lazy(() => import('./pages/GenerationLightMode'));
+const GroupChat = lazy(() => import('./pages/GroupChat'));
+
+const RouteFallback = () => (
+  <div className="fixed inset-0 flex items-center justify-center bg-background">
+    <Loader2 className="w-8 h-8 animate-spin text-foreground/60" />
+  </div>
+);
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -59,7 +69,8 @@ const AuthenticatedApp = () => {
 
   // Render the main app
   return (
-    <Routes>
+    <Suspense fallback={<RouteFallback />}>
+      <Routes>
       <Route path="/" element={
         <LayoutWrapper currentPageName={mainPageKey}>
           <MainPage />
@@ -95,6 +106,7 @@ const AuthenticatedApp = () => {
       <Route path="/GroupChat" element={<LayoutWrapper currentPageName="GroupChat"><GroupChat /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </Suspense>
   );
 };
 

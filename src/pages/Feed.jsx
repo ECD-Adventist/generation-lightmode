@@ -19,6 +19,8 @@ import AIContentSuggestions from "@/components/feed/AIContentSuggestions";
 import { isNotificationEnabled } from "@/lib/notifications";
 import useNetworkStatus from "@/hooks/useNetworkStatus";
 import useOfflineSync from "@/hooks/useOfflineSync";
+import usePullToRefresh from "@/hooks/usePullToRefresh";
+import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 import OfflineBanner from "@/components/feed/OfflineBanner";
 import StatusComposerModal from "@/components/feed/StatusComposerModal";
 import StatusViewerModal from "@/components/feed/StatusViewerModal";
@@ -102,6 +104,12 @@ export default function Feed() {
   } = useGlowDropsFeed();
 
   const { drops, lastCached, syncing, syncQueue } = useOfflineSync(liveDrops, isOnline);
+
+  // Pull-to-refresh on the main feed scroll container
+  const { pullDistance, isRefreshing, threshold } = usePullToRefresh(feedScrollRef, async () => {
+    await queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+    await queryClient.invalidateQueries({ queryKey: ["activeStories"] });
+  });
 
   const { data: users = [] } = useQuery({
     queryKey: ["allUsers"],
@@ -570,6 +578,8 @@ export default function Feed() {
             )}
           </div>
         </div>
+
+        <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} threshold={threshold} />
 
         <OfflineBanner isOnline={isOnline} lastCached={lastCached} syncing={syncing} onSync={syncQueue} />
 

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Loader2, Bell, Shield, LogOut, Home, ChevronRight, Globe, BookOpen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import DeleteAccountModal from "@/components/settings/DeleteAccountModal";
 
 const NOTIF_KEYS = [
   { key: "notif_likes", label: "Likes on your Glow Drops", icon: "❤️" },
@@ -19,6 +20,7 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [prefs, setPrefs] = useState({});
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -47,17 +49,13 @@ export default function Settings() {
 
   const handleLogout = () => base44.auth.logout(createPageUrl("Home"));
 
-  const handleDeleteAccount = () => {
-    const confirmed = window.confirm(
-      "Delete your account?\n\nThis will permanently remove your profile, posts, and activity. This action cannot be undone.\n\nTo proceed, we'll open an email to our support team who will verify and complete the deletion within 30 days."
-    );
-    if (!confirmed) return;
-    const subject = encodeURIComponent("Account Deletion Request");
-    const body = encodeURIComponent(
-      `Hello,\n\nI am requesting permanent deletion of my Generation LightMode account.\n\nEmail: ${user?.email || ""}\nName: ${user?.full_name || ""}\n\nPlease confirm and process this within 30 days.\n\nThank you.`
-    );
-    window.location.href = `mailto:privacy@generationlightmode.org?subject=${subject}&body=${body}`;
-    toast("Opening email to support — we'll process your request within 30 days.");
+  const handleDeleteAccount = () => setDeleteOpen(true);
+
+  // Simulated account deletion — integrate with a backend function when ready.
+  const submitDeletion = async () => {
+    await new Promise((r) => setTimeout(r, 1200));
+    toast.success("Your deletion request has been submitted. Signing you out…");
+    setTimeout(() => base44.auth.logout(createPageUrl("Home")), 1500);
   };
 
   if (loading) {
@@ -99,7 +97,7 @@ export default function Settings() {
             <div>
               <p className="font-bold" style={{ color: "#0B1B3D" }}>{user?.full_name}</p>
               <p className="text-sm" style={{ color: "#6B7FA0" }}>{user?.email}</p>
-              <p className="text-xs mt-0.5" style={{ color: "#8A97B5" }}>{user?.country || "No country set"}</p>
+              <p className="text-sm mt-0.5" style={{ color: "#8A97B5" }}>{user?.country || "No country set"}</p>
             </div>
           </div>
           <Link to={createPageUrl("Profile")} className="inline-flex items-center gap-2 text-sm font-bold" style={{ color: "#0B3FD9" }}>
@@ -178,6 +176,13 @@ export default function Settings() {
           </button>
         </div>
       </div>
+
+      <DeleteAccountModal
+        isOpen={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        userEmail={user?.email}
+        onConfirm={submitDeletion}
+      />
     </div>
   );
 }

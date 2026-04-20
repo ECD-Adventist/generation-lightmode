@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { formatDistanceToNow } from "date-fns";
 import { Heart, Trash2, Send, Loader2, Globe, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+import usePullToRefresh from "@/hooks/usePullToRefresh";
+import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 
 const TYPES = ["all", "status", "prayer"];
 const TYPE_COLORS = { status: "#00CFFF", prayer: "#8A5CFF" };
@@ -14,6 +16,11 @@ export default function AdminActivityFeedTab({ currentUser }) {
   const [postText, setPostText] = useState("");
   const [postType, setPostType] = useState("status");
   const queryClient = useQueryClient();
+  const scrollRef = useRef(null);
+
+  const { pullDistance, isRefreshing, threshold } = usePullToRefresh(scrollRef, async () => {
+    await queryClient.invalidateQueries({ queryKey: ["community_moments"] });
+  });
 
   const { data: moments = [], isLoading } = useQuery({
     queryKey: ["community_moments"],
@@ -74,7 +81,8 @@ export default function AdminActivityFeedTab({ currentUser }) {
   const filtered = moments.filter(m => filter === "all" || m.type === filter);
 
   return (
-    <div className="space-y-6">
+    <div ref={scrollRef} className="space-y-6 overflow-y-auto" style={{ maxHeight: "calc(100vh - 120px)" }}>
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} threshold={threshold} />
       <div>
         <h1 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white">⚡ Community Activity Feed</h1>
         <p className="text-gray-400 mt-1 text-sm">Live Glow moments from across the movement — status updates and prayer requests.</p>
