@@ -28,16 +28,31 @@ Deno.serve(async (req) => {
       } catch { /* invalid URL — ignore */ }
     }
 
-    // Server-side rate limit: max 10 posts per 24 hours
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    // Server-side rate limit: max 30 posts per 24 hours
+    const RATE_LIMIT = 30;
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const recentDrops = await base44.entities.GlowDrop.filter({ user_email: user.email });
     const postsInLast24h = recentDrops.filter(d => {
       const created = d.created_date ? new Date(d.created_date.endsWith('Z') ? d.created_date : d.created_date + 'Z') : null;
-      return created && created > new Date(oneDayAgo);
+      return created && created > oneDayAgo;
     });
 
-    if (postsInLast24h.length >= 10) {
-      return Response.json({ error: 'Rate limit: maximum 10 posts per 24 hours reached.' }, { status: 429 });
+    if (postsInLast24h.length >= RATE_LIMIT) {
+      // Compute when the oldest of the 24h posts will "expire" — that's when the user can post again
+      const sorted = postsInLast24h
+        .map(d => new Date(d.created_date.endsWith('Z') ? d.created_date : d.created_date + 'Z'))
+        .sort((a, b) => a - b);
+      const oldest = sorted[0];
+      const resetAt = new Date(oldest.getTime() + 24 * 60 * 60 * 1000);
+      const msUntilReset = resetAt.getTime() - Date.now();
+      const hoursUntilReset = Math.max(1, Math.ceil(msUntilReset / (60 * 60 * 1000)));
+      return Response.json({
+        error: `You've reached the daily post limit (${RATE_LIMIT} posts per 24h). Please try again in about ${hoursUntilReset} hour${hoursUntilReset === 1 ? '' : 's'}.`,
+        rate_limited: true,
+        limit: RATE_LIMIT,
+        reset_at: resetAt.toISOString(),
+        hours_until_reset: hoursUntilReset,
+      }, { status: 429 });
     }
 
     const drop = await base44.entities.GlowDrop.create({

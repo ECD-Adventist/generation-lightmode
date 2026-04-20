@@ -273,13 +273,20 @@ RULES:
       resetAndClose();
     } catch (error) {
       console.error("Glow Drop upload failed:", error);
-      const msg = (error?.message || "").toLowerCase();
-      if (msg.includes("network") || msg.includes("timeout") || msg.includes("fetch")) {
-        toast.error("Network issue. Check your connection and try again.");
-      } else if (msg.includes("rate limit") || msg.includes("429")) {
-        toast.error("You've reached today's post limit (10 per 24h).");
+      // Backend rate-limit responses come back via axios with response.data
+      const serverData = error?.response?.data;
+      const serverMsg = serverData?.error;
+      const isRateLimited = serverData?.rate_limited || error?.response?.status === 429 || /rate.?limit|429/i.test(error?.message || "");
+
+      if (isRateLimited) {
+        toast.error(serverMsg || "You've reached today's post limit. Please try again later.", { duration: 7000 });
       } else {
-        toast.error(error?.message || "Failed to post. Try again.");
+        const msg = (error?.message || "").toLowerCase();
+        if (msg.includes("network") || msg.includes("timeout") || msg.includes("fetch")) {
+          toast.error("Network issue. Check your connection and try again.");
+        } else {
+          toast.error(serverMsg || error?.message || "Failed to post. Try again.");
+        }
       }
     } finally {
       setLoading(false);
