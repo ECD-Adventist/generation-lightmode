@@ -86,7 +86,6 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
   return (
     <div className="space-y-5 pb-12">
       <DashboardHero user={user} pendingDrops={pendingDrops} pendingTerritories={pendingTerritories} t={t} isDark={isDark} />
-      <LiveOverviewPanel t={t} isDark={isDark} />
       <DashboardStats stats={stats} t={t} isDark={isDark} />
       <DashboardCharts growthData={growthData} dropsData={dropsData} scopedUsers={scopedUsers.length} recentDrops={recentDrops} t={t} isDark={isDark} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -106,6 +105,7 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
         <ChallengeImpactPanel t={t} isDark={isDark} />
         <CommunityPulsePanel scopedGroups={scopedGroups} t={t} isDark={isDark} />
       </div>
+      <LiveOverviewPanel t={t} isDark={isDark} />
     </div>
   );
 }
