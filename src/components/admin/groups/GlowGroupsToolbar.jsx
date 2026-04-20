@@ -1,6 +1,7 @@
 import React from "react";
 import { Search, Filter, Globe2, Activity, Lock, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 
 export default function GlowGroupsToolbar({
   search, setSearch,
@@ -12,32 +13,50 @@ export default function GlowGroupsToolbar({
 }) {
   return (
     <div className="border rounded-2xl p-4 flex flex-wrap gap-3 items-center" style={{ background: t.surface, borderColor: t.border }}>
-      <div className="flex items-center gap-2 border rounded-lg px-3 py-2" style={{ background: t.surfaceMuted, borderColor: t.border }}>
-        <Activity size={14} style={{ color: t.textMuted }} />
-        <select className="bg-transparent text-sm focus:outline-none" style={{ color: t.textPrimary }} value={filterActivity} onChange={e => setFilterActivity(e.target.value)}>
-          <option value="all">All Activity</option>
-          <option value="thriving">Thriving</option>
-          <option value="active">Active</option>
-          <option value="quiet">Quiet</option>
-          <option value="dormant">Dormant</option>
-        </select>
+      <div className="flex items-center gap-2 border rounded-lg px-1 py-1" style={{ background: t.surfaceMuted, borderColor: t.border }}>
+        <Activity size={14} className="ml-2" style={{ color: t.textMuted }} />
+        <BottomSheetSelect
+          value={filterActivity}
+          onChange={setFilterActivity}
+          options={[
+            { value: "all", label: "All Activity" },
+            { value: "thriving", label: "Thriving" },
+            { value: "active", label: "Active" },
+            { value: "quiet", label: "Quiet" },
+            { value: "dormant", label: "Dormant" }
+          ]}
+          triggerClassName="!border-0 !bg-transparent !py-1 !px-2 !min-w-[120px] !text-sm"
+          triggerStyle={{ color: t.textPrimary }}
+        />
       </div>
 
-      <div className="flex items-center gap-2 border rounded-lg px-3 py-2" style={{ background: t.surfaceMuted, borderColor: t.border }}>
-        <Globe2 size={14} style={{ color: t.textMuted }} />
-        <select className="bg-transparent text-sm focus:outline-none max-w-[140px]" style={{ color: t.textPrimary }} value={filterCountry} onChange={e => setFilterCountry(e.target.value)}>
-          <option value="all">All Countries</option>
-          {allCountries.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
+      <div className="flex items-center gap-2 border rounded-lg px-1 py-1" style={{ background: t.surfaceMuted, borderColor: t.border }}>
+        <Globe2 size={14} className="ml-2" style={{ color: t.textMuted }} />
+        <BottomSheetSelect
+          value={filterCountry}
+          onChange={setFilterCountry}
+          options={[
+            { value: "all", label: "All Countries" },
+            ...allCountries.map(c => ({ value: c, label: c }))
+          ]}
+          triggerClassName="!border-0 !bg-transparent !py-1 !px-2 !min-w-[140px] !text-sm"
+          triggerStyle={{ color: t.textPrimary }}
+        />
       </div>
 
-      <div className="flex items-center gap-2 border rounded-lg px-3 py-2" style={{ background: t.surfaceMuted, borderColor: t.border }}>
-        <Lock size={14} style={{ color: t.textMuted }} />
-        <select className="bg-transparent text-sm focus:outline-none" style={{ color: t.textPrimary }} value={filterPrivacy} onChange={e => setFilterPrivacy(e.target.value)}>
-          <option value="all">All Privacy</option>
-          <option value="public">Public</option>
-          <option value="private">Private</option>
-        </select>
+      <div className="flex items-center gap-2 border rounded-lg px-1 py-1" style={{ background: t.surfaceMuted, borderColor: t.border }}>
+        <Lock size={14} className="ml-2" style={{ color: t.textMuted }} />
+        <BottomSheetSelect
+          value={filterPrivacy}
+          onChange={setFilterPrivacy}
+          options={[
+            { value: "all", label: "All Privacy" },
+            { value: "public", label: "Public" },
+            { value: "private", label: "Private" }
+          ]}
+          triggerClassName="!border-0 !bg-transparent !py-1 !px-2 !min-w-[120px] !text-sm"
+          triggerStyle={{ color: t.textPrimary }}
+        />
       </div>
 
       <div className="relative flex-1 min-w-[200px]">

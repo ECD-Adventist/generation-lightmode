@@ -1,6 +1,7 @@
 import React from "react";
 import { Search, Tag, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 
 const TABS = [
   { key: "approved", label: "Approved", color: "#22c55e" },
@@ -44,12 +45,18 @@ export default function GlowDropsFilterBar({
 
       {/* Category filter */}
       {allCategories.length > 0 && (
-        <div className="flex items-center gap-2 border rounded-lg px-3 py-2" style={{ background: t.surfaceMuted, borderColor: t.border }}>
-          <Tag size={14} style={{ color: t.textMuted }} />
-          <select className="bg-transparent text-sm focus:outline-none" style={{ color: t.textPrimary }} value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
-            <option value="all">All Categories</option>
-            {allCategories.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+        <div className="flex items-center gap-2 border rounded-lg px-1 py-1" style={{ background: t.surfaceMuted, borderColor: t.border }}>
+          <Tag size={14} className="ml-2" style={{ color: t.textMuted }} />
+          <BottomSheetSelect
+            value={filterCategory}
+            onChange={setFilterCategory}
+            options={[
+              { value: "all", label: "All Categories" },
+              ...allCategories.map(c => ({ value: c, label: c }))
+            ]}
+            triggerClassName="!border-0 !bg-transparent !py-1 !px-2 !min-w-[140px] !text-sm"
+            triggerStyle={{ color: t.textPrimary }}
+          />
         </div>
       )}
 

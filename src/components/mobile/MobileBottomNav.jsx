@@ -1,16 +1,45 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, Users, User } from "lucide-react";
 
 const tabs = [
-  { key: "Feed", label: "Feed", icon: Zap, match: ["Feed", "GlowFeed"] },
+  { key: "Feed", label: "Feed", icon: Zap, match: ["Feed", "GlowFeed", "Post"] },
   { key: "GlowGroups", label: "Groups", icon: Users, match: ["GlowGroups", "GroupChat", "GroupSession"] },
   { key: "Profile", label: "Profile", icon: User, match: ["Profile", "Settings"] },
 ];
 
 export default function MobileBottomNav({ currentPageName }) {
   const location = useLocation();
+  const scrollPositions = useRef({});
+
+  // 1. Save scroll position on scroll
+  useEffect(() => {
+    const onScroll = () => {
+      scrollPositions.current[location.pathname] = window.scrollY;
+      sessionStorage.setItem(`scroll_pos_${location.pathname}`, window.scrollY.toString());
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [location.pathname]);
+
+  // 2. Save last path for each tab
+  useEffect(() => {
+    const currentTab = tabs.find(t => t.match.includes(currentPageName) || location.pathname.startsWith(`/${t.key}`));
+    if (currentTab) {
+      sessionStorage.setItem(`tab_history_${currentTab.key}`, location.pathname + location.search);
+    }
+  }, [location, currentPageName]);
+
+  // 3. Restore scroll position on mount/location change
+  useEffect(() => {
+    const savedScroll = scrollPositions.current[location.pathname] || sessionStorage.getItem(`scroll_pos_${location.pathname}`);
+    if (savedScroll !== null) {
+      setTimeout(() => {
+        window.scrollTo(0, parseInt(savedScroll, 10));
+      }, 50);
+    }
+  }, [location.pathname]);
 
   return (
     <nav
@@ -28,7 +57,7 @@ export default function MobileBottomNav({ currentPageName }) {
           return (
             <Link
               key={key}
-              to={active ? "#" : createPageUrl(key)}
+              to={active ? "#" : (sessionStorage.getItem(`tab_history_${key}`) || createPageUrl(key))}
               onClick={(e) => {
                 if (active) {
                   e.preventDefault();
