@@ -52,12 +52,23 @@ Deno.serve(async (req) => {
         if (has('address')) customUpdate.address = clean(body.address) || '';
         if (has('postal_code')) customUpdate.postal_code = clean(body.postal_code) || '';
 
-        // Update custom fields first via updateMe
+        // Update custom fields via updateMe
         if (Object.keys(customUpdate).length > 0) {
             await base44.auth.updateMe(customUpdate);
         }
 
-        return Response.json({ success: true, data: customUpdate });
+        // Verify what was actually persisted
+        const verify = await base44.asServiceRole.entities.User.filter({ id: user.id });
+        const saved = verify?.[0] || {};
+        console.log('[verify] requested display_name =', display_name, ' saved =', saved.display_name);
+
+        return Response.json({
+            success: true,
+            data: customUpdate,
+            saved_display_name: saved.display_name,
+            saved_country: saved.country,
+            saved_bio: saved.bio
+        });
     } catch (error) {
         return Response.json({ error: error.message }, { status: 500 });
     }

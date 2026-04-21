@@ -6,6 +6,7 @@ import { Camera, Shield, MapPin, ExternalLink, Building2, Crown, Sparkles, Uploa
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import TerritoryMapVisual from "@/components/institution/TerritoryMapVisual";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function ExecutiveProfileHeader({
   user, isOwnProfile, profileEmail, myDrops, myFollowers, myFollowing,
@@ -66,7 +67,7 @@ export default function ExecutiveProfileHeader({
               </div>
               <div className="flex-1 min-w-0 pb-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{user.full_name}</h1>
+                  <h1 className="text-xl sm:text-2xl font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{getDisplayName(user)}</h1>
                   <div className="flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: "rgba(255,208,0,0.12)", border: "1px solid #FFE4A0" }}>
                     <Building2 className="w-3 h-3" style={{ color: "#CC7A00" }} />
                     <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: "#CC7A00" }}>Institution Profile</span>
