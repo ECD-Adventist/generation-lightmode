@@ -18,7 +18,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   const coverInputRef = useRef(null);
 
   const [editData, setEditData] = useState({
-    full_name: user?.full_name || "",
+    display_name: user?.display_name || user?.full_name || "",
     country: user?.country || "",
     bio: user?.bio || "",
     website_url: user?.website_url || "",
@@ -36,7 +36,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   React.useEffect(() => {
     if (user) {
       setEditData({
-        full_name: user.full_name || "",
+        display_name: user.display_name || user.full_name || "",
         country: user.country || "",
         bio: user.bio || "",
         website_url: user.website_url || "",
@@ -82,8 +82,8 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!editData.full_name.trim()) {
-      toast.error("Full name is required");
+    if (!editData.display_name.trim()) {
+      toast.error("Display name is required");
       return;
     }
     setSaving(true);
@@ -190,10 +190,11 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
               )}
             </div>
 
-            {/* Full Name */}
+            {/* Display Name */}
             <div>
-              <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Full Name <span className="text-red-400">*</span></Label>
-              <Input required value={editData.full_name} onChange={e => set("full_name", e.target.value)} placeholder="Your full name" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
+              <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Display Name <span className="text-red-400">*</span></Label>
+              <Input required value={editData.display_name} onChange={e => set("display_name", e.target.value)} placeholder="How your name appears in the app" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
+              <p className="text-[11px] mt-1.5" style={{ color: "#8A97B5" }}>This is the name shown throughout the app. You can change it anytime.</p>
             </div>
 
             {/* Bio */}

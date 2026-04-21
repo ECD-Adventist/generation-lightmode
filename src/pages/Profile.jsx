@@ -18,6 +18,7 @@ import AchievementBadges from "@/components/profile/AchievementBadges";
 import PostViewerModal from "@/components/profile/PostViewerModal";
 import StoryAnalyticsDashboard from "@/components/profile/StoryAnalyticsDashboard";
 import AppFooter from "@/components/AppFooter";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -324,9 +325,10 @@ export default function Profile() {
 
   const handleShareProfile = async () => {
     const shareUrl = window.location.href;
-    const shareText = `${user.full_name || "LightMode Member"} • ${glowRank.name} • ${user.glow_score || 0} Glow Points`;
+    const displayName = getDisplayName(user);
+    const shareText = `${displayName} • ${glowRank.name} • ${user.glow_score || 0} Glow Points`;
     if (navigator.share) {
-      await navigator.share({ title: `${user.full_name || "Profile"} | LightMode`, text: shareText, url: shareUrl });
+      await navigator.share({ title: `${displayName} | LightMode`, text: shareText, url: shareUrl });
       return;
     }
     await navigator.clipboard.writeText(shareUrl);
@@ -522,7 +524,7 @@ export default function Profile() {
               <div className="flex-1 text-center md:text-left mt-2 md:mt-16">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
                   <div className="flex flex-col md:flex-row md:items-center gap-3">
-                    <h1 className="text-3xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{user.full_name}</h1>
+                    <h1 className="text-3xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{getDisplayName(user)}</h1>
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full w-fit mx-auto md:mx-0" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
                       <Sparkles className="w-4 h-4" style={{ color: glowRank.color }} />
                       <span className="text-sm font-bold" style={{ color: "#0B1B3D" }}>{glowRank.name}</span>

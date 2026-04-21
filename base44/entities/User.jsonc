@@ -40,6 +40,15 @@
     "suspended_by": {
       "type": "string",
       "description": "Email of the admin who suspended the user."
+    },
+    "display_name": {
+      "type": "string",
+      "description": "User-editable display name shown throughout the app. Falls back to full_name when empty."
     }
-  }
+  },
+  "required": [
+    "suspended_reason",
+    "suspended_at",
+    "suspended_by"
+  ]
 }

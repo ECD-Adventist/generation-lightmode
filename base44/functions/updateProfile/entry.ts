@@ -16,10 +16,11 @@ Deno.serve(async (req) => {
         const has = (key) => Object.prototype.hasOwnProperty.call(body, key);
         const clean = (v) => (typeof v === 'string' ? v.trim() : v);
 
-        // Full name — required, and must use service-role entity update (built-in User field)
-        const full_name = has('full_name') ? clean(body.full_name) : null;
-        if (full_name !== null && !full_name) {
-            return Response.json({ error: 'Full name is required' }, { status: 400 });
+        // Display name — editable name shown in the UI (full_name is a built-in that
+        // cannot be changed via the SDK, so we store the user-chosen label here).
+        const display_name = has('display_name') ? clean(body.display_name) : null;
+        if (display_name !== null && !display_name) {
+            return Response.json({ error: 'Display name is required' }, { status: 400 });
         }
 
         // Validate website_url — must be http(s), not javascript: or data:
@@ -38,6 +39,7 @@ Deno.serve(async (req) => {
 
         // Build custom-fields payload (everything EXCEPT full_name — which is built-in)
         const customUpdate = {};
+        if (display_name !== null) customUpdate.display_name = display_name;
         if (has('country')) customUpdate.country = clean(body.country) || '';
         if (has('bio')) customUpdate.bio = (clean(body.bio) || '').slice(0, 1200);
         if (website_url !== null) customUpdate.website_url = website_url;
@@ -55,39 +57,7 @@ Deno.serve(async (req) => {
             await base44.auth.updateMe(customUpdate);
         }
 
-        // THEN update the built-in full_name
-        let nameResult = null;
-        let nameError = null;
-        if (full_name && full_name !== user.full_name) {
-            try {
-                nameResult = await base44.auth.updateMe({ full_name });
-                console.log('[updateMe result]', JSON.stringify(nameResult));
-            } catch (e) {
-                nameError = 'updateMe: ' + e.message;
-                console.log('[updateMe error]', e.message);
-            }
-            // Also try service-role as backup
-            try {
-                const srResult = await base44.asServiceRole.entities.User.update(user.id, { full_name });
-                console.log('[serviceRole result]', JSON.stringify(srResult));
-            } catch (e) {
-                nameError = (nameError ? nameError + ' | ' : '') + 'serviceRole: ' + e.message;
-                console.log('[serviceRole error]', e.message);
-            }
-        }
-
-        // Verify what actually got saved by re-reading the user
-        const verifyUser = await base44.asServiceRole.entities.User.filter({ id: user.id });
-        const saved = verifyUser?.[0];
-        console.log('[verify] saved full_name =', saved?.full_name, ' requested =', full_name);
-
-        return Response.json({
-            success: true,
-            requested_full_name: full_name,
-            saved_full_name: saved?.full_name,
-            name_error: nameError,
-            data: { ...customUpdate, ...(full_name ? { full_name } : {}) }
-        });
+        return Response.json({ success: true, data: customUpdate });
     } catch (error) {
         return Response.json({ error: error.message }, { status: 500 });
     }
