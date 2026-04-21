@@ -58,51 +58,98 @@ export default function MobileProfile({
     <div className="min-h-screen font-['Inter']" style={{ background: "linear-gradient(180deg, #F6F8FC 0%, #EEF3FF 50%, #E2EBFF 100%)", color: "#0B1B3D" }}>
       <style>{`
         @keyframes mp-float { 0%,100% { transform: translateY(0) scale(1); opacity: 0.2 } 50% { transform: translateY(-14px) scale(1.06); opacity: 0.35 } }
-        @keyframes mp-spin-border { to { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes mp-sweep-light {
+          0% { transform: translateX(-150%) skewX(-20deg); }
+          100% { transform: translateX(300%) skewX(-20deg); }
+        }
+        @keyframes mp-spin-border {
+          0% { transform: translate(-50%, -50%) rotate(0deg); }
+          100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
       `}</style>
 
-      {/* COVER */}
-      <div className="relative">
+      {/* TOP ACTION BAR — floats above cover card */}
+      <div className="relative z-20 flex items-center justify-between px-4 pt-4 pb-2">
+        <Link to={createPageUrl("Feed")} className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.08)" }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </Link>
+        <div className="flex items-center gap-2">
+          <button onClick={onShareProfile} className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.08)" }}>
+            <Share2 className="w-4 h-4" />
+          </button>
+          {isOwnProfile && (
+            <Link to={createPageUrl("Settings")} className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.08)" }}>
+              <Settings className="w-4 h-4" />
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* COVER — branded rounded card with rotating conic border + sweeping shimmer (mobile port of desktop effect) */}
+      <div className="px-4 pb-1">
         <div
-          className="relative w-full h-44 overflow-hidden"
-          style={{
-            background: user.cover_picture_url ? `url(${user.cover_picture_url}) center/cover` : "linear-gradient(135deg, #0B3FD9 0%, #1FB8FF 60%, #FFD000 100%)"
-          }}
+          className={`relative w-full h-40 rounded-[1.5rem] p-[2px] overflow-hidden ${isOwnProfile ? 'cursor-pointer' : ''}`}
+          style={{ boxShadow: "0 8px 24px rgba(11, 63, 217, 0.15)" }}
           onClick={() => isOwnProfile && coverInputRef.current?.click()}
         >
-          {/* Ambient glow */}
-          <div className="absolute -top-6 -right-8 w-40 h-40 rounded-full blur-3xl pointer-events-none" style={{ background: "#FFD000", opacity: 0.35, animation: "mp-float 8s ease-in-out infinite" }} />
-          <div className="absolute -bottom-10 -left-10 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "#1FB8FF", opacity: 0.4, animation: "mp-float 10s ease-in-out infinite 1.5s" }} />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(11,27,61,0.05) 0%, rgba(11,27,61,0.45) 100%)" }} />
+          {/* Rotating conic edge light — cyan→royal-blue→gold */}
+          <div style={{
+            position: "absolute", top: "50%", left: "50%",
+            width: "200%", height: "200%",
+            background: "conic-gradient(from 0deg, transparent 60%, #1FB8FF 78%, #0B3FD9 90%, #FFD000 100%)",
+            animation: "mp-spin-border 4s linear infinite",
+            zIndex: 0,
+          }} />
 
-          {/* Top actions */}
-          <div className="relative z-10 flex items-center justify-between px-4 pt-4">
-            <Link to={createPageUrl("Feed")} className="w-9 h-9 rounded-xl flex items-center justify-center backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(255,255,255,0.25)", color: "#FFFFFF" }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            </Link>
-            <div className="flex items-center gap-2">
-              <button onClick={onShareProfile} className="w-9 h-9 rounded-xl flex items-center justify-center backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(255,255,255,0.25)", color: "#FFFFFF" }}>
-                <Share2 className="w-4 h-4" />
+          {/* Inner cover content */}
+          <div
+            className="relative w-full h-full rounded-[1.4rem] overflow-hidden z-10"
+            style={{
+              background: user.cover_picture_url
+                ? `url(${user.cover_picture_url}) center/cover`
+                : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)",
+            }}
+          >
+            {/* Sweeping shimmer */}
+            <div style={{
+              position: "absolute", top: 0, bottom: 0, left: 0, width: "30%",
+              background: "linear-gradient(90deg, transparent, rgba(31,184,255,0.18), rgba(255,255,255,0.45), rgba(31,184,255,0.18), transparent)",
+              animation: "mp-sweep-light 4s infinite ease-in-out",
+              zIndex: 2, pointerEvents: "none",
+            }} />
+
+            {/* Ambient glow blobs — only over gradient placeholder */}
+            {!user.cover_picture_url && (
+              <>
+                <div className="absolute -top-6 -right-8 w-40 h-40 rounded-full blur-3xl pointer-events-none" style={{ background: "#FFD000", opacity: 0.25, animation: "mp-float 8s ease-in-out infinite" }} />
+                <div className="absolute -bottom-10 -left-10 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "#1FB8FF", opacity: 0.3, animation: "mp-float 10s ease-in-out infinite 1.5s" }} />
+              </>
+            )}
+
+            {/* Empty state hint */}
+            {!user.cover_picture_url && (
+              <div className="absolute inset-0 flex items-center justify-center z-10" style={{ color: "#8A97B5" }}>
+                <div className="text-center">
+                  <Camera className="w-7 h-7 mx-auto mb-1 opacity-50" />
+                  <div className="text-xs font-semibold">{isOwnProfile ? "Add Cover Photo" : "No Cover Photo"}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Edit cover pill */}
+            {isOwnProfile && (
+              <button onClick={(e) => { e.stopPropagation(); coverInputRef.current?.click(); }} className="absolute right-2.5 bottom-2.5 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(11, 27, 61, 0.6)", color: "#FFFFFF" }}>
+                <Camera className="w-3 h-3" /> Cover
               </button>
-              {isOwnProfile && (
-                <Link to={createPageUrl("Settings")} className="w-9 h-9 rounded-xl flex items-center justify-center backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(255,255,255,0.25)", color: "#FFFFFF" }}>
-                  <Settings className="w-4 h-4" />
-                </Link>
-              )}
-            </div>
+            )}
           </div>
-
-          {/* Cover edit hint */}
-          {isOwnProfile && (
-            <button onClick={() => coverInputRef.current?.click()} className="absolute right-3 bottom-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(11, 27, 61, 0.55)", color: "#FFFFFF" }}>
-              <Camera className="w-3 h-3" /> Cover
-            </button>
-          )}
-          <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={onCoverImageSelect} disabled={uploadingImage} />
         </div>
+        <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={onCoverImageSelect} disabled={uploadingImage} />
+      </div>
 
-        {/* Avatar + name block, floating over cover */}
-        <div className="relative -mt-12 px-4">
+      {/* Avatar + name block, floating over cover */}
+      <div className="relative">
+        <div className="relative -mt-10 px-4">
           <div className="flex items-end gap-3">
             <div className="relative w-24 h-24 rounded-full p-[3px]" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9, #FFD000)", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.35)" }}>
               <div className="w-full h-full rounded-full overflow-hidden relative" style={{ background: "#FFFFFF", border: "3px solid #FFFFFF" }}>

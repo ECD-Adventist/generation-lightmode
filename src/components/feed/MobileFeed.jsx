@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Bell, MessageCircle, Search as SearchIcon, X, Plus, Sparkles, Flame, Compass, Globe, Zap } from "lucide-react";
+import { Bell, MessageCircle, Plus, Sparkles, Flame, Compass, Globe, Zap } from "lucide-react";
 import DropCard from "@/components/feed/DropCard";
 
 /**
@@ -12,8 +12,6 @@ import DropCard from "@/components/feed/DropCard";
 export default function MobileFeed({
   user,
   notifications,
-  searchQuery,
-  onSearch,
   activeFilter,
   onFilterChange,
   stories,
@@ -44,7 +42,7 @@ export default function MobileFeed({
       `}</style>
 
       {/* HERO HEADER */}
-      <div className="relative overflow-hidden pt-5 pb-4 px-4" style={{ background: "linear-gradient(135deg, #0B3FD9 0%, #1FB8FF 100%)" }}>
+      <div className="relative overflow-hidden pt-5 pb-5 px-4" style={{ background: "linear-gradient(135deg, #0B3FD9 0%, #1FB8FF 100%)" }}>
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full blur-3xl opacity-40 pointer-events-none" style={{ background: "#FFD000", animation: "mf-float 9s ease-in-out infinite" }} />
         <div className="absolute -bottom-12 -left-10 w-48 h-48 rounded-full blur-3xl opacity-30 pointer-events-none" style={{ background: "#7FE0FF", animation: "mf-float 12s ease-in-out infinite 2s" }} />
 
@@ -65,30 +63,13 @@ export default function MobileFeed({
         </div>
 
         {/* Greeting */}
-        <div className="relative mt-3 mb-3">
+        <div className="relative mt-3">
           <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70">
             {new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening"}
           </div>
           <h1 className="text-xl font-black font-['Space_Grotesk'] text-white leading-tight truncate">
             Hey, {user?.full_name?.split(" ")[0] || "Friend"} ⚡
           </h1>
-        </div>
-
-        {/* Search pill */}
-        <div className="relative">
-          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#0B3FD9" }} />
-          <input
-            value={searchQuery}
-            onChange={e => onSearch(e.target.value)}
-            placeholder="Search drops, people, verses…"
-            className="w-full rounded-full py-2.5 pl-11 pr-10 text-[14px] font-medium focus:outline-none"
-            style={{ background: "#FFFFFF", color: "#0B1B3D", boxShadow: "0 8px 24px rgba(11, 27, 61, 0.18)" }}
-          />
-          {searchQuery && (
-            <button onClick={() => onSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#EEF3FF", color: "#0B3FD9" }}>
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
         </div>
       </div>
 
