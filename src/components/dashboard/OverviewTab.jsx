@@ -62,8 +62,10 @@ export default function OverviewTab({ user }) {
   else if (score >= 200) { rank = "Trendsetter"; rankColor = "#0B3FD9"; bgClass = "bg-blue-600/10"; }
   else if (score >= 50) { rank = "Light Warrior"; rankColor = "#1FB8FF"; bgClass = "bg-cyan-500/10"; }
 
-  const cardClass = "bg-card border border-border shadow-sm rounded-[1.75rem] p-6";
-  const statBoxClass = "bg-muted border border-border rounded-xl p-3 text-center";
+  const cardClass = "rounded-[1.75rem] p-6";
+  const cardStyle = { background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
+  const statBoxClass = "rounded-xl p-3 text-center";
+  const statBoxStyle = { background: "#F6F8FC", border: "1px solid #E6ECF5" };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12 font-['Inter']">
@@ -72,29 +74,29 @@ export default function OverviewTab({ user }) {
 
       {/* TOP: USER OVERVIEW & STREAK */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className={`lg:col-span-2 relative overflow-hidden flex flex-col sm:flex-row items-center sm:items-start gap-6 ${cardClass}`}>
+        <div className={`lg:col-span-2 relative overflow-hidden flex flex-col sm:flex-row items-center sm:items-start gap-6 ${cardClass}`} style={cardStyle}>
           <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl pointer-events-none bg-cyan-500/10" />
           <div className="relative shrink-0">
             <div className={`absolute inset-[-4px] rounded-full blur-sm opacity-40 ${bgClass}`} />
-            <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-24 h-24 rounded-full relative z-10 object-cover border-4 border-background shadow-sm" alt="Profile" />
-            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 bg-foreground text-background shadow-sm">
+            <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-24 h-24 rounded-full relative z-10 object-cover shadow-sm" style={{ border: "4px solid #FFFFFF" }} alt="Profile" />
+            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 shadow-sm" style={{ background: "#0B1B3D", color: "#FFFFFF" }}>
               {rank}
             </div>
           </div>
           <div className="flex-1 text-center sm:text-left z-10 w-full">
-            <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-foreground">{user.full_name}</h2>
-            <div className="flex items-center justify-center sm:justify-start gap-2 text-sm mt-1 mb-4 text-muted-foreground">
-              <MapPin size={14} className="text-blue-600 dark:text-blue-400" /> {user.country || "Global Citizen"}
+            <h2 className="text-2xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{user.full_name}</h2>
+            <div className="flex items-center justify-center sm:justify-start gap-2 text-sm mt-1 mb-4" style={{ color: "#6B7FA0" }}>
+              <MapPin size={14} style={{ color: "#0B3FD9" }} /> {user.country || "Global Citizen"}
             </div>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { val: score, label: "XP", color: "text-amber-600 dark:text-amber-400" },
-                { val: glowDrops.length, label: "Drops", color: "text-blue-600 dark:text-blue-400" },
-                { val: myMemberships.length > 0 ? "1" : "0", label: "Group", color: "text-cyan-500" },
+                { val: score, label: "XP", color: "#CC7A00" },
+                { val: glowDrops.length, label: "Drops", color: "#0B3FD9" },
+                { val: myMemberships.length > 0 ? "1" : "0", label: "Group", color: "#1FB8FF" },
               ].map((s, i) => (
-                <div key={i} className={statBoxClass}>
-                  <div className={`text-xl font-bold ${s.color}`}>{s.val}</div>
-                  <div className="text-[10px] uppercase tracking-widest mt-1 text-muted-foreground">{s.label}</div>
+                <div key={i} className={statBoxClass} style={statBoxStyle}>
+                  <div className="text-xl font-bold" style={{ color: s.color }}>{s.val}</div>
+                  <div className="text-[10px] uppercase tracking-widest mt-1" style={{ color: "#6B7FA0" }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -114,9 +116,10 @@ export default function OverviewTab({ user }) {
           const inner = (
             <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 border ${item.bgClass} ${item.borderClass} ${item.colorClass}`}>{item.icon}</div>
           );
-          const cls = "p-4 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all hover:-translate-y-0.5 cursor-pointer bg-card border border-border text-foreground hover:shadow-sm";
-          if (item.to) return <Link key={i} to={item.to} className={cls}>{inner}<span className="font-bold text-sm text-foreground">{item.label}</span></Link>;
-          return <button key={i} onClick={item.onClick} className={cls}>{inner}<span className="font-bold text-sm text-foreground">{item.label}</span></button>;
+          const cls = "p-4 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all hover:-translate-y-0.5 cursor-pointer hover:shadow-md";
+          const btnStyle = { background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" };
+          if (item.to) return <Link key={i} to={item.to} className={cls} style={btnStyle}>{inner}<span className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{item.label}</span></Link>;
+          return <button key={i} onClick={item.onClick} className={cls} style={btnStyle}>{inner}<span className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{item.label}</span></button>;
         })}
       </div>
 
@@ -146,7 +149,7 @@ export default function OverviewTab({ user }) {
           </div>
 
           {/* Community Pulse */}
-          <div className={cardClass}>
+          <div className={cardClass} style={cardStyle}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold font-['Space_Grotesk'] flex items-center gap-2 text-foreground"><Globe size={20} className="text-blue-600 dark:text-blue-400" /> Community Pulse</h3>
               <Link to={createPageUrl("Feed")} className="text-xs font-bold flex items-center text-blue-600 dark:text-blue-400">View all <ChevronRight size={14}/></Link>
@@ -223,7 +226,7 @@ export default function OverviewTab({ user }) {
           <LevelProgressCard user={user} />
 
           {/* Badges */}
-          <div className={cardClass}>
+          <div className={cardClass} style={cardStyle}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold font-['Space_Grotesk'] uppercase tracking-widest flex items-center gap-2 text-foreground">
                 <Award size={16} className="text-blue-600 dark:text-blue-400" /> Achievements
@@ -244,7 +247,7 @@ export default function OverviewTab({ user }) {
           </div>
 
           {/* GlowGroup */}
-          <div className={cardClass}>
+          <div className={cardClass} style={cardStyle}>
             <h3 className="text-sm font-bold font-['Space_Grotesk'] uppercase tracking-widest mb-4 flex items-center gap-2 text-foreground">
               <MessageSquare size={16} className="text-blue-600 dark:text-blue-400" /> My GlowGroup
             </h3>
@@ -267,7 +270,7 @@ export default function OverviewTab({ user }) {
           </div>
 
           {/* Active Missions */}
-          <div className={cardClass}>
+          <div className={cardClass} style={cardStyle}>
             <h3 className="text-sm font-bold font-['Space_Grotesk'] uppercase tracking-widest mb-4 flex items-center gap-2 text-foreground">
               <Target size={16} className="text-amber-600 dark:text-amber-400" /> Active Missions
             </h3>
