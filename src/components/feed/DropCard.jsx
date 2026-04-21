@@ -380,7 +380,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleLike}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none border ${likeBurst ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-black/30 border-white/20 backdrop-blur-md" : "bg-white border-[#E2E8F0] shadow-sm"}`}
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${likeBurst ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-[#6B7280]/50 backdrop-blur-md" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
               title={userHasLiked ? "Unlike this drop" : "Like this drop"}
             >
               <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${likeBurst ? 'dc-anim-like' : ''} ${userHasLiked ? "text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : drop.media_url ? "text-white hover:scale-110" : "text-blue-600 dark:text-blue-400 hover:scale-110"}`} />
@@ -391,7 +391,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleCommentToggle}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none border ${drop.media_url ? "bg-black/30 border-white/20 backdrop-blur-md" : "bg-white border-[#E2E8F0] shadow-sm"}`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${drop.media_url ? "bg-[#6B7280]/50 backdrop-blur-md" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
             >
               <MessageCircle className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${commentBounce ? 'dc-anim-bounce' : ''} ${showComments ? "text-cyan-500" : drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
@@ -401,7 +401,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleShareClick}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none border ${sharePulse ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-black/30 border-white/20 backdrop-blur-md" : "bg-white border-[#E2E8F0] shadow-sm"}`}
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${sharePulse ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-[#6B7280]/50 backdrop-blur-md" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
             >
               <Share2 className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${sharePulse ? 'dc-anim-bounce' : ''} ${drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
@@ -411,7 +411,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleSaveClick}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none border ${drop.media_url ? "bg-black/30 border-white/20 backdrop-blur-md" : "bg-white border-[#E2E8F0] shadow-sm"}`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${drop.media_url ? "bg-[#6B7280]/50 backdrop-blur-md" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
             >
               <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${saveBounce ? 'dc-anim-bounce' : ''} ${isSaved ? "fill-amber-400 text-amber-400" : drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
