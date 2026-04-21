@@ -91,12 +91,8 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
       const res = await base44.functions.invoke("updateProfile", editData);
       if (!res.data?.success) throw new Error(res.data?.error || "Save failed");
 
-      // Small delay then re-fetch fresh user
-      await new Promise(r => setTimeout(r, 300));
+      // Re-fetch the fresh user record from the server (source of truth)
       const updated = await base44.auth.me();
-
-      // Prefer the just-saved values so the profile reflects them immediately
-      const merged = { ...updated, ...editData, full_name: editData.full_name.trim() };
 
       // Invalidate caches so Profile page + public user lists re-fetch fresh data
       queryClient.invalidateQueries({ queryKey: ["allUsersForProfile"] });
@@ -104,7 +100,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
       queryClient.invalidateQueries({ queryKey: ["overviewPublicUsers"] });
 
       toast.success("Profile saved! ✨");
-      onSaved(merged);
+      onSaved(updated);
       onClose();
     } catch (err) {
       toast.error(err?.response?.data?.error || err.message || "Failed to save profile");

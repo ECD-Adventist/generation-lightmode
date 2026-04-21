@@ -36,34 +36,27 @@ Deno.serve(async (req) => {
             }
         }
 
-        // Build custom-fields update (everything except full_name, which is built-in)
-        const customUpdate = {};
-        if (has('country')) customUpdate.country = clean(body.country) || '';
-        if (has('bio')) customUpdate.bio = (clean(body.bio) || '').slice(0, 1200);
-        if (website_url !== null) customUpdate.website_url = website_url;
-        if (has('profile_picture_url')) customUpdate.profile_picture_url = clean(body.profile_picture_url) || '';
-        if (has('cover_picture_url')) customUpdate.cover_picture_url = clean(body.cover_picture_url) || '';
-        if (has('gender')) customUpdate.gender = clean(body.gender) || '';
-        if (has('date_of_birth')) customUpdate.date_of_birth = clean(body.date_of_birth) || '';
-        if (has('phone')) customUpdate.phone = clean(body.phone) || '';
-        if (has('city')) customUpdate.city = clean(body.city) || '';
-        if (has('address')) customUpdate.address = clean(body.address) || '';
-        if (has('postal_code')) customUpdate.postal_code = clean(body.postal_code) || '';
+        // Build a single update payload — auth.updateMe handles both built-in (full_name)
+        // and custom fields in one atomic call (per Base44 docs, Option 1).
+        const update = {};
+        if (full_name) update.full_name = full_name;
+        if (has('country')) update.country = clean(body.country) || '';
+        if (has('bio')) update.bio = (clean(body.bio) || '').slice(0, 1200);
+        if (website_url !== null) update.website_url = website_url;
+        if (has('profile_picture_url')) update.profile_picture_url = clean(body.profile_picture_url) || '';
+        if (has('cover_picture_url')) update.cover_picture_url = clean(body.cover_picture_url) || '';
+        if (has('gender')) update.gender = clean(body.gender) || '';
+        if (has('date_of_birth')) update.date_of_birth = clean(body.date_of_birth) || '';
+        if (has('phone')) update.phone = clean(body.phone) || '';
+        if (has('city')) update.city = clean(body.city) || '';
+        if (has('address')) update.address = clean(body.address) || '';
+        if (has('postal_code')) update.postal_code = clean(body.postal_code) || '';
 
-        // Update built-in full_name via service-role entity update (same pattern as updateMyName)
-        if (full_name) {
-            await base44.asServiceRole.entities.User.update(user.id, { full_name });
+        if (Object.keys(update).length > 0) {
+            await base44.auth.updateMe(update);
         }
 
-        // Update custom fields via updateMe (correct path for non-built-in fields)
-        if (Object.keys(customUpdate).length > 0) {
-            await base44.auth.updateMe(customUpdate);
-        }
-
-        return Response.json({
-            success: true,
-            data: { ...customUpdate, ...(full_name ? { full_name } : {}) }
-        });
+        return Response.json({ success: true, data: update });
     } catch (error) {
         return Response.json({ error: error.message }, { status: 500 });
     }
