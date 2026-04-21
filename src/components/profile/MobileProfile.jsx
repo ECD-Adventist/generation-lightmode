@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Camera, Settings, Share2, Grid, Bookmark, Target, Award, Building2, Heart, Sparkles, Zap, Edit3, MessageCircle, UserPlus, UserCheck, Globe } from "lucide-react";
+import { Camera, Settings, Share2, Grid, Bookmark, Target, Award, Building2, Heart, Sparkles, Zap, Edit3, MessageCircle, UserPlus, UserCheck, Globe, X } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
 import { getGlowRank } from "@/components/profile/ProfileHighlights";
 
@@ -35,7 +35,9 @@ export default function MobileProfile({
 }) {
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
-  const [coverPressed, setCoverPressed] = useState(false);
+  const [viewerImage, setViewerImage] = useState(null); // { url, alt }
+
+  const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
   const glowRank = getGlowRank(user?.glow_score || 0);
   const displayName = getDisplayName(user);
@@ -87,10 +89,11 @@ export default function MobileProfile({
 
       {/* COVER — branded rounded card with rotating conic border + sweeping shimmer (mobile port of desktop effect) */}
       <div className="px-4 pb-1">
-        <div
-          className={`relative w-full h-40 rounded-[1.5rem] p-[2px] overflow-hidden ${isOwnProfile ? 'cursor-pointer' : ''}`}
+        <button
+          type="button"
+          onClick={() => user.cover_picture_url && setViewerImage({ url: user.cover_picture_url, alt: "Cover photo" })}
+          className="relative w-full h-40 rounded-[1.5rem] p-[2px] overflow-hidden block"
           style={{ boxShadow: "0 8px 24px rgba(11, 63, 217, 0.15)" }}
-          onClick={() => isOwnProfile && coverInputRef.current?.click()}
         >
           {/* Rotating conic edge light — cyan→royal-blue→gold */}
           <div style={{
@@ -131,36 +134,29 @@ export default function MobileProfile({
               <div className="absolute inset-0 flex items-center justify-center z-10" style={{ color: "#8A97B5" }}>
                 <div className="text-center">
                   <Camera className="w-7 h-7 mx-auto mb-1 opacity-50" />
-                  <div className="text-xs font-semibold">{isOwnProfile ? "Add Cover Photo" : "No Cover Photo"}</div>
+                  <div className="text-xs font-semibold">No Cover Photo</div>
                 </div>
               </div>
             )}
-
-            {/* Edit cover pill */}
-            {isOwnProfile && (
-              <button onClick={(e) => { e.stopPropagation(); coverInputRef.current?.click(); }} className="absolute right-2.5 bottom-2.5 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(11, 27, 61, 0.6)", color: "#FFFFFF" }}>
-                <Camera className="w-3 h-3" /> Cover
-              </button>
-            )}
           </div>
-        </div>
+        </button>
         <input type="file" ref={coverInputRef} accept="image/*" className="hidden" onChange={onCoverImageSelect} disabled={uploadingImage} />
       </div>
 
       {/* Avatar + name block, floating over cover */}
-      <div className="relative">
+      <div className="relative z-10">
         <div className="relative -mt-10 px-4">
           <div className="flex items-end gap-3">
-            <div className="relative w-24 h-24 rounded-full p-[3px]" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9, #FFD000)", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.35)" }}>
+            <button
+              type="button"
+              onClick={() => setViewerImage({ url: user.profile_picture_url || defaultAvatar, alt: "Profile photo" })}
+              className="relative w-24 h-24 rounded-full p-[3px] active:scale-95 transition"
+              style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9, #FFD000)", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.35)" }}
+            >
               <div className="w-full h-full rounded-full overflow-hidden relative" style={{ background: "#FFFFFF", border: "3px solid #FFFFFF" }}>
-                <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-                {isOwnProfile && (
-                  <button onClick={() => profileInputRef.current?.click()} className="absolute bottom-0 right-0 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#FFD000", border: "2px solid #FFFFFF", boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }}>
-                    <Camera className="w-3.5 h-3.5" style={{ color: "#0B1B3D" }} />
-                  </button>
-                )}
+                <img src={user.profile_picture_url || defaultAvatar} className="w-full h-full object-cover" />
               </div>
-            </div>
+            </button>
             <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={onProfileImageSelect} disabled={uploadingImage} />
 
             <div className="flex-1 min-w-0 pb-1.5">
@@ -268,6 +264,30 @@ export default function MobileProfile({
       <div className="px-3 pb-24 pt-3">
         {children}
       </div>
+
+      {/* IMAGE VIEWER LIGHTBOX */}
+      {viewerImage && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          style={{ background: "rgba(5, 10, 25, 0.92)", backdropFilter: "blur(10px)" }}
+          onClick={() => setViewerImage(null)}
+        >
+          <button
+            onClick={() => setViewerImage(null)}
+            className="absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition"
+            style={{ background: "rgba(255,255,255,0.15)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.2)" }}
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <img
+            src={viewerImage.url}
+            alt={viewerImage.alt}
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-full max-h-[85vh] object-contain rounded-2xl"
+            style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
+          />
+        </div>
+      )}
     </div>
   );
 }
