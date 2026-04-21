@@ -55,14 +55,37 @@ Deno.serve(async (req) => {
             await base44.auth.updateMe(customUpdate);
         }
 
-        // THEN update the built-in full_name via service-role entity update
-        // (this is the ONLY way full_name persists — updateMe silently drops it)
-        if (full_name) {
-            await base44.asServiceRole.entities.User.update(user.id, { full_name });
+        // THEN update the built-in full_name
+        let nameResult = null;
+        let nameError = null;
+        if (full_name && full_name !== user.full_name) {
+            try {
+                nameResult = await base44.auth.updateMe({ full_name });
+                console.log('[updateMe result]', JSON.stringify(nameResult));
+            } catch (e) {
+                nameError = 'updateMe: ' + e.message;
+                console.log('[updateMe error]', e.message);
+            }
+            // Also try service-role as backup
+            try {
+                const srResult = await base44.asServiceRole.entities.User.update(user.id, { full_name });
+                console.log('[serviceRole result]', JSON.stringify(srResult));
+            } catch (e) {
+                nameError = (nameError ? nameError + ' | ' : '') + 'serviceRole: ' + e.message;
+                console.log('[serviceRole error]', e.message);
+            }
         }
+
+        // Verify what actually got saved by re-reading the user
+        const verifyUser = await base44.asServiceRole.entities.User.filter({ id: user.id });
+        const saved = verifyUser?.[0];
+        console.log('[verify] saved full_name =', saved?.full_name, ' requested =', full_name);
 
         return Response.json({
             success: true,
+            requested_full_name: full_name,
+            saved_full_name: saved?.full_name,
+            name_error: nameError,
             data: { ...customUpdate, ...(full_name ? { full_name } : {}) }
         });
     } catch (error) {
