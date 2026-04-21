@@ -585,11 +585,11 @@ export default function Feed() {
           </div>
 
           <div className="flex gap-2 sm:gap-3 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">
-            <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#2979FF", color: "#FFFFFF" }}><Plus className="w-4 h-4" />Post</button>
-            <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0E5EB", color: "#0D1B3D" }}>Messages</Link>
-            <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0E5EB", color: "#0D1B3D" }}>Prayer Wall</Link>
-            <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#E3F2FD", color: "#1565C0" }}>Live</Link>
-            <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFC107", color: "#0D1B3D" }}>Daily Drops</Link>
+            <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#1D5BFE", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(29, 91, 254, 0.2)" }}><Plus className="w-4 h-4" />Post</button>
+            <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", color: "#0B1B3D" }}>Messages</Link>
+            <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", color: "#0B1B3D" }}>Prayer Wall</Link>
+            <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#F0F5FF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>Live</Link>
+            <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#FFD000", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 208, 0, 0.2)" }}>⚡ Daily Drops</Link>
           </div>
 
           {/* Filter Bar */}
@@ -600,8 +600,8 @@ export default function Feed() {
                 onClick={() => setActiveFilter(filter)}
                 className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300"
                 style={activeFilter === filter
-                  ? { background: "#2979FF", color: "#FFFFFF" }
-                  : { background: "#FFFFFF", color: "#6B7280", border: "1px solid #E0E5EB" }}
+                  ? { background: "#0B3FD9", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.3)" }
+                  : { background: "rgba(255,255,255,0.6)", color: "#4A5878", border: "1px solid #E0EAF5" }}
               >
                 {filter}
               </button>
