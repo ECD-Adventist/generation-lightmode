@@ -296,8 +296,9 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
                 className="flex items-center gap-2 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1 cursor-pointer transition no-underline"
                 style={{
-                  background: drop.media_url ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.8)",
-                  border: `1px solid ${drop.media_url ? "rgba(255,255,255,0.15)" : "#D6E4FF"}`
+                  background: drop.media_url ? "rgba(0,0,0,0.4)" : "#FFFFFF",
+                  border: drop.media_url ? "none" : "1px solid #E2E8F0",
+                  boxShadow: drop.media_url ? "none" : "0 2px 8px rgba(0,0,0,0.05)"
                 }}
               >
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full p-[2px] shrink-0" style={{ background: drop.user_email === "system@lightmode.com" ? "linear-gradient(135deg, #FFD000 0%, #1FB8FF 50%, #0B3FD9 100%)" : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
@@ -359,7 +360,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   ? drop.reflection.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
                   : drop.reflection;
                 return (
-                  <p className="text-sm sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic line-clamp-4 sm:line-clamp-none text-muted-foreground">
+                  <p className="text-sm sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic line-clamp-4 sm:line-clamp-none" style={{ color: "#3A4A6B" }}>
                     "{plain.length > 140 ? plain.slice(0, 140) + '…' : plain}"
                   </p>
                 );
@@ -379,38 +380,38 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleLike}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none border ${likeBurst ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-black/35 border-white/25" : "bg-background/85 border-border shadow-sm"}`}
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none border ${likeBurst ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-black/30 border-white/20 backdrop-blur-md" : "bg-white border-[#E2E8F0] shadow-sm"}`}
               title={userHasLiked ? "Unlike this drop" : "Like this drop"}
             >
               <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${likeBurst ? 'dc-anim-like' : ''} ${userHasLiked ? "text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : drop.media_url ? "text-white hover:scale-110" : "text-blue-600 dark:text-blue-400 hover:scale-110"}`} />
             </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-muted-foreground"}`}>{drop.likes_count || 0}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{drop.likes_count || 0}</span>
           </div>
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleCommentToggle}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none border ${drop.media_url ? "bg-black/35 border-white/25" : "bg-background/85 border-border shadow-sm"}`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none border ${drop.media_url ? "bg-black/30 border-white/20 backdrop-blur-md" : "bg-white border-[#E2E8F0] shadow-sm"}`}
             >
               <MessageCircle className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${commentBounce ? 'dc-anim-bounce' : ''} ${showComments ? "text-cyan-500" : drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-muted-foreground"}`}>{comments.length}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{comments.length}</span>
           </div>
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleShareClick}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none border ${sharePulse ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-black/35 border-white/25" : "bg-background/85 border-border shadow-sm"}`}
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none border ${sharePulse ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-black/30 border-white/20 backdrop-blur-md" : "bg-white border-[#E2E8F0] shadow-sm"}`}
             >
               <Share2 className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${sharePulse ? 'dc-anim-bounce' : ''} ${drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-muted-foreground"}`}>{drop.shares_count || 0}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{drop.shares_count || 0}</span>
           </div>
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleSaveClick}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none border ${drop.media_url ? "bg-black/35 border-white/25" : "bg-background/85 border-border shadow-sm"}`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none border ${drop.media_url ? "bg-black/30 border-white/20 backdrop-blur-md" : "bg-white border-[#E2E8F0] shadow-sm"}`}
             >
               <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${saveBounce ? 'dc-anim-bounce' : ''} ${isSaved ? "fill-amber-400 text-amber-400" : drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
@@ -421,7 +422,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
               <DropdownMenuTrigger asChild>
                 <button
                   onClick={(e) => e.stopPropagation()}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none border ${drop.media_url ? "bg-black/35 border-white/25" : "bg-background/85 border-border shadow-sm"}`}
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all focus:outline-none border ${drop.media_url ? "bg-black/30 border-white/20 backdrop-blur-md" : "bg-white border-[#E2E8F0] shadow-sm"}`}
                 >
                   <MoreHorizontal className={`w-4 h-4 ${drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
                 </button>

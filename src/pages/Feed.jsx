@@ -29,25 +29,23 @@ import MyGlowGroupsSidebar from "@/components/feed/MyGlowGroupsSidebar";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   const baseStyle = active
-    ? { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", border: "none", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }
-    : accent
-    ? { color: "#0B3FD9", background: "transparent" }
-    : { color: "#3A4A6B", background: "transparent" };
+    ? { background: "#1E5AFF", color: "#FFFFFF", border: "none", boxShadow: "0 4px 12px rgba(30, 90, 255, 0.25)" }
+    : { color: accent ? "#0B3FD9" : "#4A5568", background: "transparent" };
   const iconBoxStyle = active
-    ? { background: "rgba(255,255,255,0.25)", color: "#FFFFFF" }
-    : { background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #D6E4FF", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.08)" };
+    ? { background: "rgba(255,255,255,0.2)", color: "#FFFFFF" }
+    : { background: "transparent", color: "inherit" };
   return (
     <Link
       to={to}
-      className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-200 hover:bg-white/40"
+      className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-black/5"
       style={baseStyle}
     >
-      <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition" style={iconBoxStyle}>
+      <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition" style={iconBoxStyle}>
         {icon}
       </div>
       <span className="text-[13px] font-semibold flex-1">{label}</span>
       {badge && (
-        <span className="font-bold text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ background: active ? "rgba(255,255,255,0.3)" : "#FF5A5A", color: "#FFFFFF" }}>
+        <span className="font-bold text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ background: active ? "rgba(255,255,255,0.3)" : "#FF3B3B", color: "#FFFFFF" }}>
           {badge}
         </span>
       )}
@@ -368,13 +366,11 @@ export default function Feed() {
 
       <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-0 backdrop-blur-[2px]">
         
-        {/* Left Sidebar (Desktop) — GREEN GRADIENT */}
-        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r backdrop-blur-md overflow-y-auto hide-scrollbar relative"
+        {/* Left Sidebar (Desktop) */}
+        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] overflow-y-auto hide-scrollbar relative"
           style={{
-            background: "linear-gradient(165deg, #F0FAF3 0%, #D6F5DE 40%, #C8F2D4 75%, #B8EDCA 100%)",
-            borderColor: "#A0E0B0",
-            backgroundImage: "radial-gradient(circle at 15% 85%, rgba(127,224,138,0.18) 0%, transparent 55%), radial-gradient(circle at 85% 15%, rgba(90,200,255,0.12) 0%, transparent 55%), radial-gradient(circle at 50% 50%, rgba(255,208,0,0.05) 0%, transparent 70%)",
-            boxShadow: "inset -1px 0 0 rgba(127, 224, 138, 0.25)"
+            background: "#EAF5E1",
+            borderRight: "none"
           }}
         >
            <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
@@ -386,7 +382,7 @@ export default function Feed() {
            </Link>
 
            <nav className="flex flex-col gap-1 flex-1">
-             <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mb-1.5" style={{ color: "#5A8A6A" }}>Main</p>
+             <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mb-2" style={{ color: "#64748B" }}>Main</p>
 
              <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
              <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
@@ -399,7 +395,7 @@ export default function Feed() {
                </div>
              } label="Profile" />
 
-             <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mt-4 mb-1.5" style={{ color: "#5A8A6A" }}>Tools</p>
+             <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mt-4 mb-2" style={{ color: "#64748B" }}>Tools</p>
 
              <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
 
@@ -453,8 +449,8 @@ export default function Feed() {
            
            <button
              onClick={() => setIsDropModalOpen(true)}
-             className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-2xl w-full py-3.5 text-sm transition-all hover:shadow-lg hover:scale-[1.02]"
-             style={{ background: "linear-gradient(90deg, #FFD000 0%, #FF9F1A 100%)", color: "#0A1A3D", boxShadow: "0 4px 18px rgba(255, 159, 26, 0.35)" }}
+             className="mt-6 shrink-0 flex items-center justify-center gap-2 font-bold rounded-xl w-full py-3.5 text-sm transition-all hover:opacity-90"
+             style={{ background: "#FFA500", color: "#0B1B3D", boxShadow: "0 4px 14px rgba(255, 173, 0, 0.25)" }}
            >
              <Plus className="w-4 h-4" /> NEW DROP
            </button>
@@ -464,7 +460,7 @@ export default function Feed() {
         <div 
           ref={feedScrollRef} 
           className="h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8 overscroll-y-none"
-          style={{ background: "#F6F8FC" }}
+          style={{ background: "#F8FAFC" }}
           onScroll={(e) => {
             const { scrollTop, scrollHeight, clientHeight } = e.target;
             if (scrollHeight - scrollTop <= clientHeight + 150) {
@@ -551,13 +547,13 @@ export default function Feed() {
               onClick={() => user ? setIsStatusModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
               className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0"
             >
-               <div className="relative w-16 h-16 rounded-full p-[2px]" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
-                  <div className="w-full h-full rounded-full border-[2px] overflow-hidden flex items-center justify-center" style={{ borderColor: "#F0FAF3", background: "#FFFFFF" }}>
+               <div className="relative w-16 h-16 rounded-full p-[2px]" style={{ background: "#1E5AFF" }}>
+                  <div className="w-full h-full rounded-full border-[2px] overflow-hidden flex items-center justify-center" style={{ borderColor: "#F8FAFC", background: "#FFFFFF" }}>
                     <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full text-sm font-black flex items-center justify-center border-2" style={{ background: "#FFD60A", color: "#0B1B3D", borderColor: "#F0FAF3" }}>+</div>
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full text-sm font-black flex items-center justify-center border-2" style={{ background: "#FFD000", color: "#0B1B3D", borderColor: "#F8FAFC" }}>+</div>
                </div>
-               <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#0B3FD9" }}>ADD STATUS</span>
+               <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#1E5AFF" }}>ADD STATUS</span>
             </button>
 
             {activeStories.map((story) => {
@@ -576,7 +572,7 @@ export default function Feed() {
                   onClick={() => setSelectedStory(story)}
                   className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0 opacity-90 hover:opacity-100 transition-opacity"
                 >
-                  <div className="w-16 h-16 rounded-full p-[2px]" style={{ background: "linear-gradient(135deg, #FFD60A 0%, #1FB8FF 100%)" }}>
+                  <div className="w-16 h-16 rounded-full p-[2px]" style={{ background: "#E2E8F0" }}>
                     <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center" style={{ background: "#FFFFFF" }}>
                       {story.story_type === "image" && story.media_url ? (
                         <img src={story.media_url} className="w-full h-full object-cover" />
@@ -598,11 +594,11 @@ export default function Feed() {
           </div>
 
           <div className="flex gap-2 sm:gap-3 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">
-            <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.25)" }}><Plus className="w-4 h-4" />Post</button>
-            <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}>Messages</Link>
-            <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}>Prayer Wall</Link>
-            <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "rgba(31, 184, 255, 0.12)", border: "1px solid #B8E5FF", color: "#0B3FD9" }}>Live</Link>
-            <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "linear-gradient(90deg, #FFD60A 0%, #FF9F1A 100%)", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 159, 26, 0.3)" }}>⚡ Daily Drops</Link>
+            <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#1D5BFE", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(29, 91, 254, 0.2)" }}><Plus className="w-4 h-4" />Post</button>
+            <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", color: "#0B1B3D" }}>Messages</Link>
+            <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0", color: "#0B1B3D" }}>Prayer Wall</Link>
+            <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#F0F5FF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>Live</Link>
+            <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#FFD000", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 208, 0, 0.2)" }}>⚡ Daily Drops</Link>
           </div>
 
           {/* Filter Bar */}
@@ -673,7 +669,7 @@ export default function Feed() {
         </div>
 
         {/* Right Sidebar (Desktop) */}
-        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l backdrop-blur-md overflow-y-auto hide-scrollbar" style={{ borderColor: "#EAEEF5", background: "linear-gradient(180deg, #FBFCFE 0%, #F6F9FD 100%)" }}>
+        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] overflow-y-auto hide-scrollbar" style={{ background: "#FFFFFF" }}>
           
           <DailyChallenges user={user} />
 
@@ -738,7 +734,7 @@ export default function Feed() {
                    <button 
                      onClick={() => followMutation.mutate(u.email)}
                      className="text-[9px] font-bold px-3 py-1.5 rounded-full transition shrink-0"
-                     style={{ border: "1px solid #1FB8FF", color: "#0B3FD9", background: "rgba(31, 184, 255, 0.08)" }}
+                     style={{ border: "1px solid #0B3FD9", color: "#0B3FD9", background: "#FFFFFF" }}
                    >
                      CONNECT
                    </button>
@@ -796,7 +792,7 @@ export default function Feed() {
                   </div>
                 } label="Profile" />
 
-                <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mt-4 mb-1.5" style={{ color: "#5A8A6A" }}>Tools</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mt-4 mb-2" style={{ color: "#64748B" }}>Tools</p>
                 <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
 
                 <button onClick={() => setIsResourcesOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition w-full text-left hover:bg-white/40" style={{ color: "#4A5878" }}>
@@ -834,7 +830,7 @@ export default function Feed() {
                   </div>
                 )}
               </nav>
-              <button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-2xl w-full py-4 text-sm hover:opacity-90 transition-opacity" style={{ background: "linear-gradient(90deg, #FFD000 0%, #FF9F1A 100%)", color: "#0A1A3D", boxShadow: "0 4px 18px rgba(255, 159, 26, 0.35)" }}>
+              <button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 font-bold rounded-xl w-full py-3.5 text-sm transition-all hover:opacity-90" style={{ background: "#FFA500", color: "#0B1B3D", boxShadow: "0 4px 14px rgba(255, 173, 0, 0.25)" }}>
                 <Plus className="w-4 h-4" /> NEW DROP
               </button>
             </div>
