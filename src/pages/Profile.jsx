@@ -19,6 +19,7 @@ import PostViewerModal from "@/components/profile/PostViewerModal";
 import StoryAnalyticsDashboard from "@/components/profile/StoryAnalyticsDashboard";
 import AppFooter from "@/components/AppFooter";
 import { getDisplayName } from "@/lib/displayName";
+import MobileProfile from "@/components/profile/MobileProfile";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -369,8 +370,161 @@ export default function Profile() {
     return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
   }
 
+  // MOBILE-ONLY branded shell — reuses same tab content by rendering a trimmed version
+  const mobileTabContent = (() => {
+    if (activeProfileTab === "drops") {
+      return (
+        <div className="grid grid-cols-2 gap-2">
+          {myDrops.length === 0 ? (
+            <div className="col-span-2 py-16 text-center rounded-2xl" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
+              <Grid className="w-8 h-8 mx-auto mb-2" style={{ color: "#1FB8FF" }} />
+              <p className="text-sm font-bold" style={{ color: "#0B1B3D" }}>No Drops Yet</p>
+              {isOwnProfile && (
+                <button onClick={() => setIsDropModalOpen(true)} className="mt-3 px-5 py-2 rounded-full text-xs font-black" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}>
+                  Share your first Drop
+                </button>
+              )}
+            </div>
+          ) : myDrops.map(drop => (
+            <button key={drop.id} onClick={() => setViewingDropId(drop.id)} className="aspect-[4/5] relative rounded-2xl overflow-hidden active:scale-95 transition"
+              style={{ background: drop.media_url ? "#FFFFFF" : "linear-gradient(135deg, #EEF3FF, #DDE7FB)", border: "1px solid #E6ECF5" }}
+            >
+              {drop.media_url ? (
+                <img src={drop.media_url} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center p-3 text-center">
+                  <span className="text-xs font-black font-['Space_Grotesk'] line-clamp-5" style={{ color: "#0B3FD9" }}>{drop.verse}</span>
+                </div>
+              )}
+              <div className="absolute bottom-1 left-1 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-black backdrop-blur-md" style={{ background: "rgba(11,27,61,0.55)", color: "#FFFFFF" }}>
+                <Heart className="w-2.5 h-2.5 fill-white" /> {drop.likes_count || 0}
+              </div>
+            </button>
+          ))}
+        </div>
+      );
+    }
+    if (activeProfileTab === "saved" && isOwnProfile) {
+      return (
+        <div className="grid grid-cols-2 gap-2">
+          {savedDrops.length === 0 ? (
+            <div className="col-span-2 py-16 text-center rounded-2xl" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
+              <Bookmark className="w-8 h-8 mx-auto mb-2" style={{ color: "#8A97B5" }} />
+              <p className="text-sm font-bold" style={{ color: "#0B1B3D" }}>No saved drops yet</p>
+            </div>
+          ) : savedDrops.map(drop => (
+            <button key={drop.id} onClick={() => setViewingDropId(drop.id)} className="aspect-[4/5] relative rounded-2xl overflow-hidden active:scale-95 transition"
+              style={{ background: drop.media_url ? "#FFFFFF" : "linear-gradient(135deg, #EEF3FF, #DDE7FB)", border: "1px solid #E6ECF5" }}
+            >
+              {drop.media_url ? <img src={drop.media_url} className="w-full h-full object-cover" /> : (
+                <div className="w-full h-full flex items-center justify-center p-3 text-center">
+                  <span className="text-xs font-black font-['Space_Grotesk'] line-clamp-5" style={{ color: "#0B3FD9" }}>{drop.verse}</span>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      );
+    }
+    if (activeProfileTab === "missions") {
+      return (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { value: myDrops.length, label: "Drops", color: "#0B3FD9" },
+              { value: challengeSubmissions.length, label: "Missions", color: "#CC7A00" },
+              { value: myMemberships.length, label: "Groups", color: "#1FB8FF" },
+              { value: user.glow_score || 0, label: "Total XP", color: "#0B1B3D" },
+            ].map((s, i) => (
+              <div key={i} className="rounded-2xl p-4 text-center" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
+                <div className="text-2xl font-black font-['Space_Grotesk']" style={{ color: s.color }}>{s.value}</div>
+                <div className="text-[10px] font-black uppercase tracking-wider mt-0.5" style={{ color: "#6B7FA0" }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    if (activeProfileTab === "badges") {
+      return <AchievementBadges user={user} myDrops={myDrops} myFollowing={myFollowing} myFollowers={myFollowers} myMemberships={myMemberships} mySupports={mySupports} challengeSubmissions={challengeSubmissions} certificates={certificates} />;
+    }
+    if (activeProfileTab === "institutions") {
+      return <ProfileInstitutionsTab profileEmail={profileEmail} isOwnProfile={isOwnProfile} />;
+    }
+    return null;
+  })();
+
   return (
-    <div className="min-h-screen pb-20 relative overflow-hidden font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+    <>
+    {/* MOBILE branded layout */}
+    <div className="md:hidden">
+      <MobileProfile
+        user={user}
+        currentUser={currentUser}
+        isOwnProfile={isOwnProfile}
+        profileEmail={profileEmail}
+        myDrops={myDrops}
+        myFollowers={myFollowers}
+        myFollowing={myFollowing}
+        myMemberships={myMemberships}
+        certificates={certificates}
+        onEditProfile={() => setIsEditing(true)}
+        onShareProfile={handleShareProfile}
+        onFollowToggle={() => followMutation.mutate(profileEmail)}
+        isFollowingThisUser={isFollowingThisUser}
+        onProfileImageSelect={(e) => handleImageSelect(e, "profile")}
+        onCoverImageSelect={(e) => handleImageSelect(e, "cover")}
+        uploadingImage={uploadingImage}
+        onSetConnectionsView={setConnectionsView}
+        activeTab={activeProfileTab === "story_analytics" ? "drops" : activeProfileTab}
+        onTabChange={setActiveProfileTab}
+        userInstitutionApps={userInstitutionApps}
+      >
+        {mobileTabContent}
+      </MobileProfile>
+
+      {/* Modals shared across mobile */}
+      {cropData && (
+        <ImageCropperModal file={cropData.file} aspectRatio={cropData.aspectRatio} onCancel={() => setCropData(null)} onCrop={handleCropComplete} />
+      )}
+      <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
+      <PledgeModal isOpen={pledgeModalOpen} onClose={() => setPledgeModalOpen(false)} onSigned={async () => {
+        setPledgeModalOpen(false);
+        const updated = await base44.auth.me();
+        setUser(updated); setCurrentUser(updated);
+      }} />
+      <PledgeModal isOpen={viewPledgeOpen} onClose={() => setViewPledgeOpen(false)} readOnly signedAt={user?.pledge_signed_at} />
+      <ProfileConnectionsModal
+        title={connectionsView}
+        items={connectionsView === "Followers" ? myFollowers.map((item) => ({ email: item.follower_email })) : myFollowing.map((item) => ({ email: item.following_email }))}
+        allUsers={allUsersForProfile}
+        currentUserEmail={currentUser?.email}
+        currentUserFollowing={currentUserFollowing}
+        onClose={() => setConnectionsView(null)}
+        onToggleFollow={(email) => followMutation.mutate(email)}
+      />
+      {isEditing && isOwnProfile && (
+        <EditProfileModal isOpen={isEditing} onClose={() => setIsEditing(false)} user={user}
+          onSaved={(updated) => { setUser(prev => ({ ...prev, ...updated })); setCurrentUser(prev => ({ ...prev, ...updated })); }}
+        />
+      )}
+      <PostViewerModal
+        isOpen={!!viewingDropId}
+        onClose={() => setViewingDropId(null)}
+        drops={activeProfileTab === "saved" ? savedDrops : myDrops}
+        initialDropId={viewingDropId}
+        user={user}
+        currentUser={currentUser}
+        allUsers={allUsersForProfile}
+        likeMutation={profileLikeMutation}
+        handleShare={handleDropShare}
+        userLikes={profileUserLikes}
+        savedDropRecords={profileSavedDrops}
+      />
+    </div>
+
+    {/* DESKTOP original layout */}
+    <div className="hidden md:block min-h-screen pb-20 relative overflow-hidden font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       <style>{`
         @keyframes float-light {
           0%, 100% { transform: translateY(0) scale(1); opacity: 0.15; }
@@ -872,5 +1026,6 @@ export default function Profile() {
       />
       <AppFooter />
     </div>
+    </>
   );
 }

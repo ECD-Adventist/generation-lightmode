@@ -26,6 +26,7 @@ import StatusViewerModal from "@/components/feed/StatusViewerModal";
 import OnboardingModal from "@/components/dashboard/OnboardingModal";
 import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModal";
 import MyGlowGroupsSidebar from "@/components/feed/MyGlowGroupsSidebar";
+import MobileFeed from "@/components/feed/MobileFeed";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
@@ -358,7 +359,47 @@ export default function Feed() {
       <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] rounded-full blur-[120px] z-0 opacity-30 pointer-events-none animate-[float-light_8s_ease-in-out_infinite]" style={{ background: "#7FE08A" }}></div>
       <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] rounded-full blur-[140px] z-0 opacity-25 pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]" style={{ background: "#5AC8FF" }}></div>
 
-      <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-0 backdrop-blur-[2px]">
+      {/* MOBILE: branded redesign */}
+      <div className="lg:hidden h-[100dvh] overflow-y-auto">
+        <MobileFeed
+          user={user}
+          notifications={notifications}
+          searchQuery={searchQuery}
+          onSearch={setSearchQuery}
+          activeFilter={activeFilter}
+          onFilterChange={setActiveFilter}
+          stories={activeStories}
+          getUserInfo={getUserInfo}
+          onOpenStatus={(s) => setSelectedStory(s)}
+          onOpenStatusComposer={() => user ? setIsStatusModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
+          onOpenDropModal={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
+          filteredDrops={filteredDrops}
+          displayCount={displayCount}
+          drops={drops}
+          likeMutation={likeMutation}
+          handleShare={handleShare}
+          userLikes={userLikes}
+          allUsers={users}
+          savedDropRecords={savedDropRecords}
+          isLoading={dropsLoading}
+          isError={dropsError}
+          onRefetch={() => queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] })}
+        />
+        <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
+        <StatusComposerModal isOpen={isStatusModalOpen} onClose={() => setIsStatusModalOpen(false)} user={user} />
+        <StatusViewerModal
+          story={selectedStory}
+          storyUser={selectedStory ? getUserInfo(selectedStory.user_email) : null}
+          isOpen={!!selectedStory}
+          onClose={() => setSelectedStory(null)}
+          allStories={stories}
+          allUsers={users}
+          getUserInfo={getUserInfo}
+          currentUser={user}
+        />
+      </div>
+
+      <div className="hidden lg:grid h-full relative z-10 grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-0 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
         <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] overflow-y-auto hide-scrollbar relative"
