@@ -9,6 +9,7 @@ import DropCard from "@/components/feed/DropCard";
 import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
 import AppFooter from "@/components/AppFooter";
 import { getDisplayName } from "@/lib/displayName";
+import MobileDiscover from "@/components/discover/MobileDiscover";
 
 export default function Discover() {
   const navigate = useNavigate();
@@ -93,6 +94,20 @@ export default function Discover() {
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+      {/* MOBILE: Instagram-style Explore/Search */}
+      <div className="md:hidden">
+        <MobileDiscover
+          user={user}
+          drops={drops}
+          allUsers={allUsers}
+          trendingTags={trendingTags}
+          topLikedDrops={topLikedDrops}
+          getUserInfo={getUserInfo}
+        />
+      </div>
+
+      {/* DESKTOP: original design */}
+      <div className="hidden md:block">
       {/* Nav */}
       <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
@@ -213,6 +228,7 @@ export default function Discover() {
         </div>
       </div>
       <AppFooter />
+      </div>
     </div>
   );
 }
