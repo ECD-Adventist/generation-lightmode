@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
+import { useQueryClient } from "@tanstack/react-query";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 
 export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
   const [uploadingImage, setUploadingImage] = useState(false);
   const [cropData, setCropData] = useState(null);
   const profileInputRef = useRef(null);
@@ -90,11 +92,17 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
       if (!res.data?.success) throw new Error(res.data?.error || "Save failed");
 
       // Small delay then re-fetch fresh user
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 300));
       const updated = await base44.auth.me();
 
       // Prefer the just-saved values so the profile reflects them immediately
       const merged = { ...updated, ...editData, full_name: editData.full_name.trim() };
+
+      // Invalidate caches so Profile page + public user lists re-fetch fresh data
+      queryClient.invalidateQueries({ queryKey: ["allUsersForProfile"] });
+      queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["overviewPublicUsers"] });
+
       toast.success("Profile saved! ✨");
       onSaved(merged);
       onClose();
