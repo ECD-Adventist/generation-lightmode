@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import DropCard from "@/components/feed/DropCard";
 import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
 import AppFooter from "@/components/AppFooter";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function Discover() {
   const navigate = useNavigate();
@@ -192,7 +193,7 @@ export default function Discover() {
                       <img src={creator.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-bold truncate transition" style={{ color: "#0B1B3D" }}>{creator.full_name || creator.email?.split("@")[0]}</div>
+                      <div className="text-sm font-bold truncate transition" style={{ color: "#0B1B3D" }}>{getDisplayName(creator)}</div>
                       <div className="text-xs flex items-center gap-1" style={{ color: "#6B7FA0" }}><Heart className="w-3 h-3 text-red-400" />{creator.totalLikes} likes</div>
                     </div>
                   </Link>
