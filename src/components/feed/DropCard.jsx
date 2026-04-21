@@ -229,7 +229,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   return (
     <div
-      className="bg-card border border-border shadow-sm rounded-[1.75rem] sm:rounded-[2.25rem] mb-6 sm:mb-8 p-2 sm:p-3 transition-all duration-300 group hover:-translate-y-0.5"
+      className="bg-white border border-[#E2E8F0] shadow-sm rounded-[1.75rem] sm:rounded-[2.25rem] mb-6 sm:mb-8 p-3 sm:p-4 transition-all duration-300 group hover:-translate-y-0.5"
     >
       <style>{`
         @keyframes dc-heart-burst {
@@ -268,7 +268,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         className={`relative w-full rounded-xl sm:rounded-[1.5rem] overflow-hidden shadow-inner ${
           drop.media_url
             ? 'aspect-[4/5] sm:aspect-[3/4] bg-muted/50'
-            : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center bg-muted/30'
+            : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center bg-gradient-to-b from-[#F0F5FF] to-[#E2EAFC]'
         }`}
         onDoubleClick={() => {
           setLikeBurst(true);
@@ -288,7 +288,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             <HoverCardTrigger asChild>
               <Link
                 to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
-                className={`flex items-center gap-2 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1 cursor-pointer transition no-underline border ${drop.media_url ? "bg-black/35 border-white/15" : "bg-background/80 border-border"}`}
+                className={`flex items-center gap-2 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1 cursor-pointer transition no-underline border ${drop.media_url ? "bg-black/35 border-white/15" : "bg-white/80 border-white shadow-sm"}`}
               >
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full p-[2px] shrink-0" style={{ background: drop.user_email === "system@lightmode.com" ? "linear-gradient(135deg, #FFD000 0%, #1FB8FF 50%, #0B3FD9 100%)" : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
                   <div className="w-full h-full rounded-full flex items-center justify-center font-bold text-xs uppercase overflow-hidden" style={{ background: "#FFFFFF" }}>
@@ -296,7 +296,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   </div>
                 </div>
                 <div className="flex flex-col items-start justify-center min-w-0">
-                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 truncate max-w-[140px] sm:max-w-none ${drop.media_url ? "text-white" : "text-foreground"}`}>
+                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 truncate max-w-[140px] sm:max-w-none ${drop.media_url ? "text-white" : "text-[#0B1B3D]"}`}>
                     {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : (dropUser.full_name || dropUser.email?.split('@')[0] || "Glow Believer")}
                     {drop.user_email === "system@lightmode.com" ? (
                        <span className="flex items-center justify-center w-3 h-3 rounded-full ml-0.5" style={{ background: "#1FB8FF", color: "#FFFFFF" }}>
@@ -310,7 +310,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                       </span>
                     )}
                   </span>
-                  <span className={`text-[9px] sm:text-[10px] font-medium leading-none ${drop.media_url ? "text-white/80" : "text-muted-foreground"}`}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
+                  <span className={`text-[9px] sm:text-[10px] font-medium leading-none ${drop.media_url ? "text-white/80" : "text-[#6B7FA0]"}`}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
                 </div>
               </Link>
             </HoverCardTrigger>
@@ -333,14 +333,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         {!drop.media_url && (
           <>
-            <div className="absolute top-4 left-4 w-20 h-20 rounded-full blur-2xl opacity-20 pointer-events-none bg-cyan-400" />
-            <div className="absolute bottom-8 right-16 w-32 h-32 rounded-full blur-3xl opacity-15 pointer-events-none bg-blue-600" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[60px] opacity-10 pointer-events-none bg-amber-400" />
-            <div className="absolute top-6 left-6 text-[80px] sm:text-[120px] leading-none font-serif pointer-events-none select-none z-0 text-blue-600/5">"</div>
+            <div className="absolute top-6 left-6 text-[80px] sm:text-[120px] leading-none font-serif pointer-events-none select-none z-0 text-[#2B60FF]" style={{ opacity: 0.05 }}>"</div>
             
             <div className="p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center">
               {drop.verse && (
-                <h2 className="text-lg sm:text-3xl lg:text-4xl font-bold font-['Space_Grotesk'] mb-3 sm:mb-6 leading-tight line-clamp-4 text-blue-600 dark:text-blue-400">
+                <h2 className="text-lg sm:text-3xl lg:text-4xl font-bold font-['Space_Grotesk'] mb-3 sm:mb-6 leading-tight line-clamp-4 text-[#2B60FF]">
                   {drop.verse}
                 </h2>
               )}
@@ -349,12 +346,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   ? drop.reflection.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
                   : drop.reflection;
                 return (
-                  <p className="text-sm sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic line-clamp-4 sm:line-clamp-none text-muted-foreground">
+                  <p className="text-sm sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic line-clamp-4 sm:line-clamp-none text-[#3A4B6B]">
                     "{plain.length > 140 ? plain.slice(0, 140) + '…' : plain}"
                   </p>
                 );
               })()}
-              <div className="mt-6 w-16 h-1 rounded-full bg-gradient-to-r from-blue-600 to-cyan-400" />
+              <div className="mt-6 w-16 h-1 rounded-full bg-gradient-to-r from-[#2B60FF] to-[#00CFFF]" />
             </div>
           </>
         )}
@@ -365,55 +362,55 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           </div>
         )}
 
-        <div className="absolute right-2 sm:right-3 bottom-4 sm:bottom-6 z-20 flex flex-col items-center gap-3 sm:gap-5">
-          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
+        <div className="absolute right-2 sm:right-4 bottom-4 sm:bottom-6 z-20 flex flex-col items-center gap-3 sm:gap-4">
+          <div className="flex flex-col items-center gap-1">
             <button
               onClick={handleLike}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none border ${likeBurst ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-black/35 border-white/25" : "bg-background/85 border-border shadow-sm"}`}
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${likeBurst ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-black/35 border border-white/25" : "bg-white shadow-sm border border-transparent"}`}
               title={userHasLiked ? "Unlike this drop" : "Like this drop"}
             >
-              <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${likeBurst ? 'dc-anim-like' : ''} ${userHasLiked ? "text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : drop.media_url ? "text-white hover:scale-110" : "text-blue-600 dark:text-blue-400 hover:scale-110"}`} />
+              <Heart className={`w-5 h-5 sm:w-5 sm:h-5 transition-all ${likeBurst ? 'dc-anim-like' : ''} ${userHasLiked ? "text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : drop.media_url ? "text-white hover:scale-110" : "text-[#2B60FF] hover:scale-110"}`} />
             </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-muted-foreground"}`}>{drop.likes_count || 0}</span>
+            <span className={`text-[11px] font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-[#3A4B6B]"}`}>{drop.likes_count || 0}</span>
           </div>
 
-          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
+          <div className="flex flex-col items-center gap-1">
             <button
               onClick={handleCommentToggle}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none border ${drop.media_url ? "bg-black/35 border-white/25" : "bg-background/85 border-border shadow-sm"}`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${drop.media_url ? "bg-black/35 border border-white/25" : "bg-white shadow-sm border border-transparent"}`}
             >
-              <MessageCircle className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${commentBounce ? 'dc-anim-bounce' : ''} ${showComments ? "text-cyan-500" : drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
+              <MessageCircle className={`w-5 h-5 sm:w-5 sm:h-5 transition-transform hover:scale-110 ${commentBounce ? 'dc-anim-bounce' : ''} ${showComments ? "text-[#00CFFF]" : drop.media_url ? "text-white" : "text-[#2B60FF]"}`} />
             </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-muted-foreground"}`}>{comments.length}</span>
+            <span className={`text-[11px] font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-[#3A4B6B]"}`}>{comments.length}</span>
           </div>
 
-          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
+          <div className="flex flex-col items-center gap-1">
             <button
               onClick={handleShareClick}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none border ${sharePulse ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-black/35 border-white/25" : "bg-background/85 border-border shadow-sm"}`}
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${sharePulse ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-black/35 border border-white/25" : "bg-white shadow-sm border border-transparent"}`}
             >
-              <Share2 className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${sharePulse ? 'dc-anim-bounce' : ''} ${drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
+              <Share2 className={`w-5 h-5 sm:w-5 sm:h-5 transition-transform hover:scale-110 ${sharePulse ? 'dc-anim-bounce' : ''} ${drop.media_url ? "text-white" : "text-[#2B60FF]"}`} />
             </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-muted-foreground"}`}>{drop.shares_count || 0}</span>
+            <span className={`text-[11px] font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-[#3A4B6B]"}`}>{drop.shares_count || 0}</span>
           </div>
 
-          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
+          <div className="flex flex-col items-center gap-1">
             <button
               onClick={handleSaveClick}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none border ${drop.media_url ? "bg-black/35 border-white/25" : "bg-background/85 border-border shadow-sm"}`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${drop.media_url ? "bg-black/35 border border-white/25" : "bg-white shadow-sm border border-transparent"}`}
             >
-              <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${saveBounce ? 'dc-anim-bounce' : ''} ${isSaved ? "fill-amber-400 text-amber-400" : drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
+              <Bookmark className={`w-5 h-5 sm:w-5 sm:h-5 transition-transform hover:scale-110 ${saveBounce ? 'dc-anim-bounce' : ''} ${isSaved ? "fill-[#2B60FF] text-[#2B60FF]" : drop.media_url ? "text-white" : "text-[#2B60FF]"}`} />
             </button>
           </div>
 
-          <div className="flex flex-col items-center gap-1 sm:gap-1.5 mt-1 sm:mt-2">
+          <div className="flex flex-col items-center gap-1 mt-1 sm:mt-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
                   onClick={(e) => e.stopPropagation()}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full backdrop-blur-xl flex items-center justify-center transition-all focus:outline-none border ${drop.media_url ? "bg-black/35 border-white/25" : "bg-background/85 border-border shadow-sm"}`}
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all focus:outline-none ${drop.media_url ? "bg-black/35 border border-white/25" : "bg-white shadow-sm border border-transparent"}`}
                 >
-                  <MoreHorizontal className={`w-4 h-4 ${drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
+                  <MoreHorizontal className={`w-4 h-4 ${drop.media_url ? "text-white" : "text-[#2B60FF]"}`} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-card border border-border text-foreground w-40 z-50">
@@ -448,27 +445,27 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       {(drop.verse || drop.reflection) && (
         <div className="px-3 sm:px-4 pt-3 pb-1">
           {getRepostOwner(drop.reflection) && (
-            <p className="text-xs mb-2 text-muted-foreground">
-              Reposted from <Link to={getRepostOwner(drop.reflection) === "Generation LightMode" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-semibold hover:underline text-blue-600 dark:text-blue-400">{getRepostOwner(drop.reflection)}</Link>
+            <p className="text-xs mb-2 text-[#6B7FA0]">
+              Reposted from <Link to={getRepostOwner(drop.reflection) === "Generation LightMode" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-semibold hover:underline text-[#2B60FF]">{getRepostOwner(drop.reflection)}</Link>
             </p>
           )}
           {drop.verse && (
-            <div className="font-bold text-sm mb-1 break-words text-blue-600 dark:text-blue-400">
+            <div className="font-bold text-sm mb-1 break-words text-[#2B60FF]">
               {drop.verse}
             </div>
           )}
           {cleanReflection(drop.reflection) && (
             containsHtml(cleanReflection(drop.reflection)) ? (
               <div
-                className="text-sm leading-relaxed prose prose-sm max-w-none break-words prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-strong:text-foreground prose-headings:text-foreground [&_iframe]:w-full [&_iframe]:rounded-lg [&_iframe]:aspect-video [&_img]:rounded-lg [&_img]:max-w-full [&_p]:break-words [&_a]:break-all text-muted-foreground"
+                className="text-sm leading-relaxed prose prose-sm max-w-none break-words prose-a:text-[#2B60FF] prose-strong:text-[#0B1B3D] prose-headings:text-[#0B1B3D] [&_iframe]:w-full [&_iframe]:rounded-lg [&_iframe]:aspect-video [&_img]:rounded-lg [&_img]:max-w-full [&_p]:break-words [&_a]:break-all text-[#3A4B6B]"
                 dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(cleanReflection(drop.reflection)) }}
               />
             ) : (
               <ReadMoreText
                 text={cleanReflection(drop.reflection)}
                 lines={3}
-                className="text-sm leading-relaxed break-words text-muted-foreground"
-                toggleColor="#3b82f6"
+                className="text-sm leading-relaxed break-words text-[#3A4B6B]"
+                toggleColor="#2B60FF"
               />
             )
           )}
@@ -480,12 +477,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         <div className="px-2 sm:px-3 pt-2 sm:pt-3 pb-1">
           <div className="flex items-center gap-2 flex-wrap">
             {drop.category && (
-              <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-cyan-500/10 text-blue-600 dark:text-blue-400 border border-cyan-500/30">
+              <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-[#F0F5FF] text-[#2B60FF] border border-[#D6E4FF]">
                 {drop.category}
               </span>
             )}
             {drop.hashtags && (
-              <div className="text-[12px] sm:text-[13px] font-medium opacity-90 break-words w-full text-blue-600 dark:text-blue-400">
+              <div className="text-[12px] sm:text-[13px] font-medium opacity-90 break-words w-full text-[#2B60FF]">
                 {drop.hashtags.split(' ').map(t => t.startsWith('#') ? t : `#${t}`).join(' ')}
               </div>
             )}
@@ -494,8 +491,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       )}
 
       {/* Engagement Metrics */}
-      <div className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 flex items-center gap-4 sm:gap-6 text-xs border-t border-border flex-wrap text-muted-foreground">
-        <div className="flex items-center gap-1.5 transition cursor-default">
+      <div className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 flex items-center gap-4 sm:gap-6 text-xs border-t border-[#E2E8F0] flex-wrap text-[#4A5568]">
+        <div className="flex items-center gap-1.5 transition cursor-default text-[#4A5568]">
           <Heart className="w-4 h-4" fill="currentColor" />
           <span className="font-semibold">{drop.likes_count || 0}</span>
           <span className="hidden sm:inline">Lights</span>

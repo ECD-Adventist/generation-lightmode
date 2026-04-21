@@ -83,36 +83,35 @@ Return JSON with "suggestions" array, each with "topic" (compelling short title,
     return (
       <button
         onClick={generateSuggestions}
-        className="w-full rounded-[20px] p-4 mb-6 flex items-center gap-3 transition-all hover:shadow-lg group"
-        style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0", boxShadow: "0 4px 16px rgba(255, 159, 26, 0.1)" }}
+        className="w-full rounded-[24px] p-5 mb-6 flex items-center gap-4 transition-all hover:shadow-lg group"
+        style={{ background: "linear-gradient(90deg, #FFF5D1 0%, #FFF9E5 100%)", border: "none", boxShadow: "0 4px 16px rgba(255, 208, 0, 0.05)" }}
       >
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #FFD60A, #FF9F1A)" }}>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#FFB400" }}>
           <Sparkles className="w-5 h-5 text-white" />
         </div>
         <div className="text-left flex-1">
           <div className="font-bold text-sm" style={{ color: "#0B1B3D" }}>AI-Powered Suggestions</div>
-          <div className="text-[11px]" style={{ color: "#8A6A20" }}>Get personalized content picks based on your activity</div>
+          <div className="text-[10px] mt-0.5" style={{ color: "#6B7FA0" }}>Get personalized content picks based on your activity</div>
         </div>
-        <ChevronRight className="w-4 h-4 opacity-50 group-hover:opacity-100 transition" style={{ color: "#FF9F1A" }} />
+        <ChevronRight className="w-4 h-4 opacity-50 group-hover:opacity-100 transition" style={{ color: "#8A97B5" }} />
       </button>
     );
   }
 
   return (
-    <div className="rounded-[20px] p-5 mb-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0", boxShadow: "0 4px 16px rgba(255, 159, 26, 0.1)" }}>
-      <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-3xl opacity-20 pointer-events-none" style={{ background: "#FFD60A" }} />
+    <div className="rounded-[24px] p-5 mb-6 relative overflow-hidden" style={{ background: "linear-gradient(90deg, #FFF5D1 0%, #FFF9E5 100%)", border: "none", boxShadow: "0 4px 16px rgba(255, 208, 0, 0.05)" }}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4" style={{ color: "#FF9F1A" }} />
-          <h3 className="font-black text-xs tracking-widest uppercase" style={{ color: "#CC7A00" }}>For You</h3>
+          <Sparkles className="w-4 h-4" style={{ color: "#FFB400" }} />
+          <h3 className="font-black text-[11px] tracking-widest uppercase" style={{ color: "#0B1B3D" }}>For You</h3>
         </div>
-        <button onClick={generateSuggestions} disabled={loading} className="p-1.5 rounded-lg transition hover:bg-white/50" style={{ color: "#CC7A00" }}>
+        <button onClick={generateSuggestions} disabled={loading} className="p-1.5 rounded-lg transition hover:bg-white/50" style={{ color: "#8A97B5" }}>
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
         </button>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-6 gap-2 text-sm" style={{ color: "#CC7A00" }}>
+        <div className="flex items-center justify-center py-6 gap-2 text-sm" style={{ color: "#8A97B5" }}>
           <RefreshCw className="w-4 h-4 animate-spin" /> Thinking...
         </div>
       ) : suggestions && suggestions.length > 0 ? (
@@ -124,19 +123,19 @@ Return JSON with "suggestions" array, each with "topic" (compelling short title,
               className="w-full text-left rounded-xl px-3 py-2.5 transition-all hover:bg-white/60 group"
             >
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black shrink-0" style={{ background: i === 0 ? "linear-gradient(135deg, #FFD60A, #FF9F1A)" : "#FFF0CC", color: i === 0 ? "#FFFFFF" : "#CC7A00" }}>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black shrink-0" style={{ background: i === 0 ? "#FFB400" : "#FFF0CC", color: i === 0 ? "#FFFFFF" : "#0B1B3D" }}>
                   {i + 1}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{s.topic}</div>
-                  <div className="text-[10px] truncate" style={{ color: "#8A6A20" }}>{s.description}</div>
+                  <div className="text-[10px] truncate" style={{ color: "#6B7FA0" }}>{s.description}</div>
                 </div>
               </div>
             </button>
           ))}
         </div>
       ) : (
-        <p className="text-xs text-center py-4" style={{ color: "#CC7A00" }}>No suggestions available. Try again!</p>
+        <p className="text-xs text-center py-4" style={{ color: "#8A97B5" }}>No suggestions available. Try again!</p>
       )}
     </div>
   );
