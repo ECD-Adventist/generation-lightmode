@@ -1,11 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Zap, Users, User } from "lucide-react";
+import { Zap, Users, User, Search, MessageCircle } from "lucide-react";
 
 const tabs = [
   { key: "Feed", label: "Feed", icon: Zap, match: ["Feed", "GlowFeed", "Post"] },
+  { key: "Discover", label: "Search", icon: Search, match: ["Discover"] },
   { key: "GlowGroups", label: "Groups", icon: Users, match: ["GlowGroups", "GroupChat", "GroupSession"] },
+  { key: "Messages", label: "Messages", icon: MessageCircle, match: ["Messages"] },
   { key: "Profile", label: "Profile", icon: User, match: ["Profile", "Settings"] },
 ];
 
