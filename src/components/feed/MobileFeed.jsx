@@ -84,43 +84,33 @@ export default function MobileFeed({
           </Link>
         </div>
 
-        {/* Greeting + status chip */}
-        <div className="relative mt-4 flex items-end gap-3">
-          <Link to={createPageUrl("Profile")} className="shrink-0 w-12 h-12 rounded-full p-[2px]" style={{ background: "linear-gradient(135deg, #FFD000, #FFFFFF, #1FB8FF)" }}>
-            <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#0B3FD9", border: "2px solid #0B3FD9" }}>
-              <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-            </div>
-          </Link>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-white/70">
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#FFD000", animation: "mf-pulse-dot 2s ease-in-out infinite" }} />
-              {greeting}
-            </div>
-            <h1 className="text-[22px] font-black font-['Space_Grotesk'] text-white leading-tight truncate">
-              Hey, {firstName} <span style={{ color: "#FFD000" }}>⚡</span>
-            </h1>
-            <div className="text-[11px] text-white/75 mt-0.5 font-semibold truncate">Your light is needed today.</div>
+        {/* Greeting */}
+        <div className="relative mt-5">
+          <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-white/75">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#FFD000", animation: "mf-pulse-dot 2s ease-in-out infinite" }} />
+            {greeting}
           </div>
+          <h1 className="text-[26px] font-black font-['Space_Grotesk'] text-white leading-tight truncate mt-1">
+            Hey, {firstName} <span style={{ color: "#FFD000" }}>⚡</span>
+          </h1>
+          <div className="text-[12px] text-white/80 mt-1 font-semibold">Your light is needed today.</div>
         </div>
       </div>
 
       {/* COMPOSE PROMPT — floating card over hero */}
-      <div className="px-3 -mt-10 relative z-10 mb-4">
-        <div className="rounded-[1.25rem] p-3 flex items-center gap-2.5" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.15)" }}>
-          <div className="shrink-0 w-10 h-10 rounded-full overflow-hidden" style={{ border: "2px solid #EEF3FF" }}>
-            <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-          </div>
-          <button
-            onClick={onOpenDropModal}
-            className="flex-1 text-left text-[13px] font-semibold py-2.5 px-4 rounded-full active:scale-[0.98] transition truncate"
-            style={{ background: "#F6F8FC", color: "#6B7FA0", border: "1px solid #E6ECF5" }}
-          >
+      <div className="px-3 -mt-9 relative z-10 mb-4">
+        <button
+          onClick={onOpenDropModal}
+          className="w-full rounded-[1.25rem] p-3 flex items-center gap-2.5 active:scale-[0.99] transition text-left"
+          style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.15)" }}
+        >
+          <div className="flex-1 text-[13px] font-semibold py-2.5 px-4 rounded-full truncate" style={{ background: "#F6F8FC", color: "#6B7FA0", border: "1px solid #E6ECF5" }}>
             Share a light drop, {firstName}…
-          </button>
-          <button onClick={onOpenDropModal} className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "linear-gradient(135deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 159, 26, 0.4)" }}>
+          </div>
+          <div className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 159, 26, 0.4)" }}>
             <Plus className="w-5 h-5" strokeWidth={3} />
-          </button>
-        </div>
+          </div>
+        </button>
       </div>
 
       {/* STORIES */}
@@ -245,18 +235,6 @@ export default function MobileFeed({
         )}
       </div>
 
-      {/* Floating Compose FAB */}
-      <button
-        onClick={onOpenDropModal}
-        className="fixed bottom-24 right-4 z-40 w-14 h-14 rounded-full flex items-center justify-center active:scale-90 transition"
-        style={{
-          background: "linear-gradient(135deg, #FFD000, #FF9F1A)",
-          color: "#0B1B3D",
-          boxShadow: "0 10px 28px rgba(255, 159, 26, 0.55), 0 0 0 4px rgba(255, 208, 0, 0.2)",
-        }}
-      >
-        <Plus className="w-6 h-6" strokeWidth={3} />
-      </button>
     </div>
   );
 }
