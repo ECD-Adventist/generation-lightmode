@@ -33,8 +33,8 @@ export default function MyGlowGroupsSidebar({ userEmail }) {
 
   return (
     <div className="mt-4">
-      <div className="flex items-center justify-between px-3 mb-2 mt-4">
-        <p className="text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: "#64748B" }}>My Groups</p>
+      <div className="flex items-center justify-between px-3 mb-1.5">
+        <p className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: "#8A97B5" }}>My Groups</p>
         <Link to={createPageUrl("GlowGroups")} className="text-[10px] font-bold no-underline" style={{ color: "#0B3FD9" }}>See all</Link>
       </div>
       <div className="flex flex-col gap-0.5">
@@ -44,10 +44,10 @@ export default function MyGlowGroupsSidebar({ userEmail }) {
             <Link
               key={group.id}
               to={`${createPageUrl("GlowGroups")}?group=${encodeURIComponent(group.id)}`}
-              className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-black/5 no-underline"
+              className="group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-200 hover:bg-white/40 no-underline"
             >
-              <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition" style={{ background: "transparent" }}>
-                <Users className="w-5 h-5" style={{ color: "#4A5568" }} />
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(31,184,255,0.1)", border: "1px solid #D6E4FF" }}>
+                <Users className="w-3.5 h-3.5" style={{ color: "#0B3FD9" }} />
               </div>
               <div className="flex-1 min-w-0">
                 <span className="text-[13px] font-semibold truncate block" style={{ color: "#3A4A6B" }}>{group.name}</span>

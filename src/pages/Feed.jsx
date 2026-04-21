@@ -28,24 +28,26 @@ import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModa
 import MyGlowGroupsSidebar from "@/components/feed/MyGlowGroupsSidebar";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
-  const baseStyle = active
-    ? { background: "#1E5AFF", color: "#FFFFFF", border: "none", boxShadow: "0 4px 12px rgba(30, 90, 255, 0.25)" }
-    : { color: accent ? "#0B3FD9" : "#4A5568", background: "transparent" };
-  const iconBoxStyle = active
-    ? { background: "rgba(255,255,255,0.2)", color: "#FFFFFF" }
-    : { background: "transparent", color: "inherit" };
   return (
     <Link
       to={to}
-      className="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-black/5"
-      style={baseStyle}
+      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200"
+      style={active
+        ? { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }
+        : { color: accent ? "#0B3FD9" : "#3A4A6B", background: "transparent" }}
+      onMouseOver={e => { if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.4)"; }}
+      onMouseOut={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
     >
-      <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition" style={iconBoxStyle}>
+      <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition"
+        style={active
+          ? { background: "rgba(255,255,255,0.25)", color: "#FFFFFF" }
+          : { background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #D6E4FF", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.08)" }}
+      >
         {icon}
       </div>
       <span className="text-[13px] font-semibold flex-1">{label}</span>
       {badge && (
-        <span className="font-bold text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ background: active ? "rgba(255,255,255,0.3)" : "#FF3B3B", color: "#FFFFFF" }}>
+        <span className="font-bold text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ background: active ? "rgba(255,255,255,0.3)" : "#FF5A5A", color: "#FFFFFF" }}>
           {badge}
         </span>
       )}
@@ -366,11 +368,13 @@ export default function Feed() {
 
       <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-0 backdrop-blur-[2px]">
         
-        {/* Left Sidebar (Desktop) */}
-        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] overflow-y-auto hide-scrollbar relative"
+        {/* Left Sidebar (Desktop) — GREEN GRADIENT */}
+        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r overflow-y-auto hide-scrollbar relative"
           style={{
-            background: "#EAF5E1",
-            borderRight: "none"
+            background: "linear-gradient(165deg, #F0FAF3 0%, #D6F5DE 40%, #C8F2D4 75%, #B8EDCA 100%)",
+            borderColor: "#A0E0B0",
+            backgroundImage: "radial-gradient(circle at 15% 85%, rgba(127,224,138,0.18) 0%, transparent 55%), radial-gradient(circle at 85% 15%, rgba(90,200,255,0.12) 0%, transparent 55%), radial-gradient(circle at 50% 50%, rgba(255,208,0,0.05) 0%, transparent 70%)",
+            boxShadow: "inset -1px 0 0 rgba(127, 224, 138, 0.25)"
           }}
         >
            <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
@@ -382,7 +386,7 @@ export default function Feed() {
            </Link>
 
            <nav className="flex flex-col gap-1 flex-1">
-             <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mb-2" style={{ color: "#64748B" }}>Main</p>
+             <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mb-1.5" style={{ color: "#5A8A6A" }}>Main</p>
 
              <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
              <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
@@ -395,7 +399,7 @@ export default function Feed() {
                </div>
              } label="Profile" />
 
-             <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mt-4 mb-2" style={{ color: "#64748B" }}>Tools</p>
+             <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mt-4 mb-1.5" style={{ color: "#5A8A6A" }}>Tools</p>
 
              <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
 
@@ -404,8 +408,8 @@ export default function Feed() {
                className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left hover:bg-white/40"
                style={{ color: "#3A4A6B" }}
              >
-               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm" style={{ background: "#FFFFFF", border: "1px solid #D6E4FF" }}>📚</div>
-               <span className="text-sm font-semibold flex-1">Resources</span>
+               <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #D6E4FF", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.08)" }}>📚</div>
+               <span className="text-[13px] font-semibold flex-1">Resources</span>
                <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isResourcesOpen ? "rotate-90" : ""}`} style={{ color: "#8A97B5" }} />
              </button>
              {isResourcesOpen && (
@@ -426,10 +430,10 @@ export default function Feed() {
                className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left mt-4 hover:bg-white/40"
                style={{ color: "#3A4A6B" }}
              >
-               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "#FFFFFF", color: "#5A6A8A", border: "1px solid #D6E4FF" }}>
+               <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #D6E4FF", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.08)" }}>
                  <Settings className="w-[16px] h-[16px]" />
                </div>
-               <span className="text-sm font-semibold flex-1">More</span>
+               <span className="text-[13px] font-semibold flex-1">More</span>
                <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isMoreOpen ? "rotate-90" : ""}`} style={{ color: "#8A97B5" }} />
              </button>
              {isMoreOpen && (
@@ -448,12 +452,12 @@ export default function Feed() {
            </nav>
            
            <button
-             onClick={() => setIsDropModalOpen(true)}
-             className="mt-6 shrink-0 flex items-center justify-center gap-2 font-bold rounded-xl w-full py-3.5 text-sm transition-all hover:opacity-90"
-             style={{ background: "#FFA500", color: "#0B1B3D", boxShadow: "0 4px 14px rgba(255, 173, 0, 0.25)" }}
-           >
-             <Plus className="w-4 h-4" /> NEW DROP
-           </button>
+              onClick={() => setIsDropModalOpen(true)}
+              className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-2xl w-full py-3.5 text-sm transition-all hover:shadow-lg hover:scale-[1.02]"
+              style={{ background: "linear-gradient(90deg, #FFD000 0%, #FF9F1A 100%)", color: "#0A1A3D", boxShadow: "0 4px 18px rgba(255, 159, 26, 0.35)" }}
+            >
+              <Plus className="w-4 h-4" /> NEW DROP
+            </button>
         </div>
 
         {/* Center Feed */}
@@ -775,7 +779,7 @@ export default function Feed() {
         {isMobileNavOpen && (
           <div className="fixed inset-0 z-[100] lg:hidden">
             <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(10, 26, 61, 0.4)" }} onClick={() => setIsMobileNavOpen(false)} />
-            <div className="absolute left-0 top-0 bottom-0 w-72 border-r flex flex-col py-8 px-6 overflow-y-auto" style={{ background: "linear-gradient(165deg, #F0FAF3 0%, #D6F5DE 40%, #C8F2D4 75%, #B8EDCA 100%)", borderColor: "#A0E0B0" }}>
+            <div className="absolute left-0 top-0 bottom-0 w-72 border-r flex flex-col py-8 px-6 overflow-y-auto" style={{ background: "linear-gradient(165deg, #F0FAF3 0%, #D6F5DE 40%, #C8F2D4 75%, #B8EDCA 100%)", borderColor: "#A0E0B0", backgroundImage: "radial-gradient(circle at 15% 85%, rgba(127,224,138,0.18) 0%, transparent 55%), radial-gradient(circle at 85% 15%, rgba(90,200,255,0.12) 0%, transparent 55%)" }}>
               <Link to={createPageUrl("Home")} className="flex items-center mb-10">
                 <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 56, width: "auto", objectFit: "contain" }} />
               </Link>
@@ -792,12 +796,12 @@ export default function Feed() {
                   </div>
                 } label="Profile" />
 
-                <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mt-4 mb-2" style={{ color: "#64748B" }}>Tools</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] px-3 mt-4 mb-1.5" style={{ color: "#5A8A6A" }}>Tools</p>
                 <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
 
-                <button onClick={() => setIsResourcesOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition w-full text-left hover:bg-white/40" style={{ color: "#4A5878" }}>
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm" style={{ background: "#FFFFFF", border: "1px solid #D6E4FF" }}>📚</div>
-                  <span className="text-sm font-semibold flex-1">Resources</span>
+                <button onClick={() => setIsResourcesOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition w-full text-left hover:bg-white/40" style={{ color: "#3A4A6B" }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-sm" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #D6E4FF", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.08)" }}>📚</div>
+                  <span className="text-[13px] font-semibold flex-1">Resources</span>
                   <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isResourcesOpen ? "rotate-90" : ""}`} style={{ color: "#8A97B5" }} />
                 </button>
                 {isResourcesOpen && (
@@ -810,11 +814,11 @@ export default function Feed() {
                 <SidebarLink to={createPageUrl("DailyDevotion")} icon={<BookOpen className="w-[18px] h-[18px]" />} label="Bible School" />
                 <SidebarLink to={createPageUrl("Home")} icon={<ExternalLink className="w-[18px] h-[18px]" />} label="Back to Website" />
 
-                <button onClick={() => setIsMoreOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition w-full text-left mt-4 hover:bg-white/40" style={{ color: "#4A5878" }}>
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "#FFFFFF", border: "1px solid #D6E4FF" }}>
+                <button onClick={() => setIsMoreOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition w-full text-left mt-4 hover:bg-white/40" style={{ color: "#3A4A6B" }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #D6E4FF", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.08)" }}>
                     <Settings className="w-[16px] h-[16px]" />
                   </div>
-                  <span className="text-sm font-semibold flex-1">More</span>
+                  <span className="text-[13px] font-semibold flex-1">More</span>
                   <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isMoreOpen ? "rotate-90" : ""}`} style={{ color: "#8A97B5" }} />
                 </button>
                 {isMoreOpen && (
@@ -830,7 +834,7 @@ export default function Feed() {
                   </div>
                 )}
               </nav>
-              <button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 font-bold rounded-xl w-full py-3.5 text-sm transition-all hover:opacity-90" style={{ background: "#FFA500", color: "#0B1B3D", boxShadow: "0 4px 14px rgba(255, 173, 0, 0.25)" }}>
+              <button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-2xl w-full py-4 text-sm hover:opacity-90 transition-opacity" style={{ background: "linear-gradient(90deg, #FFD000 0%, #FF9F1A 100%)", color: "#0A1A3D", boxShadow: "0 4px 18px rgba(255, 159, 26, 0.35)" }}>
                 <Plus className="w-4 h-4" /> NEW DROP
               </button>
             </div>
