@@ -34,9 +34,9 @@ export default function GlowGroupsTab({ user }) {
     }
   };
 
-  const inputStyle = { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#0B1B3D" };
+  const inputStyle = { background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" };
   const labelStyle = { color: "#6B7FA0" };
-  const cardStyle = { background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
+  const cardStyle = { background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
   const primaryBtnStyle = { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", border: "none", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" };
 
   return (
@@ -73,7 +73,7 @@ export default function GlowGroupsTab({ user }) {
 
       {creating && !activeGroup && (
         <div className="mb-10 rounded-[1.5rem] p-8 relative overflow-hidden animate-in slide-in-from-top-4" style={cardStyle}>
-          <div className="absolute top-0 left-0 right-0 h-1" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9, #FFD000)" }} />
+          <div className="absolute top-0 left-0 right-0 h-1" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9, #FFD60A)" }} />
           <h3 className="text-xl font-bold font-['Space_Grotesk'] mb-6" style={{ color: "#0B1B3D" }}>Create a Digital Campfire</h3>
           <form onSubmit={handleCreate} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -114,13 +114,13 @@ export default function GlowGroupsTab({ user }) {
                 <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl transition-opacity">✨</div>
                 <div className="mb-4">
                   <h3 className="text-2xl font-bold font-['Space_Grotesk'] mb-1" style={{ color: "#0B3FD9" }}>{g.name}</h3>
-                  <div className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#6B7FA0" }}>
+                  <div className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#6B7FA0" }}>
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#22C55E" }}></span>
                     {g.country}
                   </div>
                 </div>
                 <p className="text-[15px] mb-6 leading-relaxed min-h-[60px]" style={{ color: "#4A5878" }}>{g.description}</p>
-                <div className="pt-4 border-t flex items-center justify-between" style={{ borderColor: "#E6ECF5" }}>
+                <div className="pt-4 border-t flex items-center justify-between" style={{ borderColor: "#E0EAF5" }}>
                   <div className="flex items-center gap-2">
                     <div className="flex -space-x-2">
                       <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", border: "2px solid #FFFFFF" }}>YOU</div>
@@ -137,7 +137,7 @@ export default function GlowGroupsTab({ user }) {
         </div>
       ) : (
         <div className="rounded-[1.5rem] overflow-hidden" style={cardStyle}>
-          <div className="flex border-b" style={{ borderColor: "#E6ECF5" }}>
+          <div className="flex border-b" style={{ borderColor: "#E0EAF5" }}>
             {[{ key: 'feed', label: 'Group Feed' }, { key: 'chat', label: 'Chat' }, { key: 'events', label: 'Events' }, { key: 'study', label: 'Study Plan' }].map(tab => (
               <button key={tab.key} onClick={() => setGroupTab(tab.key)} className="flex-1 py-4 font-bold transition border-b-2" style={groupTab === tab.key ? { color: "#0B3FD9", borderColor: "#0B3FD9" } : { color: "#6B7FA0", borderColor: "transparent" }}>{tab.label}</button>
             ))}

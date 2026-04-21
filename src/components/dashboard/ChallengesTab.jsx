@@ -41,11 +41,11 @@ export default function ChallengesTab({ user }) {
   const historyChallenges = challenges.filter(c => hasParticipated(c.id));
   const displayChallenges = activeTab === "active" ? activeChallenges : historyChallenges;
 
-  const cardStyle = { background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
+  const cardStyle = { background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 font-['Inter']">
-      <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-8 border-b pb-6" style={{ borderColor: "#E6ECF5" }}>
+      <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-8 border-b pb-6" style={{ borderColor: "#E0EAF5" }}>
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #FFF8E6, #FFF0CC)", border: "1px solid #FFE4A0", boxShadow: "0 4px 16px rgba(255, 159, 26, 0.12)" }}>
             <Target className="w-6 h-6" style={{ color: "#CC7A00" }} />
@@ -56,8 +56,8 @@ export default function ChallengesTab({ user }) {
           </div>
         </div>
         <div className="flex p-1 rounded-xl shrink-0" style={cardStyle}>
-          <button onClick={() => setActiveTab("active")} className="px-5 py-2 rounded-lg font-bold text-sm transition-all" style={activeTab === "active" ? { background: "linear-gradient(90deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 2px 6px rgba(255, 159, 26, 0.25)" } : { background: "transparent", color: "#6B7FA0" }}>Active Missions</button>
-          <button onClick={() => setActiveTab("history")} className="px-5 py-2 rounded-lg font-bold text-sm transition-all" style={activeTab === "history" ? { background: "linear-gradient(90deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 2px 6px rgba(255, 159, 26, 0.25)" } : { background: "transparent", color: "#6B7FA0" }}>Challenge History</button>
+          <button onClick={() => setActiveTab("active")} className="px-5 py-2 rounded-lg font-bold text-sm transition-all" style={activeTab === "active" ? { background: "linear-gradient(90deg, #FFD60A, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 2px 6px rgba(255, 159, 26, 0.25)" } : { background: "transparent", color: "#6B7FA0" }}>Active Missions</button>
+          <button onClick={() => setActiveTab("history")} className="px-5 py-2 rounded-lg font-bold text-sm transition-all" style={activeTab === "history" ? { background: "linear-gradient(90deg, #FFD60A, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 2px 6px rgba(255, 159, 26, 0.25)" } : { background: "transparent", color: "#6B7FA0" }}>Challenge History</button>
         </div>
       </div>
 

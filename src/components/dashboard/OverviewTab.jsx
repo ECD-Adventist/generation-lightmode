@@ -63,9 +63,9 @@ export default function OverviewTab({ user }) {
   else if (score >= 50) { rank = "Light Warrior"; rankColor = "#1FB8FF"; bgClass = "bg-cyan-500/10"; }
 
   const cardClass = "rounded-[1.75rem] p-6";
-  const cardStyle = { background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
+  const cardStyle = { background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
   const statBoxClass = "rounded-xl p-3 text-center";
-  const statBoxStyle = { background: "#F6F8FC", border: "1px solid #E6ECF5" };
+  const statBoxStyle = { background: "#F6F8FC", border: "1px solid #E0EAF5" };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12 font-['Inter']">
@@ -117,7 +117,7 @@ export default function OverviewTab({ user }) {
             <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 border ${item.bgClass} ${item.borderClass} ${item.colorClass}`}>{item.icon}</div>
           );
           const cls = "p-4 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all hover:-translate-y-0.5 cursor-pointer hover:shadow-md";
-          const btnStyle = { background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" };
+          const btnStyle = { background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" };
           if (item.to) return <Link key={i} to={item.to} className={cls} style={btnStyle}>{inner}<span className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{item.label}</span></Link>;
           return <button key={i} onClick={item.onClick} className={cls} style={btnStyle}>{inner}<span className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{item.label}</span></button>;
         })}
@@ -129,7 +129,7 @@ export default function OverviewTab({ user }) {
           <div className="rounded-[1.75rem] p-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0", boxShadow: "0 4px 16px rgba(255, 159, 26, 0.1)" }}>
             <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none" style={{ color: "#FF9F1A" }}><Zap size={120} /></div>
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded" style={{ background: "linear-gradient(90deg, #FFD000, #FF9F1A)", color: "#0B1B3D" }}>Daily Truth</span>
+              <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded" style={{ background: "linear-gradient(90deg, #FFD60A, #FF9F1A)", color: "#0B1B3D" }}>Daily Truth</span>
               {dailyCode?.bible_reference && <span className="text-xs font-medium" style={{ color: "#CC7A00" }}>{dailyCode.bible_reference}</span>}
             </div>
             <h3 className="text-2xl font-bold font-['Space_Grotesk'] mb-3 relative z-10 leading-snug" style={{ color: "#0B1B3D" }}>
@@ -139,10 +139,10 @@ export default function OverviewTab({ user }) {
               {dailyCode?.title ? `"${dailyCode.slogan_text}"` : dailyCode?.slogan_text || "Publish a Daily Code to show live truth here."}
             </p>
             <div className="flex flex-wrap gap-3 relative z-10">
-              <Button onClick={() => setIsDropModalOpen(true)} className="font-bold text-xs hover:opacity-90" style={{ background: "#FFFFFF", color: "#0B1B3D", border: "1px solid #E6ECF5" }}>
+              <Button onClick={() => setIsDropModalOpen(true)} className="font-bold text-xs hover:opacity-90" style={{ background: "#FFFFFF", color: "#0B1B3D", border: "1px solid #E0EAF5" }}>
                 <Share2 size={14} className="mr-2" /> Post as Glow Drop
               </Button>
-              <Link to={createPageUrl("KeepIt100")} className="inline-flex items-center justify-center text-xs rounded-md px-3 py-2 font-medium transition" style={{ background: "#FFFFFF", border: "1px solid #FFD000", color: "#CC7A00" }}>
+              <Link to={createPageUrl("KeepIt100")} className="inline-flex items-center justify-center text-xs rounded-md px-3 py-2 font-medium transition" style={{ background: "#FFFFFF", border: "1px solid #FFD60A", color: "#CC7A00" }}>
                 <Bookmark size={14} className="mr-2" /> Open Truth Library
               </Link>
             </div>

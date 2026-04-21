@@ -101,13 +101,13 @@ export default function SubmitDropTab({ user }) {
     }
   };
 
-  const inputStyle = { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#0B1B3D" };
+  const inputStyle = { background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" };
   const labelStyle = { color: "#6B7FA0" };
 
   return (
     <div className="max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500 relative font-['Inter']">
-      <div className="relative p-8 rounded-[1.75rem]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
-        <div className="flex items-center gap-4 mb-8 pb-6 border-b" style={{ borderColor: "#E6ECF5" }}>
+      <div className="relative p-8 rounded-[1.75rem]" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+        <div className="flex items-center gap-4 mb-8 pb-6 border-b" style={{ borderColor: "#E0EAF5" }}>
           <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF" }}>
             <span className="text-2xl">✨</span>
           </div>
@@ -117,7 +117,7 @@ export default function SubmitDropTab({ user }) {
           </div>
         </div>
 
-        <div className="p-5 rounded-xl mb-6" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+        <div className="p-5 rounded-xl mb-6" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5" }}>
           <Label className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2" style={labelStyle}><Sparkles className="w-4 h-4" style={{ color: "#0B3FD9" }} /> AI Draft Assistant</Label>
           <div className="flex flex-col sm:flex-row gap-3">
             <Input placeholder="How are you feeling today? (e.g. anxious, grateful, seeking guidance)" value={mood} onChange={e => setMood(e.target.value)} className="h-12" style={inputStyle} />

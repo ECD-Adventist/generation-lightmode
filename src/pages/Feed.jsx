@@ -337,7 +337,7 @@ export default function Feed() {
   }
 
   return (
-    <div className="h-[100dvh] relative overflow-hidden font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+    <div className="h-[100dvh] relative overflow-hidden font-['Inter']" style={{ background: "linear-gradient(135deg, #D4F5D4 0%, #F5F99A 100%)", color: "#0B1B3D" }}>
       <OnboardingModal
         isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth || !user.city || !user.address || !user.postal_code)}
         onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
@@ -542,7 +542,7 @@ export default function Feed() {
                   <div className="w-full h-full rounded-full border-[2px] overflow-hidden flex items-center justify-center" style={{ borderColor: "#F8FAFC", background: "#FFFFFF" }}>
                     <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full text-sm font-black flex items-center justify-center border-2" style={{ background: "#FFD000", color: "#0B1B3D", borderColor: "#F8FAFC" }}>+</div>
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full text-sm font-black flex items-center justify-center border-2" style={{ background: "#FFD60A", color: "#0B1B3D", borderColor: "#F8FAFC" }}>+</div>
                </div>
                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#1E5AFF" }}>ADD STATUS</span>
             </button>
@@ -552,7 +552,7 @@ export default function Feed() {
               const themeClass = story.background_theme === "violet"
                 ? "from-[#8A5CFF] to-[#3B1E70]"
                 : story.background_theme === "sunrise"
-                ? "from-[#FFD000] to-[#F97316]"
+                ? "from-[#FFD60A] to-[#F97316]"
                 : story.background_theme === "midnight"
                 ? "from-[#121826] to-[#0B0F1A]"
                 : "from-[#00CFFF] to-[#1DA1FF]";

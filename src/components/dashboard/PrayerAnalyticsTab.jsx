@@ -38,7 +38,7 @@ export default function PrayerAnalyticsTab() {
     return Object.values(data).slice(-30);
   }, [supports]);
 
-  const cardStyle = { background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
+  const cardStyle = { background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 font-['Inter']">
@@ -52,9 +52,9 @@ export default function PrayerAnalyticsTab() {
               <BarChart data={monthlyData}>
                 <XAxis dataKey="name" stroke="#8A97B5" fontSize={12} />
                 <YAxis stroke="#8A97B5" fontSize={12} />
-                <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E6ECF5', borderRadius: 12, boxShadow: '0 4px 16px rgba(11, 63, 217, 0.12)' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E0EAF5', borderRadius: 12, boxShadow: '0 4px 16px rgba(11, 63, 217, 0.12)' }} />
                 <Bar dataKey="posted" name="Posted" fill="#1FB8FF" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="answered" name="Answered" fill="#FFD000" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="answered" name="Answered" fill="#FFD60A" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -68,7 +68,7 @@ export default function PrayerAnalyticsTab() {
                 <Pie data={categoryData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
                   {categoryData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                 </Pie>
-                <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E6ECF5', borderRadius: 12, boxShadow: '0 4px 16px rgba(11, 63, 217, 0.12)' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E0EAF5', borderRadius: 12, boxShadow: '0 4px 16px rgba(11, 63, 217, 0.12)' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -89,7 +89,7 @@ export default function PrayerAnalyticsTab() {
               <LineChart data={supportActivity}>
                 <XAxis dataKey="name" stroke="#8A97B5" fontSize={12} />
                 <YAxis stroke="#8A97B5" fontSize={12} />
-                <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E6ECF5', borderRadius: 12, boxShadow: '0 4px 16px rgba(11, 63, 217, 0.12)' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E0EAF5', borderRadius: 12, boxShadow: '0 4px 16px rgba(11, 63, 217, 0.12)' }} />
                 <Line type="monotone" dataKey="supports" name="Supports" stroke="#0B3FD9" strokeWidth={3} dot={{ r: 4, fill: '#0B3FD9' }} />
               </LineChart>
             </ResponsiveContainer>

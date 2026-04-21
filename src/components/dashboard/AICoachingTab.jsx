@@ -71,7 +71,7 @@ Keep the tone warm, encouraging, and Spirit-led — like a caring mentor, not a 
     }
   };
 
-  const cardStyle = { background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
+  const cardStyle = { background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
 
   return (
     <div className="space-y-6 font-['Inter']">
@@ -164,7 +164,7 @@ Keep the tone warm, encouraging, and Spirit-led — like a caring mentor, not a 
               </h2>
               <div className="space-y-3">
                 {analysis.recommended_challenges.map((ch, i) => (
-                  <div key={i} className="flex items-start gap-3 rounded-xl p-4" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                  <div key={i} className="flex items-start gap-3 rounded-xl p-4" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5" }}>
                     <ChevronRight className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#0B3FD9" }} />
                     <div>
                       <p className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{ch.title}</p>

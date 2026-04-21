@@ -7,7 +7,7 @@ export default function LevelProgressCard({ user }) {
   const info = getLevelInfo(score);
 
   return (
-    <div className="rounded-[1.5rem] p-6 font-['Inter']" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+    <div className="rounded-[1.5rem] p-6 font-['Inter']" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-bold font-['Space_Grotesk'] uppercase tracking-widest flex items-center gap-2" style={{ color: "#0B1B3D" }}>
           <TrendingUp size={16} style={{ color: "#CC7A00" }} /> Level Progress
@@ -23,7 +23,7 @@ export default function LevelProgressCard({ user }) {
           { val: `${info.currentInLevel}/50`, label: "This Level", color: "#0B3FD9" },
           { val: info.remainingToNext, label: "To Next", color: "#1FB8FF" },
         ].map((s, i) => (
-          <div key={i} className="rounded-2xl p-3 text-center" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+          <div key={i} className="rounded-2xl p-3 text-center" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5" }}>
             <div className="text-lg font-black" style={{ color: s.color }}>{s.val}</div>
             <div className="text-[10px] uppercase tracking-widest" style={{ color: "#8A97B5" }}>{s.label}</div>
           </div>

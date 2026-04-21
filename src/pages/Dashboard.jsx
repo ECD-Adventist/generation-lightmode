@@ -90,7 +90,7 @@ export default function Dashboard() {
 
       <div className="max-w-6xl mx-auto px-6 py-12 relative z-10">
         {/* Hero Map Section */}
-        <div className="mb-12 pb-8 border-b" style={{ borderColor: "#E6ECF5" }}>
+        <div className="mb-12 pb-8 border-b" style={{ borderColor: "#E0EAF5" }}>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF" }}>
             <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#1FB8FF" }}></span>
             <span className="text-xs font-bold tracking-wider font-['Inter']" style={{ color: "#0B3FD9" }}>GLOBAL WARRIOR MAP</span>
@@ -99,7 +99,7 @@ export default function Dashboard() {
           <DashboardMapHero userCountry={user?.country} />
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b pb-8" style={{ borderColor: "#E6ECF5" }}>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b pb-8" style={{ borderColor: "#E0EAF5" }}>
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF" }}>
               <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#1FB8FF" }}></span>
@@ -114,7 +114,7 @@ export default function Dashboard() {
           </div>
 
           <div className="p-5 rounded-[1.5rem] flex items-center gap-6" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0", boxShadow: "0 8px 24px rgba(255, 159, 26, 0.15)" }}>
-            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "#FFFFFF", border: "1px solid #FFD000", boxShadow: "0 2px 10px rgba(255, 208, 0, 0.3)" }}>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "#FFFFFF", border: "1px solid #FFD60A", boxShadow: "0 2px 10px rgba(255, 208, 0, 0.3)" }}>
               <span className="text-2xl">⚡</span>
             </div>
             <div>
@@ -141,7 +141,7 @@ export default function Dashboard() {
                 key={tab.id}
                 value={tab.id}
                 className="data-[state=active]:!bg-gradient-to-r data-[state=active]:!from-[#1FB8FF] data-[state=active]:!to-[#0B3FD9] data-[state=active]:!text-white data-[state=active]:!border-transparent data-[state=active]:!shadow-[0_4px_14px_rgba(11,63,217,0.35)] rounded-full px-6 py-2.5 font-['Inter'] font-semibold transition-all duration-300"
-                style={{ background: "#FFFFFF", color: "#4A5878", border: "1px solid #E6ECF5" }}
+                style={{ background: "#FFFFFF", color: "#4A5878", border: "1px solid #E0EAF5" }}
               >
                 <span className="mr-2">{tab.icon}</span> {tab.label}
               </TabsTrigger>
