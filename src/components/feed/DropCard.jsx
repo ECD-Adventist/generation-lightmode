@@ -229,7 +229,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   return (
     <div
-      className="bg-card border border-border shadow-sm rounded-[1.75rem] sm:rounded-[2.25rem] mb-6 sm:mb-8 p-2 sm:p-3 transition-all duration-300 group hover:-translate-y-0.5"
+      className="rounded-[1.75rem] sm:rounded-[2.25rem] mb-6 sm:mb-8 p-2 sm:p-3 transition-all duration-300 group hover:-translate-y-0.5"
+      style={{
+        background: "#FFFFFF",
+        border: "1px solid #E6ECF5",
+        boxShadow: "0 1px 2px rgba(11, 63, 217, 0.04), 0 8px 24px rgba(11, 63, 217, 0.08), 0 16px 48px rgba(11, 63, 217, 0.04)"
+      }}
     >
       <style>{`
         @keyframes dc-heart-burst {
@@ -267,9 +272,10 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       <div
         className={`relative w-full rounded-xl sm:rounded-[1.5rem] overflow-hidden shadow-inner ${
           drop.media_url
-            ? 'aspect-[4/5] sm:aspect-[3/4] bg-muted/50'
-            : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center bg-muted/30'
+            ? 'aspect-[4/5] sm:aspect-[3/4]'
+            : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center'
         }`}
+        style={{ background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" }}
         onDoubleClick={() => {
           setLikeBurst(true);
           setTimeout(() => setLikeBurst(false), 600);
@@ -288,7 +294,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             <HoverCardTrigger asChild>
               <Link
                 to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
-                className={`flex items-center gap-2 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1 cursor-pointer transition no-underline border ${drop.media_url ? "bg-black/35 border-white/15" : "bg-background/80 border-border"}`}
+                className="flex items-center gap-2 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1 cursor-pointer transition no-underline"
+                style={{
+                  background: drop.media_url ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.8)",
+                  border: `1px solid ${drop.media_url ? "rgba(255,255,255,0.15)" : "#D6E4FF"}`
+                }}
               >
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full p-[2px] shrink-0" style={{ background: drop.user_email === "system@lightmode.com" ? "linear-gradient(135deg, #FFD000 0%, #1FB8FF 50%, #0B3FD9 100%)" : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
                   <div className="w-full h-full rounded-full flex items-center justify-center font-bold text-xs uppercase overflow-hidden" style={{ background: "#FFFFFF" }}>
@@ -448,12 +458,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       {(drop.verse || drop.reflection) && (
         <div className="px-3 sm:px-4 pt-3 pb-1">
           {getRepostOwner(drop.reflection) && (
-            <p className="text-xs mb-2 text-muted-foreground">
-              Reposted from <Link to={getRepostOwner(drop.reflection) === "Generation LightMode" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-semibold hover:underline text-blue-600 dark:text-blue-400">{getRepostOwner(drop.reflection)}</Link>
+            <p className="text-xs mb-2" style={{ color: "#6B7FA0" }}>
+              Reposted from <Link to={getRepostOwner(drop.reflection) === "Generation LightMode" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{getRepostOwner(drop.reflection)}</Link>
             </p>
           )}
           {drop.verse && (
-            <div className="font-bold text-sm mb-1 break-words text-blue-600 dark:text-blue-400">
+            <div className="font-bold text-sm mb-1 break-words" style={{ color: "#0B3FD9" }}>
               {drop.verse}
             </div>
           )}
@@ -480,12 +490,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         <div className="px-2 sm:px-3 pt-2 sm:pt-3 pb-1">
           <div className="flex items-center gap-2 flex-wrap">
             {drop.category && (
-              <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-cyan-500/10 text-blue-600 dark:text-blue-400 border border-cyan-500/30">
+              <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider" style={{ background: "linear-gradient(90deg, rgba(31,184,255,0.15), rgba(127,224,138,0.15))", color: "#0B3FD9", border: "1px solid #B8E5FF" }}>
                 {drop.category}
               </span>
             )}
             {drop.hashtags && (
-              <div className="text-[12px] sm:text-[13px] font-medium opacity-90 break-words w-full text-blue-600 dark:text-blue-400">
+              <div className="text-[12px] sm:text-[13px] font-medium opacity-90 break-words w-full" style={{ color: "#0B3FD9" }}>
                 {drop.hashtags.split(' ').map(t => t.startsWith('#') ? t : `#${t}`).join(' ')}
               </div>
             )}

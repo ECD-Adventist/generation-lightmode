@@ -84,7 +84,7 @@ Return JSON with "suggestions" array, each with "topic" (compelling short title,
       <button
         onClick={generateSuggestions}
         className="w-full rounded-[20px] p-4 mb-6 flex items-center gap-3 transition-all hover:shadow-lg group"
-        style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0", boxShadow: "0 4px 16px rgba(255, 159, 26, 0.1)" }}
+        style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0", boxShadow: "0 4px 16px rgba(255, 159, 26, 0.1)", minHeight: 72 }}
       >
         <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #FFD60A, #FF9F1A)" }}>
           <Sparkles className="w-5 h-5 text-white" />

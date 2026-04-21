@@ -546,7 +546,7 @@ export default function Feed() {
           <OfflineBanner isOnline={isOnline} lastCached={lastCached} syncing={syncing} onSync={syncQueue} />
 
           {/* Stories / Status Row */}
-          <div className="flex gap-3 sm:gap-4 px-3 sm:px-4 mb-6 sm:mb-8 overflow-x-auto hide-scrollbar pb-2 shrink-0 items-start">
+          <div className="flex gap-3 sm:gap-4 px-3 sm:px-4 mb-6 sm:mb-5 overflow-x-auto hide-scrollbar pb-2 shrink-0 items-start">
             <button
               onClick={() => user ? setIsStatusModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
               className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0"
@@ -622,7 +622,7 @@ export default function Feed() {
           </div>
 
           {/* Feed */}
-          <div className="flex flex-col px-3 sm:px-4 py-4 pb-24 lg:pb-6 max-w-2xl mx-auto w-full flex-none">
+          <div className="flex flex-col px-3 sm:px-4 py-2 pb-24 lg:pb-6 max-w-2xl mx-auto w-full flex-none">
             {dropsLoading && drops.length === 0 ? (
               <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>
             ) : dropsError && filteredDrops.length === 0 ? (
@@ -687,7 +687,7 @@ export default function Feed() {
           />
 
           {/* Trending Vibes */}
-          <div className="rounded-[24px] p-5 mb-6 relative overflow-hidden" style={{ background: "linear-gradient(145deg, #FFFFFF 0%, #F4F7FE 100%)", border: "1px solid #E2EAFC", boxShadow: "0 8px 32px rgba(30, 90, 255, 0.08), 0 2px 4px rgba(0,0,0,0.02)" }}>
+          <div className="rounded-[24px] p-5 mb-6 relative overflow-hidden" style={{ background: "linear-gradient(145deg, #FFFFFF 0%, #F4F7FE 100%)", border: "1px solid #E2EAFC", boxShadow: "0 8px 32px rgba(30, 90, 255, 0.08), 0 2px 4px rgba(0,0,0,0.02)", minHeight: 162 }}>
             <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-30 pointer-events-none" style={{ background: "radial-gradient(circle, #5AC8FF, transparent)" }} />
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1.5 h-5 rounded-full" style={{ background: "linear-gradient(180deg, #1E5AFF, #5AC8FF)" }} />
@@ -719,7 +719,7 @@ export default function Feed() {
           </div>
 
           {/* People to Connect */}
-          <div className="rounded-[24px] p-5" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+          <div className="rounded-[24px] p-5" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)", minHeight: 292 }}>
             <h3 className="font-black text-xs mb-4 tracking-widest uppercase" style={{ color: "#FF9F1A" }}>People to Connect</h3>
             
             <div className="space-y-4">

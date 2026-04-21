@@ -39,10 +39,9 @@ export default function DailyChallenges({ user }) {
 
   return (
     <div className="rounded-[24px] p-5 mb-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #FFF8E0 0%, #FFF0C0 100%)", border: "1px solid #FFD000", boxShadow: "0 4px 16px rgba(255, 208, 0, 0.15)" }}>
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FFD000] to-[#FF9F1A]"></div>
       <div className="flex items-center gap-2 mb-4">
-        <Target className="w-5 h-5" style={{ color: "#B8860B" }} />
-        <h3 className="font-black text-xs tracking-widest uppercase" style={{ color: "#8B6914" }}>Daily Missions</h3>
+        <Target className="w-4 h-4" style={{ color: "#B8860B" }} />
+        <h3 className="font-black text-[11px] tracking-[0.18em] uppercase" style={{ color: "#8B6914" }}>Daily Missions</h3>
       </div>
       
       <div className="space-y-3">
