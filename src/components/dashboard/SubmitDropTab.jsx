@@ -101,26 +101,27 @@ export default function SubmitDropTab({ user }) {
     }
   };
 
-  const inputClass = "bg-muted border-border text-foreground";
+  const inputStyle = { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#0B1B3D" };
+  const labelStyle = { color: "#6B7FA0" };
 
   return (
     <div className="max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500 relative font-['Inter']">
-      <div className="relative p-8 rounded-[1.75rem] bg-card border border-border shadow-sm">
-        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-border">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-500/10 border border-blue-500/20">
+      <div className="relative p-8 rounded-[1.75rem]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+        <div className="flex items-center gap-4 mb-8 pb-6 border-b" style={{ borderColor: "#E6ECF5" }}>
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF" }}>
             <span className="text-2xl">✨</span>
           </div>
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-foreground">Share Your Light</h2>
-            <p className="text-sm font-medium mt-1 text-blue-600 dark:text-blue-400">Submit a Glow Drop to inspire others</p>
+            <h2 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>Share Your Light</h2>
+            <p className="text-sm font-medium mt-1" style={{ color: "#0B3FD9" }}>Submit a Glow Drop to inspire others</p>
           </div>
         </div>
 
-        <div className="p-5 rounded-xl mb-6 bg-muted border border-border">
-          <Label className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2 text-muted-foreground"><Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" /> AI Draft Assistant</Label>
+        <div className="p-5 rounded-xl mb-6" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+          <Label className="text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2" style={labelStyle}><Sparkles className="w-4 h-4" style={{ color: "#0B3FD9" }} /> AI Draft Assistant</Label>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Input placeholder="How are you feeling today? (e.g. anxious, grateful, seeking guidance)" value={mood} onChange={e => setMood(e.target.value)} className={`h-12 bg-background border-border text-foreground ${inputClass}`} />
-            <Button type="button" onClick={handleAIAssist} disabled={aiLoading} className="font-bold h-12 px-6 whitespace-nowrap transition-all bg-gradient-to-r from-cyan-400 to-blue-600 text-white border-none shadow-sm hover:opacity-90">
+            <Input placeholder="How are you feeling today? (e.g. anxious, grateful, seeking guidance)" value={mood} onChange={e => setMood(e.target.value)} className="h-12" style={inputStyle} />
+            <Button type="button" onClick={handleAIAssist} disabled={aiLoading} className="font-bold h-12 px-6 whitespace-nowrap transition-all border-none hover:opacity-90" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>
               {aiLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Inspire Me"}
             </Button>
           </div>
@@ -128,27 +129,27 @@ export default function SubmitDropTab({ user }) {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label className="font-semibold uppercase tracking-wider text-xs ml-1 text-muted-foreground">Bible Verse (Optional)</Label>
-            <Input placeholder="e.g. Matthew 5:14" value={formData.verse} onChange={e => setFormData({...formData, verse: e.target.value})} className={`text-base py-6 px-4 rounded-xl ${inputClass}`} />
+            <Label className="font-semibold uppercase tracking-wider text-xs ml-1" style={labelStyle}>Bible Verse (Optional)</Label>
+            <Input placeholder="e.g. Matthew 5:14" value={formData.verse} onChange={e => setFormData({...formData, verse: e.target.value})} className="text-base py-6 px-4 rounded-xl" style={inputStyle} />
           </div>
 
           <div className="space-y-2">
-            <Label className="font-semibold uppercase tracking-wider text-xs ml-1 text-muted-foreground">Reflection / Testimony (Optional)</Label>
-            <Textarea placeholder="What does this verse mean to you? Share your testimony..." value={formData.reflection} onChange={e => setFormData({...formData, reflection: e.target.value})} className={`text-base p-4 rounded-xl min-h-[160px] resize-y ${inputClass}`} />
+            <Label className="font-semibold uppercase tracking-wider text-xs ml-1" style={labelStyle}>Reflection / Testimony (Optional)</Label>
+            <Textarea placeholder="What does this verse mean to you? Share your testimony..." value={formData.reflection} onChange={e => setFormData({...formData, reflection: e.target.value})} className="text-base p-4 rounded-xl min-h-[160px] resize-y" style={inputStyle} />
           </div>
 
           <div className="space-y-2">
-            <Label className="font-semibold uppercase tracking-wider text-xs ml-1 text-muted-foreground">Hashtags</Label>
-            <Input placeholder="#FaithAlwaysOn #GlowDrop" value={formData.hashtags} onChange={e => setFormData({...formData, hashtags: e.target.value})} className={`text-base py-6 px-4 rounded-xl text-amber-600 dark:text-amber-400 ${inputClass}`} />
+            <Label className="font-semibold uppercase tracking-wider text-xs ml-1" style={labelStyle}>Hashtags</Label>
+            <Input placeholder="#FaithAlwaysOn #GlowDrop" value={formData.hashtags} onChange={e => setFormData({...formData, hashtags: e.target.value})} className="text-base py-6 px-4 rounded-xl" style={{ ...inputStyle, color: "#CC7A00" }} />
           </div>
 
           <div className="space-y-2">
-            <Label className="font-semibold uppercase tracking-wider text-xs ml-1 text-muted-foreground">Engagement Screenshot (Optional)</Label>
-            <p className="text-xs ml-1 mb-2 text-muted-foreground">Upload a screenshot showing likes, shares, or saves to earn extra impact points!</p>
-            <Input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} className="text-sm h-auto px-3 py-3 rounded-xl border-dashed border-2 border-border bg-muted text-foreground file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold file:cursor-pointer file:bg-background file:text-foreground cursor-pointer hover:border-blue-500/50 transition-colors" />
+            <Label className="font-semibold uppercase tracking-wider text-xs ml-1" style={labelStyle}>Engagement Screenshot (Optional)</Label>
+            <p className="text-xs ml-1 mb-2" style={labelStyle}>Upload a screenshot showing likes, shares, or saves to earn extra impact points!</p>
+            <Input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} className="text-sm h-auto px-3 py-3 rounded-xl border-dashed border-2 cursor-pointer transition-colors file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold file:cursor-pointer" style={{ background: "#F6F8FC", border: "2px dashed #D6E4FF", color: "#0B1B3D" }} />
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full h-14 mt-4 text-lg font-bold font-['Space_Grotesk'] rounded-xl border-none transition-all hover:scale-[1.02] bg-gradient-to-r from-cyan-400 to-blue-600 text-white shadow-sm hover:shadow-md">
+          <Button type="submit" disabled={loading} className="w-full h-14 mt-4 text-lg font-bold font-['Space_Grotesk'] rounded-xl border-none transition-all hover:scale-[1.02]" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>
             {loading ? (
               <><Loader2 className="w-5 h-5 animate-spin mr-2" />{analyzing ? "Analyzing Screenshot..." : "Posting..."}</>
             ) : (

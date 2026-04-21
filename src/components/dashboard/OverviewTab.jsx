@@ -126,23 +126,23 @@ export default function OverviewTab({ user }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {/* Daily Truth */}
-          <div className="rounded-[1.75rem] p-6 relative overflow-hidden bg-amber-500/10 border border-amber-500/20 shadow-sm">
-            <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none text-amber-500"><Zap size={120} /></div>
+          <div className="rounded-[1.75rem] p-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0", boxShadow: "0 4px 16px rgba(255, 159, 26, 0.1)" }}>
+            <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none" style={{ color: "#FF9F1A" }}><Zap size={120} /></div>
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded bg-gradient-to-r from-amber-400 to-amber-500 text-black">Daily Truth</span>
-              {dailyCode?.bible_reference && <span className="text-xs font-medium text-amber-700 dark:text-amber-500">{dailyCode.bible_reference}</span>}
+              <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded" style={{ background: "linear-gradient(90deg, #FFD000, #FF9F1A)", color: "#0B1B3D" }}>Daily Truth</span>
+              {dailyCode?.bible_reference && <span className="text-xs font-medium" style={{ color: "#CC7A00" }}>{dailyCode.bible_reference}</span>}
             </div>
-            <h3 className="text-2xl font-bold font-['Space_Grotesk'] mb-3 relative z-10 leading-snug text-foreground">
+            <h3 className="text-2xl font-bold font-['Space_Grotesk'] mb-3 relative z-10 leading-snug" style={{ color: "#0B1B3D" }}>
               {dailyCode?.title || dailyCode?.slogan_text || "No live daily truth yet."}
             </h3>
-            <p className="text-sm leading-relaxed mb-6 relative z-10 text-muted-foreground">
+            <p className="text-sm leading-relaxed mb-6 relative z-10" style={{ color: "#6B5A14" }}>
               {dailyCode?.title ? `"${dailyCode.slogan_text}"` : dailyCode?.slogan_text || "Publish a Daily Code to show live truth here."}
             </p>
             <div className="flex flex-wrap gap-3 relative z-10">
-              <Button onClick={() => setIsDropModalOpen(true)} className="font-bold text-xs bg-foreground text-background hover:opacity-90">
+              <Button onClick={() => setIsDropModalOpen(true)} className="font-bold text-xs hover:opacity-90" style={{ background: "#FFFFFF", color: "#0B1B3D", border: "1px solid #E6ECF5" }}>
                 <Share2 size={14} className="mr-2" /> Post as Glow Drop
               </Button>
-              <Link to={createPageUrl("KeepIt100")} className="inline-flex items-center justify-center text-xs rounded-md px-3 py-2 font-medium transition border border-amber-500/50 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10">
+              <Link to={createPageUrl("KeepIt100")} className="inline-flex items-center justify-center text-xs rounded-md px-3 py-2 font-medium transition" style={{ background: "#FFFFFF", border: "1px solid #FFD000", color: "#CC7A00" }}>
                 <Bookmark size={14} className="mr-2" /> Open Truth Library
               </Link>
             </div>
