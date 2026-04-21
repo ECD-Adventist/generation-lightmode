@@ -12,6 +12,7 @@ import { isNotificationEnabled } from "@/lib/notifications";
 import AppFooter from "@/components/AppFooter";
 import usePullToRefresh from "@/hooks/usePullToRefresh";
 import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
+import MobileGlowGroups from "@/components/groups/MobileGlowGroups";
 
 const rankColors = { Champion: "#FFD000", Trendsetter: "#8A5CFF", Warrior: "#1DA1FF", Starter: "#00CFFF" };
 
@@ -192,6 +193,26 @@ export default function GlowGroups() {
   return (
     <div ref={scrollRef} className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D", overflowY: "auto" }}>
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} threshold={threshold} />
+
+      {/* MOBILE: branded redesign */}
+      <div className="md:hidden">
+        <MobileGlowGroups
+          user={user}
+          users={users}
+          drops={drops}
+          following={following}
+          realGroups={realGroups}
+          myMemberships={myMemberships}
+          myJoinRequests={myJoinRequests}
+          followMutation={followMutation}
+          joinMutation={joinMutation}
+          onOpenCreate={() => setIsCreateOpen(true)}
+        />
+        <CreateGroupModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} user={user} />
+      </div>
+
+      {/* DESKTOP: original design */}
+      <div className="hidden md:block">
       {/* Top Nav Bar */}
       <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
@@ -433,6 +454,7 @@ export default function GlowGroups() {
       </div>
       <CreateGroupModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} user={user} />
       <AppFooter />
+      </div>
     </div>
   );
 }
