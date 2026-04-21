@@ -16,81 +16,81 @@ export default function LiveChallengesPage() {
   }, [challenges, filter]);
 
   return (
-    <div style={{ background: "#F6F8FC", minHeight: "100vh", fontFamily: "Inter, sans-serif", color: "#0B1B3D" }}>
-      <section style={{ padding: "48px 24px 60px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.12)", border: "1px solid #FFE4A0", borderRadius: 50, padding: "8px 20px", marginBottom: 24 }}>
-            <Target size={14} color="#CC7A00" />
-            <span style={{ color: "#CC7A00", fontSize: 13, fontWeight: 600 }}>Live Challenges</span>
+    <div className="bg-background min-h-screen font-['Inter'] text-foreground">
+      <section className="pt-12 px-6 pb-16 text-center relative overflow-hidden">
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-5 py-2 mb-6">
+            <Target size={14} className="text-amber-600 dark:text-amber-400" />
+            <span className="text-amber-600 dark:text-amber-400 text-sm font-semibold">Live Challenges</span>
           </div>
-          <h1 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(32px, 5vw, 64px)", marginBottom: 20, color: "#0B1B3D" }}>
-            Real <span style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Challenges</span>
+          <h1 className="font-['Space_Grotesk'] font-extrabold text-[clamp(32px,5vw,64px)] mb-5 text-foreground">
+            Real <span className="bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">Challenges</span>
           </h1>
-          <p style={{ fontSize: 17, maxWidth: 600, margin: "0 auto 32px", color: "#4A5878" }}>
+          <p className="text-lg max-w-2xl mx-auto mb-8 text-muted-foreground">
             These challenges come directly from the app's live challenge records.
           </p>
-          <div style={{ display: "flex", gap: 40, justifyContent: "center", flexWrap: "wrap" }}>
+          <div className="flex gap-10 justify-center flex-wrap">
             {[
-              { label: "Active", value: snapshot.totalChallenges || 0, color: "#0B3FD9" },
-              { label: "All Challenges", value: challenges.length, color: "#CC7A00" },
-              { label: "Participants", value: challenges.reduce((sum, challenge) => sum + (challenge.participantsCount || 0), 0), color: "#0B3FD9" },
+              { label: "Active", value: snapshot.totalChallenges || 0, color: "text-blue-600 dark:text-blue-400" },
+              { label: "All Challenges", value: challenges.length, color: "text-amber-600 dark:text-amber-400" },
+              { label: "Participants", value: challenges.reduce((sum, challenge) => sum + (challenge.participantsCount || 0), 0), color: "text-blue-600 dark:text-blue-400" },
             ].map((stat) => (
-              <div key={stat.label} style={{ textAlign: "center" }}>
-                <div style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 32, color: stat.color }}>{stat.value}</div>
-                <div style={{ fontSize: 13, color: "#6B7FA0" }}>{stat.label}</div>
+              <div key={stat.label} className="text-center">
+                <div className={`font-['Space_Grotesk'] font-extrabold text-3xl ${stat.color}`}>{stat.value}</div>
+                <div className="text-sm text-muted-foreground">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <div style={{ height: 1, background: "linear-gradient(90deg, transparent, #E6ECF5, transparent)" }} />
+      <div className="h-px bg-border w-full" />
 
-      <section style={{ padding: "32px 24px", background: "#FFFFFF" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+      <section className="py-8 px-6 bg-card border-b border-border">
+        <div className="max-w-6xl mx-auto flex gap-2.5 flex-wrap justify-center">
           {[
             { id: "active", label: "Active" },
             { id: "all", label: "All" },
             { id: "completed", label: "Completed" },
           ].map((item) => (
-            <button key={item.id} onClick={() => setFilter(item.id)} style={{ padding: "10px 24px", borderRadius: 50, border: `1px solid ${filter === item.id ? "#0B3FD9" : "#E6ECF5"}`, background: filter === item.id ? "linear-gradient(90deg, #1FB8FF, #0B3FD9)" : "#FFFFFF", color: filter === item.id ? "#FFFFFF" : "#4A5878", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>
+            <button key={item.id} onClick={() => setFilter(item.id)} className={`px-6 py-2.5 rounded-full border text-sm font-semibold transition ${filter === item.id ? "bg-blue-600 text-white border-blue-600" : "bg-transparent text-muted-foreground border-border hover:bg-muted"}`}>
               {item.label}
             </button>
           ))}
         </div>
       </section>
 
-      <section style={{ padding: "60px 24px 100px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+      <section className="pt-16 px-6 pb-24">
+        <div className="max-w-6xl mx-auto">
           {filteredChallenges.length === 0 ? (
-            <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 16, padding: 28, textAlign: "center" }}>
-              <p style={{ color: "#8A97B5" }}>No live challenges match this filter yet.</p>
+            <div className="bg-card border border-border rounded-2xl p-7 text-center">
+              <p className="text-muted-foreground">No live challenges match this filter yet.</p>
             </div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 24 }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredChallenges.map((challenge) => (
-                <div key={challenge.id} style={{ background: "#FFFFFF", border: `1px solid ${challenge.active ? "#B8E5FF" : "#E6ECF5"}`, borderRadius: 16, padding: 28, transition: "all 0.3s", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 18 }}>
-                    <span style={{ background: challenge.active ? "rgba(31, 184, 255, 0.1)" : "#F6F8FC", color: challenge.active ? "#0B3FD9" : "#6B7FA0", fontSize: 11, fontWeight: 700, padding: "4px 12px", borderRadius: 50, border: `1px solid ${challenge.active ? "#B8E5FF" : "#E6ECF5"}` }}>
+                <div key={challenge.id} className={`bg-card border rounded-2xl p-7 transition-all shadow-sm hover:shadow-md ${challenge.active ? "border-blue-500/30" : "border-border"}`}>
+                  <div className="flex justify-between items-start gap-3 mb-4">
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full border ${challenge.active ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20" : "bg-muted text-muted-foreground border-border"}`}>
                       {challenge.active ? "Active" : "Completed"}
                     </span>
-                    <span style={{ color: "#CC7A00", fontSize: 13, fontWeight: 700 }}>+{challenge.points_reward} XP</span>
+                    <span className="text-amber-600 dark:text-amber-400 text-sm font-bold">+{challenge.points_reward} XP</span>
                   </div>
-                  <h3 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 22, color: "#0B1B3D", marginBottom: 10 }}>{challenge.title}</h3>
-                  <p style={{ fontSize: 14, marginBottom: 20, color: "#4A5878", lineHeight: 1.7 }}>{challenge.description || "No description yet."}</p>
-                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 20 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <Users size={14} color="#6B7FA0" />
-                      <span style={{ fontSize: 13, color: "#6B7FA0" }}>{challenge.participantsCount || 0} participants</span>
+                  <h3 className="font-['Space_Grotesk'] font-extrabold text-2xl text-card-foreground mb-2">{challenge.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-5">{challenge.description || "No description yet."}</p>
+                  <div className="flex gap-4 flex-wrap mb-5">
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <Users size={14} />
+                      <span className="text-sm">{challenge.participantsCount || 0} participants</span>
                     </div>
                     {(challenge.start_date || challenge.end_date) && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <Calendar size={14} color="#6B7FA0" />
-                        <span style={{ fontSize: 13, color: "#6B7FA0" }}>{challenge.start_date || "Open"} {challenge.end_date ? `→ ${challenge.end_date}` : ""}</span>
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <Calendar size={14} />
+                        <span className="text-sm">{challenge.start_date || "Open"} {challenge.end_date ? `→ ${challenge.end_date}` : ""}</span>
                       </div>
                     )}
                   </div>
-                  <Link to={createPageUrl("Dashboard") + "?tab=challenges"} style={{ display: "block", textAlign: "center", fontSize: 15, background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, padding: "14px 32px", borderRadius: 50, textDecoration: "none", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }}>
+                  <Link to={createPageUrl("Dashboard") + "?tab=challenges"} className="block text-center text-[15px] bg-gradient-to-r from-cyan-400 to-blue-600 text-white font-['Space_Grotesk'] font-extrabold py-3.5 rounded-full shadow-sm hover:shadow-md transition">
                     Open in dashboard
                   </Link>
                 </div>

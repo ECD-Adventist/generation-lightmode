@@ -3,6 +3,7 @@ import { X, Loader2, Save, Target } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 
 const METRICS = [
   { value: "", label: "— None —" },
@@ -143,9 +144,13 @@ export default function ChallengeFormModal({ challenge, onClose, onSaved, t }) {
             </div>
             <div>
               <label className="text-[11px] font-bold uppercase tracking-wider mb-1 block" style={{ color: t.textMuted }}>Metric</label>
-              <select value={form.territory_metric} onChange={e => set("territory_metric", e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm border focus:outline-none" style={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }}>
-                {METRICS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-              </select>
+              <BottomSheetSelect
+                value={form.territory_metric}
+                onChange={val => set("territory_metric", val)}
+                options={METRICS.map(m => ({ value: m.value, label: m.label }))}
+                triggerClassName="w-full rounded-lg px-3 py-2 text-sm border focus:outline-none"
+                triggerStyle={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }}
+              />
             </div>
           </div>
 

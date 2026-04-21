@@ -501,7 +501,7 @@ export default function Feed() {
         {/* Center Feed */}
         <div 
           ref={feedScrollRef} 
-          className="h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8 bg-background text-foreground"
+          className="h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8 bg-background text-foreground overscroll-y-none"
           onScroll={(e) => {
             const { scrollTop, scrollHeight, clientHeight } = e.target;
             if (scrollHeight - scrollTop <= clientHeight + 150) {
