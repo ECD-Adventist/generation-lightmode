@@ -112,16 +112,16 @@ export default function OnboardingModal({ isOpen, onCompleted }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md rounded-2xl p-0 z-[9999] [&>button]:hidden overflow-hidden font-['Inter']" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D" }} onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent className="sm:max-w-md rounded-2xl p-0 z-[9999] [&>button]:hidden overflow-hidden font-['Inter'] bg-card border border-border text-foreground" onInteractOutside={(e) => e.preventDefault()}>
         {/* Header */}
-        <div className="px-6 pt-6 pb-4 border-b text-center" style={{ borderColor: "#E6ECF5" }}>
-          <div className="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3" style={{ background: "#EEF3FF", border: "1px solid #D6E4FF" }}>
-            {step === 0 ? <ShieldCheck className="w-6 h-6" style={{ color: "#0B3FD9" }} /> : step === 1 ? <User className="w-6 h-6" style={{ color: "#0B3FD9" }} /> : <MapPin className="w-6 h-6" style={{ color: "#1FB8FF" }} />}
+        <div className="px-6 pt-6 pb-4 border-b border-border text-center">
+          <div className="w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-3 bg-blue-500/10 border border-blue-500/20">
+            {step === 0 ? <ShieldCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" /> : step === 1 ? <User className="w-6 h-6 text-blue-600 dark:text-blue-400" /> : <MapPin className="w-6 h-6 text-cyan-500" />}
           </div>
-          <h2 className="text-xl font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>
+          <h2 className="text-xl font-black font-['Space_Grotesk'] text-foreground">
             {step === 0 ? "Welcome to Generation LightMode" : step === 1 ? "Your Profile" : "Almost Done!"}
           </h2>
-          <p className="text-xs mt-1" style={{ color: "#6B7FA0" }}>
+          <p className="text-xs mt-1 text-muted-foreground">
             {step === 0 ? "A quick setup before you enter" : step === 1 ? "Required — used throughout the platform" : "Optional but helps the community know you"}
           </p>
           <div className="mt-4"><StepIndicator current={step} total={3} /></div>
@@ -130,24 +130,24 @@ export default function OnboardingModal({ isOpen, onCompleted }) {
         <div className="px-6 py-5 max-h-[60vh] overflow-y-auto space-y-4">
           {step === 0 && (
             <>
-              <div className="rounded-xl p-4" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
-                <p className="text-sm font-bold mb-1" style={{ color: "#0B1B3D" }}>Privacy & Electronic Communication Consent</p>
-                <p className="text-xs mb-3 leading-relaxed" style={{ color: "#6B7FA0" }}>I consent to the submission of my information to be stored and processed by Generation LightMode and to be electronically contacted by email as part of this participation process.</p>
+              <div className="rounded-xl p-4 bg-muted border border-border">
+                <p className="text-sm font-bold mb-1 text-foreground">Privacy & Electronic Communication Consent</p>
+                <p className="text-xs mb-3 leading-relaxed text-muted-foreground">I consent to the submission of my information to be stored and processed by Generation LightMode and to be electronically contacted by email as part of this participation process.</p>
                 <label className="flex items-center gap-3 cursor-pointer" onClick={() => setConsent1(!consent1)}>
                   <div className="w-5 h-5 rounded flex items-center justify-center shrink-0 transition-all" style={consent1 ? { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", border: "none" } : { border: "2px solid #C0C8D8" }}>
                     {consent1 && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                   </div>
-                  <span className="text-sm select-none" style={{ color: "#3A4A6B" }}>I consent.</span>
+                  <span className="text-sm select-none text-foreground">I consent.</span>
                 </label>
               </div>
-              <div className="rounded-xl p-4" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
-                <p className="text-sm font-bold mb-1" style={{ color: "#0B1B3D" }}>Privacy Policy</p>
-                <p className="text-xs mb-3 leading-relaxed" style={{ color: "#6B7FA0" }}>I have read and agreed with the <Link to="/Privacy" target="_blank" className="font-bold underline" style={{ color: "#0B3FD9" }}>Privacy Policy</Link> of Generation LightMode.</p>
+              <div className="rounded-xl p-4 bg-muted border border-border">
+                <p className="text-sm font-bold mb-1 text-foreground">Privacy Policy</p>
+                <p className="text-xs mb-3 leading-relaxed text-muted-foreground">I have read and agreed with the <Link to="/Privacy" target="_blank" className="font-bold underline text-blue-600 dark:text-blue-400">Privacy Policy</Link> of Generation LightMode.</p>
                 <label className="flex items-center gap-3 cursor-pointer" onClick={() => setConsent2(!consent2)}>
                   <div className="w-5 h-5 rounded flex items-center justify-center shrink-0 transition-all" style={consent2 ? { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", border: "none" } : { border: "2px solid #C0C8D8" }}>
                     {consent2 && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                   </div>
-                  <span className="text-sm select-none" style={{ color: "#3A4A6B" }}>I agree.</span>
+                  <span className="text-sm select-none text-foreground">I agree.</span>
                 </label>
               </div>
             </>
@@ -155,45 +155,45 @@ export default function OnboardingModal({ isOpen, onCompleted }) {
 
           {step === 1 && (
             <>
-              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Full Name <span style={{ color: "#EF4444" }}>*</span></label><input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" className={inputStyle} style={inputColors} /></div>
-              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Country <span style={{ color: "#EF4444" }}>*</span></label><BottomSheetSelect value={country} onChange={setCountry} options={COUNTRIES} placeholder="Select your country…" /></div>
-              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Gender <span style={{ color: "#EF4444" }}>*</span></label>
+              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-muted-foreground">Full Name <span className="text-red-500">*</span></label><input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-muted border border-border text-foreground" /></div>
+              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-muted-foreground">Country <span className="text-red-500">*</span></label><BottomSheetSelect value={country} onChange={setCountry} options={COUNTRIES.map(c => ({value: c, label: c}))} placeholder="Select your country…" triggerClassName="bg-muted border-border text-foreground" /></div>
+              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-muted-foreground">Gender <span className="text-red-500">*</span></label>
                 <div className="flex gap-2">{[["male","Male"],["female","Female"],["prefer_not_to_say","Prefer not to say"]].map(([val, label]) => (
-                  <button key={val} type="button" onClick={() => setGender(val)} className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition" style={gender === val ? { background: "rgba(11,63,217,0.08)", border: "1px solid #D6E4FF", color: "#0B3FD9" } : { border: "1px solid #E6ECF5", color: "#6B7FA0" }}>{label}</button>
+                  <button key={val} type="button" onClick={() => setGender(val)} className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition border ${gender === val ? 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400' : 'border-border text-muted-foreground hover:bg-muted'}`}>{label}</button>
                 ))}</div>
               </div>
-              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Date of Birth <span style={{ color: "#EF4444" }}>*</span></label><input type="date" value={dob} onChange={e => setDob(e.target.value)} max={new Date().toISOString().split("T")[0]} className={inputStyle} style={{ ...inputColors, colorScheme: "light" }} /></div>
-              <div className="pt-1 pb-0.5"><div className="flex items-center gap-2 mb-2"><div className="h-px flex-1" style={{ background: "#E6ECF5" }} /><span className="text-[10px] uppercase tracking-wider font-bold" style={{ color: "#8A97B5" }}>Location Details</span><div className="h-px flex-1" style={{ background: "#E6ECF5" }} /></div></div>
-              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Street Address <span style={{ color: "#EF4444" }}>*</span></label><input value={address} onChange={e => setAddress(e.target.value)} placeholder="e.g. 12 Church Road" className={inputStyle} style={inputColors} /></div>
+              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-muted-foreground">Date of Birth <span className="text-red-500">*</span></label><input type="date" value={dob} onChange={e => setDob(e.target.value)} max={new Date().toISOString().split("T")[0]} className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-muted border border-border text-foreground" /></div>
+              <div className="pt-1 pb-0.5"><div className="flex items-center gap-2 mb-2"><div className="h-px flex-1 bg-border" /><span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Location Details</span><div className="h-px flex-1 bg-border" /></div></div>
+              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-muted-foreground">Street Address <span className="text-red-500">*</span></label><input value={address} onChange={e => setAddress(e.target.value)} placeholder="e.g. 12 Church Road" className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-muted border border-border text-foreground" /></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>City / Town <span style={{ color: "#EF4444" }}>*</span></label><input value={city} onChange={e => setCity(e.target.value)} placeholder="e.g. Nairobi" className={inputStyle} style={inputColors} /></div>
-                <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Postal Code <span style={{ color: "#EF4444" }}>*</span></label><input value={postalCode} onChange={e => setPostalCode(e.target.value)} placeholder="e.g. 00100" maxLength={10} className={inputStyle} style={inputColors} /></div>
+                <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-muted-foreground">City / Town <span className="text-red-500">*</span></label><input value={city} onChange={e => setCity(e.target.value)} placeholder="e.g. Nairobi" className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-muted border border-border text-foreground" /></div>
+                <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-muted-foreground">Postal Code <span className="text-red-500">*</span></label><input value={postalCode} onChange={e => setPostalCode(e.target.value)} placeholder="e.g. 00100" maxLength={10} className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-muted border border-border text-foreground" /></div>
               </div>
             </>
           )}
 
           {step === 2 && (
             <>
-              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Profile Photo</label>
+              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-muted-foreground">Profile Photo</label>
                 <div className="flex items-center gap-4">
-                  {profilePic ? <img src={profilePic} className="w-16 h-16 rounded-full object-cover" style={{ border: "2px solid #D6E4FF" }} /> : <div className="w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center shrink-0" style={{ borderColor: "#D6E4FF", background: "#F6F8FC" }}><User className="w-6 h-6" style={{ color: "#8A97B5" }} /></div>}
-                  <label className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed text-sm transition cursor-pointer" style={{ borderColor: "#D6E4FF", color: "#0B3FD9", background: "#F6F8FC" }}>
+                  {profilePic ? <img src={profilePic} className="w-16 h-16 rounded-full object-cover border-2 border-blue-500/30" /> : <div className="w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center shrink-0 border-blue-500/30 bg-muted"><User className="w-6 h-6 text-muted-foreground" /></div>}
+                  <label className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed text-sm transition cursor-pointer border-blue-500/30 text-blue-600 dark:text-blue-400 bg-muted hover:bg-muted/80">
                     {uploadingPic ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />} {uploadingPic ? "Uploading…" : "Upload Photo"}
                     <input type="file" accept="image/*" className="hidden" onChange={handlePicUpload} disabled={uploadingPic} />
                   </label>
                 </div>
               </div>
-              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Bio <span style={{ color: "#8A97B5" }}>(optional)</span></label><textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell the community about yourself…" maxLength={150} rows={3} className={inputStyle + " resize-none"} style={inputColors} /><p className="text-[10px] mt-0.5 text-right" style={{ color: "#8A97B5" }}>{bio.length}/150</p></div>
-              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "#6B7FA0" }}>Phone Number <span style={{ color: "#8A97B5" }}>(optional)</span></label><input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+255 700 000 000" className={inputStyle} style={inputColors} /></div>
-              <p className="text-[11px] text-center pt-1" style={{ color: "#8A97B5" }}>You can always update these later from your profile settings.</p>
+              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-muted-foreground">Bio <span className="text-muted-foreground/60">(optional)</span></label><textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell the community about yourself…" maxLength={150} rows={3} className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-muted border border-border text-foreground resize-none" /><p className="text-[10px] mt-0.5 text-right text-muted-foreground">{bio.length}/150</p></div>
+              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-muted-foreground">Phone Number <span className="text-muted-foreground/60">(optional)</span></label><input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+255 700 000 000" className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-muted border border-border text-foreground" /></div>
+              <p className="text-[11px] text-center pt-1 text-muted-foreground">You can always update these later from your profile settings.</p>
             </>
           )}
         </div>
 
-        <div className="px-6 pb-6 pt-2 border-t" style={{ borderColor: "#E6ECF5" }}>
-          {step === 0 && <button onClick={handleConsentNext} className="w-full font-black h-12 rounded-xl transition text-base flex items-center justify-center gap-2" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>Agree & Continue <ChevronRight className="w-5 h-5" /></button>}
-          {step === 1 && <button onClick={handleProfileNext} className="w-full font-black h-12 rounded-xl transition text-base flex items-center justify-center gap-2" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>Next <ChevronRight className="w-5 h-5" /></button>}
-          {step === 2 && <button onClick={handleFinish} disabled={saving || uploadingPic} className="w-full font-black h-12 rounded-xl transition text-base flex items-center justify-center gap-2 disabled:opacity-50" style={{ background: "linear-gradient(90deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 4px 14px rgba(255, 159, 26, 0.35)" }}>{saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</> : "Enter LightMode ⚡"}</button>}
+        <div className="px-6 pb-6 pt-2 border-t border-border">
+          {step === 0 && <button onClick={handleConsentNext} className="w-full font-black h-12 rounded-xl transition text-base flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-600 text-white shadow-sm hover:opacity-90">Agree & Continue <ChevronRight className="w-5 h-5" /></button>}
+          {step === 1 && <button onClick={handleProfileNext} className="w-full font-black h-12 rounded-xl transition text-base flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-400 to-blue-600 text-white shadow-sm hover:opacity-90">Next <ChevronRight className="w-5 h-5" /></button>}
+          {step === 2 && <button onClick={handleFinish} disabled={saving || uploadingPic} className="w-full font-black h-12 rounded-xl transition text-base flex items-center justify-center gap-2 disabled:opacity-50 bg-gradient-to-r from-amber-400 to-amber-500 text-black shadow-sm hover:opacity-90">{saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</> : "Enter LightMode ⚡"}</button>}
         </div>
       </DialogContent>
     </Dialog>

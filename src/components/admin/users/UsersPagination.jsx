@@ -36,7 +36,7 @@ export default function UsersPagination({ page, pageSize, totalItems, onPageChan
             { value: "200", label: "200" }
           ]}
           triggerClassName="!py-0.5 !px-1.5 !text-xs !font-semibold !rounded !min-w-[60px]"
-          triggerStyle={{ background: "transparent", borderColor: t.border, color: t.textPrimary }}
+          triggerStyle={{ background: "transparent", border: `1px solid ${t.border}`, color: t.textPrimary }}
         />
       </div>
 
