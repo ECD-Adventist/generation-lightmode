@@ -14,6 +14,7 @@ import ReadMoreText from "@/components/feed/ReadMoreText";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
 import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [] }) {
   const [showComments, setShowComments] = useState(false);
@@ -308,7 +309,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 </div>
                 <div className="flex flex-col items-start justify-center min-w-0">
                   <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 truncate max-w-[140px] sm:max-w-none ${drop.media_url ? "text-white" : ""}`} style={drop.media_url ? {} : { color: "#0B1B3D" }}>
-                    {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : (dropUser.full_name || dropUser.email?.split('@')[0] || "Glow Believer")}
+                    {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(dropUser)}
                     {drop.user_email === "system@lightmode.com" ? (
                        <span className="flex items-center justify-center w-3 h-3 rounded-full ml-0.5" style={{ background: "#1FB8FF", color: "#FFFFFF" }}>
                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-2 h-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -541,7 +542,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 </div>
                 <div className="px-3.5 py-2.5 rounded-2xl rounded-tl-none flex-1 shadow-sm relative bg-card border border-border text-foreground">
                   <div className="flex justify-between items-start gap-2">
-                    <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.user_email)}`} className="font-bold text-xs block mb-1 no-underline hover:underline text-blue-600 dark:text-blue-400">{getCommentUser(c.user_email).full_name}</Link>
+                    <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.user_email)}`} className="font-bold text-xs block mb-1 no-underline hover:underline text-blue-600 dark:text-blue-400">{getDisplayName(getCommentUser(c.user_email))}</Link>
 
                     {user && (
                       <DropdownMenu>

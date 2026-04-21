@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, Users, BookOpen, Award, Sparkles } from "lucide-react";
+import { getDisplayName } from "@/lib/displayName";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
@@ -76,7 +77,7 @@ export default function ProfileHoverSummary({ dropUser }) {
 
         {/* Name + rank */}
         <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-          <p className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{dropUser?.full_name}</p>
+          <p className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(dropUser)}</p>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold" style={{ background: `${rank.color}15`, color: rank.color, border: `1px solid ${rank.color}30` }}>
             <Sparkles className="w-2.5 h-2.5" /> {rank.name}
           </span>

@@ -27,6 +27,7 @@ Deno.serve(async (req) => {
       .map(u => ({
         id: u.id,
         full_name: u.full_name,
+        display_name: u.display_name,
         email: u.email,
         profile_picture_url: u.profile_picture_url,
         cover_picture_url: u.cover_picture_url,
