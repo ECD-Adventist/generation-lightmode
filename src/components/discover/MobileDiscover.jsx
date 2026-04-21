@@ -73,12 +73,12 @@ export default function MobileDiscover({
       <div className="absolute top-[30%] -left-10 w-48 h-48 rounded-full blur-[80px] pointer-events-none" style={{ background: "#1FB8FF", animation: "md-float-light 10s ease-in-out infinite" }} />
       <div className="absolute top-[60%] -right-10 w-56 h-56 rounded-full blur-[90px] pointer-events-none" style={{ background: "#FFD000", opacity: 0.15, animation: "md-float-light 14s ease-in-out infinite 2s" }} />
 
-      {/* HERO */}
-      <div className="relative overflow-hidden pt-6 pb-5 px-4" style={{ background: "linear-gradient(135deg, #0B3FD9 0%, #1FB8FF 100%)" }}>
+      {/* HERO — extends under the status bar / camera notch */}
+      <div className="relative overflow-hidden safe-pt pb-5 px-4" style={{ background: "linear-gradient(135deg, #0B3FD9 0%, #1FB8FF 100%)" }}>
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full blur-3xl opacity-40" style={{ background: "#FFD000" }} />
         <div className="absolute -bottom-12 -left-10 w-48 h-48 rounded-full blur-3xl opacity-30" style={{ background: "#7FE0FF" }} />
 
-        <div className="relative flex items-center gap-2 mb-3">
+        <div className="relative flex items-center gap-2 mb-3 pt-3">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.2)", backdropFilter: "blur(10px)" }}>
             <Compass className="w-5 h-5 text-white" />
           </div>

@@ -48,8 +48,8 @@ export default function MobileFeed({
         .mf-hide-sb { scrollbar-width: none; }
       `}</style>
 
-      {/* HERO HEADER — deeper, richer brand gradient with radial glows */}
-      <div className="relative overflow-hidden pt-5 pb-14 px-4" style={{
+      {/* HERO HEADER — extends under the status bar / camera notch */}
+      <div className="relative overflow-hidden safe-pt pb-14 px-4" style={{
         background: "radial-gradient(ellipse at 20% 0%, #1FB8FF 0%, transparent 55%), radial-gradient(ellipse at 95% 100%, #FFD000 0%, transparent 45%), linear-gradient(135deg, #0A2E9F 0%, #0B3FD9 55%, #1563E8 100%)"
       }}>
         {/* Ambient floating blobs */}
@@ -65,7 +65,7 @@ export default function MobileFeed({
         </div>
 
         {/* Top bar: logo + actions */}
-        <div className="relative flex items-center gap-2">
+        <div className="relative flex items-center gap-2 pt-3">
           <Link to={createPageUrl("Home")} className="shrink-0">
             <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="" className="h-9 w-auto object-contain" style={{ filter: "brightness(0) invert(1)" }} />
           </Link>

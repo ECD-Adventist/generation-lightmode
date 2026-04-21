@@ -80,8 +80,8 @@ export default function MobileGlowGroups({
         .mgg-hide-scrollbar { scrollbar-width: none; }
       `}</style>
 
-      {/* HERO — deep brand gradient with radial glows + shimmer */}
-      <div className="relative overflow-hidden pt-5 pb-16 px-4" style={{
+      {/* HERO — extends under the status bar / camera notch */}
+      <div className="relative overflow-hidden safe-pt pb-16 px-4" style={{
         background: "radial-gradient(ellipse at 20% 0%, #1FB8FF 0%, transparent 55%), radial-gradient(ellipse at 95% 100%, #FFD000 0%, transparent 45%), linear-gradient(135deg, #0A2E9F 0%, #0B3FD9 55%, #1563E8 100%)"
       }}>
         <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "#FFD000", opacity: 0.25, animation: "mgg-float 9s ease-in-out infinite" }} />
@@ -95,7 +95,7 @@ export default function MobileGlowGroups({
         </div>
 
         {/* Header row */}
-        <div className="relative flex items-center gap-2 mb-4">
+        <div className="relative flex items-center gap-2 mb-4 pt-3">
           <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.18)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.22)" }}>
             <Sparkles className="w-5 h-5 text-white" />
           </div>
