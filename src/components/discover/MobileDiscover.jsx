@@ -62,21 +62,16 @@ export default function MobileDiscover({
   }, [drops, allUsers]);
 
   return (
-    <div className="min-h-screen font-['Inter']" style={{ background: "linear-gradient(180deg, #F6F8FC 0%, #EEF3FF 100%)", color: "#0B1B3D" }}>
+    <div className="min-h-screen font-['Inter'] relative overflow-hidden" style={{ background: "linear-gradient(180deg, #F6F8FC 0%, #EEF3FF 60%, #E2EBFF 100%)", color: "#0B1B3D" }}>
       <style>{`
-        @keyframes md-float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
-        @keyframes md-shine { 0% { background-position: -200% 0 } 100% { background-position: 200% 0 } }
-        .md-shine {
-          background: linear-gradient(90deg, #0B3FD9 0%, #1FB8FF 40%, #FFD000 70%, #1FB8FF 100%);
-          background-size: 200% 100%;
-          -webkit-background-clip: text;
-          background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: md-shine 6s linear infinite;
-        }
+        @keyframes md-float-light { 0%,100% { transform: translateY(0) scale(1); opacity: 0.18 } 50% { transform: translateY(-20px) scale(1.08); opacity: 0.32 } }
         .md-hide-scrollbar::-webkit-scrollbar { display: none; }
         .md-hide-scrollbar { scrollbar-width: none; }
       `}</style>
+
+      {/* Ambient light orbs */}
+      <div className="absolute top-[30%] -left-10 w-48 h-48 rounded-full blur-[80px] pointer-events-none" style={{ background: "#1FB8FF", animation: "md-float-light 10s ease-in-out infinite" }} />
+      <div className="absolute top-[60%] -right-10 w-56 h-56 rounded-full blur-[90px] pointer-events-none" style={{ background: "#FFD000", opacity: 0.15, animation: "md-float-light 14s ease-in-out infinite 2s" }} />
 
       {/* HERO */}
       <div className="relative overflow-hidden pt-6 pb-5 px-4" style={{ background: "linear-gradient(135deg, #0B3FD9 0%, #1FB8FF 100%)" }}>
@@ -135,13 +130,11 @@ export default function MobileDiscover({
         </div>
       )}
 
-      <div className="px-3 pb-10">
+      <div className="relative z-10 px-3 pb-10">
         {!q ? (
           <IdleView
-            trendingTags={trendingTags}
             topCreators={topCreators}
             topLikedDrops={topLikedDrops}
-            onTagClick={(tag) => setSearch(tag)}
           />
         ) : (
           <div className="pt-3">
@@ -186,68 +179,59 @@ export default function MobileDiscover({
   );
 }
 
-function IdleView({ trendingTags, topCreators, topLikedDrops, onTagClick }) {
+function IdleView({ topCreators, topLikedDrops }) {
   return (
-    <div className="pt-4 space-y-5">
-      {/* Trending Tags */}
-      {trendingTags.length > 0 && (
-        <div>
-          <SectionHeader title="Trending Now" icon={<TrendingUp className="w-3.5 h-3.5" />} accent="#CC7A00" />
-          <div className="flex gap-2 overflow-x-auto md-hide-scrollbar pb-1">
-            {trendingTags.map((t, i) => (
-              <button
-                key={t.tag}
-                onClick={() => onTagClick(t.tag)}
-                className="shrink-0 rounded-2xl px-4 py-3 text-left transition active:scale-95"
-                style={{
-                  background: i === 0
-                    ? "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)"
-                    : "linear-gradient(135deg, #FFFFFF 0%, #F4F7FE 100%)",
-                  border: i === 0 ? "none" : "1px solid #E6ECF5",
-                  boxShadow: i === 0 ? "0 6px 18px rgba(255, 159, 26, 0.35)" : "0 2px 8px rgba(11, 63, 217, 0.06)",
-                  minWidth: 140,
-                }}
-              >
-                <div className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: i === 0 ? "rgba(11, 27, 61, 0.7)" : "#8A97B5" }}>
-                  {i === 0 ? "🔥 Top" : `#${i + 1}`}
-                </div>
-                <div className="text-sm font-black truncate" style={{ color: "#0B1B3D" }}>{t.tag}</div>
-                <div className="text-[11px] font-semibold" style={{ color: i === 0 ? "rgba(11, 27, 61, 0.65)" : "#6B7FA0" }}>{t.count} drop{t.count === 1 ? "" : "s"}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Top Creators */}
+    <div className="pt-5 space-y-6">
+      {/* Top Creators — branded horizontal scroll */}
       {topCreators.length > 0 && (
         <div>
           <SectionHeader title="Top Glow Creators" icon={<Flame className="w-3.5 h-3.5" />} accent="#0B3FD9" />
-          <div className="flex gap-3 overflow-x-auto md-hide-scrollbar pb-1">
-            {topCreators.map((c, i) => (
-              <Link
-                key={c.email}
-                to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.email)}`}
-                className="shrink-0 flex flex-col items-center gap-1.5 no-underline w-20"
-              >
-                <div className="relative">
-                  <div className="w-16 h-16 rounded-full p-[2.5px]" style={{ background: i === 0 ? "linear-gradient(135deg, #FFD000, #FF9F1A)" : "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
-                    <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "2px solid #FFFFFF" }}>
-                      <img src={c.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-                  {i < 3 && (
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-[11px]" style={{ background: "#FFFFFF", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }}>
-                      {i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"}
-                    </div>
+          <div className="relative -mx-3 px-3">
+            <div className="flex gap-2.5 overflow-x-auto md-hide-scrollbar pb-2 snap-x snap-mandatory">
+              {topCreators.map((c, i) => (
+                <Link
+                  key={c.email}
+                  to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.email)}`}
+                  className="shrink-0 snap-start no-underline relative overflow-hidden rounded-2xl p-3 flex flex-col items-center gap-2 transition active:scale-[0.97]"
+                  style={{
+                    width: 112,
+                    background: i === 0
+                      ? "linear-gradient(145deg, #0B3FD9 0%, #1FB8FF 100%)"
+                      : "linear-gradient(145deg, #FFFFFF 0%, #F4F7FE 100%)",
+                    border: i === 0 ? "none" : "1px solid #E0EAF5",
+                    boxShadow: i === 0
+                      ? "0 8px 20px rgba(11, 63, 217, 0.3)"
+                      : "0 4px 14px rgba(11, 63, 217, 0.06)",
+                  }}
+                >
+                  {/* Gold accent glow for #1 */}
+                  {i === 0 && (
+                    <div className="absolute -top-6 -right-6 w-16 h-16 rounded-full blur-xl" style={{ background: "#FFD000", opacity: 0.5 }} />
                   )}
-                </div>
-                <div className="text-[11px] font-bold text-center truncate w-full" style={{ color: "#0B1B3D" }}>{getDisplayName(c)?.split(" ")[0]}</div>
-                <div className="text-[9px] font-semibold flex items-center gap-0.5" style={{ color: "#6B7FA0" }}>
-                  <Heart className="w-2.5 h-2.5 text-red-400 fill-red-400" /> {c.likes}
-                </div>
-              </Link>
-            ))}
+
+                  <div className="relative">
+                    <div className="w-14 h-14 rounded-full p-[2px]" style={{ background: i === 0 ? "linear-gradient(135deg, #FFD000, #FF9F1A)" : "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
+                      <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "2px solid #FFFFFF" }}>
+                        <img src={c.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                      </div>
+                    </div>
+                    {i < 3 && (
+                      <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px]" style={{ background: "#FFFFFF", boxShadow: "0 2px 6px rgba(0,0,0,0.18)" }}>
+                        {i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="relative text-[11px] font-black text-center truncate w-full font-['Space_Grotesk']" style={{ color: i === 0 ? "#FFFFFF" : "#0B1B3D" }}>
+                    {getDisplayName(c)?.split(" ")[0]}
+                  </div>
+                  <div className="relative flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: i === 0 ? "rgba(255,255,255,0.22)" : "#EEF3FF" }}>
+                    <Heart className="w-2.5 h-2.5 fill-red-400 text-red-400" />
+                    <span className="text-[9px] font-black" style={{ color: i === 0 ? "#FFFFFF" : "#0B3FD9" }}>{c.likes}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       )}
