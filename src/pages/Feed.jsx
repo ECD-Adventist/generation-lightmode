@@ -29,24 +29,24 @@ import MyGlowGroupsSidebar from "@/components/feed/MyGlowGroupsSidebar";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   const baseClass = active
-    ? "bg-[#2B60FF] text-white shadow-md border-none"
+    ? "bg-gradient-to-r from-cyan-400 to-blue-600 text-white shadow-md border-none"
     : accent
-    ? "text-[#2B60FF] bg-transparent hover:bg-[#F0F4F8]"
-    : "text-[#3A4B6B] hover:bg-[#F0F4F8] bg-transparent";
+    ? "text-blue-600 dark:text-blue-400 bg-transparent hover:bg-muted"
+    : "text-muted-foreground hover:bg-muted hover:text-foreground bg-transparent";
 
   const iconBoxClass = active
-    ? "text-white"
-    : "bg-transparent text-[#2B60FF]";
+    ? "bg-white/25 text-white"
+    : "bg-card text-blue-600 dark:text-blue-400 border border-border shadow-sm";
 
   return (
     <Link
       to={to}
-      className={`group flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-200 ${baseClass}`}
+      className={`group flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all duration-200 ${baseClass}`}
     >
-      <div className={`w-6 h-6 flex items-center justify-center shrink-0 transition ${iconBoxClass}`}>
+      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition ${iconBoxClass}`}>
         {icon}
       </div>
-      <span className="text-[14px] font-semibold flex-1">{label}</span>
+      <span className="text-[13px] font-semibold flex-1">{label}</span>
       {badge && (
         <span className="font-bold text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ background: active ? "rgba(255,255,255,0.3)" : "#FF5A5A", color: "#FFFFFF" }}>
           {badge}
@@ -376,7 +376,7 @@ export default function Feed() {
       <div className="h-full relative z-10 grid grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-0 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
-        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r border-[#E2E8F0] overflow-y-auto hide-scrollbar relative bg-gradient-to-b from-[#EEF7EE] to-[#F4F9F2]">
+        <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] border-r border-border backdrop-blur-md overflow-y-auto hide-scrollbar relative bg-card/80">
            <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
              <img
                src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png"
@@ -451,7 +451,7 @@ export default function Feed() {
            
            <button
              onClick={() => setIsDropModalOpen(true)}
-             className="mt-6 shrink-0 flex items-center justify-center gap-2 font-bold rounded-2xl w-full py-3.5 text-sm transition-all hover:shadow-lg hover:scale-[1.02] bg-[#FFB400] text-[#0A1A3D] shadow-sm"
+             className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-2xl w-full py-3.5 text-sm transition-all hover:shadow-lg hover:scale-[1.02] bg-gradient-to-r from-amber-400 to-amber-500 text-black shadow-sm"
            >
              <Plus className="w-4 h-4" /> NEW DROP
            </button>
@@ -498,13 +498,13 @@ export default function Feed() {
         <div className="hidden lg:flex items-center justify-between px-4 mb-6 shrink-0 gap-4">
            <h2 className="text-xl font-bold shrink-0 text-foreground">For You</h2>
            <div className="relative w-80">
-             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none text-[#2B60FF]" />
+             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none text-blue-500" />
              <input
                type="text"
                value={searchQuery}
                onChange={(e) => setSearchQuery(e.target.value)}
                placeholder="Search drops by verse, reflection, hashtag..."
-               className="w-full rounded-full py-2.5 pl-9 pr-9 text-sm focus:outline-none transition bg-white border border-[#E2E8F0] text-[#0B1B3D] focus:border-[#2B60FF]"
+               className="w-full rounded-full py-2.5 pl-9 pr-9 text-sm focus:outline-none transition bg-card border border-border text-foreground focus:border-blue-500"
              />
              {searchQuery && (
                <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 transition text-muted-foreground hover:text-foreground">
@@ -542,13 +542,13 @@ export default function Feed() {
             onClick={() => user ? setIsStatusModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
             className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0 group"
           >
-             <div className="relative w-16 h-16 rounded-full p-[2px] bg-gradient-to-br from-[#2B60FF] to-[#00CFFF] transition-transform group-hover:scale-105 shadow-sm">
-                <div className="w-full h-full rounded-full border-2 overflow-hidden flex items-center justify-center border-white bg-white">
+             <div className="relative w-16 h-16 rounded-full p-[2px] bg-gradient-to-br from-cyan-400 to-blue-600 transition-transform group-hover:scale-105">
+                <div className="w-full h-full rounded-full border-2 overflow-hidden flex items-center justify-center border-background bg-card">
                   <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full text-sm font-black flex items-center justify-center border-2 bg-[#FFB400] text-[#0A1A3D] border-white">+</div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full text-sm font-black flex items-center justify-center border-2 bg-amber-400 text-black border-background">+</div>
              </div>
-             <span className="text-[10px] font-bold uppercase tracking-wider text-[#2B60FF]">ADD STATUS</span>
+             <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">ADD STATUS</span>
           </button>
 
           {activeStories.map((story) => {
@@ -589,11 +589,11 @@ export default function Feed() {
         </div>
 
         <div className="flex gap-2 sm:gap-3 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">
-          <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-5 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5 bg-[#2B60FF] text-white shadow-sm hover:opacity-90"><Plus className="w-4 h-4" />Post</button>
-          <Link to={createPageUrl("Messages")} className="px-5 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-white border border-[#E2E8F0] text-[#0B1B3D] hover:bg-gray-50">Messages</Link>
-          <Link to={createPageUrl("PrayerWall")} className="px-5 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-white border border-[#E2E8F0] text-[#0B1B3D] hover:bg-gray-50">Prayer Wall</Link>
-          <Link to={createPageUrl("Live")} className="px-5 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-[#F0F5FF] text-[#2B60FF] hover:bg-[#E2EDFF]">Live</Link>
-          <Link to="/DailyTruthFeed" className="px-5 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5 bg-[#FFB400] text-[#0A1A3D] shadow-sm hover:opacity-90">⚡ Daily Drops</Link>
+          <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5 bg-gradient-to-r from-cyan-400 to-blue-600 text-white shadow-sm hover:opacity-90"><Plus className="w-4 h-4" />Post</button>
+          <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-card border border-border text-foreground hover:bg-muted">Messages</Link>
+          <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-card border border-border text-foreground hover:bg-muted">Prayer Wall</Link>
+          <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20">Live</Link>
+          <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-black shadow-sm hover:opacity-90">⚡ Daily Drops</Link>
         </div>
 
         <div className="flex gap-2 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">
@@ -601,10 +601,10 @@ export default function Feed() {
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300 ${
+              className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-300 ${
                 activeFilter === filter
-                  ? "bg-[#2B60FF] text-white shadow-sm"
-                  : "bg-white text-[#4A5568] border border-[#E2E8F0] hover:bg-gray-50"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "bg-card text-muted-foreground border border-border hover:bg-muted hover:text-foreground"
               }`}
             >
               {filter}
@@ -664,7 +664,7 @@ export default function Feed() {
         </div>
 
         {/* Right Sidebar (Desktop) */}
-        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l border-[#E2E8F0] overflow-y-auto hide-scrollbar bg-white">
+        <div className="hidden lg:block py-8 px-6 sticky top-0 h-[100dvh] border-l border-border backdrop-blur-md overflow-y-auto hide-scrollbar bg-card/50">
           
           <DailyChallenges user={user} />
 
@@ -677,10 +677,11 @@ export default function Feed() {
             onSearchTag={(topic) => { setSearchQuery(topic); setActiveFilter("All"); }}
           />
 
-          <div className="rounded-[24px] p-5 mb-6 relative overflow-hidden bg-white border border-[#E2E8F0] shadow-sm">
+          <div className="rounded-[24px] p-5 mb-6 relative overflow-hidden bg-card border border-border shadow-sm">
+            <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl opacity-30 pointer-events-none bg-cyan-400" />
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-1 h-4 rounded-full bg-[#2B60FF]" />
-              <h3 className="font-black text-[11px] tracking-widest uppercase text-[#2B60FF]">Trending Vibes</h3>
+              <div className="w-1.5 h-5 rounded-full bg-gradient-to-b from-blue-600 to-cyan-400" />
+              <h3 className="font-black text-xs tracking-widest uppercase text-blue-600 dark:text-blue-400">Trending Vibes</h3>
             </div>
             
             <div className="space-y-1">
@@ -707,8 +708,8 @@ export default function Feed() {
             </div>
           </div>
 
-          <div className="rounded-[24px] p-5 bg-white border border-[#E2E8F0] shadow-sm">
-            <h3 className="font-black text-[11px] mb-4 tracking-widest uppercase text-[#FFB400]">People to Connect</h3>
+          <div className="rounded-[24px] p-5 bg-card border border-border shadow-sm">
+            <h3 className="font-black text-xs mb-4 tracking-widest uppercase text-amber-500">People to Connect</h3>
             
             <div className="space-y-4">
               {users.filter(u => u.email !== user?.email && !following.some(f => f.following_email === u.email)).map((u, i) => {
@@ -719,13 +720,13 @@ export default function Feed() {
                        <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex flex-col min-w-0 flex-1">
-                      <span className="font-bold text-xs truncate text-[#0B1B3D]">{u.full_name}</span>
-                      <span className="text-[9px] truncate text-[#6B7FA0]">{u.country || "Global Believer"}</span>
+                      <span className="font-bold text-xs truncate text-foreground">{u.full_name}</span>
+                      <span className="text-[9px] truncate text-muted-foreground">{u.country || "Global Believer"}</span>
                     </div>
                   </Link>
                    <button 
                      onClick={() => followMutation.mutate(u.email)}
-                     className="text-[9px] font-bold px-3 py-1.5 rounded-full transition shrink-0 bg-white text-[#2B60FF] border border-[#2B60FF] hover:bg-[#F0F5FF]"
+                     className="text-[9px] font-bold px-3 py-1.5 rounded-full transition shrink-0 bg-cyan-500/10 text-blue-600 dark:text-blue-400 border border-cyan-500/20 hover:bg-cyan-500/20"
                    >
                      CONNECT
                    </button>
@@ -805,7 +806,7 @@ export default function Feed() {
                   </div>
                 )}
               </nav>
-              <button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 font-bold rounded-2xl w-full py-4 text-sm hover:opacity-90 transition-opacity bg-[#FFB400] text-[#0A1A3D] shadow-sm">
+              <button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-2xl w-full py-4 text-sm hover:opacity-90 transition-opacity bg-gradient-to-r from-cyan-400 to-blue-600 text-white shadow-sm">
                 <Plus className="w-4 h-4" /> NEW DROP
               </button>
             </div>
