@@ -370,7 +370,7 @@ export default function Profile() {
     return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
   }
 
-  // MOBILE-ONLY branded shell — reuses same tab content by rendering a trimmed version
+  // MOBILE-ONLY branded shell — reuses same tab content by rendering a trimmed version (v2)
   const mobileTabContent = (() => {
     if (activeProfileTab === "drops") {
       return (
