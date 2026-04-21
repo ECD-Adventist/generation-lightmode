@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Loader2, Shield, X } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
+import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 
 export default function BulkRoleModal({ users, allRoles, onClose, onDone, t }) {
   const [role, setRole] = useState("user");
@@ -44,14 +45,13 @@ export default function BulkRoleModal({ users, allRoles, onClose, onDone, t }) {
 
         <div className="mb-4">
           <label className="text-xs font-bold uppercase tracking-wider mb-1.5 block" style={{ color: t.textMuted }}>New role</label>
-          <select
+          <BottomSheetSelect
             value={role}
-            onChange={e => setRole(e.target.value)}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none"
-            style={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }}
-          >
-            {allRoles.map(r => <option key={r} value={r}>{r.replace(/_/g, " ")}</option>)}
-          </select>
+            onChange={setRole}
+            options={allRoles.map(r => ({ value: r, label: r.replace(/_/g, " ") }))}
+            triggerClassName="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none"
+            triggerStyle={{ background: t.surfaceMuted, borderColor: t.border, color: t.textPrimary }}
+          />
           {ELEVATED.includes(role) && (
             <p className="text-[11px] mt-2 font-semibold" style={{ color: t.warning }}>⚠ Granting elevated admin role. Review carefully.</p>
           )}
