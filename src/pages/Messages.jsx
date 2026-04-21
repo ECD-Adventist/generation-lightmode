@@ -9,6 +9,7 @@ import ConversationsList from "@/components/messages/ConversationsList";
 import ChatWindow from "@/components/messages/ChatWindow";
 import GroupChatWindow from "@/components/messages/GroupChatWindow";
 import { isNotificationEnabled } from "@/lib/notifications";
+import MobileMessagesList from "@/components/messages/MobileMessagesList";
 
 export default function Messages() {
   const [user, setUser] = useState(null);
@@ -216,6 +217,52 @@ export default function Messages() {
         .messages-scroll::-webkit-scrollbar-thumb:hover { background: #0B3FD9; }
         .messages-scroll { scrollbar-width: thin; scrollbar-color: #1FB8FF transparent; }
       `}</style>
+
+      {/* MOBILE: branded list when nothing selected; show chat window when selected */}
+      {showListOnMobile ? (
+        <div className="md:hidden">
+          <MobileMessagesList
+            activeTab={activeTab}
+            onTabChange={(id) => setActiveTab(id)}
+            conversations={conversations}
+            selectedConversationId={selectedConversationId}
+            currentUserEmail={user.email}
+            allUsers={allUsers}
+            followingUsers={following.map(f => f.following_email)}
+            onSelectConversation={setSelectedConversationId}
+            onStartConversation={(email) => ensureConversationMutation.mutate(email)}
+            myGroups={myGroups}
+            selectedGroupId={selectedGroupId}
+            onSelectGroup={setSelectedGroupId}
+            currentUser={user}
+          />
+        </div>
+      ) : (
+        <div className="md:hidden px-3 py-3">
+          {activeTab === "dms" ? (
+            <ChatWindow
+              conversation={selectedConversation}
+              currentUser={user}
+              otherUser={otherUser}
+              messages={messages}
+              onSend={({ content, file_url }) => sendMessageMutation.mutate({ content, file_url })}
+              isSending={sendMessageMutation.isPending}
+              onBack={() => setSelectedConversationId(null)}
+              onDeleteMessage={(id) => deleteMessageMutation.mutate(id)}
+            />
+          ) : (
+            <GroupChatWindow
+              group={selectedGroup}
+              currentUser={user}
+              allUsers={allUsers}
+              onBack={() => setSelectedGroupId(null)}
+            />
+          )}
+        </div>
+      )}
+
+      {/* DESKTOP: original design */}
+      <div className="hidden md:block">
       {/* Top Nav */}
       <div className="sticky top-0 z-50 backdrop-blur-xl border-b px-4 py-3" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
@@ -272,7 +319,7 @@ export default function Messages() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto grid lg:grid-cols-[340px_minmax(0,1fr)] gap-4 px-3 sm:px-4 py-4 sm:py-6">
+      <div className="max-w-6xl mx-auto hidden md:grid lg:grid-cols-[340px_minmax(0,1fr)] gap-4 px-3 sm:px-4 py-4 sm:py-6">
         {activeTab === "dms" ? (
           <>
             <div className={showListOnMobile ? "block" : "hidden lg:block"}>
@@ -355,6 +402,7 @@ export default function Messages() {
             </div>
           </>
         )}
+      </div>
       </div>
     </div>
   );
