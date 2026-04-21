@@ -307,7 +307,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   </div>
                 </div>
                 <div className="flex flex-col items-start justify-center min-w-0">
-                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 truncate max-w-[140px] sm:max-w-none ${drop.media_url ? "text-white" : "text-foreground"}`}>
+                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 truncate max-w-[140px] sm:max-w-none ${drop.media_url ? "text-white" : ""}`} style={drop.media_url ? {} : { color: "#0B1B3D" }}>
                     {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : (dropUser.full_name || dropUser.email?.split('@')[0] || "Glow Believer")}
                     {drop.user_email === "system@lightmode.com" ? (
                        <span className="flex items-center justify-center w-3 h-3 rounded-full ml-0.5" style={{ background: "#1FB8FF", color: "#FFFFFF" }}>
@@ -321,7 +321,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                       </span>
                     )}
                   </span>
-                  <span className={`text-[9px] sm:text-[10px] font-medium leading-none ${drop.media_url ? "text-white/80" : "text-muted-foreground"}`}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
+                  <span className={`text-[9px] sm:text-[10px] font-medium leading-none ${drop.media_url ? "text-white/80" : ""}`} style={drop.media_url ? {} : { color: "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
                 </div>
               </Link>
             </HoverCardTrigger>

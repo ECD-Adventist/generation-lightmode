@@ -574,7 +574,7 @@ export default function Feed() {
                       )}
                     </div>
                   </div>
-                  <span className="text-[10px] font-medium truncate w-16 text-center" style={{ color: "#4A5878" }}>{storyUser?.email === user?.email ? "You" : storyUser?.full_name?.split(' ')[0] || "Status"}</span>
+                  <span className="text-[11px] font-semibold truncate w-16 text-center" style={{ color: "#0B1B3D" }}>{storyUser?.email === user?.email ? "You" : storyUser?.full_name?.split(' ')[0] || "Status"}</span>
                 </button>
               );
             })}
