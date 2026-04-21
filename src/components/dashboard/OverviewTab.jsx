@@ -108,13 +108,13 @@ export default function OverviewTab({ user }) {
       {/* QUICK ACTION PANEL */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Create Drop", icon: <PlusCircle size={24} />, colorClass: "text-blue-600 dark:text-blue-400", bgClass: "bg-blue-500/10", borderClass: "border-blue-500/20", onClick: () => setIsDropModalOpen(true) },
-          { label: "Join Challenge", icon: <Target size={24} />, colorClass: "text-amber-600 dark:text-amber-400", bgClass: "bg-amber-500/10", borderClass: "border-amber-500/20", to: createPageUrl("Dashboard")+"?tab=challenges" },
-          { label: "AI Assistant", icon: <Sparkles size={24} />, colorClass: "text-cyan-500", bgClass: "bg-cyan-500/10", borderClass: "border-cyan-500/20", to: createPageUrl("Assistant") },
-          { label: "Share Progress", icon: <Image size={24} />, colorClass: "text-blue-600 dark:text-blue-400", bgClass: "bg-blue-500/10", borderClass: "border-blue-500/20", onClick: () => setIsShareOpen(true) },
+          { label: "Create Drop", icon: <PlusCircle size={24} />, iconColor: "#0B3FD9", iconBg: "rgba(11, 63, 217, 0.08)", iconBorder: "#D6E4FF", onClick: () => setIsDropModalOpen(true) },
+          { label: "Join Challenge", icon: <Target size={24} />, iconColor: "#CC7A00", iconBg: "rgba(255, 159, 26, 0.1)", iconBorder: "#FFE4A0", to: createPageUrl("Dashboard")+"?tab=challenges" },
+          { label: "AI Assistant", icon: <Sparkles size={24} />, iconColor: "#1FB8FF", iconBg: "rgba(31, 184, 255, 0.1)", iconBorder: "#B8E5FF", to: createPageUrl("Assistant") },
+          { label: "Share Progress", icon: <Image size={24} />, iconColor: "#0B3FD9", iconBg: "rgba(11, 63, 217, 0.08)", iconBorder: "#D6E4FF", onClick: () => setIsShareOpen(true) },
         ].map((item, i) => {
           const inner = (
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 border ${item.bgClass} ${item.borderClass} ${item.colorClass}`}>{item.icon}</div>
+            <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3" style={{ background: item.iconBg, border: `1px solid ${item.iconBorder}`, color: item.iconColor }}>{item.icon}</div>
           );
           const cls = "p-4 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all hover:-translate-y-0.5 cursor-pointer hover:shadow-md";
           const btnStyle = { background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" };
@@ -151,29 +151,29 @@ export default function OverviewTab({ user }) {
           {/* Community Pulse */}
           <div className={cardClass} style={cardStyle}>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold font-['Space_Grotesk'] flex items-center gap-2 text-foreground"><Globe size={20} className="text-blue-600 dark:text-blue-400" /> Community Pulse</h3>
-              <Link to={createPageUrl("Feed")} className="text-xs font-bold flex items-center text-blue-600 dark:text-blue-400">View all <ChevronRight size={14}/></Link>
+              <h3 className="text-lg font-bold font-['Space_Grotesk'] flex items-center gap-2" style={{ color: "#0B1B3D" }}><Globe size={20} style={{ color: "#0B3FD9" }} /> Community Pulse</h3>
+              <Link to={createPageUrl("Feed")} className="text-xs font-bold flex items-center" style={{ color: "#0B3FD9" }}>View all <ChevronRight size={14}/></Link>
             </div>
             <div className="space-y-4">
               {communityFeed.length === 0 ? (
-                <div className="text-center py-8 text-sm text-muted-foreground">No recent community drops.</div>
+                <div className="text-center py-8 text-sm" style={{ color: "#8A97B5" }}>No recent community drops.</div>
               ) : communityFeed.map(drop => {
                 const repostOwner = getRepostOwner(drop.reflection);
                 const visibleReflection = cleanReflection(drop.reflection);
                 return (
-                  <div key={drop.id} className="p-4 rounded-2xl flex gap-4 bg-muted border border-border">
+                  <div key={drop.id} className="p-4 rounded-2xl flex gap-4" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5" }}>
                     <HoverCard>
                       <HoverCardTrigger asChild>
-                        <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="w-10 h-10 rounded-full shrink-0 overflow-hidden block border border-border bg-background">
+                        <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="w-10 h-10 rounded-full shrink-0 overflow-hidden block" style={{ border: "1px solid #E0EAF5", background: "#FFFFFF" }}>
                           <img src={getProfilePicture(drop.user_email)} alt={getDisplayName(drop.user_email)} className="w-full h-full object-cover" />
                         </Link>
                       </HoverCardTrigger>
-                      <HoverCardContent className="bg-card border border-border shadow-xl rounded-2xl p-4" align="start">
+                      <HoverCardContent className="shadow-xl rounded-2xl p-4" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5" }} align="start">
                         <div className="flex items-start gap-3">
                           <img src={getProfilePicture(drop.user_email)} alt={getDisplayName(drop.user_email)} className="w-12 h-12 rounded-full object-cover" />
                           <div className="min-w-0">
-                            <p className="font-bold text-sm text-foreground">{getDisplayName(drop.user_email)}</p>
-                            <p className="text-xs mt-1 text-muted-foreground">{getProfileSummary(drop.user_email)}</p>
+                            <p className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{getDisplayName(drop.user_email)}</p>
+                            <p className="text-xs mt-1" style={{ color: "#8A97B5" }}>{getProfileSummary(drop.user_email)}</p>
                           </div>
                         </div>
                       </HoverCardContent>
@@ -182,36 +182,36 @@ export default function OverviewTab({ user }) {
                       <div className="flex items-center justify-between gap-3 mb-1">
                         <HoverCard>
                           <HoverCardTrigger asChild>
-                            <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-bold text-sm truncate hover:underline text-foreground">{getDisplayName(drop.user_email)}</Link>
+                            <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-bold text-sm truncate hover:underline" style={{ color: "#0B1B3D" }}>{getDisplayName(drop.user_email)}</Link>
                           </HoverCardTrigger>
-                          <HoverCardContent className="bg-card border border-border shadow-xl rounded-2xl p-4" align="start">
+                          <HoverCardContent className="shadow-xl rounded-2xl p-4" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5" }} align="start">
                             <div className="flex items-start gap-3">
                               <img src={getProfilePicture(drop.user_email)} alt={getDisplayName(drop.user_email)} className="w-12 h-12 rounded-full object-cover" />
                               <div className="min-w-0">
-                                <p className="font-bold text-sm text-foreground">{getDisplayName(drop.user_email)}</p>
-                                <p className="text-xs mt-1 text-muted-foreground">{getProfileSummary(drop.user_email)}</p>
+                                <p className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{getDisplayName(drop.user_email)}</p>
+                                <p className="text-xs mt-1" style={{ color: "#8A97B5" }}>{getProfileSummary(drop.user_email)}</p>
                               </div>
                             </div>
                           </HoverCardContent>
                         </HoverCard>
-                        <span className="text-[10px] shrink-0 text-muted-foreground">{new Date(drop.created_date).toLocaleDateString()}</span>
+                        <span className="text-[10px] shrink-0" style={{ color: "#8A97B5" }}>{new Date(drop.created_date).toLocaleDateString()}</span>
                       </div>
                       {repostOwner && (
-                        <p className="text-xs mb-1 text-muted-foreground">
-                          Reposted from <Link to={repostOwner === "Generation LightMode" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-semibold hover:underline text-blue-600 dark:text-blue-400">{repostOwner}</Link>
+                        <p className="text-xs mb-1" style={{ color: "#8A97B5" }}>
+                          Reposted from <Link to={repostOwner === "Generation LightMode" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{repostOwner}</Link>
                         </p>
                       )}
-                      <p className="text-xs font-bold mb-1 break-words text-blue-600 dark:text-blue-400">{drop.verse}</p>
+                      <p className="text-xs font-bold mb-1 break-words" style={{ color: "#0B3FD9" }}>{drop.verse}</p>
                       {visibleReflection && (
                         containsHtml(visibleReflection) ? (
-                          <div className="text-sm mb-3 overflow-hidden break-words [&_p]:mb-2 [&_p:last-child]:mb-0 [&_a]:break-all text-muted-foreground" style={{ display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical" }} dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(visibleReflection) }} />
+                          <div className="text-sm mb-3 overflow-hidden break-words [&_p]:mb-2 [&_p:last-child]:mb-0 [&_a]:break-all" style={{ display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", color: "#4A5878" }} dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(visibleReflection) }} />
                         ) : (
-                          <p className="text-sm mb-3 break-words text-muted-foreground" style={{ display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{visibleReflection}</p>
+                          <p className="text-sm mb-3 break-words" style={{ display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden", color: "#4A5878" }}>{visibleReflection}</p>
                         )
                       )}
-                      <div className="flex items-center gap-4 text-muted-foreground">
-                        <button className="flex items-center gap-1.5 text-xs transition hover:text-blue-600 dark:hover:text-blue-400"><Heart size={14} /> {drop.likes_count || 0}</button>
-                        <button className="flex items-center gap-1.5 text-xs transition hover:text-foreground"><MessageCircle size={14} /> Reply</button>
+                      <div className="flex items-center gap-4" style={{ color: "#8A97B5" }}>
+                        <button className="flex items-center gap-1.5 text-xs transition"><Heart size={14} /> {drop.likes_count || 0}</button>
+                        <button className="flex items-center gap-1.5 text-xs transition"><MessageCircle size={14} /> Reply</button>
                       </div>
                     </div>
                   </div>
@@ -228,18 +228,21 @@ export default function OverviewTab({ user }) {
           {/* Badges */}
           <div className={cardClass} style={cardStyle}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold font-['Space_Grotesk'] uppercase tracking-widest flex items-center gap-2 text-foreground">
-                <Award size={16} className="text-blue-600 dark:text-blue-400" /> Achievements
+              <h3 className="text-sm font-bold font-['Space_Grotesk'] uppercase tracking-widest flex items-center gap-2" style={{ color: "#0B1B3D" }}>
+                <Award size={16} style={{ color: "#0B3FD9" }} /> Achievements
               </h3>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {[
-                { emoji: "💡", unlocked: true, color: "#0B3FD9", title: "Glow Starter", bgClass: "bg-blue-500/10", borderClass: "border-blue-500/30" },
-                { emoji: "🔥", unlocked: (user.daily_checkin_streak || user.streak_count || 0) >= 7, color: "#CC7A00", title: "7 Day Streak", bgClass: "bg-amber-500/10", borderClass: "border-amber-500/30" },
-                { emoji: "🌊", unlocked: glowDrops.length >= 10, color: "#1FB8FF", title: "10 Drops", bgClass: "bg-cyan-500/10", borderClass: "border-cyan-500/30" },
-                { emoji: "🤝", unlocked: myMemberships.length > 0, color: "#0B3FD9", title: "Community Member", bgClass: "bg-blue-500/10", borderClass: "border-blue-500/30" },
+                { emoji: "💡", unlocked: true, title: "Glow Starter", bg: "rgba(11, 63, 217, 0.08)", border: "#D6E4FF" },
+                { emoji: "🔥", unlocked: (user.daily_checkin_streak || user.streak_count || 0) >= 7, title: "7 Day Streak", bg: "rgba(255, 159, 26, 0.1)", border: "#FFE4A0" },
+                { emoji: "🌊", unlocked: glowDrops.length >= 10, title: "10 Drops", bg: "rgba(31, 184, 255, 0.1)", border: "#B8E5FF" },
+                { emoji: "🤝", unlocked: myMemberships.length > 0, title: "Community Member", bg: "rgba(11, 63, 217, 0.08)", border: "#D6E4FF" },
               ].map((b, i) => (
-                <div key={i} className={`aspect-square rounded-xl flex flex-col items-center justify-center text-center p-1 ${b.unlocked ? `${b.bgClass} border ${b.borderClass}` : "bg-muted border border-border opacity-40 grayscale"}`} title={b.title}>
+                <div key={i} className="aspect-square rounded-xl flex flex-col items-center justify-center text-center p-1" title={b.title}
+                  style={b.unlocked
+                    ? { background: b.bg, border: `1px solid ${b.border}` }
+                    : { background: "#F6F8FC", border: "1px solid #E0EAF5", opacity: 0.4, filter: "grayscale(1)" }}>
                   <span className="text-xl mb-1">{b.emoji}</span>
                 </div>
               ))}
@@ -248,21 +251,21 @@ export default function OverviewTab({ user }) {
 
           {/* GlowGroup */}
           <div className={cardClass} style={cardStyle}>
-            <h3 className="text-sm font-bold font-['Space_Grotesk'] uppercase tracking-widest mb-4 flex items-center gap-2 text-foreground">
-              <MessageSquare size={16} className="text-blue-600 dark:text-blue-400" /> My GlowGroup
+            <h3 className="text-sm font-bold font-['Space_Grotesk'] uppercase tracking-widest mb-4 flex items-center gap-2" style={{ color: "#0B1B3D" }}>
+              <MessageSquare size={16} style={{ color: "#0B3FD9" }} /> My GlowGroup
             </h3>
             {myGroup ? (
-              <div className="rounded-2xl p-4 bg-muted border border-border">
-                <h4 className="font-bold text-sm mb-1 text-foreground">{myGroup.name}</h4>
-                <p className="text-xs mb-3 line-clamp-1 text-muted-foreground">{myGroup.description}</p>
-                <Link to={createPageUrl("GlowGroups")} className="w-full py-2 rounded-lg text-xs font-bold transition flex items-center justify-center bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500/20">
+              <div className="rounded-2xl p-4" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5" }}>
+                <h4 className="font-bold text-sm mb-1" style={{ color: "#0B1B3D" }}>{myGroup.name}</h4>
+                <p className="text-xs mb-3 line-clamp-1" style={{ color: "#6B7FA0" }}>{myGroup.description}</p>
+                <Link to={createPageUrl("GlowGroups")} className="w-full py-2 rounded-lg text-xs font-bold transition flex items-center justify-center" style={{ background: "rgba(11, 63, 217, 0.08)", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>
                   Enter Group Room
                 </Link>
               </div>
             ) : (
               <div className="text-center py-4">
-                <p className="text-xs mb-3 text-muted-foreground">You haven't joined a group yet. Grow together with peers!</p>
-                <Link to={createPageUrl("GlowGroups")} className="w-full py-2 rounded-lg text-xs font-bold transition flex items-center justify-center bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 hover:bg-blue-500/20">
+                <p className="text-xs mb-3" style={{ color: "#6B7FA0" }}>You haven't joined a group yet. Grow together with peers!</p>
+                <Link to={createPageUrl("GlowGroups")} className="w-full py-2 rounded-lg text-xs font-bold transition flex items-center justify-center" style={{ background: "rgba(11, 63, 217, 0.08)", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>
                   Find a Group
                 </Link>
               </div>
@@ -271,32 +274,32 @@ export default function OverviewTab({ user }) {
 
           {/* Active Missions */}
           <div className={cardClass} style={cardStyle}>
-            <h3 className="text-sm font-bold font-['Space_Grotesk'] uppercase tracking-widest mb-4 flex items-center gap-2 text-foreground">
-              <Target size={16} className="text-amber-600 dark:text-amber-400" /> Active Missions
+            <h3 className="text-sm font-bold font-['Space_Grotesk'] uppercase tracking-widest mb-4 flex items-center gap-2" style={{ color: "#0B1B3D" }}>
+              <Target size={16} style={{ color: "#CC7A00" }} /> Active Missions
             </h3>
             <div className="space-y-3">
               {challenges.length === 0 ? (
-                <p className="text-xs text-center py-2 text-muted-foreground">No active missions right now.</p>
+                <p className="text-xs text-center py-2" style={{ color: "#8A97B5" }}>No active missions right now.</p>
               ) : challenges.map(c => (
-                <div key={c.id} className="rounded-xl p-3 flex justify-between items-center transition hover:-translate-y-0.5 bg-muted border border-border shadow-sm">
+                <div key={c.id} className="rounded-xl p-3 flex justify-between items-center transition hover:-translate-y-0.5" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.04)" }}>
                   <div className="min-w-0 flex-1 pr-2">
-                    <p className="text-sm font-bold truncate text-foreground">{c.title}</p>
-                    <p className="text-[10px] truncate text-muted-foreground">{c.description}</p>
+                    <p className="text-sm font-bold truncate" style={{ color: "#0B1B3D" }}>{c.title}</p>
+                    <p className="text-[10px] truncate" style={{ color: "#6B7FA0" }}>{c.description}</p>
                   </div>
-                  <span className="text-xs font-black shrink-0 text-amber-600 dark:text-amber-400">+{c.points_reward} XP</span>
+                  <span className="text-xs font-black shrink-0" style={{ color: "#CC7A00" }}>+{c.points_reward} XP</span>
                 </div>
               ))}
             </div>
-            <Link to={createPageUrl("Dashboard")+"?tab=challenges"} className="block text-center text-xs font-bold mt-4 hover:underline text-blue-600 dark:text-blue-400">View all missions</Link>
+            <Link to={createPageUrl("Dashboard")+"?tab=challenges"} className="block text-center text-xs font-bold mt-4 hover:underline" style={{ color: "#0B3FD9" }}>View all missions</Link>
           </div>
 
           {/* Notifications */}
           {unreadNotifications.length > 0 && (
-            <div className="rounded-[1.75rem] p-4 flex items-start gap-3 bg-red-500/10 border border-red-500/20">
-              <Bell className="mt-1 shrink-0 text-red-500" size={18} />
+            <div className="rounded-[1.75rem] p-4 flex items-start gap-3" style={{ background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.25)" }}>
+              <Bell className="mt-1 shrink-0" size={18} style={{ color: "#EF4444" }} />
               <div>
-                <p className="text-sm font-bold text-red-600 dark:text-red-400">You have {unreadNotifications.length} new alerts!</p>
-                <Link to={createPageUrl("Notifications")} className="text-xs underline mt-1 inline-block text-red-500">View notifications</Link>
+                <p className="text-sm font-bold" style={{ color: "#DC2626" }}>You have {unreadNotifications.length} new alerts!</p>
+                <Link to={createPageUrl("Notifications")} className="text-xs underline mt-1 inline-block" style={{ color: "#EF4444" }}>View notifications</Link>
               </div>
             </div>
           )}

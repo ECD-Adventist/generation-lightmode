@@ -148,7 +148,7 @@ Keep the tone warm, encouraging, and Spirit-led — like a caring mentor, not a 
             </h2>
             <div className="space-y-4">
               {analysis.scripture_encouragements?.map((item, i) => (
-                <div key={i} className="border-l-2 pl-4 py-1" style={{ borderColor: "#FFD000" }}>
+                <div key={i} className="border-l-2 pl-4 py-1" style={{ borderColor: "#FFD60A" }}>
                   <p className="font-bold text-sm mb-1" style={{ color: "#CC7A00" }}>"{item.verse}"</p>
                   <p className="text-xs mb-2 font-semibold" style={{ color: "#8A97B5" }}>— {item.reference}</p>
                   <p className="text-sm leading-relaxed" style={{ color: "#3A4A6B" }}>{item.personal_note}</p>
