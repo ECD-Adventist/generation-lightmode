@@ -33,13 +33,13 @@ function SidebarLink({ to, icon, label, active, badge, accent }) {
       to={to}
       className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-white/30"
       style={active
-        ? { background: "#2563EB", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(37, 99, 235, 0.3)" }
-        : { color: accent ? "#2563EB" : "#374151", background: "transparent" }}
+        ? { background: "linear-gradient(90deg, #2979FF 0%, #1565C0 100%)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(41, 121, 255, 0.35)" }
+        : { color: accent ? "#1565C0" : "#37474F", background: "transparent" }}
     >
       <span className="w-5 h-5 flex items-center justify-center shrink-0">{icon}</span>
       <span className="text-[13px] font-medium flex-1">{label}</span>
       {badge && (
-        <span className="font-bold text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ background: active ? "rgba(255,255,255,0.3)" : "#EF4444", color: "#FFFFFF" }}>
+        <span className="font-bold text-[10px] rounded-full min-w-[22px] h-[18px] flex items-center justify-center px-1.5" style={{ background: active ? "rgba(255,255,255,0.3)" : "#E53935", color: "#FFFFFF" }}>
           {badge}
         </span>
       )}
@@ -362,7 +362,7 @@ export default function Feed() {
         
         {/* Left Sidebar (Desktop) */}
         <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] overflow-y-auto hide-scrollbar relative"
-          style={{ background: "#E8F5E0" }}
+          style={{ background: "#DCEDC8" }}
         >
            <Link to={createPageUrl("Home")} className="flex items-center mb-8 px-2">
              <img
@@ -373,7 +373,7 @@ export default function Feed() {
            </Link>
 
            <nav className="flex flex-col gap-1 flex-1">
-             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] px-3 mb-2" style={{ color: "#6B7280" }}>Main</p>
+             <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mb-2" style={{ color: "#90A4AE" }}>Main</p>
 
              <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
              <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
@@ -386,14 +386,14 @@ export default function Feed() {
                </div>
              } label="Profile" />
 
-             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] px-3 mt-5 mb-2" style={{ color: "#6B7280" }}>Tools</p>
+             <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mt-5 mb-2" style={{ color: "#90A4AE" }}>Tools</p>
 
              <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
 
              <button
                onClick={() => setIsResourcesOpen(v => !v)}
                className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left hover:bg-white/30"
-               style={{ color: "#374151" }}
+               style={{ color: "#37474F" }}
              >
                <span className="w-5 h-5 flex items-center justify-center shrink-0 text-sm">📚</span>
                <span className="text-[13px] font-medium flex-1">Resources</span>
@@ -415,7 +415,7 @@ export default function Feed() {
              <button
                onClick={() => setIsMoreOpen(v => !v)}
                className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 w-full text-left mt-4 hover:bg-white/30"
-               style={{ color: "#374151" }}
+               style={{ color: "#37474F" }}
              >
                <span className="w-5 h-5 flex items-center justify-center shrink-0">
                  <Settings className="w-[18px] h-[18px]" />
@@ -440,8 +440,8 @@ export default function Feed() {
            
            <button
               onClick={() => setIsDropModalOpen(true)}
-              className="mt-6 shrink-0 flex items-center justify-center gap-2 font-bold rounded-xl w-full py-3.5 text-sm transition-all hover:opacity-90"
-              style={{ background: "#F59E0B", color: "#0B1B3D" }}
+              className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-full w-full py-3.5 text-sm transition-all hover:opacity-90 hover:shadow-lg"
+              style={{ background: "linear-gradient(90deg, #FFC107 0%, #FF9800 100%)", color: "#0D1B3D", boxShadow: "0 4px 14px rgba(255, 152, 0, 0.35)" }}
             >
               <Plus className="w-4 h-4" /> NEW DROP
             </button>
@@ -766,12 +766,12 @@ export default function Feed() {
         {isMobileNavOpen && (
           <div className="fixed inset-0 z-[100] lg:hidden">
             <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(10, 26, 61, 0.4)" }} onClick={() => setIsMobileNavOpen(false)} />
-            <div className="absolute left-0 top-0 bottom-0 w-72 flex flex-col py-8 px-6 overflow-y-auto" style={{ background: "#E8F5E0" }}>
+            <div className="absolute left-0 top-0 bottom-0 w-72 flex flex-col py-8 px-6 overflow-y-auto" style={{ background: "#DCEDC8" }}>
               <Link to={createPageUrl("Home")} className="flex items-center mb-10">
                 <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 56, width: "auto", objectFit: "contain" }} />
               </Link>
               <nav className="flex flex-col gap-1 flex-1">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] px-3 mb-2" style={{ color: "#6B7280" }}>Main</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mb-2" style={{ color: "#90A4AE" }}>Main</p>
                 <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
                 <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
                 <SidebarLink to={createPageUrl("Discover")} icon={<Compass className="w-[18px] h-[18px]" />} label="Discover" />
@@ -783,10 +783,10 @@ export default function Feed() {
                   </div>
                 } label="Profile" />
 
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] px-3 mt-5 mb-2" style={{ color: "#6B7280" }}>Tools</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mt-5 mb-2" style={{ color: "#90A4AE" }}>Tools</p>
                 <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
 
-                <button onClick={() => setIsResourcesOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition w-full text-left hover:bg-white/30" style={{ color: "#374151" }}>
+                <button onClick={() => setIsResourcesOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition w-full text-left hover:bg-white/30" style={{ color: "#37474F" }}>
                   <span className="w-5 h-5 flex items-center justify-center shrink-0 text-sm">📚</span>
                   <span className="text-[13px] font-medium flex-1">Resources</span>
                   <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isResourcesOpen ? "rotate-90" : ""}`} style={{ color: "#8A97B5" }} />
@@ -801,7 +801,7 @@ export default function Feed() {
                 <SidebarLink to={createPageUrl("DailyDevotion")} icon={<BookOpen className="w-[18px] h-[18px]" />} label="Bible School" />
                 <SidebarLink to={createPageUrl("Home")} icon={<ExternalLink className="w-[18px] h-[18px]" />} label="Back to Website" />
 
-                <button onClick={() => setIsMoreOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition w-full text-left mt-4 hover:bg-white/30" style={{ color: "#374151" }}>
+                <button onClick={() => setIsMoreOpen(v => !v)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition w-full text-left mt-4 hover:bg-white/30" style={{ color: "#37474F" }}>
                   <span className="w-5 h-5 flex items-center justify-center shrink-0">
                     <Settings className="w-[18px] h-[18px]" />
                   </span>
@@ -821,7 +821,7 @@ export default function Feed() {
                   </div>
                 )}
               </nav>
-              <button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 font-bold rounded-xl w-full py-3.5 text-sm hover:opacity-90 transition-opacity" style={{ background: "#F59E0B", color: "#0B1B3D" }}>
+              <button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-full w-full py-3.5 text-sm hover:opacity-90 transition-opacity" style={{ background: "linear-gradient(90deg, #FFC107 0%, #FF9800 100%)", color: "#0D1B3D", boxShadow: "0 4px 14px rgba(255, 152, 0, 0.35)" }}>
                 <Plus className="w-4 h-4" /> NEW DROP
               </button>
             </div>
