@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Bell, MessageCircle, Plus, Sparkles, Flame, Compass, Globe, Zap } from "lucide-react";
+import { Bell, Plus, Sparkles, Flame, Zap } from "lucide-react";
 import DropCard from "@/components/feed/DropCard";
 
 /**
@@ -51,14 +51,17 @@ export default function MobileFeed({
             <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="" className="h-9 w-auto object-contain" style={{ filter: "brightness(0) invert(1)" }} />
           </Link>
           <div className="flex-1" />
+          <Link to={createPageUrl("DailyTruthFeed")} className="w-9 h-9 rounded-xl flex items-center justify-center backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(255,255,255,0.22)", color: "#FFFFFF" }} title="Daily">
+            <Flame className="w-4 h-4" />
+          </Link>
+          <Link to={createPageUrl("Dashboard")} className="w-9 h-9 rounded-xl flex items-center justify-center backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(255,255,255,0.22)", color: "#FFFFFF" }} title="Me">
+            <Zap className="w-4 h-4" />
+          </Link>
           <Link to={createPageUrl("Notifications")} className="relative w-9 h-9 rounded-xl flex items-center justify-center backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(255,255,255,0.22)", color: "#FFFFFF" }}>
             <Bell className="w-4 h-4" />
             {notifications?.length > 0 && (
               <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "#FFD000" }} />
             )}
-          </Link>
-          <Link to={createPageUrl("Messages")} className="w-9 h-9 rounded-xl flex items-center justify-center backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(255,255,255,0.22)", color: "#FFFFFF" }}>
-            <MessageCircle className="w-4 h-4" />
           </Link>
         </div>
 
@@ -70,28 +73,6 @@ export default function MobileFeed({
           <h1 className="text-xl font-black font-['Space_Grotesk'] text-white leading-tight truncate">
             Hey, {user?.full_name?.split(" ")[0] || "Friend"} ⚡
           </h1>
-        </div>
-      </div>
-
-      {/* QUICK NAV */}
-      <div className="px-3 -mt-2 relative z-10 mb-3">
-        <div className="grid grid-cols-4 gap-2 rounded-2xl p-2" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.08)" }}>
-          {[
-            { to: "GlowGroups", icon: Globe, label: "Groups", color: "#0B3FD9" },
-            { to: "Discover", icon: Compass, label: "Discover", color: "#1FB8FF" },
-            { to: "DailyTruthFeed", icon: Flame, label: "Daily", color: "#FF9F1A" },
-            { to: "Dashboard", icon: Zap, label: "Me", color: "#FFD000" },
-          ].map(item => {
-            const Icon = item.icon;
-            return (
-              <Link key={item.to} to={createPageUrl(item.to)} className="flex flex-col items-center gap-1 py-2 rounded-xl active:scale-95 transition no-underline">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${item.color}15` }}>
-                  <Icon className="w-4 h-4" style={{ color: item.color }} />
-                </div>
-                <span className="text-[10px] font-black" style={{ color: "#0B1B3D" }}>{item.label}</span>
-              </Link>
-            );
-          })}
         </div>
       </div>
 
