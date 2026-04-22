@@ -1,11 +1,10 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Search, Share2, Heart, BookOpen } from "lucide-react";
-import { toast } from "sonner";
+import { Loader2, Search } from "lucide-react";
 import CodeCard from "@/components/resources/CodeCard";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import MobileCodesPage from "@/components/resources/MobileCodesPage";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const CATEGORIES = [
   "Sexuality & Purity", "Self-Control", "Sanctity of Life", "Gambling & Stewardship",
@@ -15,11 +14,12 @@ const CATEGORIES = [
 ];
 
 export default function KeepIt100() {
-  const [user, setUser] = React.useState(null);
+  const isMobile = useIsMobile();
+  const [user, setUser] = useState(null);
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
 
-  React.useEffect(() => {
+  useEffect(() => {
     base44.auth.isAuthenticated().then(isAuth => {
       if (isAuth) base44.auth.me().then(setUser);
     });
@@ -38,6 +38,28 @@ export default function KeepIt100() {
       return matchCat && matchSearch;
     });
   }, [codes, activeCategory, search]);
+
+  if (isMobile) {
+    return (
+      <MobileCodesPage
+        theme="gold"
+        eyebrow="Keeping It 100"
+        emoji="💯"
+        title="Keep It"
+        titleHighlight="100 with God"
+        tagline="Real truth slogans for real life. No cap—stand bold in Christ across every area of life. Share these in your group chats and flood socials with truth."
+        codes={codes}
+        filteredCodes={filteredCodes}
+        categories={CATEGORIES}
+        isLoading={isLoading}
+        user={user}
+        activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory}
+        search={search}
+        setSearch={setSearch}
+      />
+    );
+  }
 
   return (
     <div style={{ background: "#0B0F1A", minHeight: "100vh" }}>

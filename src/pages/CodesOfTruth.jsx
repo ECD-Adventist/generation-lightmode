@@ -1,15 +1,18 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Search } from "lucide-react";
 import CodeCard from "@/components/resources/CodeCard";
+import MobileCodesPage from "@/components/resources/MobileCodesPage";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function CodesOfTruth() {
-  const [user, setUser] = React.useState(null);
+  const isMobile = useIsMobile();
+  const [user, setUser] = useState(null);
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
 
-  React.useEffect(() => {
+  useEffect(() => {
     base44.auth.isAuthenticated().then(isAuth => {
       if (isAuth) base44.auth.me().then(setUser);
     });
@@ -33,6 +36,28 @@ export default function CodesOfTruth() {
       return matchCat && matchSearch;
     });
   }, [codes, activeCategory, search]);
+
+  if (isMobile) {
+    return (
+      <MobileCodesPage
+        theme="cyan"
+        eyebrow="Codes of Truth"
+        emoji="🔐"
+        title="Key Codes of"
+        titleHighlight="Truth"
+        tagline="Fundamental truths to guide your daily walk. Anchor your faith, sharpen your identity, and share the light with the world."
+        codes={codes}
+        filteredCodes={filteredCodes}
+        categories={categories}
+        isLoading={isLoading}
+        user={user}
+        activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory}
+        search={search}
+        setSearch={setSearch}
+      />
+    );
+  }
 
   return (
     <div style={{ background: "#0B0F1A", minHeight: "100vh" }}>
