@@ -90,7 +90,7 @@ export default function Saved() {
   return (
     <div className="min-h-screen pb-20 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       {/* Top Nav */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl border-b px-4 py-3 flex items-center gap-4" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b px-4 py-3 flex items-center gap-4 safe-pt" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
         <Link to={createPageUrl("Feed")} className="transition" style={{ color: "#4A5878" }}><ArrowLeft className="w-5 h-5" /></Link>
         <h1 className="text-xl font-bold" style={{ color: "#0B1B3D" }}>Saved Drops</h1>
         <div className="flex-1" />

@@ -120,7 +120,7 @@ export default function DailyDevotion() {
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       {/* Nav */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b safe-pt" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button onClick={() => selectedPlanId ? setSelectedPlanId(null) : navigate(-1)} className="p-2 rounded-lg transition" style={{ color: "#4A5878" }}><ArrowLeft className="w-5 h-5" /></button>

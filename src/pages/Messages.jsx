@@ -238,7 +238,7 @@ export default function Messages() {
           />
         </div>
       ) : (
-        <div className="md:hidden px-3 py-3">
+        <div className="md:hidden px-3 py-3 safe-pt">
           {activeTab === "dms" ? (
             <ChatWindow
               conversation={selectedConversation}
@@ -264,7 +264,7 @@ export default function Messages() {
       {/* DESKTOP: original design */}
       <div className="hidden md:block">
       {/* Top Nav */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl border-b px-4 py-3" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b px-4 py-3 safe-pt" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <Link to={createPageUrl("Feed")} className="flex items-center gap-2 shrink-0" style={{ color: "#0B1B3D" }}>
