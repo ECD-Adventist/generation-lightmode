@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { ShieldCheck, User, MapPin, ChevronRight, Upload, Loader2 } from "lucide-react";
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileOnboardingSheet from "@/components/dashboard/MobileOnboardingSheet";
 
 const COUNTRIES = [
   "Afghanistan","Albania","Algeria","Angola","Argentina","Australia","Austria","Bangladesh","Belgium","Benin",
@@ -32,6 +34,13 @@ function StepIndicator({ current, total }) {
 }
 
 export default function OnboardingModal({ isOpen, onCompleted }) {
+  const isMobile = useIsMobile();
+  return isMobile
+    ? <MobileOnboardingSheet isOpen={isOpen} onCompleted={onCompleted} />
+    : <DesktopOnboardingModal isOpen={isOpen} onCompleted={onCompleted} />;
+}
+
+function DesktopOnboardingModal({ isOpen, onCompleted }) {
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
   const [uploadingPic, setUploadingPic] = useState(false);

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Loader2, Trash2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileDeleteAccountSheet from "@/components/settings/MobileDeleteAccountSheet";
 
 /**
  * In-app confirmation modal for account deletion.
@@ -12,6 +14,12 @@ import { toast } from "sonner";
 export default function DeleteAccountModal({ isOpen, onClose, userEmail, onConfirm }) {
   const [typed, setTyped] = useState("");
   const [busy, setBusy] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Mobile-only branded bottom sheet
+  if (isMobile) {
+    return <MobileDeleteAccountSheet isOpen={isOpen} onClose={onClose} userEmail={userEmail} onConfirm={onConfirm} />;
+  }
 
   const canDelete = typed.trim().toUpperCase() === "DELETE" && !busy;
 

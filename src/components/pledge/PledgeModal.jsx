@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { X, Zap, Check } from "lucide-react";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobilePledgeSheet from "@/components/pledge/MobilePledgeSheet";
 
 const pledgeItems = [
   ["LIVE VISIBLY", "Keep my faith always on — unashamed and unhidden."],
@@ -14,8 +16,14 @@ const pledgeItems = [
 export default function PledgeModal({ isOpen, onClose, onSigned, readOnly = false, signedAt = null }) {
   const [signing, setSigning] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const isMobile = useIsMobile();
 
   if (!isOpen) return null;
+
+  // Mobile-only branded bottom sheet
+  if (isMobile) {
+    return <MobilePledgeSheet isOpen={isOpen} onClose={onClose} onSigned={onSigned} readOnly={readOnly} signedAt={signedAt} />;
+  }
 
   const handleSign = async () => {
     if (!agreed) {

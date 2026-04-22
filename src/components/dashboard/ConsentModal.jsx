@@ -5,11 +5,19 @@ import { ShieldCheck } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileConsentSheet from "@/components/dashboard/MobileConsentSheet";
 
 export default function ConsentModal({ isOpen, onAccepted }) {
   const [consent1, setConsent1] = useState(false);
   const [consent2, setConsent2] = useState(false);
   const [saving, setSaving] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Mobile-only branded bottom sheet
+  if (isMobile) {
+    return <MobileConsentSheet isOpen={isOpen} onAccepted={onAccepted} />;
+  }
 
   const handleSubmit = async () => {
     if (!consent1 || !consent2) {
