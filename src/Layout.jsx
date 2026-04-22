@@ -17,14 +17,14 @@ const navLinks = [
   { key: "assistant", page: "Assistant" },
 ];
 
-const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","GroupChat","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession","DailyDevotion","Discover","Leaderboard","DailyTruthFeed","InstitutionPage","InstitutionDashboard","InstitutionControlCenter","Settings","Post","GlowFeed","GenerationLightMode","Challenges","LightReflections","FaithQuiz","TerritoryPhotos"];
+const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","GroupChat","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession","DailyDevotion","Discover","Leaderboard","DailyTruthFeed","InstitutionPage","InstitutionDashboard","InstitutionControlCenter","Settings","Post","GlowFeed","GenerationLightMode","LightReflections","FaithQuiz","TerritoryPhotos"];
 
 export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const isAppShellPage = appShellPages.includes(currentPageName);
   const isMobileViewport = useIsMobile();
   // On mobile, these pages render their own full-bleed mobile shell (with their own nav + footer).
-  const mobileOwnedPages = ["Home", "About", "Impact", "Assistant", "Resources", "KeepIt100", "CodesOfTruth"];
+  const mobileOwnedPages = ["Home", "About", "Impact", "Assistant", "Resources", "KeepIt100", "CodesOfTruth", "Challenges"];
   const hideDesktopChrome = isMobileViewport && mobileOwnedPages.includes(currentPageName);
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);

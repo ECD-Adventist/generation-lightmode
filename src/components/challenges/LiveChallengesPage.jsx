@@ -1,97 +1,129 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, Users, Zap, Target } from "lucide-react";
+import { Calendar, Users, Target, ArrowRight } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
 
+/**
+ * Desktop Challenges — branded LightMode dark theme matching the public website.
+ * Shown inside the public website Layout (public navbar + footer are handled by Layout).
+ */
 export default function LiveChallengesPage() {
   const [filter, setFilter] = useState("active");
   const { data: snapshot } = usePublicCommunitySnapshot();
-  const challenges = snapshot.challenges || [];
+  const challenges = snapshot?.challenges || [];
 
   const filteredChallenges = useMemo(() => {
     if (filter === "all") return challenges;
-    if (filter === "active") return challenges.filter((challenge) => challenge.active);
-    return challenges.filter((challenge) => !challenge.active);
+    if (filter === "active") return challenges.filter((c) => c.active);
+    return challenges.filter((c) => !c.active);
   }, [challenges, filter]);
 
   return (
-    <div className="bg-background min-h-screen font-['Inter'] text-foreground">
-      <section className="pt-12 px-6 pb-16 text-center relative overflow-hidden">
-        <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-5 py-2 mb-6">
-            <Target size={14} className="text-amber-600 dark:text-amber-400" />
-            <span className="text-amber-600 dark:text-amber-400 text-sm font-semibold">Live Challenges</span>
+    <div className="font-['Inter']" style={{ background: "#0B0F1A", color: "#FFFFFF", minHeight: "100vh" }}>
+      {/* HERO */}
+      <section className="relative overflow-hidden px-6 pt-24 pb-16 text-center">
+        <div className="absolute -top-20 -right-20 w-[420px] h-[420px] rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(0,207,255,0.18)" }} />
+        <div className="absolute -bottom-20 -left-20 w-[420px] h-[420px] rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(255,208,0,0.14)" }} />
+
+        <div className="relative z-10 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full mb-6" style={{ background: "rgba(255,208,0,0.1)", border: "1px solid rgba(255,208,0,0.3)" }}>
+            <Target size={14} style={{ color: "#FFD000" }} />
+            <span className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: "#FFD000" }}>Live Challenges</span>
           </div>
-          <h1 className="font-['Space_Grotesk'] font-extrabold text-[clamp(32px,5vw,64px)] mb-5 text-foreground">
-            Real <span className="bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">Challenges</span>
+
+          <h1 className="font-['Space_Grotesk'] font-black tracking-tight mb-5" style={{ fontSize: "clamp(40px, 6vw, 72px)", lineHeight: 1.02, letterSpacing: "-0.03em" }}>
+            Real{" "}
+            <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              Challenges
+            </span>
           </h1>
-          <p className="text-lg max-w-2xl mx-auto mb-8 text-muted-foreground">
+          <p className="text-[16px] max-w-xl mx-auto mb-10" style={{ color: "#C8D0E0" }}>
             These challenges come directly from the app's live challenge records.
           </p>
+
           <div className="flex gap-10 justify-center flex-wrap">
             {[
-              { label: "Active", value: snapshot.totalChallenges || 0, color: "text-blue-600 dark:text-blue-400" },
-              { label: "All Challenges", value: challenges.length, color: "text-amber-600 dark:text-amber-400" },
-              { label: "Participants", value: challenges.reduce((sum, challenge) => sum + (challenge.participantsCount || 0), 0), color: "text-blue-600 dark:text-blue-400" },
+              { label: "Active", value: snapshot?.totalChallenges || 0, color: "#00CFFF" },
+              { label: "All Challenges", value: challenges.length, color: "#FFD000" },
+              { label: "Participants", value: challenges.reduce((s, c) => s + (c.participantsCount || 0), 0), color: "#8A5CFF" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
-                <div className={`font-['Space_Grotesk'] font-extrabold text-3xl ${stat.color}`}>{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="font-['Space_Grotesk'] font-black text-[44px] leading-none" style={{ color: stat.color }}>{stat.value.toLocaleString()}</div>
+                <div className="text-[12px] mt-2 font-semibold uppercase tracking-wider" style={{ color: "#8A9BB0" }}>{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <div className="h-px bg-border w-full" />
+      <div className="h-px w-full" style={{ background: "linear-gradient(90deg, transparent, rgba(0,207,255,0.3), transparent)" }} />
 
-      <section className="py-8 px-6 bg-card border-b border-border">
+      {/* FILTER BAR */}
+      <section className="py-8 px-6" style={{ background: "#0D1220", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="max-w-6xl mx-auto flex gap-2.5 flex-wrap justify-center">
           {[
             { id: "active", label: "Active" },
             { id: "all", label: "All" },
             { id: "completed", label: "Completed" },
-          ].map((item) => (
-            <button key={item.id} onClick={() => setFilter(item.id)} className={`px-6 py-2.5 rounded-full border text-sm font-semibold transition ${filter === item.id ? "bg-blue-600 text-white border-blue-600" : "bg-transparent text-muted-foreground border-border hover:bg-muted"}`}>
-              {item.label}
-            </button>
-          ))}
+          ].map((item) => {
+            const isActive = filter === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setFilter(item.id)}
+                className="px-6 py-2.5 rounded-full text-sm font-bold transition"
+                style={isActive
+                  ? { background: "linear-gradient(90deg, #00CFFF, #0B3FD9)", color: "#FFFFFF", border: "1px solid transparent", boxShadow: "0 4px 18px rgba(0,207,255,0.35)" }
+                  : { background: "rgba(255,255,255,0.04)", color: "#C8D0E0", border: "1px solid rgba(255,255,255,0.1)" }}
+              >
+                {item.label}
+              </button>
+            );
+          })}
         </div>
       </section>
 
+      {/* GRID */}
       <section className="pt-16 px-6 pb-24">
         <div className="max-w-6xl mx-auto">
           {filteredChallenges.length === 0 ? (
-            <div className="bg-card border border-border rounded-2xl p-7 text-center">
-              <p className="text-muted-foreground">No live challenges match this filter yet.</p>
+            <div className="rounded-2xl p-10 text-center" style={{ background: "rgba(18,24,38,0.7)", border: "1px dashed rgba(0,207,255,0.2)" }}>
+              <p style={{ color: "#8A9BB0" }}>No live challenges match this filter yet.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredChallenges.map((challenge) => (
-                <div key={challenge.id} className={`bg-card border rounded-2xl p-7 transition-all shadow-sm hover:shadow-md ${challenge.active ? "border-blue-500/30" : "border-border"}`}>
-                  <div className="flex justify-between items-start gap-3 mb-4">
-                    <span className={`text-xs font-bold px-3 py-1 rounded-full border ${challenge.active ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20" : "bg-muted text-muted-foreground border-border"}`}>
-                      {challenge.active ? "Active" : "Completed"}
+              {filteredChallenges.map((c) => (
+                <div key={c.id} className="rounded-2xl p-7 relative overflow-hidden transition-all" style={{ background: "rgba(18,24,38,0.7)", border: c.active ? "1px solid rgba(0,207,255,0.3)" : "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(10px)" }}>
+                  <div className="absolute top-0 left-[20%] right-[20%] h-[1px]" style={{ background: c.active ? "linear-gradient(90deg, transparent, rgba(0,207,255,0.5), transparent)" : "transparent" }} />
+
+                  <div className="flex justify-between items-start gap-3 mb-4 relative">
+                    <span className="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full" style={c.active
+                      ? { background: "rgba(0,207,255,0.12)", color: "#00CFFF", border: "1px solid rgba(0,207,255,0.3)" }
+                      : { background: "rgba(255,255,255,0.05)", color: "#8A9BB0", border: "1px solid rgba(255,255,255,0.1)" }}>
+                      {c.active ? "Active" : "Completed"}
                     </span>
-                    <span className="text-amber-600 dark:text-amber-400 text-sm font-bold">+{challenge.points_reward} XP</span>
+                    <span className="text-[13px] font-black" style={{ color: "#FFD000" }}>+{c.points_reward} XP</span>
                   </div>
-                  <h3 className="font-['Space_Grotesk'] font-extrabold text-2xl text-card-foreground mb-2">{challenge.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-5">{challenge.description || "No description yet."}</p>
+
+                  <h3 className="font-['Space_Grotesk'] font-black text-[22px] mb-2 text-white leading-tight">{c.title}</h3>
+                  <p className="text-[13px] leading-relaxed mb-5" style={{ color: "#B0BAC8" }}>{c.description || "No description yet."}</p>
+
                   <div className="flex gap-4 flex-wrap mb-5">
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <Users size={14} />
-                      <span className="text-sm">{challenge.participantsCount || 0} participants</span>
+                    <div className="flex items-center gap-1.5" style={{ color: "#8A9BB0" }}>
+                      <Users size={13} />
+                      <span className="text-[12px]">{c.participantsCount || 0} participants</span>
                     </div>
-                    {(challenge.start_date || challenge.end_date) && (
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <Calendar size={14} />
-                        <span className="text-sm">{challenge.start_date || "Open"} {challenge.end_date ? `→ ${challenge.end_date}` : ""}</span>
+                    {(c.start_date || c.end_date) && (
+                      <div className="flex items-center gap-1.5" style={{ color: "#8A9BB0" }}>
+                        <Calendar size={13} />
+                        <span className="text-[12px]">{c.start_date || "Open"}{c.end_date ? ` → ${c.end_date}` : ""}</span>
                       </div>
                     )}
                   </div>
-                  <Link to={createPageUrl("Dashboard") + "?tab=challenges"} className="block text-center text-[15px] bg-gradient-to-r from-cyan-400 to-blue-600 text-white font-['Space_Grotesk'] font-extrabold py-3.5 rounded-full shadow-sm hover:shadow-md transition">
-                    Open in dashboard
+
+                  <Link to={createPageUrl("Dashboard") + "?tab=challenges"} className="flex items-center justify-center gap-2 text-[14px] font-['Space_Grotesk'] font-black py-3.5 rounded-full no-underline transition" style={{ background: "linear-gradient(135deg, #FFD000, #FFA500)", color: "#0B0F1A", boxShadow: "0 6px 24px rgba(255,208,0,0.35)" }}>
+                    Open in dashboard <ArrowRight size={15} />
                   </Link>
                 </div>
               ))}

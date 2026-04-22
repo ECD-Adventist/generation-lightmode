@@ -27,6 +27,9 @@ import OnboardingModal from "@/components/dashboard/OnboardingModal";
 import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModal";
 import MyGlowGroupsSidebar from "@/components/feed/MyGlowGroupsSidebar";
 import MobileFeed from "@/components/feed/MobileFeed";
+import useGuestPreview from "@/hooks/useGuestPreview";
+import GuestPreviewBanner from "@/components/pledge/GuestPreviewBanner";
+import GuestPreviewWall from "@/components/pledge/GuestPreviewWall";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
@@ -65,6 +68,10 @@ export default function Feed() {
   const feedEndRef = useRef(null);
   const feedScrollRef = useRef(null);
 
+  // Guest preview: let unauthenticated visitors browse the feed for 3 minutes
+  // before showing the sign-in / pledge wall.
+  const guestPreview = useGuestPreview();
+
   useEffect(() => {
     async function checkAuth() {
       try {
@@ -76,9 +83,8 @@ export default function Feed() {
           } catch (e) {
             console.error("Failed to fetch user:", e);
           }
-        } else {
-          base44.auth.redirectToLogin(window.location.pathname);
         }
+        // Guests: do NOT redirect — let useGuestPreview handle the 3-min window.
       } catch (err) {
         console.error("Auth check failed:", err);
       }
@@ -329,7 +335,8 @@ export default function Feed() {
       .map(([tag, count]) => ({ tag, count }));
   }, [drops]);
 
-  if (!user) {
+  // Show spinner while auth state resolves (or while fetching the authenticated user).
+  if (guestPreview.loading || (!user && !guestPreview.isGuest)) {
     return (
       <div className="h-[100dvh] flex items-center justify-center" style={{ background: "linear-gradient(135deg, #C8F2D4 0%, #E8F5C8 100%)" }}>
         <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} />
@@ -339,6 +346,12 @@ export default function Feed() {
 
   return (
     <div className="h-[100dvh] relative overflow-hidden font-['Inter']" style={{ background: "linear-gradient(135deg, #D4F5D4 0%, #F5F99A 100%)", color: "#0B1B3D" }}>
+      {guestPreview.isGuest && !guestPreview.expired && (
+        <div className="absolute top-0 left-0 right-0 z-[60]">
+          <GuestPreviewBanner remainingMs={guestPreview.remainingMs} totalMs={guestPreview.totalMs} />
+        </div>
+      )}
+      {guestPreview.expired && <GuestPreviewWall destination="Feed" />}
       <OnboardingModal
         isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth || !user.city || !user.address || !user.postal_code)}
         onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
