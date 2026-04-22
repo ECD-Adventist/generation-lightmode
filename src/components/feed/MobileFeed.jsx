@@ -188,48 +188,57 @@ export default function MobileFeed({
       </div>
 
       {/* FEED */}
-      <div className="px-3 pb-24 space-y-3">
+      <div className="px-3 pb-24 space-y-4">
         {isLoading && drops.length === 0 ? (
           <div className="py-16 text-center">
-            <div className="inline-block w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+            <div className="inline-block w-10 h-10 rounded-full border-[3px] animate-spin" style={{ borderColor: "#D6E4FF", borderTopColor: "#0B3FD9" }} />
+            <p className="text-xs font-semibold mt-3" style={{ color: "#6B7FA0" }}>Loading your light feed…</p>
           </div>
         ) : isError && filteredDrops.length === 0 ? (
           <div className="py-16 text-center rounded-[1.5rem]" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
             <div className="text-3xl mb-2">↻</div>
             <p className="text-sm" style={{ color: "#4A5878" }}>We're refreshing the feed.</p>
-            <button onClick={onRefetch} className="mt-3 px-5 py-2 rounded-full text-xs font-black" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}>
+            <button onClick={onRefetch} className="mt-3 px-5 py-2 rounded-full text-xs font-black" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.3)" }}>
               Refresh
             </button>
           </div>
         ) : filteredDrops.length === 0 ? (
-          <div className="py-16 text-center rounded-[1.5rem]" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
-            <div className="text-3xl mb-2">✨</div>
-            <p className="text-sm font-bold" style={{ color: "#0B1B3D" }}>No Drops yet</p>
-            <p className="text-xs mt-1" style={{ color: "#8A97B5" }}>Be the first to share your light!</p>
-            <button onClick={onOpenDropModal} className="mt-4 px-5 py-2 rounded-full text-xs font-black" style={{ background: "linear-gradient(90deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 208, 0, 0.4)" }}>
-              Share a Drop
-            </button>
+          <div className="py-16 text-center rounded-[1.5rem] relative overflow-hidden" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
+            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl opacity-30" style={{ background: "#FFD000" }} />
+            <div className="relative">
+              <div className="text-4xl mb-2">✨</div>
+              <p className="text-sm font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>No Drops yet</p>
+              <p className="text-xs mt-1 px-6" style={{ color: "#8A97B5" }}>Be the first to share your light!</p>
+              <button onClick={onOpenDropModal} className="mt-4 px-6 py-2.5 rounded-full text-xs font-black active:scale-95 transition" style={{ background: "linear-gradient(90deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 6px 16px rgba(255, 208, 0, 0.45)" }}>
+                ⚡ Share your Drop
+              </button>
+            </div>
           </div>
         ) : (
           <>
             {filteredDrops.slice(0, displayCount).map(drop => {
               const dropUser = getUserInfo(drop.user_email);
               return (
-                <DropCard
-                  key={drop.id}
-                  drop={drop}
-                  user={user}
-                  dropUser={dropUser}
-                  likeMutation={likeMutation}
-                  handleShare={handleShare}
-                  userLikes={userLikes}
-                  allUsers={allUsers}
-                  savedDropRecords={savedDropRecords}
-                />
+                <div key={drop.id} className="rounded-[1.5rem] overflow-hidden" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 18px rgba(11, 63, 217, 0.06)" }}>
+                  <DropCard
+                    drop={drop}
+                    user={user}
+                    dropUser={dropUser}
+                    likeMutation={likeMutation}
+                    handleShare={handleShare}
+                    userLikes={userLikes}
+                    allUsers={allUsers}
+                    savedDropRecords={savedDropRecords}
+                  />
+                </div>
               );
             })}
-            <div className="py-4 text-center text-xs font-semibold" style={{ color: "#8A97B5" }}>
-              {displayCount < filteredDrops.length ? "Loading more…" : `${filteredDrops.length} posts · you're all caught up ✨`}
+            <div className="pt-5 pb-2 text-center text-[11px] font-black uppercase tracking-wider" style={{ color: "#8A97B5" }}>
+              {displayCount < filteredDrops.length ? (
+                <span className="inline-flex items-center gap-2"><span className="inline-block w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "#D6E4FF", borderTopColor: "#0B3FD9" }} /> Loading more…</span>
+              ) : (
+                <span>✨ {filteredDrops.length} posts · you're all caught up ✨</span>
+              )}
             </div>
           </>
         )}

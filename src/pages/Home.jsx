@@ -11,6 +11,8 @@ import LightModeQuotientQuiz from "../components/home/LightModeQuotientQuiz";
 import { useSwitchItOn } from "../components/pledge/SwitchItOnProvider";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileHome from "../components/home/MobileHome";
 
 const galleryImages1 = [
   "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/5b3a8e4c8_4V5A9468.jpg",
@@ -94,13 +96,23 @@ function StatCard({ value, suffix, label, icon: Icon, color, started }) {
 }
 
 export default function Home() {
-  const statsRef = useRef(null);
-  const [statsVisible, setStatsVisible] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
+  const isMobile = useIsMobile();
   const { t, isRTL } = useAppLanguage("home");
   const { trigger: triggerSwitchOn } = useSwitchItOn();
   const { data: snapshot } = usePublicCommunitySnapshot();
   const liveCountries = snapshot?.countryStats || [];
+
+  if (isMobile) {
+    return <MobileHome t={t} triggerSwitchOn={triggerSwitchOn} liveCountries={liveCountries} galleryImages={[...galleryImages1, ...galleryImages2]} />;
+  }
+
+  return <DesktopHome t={t} isRTL={isRTL} triggerSwitchOn={triggerSwitchOn} liveCountries={liveCountries} />;
+}
+
+function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries }) {
+  const statsRef = useRef(null);
+  const [statsVisible, setStatsVisible] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

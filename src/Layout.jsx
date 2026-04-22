@@ -9,6 +9,7 @@ import MobileBottomNav from "./components/mobile/MobileBottomNav";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const navLinks = [
   { key: "about", page: "About" },
@@ -21,6 +22,9 @@ const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","Glo
 export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const isAppShellPage = appShellPages.includes(currentPageName);
+  const isMobileViewport = useIsMobile();
+  // On mobile, Home renders its own full-bleed mobile shell (MobileHome has its own nav + footer).
+  const hideDesktopChrome = isMobileViewport && currentPageName === "Home";
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -266,7 +270,7 @@ export default function Layout({ children, currentPageName }) {
       `}</style>
 
       {/* NAVBAR — public-site only */}
-      {isAppShellPage ? null : (
+      {isAppShellPage || hideDesktopChrome ? null : (
         /* Public nav for non-logged-in users */
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
@@ -539,7 +543,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Page Content */}
-      <main className={`${isAppShellPage || currentPageName === "Home" ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"} ${isAppShellPage ? "has-mobile-bottom-nav" : ""}`}>
+      <main className={`${isAppShellPage || currentPageName === "Home" || hideDesktopChrome ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"} ${isAppShellPage ? "has-mobile-bottom-nav" : ""}`}>
         {children}
       </main>
 
@@ -547,7 +551,7 @@ export default function Layout({ children, currentPageName }) {
       {isAppShellPage && <MobileBottomNav currentPageName={currentPageName} />}
 
       {/* FOOTER — public-site only */}
-      {!isAppShellPage ? (
+      {!isAppShellPage && !hideDesktopChrome ? (
       <footer style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.1)", padding: "60px 24px 40px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 48, marginBottom: 48 }}>
