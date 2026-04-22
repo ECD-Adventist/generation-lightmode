@@ -345,9 +345,9 @@ export default function Feed() {
   }
 
   return (
-    <div className="h-[100dvh] relative overflow-hidden font-['Inter']" style={{ background: "linear-gradient(135deg, #D4F5D4 0%, #F5F99A 100%)", color: "#0B1B3D" }}>
+    <div className="h-[100dvh] relative overflow-hidden font-['Inter'] flex flex-col" style={{ background: "linear-gradient(135deg, #D4F5D4 0%, #F5F99A 100%)", color: "#0B1B3D" }}>
       {guestPreview.isGuest && !guestPreview.expired && (
-        <div className="absolute top-0 left-0 right-0 z-[60]">
+        <div className="shrink-0 relative z-[60]">
           <GuestPreviewBanner remainingMs={guestPreview.remainingMs} totalMs={guestPreview.totalMs} />
         </div>
       )}
@@ -374,7 +374,7 @@ export default function Feed() {
 
       {/* MOBILE: branded redesign */}
       <div
-        className="lg:hidden h-[100dvh] overflow-y-auto"
+        className="lg:hidden flex-1 min-h-0 overflow-y-auto"
         onScroll={(e) => {
           const { scrollTop, scrollHeight, clientHeight } = e.target;
           if (scrollHeight - scrollTop <= clientHeight + 200) {
@@ -422,7 +422,7 @@ export default function Feed() {
         />
       </div>
 
-      <div className="hidden lg:grid h-full relative z-10 grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-0 backdrop-blur-[2px]">
+      <div className="hidden lg:grid flex-1 min-h-0 relative z-10 grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-0 backdrop-blur-[2px]">
         
         {/* Left Sidebar (Desktop) */}
         <div className="hidden lg:flex flex-col py-6 px-4 sticky top-0 h-[100dvh] overflow-y-auto hide-scrollbar relative"
