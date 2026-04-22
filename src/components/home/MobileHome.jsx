@@ -6,6 +6,9 @@ import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 import DailyDropsSection from "@/components/home/DailyDropsSection";
 import LightModeQuotientQuiz from "@/components/home/LightModeQuotientQuiz";
+import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { countryCoordinates } from "@/lib/countryCoordinates";
+import "leaflet/dist/leaflet.css";
 
 /**
  * Mobile-only landing page — LightMode branded.
@@ -103,7 +106,7 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
         </div>
       )}
 
-      {/* ═══════ HERO ═══════ */}
+      {/* ═══════ HERO — image extends behind top bar ═══════ */}
       <section className="relative min-h-[100dvh] flex flex-col justify-end overflow-hidden">
         <img
           src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png"
@@ -111,19 +114,16 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
           className="absolute inset-0 w-full h-full object-cover"
           style={{ objectPosition: "center top", animation: "mh-breathe 7s ease-in-out infinite" }}
         />
-        {/* Dark gradient */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0.7) 0%, rgba(11,15,26,0.15) 18%, rgba(11,15,26,0) 38%, rgba(11,15,26,0.6) 72%, rgba(11,15,26,0.98) 100%)" }} />
+        {/* Subtle top wash — keeps logo readable without darkening image */}
+        <div className="absolute inset-x-0 top-0 h-[140px] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0.55) 0%, rgba(11,15,26,0.2) 60%, rgba(11,15,26,0) 100%)" }} />
+        {/* Bottom gradient — only enough to keep text legible near the bottom */}
+        <div className="absolute inset-x-0 bottom-0 h-[55%] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0) 0%, rgba(11,15,26,0.55) 55%, rgba(11,15,26,0.96) 100%)" }} />
         {/* Warm vignette */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 95%, rgba(255,165,0,0.18) 0%, transparent 55%)" }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 110%, rgba(255,165,0,0.18) 0%, transparent 55%)" }} />
 
-        {/* Content — bottom anchored */}
-        <div className="relative z-10 px-5 pb-8 safe-pb">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-4" style={{ background: "rgba(0,207,255,0.12)", border: "1px solid rgba(0,207,255,0.4)", backdropFilter: "blur(10px)" }}>
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#00CFFF", animation: "mh-pulse-dot 2s ease-in-out infinite" }} />
-            <span className="text-[9.5px] font-black uppercase tracking-[0.18em]" style={{ color: "#00CFFF" }}>Faith. Always On.</span>
-          </div>
-
-          <h1 className="font-['Space_Grotesk'] font-black text-[34px] leading-[1.05] tracking-tight mb-4">
+        {/* Content — bottom anchored, compact so hero image remains dominant */}
+        <div className="relative z-10 px-5 pb-7 safe-pb">
+          <h1 className="font-['Space_Grotesk'] font-black text-[30px] leading-[1.08] tracking-tight mb-3">
             {t("heroTitleBefore")}{" "}
             <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 55%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               {t("heroTitleHighlight")}
@@ -131,14 +131,14 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
             {" "}{t("heroTitleAfter")}
           </h1>
 
-          <p className="text-[14px] leading-relaxed mb-5" style={{ color: "#E0E8F0" }}>
-            Join 10M+ believers turning hidden faith into visible light — across the nations of the East-Central Africa Division.
+          <p className="text-[13px] leading-relaxed mb-4" style={{ color: "#E0E8F0" }}>
+            Join 10M+ believers turning hidden faith into visible light.
           </p>
 
           {/* Primary CTA */}
           <button
             onClick={() => triggerSwitchOn("Feed")}
-            className="w-full flex items-center justify-center gap-2 py-4 rounded-full font-black text-[15px] font-['Space_Grotesk'] mb-3 active:scale-[0.98] transition relative overflow-hidden"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-[15px] font-['Space_Grotesk'] mb-2.5 active:scale-[0.98] transition relative overflow-hidden"
             style={{ background: "linear-gradient(135deg, #FFD000, #FFA500)", color: "#0B0F1A", boxShadow: "0 10px 36px rgba(255,208,0,0.45), 0 4px 16px rgba(0,0,0,0.4)" }}
           >
             <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: "40%", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)", animation: "mh-shimmer 3s infinite ease-in-out" }} />
@@ -149,28 +149,18 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
           <div className="flex gap-2">
             <button
               onClick={() => document.getElementById("mh-quiz")?.scrollIntoView({ behavior: "smooth" })}
-              className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full font-bold text-[13px] active:scale-95 transition"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-bold text-[12px] active:scale-95 transition"
               style={{ background: "rgba(0,207,255,0.12)", color: "#FFFFFF", border: "1px solid rgba(0,207,255,0.4)", backdropFilter: "blur(10px)" }}
             >
               <Sparkles className="w-3.5 h-3.5" /> Take Quiz
             </button>
             <button
               onClick={() => document.getElementById("mh-vision")?.scrollIntoView({ behavior: "smooth" })}
-              className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full font-bold text-[13px] active:scale-95 transition"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-bold text-[12px] active:scale-95 transition"
               style={{ background: "rgba(255,255,255,0.08)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(10px)" }}
             >
               <Play className="w-3 h-3" fill="currentColor" /> Vision
             </button>
-          </div>
-
-          {/* Slogan strip */}
-          <div className="flex items-center gap-2 pt-4 mt-4 border-t" style={{ borderColor: "rgba(255,208,0,0.15)" }}>
-            <span className="text-[10px] font-black uppercase tracking-[0.14em] font-['Space_Grotesk']" style={{ color: "#FFD000", textShadow: "0 0 12px rgba(255,208,0,0.4)" }}>
-              {t("slogan") || "Faith. Always On."}
-            </span>
-            <span className="text-[9px] italic truncate" style={{ color: "rgba(200,208,224,0.7)" }}>
-              {t("verse") || "Let your light shine before others"}
-            </span>
           </div>
         </div>
       </section>
@@ -351,9 +341,15 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
         </p>
       </section>
 
-      {/* ═══════ GLOBAL MAP SUMMARY ═══════ */}
-      <section className="py-12 px-5" style={{ background: "#0B0F1A" }}>
-        <div className="text-center mb-5">
+      {/* ═══════ GLOBAL MAP — interactive Leaflet ═══════ */}
+      <section className="pt-12 pb-10" style={{ background: "#0B0F1A" }}>
+        <style>{`
+          .mh-map-wrap .leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 8px; }
+          .mh-map-wrap .leaflet-popup-tip { background: #121826; border: 1px solid rgba(0,207,255,0.4); }
+          .mh-map-wrap .leaflet-control-attribution { display: none !important; }
+        `}</style>
+
+        <div className="text-center mb-5 px-5">
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-3" style={{ background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.25)" }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#00CFFF", animation: "mh-pulse-dot 2s ease-in-out infinite" }} />
             <span className="text-[9px] font-black uppercase tracking-[0.14em]" style={{ color: "#00CFFF" }}>Real-Time Data</span>
@@ -366,22 +362,56 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        {/* Stats grid */}
+        <div className="px-5 grid grid-cols-2 gap-2.5 mb-4">
           {[
             { label: "Members", value: totalMembers, color: "#00CFFF" },
             { label: "Countries", value: liveCountries.length, color: "#FFD000" },
             { label: "GlowGroups", value: totalGroups, color: "#8A5CFF" },
             { label: "Glow Drops", value: totalDrops, color: "#1DA1FF" },
           ].map(s => (
-            <div key={s.label} className="rounded-2xl p-4" style={{ background: "rgba(18,24,38,0.7)", border: `1px solid ${s.color}25`, backdropFilter: "blur(12px)" }}>
+            <div key={s.label} className="rounded-xl p-3" style={{ background: "rgba(18,24,38,0.7)", border: `1px solid ${s.color}25`, backdropFilter: "blur(12px)" }}>
               <div className="text-[9px] font-black uppercase tracking-wider mb-1" style={{ color: "#8A9BB0" }}>{s.label}</div>
-              <div className="font-['Space_Grotesk'] font-black text-[22px]" style={{ color: s.color }}>{s.value.toLocaleString()}</div>
+              <div className="font-['Space_Grotesk'] font-black text-[20px]" style={{ color: s.color }}>{s.value.toLocaleString()}</div>
             </div>
           ))}
         </div>
 
+        {/* Interactive Leaflet map */}
+        <div className="mh-map-wrap relative" style={{ height: "60vh", minHeight: 400, width: "100%", background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.15)", borderBottom: "1px solid rgba(0,207,255,0.15)" }}>
+          <MapContainer center={[5, 30]} zoom={3} scrollWheelZoom={false} zoomControl={false} style={{ height: "100%", width: "100%", background: "#0B0F1A" }}>
+            <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png" attribution="&copy; CartoDB" />
+            {liveCountries.filter(loc => countryCoordinates[loc.country]).flatMap((loc, i) => {
+              const coordinates = countryCoordinates[loc.country];
+              const color = i % 3 === 0 ? "#00CFFF" : i % 3 === 1 ? "#FFD000" : "#8A5CFF";
+              const totalActivity = (loc.users || 0) + (loc.drops || 0) * 0.3 + (loc.groups || 0) * 2;
+              const outerR = Math.min(45, Math.max(14, totalActivity * 1.2 + 12));
+              const innerR = Math.min(10, Math.max(6, (loc.users || 0) * 0.4 + 6));
+              return [
+                <CircleMarker key={`outer-${i}`} center={coordinates} radius={outerR} pathOptions={{ color: "transparent", fillColor: color, fillOpacity: 0.15 }} />,
+                <CircleMarker key={`inner-${i}`} center={coordinates} radius={innerR} pathOptions={{ color, fillColor: "#FFF", fillOpacity: 0.95, weight: 2 }}>
+                  <Popup>
+                    <div style={{ background: "rgba(18,24,38,0.96)", backdropFilter: "blur(12px)", padding: "12px", borderRadius: "10px", border: `1px solid ${color}60`, color: "#FFF", minWidth: "160px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                        <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: color, boxShadow: `0 0 8px ${color}` }} />
+                        <h4 style={{ fontFamily: "Space Grotesk, sans-serif", fontSize: "13px", color, margin: 0, fontWeight: 700 }}>{loc.country}</h4>
+                      </div>
+                      {[["Members", (loc.users || 0).toLocaleString()], ["Groups", loc.groups || 0], ["Drops", loc.drops || 0]].map(([lbl, val], idx, arr) => (
+                        <div key={lbl} style={{ display: "flex", justifyContent: "space-between", borderBottom: idx === arr.length - 1 ? "none" : "1px solid rgba(255,255,255,0.06)", paddingBottom: "5px", marginBottom: "5px" }}>
+                          <span style={{ fontSize: "11px", color: "#8A9BB0", fontFamily: "Inter, sans-serif" }}>{lbl}</span>
+                          <strong style={{ color: "#FFF", fontFamily: "Space Grotesk, sans-serif", fontSize: "12px" }}>{val}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              ];
+            })}
+          </MapContainer>
+        </div>
+
         {liveCountries.length > 0 && (
-          <div className="space-y-2 mt-5">
+          <div className="px-5 mt-6 space-y-2">
             <div className="text-[10px] font-black uppercase tracking-wider mb-2" style={{ color: "#8A9BB0" }}>Top Countries</div>
             {liveCountries.slice(0, 5).map((loc, i) => {
               const color = i % 3 === 0 ? "#00CFFF" : i % 3 === 1 ? "#FFD000" : "#8A5CFF";
