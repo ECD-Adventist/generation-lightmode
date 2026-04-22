@@ -71,7 +71,7 @@ export default function Settings() {
   return (
     <div className="min-h-screen pb-20 font-['Inter'] bg-background text-foreground">
       {/* Nav */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl border-b bg-background/95 border-border px-6 py-3 flex items-center gap-4 safe-pt">
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b bg-background/95 border-border px-6 py-3 flex items-center gap-4">
         <Link to={createPageUrl("Feed")} className="flex items-center gap-2 transition text-muted-foreground hover:text-foreground">
           <Home className="w-4 h-4" />
         </Link>

@@ -53,8 +53,8 @@ export default function DailyDropsPage() {
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
-      {/* Header — extends under status bar / camera notch */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl border-b safe-pt" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
+      {/* Header */}
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-4">
           <Link to={createPageUrl("Feed")} className="w-10 h-10 rounded-full flex items-center justify-center transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#4A5878" }}>
             <ArrowLeft className="w-5 h-5" />

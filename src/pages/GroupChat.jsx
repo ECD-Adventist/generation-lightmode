@@ -339,8 +339,8 @@ export default function GroupChat() {
       <div className="max-w-7xl mx-auto flex h-screen">
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col min-w-0 border-r" style={{ borderColor: "#E6ECF5", background: "#FFFFFF" }}>
-          {/* Header — cinematic hero style with cover/avatar; extends behind status bar */}
-          <div className="relative shrink-0 overflow-hidden border-b safe-pt" style={{ borderColor: "#E6ECF5" }}>
+          {/* Header — cinematic hero style with cover/avatar */}
+          <div className="relative shrink-0 overflow-hidden border-b" style={{ borderColor: "#E6ECF5" }}>
             {/* Cover background */}
             <div className="absolute inset-0" style={{
               background: group.cover_picture_url

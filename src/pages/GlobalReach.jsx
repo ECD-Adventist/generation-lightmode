@@ -167,7 +167,7 @@ export default function GlobalReach() {
       {selectedDrop && <ImpactStoryPanel drop={selectedDrop} onClose={() => setSelectedDrop(null)} />}
 
       {/* Top Navigation */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl border-b safe-pt" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button onClick={() => navigate(-1)} className="p-2 rounded-lg transition" style={{ color: "#4A5878" }} title="Go back">

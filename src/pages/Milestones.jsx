@@ -169,7 +169,7 @@ export default function Milestones() {
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       {/* Top Navigation */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl border-b safe-pt" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
+      <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
             <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 48, width: "auto" }} />
