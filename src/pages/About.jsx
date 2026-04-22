@@ -9,10 +9,13 @@ import AboutPartners from "../components/about/AboutPartners";
 import AboutTeam from "../components/about/AboutTeam";
 import AboutStory from "../components/about/AboutStory";
 import AboutCTA from "../components/about/AboutCTA";
+import MobileAbout from "../components/about/MobileAbout";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function About() {
   const { t, isRTL, language } = useAppLanguage("about");
   const { data: snapshot } = usePublicCommunitySnapshot();
+  const isMobile = useIsMobile();
 
   const liveImpactStats = [
     { value: snapshot?.totalUsers || 0, label: "Public Members", color: "#00CFFF" },
@@ -32,6 +35,14 @@ export default function About() {
       window.scrollTo({ top: 0, behavior: "auto" });
     }
   }, []);
+
+  if (isMobile) {
+    return (
+      <div dir={isRTL ? "rtl" : "ltr"}>
+        <MobileAbout t={t} joinNowText={joinNowText} liveImpactStats={liveImpactStats} />
+      </div>
+    );
+  }
 
   return (
     <div dir={isRTL ? "rtl" : "ltr"} style={{ background: "#0B0F1A" }}>
