@@ -27,7 +27,7 @@ export default function MobileAbout({ t, joinNowText, liveImpactStats }) {
   ];
 
   return (
-    <div className="min-h-[100dvh] font-['Inter']" style={{ background: "#0B0F1A", color: "#FFFFFF" }}>
+    <div className="min-h-[100dvh] font-['Inter'] overflow-x-hidden w-full max-w-full" style={{ background: "#0B0F1A", color: "#FFFFFF" }}>
       <style>{`
         @keyframes ma-float { 0%,100% { transform: translateY(0) scale(1); opacity: 0.22 } 50% { transform: translateY(-18px) scale(1.08); opacity: 0.42 } }
         @keyframes ma-shimmer { 0% { transform: translateX(-150%) skewX(-20deg); } 100% { transform: translateX(260%) skewX(-20deg); } }
@@ -66,25 +66,25 @@ export default function MobileAbout({ t, joinNowText, liveImpactStats }) {
         />
         {/* Soft top wash so logo is readable without darkening subjects */}
         <div className="absolute inset-x-0 top-0 h-[140px] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0.55) 0%, rgba(11,15,26,0) 100%)" }} />
-        {/* Bottom gradient for text */}
-        <div className="absolute inset-x-0 bottom-0 h-[55%] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0) 0%, rgba(11,15,26,0.55) 55%, rgba(11,15,26,0.96) 100%)" }} />
+        {/* Bottom gradient for text — stronger for readability */}
+        <div className="absolute inset-x-0 bottom-0 h-[70%] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0) 0%, rgba(11,15,26,0.75) 45%, rgba(11,15,26,0.98) 100%)" }} />
         {/* Warm vignette */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 105%, rgba(255,165,0,0.18) 0%, transparent 55%)" }} />
 
-        <div className="relative z-10 px-5 pb-7 safe-pb">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-4" style={{ background: "rgba(0,207,255,0.12)", border: "1px solid rgba(0,207,255,0.4)", backdropFilter: "blur(10px)" }}>
+        <div className="relative z-10 px-5 pb-7 safe-pb" style={{ textShadow: "0 2px 12px rgba(0,0,0,0.6)" }}>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-4" style={{ background: "rgba(0,207,255,0.18)", border: "1px solid rgba(0,207,255,0.5)", backdropFilter: "blur(10px)" }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#00CFFF", animation: "ma-pulse-dot 2s ease-in-out infinite" }} />
             <span className="text-[9.5px] font-black uppercase tracking-[0.18em]" style={{ color: "#00CFFF" }}>{t("storyBadge") || "Our Story"}</span>
           </div>
 
-          <h1 className="font-['Space_Grotesk'] font-black text-[32px] leading-[1.05] tracking-tight mb-3">
+          <h1 className="font-['Space_Grotesk'] font-black text-[32px] leading-[1.05] tracking-tight mb-3" style={{ textShadow: "0 3px 16px rgba(0,0,0,0.75)" }}>
             {t("heroTitleBefore")}{" "}
-            <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 55%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+            <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 55%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", filter: "drop-shadow(0 2px 10px rgba(0,207,255,0.35))" }}>
               {t("heroTitleHighlight")}
             </span>
           </h1>
 
-          <p className="text-[13.5px] leading-relaxed mb-5" style={{ color: "#E0E8F0" }}>
+          <p className="text-[14px] leading-relaxed mb-5 font-medium" style={{ color: "#F0F4FA", textShadow: "0 2px 10px rgba(0,0,0,0.7)" }}>
             {t("heroText")} <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
           </p>
 
