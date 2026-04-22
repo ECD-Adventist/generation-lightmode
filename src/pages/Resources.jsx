@@ -6,6 +6,8 @@ import MediaShowcase from "../components/resources/MediaShowcase";
 import DownloadsShowcase from "../components/resources/DownloadsShowcase";
 import { downloads, mediaItems } from "../components/resources/resourcesData";
 import CodesShowcase from "../components/resources/CodesShowcase";
+import MobileResources from "../components/resources/MobileResources";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const KEEPING_IT_100_CATEGORIES = [
   "Sexuality & Purity", "Self-Control", "Sanctity of Life", "Gambling & Stewardship", 
@@ -20,6 +22,7 @@ const CODES_OF_TRUTH_CATEGORIES = [
 
 export default function Resources() {
   const location = useLocation();
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("media");
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeType, setActiveType] = useState("all");
@@ -45,6 +48,10 @@ export default function Resources() {
       return catMatch && typeMatch;
     });
   }, [activeCategory, activeType]);
+
+  if (isMobile) {
+    return <MobileResources activeTab={activeTab} onTabChange={handleTabChange} />;
+  }
 
   return (
     <div style={{ background: "#0B0F1A" }}>

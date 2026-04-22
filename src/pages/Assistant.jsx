@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Send, Zap, RefreshCw } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import MobileAssistant from "@/components/assistant/MobileAssistant";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const suggestions = [
   "What is Generation LightMode?",
@@ -18,6 +20,7 @@ const initialMessage = {
 };
 
 export default function Assistant() {
+  const isMobile = useIsMobile();
   const [messages, setMessages] = useState([initialMessage]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,6 +35,8 @@ export default function Assistant() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  if (isMobile) return <MobileAssistant />;
 
   const sendMessage = async (text) => {
     const userText = text || input.trim();

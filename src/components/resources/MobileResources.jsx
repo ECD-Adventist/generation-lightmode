@@ -1,0 +1,242 @@
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Menu, X, Bell, Zap, Download, BookOpen, Sparkles, Play, FileText, Image as ImageIcon, ChevronRight, ArrowRight, Hash } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { downloads } from "@/components/resources/resourcesData";
+
+const TABS = [
+  { key: "media", label: "Media", icon: Play, color: "#00CFFF", desc: "Videos & podcasts" },
+  { key: "downloads", label: "Downloads", icon: Download, color: "#FFD000", desc: "Graphics & guides" },
+  { key: "keeping-it-100", label: "Keep It 100", icon: Sparkles, color: "#FF9F1A", desc: "Truth slogans" },
+  { key: "codes-of-truth", label: "Codes", icon: BookOpen, color: "#8A5CFF", desc: "Fundamental truths" },
+];
+
+/**
+ * Mobile-only Resources page — LightMode branded hub for Media, Downloads, Keep It 100, and Codes of Truth.
+ */
+export default function MobileResources({ activeTab, onTabChange }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    base44.auth.isAuthenticated().then((isAuth) => {
+      if (isAuth) base44.auth.me().then(setUser).catch(() => {});
+    });
+  }, []);
+
+  return (
+    <div className="min-h-[100dvh] font-['Inter']" style={{ background: "#0B0F1A", color: "#FFFFFF" }}>
+      <style>{`
+        @keyframes mr-float { 0%,100% { transform: translateY(0); opacity: 0.2 } 50% { transform: translateY(-18px); opacity: 0.4 } }
+        @keyframes mr-pulse { 0%,100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.4); opacity: 0.6 } }
+      `}</style>
+
+      {/* TOP BAR */}
+      <div className="sticky top-0 z-50 safe-pt px-4 pb-2 backdrop-blur-xl" style={{ background: "rgba(11,15,26,0.85)", borderBottom: "1px solid rgba(0,207,255,0.08)" }}>
+        <div className="flex items-center justify-between pt-2">
+          <Link to={createPageUrl("Home")} className="active:scale-95 transition">
+            <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="" className="h-8 w-auto object-contain" style={{ filter: "drop-shadow(0 0 10px rgba(0,207,255,0.5))" }} />
+          </Link>
+          <div className="flex items-center gap-2">
+            {user && (
+              <Link to={createPageUrl("Notifications")} className="w-11 h-11 rounded-xl flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.06)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <Bell className="w-[18px] h-[18px]" />
+              </Link>
+            )}
+            <button onClick={() => setMenuOpen(true)} className="w-11 h-11 rounded-xl flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.06)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.1)" }}>
+              <Menu className="w-[18px] h-[18px]" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* HERO */}
+      <section className="relative overflow-hidden px-5 pt-8 pb-6">
+        <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "#FFD000", opacity: 0.14, animation: "mr-float 9s ease-in-out infinite" }} />
+        <div className="absolute -bottom-10 -left-10 w-52 h-52 rounded-full blur-3xl pointer-events-none" style={{ background: "#00CFFF", opacity: 0.14, animation: "mr-float 11s ease-in-out infinite 1s" }} />
+
+        <div className="relative">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-4" style={{ background: "rgba(255,208,0,0.1)", border: "1px solid rgba(255,208,0,0.3)", backdropFilter: "blur(10px)" }}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#FFD000", animation: "mr-pulse 2s ease-in-out infinite" }} />
+            <span className="text-[9.5px] font-black uppercase tracking-[0.18em]" style={{ color: "#FFD000" }}>Resource Hub</span>
+          </div>
+          <h1 className="font-['Space_Grotesk'] font-black text-[30px] leading-[1.05] tracking-tight mb-3">
+            Everything You Need to{" "}
+            <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              Shine Brighter
+            </span>
+          </h1>
+          <p className="text-[13.5px] leading-relaxed" style={{ color: "#C8D0E0" }}>
+            Media, downloads, truth slogans, and fundamental codes — all in one place.
+          </p>
+        </div>
+      </section>
+
+      {/* TAB SWITCHER */}
+      <section className="px-5 pb-2">
+        <div className="grid grid-cols-2 gap-2.5">
+          {TABS.map(t => {
+            const Icon = t.icon;
+            const active = activeTab === t.key;
+            return (
+              <button
+                key={t.key}
+                onClick={() => onTabChange(t.key)}
+                className="relative rounded-2xl p-3.5 text-left active:scale-[0.97] transition"
+                style={{
+                  background: active ? `${t.color}15` : "rgba(18,24,38,0.6)",
+                  border: active ? `1.5px solid ${t.color}` : "1px solid rgba(255,255,255,0.06)",
+                  boxShadow: active ? `0 8px 24px ${t.color}30` : "none",
+                }}
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-2.5" style={{ background: `${t.color}20`, border: `1px solid ${t.color}35`, boxShadow: active ? `0 0 12px ${t.color}40` : "none" }}>
+                  <Icon className="w-[16px] h-[16px]" style={{ color: t.color }} />
+                </div>
+                <div className="font-['Space_Grotesk'] font-black text-[13px] text-white leading-tight mb-0.5">{t.label}</div>
+                <div className="text-[10px]" style={{ color: "#8A9BB0" }}>{t.desc}</div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* CONTENT */}
+      <section className="px-5 pt-4 pb-8">
+        {activeTab === "media" && <MediaTab />}
+        {activeTab === "downloads" && <DownloadsTab />}
+        {activeTab === "keeping-it-100" && <CodesTabLink tab="keeping-it-100" color="#FF9F1A" title="Keep It 100" description="Short truth slogans to share on social media daily. Stand out, don't blend in." emoji="💯" />}
+        {activeTab === "codes-of-truth" && <CodesTabLink tab="codes-of-truth" color="#8A5CFF" title="Key Codes of Truth" description="Fundamental truths to guide your daily walk. Share the light." emoji="🔐" />}
+      </section>
+
+      {/* CTA */}
+      <section className="relative overflow-hidden px-5 py-12">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(255,208,0,0.1) 0%, transparent 60%)" }} />
+        <div className="relative text-center">
+          <div className="text-[42px] mb-3" style={{ filter: "drop-shadow(0 0 20px rgba(255,208,0,0.5))" }}>⚡</div>
+          <h2 className="font-['Space_Grotesk'] font-black text-[24px] leading-tight mb-3">
+            Ready to join the{" "}
+            <span style={{ background: "linear-gradient(90deg, #FFD000, #00CFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>movement?</span>
+          </h2>
+          <Link to={createPageUrl(user ? "Feed" : "Dashboard")} className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-[14px] font-['Space_Grotesk'] no-underline active:scale-[0.98] transition" style={{ background: "linear-gradient(135deg, #FFD000, #FFA500)", color: "#0B0F1A", boxShadow: "0 10px 40px rgba(255,208,0,0.5)" }}>
+            <Zap className="w-4 h-4" /> {user ? "Go to Feed" : "Switch It On"}
+          </Link>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="px-5 py-8 safe-pb" style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.08)" }}>
+        <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="" className="h-9 w-auto object-contain mb-3" />
+        <p className="text-[11px] leading-relaxed" style={{ color: "#8A9BB0" }}>© 2026 Generation LightMode — Faith. Always On.</p>
+      </footer>
+
+      {/* MENU DRAWER */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-[100]" onClick={() => setMenuOpen(false)}>
+          <div className="absolute inset-0 backdrop-blur-md" style={{ background: "rgba(11,15,26,0.7)" }} />
+          <div onClick={(e) => e.stopPropagation()} className="absolute right-0 top-0 bottom-0 w-[82%] max-w-[340px] p-5 safe-pt safe-pb overflow-y-auto" style={{ background: "linear-gradient(180deg, #0D1220 0%, #0B0F1A 100%)", borderLeft: "1px solid rgba(0,207,255,0.15)" }}>
+            <div className="flex items-center justify-between mb-6">
+              <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="" className="h-8 w-auto object-contain" />
+              <button onClick={() => setMenuOpen(false)} className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <nav className="space-y-1">
+              {[["Home", "Home"], ["About", "About"], ["Impact", "Impact"], ["Assistant", "Assistant"], ["Keep It 100", "KeepIt100"], ["Codes of Truth", "CodesOfTruth"], ["Resources", "Resources"]].map(([l, to]) => (
+                <Link key={to} to={createPageUrl(to)} onClick={() => setMenuOpen(false)} className="block px-4 py-3 rounded-xl text-[14px] font-semibold no-underline active:scale-95 transition" style={{ color: "#E0E8F0", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>{l}</Link>
+              ))}
+            </nav>
+            <div className="mt-6">
+              <Link to={createPageUrl(user ? "Feed" : "Dashboard")} onClick={() => setMenuOpen(false)} className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-[13.5px] font-['Space_Grotesk'] no-underline active:scale-95 transition" style={{ background: "linear-gradient(135deg, #FFD000, #FFA500)", color: "#0B0F1A", boxShadow: "0 6px 24px rgba(255,208,0,0.35)" }}>
+                <Zap className="w-4 h-4" /> {user ? "Go to Feed" : "Join Now"}
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MediaTab() {
+  return (
+    <div className="rounded-2xl p-6 text-center" style={{ background: "rgba(18,24,38,0.6)", border: "1px dashed rgba(0,207,255,0.2)" }}>
+      <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.3)" }}>
+        <Play className="w-5 h-5" style={{ color: "#00CFFF" }} />
+      </div>
+      <h3 className="font-['Space_Grotesk'] font-black text-[16px] mb-1.5" style={{ color: "#FFFFFF" }}>Media Library</h3>
+      <p className="text-[12.5px] leading-relaxed" style={{ color: "#8A9BB0" }}>Videos, podcasts, and devotionals coming soon. Stay tuned ⚡</p>
+    </div>
+  );
+}
+
+function DownloadsTab() {
+  return (
+    <div className="space-y-5">
+      {downloads.map(section => (
+        <div key={section.category}>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-[20px]">{section.icon}</span>
+            <h3 className="font-['Space_Grotesk'] font-black text-[15px] uppercase tracking-[0.08em]" style={{ color: section.color }}>{section.category}</h3>
+          </div>
+          <div className="space-y-2.5">
+            {section.items.map(item => {
+              const available = !!item.url;
+              const Card = available ? "a" : "div";
+              return (
+                <Card
+                  key={item.title}
+                  {...(available ? { href: item.url, target: "_blank", rel: "noopener noreferrer" } : {})}
+                  className="block rounded-2xl p-4 no-underline active:scale-[0.98] transition"
+                  style={{ background: "rgba(18,24,38,0.7)", border: `1px solid ${section.color}20`, opacity: available ? 1 : 0.65 }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${section.color}15`, border: `1px solid ${section.color}35` }}>
+                      {available ? <Download className="w-4 h-4" style={{ color: section.color }} /> : <FileText className="w-4 h-4" style={{ color: section.color }} />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-['Space_Grotesk'] font-black text-[13.5px] leading-snug mb-1" style={{ color: "#FFFFFF" }}>{item.title}</div>
+                      <p className="text-[11.5px] leading-[1.55] mb-2" style={{ color: "#8A9BB0" }}>{item.desc}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: `${section.color}15`, color: section.color, border: `1px solid ${section.color}35` }}>{item.type}</span>
+                        {item.size && <span className="text-[10px]" style={{ color: "#8A9BB0" }}>{item.size}</span>}
+                      </div>
+                    </div>
+                    {available && <ChevronRight className="w-4 h-4 shrink-0 mt-1" style={{ color: section.color }} />}
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CodesTabLink({ tab, color, title, description, emoji }) {
+  const dest = tab === "keeping-it-100" ? "KeepIt100" : "CodesOfTruth";
+  return (
+    <div className="space-y-3">
+      <div className="rounded-2xl p-5" style={{ background: `linear-gradient(135deg, ${color}12, rgba(18,24,38,0.7))`, border: `1px solid ${color}25` }}>
+        <div className="flex items-start gap-3 mb-3">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 text-[24px]" style={{ background: `${color}15`, border: `1px solid ${color}35`, boxShadow: `0 0 16px ${color}25` }}>{emoji}</div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-['Space_Grotesk'] font-black text-[17px] leading-tight mb-1" style={{ color: "#FFFFFF" }}>{title}</h3>
+            <p className="text-[12.5px] leading-[1.55]" style={{ color: "#B0BAC8" }}>{description}</p>
+          </div>
+        </div>
+        <Link to={createPageUrl(dest)} className="w-full flex items-center justify-center gap-1.5 py-3 rounded-full font-black text-[12.5px] font-['Space_Grotesk'] no-underline active:scale-95 transition" style={{ background: color, color: "#0B0F1A", boxShadow: `0 4px 16px ${color}40` }}>
+          Open {title} <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      <div className="rounded-2xl p-4 flex items-start gap-3" style={{ background: "rgba(18,24,38,0.6)", border: "1px solid rgba(255,255,255,0.05)" }}>
+        <Hash className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#8A9BB0" }} />
+        <p className="text-[11.5px] leading-[1.55]" style={{ color: "#8A9BB0" }}>
+          Browse categories, save your favorites, and share directly to social media from the dedicated page.
+        </p>
+      </div>
+    </div>
+  );
+}

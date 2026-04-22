@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import LiveImpactPage from "@/components/impact/LiveImpactPage";
+import MobileImpact from "@/components/impact/MobileImpact";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function useCountUp(target, duration = 2000, start = false) {
   const [count, setCount] = useState(0);
@@ -55,5 +57,7 @@ const testimonies = [
 ];
 
 export default function Impact() {
+  const isMobile = useIsMobile();
+  if (isMobile) return <MobileImpact />;
   return <LiveImpactPage />;
 }
