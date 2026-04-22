@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Loader2, Search, Menu, X, Bell, Zap, SlidersHorizontal, Sparkles } from "lucide-react";
 import CodeCard from "@/components/resources/CodeCard";
+import MobileSiteFooter from "@/components/site/MobileSiteFooter";
 
 /**
  * Shared mobile-only page for Keep It 100 and Codes of Truth.
@@ -173,10 +174,7 @@ export default function MobileCodesPage({
       </div>
 
       {/* FOOTER */}
-      <footer className="px-5 py-8 safe-pb" style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.08)" }}>
-        <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="" className="h-9 w-auto object-contain mb-3" />
-        <p className="text-[11px] leading-relaxed" style={{ color: "#8A9BB0" }}>© 2026 Generation LightMode — Faith. Always On.</p>
-      </footer>
+      <MobileSiteFooter />
 
       {/* FILTER BOTTOM SHEET */}
       {filtersOpen && (

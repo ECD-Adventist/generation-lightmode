@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 import DailyDropsSection from "@/components/home/DailyDropsSection";
 import LightModeQuotientQuiz from "@/components/home/LightModeQuotientQuiz";
+import MobileSiteFooter from "@/components/site/MobileSiteFooter";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import { countryCoordinates } from "@/lib/countryCoordinates";
 import "leaflet/dist/leaflet.css";
@@ -484,29 +485,7 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
       </section>
 
       {/* ═══════ FOOTER ═══════ */}
-      <footer className="py-8 px-5 safe-pb" style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.1)" }}>
-        <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="" style={{ height: 40, marginBottom: 14, filter: "drop-shadow(0 0 8px rgba(0,207,255,0.4))" }} />
-        <p className="text-[12px] leading-relaxed mb-4" style={{ color: "#C8D0E0" }}>
-          {t("footerText") || "Where faith meets action."} <strong style={{ color: "#FFD000" }}>Faith. Always On.</strong>
-        </p>
-        <div className="grid grid-cols-2 gap-3 mb-5">
-          {[
-            ["About", "About"], ["Impact", "Impact"],
-            ["Challenges", "Challenges"], ["GlowGroups", "GlowGroups"],
-            ["Keep It 100", "KeepIt100"], ["Codes of Truth", "CodesOfTruth"],
-            ["Assistant", "Assistant"], ["Resources", "Resources"],
-          ].map(([label, page]) => (
-            <Link key={page} to={createPageUrl(page)} className="text-[12px] font-semibold no-underline" style={{ color: "#C8D0E0" }}>{label}</Link>
-          ))}
-        </div>
-        <div className="pt-4 border-t flex items-center justify-between" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-          <span className="text-[10px]" style={{ color: "#C8D0E0" }}>© 2026 LightMode</span>
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#00CFFF", boxShadow: "0 0 8px #00CFFF" }} />
-            <span className="text-[10px]" style={{ color: "#C8D0E0" }}>{t("poweredBy") || "Powered by ECD"}</span>
-          </div>
-        </div>
-      </footer>
+      <MobileSiteFooter t={t} />
 
       {/* Video modal */}
       {showVideo && (

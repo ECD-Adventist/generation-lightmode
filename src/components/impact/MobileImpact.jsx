@@ -7,6 +7,7 @@ import { Users, Globe, MapPin, Target, Menu, X, Bell, Zap, ArrowRight, Heart, Tr
 import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
 import { countryCoordinates } from "@/lib/countryCoordinates";
 import { base44 } from "@/api/base44Client";
+import MobileSiteFooter from "@/components/site/MobileSiteFooter";
 
 /**
  * Mobile-only Impact page — LightMode branded (dark cyan/gold).
@@ -235,10 +236,7 @@ export default function MobileImpact() {
       </section>
 
       {/* FOOTER */}
-      <footer className="px-5 py-8 safe-pb" style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.08)" }}>
-        <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="" className="h-9 w-auto object-contain mb-3" />
-        <p className="text-[11px] leading-relaxed" style={{ color: "#8A9BB0" }}>© 2026 Generation LightMode — Faith. Always On.</p>
-      </footer>
+      <MobileSiteFooter />
 
       {/* MENU DRAWER */}
       {menuOpen && (

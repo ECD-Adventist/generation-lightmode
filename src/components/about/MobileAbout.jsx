@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { ArrowRight, Zap, Sparkles, Radio, Globe2, Heart, Flame, Target, Menu, X, Bell, Play } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import MobileSiteFooter from "@/components/site/MobileSiteFooter";
 
 /**
  * Mobile-only About page — branded LightMode (royal blue, cyan, gold).
@@ -226,15 +227,7 @@ export default function MobileAbout({ t, joinNowText, liveImpactStats }) {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="px-5 py-8 safe-pb" style={{ background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.08)" }}>
-        <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="" className="h-9 w-auto object-contain mb-3" style={{ filter: "drop-shadow(0 0 10px rgba(0,207,255,0.5))" }} />
-        <p className="text-[11px] leading-relaxed mb-4" style={{ color: "#8A9BB0" }}>Faith. Always On. — A digital mission of the East-Central Africa Division.</p>
-        <div className="flex items-center gap-3 text-[10px]" style={{ color: "#8A9BB0" }}>
-          <Link to={createPageUrl("Privacy")} className="no-underline" style={{ color: "#8A9BB0" }}>Privacy</Link>
-          <span>·</span>
-          <span>© 2026 Generation LightMode</span>
-        </div>
-      </footer>
+      <MobileSiteFooter t={t} />
 
       {/* ═══ MOBILE MENU DRAWER ═══ */}
       {menuOpen && (
