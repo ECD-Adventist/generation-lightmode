@@ -505,31 +505,14 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         </div>
       )}
 
-      {/* Engagement Metrics */}
-      <div className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 flex items-center gap-4 sm:gap-6 text-xs border-t border-border flex-wrap text-muted-foreground">
-        <div className="flex items-center gap-1.5 transition cursor-default">
-          <Heart className="w-4 h-4" fill="currentColor" />
-          <span className="font-semibold">{drop.likes_count || 0}</span>
-          <span className="hidden sm:inline">Lights</span>
+      {/* Repost counter only — primary engagement metrics are shown on the image action column to avoid duplication. */}
+      {drop.reposts_count > 0 && (
+        <div className="px-3 sm:px-4 pt-3 pb-1 flex items-center gap-1.5 text-xs text-amber-500">
+          <span>⚡</span>
+          <span className="font-semibold">{drop.reposts_count}</span>
+          <span>Reposts</span>
         </div>
-        <div className="flex items-center gap-1.5 transition cursor-default">
-          <MessageCircle className="w-4 h-4" />
-          <span className="font-semibold">{comments.length}</span>
-          <span className="hidden sm:inline">Comments</span>
-        </div>
-        <div className="flex items-center gap-1.5 transition cursor-default">
-          <Share2 className="w-4 h-4" />
-          <span className="font-semibold">{drop.shares_count || 0}</span>
-          <span className="hidden sm:inline">Shares</span>
-        </div>
-        {drop.reposts_count > 0 && (
-          <div className="flex items-center gap-1.5 transition cursor-default sm:ml-auto text-amber-500">
-            <span>⚡</span>
-            <span className="font-semibold">{drop.reposts_count}</span>
-            <span className="hidden sm:inline">Reposts</span>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Comments Section */}
       {showComments && (

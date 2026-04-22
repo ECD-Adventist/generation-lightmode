@@ -219,18 +219,17 @@ export default function MobileFeed({
             {filteredDrops.slice(0, displayCount).map(drop => {
               const dropUser = getUserInfo(drop.user_email);
               return (
-                <div key={drop.id} className="rounded-[1.5rem] overflow-hidden" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 18px rgba(11, 63, 217, 0.06)" }}>
-                  <DropCard
-                    drop={drop}
-                    user={user}
-                    dropUser={dropUser}
-                    likeMutation={likeMutation}
-                    handleShare={handleShare}
-                    userLikes={userLikes}
-                    allUsers={allUsers}
-                    savedDropRecords={savedDropRecords}
-                  />
-                </div>
+                <DropCard
+                  key={drop.id}
+                  drop={drop}
+                  user={user}
+                  dropUser={dropUser}
+                  likeMutation={likeMutation}
+                  handleShare={handleShare}
+                  userLikes={userLikes}
+                  allUsers={allUsers}
+                  savedDropRecords={savedDropRecords}
+                />
               );
             })}
             <div className="pt-5 pb-2 text-center text-[11px] font-black uppercase tracking-wider" style={{ color: "#8A97B5" }}>
