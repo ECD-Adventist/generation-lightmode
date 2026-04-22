@@ -23,8 +23,9 @@ export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const isAppShellPage = appShellPages.includes(currentPageName);
   const isMobileViewport = useIsMobile();
-  // On mobile, Home renders its own full-bleed mobile shell (MobileHome has its own nav + footer).
-  const hideDesktopChrome = isMobileViewport && currentPageName === "Home";
+  // On mobile, these pages render their own full-bleed mobile shell (with their own nav + footer).
+  const mobileOwnedPages = ["Home", "About", "Impact", "Assistant", "Resources", "KeepIt100", "CodesOfTruth"];
+  const hideDesktopChrome = isMobileViewport && mobileOwnedPages.includes(currentPageName);
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
