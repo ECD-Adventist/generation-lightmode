@@ -2,6 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobilePrivacy from "@/components/privacy/MobilePrivacy";
 
 const sections = [
   {
@@ -140,6 +142,9 @@ We are committed to working with you to resolve any privacy concerns promptly an
 ];
 
 export default function Privacy() {
+  const isMobile = useIsMobile();
+  if (isMobile) return <MobilePrivacy sections={sections} />;
+
   return (
     <div style={{ background: "#0B0F1A", minHeight: "100vh" }}>
       {/* Hero */}

@@ -167,7 +167,7 @@ export default function MobileFeed({
       </div>
 
       {/* FILTER PILLS — refined glass sticky */}
-      <div className="sticky top-0 z-20 px-3 py-2.5 backdrop-blur-xl mb-3" style={{ background: "rgba(246, 248, 252, 0.88)", borderBottom: "1px solid rgba(214, 228, 255, 0.7)" }}>
+      <div className="sticky top-0 z-30 px-3 py-2.5 backdrop-blur-xl mb-3" style={{ background: "rgba(246, 248, 252, 0.96)", borderBottom: "1px solid rgba(214, 228, 255, 0.7)", boxShadow: "0 6px 18px rgba(11, 63, 217, 0.06)" }}>
         <div className="flex items-center gap-1.5 overflow-x-auto mf-hide-sb">
           {filters.map(f => {
             const isActive = activeFilter === f;

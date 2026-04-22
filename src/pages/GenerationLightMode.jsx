@@ -6,6 +6,8 @@ import { createPageUrl } from "@/utils";
 import { Globe, Heart, Sparkles, Bell, Users, BookOpen, ArrowRight, Share2, MessageCircle, UserPlus, UserCheck, Home, Zap } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import AppFooter from "@/components/AppFooter";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileGenerationLightMode from "@/components/profile/MobileGenerationLightMode";
 
 const ACCOUNT_EMAIL = "system@lightmode.com";
 const ACCOUNT_NAME = "Generation LightMode";
@@ -13,6 +15,7 @@ const ACCOUNT_IMAGE = "https://media.base44.com/images/public/69a6fca6155ae283f1
 const COVER_GRADIENT = "linear-gradient(120deg, #0B1B3D 0%, #0B2870 25%, #0B3FD9 50%, #1FB8FF 80%, #5AD8FF 100%)";
 
 export default function GenerationLightMode() {
+  const isMobile = useIsMobile();
   const queryClient = useQueryClient();
 
   const { data: me } = useQuery({ queryKey: ["glmMe"], queryFn: () => base44.auth.me() });
@@ -47,6 +50,8 @@ export default function GenerationLightMode() {
   const codeOfTruthCount = posts.filter(p => p.category === "Code of Truth").length;
   const keepIt100Count = posts.filter(p => p.category === "Keep It 100").length;
   const dailyVerseCount = posts.filter(p => p.category === "Daily Verse").length;
+
+  if (isMobile) return <MobileGenerationLightMode />;
 
   const getCategoryStyle = (cat) => {
     if (cat === "Code of Truth") return { bg: "rgba(0,207,255,0.08)", border: "#B8E5FF", color: "#0B3FD9", icon: "🔐" };

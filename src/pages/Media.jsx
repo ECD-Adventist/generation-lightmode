@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Play, Headphones, BookOpen, Filter } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileMedia from "@/components/media/MobileMedia";
 
 const mediaItems = [
   { type: "video", title: "Switch On Summit 2025 Highlights", duration: "8:42", category: "events", thumb: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80" },
@@ -18,8 +20,11 @@ const typeIcon = { video: Play, podcast: Headphones, devotional: BookOpen };
 const typeColor = { video: "#00CFFF", podcast: "#8A5CFF", devotional: "#FFD000" };
 
 export default function Media() {
+  const isMobile = useIsMobile();
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeType, setActiveType] = useState("all");
+
+  if (isMobile) return <MobileMedia />;
 
   const filtered = mediaItems.filter(item => {
     const catMatch = activeCategory === "all" || item.category === activeCategory;
