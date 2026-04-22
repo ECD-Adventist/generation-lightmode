@@ -15,8 +15,10 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
 import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
 import { getDisplayName } from "@/lib/displayName";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [] }) {
+  const isMobile = useIsMobile();
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
@@ -291,8 +293,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         )}
 
         <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20" onClick={(e) => e.stopPropagation()}>
-          <HoverCard>
-            <HoverCardTrigger asChild>
+          {(() => {
+            const authorChip = (
               <Link
                 to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
                 className="flex items-center gap-2 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1 cursor-pointer transition no-underline"
@@ -325,18 +327,28 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   <span className={`text-[9px] sm:text-[10px] font-medium leading-none ${drop.media_url ? "text-white/80" : ""}`} style={drop.media_url ? {} : { color: "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
                 </div>
               </Link>
-            </HoverCardTrigger>
-            {drop.user_email !== "system@lightmode.com" && (
-              <HoverCardContent
-                align="start"
-                sideOffset={8}
-                className="p-0 rounded-2xl overflow-hidden w-80 border-border shadow-xl z-[100] bg-card"
-                style={{ maxWidth: "90vw" }}
-              >
-                <ProfileHoverSummary dropUser={dropUser} />
-              </HoverCardContent>
-            )}
-          </HoverCard>
+            );
+
+            // Mobile / system account: no hover card (hover-on-tap on touch devices reveals an
+            // unwanted floating profile summary). Desktop non-system accounts get the hover preview.
+            if (isMobile || drop.user_email === "system@lightmode.com") {
+              return authorChip;
+            }
+
+            return (
+              <HoverCard>
+                <HoverCardTrigger asChild>{authorChip}</HoverCardTrigger>
+                <HoverCardContent
+                  align="start"
+                  sideOffset={8}
+                  className="p-0 rounded-2xl overflow-hidden w-80 border-border shadow-xl z-[100] bg-card"
+                  style={{ maxWidth: "90vw" }}
+                >
+                  <ProfileHoverSummary dropUser={dropUser} />
+                </HoverCardContent>
+              </HoverCard>
+            );
+          })()}
         </div>
 
         {drop.media_url && (

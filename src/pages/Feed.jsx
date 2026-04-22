@@ -373,7 +373,17 @@ export default function Feed() {
       <div className="absolute top-[50%] left-[70%] w-[400px] h-[400px] rounded-full blur-[140px] z-0 opacity-25 pointer-events-none animate-[float-light_12s_ease-in-out_infinite_2s]" style={{ background: "#5AC8FF" }}></div>
 
       {/* MOBILE: branded redesign */}
-      <div className="lg:hidden h-[100dvh] overflow-y-auto">
+      <div
+        className="lg:hidden h-[100dvh] overflow-y-auto"
+        onScroll={(e) => {
+          const { scrollTop, scrollHeight, clientHeight } = e.target;
+          if (scrollHeight - scrollTop <= clientHeight + 200) {
+            if (displayCount < filteredDrops.length) {
+              setDisplayCount(prev => prev + 10);
+            }
+          }
+        }}
+      >
         <MobileFeed
           user={user}
           notifications={notifications}
