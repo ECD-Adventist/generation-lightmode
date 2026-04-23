@@ -6,8 +6,11 @@ import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import DropCard from "@/components/feed/DropCard";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileSaved from "@/components/saved/MobileSaved";
 
 export default function Saved() {
+  const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
   const [authChecked, setAuthChecked] = useState(false);
@@ -85,7 +88,24 @@ export default function Saved() {
   }
 
   const savedDropIds = savedRecords.map(r => r.drop_id);
-  const mySavedDrops = drops.filter(d => savedDropIds.includes(d.id));
+  const mySavedDrops = drops.filter(d => savedDropIds.includes(d.id))
+    .sort((a, b) => new Date(b.created_date || 0) - new Date(a.created_date || 0));
+
+  if (isMobile) {
+    return (
+      <MobileSaved
+        loading={savedLoading || dropsLoading}
+        mySavedDrops={mySavedDrops}
+        user={user}
+        getUserInfo={getUserInfo}
+        likeMutation={likeMutation}
+        handleShare={handleShare}
+        userLikes={userLikes}
+        savedRecords={savedRecords}
+        users={users}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen pb-20 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>

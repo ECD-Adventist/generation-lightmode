@@ -5,8 +5,11 @@ import { Trophy, TrendingUp, MapPin, Zap, Home, Bell, User, Globe, ArrowUp, Flam
 import GlobalGlowLeaderboard from "@/components/leaderboard/GlobalGlowLeaderboard";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileLeaderboard from "@/components/leaderboard/MobileLeaderboard";
 
 export default function Leaderboard() {
+  const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
   const [timeFilter, setTimeFilter] = useState("all-time");
 
@@ -46,6 +49,18 @@ export default function Leaderboard() {
   }, [users, timeFilter, user?.country, likesPerUser]);
 
   const getMedalEmoji = (index) => index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : null;
+
+  if (isMobile && user) {
+    return (
+      <MobileLeaderboard
+        user={user}
+        leaderboard={leaderboard}
+        timeFilter={timeFilter}
+        setTimeFilter={setTimeFilter}
+        likesPerUser={likesPerUser}
+      />
+    );
+  }
 
   if (!user) {
     return (

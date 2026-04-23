@@ -5,6 +5,8 @@ import { createPageUrl } from "@/utils";
 import { Loader2, Bell, Shield, LogOut, Home, ChevronRight, Globe, BookOpen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import DeleteAccountModal from "@/components/settings/DeleteAccountModal";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileSettings from "@/components/settings/MobileSettings";
 
 const NOTIF_KEYS = [
   { key: "notif_likes", label: "Likes on your Glow Drops", icon: "❤️" },
@@ -16,6 +18,7 @@ const NOTIF_KEYS = [
 ];
 
 export default function Settings() {
+  const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -67,6 +70,19 @@ export default function Settings() {
   }
 
   const cardClass = "bg-card border border-border shadow-sm rounded-2xl p-6";
+
+  if (isMobile) {
+    return (
+      <>
+        <MobileSettings
+          user={user} prefs={prefs} togglePref={togglePref} savePrefs={savePrefs}
+          saving={saving} handleLogout={handleLogout} handleDeleteAccount={handleDeleteAccount}
+          notifKeys={NOTIF_KEYS}
+        />
+        <DeleteAccountModal isOpen={deleteOpen} onClose={() => setDeleteOpen(false)} userEmail={user?.email} onConfirm={submitDeletion} />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-20 font-['Inter'] bg-background text-foreground">

@@ -8,8 +8,11 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import TruthCardComments from "@/components/daily-drops/TruthCardComments";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileDailyTruthFeed from "@/components/daily-drops/MobileDailyTruthFeed";
 
 export default function DailyDropsPage() {
+  const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
   const urlParams = new URLSearchParams(window.location.search);
   const initialTab = urlParams.get("tab") || "codes_of_truth";
@@ -50,6 +53,16 @@ export default function DailyDropsPage() {
       toast.success("Copied to clipboard!");
     }
   };
+
+  if (isMobile) {
+    return (
+      <MobileDailyTruthFeed
+        activeTab={activeTab} setActiveTab={setActiveTab}
+        activeDrops={activeDrops} isLoading={isLoading}
+        TruthCard={TruthCard} handleShare={handleShare} user={user}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>

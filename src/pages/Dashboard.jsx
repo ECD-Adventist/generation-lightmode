@@ -17,8 +17,11 @@ import AICoachingTab from "../components/dashboard/AICoachingTab";
 import TerritoryLeaderboard from "../components/leaderboard/TerritoryLeaderboard";
 import { applyDailyCheckIn } from "@/lib/gamification";
 import AppFooter from "@/components/AppFooter";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileDashboard from "@/components/dashboard/MobileDashboard";
 
 export default function Dashboard() {
+  const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -51,6 +54,18 @@ export default function Dashboard() {
   }
 
   const needsOnboarding = !user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth;
+
+  if (isMobile) {
+    return (
+      <>
+        <OnboardingModal
+          isOpen={needsOnboarding}
+          onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
+        />
+        <MobileDashboard user={user} />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen relative overflow-hidden font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>

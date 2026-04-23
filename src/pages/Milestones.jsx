@@ -6,8 +6,11 @@ import MilestoneCard from "@/components/milestones/MilestoneCard";
 import { Link } from "react-router-dom";
 import { Home, Zap, Globe, Bell, User } from "lucide-react";
 import LifetimeAchievementBoard from "@/components/milestones/LifetimeAchievementBoard";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileMilestones from "@/components/milestones/MobileMilestones";
 
 export default function Milestones() {
+  const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
   const [isAwarding, setIsAwarding] = useState(false);
   const queryClient = useQueryClient();
@@ -165,6 +168,17 @@ export default function Milestones() {
 
   const earnedKeys = new Set(earnedMilestones.map((milestone) => milestone.milestone_key));
   const currentLevelProgress = (((user.glow_score || 0) % 50) / 50) * 100;
+
+  if (isMobile) {
+    return (
+      <MobileMilestones
+        user={user}
+        milestones={milestones}
+        earnedKeys={earnedKeys}
+        lifetimeAchievements={lifetimeAchievements}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>

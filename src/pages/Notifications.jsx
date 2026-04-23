@@ -10,6 +10,8 @@ import { getNotificationCategory, notificationCategoryLabels, isNotificationEnab
 import AppFooter from "@/components/AppFooter";
 import usePullToRefresh from "@/hooks/usePullToRefresh";
 import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileNotifications from "@/components/notifications/MobileNotifications";
 
 const typeIcon = {
   like: <Heart className="w-4 h-4" style={{ color: "#EF4444" }} />,
@@ -30,6 +32,7 @@ const typeBgStyle = {
 };
 
 export default function Notifications() {
+  const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
   const [activeCategory, setActiveCategory] = useState("all");
   const queryClient = useQueryClient();
@@ -168,6 +171,26 @@ export default function Notifications() {
   ];
 
   if (!user) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
+
+  if (isMobile) {
+    return (
+      <MobileNotifications
+        isLoading={isLoading}
+        filteredNotifications={filteredNotifications}
+        unreadCount={unreadCount}
+        activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory}
+        categoryCounts={categoryCounts}
+        markReadMutation={markReadMutation}
+        markAllReadMutation={markAllReadMutation}
+        deleteMutation={deleteMutation}
+        following={following}
+        followBackMutation={followBackMutation}
+        user={user}
+        getNotificationUserEmail={getNotificationUserEmail}
+      />
+    );
+  }
 
   const cardStyle = { background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" };
 

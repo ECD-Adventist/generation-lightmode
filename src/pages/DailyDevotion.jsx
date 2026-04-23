@@ -7,6 +7,8 @@ import { Home, Zap, Bell, User, BookOpen, ArrowLeft, ChevronRight, Loader2 } fro
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import DevotionDayCard from "@/components/devotion/DevotionDayCard";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobileDailyDevotion from "@/components/devotion/MobileDailyDevotion";
 
 const PLANS = [
   {
@@ -57,6 +59,7 @@ const PLANS = [
 ];
 
 export default function DailyDevotion() {
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [selectedPlanId, setSelectedPlanId] = useState(null);
@@ -116,6 +119,19 @@ export default function DailyDevotion() {
   });
 
   if (!user) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
+
+  if (isMobile) {
+    return (
+      <MobileDailyDevotion
+        plans={PLANS}
+        selectedPlanId={selectedPlanId} setSelectedPlanId={setSelectedPlanId}
+        selectedPlan={selectedPlan} planProgress={planProgress}
+        completedForPlan={completedForPlan} entries={entries}
+        activeDayIndex={activeDayIndex} setActiveDayIndex={setActiveDayIndex}
+        completeDayMutation={completeDayMutation}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>

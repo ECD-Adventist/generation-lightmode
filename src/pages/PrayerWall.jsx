@@ -5,8 +5,11 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Home, Zap, Bell, User, Globe } from "lucide-react";
 import PrayerRequestCard from "@/components/prayer/PrayerRequestCard";
+import { useIsMobile } from "@/hooks/use-mobile";
+import MobilePrayerWall from "@/components/prayer/MobilePrayerWall";
 
 export default function PrayerWall() {
+  const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Other");
@@ -99,6 +102,20 @@ export default function PrayerWall() {
   const getName = (email) => allUsers.find((entry) => entry.email === email)?.full_name || email?.split("@")[0] || "Believer";
 
   if (!user) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><span style={{ color: "#1FB8FF" }}>Loading prayer wall...</span></div>;
+
+  if (isMobile) {
+    return (
+      <MobilePrayerWall
+        user={user} content={content} setContent={setContent}
+        category={category} setCategory={setCategory}
+        isAnonymous={isAnonymous} setIsAnonymous={setIsAnonymous}
+        postMutation={postMutation}
+        requests={requests} supports={supports} comments={comments}
+        prayMutation={prayMutation} commentMutation={commentMutation}
+        getName={getName}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
