@@ -634,8 +634,8 @@ export default function Layout({ children, currentPageName }) {
           100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         @keyframes glm-pulse-glow {
-          0%, 100% { filter: drop-shadow(0 0 6px rgba(0,207,255,0.35)) drop-shadow(0 6px 20px rgba(0,0,0,0.45)); }
-          50%      { filter: drop-shadow(0 0 12px rgba(138,92,255,0.5)) drop-shadow(0 8px 28px rgba(0,0,0,0.5)); }
+          0%, 100% { filter: drop-shadow(0 0 6px rgba(0,128,254,0.45)) drop-shadow(0 6px 20px rgba(0,0,0,0.45)); }
+          50%      { filter: drop-shadow(0 0 14px rgba(0,128,254,0.7)) drop-shadow(0 8px 28px rgba(0,0,0,0.5)); }
         }
         .glm-switch-btn {
           position: relative;
@@ -665,7 +665,7 @@ export default function Layout({ children, currentPageName }) {
           position: absolute;
           top: 50%; left: 50%;
           width: 300%; height: 300%;
-          background: conic-gradient(from 0deg, transparent 55%, #00CFFF 70%, #8A5CFF 82%, #FFD000 93%, transparent 100%);
+          background: conic-gradient(from 0deg, transparent 55%, #4DA8FF 70%, #0080FE 82%, #FFD000 93%, transparent 100%);
           animation: glm-spin-border 3s linear infinite;
           z-index: 0;
           pointer-events: none;
@@ -676,7 +676,7 @@ export default function Layout({ children, currentPageName }) {
           display: inline-flex;
           align-items: center;
           gap: 7px;
-          background: linear-gradient(180deg, #0E1428 0%, #060912 100%);
+          background: linear-gradient(180deg, #0080FE 0%, #0066CC 100%);
           font-family: 'Space Grotesk', sans-serif;
           font-weight: 700;
           font-size: 13px;
@@ -692,19 +692,18 @@ export default function Layout({ children, currentPageName }) {
           position: absolute;
           top: 0; bottom: 0; left: 0;
           width: 30%;
-          background: linear-gradient(90deg, transparent, rgba(0,207,255,0.18), rgba(255,255,255,0.25), rgba(138,92,255,0.18), transparent);
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), rgba(255,255,255,0.35), rgba(255,255,255,0.18), transparent);
           animation: glm-sweep-light 3.5s infinite ease-in-out;
           pointer-events: none;
           z-index: 1;
         }
-        /* Crisp gradient text */
+        /* Crisp white text */
         .glm-switch-text {
           position: relative;
           z-index: 2;
-          background-image: linear-gradient(90deg, #FFFFFF 0%, #C8E9FF 50%, #E5D6FF 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+          color: #FFFFFF;
+          -webkit-text-fill-color: #FFFFFF;
+          text-shadow: 0 1px 2px rgba(0,0,0,0.25);
         }
         /* Hide orbit spans (no longer used) */
         .glm-switch-orbit { display: none; }
