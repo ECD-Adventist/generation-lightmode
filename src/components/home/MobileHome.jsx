@@ -20,6 +20,7 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
   const [showVideo, setShowVideo] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userEmail, setUserEmail] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
   const statsRef = useRef(null);
   const [statsVisible, setStatsVisible] = useState(false);
 
@@ -27,6 +28,13 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
     base44.auth.isAuthenticated().then(isAuth => {
       if (isAuth) base44.auth.me().then(me => setUserEmail(me?.email));
     });
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -52,8 +60,16 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
         .mh-hide-sb { scrollbar-width: none; }
       `}</style>
 
-      {/* ═══════ TOP BAR — floats over hero ═══════ */}
-      <div className="fixed top-0 left-0 right-0 z-[80] safe-pt" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0.85) 0%, rgba(11,15,26,0) 100%)", backdropFilter: "blur(16px)" }}>
+      {/* ═══════ TOP BAR — transparent over hero, glassy on scroll ═══════ */}
+      <div
+        className="fixed top-0 left-0 right-0 z-[80] safe-pt transition-all duration-300"
+        style={{
+          background: scrolled ? "rgba(11,15,26,0.78)" : "transparent",
+          backdropFilter: scrolled ? "blur(16px) saturate(1.4)" : "none",
+          WebkitBackdropFilter: scrolled ? "blur(16px) saturate(1.4)" : "none",
+          borderBottom: scrolled ? "1px solid rgba(0,207,255,0.12)" : "1px solid transparent",
+        }}
+      >
         <div className="flex items-center justify-between px-4 py-2.5">
           <Link to={createPageUrl("Home")} className="flex items-center">
             <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="LightMode" style={{ height: 36, filter: "drop-shadow(0 0 8px rgba(0,207,255,0.5))" }} />
