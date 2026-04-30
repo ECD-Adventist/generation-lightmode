@@ -624,18 +624,18 @@ export default function Layout({ children, currentPageName }) {
           .mobile-menu-btn { display: block !important; }
         }
 
-        /* Switch It On — premium dark glass pill with glowing gradient border */
+        /* Switch It On — premium dark glass pill with rotating gradient border */
         @keyframes glm-sweep-light {
           0%   { transform: translateX(-150%) skewX(-20deg); }
           100% { transform: translateX(300%) skewX(-20deg); }
         }
-        @keyframes glm-pulse-glow {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(0,207,255,0.4), 0 6px 20px rgba(0,0,0,0.45); }
-          50%      { box-shadow: 0 0 0 6px rgba(0,207,255,0.0), 0 8px 28px rgba(138,92,255,0.35); }
+        @keyframes glm-spin-border {
+          0%   { transform: translate(-50%, -50%) rotate(0deg); }
+          100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
-        @keyframes glm-bolt-flicker {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50%      { opacity: 0.85; transform: scale(1.08); }
+        @keyframes glm-pulse-glow {
+          0%, 100% { filter: drop-shadow(0 0 6px rgba(0,207,255,0.35)) drop-shadow(0 6px 20px rgba(0,0,0,0.45)); }
+          50%      { filter: drop-shadow(0 0 12px rgba(138,92,255,0.5)) drop-shadow(0 8px 28px rgba(0,0,0,0.5)); }
         }
         .glm-switch-btn {
           position: relative;
@@ -644,22 +644,31 @@ export default function Layout({ children, currentPageName }) {
           justify-content: center;
           border: none;
           cursor: pointer;
-          background: transparent;
+          background: #060912;
           white-space: nowrap;
           flex-shrink: 0;
           padding: 1.5px;
           border-radius: 999px;
-          background-image: linear-gradient(135deg, #00CFFF 0%, #8A5CFF 50%, #FFD000 100%);
-          background-clip: padding-box;
-          transition: transform 0.25s ease, filter 0.25s ease;
+          overflow: hidden;
+          transition: transform 0.25s ease;
           animation: glm-pulse-glow 3s ease-in-out infinite;
         }
         .glm-switch-btn:hover {
           transform: translateY(-1px) scale(1.02);
-          filter: brightness(1.1);
         }
         .glm-switch-btn:active {
           transform: translateY(0) scale(0.98);
+        }
+        /* Rotating conic-gradient border light */
+        .glm-switch-btn::before {
+          content: '';
+          position: absolute;
+          top: 50%; left: 50%;
+          width: 300%; height: 300%;
+          background: conic-gradient(from 0deg, transparent 55%, #00CFFF 70%, #8A5CFF 82%, #FFD000 93%, transparent 100%);
+          animation: glm-spin-border 3s linear infinite;
+          z-index: 0;
+          pointer-events: none;
         }
         .glm-switch-inner {
           position: relative;
