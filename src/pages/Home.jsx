@@ -131,26 +131,16 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries }) {
         minHeight: "100vh", position: "relative", overflow: "hidden",
         display: "flex", flexDirection: "column", justifyContent: "flex-end",
       }}>
-        {/* Full-bleed hero image with breathing-light animation */}
-        <style>{`
-          @keyframes hero-breathe {
-            0%, 100% { filter: brightness(1) contrast(1); transform: scale(1); }
-            50% { filter: brightness(1.1) contrast(1.05); transform: scale(1.015); }
-          }
-          @keyframes hero-glow-breathe {
-            0%, 100% { opacity: 0.35; }
-            50% { opacity: 0.65; }
-          }
-        `}</style>
+        {/* Full-bleed hero image — static, contained */}
         <img
           src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7e9c6aeb5_Gemini_Generated_Image_5b3z535b3z535b3z_100833copy.png"
           alt="Generation LightMode Youth"
           loading="eager"
           decoding="async"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", pointerEvents: "none", animation: "hero-breathe 7s ease-in-out infinite", transformOrigin: "center center" }}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", objectPosition: "center center", pointerEvents: "none", background: "#0B0F1A" }}
         />
-        {/* Breathing warm light wash layered over hero */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 55%, rgba(255,190,80,0.18) 0%, rgba(255,140,0,0.05) 40%, transparent 70%)", animation: "hero-glow-breathe 7s ease-in-out infinite", mixBlendMode: "screen" }} />
+        {/* Warm light wash layered over hero */}
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 55%, rgba(255,190,80,0.18) 0%, rgba(255,140,0,0.05) 40%, transparent 70%)", opacity: 0.5, mixBlendMode: "screen" }} />
         {/* Branded gradient — dark at top (for navbar visibility) + bottom (for text) with subtle cyan/gold tint */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
