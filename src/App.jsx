@@ -11,6 +11,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { SwitchItOnProvider } from '@/components/pledge/SwitchItOnProvider';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import PageTransition from '@/components/transitions/PageTransition';
+import AutoTranslator from '@/components/i18n/AutoTranslator';
 
 // Code-split route pages — loaded on demand to reduce initial bundle.
 const LightReflections = lazy(() => import('./pages/LightReflections'));
@@ -120,6 +121,7 @@ function App() {
         <QueryClientProvider client={queryClientInstance}>
           <Router>
             <SwitchItOnProvider>
+              <AutoTranslator />
               <AuthenticatedApp />
             </SwitchItOnProvider>
           </Router>
