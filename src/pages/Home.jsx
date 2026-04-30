@@ -137,6 +137,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries }) {
           alt="Generation LightMode Youth"
           loading="eager"
           decoding="async"
+          fetchpriority="high"
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", pointerEvents: "none", background: "#0B0F1A", imageRendering: "high-quality" }}
         />
         {/* Warm light wash layered over hero */}

@@ -110,10 +110,13 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
       {/* ═══════ HERO — image extends behind top bar ═══════ */}
       <section className="relative min-h-[100dvh] flex flex-col justify-end overflow-hidden">
         <img
-          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png"
-          alt=""
+          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png"
+          alt="Generation LightMode Youth"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "center top", animation: "mh-breathe 7s ease-in-out infinite" }}
+          style={{ objectPosition: "center center", imageRendering: "high-quality" }}
         />
         {/* Subtle top wash — keeps logo readable without darkening image */}
         <div className="absolute inset-x-0 top-0 h-[140px] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0.55) 0%, rgba(11,15,26,0.2) 60%, rgba(11,15,26,0) 100%)" }} />
