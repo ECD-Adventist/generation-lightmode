@@ -126,7 +126,7 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
       {/* ═══════ HERO — image extends behind top bar ═══════ */}
       <section className="relative min-h-[100dvh] flex flex-col justify-end overflow-hidden">
         <img
-          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png"
+          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2"
           alt="Generation LightMode Youth"
           loading="eager"
           decoding="async"
