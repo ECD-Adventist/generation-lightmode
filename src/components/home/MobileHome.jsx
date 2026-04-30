@@ -118,10 +118,10 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
           className="absolute inset-0 w-full h-full object-cover"
           style={{ objectPosition: "center center", imageRendering: "high-quality" }}
         />
-        {/* Subtle top wash — keeps logo readable without darkening image */}
-        <div className="absolute inset-x-0 top-0 h-[140px] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0.55) 0%, rgba(11,15,26,0.2) 60%, rgba(11,15,26,0) 100%)" }} />
+        {/* Very subtle top wash — keeps logo readable without darkening image */}
+        <div className="absolute inset-x-0 top-0 h-[90px] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0.35) 0%, rgba(11,15,26,0) 100%)" }} />
         {/* Bottom gradient — only enough to keep text legible near the bottom */}
-        <div className="absolute inset-x-0 bottom-0 h-[55%] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0) 0%, rgba(11,15,26,0.55) 55%, rgba(11,15,26,0.96) 100%)" }} />
+        <div className="absolute inset-x-0 bottom-0 h-[50%] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0) 0%, rgba(11,15,26,0.55) 55%, rgba(11,15,26,0.96) 100%)" }} />
         {/* Warm vignette */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 110%, rgba(255,165,0,0.18) 0%, transparent 55%)" }} />
 
@@ -149,23 +149,6 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
             <Zap className="w-4 h-4 relative" /> <span className="relative">{t("switchOn") || "Switch It On"}</span>
           </button>
 
-          {/* Secondary CTAs row */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => document.getElementById("mh-quiz")?.scrollIntoView({ behavior: "smooth" })}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-bold text-[12px] active:scale-95 transition"
-              style={{ background: "rgba(0,207,255,0.12)", color: "#FFFFFF", border: "1px solid rgba(0,207,255,0.4)", backdropFilter: "blur(10px)" }}
-            >
-              <Sparkles className="w-3.5 h-3.5" /> Take Quiz
-            </button>
-            <button
-              onClick={() => document.getElementById("mh-vision")?.scrollIntoView({ behavior: "smooth" })}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-bold text-[12px] active:scale-95 transition"
-              style={{ background: "rgba(255,255,255,0.08)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.15)", backdropFilter: "blur(10px)" }}
-            >
-              <Play className="w-3 h-3" fill="currentColor" /> Vision
-            </button>
-          </div>
         </div>
       </section>
 
