@@ -137,7 +137,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries }) {
           alt="Generation LightMode Youth"
           loading="eager"
           decoding="async"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", objectPosition: "center center", pointerEvents: "none", background: "#0B0F1A" }}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", pointerEvents: "none", background: "#0B0F1A", imageRendering: "high-quality" }}
         />
         {/* Warm light wash layered over hero */}
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 55%, rgba(255,190,80,0.18) 0%, rgba(255,140,0,0.05) 40%, transparent 70%)", opacity: 0.5, mixBlendMode: "screen" }} />
