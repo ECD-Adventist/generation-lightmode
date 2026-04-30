@@ -133,7 +133,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries }) {
       }}>
         {/* Full-bleed hero image — static, contained */}
         <img
-          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png"
+          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2"
           alt="Generation LightMode Youth"
           loading="eager"
           decoding="async"
