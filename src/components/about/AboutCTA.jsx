@@ -8,7 +8,7 @@ export default function AboutCTA({ t, joinNowText }) {
     <section style={{ position: "relative", overflow: "hidden", padding: "clamp(80px, 12vw, 140px) clamp(20px, 6vw, 60px)" }}>
       {/* Background image */}
       <img
-        src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png"
+        src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/389dfd11b_group-people-are-sitting-ground-one-them-reads-book.jpg"
         alt="" loading="lazy"
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", filter: "brightness(0.35) saturate(1.2)" }}
       />

@@ -596,63 +596,118 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries }) {
 
       <div className="section-divider" />
 
-      {/* ═══════════════════ PLEDGE CTA — immersive ═══════════════════ */}
-      <section id="join" style={{ position: "relative", overflow: "hidden", padding: "clamp(80px, 12vw, 140px) clamp(20px, 6vw, 60px)" }}>
-        {/* Hero-tone warm background — pledge imagery */}
-        <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", filter: "brightness(0.35) saturate(1.2)" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.92) 0%, rgba(26,18,8,0.7) 40%, rgba(11,15,26,0.85) 80%, rgba(11,15,26,0.98) 100%)" }} />
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 60%, rgba(255,165,0,0.12) 0%, transparent 55%)" }} />
+      {/* ═══════════════════ PLEDGE CTA — split editorial layout ═══════════════════ */}
+      <section id="join" style={{ position: "relative", overflow: "hidden", padding: "clamp(80px, 11vw, 130px) clamp(20px, 6vw, 60px)", background: "linear-gradient(180deg, #080C14 0%, #0B0F1A 50%, #080C14 100%)" }}>
+        {/* Subtle ambient accents */}
+        <div style={{ position: "absolute", top: "-15%", left: "-10%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,208,0,0.08), transparent 65%)", pointerEvents: "none", filter: "blur(60px)" }} />
+        <div style={{ position: "absolute", bottom: "-20%", right: "-10%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.06), transparent 65%)", pointerEvents: "none", filter: "blur(70px)" }} />
 
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 780, margin: "0 auto", textAlign: "center" }}>
-          <div style={{ fontSize: 56, marginBottom: 20, filter: "drop-shadow(0 0 20px rgba(255,208,0,0.5))" }}>✋</div>
-          <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(32px, 5vw, 60px)", letterSpacing: "-0.03em", color: "#FFFFFF", marginBottom: 20 }}>
-            {t("pledgeTitle").split(" ").slice(0, -1).join(" ")}{" "}
-            <span style={{ background: "linear-gradient(90deg, #FFD000, #00CFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              {t("pledgeTitle").split(" ").slice(-1)}
-            </span>
-          </h2>
-          <p style={{ color: "#C8D0E0", fontSize: 17, fontFamily: "Inter, sans-serif", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 48px" }}>
-            {t("pledgeText")}
-          </p>
-
-          {/* Pledge items — clean card style */}
-          <div style={{ background: "rgba(18,24,38,0.6)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 20, padding: "32px", marginBottom: 40, textAlign: "left" }}>
-            <p style={{ fontSize: 15, color: "#C8D0E0", marginBottom: 20, fontStyle: "italic", fontFamily: "Inter, sans-serif" }}>"As a member of Generation LightMode, I pledge to:</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {[
-                ["LIVE VISIBLY", "Keep my faith always on — unashamed and unhidden."],
-                ["SHINE BOLDLY", "Glow for Christ in every post, story, and real-life interaction."],
-                ["SPEAK TRUTH", "Share God's love with courage and compassion."],
-                ["WALK WITH PURPOSE", "Let my online and offline life reflect Jesus' light."],
-                ["IGNITE OTHERS", "Encourage fellow believers and guide seekers to the Light."],
-              ].map(([title, text], i) => (
-                <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                  <span style={{ color: "#00CFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 13, minWidth: 20, paddingTop: 2 }}>{i + 1}.</span>
-                  <p style={{ color: "#C8D0E0", fontFamily: "Inter, sans-serif", fontSize: 15, lineHeight: 1.6, margin: 0 }}>
-                    <strong style={{ color: "#FFFFFF" }}>{title}</strong> → {text}
-                  </p>
-                </div>
-              ))}
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 1200, margin: "0 auto" }}>
+          {/* Section header */}
+          <div style={{ textAlign: "center", marginBottom: 56 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.28)", borderRadius: 999, padding: "7px 18px", marginBottom: 22, backdropFilter: "blur(10px)" }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFD000", boxShadow: "0 0 10px #FFD000" }} />
+              <span style={{ color: "#FFD000", fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>The Commitment</span>
             </div>
-            <p style={{ fontSize: 15, color: "#FFD000", marginTop: 24, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", textAlign: "center", textShadow: "0 0 15px rgba(255,208,0,0.4)" }}>
-              My light will not dim. My faith will not fade. I am Generation LightMode."
+            <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(34px, 5.5vw, 64px)", letterSpacing: "-0.03em", color: "#FFFFFF", marginBottom: 16, lineHeight: 1 }}>
+              {t("pledgeTitle").split(" ").slice(0, -1).join(" ")}{" "}
+              <span style={{ background: "linear-gradient(90deg, #FFD000, #00CFFF, #8A5CFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                {t("pledgeTitle").split(" ").slice(-1)}
+              </span>
+            </h2>
+            <p style={{ color: "#8A9BB0", fontSize: 16, fontFamily: "Inter, sans-serif", maxWidth: 560, margin: "0 auto", lineHeight: 1.7 }}>
+              {t("pledgeText")}
             </p>
           </div>
 
-          <button onClick={() => triggerSwitchOn("Feed")} style={{
-            display: "inline-flex", alignItems: "center", gap: 10,
-            background: "linear-gradient(135deg, #FFD000, #FFA500)",
-            color: "#0B0F1A", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
-            fontSize: 18, padding: "18px 48px", borderRadius: 999, border: "none", cursor: "pointer",
-            boxShadow: "0 0 40px rgba(255,208,0,0.5), 0 8px 30px rgba(0,0,0,0.4)",
-            transition: "all 0.3s",
-          }}
-            onMouseOver={e => { e.currentTarget.style.transform = "scale(1.04)"; e.currentTarget.style.boxShadow = "0 0 60px rgba(255,208,0,0.7), 0 12px 40px rgba(0,0,0,0.4)"; }}
-            onMouseOut={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 0 40px rgba(255,208,0,0.5), 0 8px 30px rgba(0,0,0,0.4)"; }}
-          >
-            <Zap size={20} /> {t("signPledge")}
-          </button>
-          <p style={{ color: "#4A5568", fontSize: 13, marginTop: 16, fontFamily: "Inter, sans-serif" }}>{t("freeToJoin")}</p>
+          {/* Split layout: left = pledge promises | right = action card */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24, alignItems: "stretch" }}>
+            {/* LEFT — pledge promises as numbered editorial cards */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {[
+                { title: "LIVE VISIBLY", text: "Keep my faith always on — unashamed and unhidden.", color: "#FFD000" },
+                { title: "SHINE BOLDLY", text: "Glow for Christ in every post, story, and real-life interaction.", color: "#00CFFF" },
+                { title: "SPEAK TRUTH", text: "Share God's love with courage and compassion.", color: "#8A5CFF" },
+                { title: "WALK WITH PURPOSE", text: "Let my online and offline life reflect Jesus' light.", color: "#FFA500" },
+                { title: "IGNITE OTHERS", text: "Encourage fellow believers and guide seekers to the Light.", color: "#1DA1FF" },
+              ].map((item, i) => (
+                <div key={i} style={{
+                  display: "flex", alignItems: "center", gap: 16,
+                  background: "rgba(18,24,38,0.6)", backdropFilter: "blur(14px)",
+                  border: `1px solid ${item.color}20`, borderRadius: 14,
+                  padding: "16px 20px",
+                  transition: "all 0.3s",
+                }}
+                  onMouseOver={e => { e.currentTarget.style.transform = "translateX(4px)"; e.currentTarget.style.borderColor = `${item.color}50`; e.currentTarget.style.boxShadow = `0 8px 24px ${item.color}15`; }}
+                  onMouseOut={e => { e.currentTarget.style.transform = "translateX(0)"; e.currentTarget.style.borderColor = `${item.color}20`; e.currentTarget.style.boxShadow = "none"; }}
+                >
+                  <div style={{
+                    width: 38, height: 38, borderRadius: 10,
+                    background: `${item.color}12`, border: `1px solid ${item.color}40`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: "Space Grotesk, sans-serif", fontWeight: 900, fontSize: 14,
+                    color: item.color, flexShrink: 0,
+                    boxShadow: `0 0 12px ${item.color}25`,
+                  }}>
+                    0{i + 1}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 13, color: "#FFFFFF", letterSpacing: "0.04em", marginBottom: 3 }}>
+                      {item.title}
+                    </div>
+                    <div style={{ fontFamily: "Inter, sans-serif", fontSize: 13, color: "#A0AABB", lineHeight: 1.5 }}>
+                      {item.text}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* RIGHT — action card */}
+            <div style={{
+              position: "relative",
+              background: "linear-gradient(160deg, rgba(255,208,0,0.08) 0%, rgba(18,24,38,0.85) 50%)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid rgba(255,208,0,0.25)",
+              borderRadius: 24,
+              padding: "clamp(32px, 4vw, 48px)",
+              display: "flex", flexDirection: "column", justifyContent: "center",
+              overflow: "hidden",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
+            }}>
+              {/* Glow ornament */}
+              <div style={{ position: "absolute", top: -80, right: -80, width: 240, height: 240, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,208,0,0.18), transparent 70%)", pointerEvents: "none" }} />
+
+              <div style={{ position: "relative", zIndex: 1 }}>
+                <div style={{ fontSize: 44, marginBottom: 18, filter: "drop-shadow(0 0 20px rgba(255,208,0,0.6))" }}>✋</div>
+                <p style={{ fontSize: 14, color: "#C8D0E0", marginBottom: 18, fontStyle: "italic", fontFamily: "Inter, sans-serif", lineHeight: 1.7 }}>
+                  "As a member of Generation LightMode, I commit to live my faith out loud — online and offline."
+                </p>
+                <div style={{ height: 1, background: "linear-gradient(90deg, rgba(255,208,0,0.3), transparent)", margin: "20px 0" }} />
+                <p style={{ fontSize: 16, color: "#FFD000", fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", marginBottom: 28, textShadow: "0 0 20px rgba(255,208,0,0.4)", lineHeight: 1.4 }}>
+                  My light will not dim. My faith will not fade. I am Generation LightMode.
+                </p>
+
+                <button onClick={() => triggerSwitchOn("Feed")} style={{
+                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10,
+                  width: "100%",
+                  background: "linear-gradient(135deg, #FFD000, #FFA500)",
+                  color: "#0B0F1A", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
+                  fontSize: 16, padding: "16px 28px", borderRadius: 999, border: "none", cursor: "pointer",
+                  boxShadow: "0 0 30px rgba(255,208,0,0.45), 0 6px 20px rgba(0,0,0,0.3)",
+                  transition: "all 0.3s",
+                }}
+                  onMouseOver={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 0 50px rgba(255,208,0,0.65), 0 10px 30px rgba(0,0,0,0.35)"; }}
+                  onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 0 30px rgba(255,208,0,0.45), 0 6px 20px rgba(0,0,0,0.3)"; }}
+                >
+                  <Zap size={18} /> {t("signPledge")}
+                </button>
+                <p style={{ color: "#6B7280", fontSize: 12, marginTop: 14, fontFamily: "Inter, sans-serif", textAlign: "center" }}>
+                  {t("freeToJoin")}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
