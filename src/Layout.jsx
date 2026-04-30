@@ -658,7 +658,7 @@ export default function Layout({ children, currentPageName }) {
           filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5)) drop-shadow(0 0px 2px rgba(0,207,255,0.15));
         }
         .glm-switch-btn:hover .glm-switch-inner {
-          background: linear-gradient(180deg, #0e2a66 0%, #081a4a 60%, #051030 100%);
+          background: linear-gradient(180deg, #FFDC33 0%, #FFB800 60%, #C68B00 100%);
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -2px 4px rgba(0,0,0,0.4);
         }
         .glm-switch-btn:hover .glm-switch-inner .glm-switch-text {
@@ -683,7 +683,7 @@ export default function Layout({ children, currentPageName }) {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: linear-gradient(180deg, #0a1f4d 0%, #061338 60%, #040b24 100%);
+          background: linear-gradient(180deg, #FFD000 0%, #E6A800 60%, #B37F00 100%);
           font-family: 'Space Grotesk', sans-serif;
           font-weight: 800;
           font-size: 13px;
