@@ -662,9 +662,8 @@ export default function Layout({ children, currentPageName }) {
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -2px 4px rgba(0,0,0,0.4);
         }
         .glm-switch-btn:hover .glm-switch-inner .glm-switch-text {
-          background-image: linear-gradient(90deg, #ffffff, #FFD000);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          color: #050a1a;
+          -webkit-text-fill-color: #050a1a;
         }
         /* Spinning light constrained to border edge via padding + inner bg cover */
         .glm-switch-btn::before {
@@ -703,12 +702,11 @@ export default function Layout({ children, currentPageName }) {
           pointer-events: none;
           z-index: 3;
         }
-        /* Gradient text inside the pill */
+        /* Solid dark text inside the gold pill for max contrast */
         .glm-switch-text {
-          background-image: linear-gradient(90deg, #00CFFF, #ffffff, #FFD000);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+          color: #0B0F1A;
+          -webkit-text-fill-color: #0B0F1A;
+          text-shadow: 0 1px 0 rgba(255,255,255,0.25);
         }
         /* Hide orbit spans (no longer used) */
         .glm-switch-orbit { display: none; }
