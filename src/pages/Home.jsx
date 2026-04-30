@@ -143,7 +143,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries }) {
           }
         `}</style>
         <img
-          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png"
+          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7e9c6aeb5_Gemini_Generated_Image_5b3z535b3z535b3z_100833copy.png"
           alt="Generation LightMode Youth"
           loading="eager"
           decoding="async"
