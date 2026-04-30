@@ -624,14 +624,18 @@ export default function Layout({ children, currentPageName }) {
           .mobile-menu-btn { display: block !important; }
         }
 
-        /* Switch It On — spinning border + sweep light (same style as profile cover) */
-        @keyframes glm-spin-border {
-          0%   { transform: translate(-50%, -50%) rotate(0deg); }
-          100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
+        /* Switch It On — premium dark glass pill with glowing gradient border */
         @keyframes glm-sweep-light {
           0%   { transform: translateX(-150%) skewX(-20deg); }
           100% { transform: translateX(300%) skewX(-20deg); }
+        }
+        @keyframes glm-pulse-glow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(0,207,255,0.4), 0 6px 20px rgba(0,0,0,0.45); }
+          50%      { box-shadow: 0 0 0 6px rgba(0,207,255,0.0), 0 8px 28px rgba(138,92,255,0.35); }
+        }
+        @keyframes glm-bolt-flicker {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50%      { opacity: 0.85; transform: scale(1.08); }
         }
         .glm-switch-btn {
           position: relative;
@@ -643,70 +647,55 @@ export default function Layout({ children, currentPageName }) {
           background: transparent;
           white-space: nowrap;
           flex-shrink: 0;
-          padding: 2px;
+          padding: 1.5px;
           border-radius: 999px;
-          overflow: hidden;
-          transition: transform 0.2s ease, filter 0.2s ease;
-          filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) drop-shadow(0 1px 2px rgba(0,207,255,0.2));
+          background-image: linear-gradient(135deg, #00CFFF 0%, #8A5CFF 50%, #FFD000 100%);
+          background-clip: padding-box;
+          transition: transform 0.25s ease, filter 0.25s ease;
+          animation: glm-pulse-glow 3s ease-in-out infinite;
         }
         .glm-switch-btn:hover {
-          transform: translateY(-2px) scale(1.03);
-          filter: drop-shadow(0 8px 14px rgba(0,0,0,0.6)) drop-shadow(0 2px 8px rgba(0,207,255,0.35));
+          transform: translateY(-1px) scale(1.02);
+          filter: brightness(1.1);
         }
         .glm-switch-btn:active {
-          transform: translateY(1px) scale(0.98);
-          filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5)) drop-shadow(0 0px 2px rgba(0,207,255,0.15));
-        }
-        .glm-switch-btn:hover .glm-switch-inner {
-          background: linear-gradient(180deg, #FFDC33 0%, #FFB800 60%, #C68B00 100%);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -2px 4px rgba(0,0,0,0.4);
-        }
-        .glm-switch-btn:hover .glm-switch-inner .glm-switch-text {
-          color: #050a1a;
-          -webkit-text-fill-color: #050a1a;
-        }
-        /* Spinning light constrained to border edge via padding + inner bg cover */
-        .glm-switch-btn::before {
-          content: '';
-          position: absolute;
-          top: 50%; left: 50%;
-          width: 300%; height: 300%;
-          background: conic-gradient(from 0deg, transparent 55%, #00CFFF 70%, #8A5CFF 82%, #FFD000 93%, transparent 100%);
-          animation: glm-spin-border 3s linear infinite;
-          z-index: 0;
-          pointer-events: none;
+          transform: translateY(0) scale(0.98);
         }
         .glm-switch-inner {
           position: relative;
           z-index: 2;
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          background: linear-gradient(180deg, #FFD000 0%, #E6A800 60%, #B37F00 100%);
+          gap: 7px;
+          background: linear-gradient(180deg, #0E1428 0%, #060912 100%);
           font-family: 'Space Grotesk', sans-serif;
-          font-weight: 800;
+          font-weight: 700;
           font-size: 13px;
-          padding: 10px 22px;
+          letter-spacing: 0.02em;
+          padding: 9px 20px;
           border-radius: 999px;
           overflow: hidden;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -2px 4px rgba(0,0,0,0.4);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
         }
         /* Subtle sweep shimmer on inner pill */
         .glm-switch-inner::after {
           content: '';
           position: absolute;
           top: 0; bottom: 0; left: 0;
-          width: 35%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), rgba(255,255,255,0.12), rgba(255,255,255,0.06), transparent);
-          animation: glm-sweep-light 4s infinite ease-in-out;
+          width: 30%;
+          background: linear-gradient(90deg, transparent, rgba(0,207,255,0.18), rgba(255,255,255,0.25), rgba(138,92,255,0.18), transparent);
+          animation: glm-sweep-light 3.5s infinite ease-in-out;
           pointer-events: none;
-          z-index: 3;
+          z-index: 1;
         }
-        /* Solid dark text inside the gold pill for max contrast */
+        /* Crisp gradient text */
         .glm-switch-text {
-          color: #0B0F1A;
-          -webkit-text-fill-color: #0B0F1A;
-          text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+          position: relative;
+          z-index: 2;
+          background-image: linear-gradient(90deg, #FFFFFF 0%, #C8E9FF 50%, #E5D6FF 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
         /* Hide orbit spans (no longer used) */
         .glm-switch-orbit { display: none; }
