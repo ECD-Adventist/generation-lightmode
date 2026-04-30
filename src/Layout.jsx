@@ -676,7 +676,7 @@ export default function Layout({ children, currentPageName }) {
           display: inline-flex;
           align-items: center;
           gap: 7px;
-          background: linear-gradient(135deg, #0080FE 0%, #0040A0 60%, #001E5C 100%);
+          background: linear-gradient(135deg, #0080FE 0%, #0040A0 40%, #1A6B3F 70%, #D4B82E 100%);
           font-family: 'Space Grotesk', sans-serif;
           font-weight: 700;
           font-size: 13px;
