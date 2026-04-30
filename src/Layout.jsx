@@ -406,8 +406,8 @@ export default function Layout({ children, currentPageName }) {
                   <span className="glm-switch-orbit p3" aria-hidden="true" />
                   <span className="glm-switch-inner"><span className="glm-switch-text">⚡ Switch It On</span></span>
                 </button>
-                <Link to={createPageUrl("Notifications")} className="relative w-10 h-10 rounded-full bg-[#121826] border border-white/10 flex items-center justify-center hover:bg-white/5 transition">
-                  <Bell className="w-5 h-5 text-gray-300" />
+                <Link to={createPageUrl("Notifications")} className="relative w-10 h-10 rounded-full flex items-center justify-center transition" style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 40%, #1A6B3F 70%, #D4B82E 100%)", boxShadow: "0 0 12px rgba(0,128,254,0.35)" }}>
+                  <Bell className="w-5 h-5 text-white" />
                   {notifications.length > 0 && (
                     <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-[#0B0F1A] rounded-full"></span>
                   )}
@@ -415,7 +415,8 @@ export default function Layout({ children, currentPageName }) {
                 <div className="relative" ref={profileMenuRef}>
                   <button
                     onClick={() => setProfileMenuOpen(v => !v)}
-                    className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00CFFF] to-[#8A5CFF] p-[2px] focus:outline-none"
+                    className="w-10 h-10 rounded-full p-[2px] focus:outline-none"
+                    style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 40%, #1A6B3F 70%, #D4B82E 100%)", boxShadow: "0 0 12px rgba(0,128,254,0.35)" }}
                     title="Profile"
                   >
                     <div className="w-full h-full rounded-full bg-[#0B0F1A] flex items-center justify-center overflow-hidden">
