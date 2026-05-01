@@ -340,6 +340,21 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           </>
         )}
 
+        {isLeaderPost && canFollowAuthor && (
+          <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-30" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => followMutation.mutate(drop.user_email)}
+              className="rounded-full px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-black leading-none uppercase tracking-wider transition active:scale-95 backdrop-blur-md"
+              style={isFollowingAuthor
+                ? { background: "rgba(0,0,0,0.4)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.25)" }
+                : { background: "linear-gradient(90deg, #0080FE, #0040A0)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(0,128,254,0.4)", border: "1px solid rgba(255,255,255,0.2)" }}
+            >
+              {isFollowingAuthor ? "Following" : "+ Follow"}
+            </button>
+          </div>
+        )}
+
         <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20" onClick={(e) => e.stopPropagation()}>
           {(() => {
             const authorChip = (
@@ -405,18 +420,6 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   </span>
                   <span className={`text-[9px] sm:text-[10px] font-medium leading-none ${drop.media_url ? "text-white/80" : ""}`} style={drop.media_url ? {} : { color: "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
                 </div>
-                {isLeaderPost && canFollowAuthor && (
-                  <button
-                    type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); followMutation.mutate(drop.user_email); }}
-                    className="ml-1 shrink-0 rounded-full px-2 py-1 text-[9px] sm:text-[10px] font-black leading-none transition active:scale-95"
-                    style={isFollowingAuthor
-                      ? { background: "rgba(11,27,61,0.08)", color: "#4A5878", border: "1px solid rgba(11,27,61,0.12)" }
-                      : { background: "linear-gradient(90deg, #0080FE, #0040A0)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(0,128,254,0.25)" }}
-                  >
-                    {isFollowingAuthor ? "Following" : "Follow"}
-                  </button>
-                )}
               </Link>
             );
 
