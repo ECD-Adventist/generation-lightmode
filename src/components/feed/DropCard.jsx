@@ -40,6 +40,10 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   const isSuperCreator = (dropUser.drop_count || 0) >= 9;
   const users = allUsers;
 
+  // Leader posts (created via "Post as leader") get a distinct premium treatment.
+  const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
+  const isLeaderPost = !!leaderForDrop;
+
   const getRepostOwner = (reflection) => {
     const matches = Array.from(reflection?.matchAll(/\[Reposted from (.+?)\]\s*/gi) || []);
     if (!matches.length) return null;
@@ -232,13 +236,24 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   return (
     <div
-      className="rounded-[1.75rem] sm:rounded-[2.25rem] mb-6 sm:mb-8 p-2 sm:p-3 transition-all duration-300 group hover:-translate-y-0.5"
-      style={{
+      className="rounded-[1.75rem] sm:rounded-[2.25rem] mb-6 sm:mb-8 p-2 sm:p-3 transition-all duration-300 group hover:-translate-y-0.5 relative"
+      style={isLeaderPost ? {
+        background: "linear-gradient(135deg, #FFFFFF 0%, #F4F8FF 50%, #FFFCF0 100%)",
+        border: "1px solid #FFE4A0",
+        boxShadow: "0 1px 2px rgba(212, 184, 46, 0.06), 0 8px 24px rgba(11, 63, 217, 0.10), 0 16px 48px rgba(255, 208, 0, 0.10)"
+      } : {
         background: "#FFFFFF",
         border: "1px solid #E0EAF5",
         boxShadow: "0 1px 2px rgba(11, 63, 217, 0.04), 0 8px 24px rgba(11, 63, 217, 0.08), 0 16px 48px rgba(11, 63, 217, 0.04)"
       }}
     >
+      {isLeaderPost && (
+        <div className="absolute -top-3 left-5 sm:left-6 z-30 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg"
+          style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 40%, #1A6B3F 70%, #D4B82E 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35), 0 0 20px rgba(212, 184, 46, 0.4)" }}>
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          {leaderForDrop.leader_title || "Official Leader"}
+        </div>
+      )}
       <style>{`
         @keyframes dc-heart-burst {
           0% { transform: scale(1); }
@@ -269,6 +284,36 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           border: 2px solid #1FB8FF;
           animation: dc-pulse-ring 0.5s ease-out;
           pointer-events: none;
+        }
+        @keyframes dc-leader-spin {
+          0%   { transform: translate(-50%, -50%) rotate(0deg); }
+          100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @keyframes dc-leader-pulse {
+          0%, 100% { filter: drop-shadow(0 0 4px rgba(0,128,254,0.5)) drop-shadow(0 2px 8px rgba(212,184,46,0.4)); }
+          50%      { filter: drop-shadow(0 0 10px rgba(0,128,254,0.85)) drop-shadow(0 4px 14px rgba(212,184,46,0.7)); }
+        }
+        .dc-leader-avatar {
+          position: relative;
+          padding: 2px;
+          border-radius: 9999px;
+          overflow: hidden;
+          background: #060912;
+          animation: dc-leader-pulse 3s ease-in-out infinite;
+        }
+        .dc-leader-avatar::before {
+          content: '';
+          position: absolute;
+          top: 50%; left: 50%;
+          width: 300%; height: 300%;
+          background: conic-gradient(from 0deg, transparent 55%, #4DA8FF 70%, #0080FE 82%, #FFD000 93%, transparent 100%);
+          animation: dc-leader-spin 3s linear infinite;
+          z-index: 0;
+          pointer-events: none;
+        }
+        .dc-leader-avatar > * {
+          position: relative;
+          z-index: 1;
         }
       `}</style>
 
@@ -304,15 +349,27 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   boxShadow: drop.media_url ? "none" : "0 2px 8px rgba(0,0,0,0.05)"
                 }}
               >
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full p-[2px] shrink-0" style={{ background: drop.user_email === "system@lightmode.com" ? "linear-gradient(135deg, #FFD000 0%, #1FB8FF 50%, #0B3FD9 100%)" : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
-                  <div className="w-full h-full rounded-full flex items-center justify-center font-bold text-xs uppercase overflow-hidden" style={{ background: "#FFFFFF" }}>
-                    <img src={drop.user_email === "system@lightmode.com" ? "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" : (dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png")} className="w-full h-full object-cover" />
+                {isLeaderPost ? (
+                  <div className="dc-leader-avatar w-8 h-8 sm:w-9 sm:h-9 shrink-0">
+                    <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF" }}>
+                      <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full p-[2px] shrink-0" style={{ background: drop.user_email === "system@lightmode.com" ? "linear-gradient(135deg, #FFD000 0%, #1FB8FF 50%, #0B3FD9 100%)" : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
+                    <div className="w-full h-full rounded-full flex items-center justify-center font-bold text-xs uppercase overflow-hidden" style={{ background: "#FFFFFF" }}>
+                      <img src={drop.user_email === "system@lightmode.com" ? "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" : (dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png")} className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                )}
                 <div className="flex flex-col items-start justify-center min-w-0">
                   <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 truncate max-w-[140px] sm:max-w-none ${drop.media_url ? "text-white" : ""}`} style={drop.media_url ? {} : { color: "#0B1B3D" }}>
                     {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(dropUser)}
-                    {drop.user_email === "system@lightmode.com" ? (
+                    {isLeaderPost ? (
+                      <span className="flex items-center justify-center w-3.5 h-3.5 rounded-full ml-0.5 shadow-[0_0_8px_rgba(0,128,254,0.55)]" style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 50%, #D4B82E 100%)", color: "#FFFFFF" }} title="Verified Leader">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="w-2 h-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </span>
+                    ) : drop.user_email === "system@lightmode.com" ? (
                        <span className="flex items-center justify-center w-3 h-3 rounded-full ml-0.5" style={{ background: "#1FB8FF", color: "#FFFFFF" }}>
                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-2 h-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                        </span>
