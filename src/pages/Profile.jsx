@@ -12,6 +12,7 @@ import ProfileInstitutionsTab from "@/components/institution/ProfileInstitutions
 import ExecutiveProfileHeader from "@/components/institution/ExecutiveProfileHeader";
 import { isNotificationEnabled } from "@/lib/notifications";
 import EditProfileModal from "@/components/profile/EditProfileModal";
+import LeaderAccountSwitcher from "@/components/profile/LeaderAccountSwitcher";
 import PledgeModal from "@/components/pledge/PledgeModal";
 import ProfileHighlights, { getGlowRank } from "@/components/profile/ProfileHighlights";
 import AchievementBadges from "@/components/profile/AchievementBadges";
@@ -33,6 +34,7 @@ export default function Profile() {
   const [pledgeModalOpen, setPledgeModalOpen] = useState(false);
   const [viewPledgeOpen, setViewPledgeOpen] = useState(false);
   const [viewingDropId, setViewingDropId] = useState(null);
+  const [activeLeaderEmail, setActiveLeaderEmail] = useState(null);
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
@@ -108,7 +110,25 @@ export default function Profile() {
   }, [viewUserEmail, currentUser, allUsersForProfile]);
 
   const isOwnProfile = currentUser && (!viewUserEmail || viewUserEmail === currentUser.email);
-  const profileEmail = viewUserEmail || currentUser?.email;
+  const baseProfileEmail = viewUserEmail || currentUser?.email;
+
+  // Leader accounts this logged-in user is authorized to manage (or all, if admin/super_admin).
+  const { data: managedLeaderAccounts = [] } = useQuery({
+    queryKey: ["managedLeaderAccountsForUser", currentUser?.email, currentUser?.role],
+    queryFn: async () => {
+      const all = await base44.entities.ManagedLeaderAccount.filter({ active: true });
+      if (currentUser?.role === "admin" || currentUser?.role === "super_admin") return all;
+      return all.filter(a => Array.isArray(a.manager_emails) && a.manager_emails.includes(currentUser.email));
+    },
+    enabled: !!currentUser && isOwnProfile,
+  });
+
+  // When an active leader is selected, the displayed profile becomes that leader.
+  const activeLeaderAccount = activeLeaderEmail
+    ? managedLeaderAccounts.find(a => a.leader_email === activeLeaderEmail)
+    : null;
+  const profileEmail = activeLeaderEmail || baseProfileEmail;
+  const isViewingLeader = !!activeLeaderAccount;
 
   const { data: myDrops = [] } = useQuery({
     queryKey: ["myGlowDropsProfile", profileEmail],
@@ -370,6 +390,22 @@ export default function Profile() {
     return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
   }
 
+  // When viewing a leader account, override the displayed user identity (name, photo, bio, etc.)
+  const displayUser = isViewingLeader ? {
+    ...user,
+    email: activeLeaderAccount.leader_email,
+    full_name: activeLeaderAccount.leader_name,
+    profile_picture_url: activeLeaderAccount.leader_profile_picture_url,
+    cover_picture_url: activeLeaderAccount.leader_cover_picture_url,
+    bio: activeLeaderAccount.leader_bio,
+    country: activeLeaderAccount.leader_country,
+    website_url: undefined,
+    glow_score: 0,
+    pledge_signed: false,
+  } : user;
+  // While viewing a leader, owner-only edit affordances should be disabled.
+  const canEditProfile = isOwnProfile && !isViewingLeader;
+
   // MOBILE-ONLY branded shell — reuses same tab content by rendering a trimmed version (v2)
   const mobileTabContent = (() => {
     if (activeProfileTab === "drops") {
@@ -458,16 +494,26 @@ export default function Profile() {
     <>
     {/* MOBILE branded layout */}
     <div className="md:hidden">
+      {isOwnProfile && managedLeaderAccounts.length > 0 && (
+        <div className="px-4 pt-4">
+          <LeaderAccountSwitcher
+            currentUser={currentUser}
+            managedAccounts={managedLeaderAccounts}
+            activeLeaderEmail={activeLeaderEmail}
+            onSwitch={setActiveLeaderEmail}
+          />
+        </div>
+      )}
       <MobileProfile
-        user={user}
+        user={displayUser}
         currentUser={currentUser}
-        isOwnProfile={isOwnProfile}
+        isOwnProfile={canEditProfile}
         profileEmail={profileEmail}
         myDrops={myDrops}
-        myFollowers={myFollowers}
-        myFollowing={myFollowing}
-        myMemberships={myMemberships}
-        certificates={certificates}
+        myFollowers={isViewingLeader ? [] : myFollowers}
+        myFollowing={isViewingLeader ? [] : myFollowing}
+        myMemberships={isViewingLeader ? [] : myMemberships}
+        certificates={isViewingLeader ? [] : certificates}
         onEditProfile={() => setIsEditing(true)}
         onShareProfile={handleShareProfile}
         onFollowToggle={() => followMutation.mutate(profileEmail)}
@@ -478,7 +524,7 @@ export default function Profile() {
         onSetConnectionsView={setConnectionsView}
         activeTab={activeProfileTab === "story_analytics" ? "drops" : activeProfileTab}
         onTabChange={setActiveProfileTab}
-        userInstitutionApps={userInstitutionApps}
+        userInstitutionApps={isViewingLeader ? [] : userInstitutionApps}
       >
         {mobileTabContent}
       </MobileProfile>
@@ -513,7 +559,7 @@ export default function Profile() {
         onClose={() => setViewingDropId(null)}
         drops={activeProfileTab === "saved" ? savedDrops : myDrops}
         initialDropId={viewingDropId}
-        user={user}
+        user={displayUser}
         currentUser={currentUser}
         allUsers={allUsersForProfile}
         likeMutation={profileLikeMutation}
@@ -585,7 +631,23 @@ export default function Profile() {
       />
 
       <div className="max-w-4xl mx-auto relative z-10 pt-6 sm:pt-8">
-        {userInstitutionApps.length > 0 ? (
+        {isOwnProfile && managedLeaderAccounts.length > 0 && (
+          <div className="px-4 mb-5">
+            <LeaderAccountSwitcher
+              currentUser={currentUser}
+              managedAccounts={managedLeaderAccounts}
+              activeLeaderEmail={activeLeaderEmail}
+              onSwitch={setActiveLeaderEmail}
+            />
+            {isViewingLeader && (
+              <div className="mt-3 rounded-2xl px-4 py-3 flex items-center gap-3 text-sm" style={{ background: "#FFF8E6", border: "1px solid #FFE4A0", color: "#8B6914" }}>
+                <span>👁️</span>
+                <span><strong>Viewing as {activeLeaderAccount.leader_name}.</strong> You can manage this leader's posts below — delete from the post menu (···).</span>
+              </div>
+            )}
+          </div>
+        )}
+        {userInstitutionApps.length > 0 && !isViewingLeader ? (
           <>
             <ExecutiveProfileHeader
               user={user} isOwnProfile={isOwnProfile} profileEmail={profileEmail}
@@ -612,9 +674,9 @@ export default function Profile() {
               }
             `}</style>
             <div
-              className={`w-full h-48 sm:h-64 rounded-[1.75rem] mb-1 relative group p-[2px] overflow-hidden ${isOwnProfile ? 'cursor-pointer' : ''}`}
+              className={`w-full h-48 sm:h-64 rounded-[1.75rem] mb-1 relative group p-[2px] overflow-hidden ${canEditProfile ? 'cursor-pointer' : ''}`}
               style={{ boxShadow: "0 8px 28px rgba(11, 63, 217, 0.12)" }}
-              onClick={() => isOwnProfile && coverInputRef.current?.click()}
+              onClick={() => canEditProfile && coverInputRef.current?.click()}
             >
               {/* Rotating Edge Light — cyan→royal-blue→gold */}
               <div style={{
@@ -627,7 +689,7 @@ export default function Profile() {
               {/* Inner cover content */}
               <div
                 className="w-full h-full rounded-[1.6rem] overflow-hidden relative z-10"
-                style={{ background: user.cover_picture_url ? "transparent" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", ...(user.cover_picture_url ? { backgroundImage: `url(${user.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}) }}
+                style={{ background: displayUser.cover_picture_url ? "transparent" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", ...(displayUser.cover_picture_url ? { backgroundImage: `url(${displayUser.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}) }}
               >
                 {/* Sweeping Light */}
                 <div style={{
@@ -637,14 +699,14 @@ export default function Profile() {
                   zIndex: 1, pointerEvents: "none",
                 }} />
 
-                {isOwnProfile && (
+                {canEditProfile && (
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20" style={{ background: "rgba(11, 27, 61, 0.45)" }}>
                     <div className="flex items-center gap-2 font-bold px-4 py-2 rounded-lg backdrop-blur-sm" style={{ background: "rgba(255,255,255,0.95)", color: "#0B3FD9" }}>
                       <Camera className="w-5 h-5" /> Change Cover
                     </div>
                   </div>
                 )}
-                {!user.cover_picture_url && (
+                {!displayUser.cover_picture_url && (
                   <div className="absolute inset-0 flex items-center justify-center" style={{ color: "#8A97B5" }}>
                     <div className="text-center">
                       <Camera className="w-10 h-10 mx-auto mb-2 opacity-40" />
@@ -659,13 +721,13 @@ export default function Profile() {
             {/* Profile Header */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-5 mb-6 pb-6 relative z-10 px-4 border-b -mt-14 md:-mt-14" style={{ borderColor: "#E6ECF5" }}>
               <div
-                className={`w-32 h-32 rounded-full p-1 flex-shrink-0 overflow-hidden group relative ${isOwnProfile ? 'cursor-pointer' : ''}`}
+                className={`w-32 h-32 rounded-full p-1 flex-shrink-0 overflow-hidden group relative ${canEditProfile ? 'cursor-pointer' : ''}`}
                 style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", boxShadow: "0 8px 28px rgba(11, 63, 217, 0.25)" }}
-                onClick={() => isOwnProfile && profileInputRef.current?.click()}
+                onClick={() => canEditProfile && profileInputRef.current?.click()}
               >
                 <div className="w-full h-full rounded-full flex items-center justify-center overflow-hidden" style={{ background: "#FFFFFF", border: "4px solid #FFFFFF" }}>
-                  <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="Profile" className="w-full h-full object-cover" />
-                  {isOwnProfile && (
+                  <img src={displayUser.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="Profile" className="w-full h-full object-cover" />
+                  {canEditProfile && (
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10" style={{ background: "rgba(11, 27, 61, 0.5)" }}>
                       <Camera className="w-6 h-6 text-white mb-1" />
                       <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
@@ -678,13 +740,20 @@ export default function Profile() {
               <div className="flex-1 text-center md:text-left mt-2 md:mt-16">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
                   <div className="flex flex-col md:flex-row md:items-center gap-3">
-                    <h1 className="text-3xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{getDisplayName(user)}</h1>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full w-fit mx-auto md:mx-0" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
-                      <Sparkles className="w-4 h-4" style={{ color: glowRank.color }} />
-                      <span className="text-sm font-bold" style={{ color: "#0B1B3D" }}>{glowRank.name}</span>
-                    </div>
+                    <h1 className="text-3xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{getDisplayName(displayUser)}</h1>
+                    {isViewingLeader ? (
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full w-fit mx-auto md:mx-0" style={{ background: "#FFF8E6", border: "1px solid #FFE4A0", boxShadow: "0 2px 6px rgba(255, 159, 26, 0.12)" }}>
+                        <Sparkles className="w-4 h-4" style={{ color: "#CC7A00" }} />
+                        <span className="text-sm font-bold" style={{ color: "#CC7A00" }}>{activeLeaderAccount.leader_title || "Leader Account"}</span>
+                      </div>
+                    ) : (
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full w-fit mx-auto md:mx-0" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
+                        <Sparkles className="w-4 h-4" style={{ color: glowRank.color }} />
+                        <span className="text-sm font-bold" style={{ color: "#0B1B3D" }}>{glowRank.name}</span>
+                      </div>
+                    )}
                   </div>
-                  {isOwnProfile && !isEditing && (
+                  {canEditProfile && !isEditing && (
                     <button onClick={() => setIsEditing(true)} className="px-5 py-2 rounded-full text-sm font-bold transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B3FD9", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
                       Edit Profile
                     </button>
@@ -724,21 +793,23 @@ export default function Profile() {
 
                 <div className="text-sm max-w-md mx-auto md:mx-0 space-y-3" style={{ color: "#3A4A6B" }}>
                   <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" style={{ background: "#EEF3FF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>{user.country || "Global Citizen"}</span>
-                    {myMemberships.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(31, 184, 255, 0.12)", border: "1px solid #B8E5FF", color: "#0B3FD9" }}>{myMemberships.length} GlowGroup{myMemberships.length > 1 ? "s" : ""}</span>}
-                    {userInstitutionApps.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}>Institution linked</span>}
+                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" style={{ background: "#EEF3FF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>{displayUser.country || "Global Citizen"}</span>
+                    {!isViewingLeader && myMemberships.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(31, 184, 255, 0.12)", border: "1px solid #B8E5FF", color: "#0B3FD9" }}>{myMemberships.length} GlowGroup{myMemberships.length > 1 ? "s" : ""}</span>}
+                    {!isViewingLeader && userInstitutionApps.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}>Institution linked</span>}
                   </div>
                   <p className="leading-relaxed whitespace-pre-line">
-                    {(isOwnProfile ? currentUser?.bio : user?.bio) || "Digital Missionary ⚡ Spreading light through faith in the online world."}
+                    {displayUser.bio || (isViewingLeader ? "Leader account managed by your team." : "Digital Missionary ⚡ Spreading light through faith in the online world.")}
                   </p>
-                  {user.website_url && (
+                  {!isViewingLeader && user.website_url && (
                     <a href={user.website_url.startsWith("http") ? user.website_url : `https://${user.website_url}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-bold text-xs hover:underline break-all" style={{ color: "#0B3FD9" }}>
                       🔗 {user.website_url.replace(/^https?:\/\//, "")}
                     </a>
                   )}
-                  <div className="flex items-center gap-2 text-[10px] mt-1 justify-center md:justify-start" style={{ color: "#8A97B5" }}>
-                    <span>Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}</span>
-                  </div>
+                  {!isViewingLeader && (
+                    <div className="flex items-center gap-2 text-[10px] mt-1 justify-center md:justify-start" style={{ color: "#8A97B5" }}>
+                      <span>Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -751,7 +822,7 @@ export default function Profile() {
         )}
 
         {/* LIGHTMODE PLEDGE STATUS */}
-        {isOwnProfile && (
+        {canEditProfile && (
           <div className="mx-4 mb-6">
             {user.pledge_signed ? (
               <div className="rounded-[1.5rem] p-5 flex items-center gap-4 flex-wrap" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0", boxShadow: "0 4px 16px rgba(255, 159, 26, 0.12)" }}>
@@ -1016,7 +1087,7 @@ export default function Profile() {
         onClose={() => setViewingDropId(null)}
         drops={activeProfileTab === "saved" ? savedDrops : myDrops}
         initialDropId={viewingDropId}
-        user={user}
+        user={displayUser}
         currentUser={currentUser}
         allUsers={allUsersForProfile}
         likeMutation={profileLikeMutation}
