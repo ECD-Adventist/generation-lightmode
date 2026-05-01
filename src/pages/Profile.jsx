@@ -97,7 +97,12 @@ export default function Profile() {
         } else if (!viewUserEmail) {
           base44.auth.redirectToLogin(window.location.pathname + window.location.search);
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error("Profile auth check failed:", err);
+        if (!viewUserEmail) {
+          base44.auth.redirectToLogin(window.location.pathname + window.location.search);
+        }
+      }
     }
     checkAuth();
   }, [viewUserEmail]);
@@ -448,7 +453,14 @@ export default function Profile() {
   };
 
   if (!user) {
-    return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}>
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} />
+          <p className="text-sm" style={{ color: "#6B7FA0" }}>Loading profile...</p>
+        </div>
+      </div>
+    );
   }
 
   // When viewing a leader account, override the displayed user identity (name, photo, bio, etc.)
