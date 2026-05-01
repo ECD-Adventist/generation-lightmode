@@ -419,23 +419,42 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[60px] opacity-10 pointer-events-none bg-amber-400" />
             <div className="absolute top-6 left-6 text-[80px] sm:text-[120px] leading-none font-serif pointer-events-none select-none z-0 text-blue-600/5">"</div>
             
-            <div className="p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center">
+            <div className={`p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-8 sm:py-12" : ""}`}>
               {drop.verse && (
-                <h2 className="text-lg sm:text-3xl lg:text-4xl font-bold font-['Space_Grotesk'] mb-3 sm:mb-6 leading-tight line-clamp-4 text-blue-600 dark:text-blue-400">
-                  {drop.verse}
+                <h2
+                  className={`font-bold mb-3 sm:mb-6 leading-tight ${
+                    isLeaderPost
+                      ? "text-base sm:text-2xl lg:text-3xl font-['Space_Grotesk']"
+                      : "text-lg sm:text-3xl lg:text-4xl font-['Space_Grotesk'] line-clamp-4"
+                  }`}
+                  style={{
+                    color: isLeaderPost ? "#0A2A6E" : undefined,
+                    textShadow: isLeaderPost ? "0 1px 2px rgba(11,63,217,0.08)" : undefined,
+                  }}
+                >
+                  {isLeaderPost ? `“${drop.verse}”` : drop.verse}
                 </h2>
               )}
               {drop.reflection && (() => {
                 const plain = containsHtml(drop.reflection)
                   ? drop.reflection.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
                   : drop.reflection;
+                if (isLeaderPost) {
+                  return (
+                    <p className="text-sm sm:text-base lg:text-lg font-['Inter'] leading-relaxed max-w-xl italic text-center" style={{ color: "#1F2D52" }}>
+                      {plain}
+                    </p>
+                  );
+                }
                 return (
                   <p className="text-sm sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic line-clamp-4 sm:line-clamp-none" style={{ color: "#3A4A6B" }}>
                     "{plain.length > 140 ? plain.slice(0, 140) + '…' : plain}"
                   </p>
                 );
               })()}
-              <div className="mt-6 w-16 h-1 rounded-full bg-gradient-to-r from-blue-600 to-cyan-400" />
+              <div className={`mt-6 w-16 h-1 rounded-full ${isLeaderPost ? "" : "bg-gradient-to-r from-blue-600 to-cyan-400"}`}
+                style={isLeaderPost ? { background: "linear-gradient(90deg, #0080FE 0%, #0040A0 50%, #D4B82E 100%)" } : undefined}
+              />
             </div>
           </>
         )}
