@@ -5,20 +5,47 @@ Deno.serve(async (req) => {
 
   try {
     const payload = await req.json().catch(() => ({}));
-    const requestedEmails = Array.isArray(payload.emails) ? new Set(payload.emails.filter(Boolean)) : null;
+    const requestedEmails = Array.isArray(payload.emails) ? payload.emails.filter(Boolean) : null;
     const limit = Math.min(Number(payload.limit) || 200, 500);
-    const allUsers = await base44.asServiceRole.entities.User.list();
+
+    // When specific emails are requested, fetch them individually to avoid
+    // missing users that fall outside the default list limit.
+    let allUsers;
+    if (requestedEmails && requestedEmails.length > 0 && requestedEmails.length <= 20) {
+      // Fetch each requested user by email, plus the general list for broader context
+      const emailResults = await Promise.all(
+        requestedEmails.map(email =>
+          base44.asServiceRole.entities.User.filter({ email }).catch(() => [])
+        )
+      );
+      const specificUsers = emailResults.flat();
+      const generalUsers = await base44.asServiceRole.entities.User.list('-created_date', limit);
+      // Merge: specific users first, then general, deduplicated
+      const seen = new Set();
+      allUsers = [];
+      for (const u of [...specificUsers, ...generalUsers]) {
+        if (u.email && !seen.has(u.email)) {
+          seen.add(u.email);
+          allUsers.push(u);
+        }
+      }
+    } else {
+      allUsers = await base44.asServiceRole.entities.User.list('-created_date', limit);
+    }
+
     const HIDDEN_EMAILS = (Deno.env.get('PUBLIC_USER_HIDDEN_EMAILS') || '')
       .split(',')
       .map(email => email.trim())
       .filter(Boolean);
+
+    const requestedEmailSet = requestedEmails ? new Set(requestedEmails) : null;
 
     // Only expose safe public fields — NO PII (no address, phone, DOB, gender, postal_code)
     // Admin roles are hidden from public — only non-privileged roles are exposed
     const ADMIN_ROLES = ['admin', 'super_admin', 'ecd_admin', 'country_admin', 'union_admin', 'conference_field_admin', 'church_admin', 'moderator'];
     const publicUsers = allUsers
       .filter(u => !HIDDEN_EMAILS.includes(u.email))
-      .filter(u => !requestedEmails || requestedEmails.has(u.email))
+      .filter(u => !requestedEmailSet || requestedEmailSet.has(u.email))
       .slice(0, limit)
       .map(u => ({
         id: u.id,
