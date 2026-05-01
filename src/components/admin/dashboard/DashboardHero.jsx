@@ -62,9 +62,9 @@ export default function DashboardHero({ user, pendingDrops, pendingTerritories, 
 
       {/* Hero image — same image from website Home hero, now much more visible */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png')",
+        backgroundImage: "url('https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2')",
         backgroundSize: "cover",
-        backgroundPosition: "center 30%",
+        backgroundPosition: "center center",
         filter: isDark ? "grayscale(40%) contrast(1.15) brightness(0.95)" : "grayscale(20%) contrast(1.08) saturate(1.1)",
         opacity: isDark ? 0.55 : 0.72,
         mixBlendMode: isDark ? "luminosity" : "normal",
