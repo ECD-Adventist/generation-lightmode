@@ -721,7 +721,17 @@ export default function Feed() {
           </div>
 
           {/* Pinned Leader Announcements — desktop only, sits above filters */}
-          <PinnedLeaderPosts leaderAccounts={leaderAccounts} />
+          <PinnedLeaderPosts
+            leaderAccounts={leaderAccounts}
+            user={user}
+            allUsers={users}
+            likeMutation={likeMutation}
+            handleShare={handleShare}
+            userLikes={userLikes}
+            savedDropRecords={savedDropRecords}
+            following={following}
+            followMutation={followMutation}
+          />
 
           {/* Filter Bar */}
           <div className="flex gap-2 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">
