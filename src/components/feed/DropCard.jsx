@@ -345,7 +345,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             const authorChip = (
               <Link
                 to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
-                className="inline-flex items-center gap-2 backdrop-blur-md rounded-full pr-2.5 sm:pr-3.5 pl-1 py-1 cursor-pointer transition no-underline max-w-[calc(100%-1rem)]"
+                className="inline-flex items-center gap-2 backdrop-blur-md rounded-full pr-1.5 sm:pr-3.5 pl-1 py-1 cursor-pointer transition no-underline max-w-[calc(100vw-5rem)] sm:max-w-[calc(100%-1rem)]"
                 style={{
                   background: drop.media_url ? "rgba(0,0,0,0.4)" : (isLeaderPost ? "rgba(255,255,255,0.96)" : "#FFFFFF"),
                   border: drop.media_url ? "none" : "1px solid #E2E8F0",
@@ -384,7 +384,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 )}
                 <div className="flex flex-col items-start justify-center min-w-0">
                   <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 min-w-0 ${drop.media_url ? "text-white" : ""}`} style={drop.media_url ? {} : { color: "#0B1B3D" }}>
-                    <span className="truncate max-w-[118px] sm:max-w-[220px]">
+                    <span className="truncate max-w-[90px] sm:max-w-[220px]">
                       {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(dropUser)}
                     </span>
                     {isLeaderPost ? (
