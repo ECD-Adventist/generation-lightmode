@@ -1,11 +1,11 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
-import { Loader2, Camera, Plus, X, UserPlus } from "lucide-react";
+import { Loader2, Camera, Plus, X, UserPlus, Search, Mail } from "lucide-react";
 import { useAdminTheme, getAdminTokens } from "../AdminThemeContext";
 
 export default function LeaderAccountFormModal({ account, onClose, onSaved }) {
@@ -28,6 +28,76 @@ export default function LeaderAccountFormModal({ account, onClose, onSaved }) {
   const [newManager, setNewManager] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+
+  // Debounced user search by name or email
+  useEffect(() => {
+    const q = newManager.trim();
+    if (q.length < 2) {
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+    setSearching(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await base44.functions.invoke("searchUsersForManagerAssignment", { query: q });
+        setSearchResults(res.data?.users || []);
+        setShowResults(true);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [newManager]);
+
+  const sendWelcomeEmail = async (managerEmail, managerName) => {
+    try {
+      await base44.functions.invoke("sendLeaderManagerWelcome", {
+        manager_email: managerEmail,
+        manager_name: managerName || "",
+        leader_name: form.leader_name,
+        leader_title: form.leader_title,
+        leader_email: form.leader_email,
+      });
+    } catch (e) {
+      // Non-fatal — email failure shouldn't block account save
+      console.warn("Welcome email failed:", e?.message);
+    }
+  };
+
+  const addManagerByEmail = async (email, fullName) => {
+    const lower = (email || "").trim().toLowerCase();
+    if (!lower) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lower)) {
+      toast.error("Enter a valid email");
+      return;
+    }
+    if (form.manager_emails.includes(lower)) {
+      toast.error("Already added");
+      return;
+    }
+    if (form.manager_emails.length >= 3) {
+      toast.error("Maximum 3 managers per account");
+      return;
+    }
+    setForm(prev => ({ ...prev, manager_emails: [...prev.manager_emails, lower] }));
+    setNewManager("");
+    setShowResults(false);
+    setSearchResults([]);
+
+    // Send welcome email — only if leader name is set (otherwise email lacks context)
+    if (form.leader_name?.trim()) {
+      sendWelcomeEmail(lower, fullName);
+      toast.success(`Added ${lower} • welcome email sent`);
+    } else {
+      toast.success(`Added ${lower}`);
+    }
+  };
 
   const handlePhotoSelect = async (e) => {
     const file = e.target.files?.[0];
@@ -43,25 +113,6 @@ export default function LeaderAccountFormModal({ account, onClose, onSaved }) {
       setUploading(false);
       e.target.value = "";
     }
-  };
-
-  const addManager = () => {
-    const email = newManager.trim().toLowerCase();
-    if (!email) return;
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Enter a valid email");
-      return;
-    }
-    if (form.manager_emails.includes(email)) {
-      toast.error("Already added");
-      return;
-    }
-    if (form.manager_emails.length >= 3) {
-      toast.error("Maximum 3 managers per account");
-      return;
-    }
-    setForm(prev => ({ ...prev, manager_emails: [...prev.manager_emails, email] }));
-    setNewManager("");
   };
 
   const removeManager = (email) => {
@@ -196,18 +247,98 @@ export default function LeaderAccountFormModal({ account, onClose, onSaved }) {
             )}
 
             {form.manager_emails.length < 3 && (
-              <div className="flex gap-2">
-                <Input
-                  type="email"
-                  value={newManager}
-                  onChange={(e) => setNewManager(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addManager(); } }}
-                  placeholder="manager@example.com"
-                  style={{ background: t.appBg, border: `1px solid ${t.border}`, color: t.textPrimary }}
-                />
-                <Button type="button" onClick={addManager} className="shrink-0" style={{ background: t.gradient, color: "#FFFFFF" }}>
-                  <Plus className="w-4 h-4" /> Add
-                </Button>
+              <div className="relative">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: t.textMuted }} />
+                    <Input
+                      type="text"
+                      value={newManager}
+                      onChange={(e) => setNewManager(e.target.value)}
+                      onFocus={() => { if (searchResults.length > 0) setShowResults(true); }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addManagerByEmail(newManager);
+                        }
+                      }}
+                      placeholder="Search by name or email..."
+                      className="pl-9"
+                      style={{ background: t.appBg, border: `1px solid ${t.border}`, color: t.textPrimary }}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => addManagerByEmail(newManager)}
+                    className="shrink-0"
+                    style={{ background: t.gradient, color: "#FFFFFF" }}
+                  >
+                    <Plus className="w-4 h-4" /> Add
+                  </Button>
+                </div>
+
+                {showResults && newManager.trim().length >= 2 && (
+                  <div
+                    className="absolute left-0 right-0 mt-1.5 rounded-xl overflow-hidden z-50 max-h-64 overflow-y-auto"
+                    style={{ background: t.surface, border: `1px solid ${t.border}`, boxShadow: "0 12px 40px rgba(0,0,0,0.35)" }}
+                  >
+                    {searching ? (
+                      <div className="px-3 py-3 flex items-center gap-2 text-xs" style={{ color: t.textMuted }}>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Searching registered users…
+                      </div>
+                    ) : searchResults.length === 0 ? (
+                      <div className="px-3 py-3 text-xs" style={{ color: t.textMuted }}>
+                        No registered users match. You can still add by typing the full email and clicking Add.
+                      </div>
+                    ) : (
+                      searchResults.map(u => {
+                        const already = form.manager_emails.includes(u.email);
+                        return (
+                          <button
+                            key={u.id}
+                            type="button"
+                            disabled={already}
+                            onClick={() => addManagerByEmail(u.email, u.full_name)}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 transition text-left"
+                            style={{
+                              background: "transparent",
+                              borderBottom: `1px solid ${t.border}`,
+                              opacity: already ? 0.5 : 1,
+                              cursor: already ? "not-allowed" : "pointer",
+                            }}
+                            onMouseOver={e => { if (!already) e.currentTarget.style.background = t.appBg; }}
+                            onMouseOut={e => { e.currentTarget.style.background = "transparent"; }}
+                          >
+                            <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 flex items-center justify-center" style={{ background: t.accentSoft }}>
+                              {u.profile_picture_url ? (
+                                <img src={u.profile_picture_url} className="w-full h-full object-cover" />
+                              ) : (
+                                <UserPlus className="w-3.5 h-3.5" style={{ color: t.accent }} />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-xs font-bold truncate" style={{ color: t.textPrimary }}>
+                                {u.full_name || u.email}
+                              </div>
+                              <div className="text-[10px] truncate" style={{ color: t.textMuted }}>
+                                {u.email}{u.role && u.role !== "user" ? ` · ${u.role}` : ""}{u.country ? ` · ${u.country}` : ""}
+                              </div>
+                            </div>
+                            {already ? (
+                              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: t.textMuted }}>Added</span>
+                            ) : (
+                              <Plus className="w-3.5 h-3.5" style={{ color: t.accent }} />
+                            )}
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
+
+                <p className="text-[10px] mt-1.5 flex items-center gap-1" style={{ color: t.textMuted }}>
+                  <Mail className="w-3 h-3" /> A branded welcome email is sent automatically when a manager is added.
+                </p>
               </div>
             )}
           </div>
