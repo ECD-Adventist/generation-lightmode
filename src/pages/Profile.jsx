@@ -49,11 +49,11 @@ export default function Profile() {
   const urlParams = new URLSearchParams(window.location.search);
   const viewUserEmail = urlParams.get("user");
 
-  const { data: allUsersForProfile = [], isFetched: usersQueryDone } = useQuery({
+  const { data: allUsersForProfile = [] } = useQuery({
     queryKey: ["allUsersForProfile", viewUserEmail || "self"],
     queryFn: async () => {
       // When viewing another user's profile, request them explicitly so they aren't
-      // missed due to the default list limit.
+      // missed due to the default 100-user limit.
       const params = viewUserEmail ? { emails: [viewUserEmail] } : {};
       const res = await base44.functions.invoke("listPublicUsers", params);
       const data = Array.isArray(res.data) ? res.data : [];
@@ -107,8 +107,11 @@ export default function Profile() {
     checkAuth();
   }, [viewUserEmail]);
 
+  const allUsersLoaded = useRef(false);
+
   useEffect(() => {
     if (!viewUserEmail) return;
+    if (allUsersForProfile.length > 0) allUsersLoaded.current = true;
 
     if (currentUser && viewUserEmail === currentUser.email) {
       setUser(currentUser);
@@ -150,16 +153,16 @@ export default function Profile() {
       return;
     }
 
-    // If the users query has completed but the target wasn't found,
+    // If the public users list has loaded but the target wasn't found,
     // create a minimal fallback profile so the page doesn't spin forever.
-    if (usersQueryDone) {
+    if (allUsersLoaded.current) {
       setUser({
         email: viewUserEmail,
         full_name: viewUserEmail.split('@')[0] || "User",
         glow_score: 0,
       });
     }
-  }, [viewUserEmail, currentUser, allUsersForProfile, publicLeaderAccounts, usersQueryDone]);
+  }, [viewUserEmail, currentUser, allUsersForProfile, publicLeaderAccounts]);
 
   const isOwnProfile = currentUser && (!viewUserEmail || viewUserEmail === currentUser.email);
   const baseProfileEmail = viewUserEmail || currentUser?.email;
