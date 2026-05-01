@@ -194,7 +194,7 @@ function IdleView({ topCreators, topLikedDrops }) {
                   to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.email)}`}
                   className="shrink-0 snap-start no-underline relative overflow-hidden rounded-2xl p-3 flex flex-col items-center gap-2 transition active:scale-[0.97]"
                   style={{
-                  width: 132,
+                    width: 112,
                     background: i === 0
                       ? "linear-gradient(145deg, #0B3FD9 0%, #1FB8FF 100%)"
                       : "linear-gradient(145deg, #FFFFFF 0%, #F4F7FE 100%)",
@@ -222,8 +222,8 @@ function IdleView({ topCreators, topLikedDrops }) {
                     )}
                   </div>
 
-                  <div className="relative text-[11px] font-black text-center w-full font-['Space_Grotesk'] leading-tight min-h-[28px] flex items-center justify-center px-1" style={{ color: i === 0 ? "#FFFFFF" : "#0B1B3D", overflowWrap: "anywhere" }}>
-                    {getDisplayName(c)}
+                  <div className="relative text-[11px] font-black text-center truncate w-full font-['Space_Grotesk']" style={{ color: i === 0 ? "#FFFFFF" : "#0B1B3D" }}>
+                    {getDisplayName(c)?.split(" ")[0]}
                   </div>
                   <div className="relative flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: i === 0 ? "rgba(255,255,255,0.22)" : "#EEF3FF" }}>
                     <Heart className="w-2.5 h-2.5 fill-red-400 text-red-400" />

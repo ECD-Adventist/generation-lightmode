@@ -117,12 +117,12 @@ export default function ProfileHoverSummary({ dropUser }) {
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 pt-2 border-t" style={{ borderColor: "#F0F4FA" }}>
-          <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(email)}`} className="font-bold flex-1 text-center py-2 rounded-full text-xs transition no-underline" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11,63,217,0.2)" }}>
+          <a href={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser?.email)}`} className="font-bold flex-1 text-center py-2 rounded-full text-xs transition no-underline" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11,63,217,0.2)" }}>
             View Profile
-          </Link>
-          <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(email)}`} className="font-bold flex-1 text-center py-2 rounded-full text-xs transition no-underline" style={{ background: "#FFFFFF", color: "#0B1B3D", border: "1.5px solid #E6ECF5" }}>
+          </a>
+          <a href={createPageUrl("Messages") + `?user=${encodeURIComponent(dropUser?.email)}`} className="font-bold flex-1 text-center py-2 rounded-full text-xs transition no-underline" style={{ background: "#FFFFFF", color: "#0B1B3D", border: "1.5px solid #E6ECF5" }}>
             Message
-          </Link>
+          </a>
         </div>
       </div>
     </div>
