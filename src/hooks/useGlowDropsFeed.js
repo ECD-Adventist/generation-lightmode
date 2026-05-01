@@ -10,8 +10,8 @@ export default function useGlowDropsFeed() {
     queryFn: ({ pageParam = 0 }) => base44.entities.GlowDrop.list("-created_date", GLOW_DROPS_PAGE_SIZE, pageParam),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage || lastPage.length < GLOW_DROPS_PAGE_SIZE) return undefined;
-      return allPages.length * GLOW_DROPS_PAGE_SIZE;
+      if (!Array.isArray(lastPage) || lastPage.length < GLOW_DROPS_PAGE_SIZE) return undefined;
+      return (allPages?.length || 0) * GLOW_DROPS_PAGE_SIZE;
     },
     staleTime: 1000 * 60 * 3,
     gcTime: 1000 * 60 * 30,
