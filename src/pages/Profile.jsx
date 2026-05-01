@@ -13,6 +13,7 @@ import ExecutiveProfileHeader from "@/components/institution/ExecutiveProfileHea
 import { isNotificationEnabled } from "@/lib/notifications";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 import LeaderAccountSwitcher from "@/components/profile/LeaderAccountSwitcher";
+import LeaderAccountFormModal from "@/components/admin/leader-accounts/LeaderAccountFormModal";
 import PledgeModal from "@/components/pledge/PledgeModal";
 import ProfileHighlights, { getGlowRank } from "@/components/profile/ProfileHighlights";
 import AchievementBadges from "@/components/profile/AchievementBadges";
@@ -35,6 +36,13 @@ export default function Profile() {
   const [viewPledgeOpen, setViewPledgeOpen] = useState(false);
   const [viewingDropId, setViewingDropId] = useState(null);
   const [activeLeaderEmail, setActiveLeaderEmail] = useState(null);
+  const [isEditingLeader, setIsEditingLeader] = useState(false);
+
+  // When switching to/from a leader account, reset the active tab to "drops" so personal-only
+  // tabs (Saved, Missions, etc.) don't render empty in leader view.
+  useEffect(() => {
+    setActiveProfileTab("drops");
+  }, [activeLeaderEmail]);
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
@@ -370,15 +378,26 @@ export default function Profile() {
     const toastId = toast.loading(`Uploading ${type} photo...`);
     try {
       const res = await base44.integrations.Core.UploadFile({ file: croppedFile });
-      const updates = {};
-      if (type === "profile") updates.profile_picture_url = res.file_url;
-      else updates.cover_picture_url = res.file_url;
-      await base44.auth.updateMe(updates);
-      const updated = await base44.auth.me();
-      setUser(updated);
-      setCurrentUser(updated);
-      setEditData(prev => ({ ...prev, ...updates }));
-      toast.success(`${type === 'profile' ? 'Profile' : 'Cover'} photo updated!`, { id: toastId });
+
+      // When viewing as leader, update the leader account's photo, not the manager's user record.
+      if (isViewingLeader && activeLeaderAccount) {
+        const leaderUpdates = type === "profile"
+          ? { leader_profile_picture_url: res.file_url }
+          : { leader_cover_picture_url: res.file_url };
+        await base44.entities.ManagedLeaderAccount.update(activeLeaderAccount.id, leaderUpdates);
+        await queryClient.invalidateQueries({ queryKey: ["managedLeaderAccountsForUser", currentUser?.email, currentUser?.role] });
+        toast.success(`Leader ${type} photo updated!`, { id: toastId });
+      } else {
+        const updates = {};
+        if (type === "profile") updates.profile_picture_url = res.file_url;
+        else updates.cover_picture_url = res.file_url;
+        await base44.auth.updateMe(updates);
+        const updated = await base44.auth.me();
+        setUser(updated);
+        setCurrentUser(updated);
+        setEditData(prev => ({ ...prev, ...updates }));
+        toast.success(`${type === 'profile' ? 'Profile' : 'Cover'} photo updated!`, { id: toastId });
+      }
     } catch (err) {
       toast.error(`Failed to upload ${type} photo`, { id: toastId });
     } finally {
@@ -405,6 +424,9 @@ export default function Profile() {
   } : user;
   // While viewing a leader, owner-only edit affordances should be disabled.
   const canEditProfile = isOwnProfile && !isViewingLeader;
+  // But managers DO have full authority to edit the leader's identity & photos.
+  const canEditLeader = isViewingLeader && isOwnProfile;
+  const canEditAny = canEditProfile || canEditLeader;
 
   // MOBILE-ONLY branded shell — reuses same tab content by rendering a trimmed version (v2)
   const mobileTabContent = (() => {
@@ -507,14 +529,14 @@ export default function Profile() {
       <MobileProfile
         user={displayUser}
         currentUser={currentUser}
-        isOwnProfile={canEditProfile}
+        isOwnProfile={canEditAny}
         profileEmail={profileEmail}
         myDrops={myDrops}
         myFollowers={isViewingLeader ? [] : myFollowers}
         myFollowing={isViewingLeader ? [] : myFollowing}
         myMemberships={isViewingLeader ? [] : myMemberships}
         certificates={isViewingLeader ? [] : certificates}
-        onEditProfile={() => setIsEditing(true)}
+        onEditProfile={() => isViewingLeader ? setIsEditingLeader(true) : setIsEditing(true)}
         onShareProfile={handleShareProfile}
         onFollowToggle={() => followMutation.mutate(profileEmail)}
         isFollowingThisUser={isFollowingThisUser}
@@ -552,6 +574,16 @@ export default function Profile() {
       {isEditing && isOwnProfile && (
         <EditProfileModal isOpen={isEditing} onClose={() => setIsEditing(false)} user={user}
           onSaved={(updated) => { setUser(prev => ({ ...prev, ...updated })); setCurrentUser(prev => ({ ...prev, ...updated })); }}
+        />
+      )}
+      {isEditingLeader && activeLeaderAccount && (
+        <LeaderAccountFormModal
+          account={activeLeaderAccount}
+          onClose={() => setIsEditingLeader(false)}
+          onSaved={() => {
+            setIsEditingLeader(false);
+            queryClient.invalidateQueries({ queryKey: ["managedLeaderAccountsForUser", currentUser?.email, currentUser?.role] });
+          }}
         />
       )}
       <PostViewerModal
@@ -629,6 +661,16 @@ export default function Profile() {
         onClose={() => setConnectionsView(null)}
         onToggleFollow={(email) => followMutation.mutate(email)}
       />
+      {isEditingLeader && activeLeaderAccount && (
+        <LeaderAccountFormModal
+          account={activeLeaderAccount}
+          onClose={() => setIsEditingLeader(false)}
+          onSaved={() => {
+            setIsEditingLeader(false);
+            queryClient.invalidateQueries({ queryKey: ["managedLeaderAccountsForUser", currentUser?.email, currentUser?.role] });
+          }}
+        />
+      )}
 
       <div className="max-w-4xl mx-auto relative z-10 pt-6 sm:pt-8">
         {isOwnProfile && managedLeaderAccounts.length > 0 && (
@@ -674,9 +716,9 @@ export default function Profile() {
               }
             `}</style>
             <div
-              className={`w-full h-48 sm:h-64 rounded-[1.75rem] mb-1 relative group p-[2px] overflow-hidden ${canEditProfile ? 'cursor-pointer' : ''}`}
+              className={`w-full h-48 sm:h-64 rounded-[1.75rem] mb-1 relative group p-[2px] overflow-hidden ${canEditAny ? 'cursor-pointer' : ''}`}
               style={{ boxShadow: "0 8px 28px rgba(11, 63, 217, 0.12)" }}
-              onClick={() => canEditProfile && coverInputRef.current?.click()}
+              onClick={() => canEditAny && coverInputRef.current?.click()}
             >
               {/* Rotating Edge Light — cyan→royal-blue→gold */}
               <div style={{
@@ -699,7 +741,7 @@ export default function Profile() {
                   zIndex: 1, pointerEvents: "none",
                 }} />
 
-                {canEditProfile && (
+                {canEditAny && (
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20" style={{ background: "rgba(11, 27, 61, 0.45)" }}>
                     <div className="flex items-center gap-2 font-bold px-4 py-2 rounded-lg backdrop-blur-sm" style={{ background: "rgba(255,255,255,0.95)", color: "#0B3FD9" }}>
                       <Camera className="w-5 h-5" /> Change Cover
@@ -721,13 +763,13 @@ export default function Profile() {
             {/* Profile Header */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-5 mb-6 pb-6 relative z-10 px-4 border-b -mt-14 md:-mt-14" style={{ borderColor: "#E6ECF5" }}>
               <div
-                className={`w-32 h-32 rounded-full p-1 flex-shrink-0 overflow-hidden group relative ${canEditProfile ? 'cursor-pointer' : ''}`}
+                className={`w-32 h-32 rounded-full p-1 flex-shrink-0 overflow-hidden group relative ${canEditAny ? 'cursor-pointer' : ''}`}
                 style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", boxShadow: "0 8px 28px rgba(11, 63, 217, 0.25)" }}
-                onClick={() => canEditProfile && profileInputRef.current?.click()}
+                onClick={() => canEditAny && profileInputRef.current?.click()}
               >
                 <div className="w-full h-full rounded-full flex items-center justify-center overflow-hidden" style={{ background: "#FFFFFF", border: "4px solid #FFFFFF" }}>
                   <img src={displayUser.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="Profile" className="w-full h-full object-cover" />
-                  {canEditProfile && (
+                  {canEditAny && (
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10" style={{ background: "rgba(11, 27, 61, 0.5)" }}>
                       <Camera className="w-6 h-6 text-white mb-1" />
                       <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
@@ -756,6 +798,11 @@ export default function Profile() {
                   {canEditProfile && !isEditing && (
                     <button onClick={() => setIsEditing(true)} className="px-5 py-2 rounded-full text-sm font-bold transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B3FD9", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}>
                       Edit Profile
+                    </button>
+                  )}
+                  {canEditLeader && (
+                    <button onClick={() => setIsEditingLeader(true)} className="px-5 py-2 rounded-full text-sm font-bold transition flex items-center gap-1.5" style={{ background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)", border: "none", color: "#0B1B3D", boxShadow: "0 4px 14px rgba(255, 159, 26, 0.35)" }}>
+                      ✏️ Edit Leader Profile
                     </button>
                   )}
                   {!isOwnProfile && currentUser && (
@@ -814,10 +861,12 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Highlights Section */}
-            <div className="px-4 mb-6">
-              <ProfileHighlights user={user} profileCompletion={profileCompletion} nextLevelXp={nextLevelXp} recentActivity={recentActivity} onShare={handleShareProfile} />
-            </div>
+            {/* Highlights Section — personal gamification, hidden in leader view */}
+            {!isViewingLeader && (
+              <div className="px-4 mb-6">
+                <ProfileHighlights user={user} profileCompletion={profileCompletion} nextLevelXp={nextLevelXp} recentActivity={recentActivity} onShare={handleShareProfile} />
+              </div>
+            )}
           </div>
         )}
 
@@ -876,14 +925,16 @@ export default function Profile() {
 
         {/* Tabs */}
         <div className="flex border-t border-b mb-2 overflow-x-auto hide-scrollbar mx-4" style={{ borderColor: "#E6ECF5" }}>
-          {[
+          {(isViewingLeader ? [
+            { key: "drops", icon: <Grid className="w-4 h-4" />, label: "LEADER POSTS" },
+          ] : [
             { key: "drops", icon: <Grid className="w-4 h-4" />, label: "DROPS" },
             ...(isOwnProfile ? [{ key: "story_analytics", icon: <BarChart3 className="w-4 h-4" />, label: "STORIES" }] : []),
             { key: "saved", icon: <Bookmark className="w-4 h-4" />, label: "SAVED" },
             { key: "missions", icon: <Target className="w-4 h-4" />, label: "MISSIONS" },
             { key: "badges", icon: <Award className="w-4 h-4" />, label: "ACHIEVEMENTS" },
             { key: "institutions", icon: <Building2 className="w-4 h-4" />, label: "INSTITUTIONS" },
-          ].map(tab => {
+          ]).map(tab => {
             const isActive = activeProfileTab === tab.key;
             const isInstitutions = tab.key === "institutions" && userInstitutionApps.length > 0;
             return (
