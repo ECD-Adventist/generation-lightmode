@@ -290,8 +290,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         @keyframes dc-leader-pulse {
-          0%, 100% { filter: drop-shadow(0 0 4px rgba(0,128,254,0.5)) drop-shadow(0 2px 8px rgba(212,184,46,0.4)); }
-          50%      { filter: drop-shadow(0 0 10px rgba(0,128,254,0.85)) drop-shadow(0 4px 14px rgba(212,184,46,0.7)); }
+          0%, 100% { box-shadow: 0 0 0 1px rgba(0,128,254,0.35), 0 2px 10px rgba(212,184,46,0.35); }
+          50%      { box-shadow: 0 0 0 1px rgba(0,128,254,0.6), 0 4px 16px rgba(212,184,46,0.55); }
         }
         .dc-leader-avatar {
           position: relative;
@@ -300,6 +300,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           overflow: hidden;
           background: #060912;
           animation: dc-leader-pulse 3s ease-in-out infinite;
+          will-change: box-shadow;
         }
         .dc-leader-avatar::before {
           content: '';
@@ -342,28 +343,45 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             const authorChip = (
               <Link
                 to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
-                className="flex items-center gap-2 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1 cursor-pointer transition no-underline"
+                className="inline-flex items-center gap-2 backdrop-blur-md rounded-full pr-2.5 sm:pr-3.5 pl-1 py-1 cursor-pointer transition no-underline max-w-[calc(100%-1rem)]"
                 style={{
-                  background: drop.media_url ? "rgba(0,0,0,0.4)" : "#FFFFFF",
+                  background: drop.media_url ? "rgba(0,0,0,0.4)" : (isLeaderPost ? "rgba(255,255,255,0.96)" : "#FFFFFF"),
                   border: drop.media_url ? "none" : "1px solid #E2E8F0",
                   boxShadow: drop.media_url ? "none" : "0 2px 8px rgba(0,0,0,0.05)"
                 }}
               >
                 {isLeaderPost ? (
-                  <div className="dc-leader-avatar w-8 h-8 sm:w-9 sm:h-9 shrink-0">
+                  <div className="dc-leader-avatar w-7 h-7 sm:w-9 sm:h-9 shrink-0">
                     <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF" }}>
-                      <img src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                      <img
+                        src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
+                        alt=""
+                        width="36"
+                        height="36"
+                        loading="eager"
+                        decoding="async"
+                        fetchpriority="high"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   </div>
                 ) : (
                   <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full p-[2px] shrink-0" style={{ background: drop.user_email === "system@lightmode.com" ? "linear-gradient(135deg, #FFD000 0%, #1FB8FF 50%, #0B3FD9 100%)" : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
                     <div className="w-full h-full rounded-full flex items-center justify-center font-bold text-xs uppercase overflow-hidden" style={{ background: "#FFFFFF" }}>
-                      <img src={drop.user_email === "system@lightmode.com" ? "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" : (dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png")} className="w-full h-full object-cover" />
+                      <img
+                        src={drop.user_email === "system@lightmode.com" ? "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" : (dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png")}
+                        alt=""
+                        width="32"
+                        height="32"
+                        loading="eager"
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   </div>
                 )}
                 <div className="flex flex-col items-start justify-center min-w-0">
-                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 truncate max-w-[140px] sm:max-w-none ${drop.media_url ? "text-white" : ""}`} style={drop.media_url ? {} : { color: "#0B1B3D" }}>
+                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 truncate max-w-[140px] sm:max-w-[220px] ${drop.media_url ? "text-white" : ""}`} style={drop.media_url ? {} : { color: "#0B1B3D" }}>
                     {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(dropUser)}
                     {isLeaderPost ? (
                       <span className="flex items-center justify-center w-3.5 h-3.5 rounded-full ml-0.5 shadow-[0_0_8px_rgba(0,128,254,0.55)]" style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 50%, #D4B82E 100%)", color: "#FFFFFF" }} title="Verified Leader">
