@@ -62,7 +62,6 @@ import GroupSession from './pages/GroupSession';
 import Home from './pages/Home';
 import Impact from './pages/Impact';
 import KeepIt100 from './pages/KeepIt100';
-import LeaderAnalytics from './pages/LeaderAnalytics';
 import Live from './pages/Live';
 import Media from './pages/Media';
 import Messages from './pages/Messages';
@@ -92,7 +91,6 @@ export const PAGES = {
     "Home": Home,
     "Impact": Impact,
     "KeepIt100": KeepIt100,
-    "LeaderAnalytics": LeaderAnalytics,
     "Live": Live,
     "Media": Media,
     "Messages": Messages,

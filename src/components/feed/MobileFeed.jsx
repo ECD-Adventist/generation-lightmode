@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Bell, Plus, Sparkles, Flame, Zap, Image as ImageIcon, Smile } from "lucide-react";
 import FeedDropList from "@/components/feed/FeedDropList";
-import PinnedPostsRow from "@/components/feed/PinnedPostsRow";
 
 /**
  * Mobile-only Feed shell — LightMode branded (premium redesign).
@@ -37,7 +36,6 @@ export default function MobileFeed({
   hasMore,
   isLoadingMore,
   onLoadMore,
-  pinnedDrops = [],
 }) {
   const filters = ["All", "Following", "Most Liked", "Devotional", "Testimony"];
   const greeting = new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening";
@@ -173,9 +171,6 @@ export default function MobileFeed({
           })}
         </div>
       </div>
-
-      {/* PINNED ANNOUNCEMENTS — between stories and filter pills */}
-      <PinnedPostsRow pinnedDrops={pinnedDrops} getUserInfo={getUserInfo} />
 
       {/* FILTER PILLS — refined glass sticky */}
       <div className="sticky top-0 z-30 px-3 py-2.5 backdrop-blur-xl mb-3" style={{ background: "rgba(246, 248, 252, 0.96)", borderBottom: "1px solid rgba(214, 228, 255, 0.7)", boxShadow: "0 6px 18px rgba(11, 63, 217, 0.06)" }}>

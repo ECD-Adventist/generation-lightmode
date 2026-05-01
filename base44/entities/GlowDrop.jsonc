@@ -45,16 +45,6 @@
     },
     "hashtags": {
       "type": "string"
-    },
-    "pinned": {
-      "type": "boolean",
-      "default": false,
-      "description": "If true, this drop is pinned to the top of the public feed. Reserved for admin/super_admin use to highlight key leader announcements."
-    },
-    "pinned_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Timestamp when the drop was pinned. Used to order multiple pinned posts (most recently pinned first)."
     }
   },
   "required": [
