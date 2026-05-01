@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Heart, MoreVertical, CheckCircle2, XCircle, EyeOff, CheckSquare, Square, Eye, Maximize2 } from "lucide-react";
+import { Heart, MoreVertical, CheckCircle2, XCircle, EyeOff, CheckSquare, Square, Eye, Maximize2, Pin } from "lucide-react";
 import DropActionsMenu from "./DropActionsMenu";
 
-function StatusChip({ status, hidden, t }) {
+function StatusChip({ status, hidden, pinned, t }) {
   const map = {
     approved: { bg: "rgba(34,197,94,0.15)",  color: "#22c55e", icon: <CheckCircle2 size={10} />, label: "Approved" },
     rejected: { bg: "rgba(239,68,68,0.15)",  color: "#ef4444", icon: <XCircle size={10} />,      label: "Rejected" },
@@ -18,11 +18,16 @@ function StatusChip({ status, hidden, t }) {
           <EyeOff size={10} /> Hidden
         </span>
       )}
+      {pinned && (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border" style={{ background: "rgba(255,208,0,0.18)", color: "#CC7A00", borderColor: "rgba(255,208,0,0.45)" }}>
+          <Pin size={10} /> Pinned
+        </span>
+      )}
     </div>
   );
 }
 
-export default function GlowDropCard({ drop, selected, onToggleSelect, onPreview, onApprove, onReject, onHide, onUnhide, onDelete, t, isDark }) {
+export default function GlowDropCard({ drop, selected, onToggleSelect, onPreview, onApprove, onReject, onHide, onUnhide, onDelete, onPin, onUnpin, t, isDark }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const tags = (drop.hashtags || "").split(/[,\s#]+/).map(s => s.trim()).filter(Boolean).slice(0, 4);
 
@@ -52,7 +57,7 @@ export default function GlowDropCard({ drop, selected, onToggleSelect, onPreview
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <StatusChip status={drop.status || "approved"} hidden={drop.hidden} t={t} />
+          <StatusChip status={drop.status || "approved"} hidden={drop.hidden} pinned={drop.pinned} t={t} />
           {onPreview && (
             <button
               onClick={onPreview}
@@ -81,6 +86,8 @@ export default function GlowDropCard({ drop, selected, onToggleSelect, onPreview
                 onHide={onHide}
                 onUnhide={onUnhide}
                 onDelete={onDelete}
+                onPin={onPin}
+                onUnpin={onUnpin}
                 t={t} isDark={isDark}
               />
             )}

@@ -31,6 +31,7 @@ const InstitutionControlCenter = lazy(() => import('./pages/InstitutionControlCe
 const GlowFeed = lazy(() => import('./pages/GlowFeed'));
 const GenerationLightMode = lazy(() => import('./pages/GenerationLightMode'));
 const GroupChat = lazy(() => import('./pages/GroupChat'));
+const LeaderAnalytics = lazy(() => import('./pages/LeaderAnalytics'));
 
 const RouteFallback = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background">
@@ -106,6 +107,7 @@ const AuthenticatedApp = () => {
       <Route path="/GlowFeed" element={<LayoutWrapper currentPageName="GlowFeed"><GlowFeed /></LayoutWrapper>} />
       <Route path="/GenerationLightMode" element={<LayoutWrapper currentPageName="GenerationLightMode"><GenerationLightMode /></LayoutWrapper>} />
       <Route path="/GroupChat" element={<LayoutWrapper currentPageName="GroupChat"><GroupChat /></LayoutWrapper>} />
+      <Route path="/LeaderAnalytics" element={<LayoutWrapper currentPageName="LeaderAnalytics"><LeaderAnalytics /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </Suspense>

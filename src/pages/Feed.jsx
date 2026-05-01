@@ -28,6 +28,7 @@ import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModa
 import MyGlowGroupsSidebar from "@/components/feed/MyGlowGroupsSidebar";
 import MobileFeed from "@/components/feed/MobileFeed";
 import FeedDropList from "@/components/feed/FeedDropList";
+import PinnedLeaderPosts from "@/components/feed/PinnedLeaderPosts";
 import { queueOfflineAction } from "@/lib/offlineCache";
 import useGuestPreview from "@/hooks/useGuestPreview";
 import GuestPreviewBanner from "@/components/pledge/GuestPreviewBanner";
@@ -356,6 +357,11 @@ export default function Feed() {
   const filteredDrops = useMemo(() => {
     return [...drops]
       .filter((drop) => {
+        // Pinned drops are already rendered in the PinnedLeaderPosts ribbon — exclude them here
+        // so they don't appear twice. Only excluded on "All" filter so users can still find
+        // pinned posts via Following / Most Liked / category filters.
+        if (drop.pinned && activeFilter === "All" && !searchQuery) return false;
+
         const matchesFilter = activeFilter === 'All' ||
           (activeFilter === 'Following' && followingEmails.has(drop.user_email)) ||
           (activeFilter === 'Most Liked' && (drop.likes_count || 0) >= 1) ||
@@ -713,6 +719,9 @@ export default function Feed() {
             <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#E3F2FD", color: "#1565C0" }}>Live</Link>
             <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#FFC107", color: "#0D1B3D", boxShadow: "0 4px 12px rgba(255, 193, 7, 0.3)" }}>⚡ Daily Drops</Link>
           </div>
+
+          {/* Pinned Leader Announcements — desktop only, sits above filters */}
+          <PinnedLeaderPosts leaderAccounts={leaderAccounts} />
 
           {/* Filter Bar */}
           <div className="flex gap-2 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">

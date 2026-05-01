@@ -115,6 +115,8 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
     updateDrop(drop.id, { hidden: true, hidden_reason: reason.trim() || "No reason given" }, "Hidden from public feed");
   };
   const handleUnhide  = (drop) => updateDrop(drop.id, { hidden: false, hidden_reason: "" }, "Drop is visible again");
+  const handlePin     = (drop) => updateDrop(drop.id, { pinned: true }, "Pinned to top of feed");
+  const handleUnpin   = (drop) => updateDrop(drop.id, { pinned: false }, "Unpinned from top");
   const handleDelete  = async (drop) => {
     if (!window.confirm(`Permanently delete this drop by ${drop.user_email}? This cannot be undone.`)) return;
     try {
@@ -219,6 +221,8 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
               onHide={() => handleHide(drop)}
               onUnhide={() => handleUnhide(drop)}
               onDelete={() => handleDelete(drop)}
+              onPin={() => handlePin(drop)}
+              onUnpin={() => handleUnpin(drop)}
               t={t} isDark={isDark}
             />
           ))}

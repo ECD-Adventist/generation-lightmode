@@ -2,7 +2,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 
 export const glowDropsFeedQueryKey = ["allGlowDrops"];
-export const GLOW_DROPS_PAGE_SIZE = 20;
+export const GLOW_DROPS_PAGE_SIZE = 15;
 
 export default function useGlowDropsFeed() {
   const query = useInfiniteQuery({

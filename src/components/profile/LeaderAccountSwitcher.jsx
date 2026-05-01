@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronDown, Shield, User, Check } from "lucide-react";
+import { ChevronDown, Shield, User, Check, BarChart3 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 /**
  * Account switcher shown on the Profile page for managers (or admins) of leader accounts.
@@ -60,6 +62,17 @@ export default function LeaderAccountSwitcher({ currentUser, managedAccounts = [
         </div>
         <ChevronDown className={`w-4 h-4 transition-transform shrink-0 ${open ? "rotate-180" : ""}`} style={{ color: "#6B7FA0" }} />
       </button>
+
+      {/* When a leader is active, expose the private analytics dashboard */}
+      {activeLeader && (
+        <Link
+          to={`${createPageUrl("LeaderAnalytics")}?leader=${encodeURIComponent(activeLeader.leader_email)}`}
+          className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition active:scale-[0.98] no-underline"
+          style={{ background: "linear-gradient(90deg, #FFD000 0%, #FF9F1A 100%)", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 159, 26, 0.32)" }}
+        >
+          <BarChart3 className="w-3.5 h-3.5" /> View Leader Analytics
+        </Link>
+      )}
 
       {open && (
         <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl overflow-hidden z-50" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 12px 32px rgba(11, 63, 217, 0.18)" }}>
