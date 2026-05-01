@@ -353,12 +353,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           </div>
         )}
 
-        <div className="absolute top-3 sm:top-4 left-3 sm:left-4 right-16 sm:right-20 z-20" onClick={(e) => e.stopPropagation()}>
+        <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20" onClick={(e) => e.stopPropagation()}>
           {(() => {
             const authorChip = (
               <Link
                 to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
-                className="inline-flex items-start gap-2 backdrop-blur-md rounded-2xl pr-2.5 sm:pr-3.5 pl-1 py-1 cursor-pointer transition no-underline max-w-full"
+                className="inline-flex items-center gap-2 backdrop-blur-md rounded-full pr-2.5 sm:pr-3.5 pl-1 py-1 cursor-pointer transition no-underline max-w-[calc(100%-1rem)]"
                 style={{
                   background: drop.media_url ? "rgba(0,0,0,0.4)" : (isLeaderPost ? "rgba(255,255,255,0.96)" : "#FFFFFF"),
                   border: drop.media_url ? "none" : "1px solid #E2E8F0",
@@ -395,9 +395,9 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                     </div>
                   </div>
                 )}
-                <div className="flex flex-col items-start justify-center min-w-0 py-0.5">
-                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-start gap-1 leading-tight mb-0.5 min-w-0 ${drop.media_url ? "text-white" : ""}`} style={drop.media_url ? {} : { color: "#0B1B3D" }}>
-                    <span className="whitespace-normal break-words max-w-full">
+                <div className="flex flex-col items-start justify-center min-w-0">
+                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 min-w-0 ${drop.media_url ? "text-white" : ""}`} style={drop.media_url ? {} : { color: "#0B1B3D" }}>
+                    <span className="truncate max-w-[118px] sm:max-w-[220px]">
                       {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(dropUser)}
                     </span>
                     {isLeaderPost ? (
