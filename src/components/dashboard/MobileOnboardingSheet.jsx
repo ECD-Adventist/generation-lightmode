@@ -105,6 +105,7 @@ export default function MobileOnboardingSheet({ isOpen, onCompleted }) {
     try {
       const me = await base44.auth.me();
       await base44.auth.updateMe({ full_name: fullName.trim(), privacy_consent_given: true, country, gender, date_of_birth: dob, city: city.trim(), address: address.trim(), postal_code: postalCode.trim().toUpperCase(), bio: bio.trim(), profile_picture_url: profilePic || undefined, phone: phone.trim() || undefined });
+      base44.functions.invoke("autoFollowTerritoryOfficers", { country }).catch(() => {});
       base44.functions.invoke("notifyTerritoryAdmins", { event_type: "new_user", user_email: me?.email, user_country: country, user_city: city.trim() }).catch(() => {});
       onCompleted({ full_name: fullName.trim(), country, gender, date_of_birth: dob, city, address, postal_code: postalCode, bio, profile_picture_url: profilePic });
     } catch { toast.error("Something went wrong. Please try again."); }
