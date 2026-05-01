@@ -735,6 +735,8 @@ export default function Feed() {
                         allUsers={users}
                         savedDropRecords={savedDropRecords}
                         leaderAccounts={leaderAccounts}
+                        following={following}
+                        followMutation={followMutation}
                       />
                     </div>
                   );

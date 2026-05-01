@@ -17,7 +17,7 @@ import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
 import { getDisplayName } from "@/lib/displayName";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [] }) {
+export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation }) {
   const isMobile = useIsMobile();
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
@@ -43,6 +43,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   // Leader posts (created via "Post as leader") get a distinct premium treatment.
   const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
   const isLeaderPost = !!leaderForDrop;
+  const isFollowingAuthor = following.some(f => f.following_email === drop.user_email);
+  const canFollowAuthor = !!user && user.email !== drop.user_email && typeof followMutation?.mutate === "function";
 
   const getRepostOwner = (reflection) => {
     const matches = Array.from(reflection?.matchAll(/\[Reposted from (.+?)\]\s*/gi) || []);
@@ -381,18 +383,20 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   </div>
                 )}
                 <div className="flex flex-col items-start justify-center min-w-0">
-                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 truncate max-w-[140px] sm:max-w-[220px] ${drop.media_url ? "text-white" : ""}`} style={drop.media_url ? {} : { color: "#0B1B3D" }}>
-                    {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(dropUser)}
+                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 min-w-0 ${drop.media_url ? "text-white" : ""}`} style={drop.media_url ? {} : { color: "#0B1B3D" }}>
+                    <span className="truncate max-w-[118px] sm:max-w-[220px]">
+                      {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(dropUser)}
+                    </span>
                     {isLeaderPost ? (
-                      <span className="flex items-center justify-center w-3.5 h-3.5 rounded-full ml-0.5 shadow-[0_0_8px_rgba(0,128,254,0.55)]" style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 50%, #D4B82E 100%)", color: "#FFFFFF" }} title="Verified Leader">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="w-2 h-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <span className="flex items-center justify-center w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full shrink-0 shadow-[0_0_6px_rgba(0,128,254,0.45)]" style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 50%, #D4B82E 100%)", color: "#FFFFFF" }} title="Verified Leader">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="w-1.5 h-1.5 sm:w-2 sm:h-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                       </span>
                     ) : drop.user_email === "system@lightmode.com" ? (
-                       <span className="flex items-center justify-center w-3 h-3 rounded-full ml-0.5" style={{ background: "#1FB8FF", color: "#FFFFFF" }}>
+                       <span className="flex items-center justify-center w-3 h-3 rounded-full shrink-0" style={{ background: "#1FB8FF", color: "#FFFFFF" }}>
                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-2 h-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                        </span>
                     ) : isSuperCreator && (
-                      <span className="flex items-center justify-center w-3.5 h-3.5 rounded-sm rotate-45 shadow-[0_0_10px_rgba(31,184,255,0.6)] ml-0.5" style={{ background: "linear-gradient(135deg, #1FB8FF, #FFD60A)" }}>
+                      <span className="flex items-center justify-center w-3.5 h-3.5 rounded-sm rotate-45 shadow-[0_0_10px_rgba(31,184,255,0.6)] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF, #FFD60A)" }}>
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-2.5 h-2.5 -rotate-45" style={{ color: "#0B1B3D" }}>
                           <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/>
                         </svg>
@@ -401,6 +405,18 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   </span>
                   <span className={`text-[9px] sm:text-[10px] font-medium leading-none ${drop.media_url ? "text-white/80" : ""}`} style={drop.media_url ? {} : { color: "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
                 </div>
+                {isLeaderPost && canFollowAuthor && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); followMutation.mutate(drop.user_email); }}
+                    className="ml-1 shrink-0 rounded-full px-2 py-1 text-[9px] sm:text-[10px] font-black leading-none transition active:scale-95"
+                    style={isFollowingAuthor
+                      ? { background: "rgba(11,27,61,0.08)", color: "#4A5878", border: "1px solid rgba(11,27,61,0.12)" }
+                      : { background: "linear-gradient(90deg, #0080FE, #0040A0)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(0,128,254,0.25)" }}
+                  >
+                    {isFollowingAuthor ? "Following" : "Follow"}
+                  </button>
+                )}
               </Link>
             );
 
