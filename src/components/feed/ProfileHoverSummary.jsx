@@ -76,9 +76,9 @@ export default function ProfileHoverSummary({ dropUser }) {
         </div>
 
         {/* Name + rank */}
-        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-          <p className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(dropUser)}</p>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold" style={{ background: `${rank.color}15`, color: rank.color, border: `1px solid ${rank.color}30` }}>
+        <div className="flex items-start gap-2 mb-0.5 flex-wrap min-w-0">
+          <p className="font-bold text-sm leading-tight break-words max-w-full" style={{ color: "#0B1B3D" }}>{getDisplayName(dropUser)}</p>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold shrink-0" style={{ background: `${rank.color}15`, color: rank.color, border: `1px solid ${rank.color}30` }}>
             <Sparkles className="w-2.5 h-2.5" /> {rank.name}
           </span>
         </div>
@@ -117,12 +117,12 @@ export default function ProfileHoverSummary({ dropUser }) {
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 pt-2 border-t" style={{ borderColor: "#F0F4FA" }}>
-          <a href={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser?.email)}`} className="font-bold flex-1 text-center py-2 rounded-full text-xs transition no-underline" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11,63,217,0.2)" }}>
+          <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser?.email)}`} className="font-bold flex-1 text-center py-2 rounded-full text-xs transition no-underline" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11,63,217,0.2)" }}>
             View Profile
-          </a>
-          <a href={createPageUrl("Messages") + `?user=${encodeURIComponent(dropUser?.email)}`} className="font-bold flex-1 text-center py-2 rounded-full text-xs transition no-underline" style={{ background: "#FFFFFF", color: "#0B1B3D", border: "1.5px solid #E6ECF5" }}>
+          </Link>
+          <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(dropUser?.email)}`} className="font-bold flex-1 text-center py-2 rounded-full text-xs transition no-underline" style={{ background: "#FFFFFF", color: "#0B1B3D", border: "1.5px solid #E6ECF5" }}>
             Message
-          </a>
+          </Link>
         </div>
       </div>
     </div>
