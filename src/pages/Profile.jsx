@@ -58,6 +58,12 @@ export default function Profile() {
     enabled: true
   });
 
+  const { data: publicLeaderAccounts = [] } = useQuery({
+    queryKey: ["publicLeaderAccountsForProfile"],
+    queryFn: () => base44.entities.ManagedLeaderAccount.filter({ active: true }),
+    enabled: !!viewUserEmail,
+  });
+
   useEffect(() => {
     async function checkAuth() {
       try {
@@ -112,10 +118,26 @@ export default function Profile() {
         });
       } else {
         const found = allUsersForProfile.find(u => u.email === viewUserEmail);
-        if (found) setUser(found);
+        if (found) {
+          setUser(found);
+        } else {
+          const leader = publicLeaderAccounts.find(a => a.leader_email === viewUserEmail);
+          if (leader) {
+            setUser({
+              email: leader.leader_email,
+              full_name: leader.leader_name,
+              profile_picture_url: leader.leader_profile_picture_url,
+              cover_picture_url: leader.leader_cover_picture_url,
+              bio: leader.leader_bio,
+              country: leader.leader_country,
+              glow_score: 0,
+              is_managed_leader: true,
+            });
+          }
+        }
       }
     }
-  }, [viewUserEmail, currentUser, allUsersForProfile]);
+  }, [viewUserEmail, currentUser, allUsersForProfile, publicLeaderAccounts]);
 
   const isOwnProfile = currentUser && (!viewUserEmail || viewUserEmail === currentUser.email);
   const baseProfileEmail = viewUserEmail || currentUser?.email;

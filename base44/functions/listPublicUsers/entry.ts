@@ -4,15 +4,6 @@ Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
 
   try {
-    const user = await base44.auth.me();
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-  } catch (e) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  try {
     const allUsers = await base44.asServiceRole.entities.User.list();
     const HIDDEN_EMAILS = (Deno.env.get('PUBLIC_USER_HIDDEN_EMAILS') || '')
       .split(',')
