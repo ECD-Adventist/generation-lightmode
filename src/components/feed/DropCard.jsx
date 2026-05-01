@@ -323,15 +323,19 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             ? 'aspect-[4/5] sm:aspect-[3/4]'
             : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center'
         }`}
-        style={
-          isLeaderPost && !drop.media_url && leaderForDrop?.leader_cover_picture_url
-            ? {
-                backgroundImage: `linear-gradient(160deg, rgba(11,27,61,0.55) 0%, rgba(11,27,61,0.35) 50%, rgba(11,27,61,0.65) 100%), url(${leaderForDrop.leader_cover_picture_url})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }
-            : { background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" }
-        }
+        style={(() => {
+          const leaderBg = isLeaderPost && !drop.media_url
+            ? (leaderForDrop?.leader_cover_picture_url || leaderForDrop?.leader_profile_picture_url)
+            : null;
+          if (leaderBg) {
+            return {
+              backgroundImage: `linear-gradient(160deg, rgba(11,27,61,0.55) 0%, rgba(11,27,61,0.35) 50%, rgba(11,27,61,0.65) 100%), url(${leaderBg})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            };
+          }
+          return { background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" };
+        })()}
         onDoubleClick={() => {
           setLikeBurst(true);
           setTimeout(() => setLikeBurst(false), 600);
@@ -429,7 +433,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             
             <div className={`p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-8 sm:py-12" : ""}`}>
               {(() => {
-                const hasLeaderCover = isLeaderPost && !!leaderForDrop?.leader_cover_picture_url;
+                const hasLeaderCover = isLeaderPost && !!(leaderForDrop?.leader_cover_picture_url || leaderForDrop?.leader_profile_picture_url);
                 const verseColor = hasLeaderCover ? "#FFFFFF" : (isLeaderPost ? "#0A2A6E" : undefined);
                 const verseShadow = hasLeaderCover ? "0 2px 12px rgba(0,0,0,0.55)" : (isLeaderPost ? "0 1px 2px rgba(11,63,217,0.08)" : undefined);
                 const reflectionColor = hasLeaderCover ? "#F0F4FF" : (isLeaderPost ? "#1F2D52" : "#3A4A6B");
