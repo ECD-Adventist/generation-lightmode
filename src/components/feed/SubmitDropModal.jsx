@@ -10,6 +10,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
 import { compressImageUnder2MB } from "@/lib/imageUtils";
 import PhotoEditorModal from "@/components/feed/PhotoEditorModal";
+import { queueDropForSync } from "@/lib/offlineCache";
 
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
 
@@ -267,7 +268,11 @@ RULES:
         reposts_count: 0,
         status: 'approved'
       };
-      queryClient.setQueryData(["allGlowDrops"], old => [tempDrop, ...(old || [])]);
+      queryClient.setQueryData(["allGlowDrops"], old => {
+        if (!old?.pages) return old;
+        const firstPage = old.pages[0] || [];
+        return { ...old, pages: [[tempDrop, ...firstPage], ...old.pages.slice(1)] };
+      });
       queryClient.setQueryData(["glowFeed"], old => [tempDrop, ...(old || [])]);
 
       await base44.functions.invoke('createGlowDrop', {
@@ -317,8 +322,14 @@ RULES:
         toast.error(serverMsg || "You've reached today's post limit. Please try again later.", { duration: 7000 });
       } else {
         const msg = (error?.message || "").toLowerCase();
-        if (msg.includes("network") || msg.includes("timeout") || msg.includes("fetch")) {
-          toast.error("Network issue. Check your connection and try again.");
+        if (msg.includes("network") || msg.includes("timeout") || msg.includes("fetch") || !navigator.onLine) {
+          if (file) {
+            toast.error("Photo posts need internet to upload the image. Your text posts can be queued offline.");
+          } else {
+            await queueDropForSync({ ...formData, media_url: null, post_as_leader_id: postAsLeaderId || undefined });
+            toast.success("You're offline. This drop was queued and will post when internet returns.");
+            resetAndClose();
+          }
         } else {
           toast.error(serverMsg || error?.message || "Failed to post. Try again.");
         }

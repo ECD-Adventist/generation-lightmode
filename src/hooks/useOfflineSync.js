@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { cacheDrops, getCachedDrops, getQueuedDrops, removeQueuedDrop, getLastCachedAt } from "@/lib/offlineCache";
+import { cacheDrops, getCachedDrops, getQueuedActions, removeQueuedAction, getLastCachedAt } from "@/lib/offlineCache";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 
@@ -29,30 +29,34 @@ export default function useOfflineSync(liveDrops, isOnline) {
     getLastCachedAt().then(setLastCached).catch(() => {});
   }, []);
 
-  // Sync queued drops — stable reference, uses ref to guard against double-calls
+  // Sync queued actions — stable reference, uses ref to guard against double-calls
   const syncQueue = useCallback(async () => {
     if (syncingRef.current) return;
     syncingRef.current = true;
     setSyncing(true);
 
     try {
-      const queued = await getQueuedDrops();
+      const queued = await getQueuedActions();
       if (queued.length === 0) return;
 
       let syncedCount = 0;
       for (const item of queued) {
-        const { queueId, queuedAt, ...dropData } = item;
         try {
-          await base44.entities.GlowDrop.create(dropData);
-          await removeQueuedDrop(queueId);
+          if (item.type === "likeDrop") {
+            await base44.functions.invoke("handleLikeDrop", item.payload);
+          } else {
+            const { queueId, queuedAt, type, payload, ...legacyDropData } = item;
+            await base44.functions.invoke("createGlowDrop", payload || legacyDropData);
+          }
+          await removeQueuedAction(item.queueId);
           syncedCount++;
         } catch (err) {
-          console.error("Failed to sync queued drop:", err);
+          console.error("Failed to sync queued action:", err);
         }
       }
 
       if (syncedCount > 0) {
-        toast.success(`Synced ${syncedCount} offline drop${syncedCount > 1 ? "s" : ""}!`);
+        toast.success(`Synced ${syncedCount} offline action${syncedCount > 1 ? "s" : ""}!`);
       }
     } finally {
       syncingRef.current = false;

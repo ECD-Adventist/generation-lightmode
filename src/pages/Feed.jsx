@@ -27,6 +27,8 @@ import OnboardingModal from "@/components/dashboard/OnboardingModal";
 import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModal";
 import MyGlowGroupsSidebar from "@/components/feed/MyGlowGroupsSidebar";
 import MobileFeed from "@/components/feed/MobileFeed";
+import FeedDropList from "@/components/feed/FeedDropList";
+import { queueOfflineAction } from "@/lib/offlineCache";
 import useGuestPreview from "@/hooks/useGuestPreview";
 import GuestPreviewBanner from "@/components/pledge/GuestPreviewBanner";
 import GuestPreviewWall from "@/components/pledge/GuestPreviewWall";
@@ -98,6 +100,9 @@ export default function Feed() {
     data: liveDrops = [],
     isLoading: dropsLoading,
     isError: dropsError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   } = useGlowDropsFeed();
 
   const { drops, lastCached, syncing, syncQueue } = useOfflineSync(liveDrops, isOnline);
@@ -107,13 +112,33 @@ export default function Feed() {
     await queryClient.invalidateQueries({ queryKey: ["activeStories"] });
   });
 
+  const authorEmails = useMemo(() => {
+    return Array.from(new Set(drops.map(drop => drop.user_email).filter(Boolean)));
+  }, [drops]);
+
   const { data: users = [] } = useQuery({
-    queryKey: ["allUsers"],
+    queryKey: ["feedVisibleUsers", authorEmails.join("|")],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('listPublicUsers', { emails: authorEmails, limit: 80 });
+      return res.data || [];
+    },
+    enabled: authorEmails.length > 0,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+    retry: false
+  });
+
+  const { data: suggestedUsers = [] } = useQuery({
+    queryKey: ["feedSuggestedUsers", user?.email],
     queryFn: async () => {
       const res = await base44.functions.invoke('listPublicUsers', {});
-      return res.data;
+      return (res.data || [])
+        .filter(u => u.email !== user?.email)
+        .slice(0, 8);
     },
-    staleTime: 1000 * 60 * 5,
+    enabled: !!user?.email,
+    staleTime: 1000 * 60 * 15,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
     retry: false
@@ -184,15 +209,31 @@ export default function Feed() {
     staleTime: 1000 * 60 * 2,
   });
 
+  const updateDropsCache = (updater) => {
+    queryClient.setQueryData(["allGlowDrops"], old => {
+      if (!old?.pages) return old;
+      return {
+        ...old,
+        pages: old.pages.map(page => page.map(updater))
+      };
+    });
+  };
+
   const likeMutation = useMutation({
     mutationFn: async ({ id, likes, authorEmail, authorName, action = 'like' }) => {
       if (!user) { toast.error("Please log in to like drops"); return; }
-      const response = await base44.functions.invoke('handleLikeDrop', {
+      const payload = {
         drop_id: id,
         author_email: authorEmail,
         author_name: authorName,
         action: 'toggle'
-      });
+      };
+      if (!isOnline || !navigator.onLine) {
+        await queueOfflineAction("likeDrop", payload);
+        toast.success("You're offline. Like queued and will sync when internet returns.");
+        return { success: true, action: 'like', queued: true };
+      }
+      const response = await base44.functions.invoke('handleLikeDrop', payload);
       if (!response.data.success) {
         throw new Error(response.data.error || 'Failed to ' + action + ' drop');
       }
@@ -206,10 +247,10 @@ export default function Feed() {
       const prevLikes = queryClient.getQueryData(["userLikes", user?.email]) || [];
       const alreadyLiked = prevLikes.some(like => like.drop_id === id);
       if (alreadyLiked) {
-        queryClient.setQueryData(["allGlowDrops"], old => (old || []).map(d => d.id === id ? { ...d, likes_count: Math.max(0, (d.likes_count || 1) - 1) } : d));
+        updateDropsCache(d => d.id === id ? { ...d, likes_count: Math.max(0, (d.likes_count || 1) - 1) } : d);
         queryClient.setQueryData(["userLikes", user?.email], old => (old || []).filter(like => like.drop_id !== id));
       } else {
-        queryClient.setQueryData(["allGlowDrops"], old => (old || []).map(d => d.id === id ? { ...d, likes_count: (d.likes_count || 0) + 1 } : d));
+        updateDropsCache(d => d.id === id ? { ...d, likes_count: (d.likes_count || 0) + 1 } : d);
         queryClient.setQueryData(["userLikes", user?.email], old => [...(old || []), { drop_id: id, user_email: user?.email }]);
       }
       return { prevDrops, prevLikes };
@@ -336,7 +377,7 @@ export default function Feed() {
         if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
         return new Date(b.created_date || 0) - new Date(a.created_date || 0);
       });
-  }, [drops, activeFilter, searchQuery, followingEmails]);
+  }, [drops, activeFilter, searchQuery, followingEmails, users, leaderAccounts, user?.email]);
 
   const trendingTopics = useMemo(() => {
     const counts = new Map();
@@ -395,14 +436,7 @@ export default function Feed() {
       {/* MOBILE: branded redesign */}
       <div
         className="lg:hidden flex-1 min-h-0 overflow-y-auto"
-        onScroll={(e) => {
-          const { scrollTop, scrollHeight, clientHeight } = e.target;
-          if (scrollHeight - scrollTop <= clientHeight + 200) {
-            if (displayCount < filteredDrops.length) {
-              setDisplayCount(prev => prev + 10);
-            }
-          }
-        }}
+
       >
         <MobileFeed
           user={user}
@@ -428,6 +462,14 @@ export default function Feed() {
           isError={dropsError}
           onRefetch={() => queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] })}
           leaderAccounts={leaderAccounts}
+          following={following}
+          followMutation={followMutation}
+          hasMore={displayCount < filteredDrops.length || hasNextPage}
+          isLoadingMore={isFetchingNextPage}
+          onLoadMore={() => {
+            if (displayCount < filteredDrops.length) setDisplayCount(prev => prev + 10);
+            else if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+          }}
         />
         <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
         <StatusComposerModal isOpen={isStatusModalOpen} onClose={() => setIsStatusModalOpen(false)} user={user} />
@@ -537,17 +579,9 @@ export default function Feed() {
 
         {/* Center Feed */}
         <div 
-          ref={feedScrollRef} 
-          className="h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8 overscroll-y-none"
-          style={{ background: "#F8FAFC" }}
-          onScroll={(e) => {
-            const { scrollTop, scrollHeight, clientHeight } = e.target;
-            if (scrollHeight - scrollTop <= clientHeight + 150) {
-              if (displayCount < filteredDrops.length) {
-                setDisplayCount(prev => prev + 10);
-              }
-            }
-          }}
+        ref={feedScrollRef} 
+        className="h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8 overscroll-y-none"
+        style={{ background: "#F8FAFC" }}
         >
           
           {/* Top Header Mobile */}
@@ -721,29 +755,26 @@ export default function Feed() {
               </div>
             ) : (
               <>
-                {filteredDrops.slice(0, displayCount).map(drop => {
-                  const dropUser = getUserInfo(drop.user_email);
-                  return (
-                    <div key={drop.id}>
-                      <DropCard 
-                        drop={drop} 
-                        user={user} 
-                        dropUser={dropUser}
-                        likeMutation={likeMutation}
-                        handleShare={handleShare}
-                        userLikes={userLikes}
-                        allUsers={users}
-                        savedDropRecords={savedDropRecords}
-                        leaderAccounts={leaderAccounts}
-                        following={following}
-                        followMutation={followMutation}
-                      />
-                    </div>
-                  );
-                })}
-                <div ref={feedEndRef} className="py-6 text-center text-sm" style={{ color: "#8A97B5" }}>
-                  {displayCount < filteredDrops.length ? "Loading more..." : filteredDrops.length === 0 ? "" : `Showing ${filteredDrops.length} posts`}
-                </div>
+                <FeedDropList
+                  drops={filteredDrops}
+                  displayCount={displayCount}
+                  getUserInfo={getUserInfo}
+                  user={user}
+                  likeMutation={likeMutation}
+                  handleShare={handleShare}
+                  userLikes={userLikes}
+                  allUsers={users}
+                  savedDropRecords={savedDropRecords}
+                  leaderAccounts={leaderAccounts}
+                  following={following}
+                  followMutation={followMutation}
+                  hasMore={displayCount < filteredDrops.length || hasNextPage}
+                  isLoadingMore={isFetchingNextPage}
+                  onLoadMore={() => {
+                    if (displayCount < filteredDrops.length) setDisplayCount(prev => prev + 10);
+                    else if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+                  }}
+                />
               </>
             )}
           </div>
@@ -801,7 +832,7 @@ export default function Feed() {
             <h3 className="font-black text-xs mb-4 tracking-widest uppercase" style={{ color: "#FF9F1A" }}>People to Connect</h3>
             
             <div className="space-y-4">
-              {users.filter(u => u.email !== user?.email && !following.some(f => f.following_email === u.email)).map((u, i) => {
+              {suggestedUsers.filter(u => u.email !== user?.email && !following.some(f => f.following_email === u.email)).map((u, i) => {
                 return (
                 <div key={u.id} className="flex items-center gap-2">
                   <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-2 flex-1 min-w-0 no-underline hover:opacity-80 transition">
@@ -822,7 +853,7 @@ export default function Feed() {
                    </button>
                 </div>
               )})}
-              {users.filter(u => u.email !== user?.email).length === 0 && (
+              {suggestedUsers.filter(u => u.email !== user?.email).length === 0 && (
                 <p className="text-xs text-center py-2" style={{ color: "#8A97B5" }}>No other members yet. Invite friends!</p>
               )}
             </div>

@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Bell, Plus, Sparkles, Flame, Zap, Image as ImageIcon, Smile } from "lucide-react";
-import DropCard from "@/components/feed/DropCard";
+import FeedDropList from "@/components/feed/FeedDropList";
 
 /**
  * Mobile-only Feed shell — LightMode branded (premium redesign).
@@ -31,6 +31,11 @@ export default function MobileFeed({
   isError,
   onRefetch,
   leaderAccounts = [],
+  following = [],
+  followMutation,
+  hasMore,
+  isLoadingMore,
+  onLoadMore,
 }) {
   const filters = ["All", "Following", "Most Liked", "Devotional", "Testimony"];
   const greeting = new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening";
@@ -216,32 +221,25 @@ export default function MobileFeed({
             </div>
           </div>
         ) : (
-          <>
-            {filteredDrops.slice(0, displayCount).map(drop => {
-              const dropUser = getUserInfo(drop.user_email);
-              return (
-                <DropCard
-                  key={drop.id}
-                  drop={drop}
-                  user={user}
-                  dropUser={dropUser}
-                  likeMutation={likeMutation}
-                  handleShare={handleShare}
-                  userLikes={userLikes}
-                  allUsers={allUsers}
-                  savedDropRecords={savedDropRecords}
-                  leaderAccounts={leaderAccounts}
-                />
-              );
-            })}
-            <div className="pt-5 pb-2 text-center text-[11px] font-black uppercase tracking-wider" style={{ color: "#8A97B5" }}>
-              {displayCount < filteredDrops.length ? (
-                <span className="inline-flex items-center gap-2"><span className="inline-block w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "#D6E4FF", borderTopColor: "#0B3FD9" }} /> Loading more…</span>
-              ) : (
-                <span>✨ {filteredDrops.length} posts · you're all caught up ✨</span>
-              )}
-            </div>
-          </>
+          <FeedDropList
+            drops={filteredDrops}
+            displayCount={displayCount}
+            getUserInfo={getUserInfo}
+            user={user}
+            likeMutation={likeMutation}
+            handleShare={handleShare}
+            userLikes={userLikes}
+            allUsers={allUsers}
+            savedDropRecords={savedDropRecords}
+            leaderAccounts={leaderAccounts}
+            following={following}
+            followMutation={followMutation}
+            hasMore={hasMore}
+            isLoadingMore={isLoadingMore}
+            onLoadMore={onLoadMore}
+            footerClassName="pt-5 pb-2 text-center text-[11px] font-black uppercase tracking-wider"
+            footerStyle={{ color: "#8A97B5" }}
+          />
         )}
       </div>
 

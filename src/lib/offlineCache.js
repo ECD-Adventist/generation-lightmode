@@ -4,7 +4,7 @@
  */
 
 const DB_NAME = "lightmode_offline";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_DROPS = "glowDrops";
 const STORE_QUEUE = "syncQueue";
 const STORE_META = "meta";
@@ -72,16 +72,20 @@ export async function getLastCachedAt() {
   return result?.value || null;
 }
 
-/** Queue a Glow Drop for creation when back online */
-export async function queueDropForSync(dropData) {
+export async function queueOfflineAction(type, payload) {
   const db = await openDB();
   const store = tx(db, STORE_QUEUE, "readwrite");
-  await promisifyRequest(store.add({ ...dropData, queuedAt: new Date().toISOString() }));
+  await promisifyRequest(store.add({ type, payload, queuedAt: new Date().toISOString() }));
   db.close();
 }
 
-/** Get all queued drops waiting for sync */
-export async function getQueuedDrops() {
+/** Queue a Glow Drop for creation when back online */
+export async function queueDropForSync(dropData) {
+  await queueOfflineAction("createDrop", dropData);
+}
+
+/** Get all queued actions waiting for sync */
+export async function getQueuedActions() {
   const db = await openDB();
   const store = tx(db, STORE_QUEUE);
   const result = await promisifyRequest(store.getAll());
@@ -89,12 +93,22 @@ export async function getQueuedDrops() {
   return result || [];
 }
 
-/** Clear a specific queued drop after successful sync */
-export async function removeQueuedDrop(queueId) {
+/** Backward-compatible helper */
+export async function getQueuedDrops() {
+  return getQueuedActions();
+}
+
+/** Clear a specific queued action after successful sync */
+export async function removeQueuedAction(queueId) {
   const db = await openDB();
   const store = tx(db, STORE_QUEUE, "readwrite");
   await promisifyRequest(store.delete(queueId));
   db.close();
+}
+
+/** Backward-compatible helper */
+export async function removeQueuedDrop(queueId) {
+  await removeQueuedAction(queueId);
 }
 
 /** Clear all cached drops (e.g., on logout) */

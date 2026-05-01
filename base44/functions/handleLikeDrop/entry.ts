@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
       const todayChallenges = await base44.asServiceRole.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: todayStr });
       if (!todayChallenges.some(c => c.challenge_id === 'like_drops')) {
         await base44.asServiceRole.entities.UserDailyChallenge.create({ user_email: user.email, date_string: todayStr, challenge_id: 'like_drops' });
-        await base44.asServiceRole.auth.updateUser(user.id, { glow_score: (user.glow_score || 0) + 5 });
+        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
       }
 
       // Notify real drop author (server-side lookup — not from client)

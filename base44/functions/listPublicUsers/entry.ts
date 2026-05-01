@@ -4,6 +4,9 @@ Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
 
   try {
+    const payload = await req.json().catch(() => ({}));
+    const requestedEmails = Array.isArray(payload.emails) ? new Set(payload.emails.filter(Boolean)) : null;
+    const limit = Math.min(Number(payload.limit) || 100, 100);
     const allUsers = await base44.asServiceRole.entities.User.list();
     const HIDDEN_EMAILS = (Deno.env.get('PUBLIC_USER_HIDDEN_EMAILS') || '')
       .split(',')
@@ -15,6 +18,8 @@ Deno.serve(async (req) => {
     const ADMIN_ROLES = ['admin', 'super_admin', 'ecd_admin', 'country_admin', 'union_admin', 'conference_field_admin', 'church_admin', 'moderator'];
     const publicUsers = allUsers
       .filter(u => !HIDDEN_EMAILS.includes(u.email))
+      .filter(u => !requestedEmails || requestedEmails.has(u.email))
+      .slice(0, limit)
       .map(u => ({
         id: u.id,
         full_name: u.full_name,
