@@ -66,7 +66,7 @@ export default function GlowGroups() {
   });
 
   const { data: drops = [] } = useQuery({
-    queryKey: ["allGlowDrops"],
+    queryKey: ["glowGroupsDropCounts"],
     queryFn: () => base44.entities.GlowDrop.list('-created_date', 50),
   });
 
