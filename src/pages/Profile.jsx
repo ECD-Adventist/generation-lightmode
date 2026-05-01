@@ -203,7 +203,7 @@ export default function Profile() {
   });
 
   const { data: allDrops = [] } = useQuery({
-    queryKey: ["allGlowDrops"],
+    queryKey: ["profileAllGlowDrops"],
     queryFn: () => base44.entities.GlowDrop.list('-created_date', 500),
   });
 
