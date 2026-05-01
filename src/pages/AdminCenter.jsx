@@ -33,6 +33,7 @@ import AdminPermissionMatrixTab from "../components/admin/AdminPermissionMatrixT
 import AdminAuditLogsTab from "../components/admin/AdminAuditLogsTab";
 import AdminGlobalLeaderboardsTab from "../components/admin/AdminGlobalLeaderboardsTab";
 import AdminTerritoryAlertsTab from "../components/admin/AdminTerritoryAlertsTab";
+import AdminLeaderAccountsTab from "../components/admin/AdminLeaderAccountsTab";
 import { AdminThemeProvider, useAdminTheme, getAdminTokens } from "../components/admin/AdminThemeContext";
 import AdminThemeToggle from "../components/admin/AdminThemeToggle";
 
@@ -178,6 +179,7 @@ function AdminCenterInner() {
       case "settings": return isSuperAdmin ? <AdminSettingsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view system settings.</div>;
       case "permissions": return isSuperAdmin ? <AdminPermissionMatrixTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to manage permissions.</div>;
       case "audit-logs": return isSuperAdmin ? <AdminAuditLogsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view audit logs.</div>;
+      case "leader-accounts": return isSuperAdmin ? <AdminLeaderAccountsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to manage administrator accounts.</div>;
       case "global-leaderboards": return <AdminGlobalLeaderboardsTab />;
       case "territory-alerts": return <AdminTerritoryAlertsTab currentUser={user} />;
       default: return <AdminDashboardTab />;

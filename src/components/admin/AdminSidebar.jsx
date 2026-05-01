@@ -153,6 +153,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
             <SidebarItem id="settings" icon={<Settings size={16} />} label="System Settings" />
             <SidebarItem id="permissions" icon={<ShieldCheck size={16} />} label="Permissions" />
             <SidebarItem id="audit-logs" icon={<FileText size={16} />} label="Audit Logs" />
+            <SidebarItem id="leader-accounts" icon={<Users size={16} />} label="Administrators Accounts" />
           </SidebarSection>
         )}
 

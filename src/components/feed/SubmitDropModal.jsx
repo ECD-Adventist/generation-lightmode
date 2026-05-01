@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, Sparkles, ImagePlus, X, Zap, Hash, BookOpen, ChevronRight } from "lucide-react";
+import { Loader2, Sparkles, ImagePlus, X, Zap, Hash, BookOpen, ChevronRight, UserCircle2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
@@ -29,6 +29,21 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [sizeInfo, setSizeInfo] = useState(null); // { originalKB, compressedKB, savedPercent }
   const [compressing, setCompressing] = useState(false);
   const [editorFile, setEditorFile] = useState(null); // file currently open in photo editor
+  const [postAsLeaderId, setPostAsLeaderId] = useState(""); // empty = post as self
+
+  // Fetch leader accounts where this user is a manager (or all, if admin)
+  const { data: leaderAccounts = [] } = useQuery({
+    queryKey: ["myLeaderAccounts", user?.email],
+    queryFn: async () => {
+      const all = await base44.entities.ManagedLeaderAccount.list();
+      const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+      return all.filter(a =>
+        a.active !== false &&
+        (isAdmin || (Array.isArray(a.manager_emails) && a.manager_emails.includes(user?.email)))
+      );
+    },
+    enabled: !!user?.email,
+  });
 
   const formatSize = (bytes) => {
     if (bytes < 1024) return `${bytes} B`;
@@ -193,6 +208,7 @@ RULES:
     setUploadStage("");
     setSizeInfo(null);
     setCompressing(false);
+    setPostAsLeaderId("");
     onClose();
   };
 
@@ -257,6 +273,7 @@ RULES:
       await base44.functions.invoke('createGlowDrop', {
         ...formData,
         media_url: uploadedMediaUrl,
+        post_as_leader_id: postAsLeaderId || undefined,
       });
 
       const today = new Date().toISOString().split('T')[0];
@@ -358,6 +375,33 @@ RULES:
           )}
 
           <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
+            {leaderAccounts.length > 0 && (
+              <div className="rounded-2xl p-4" style={{ background: "linear-gradient(135deg, rgba(255,208,0,0.06), rgba(31,184,255,0.06))", border: "1px solid #FFE4A0" }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <UserCircle2 className="w-4 h-4" style={{ color: "#CC7A00" }} />
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#CC7A00" }}>Post As</span>
+                </div>
+                <select
+                  value={postAsLeaderId}
+                  onChange={(e) => setPostAsLeaderId(e.target.value)}
+                  className="w-full h-11 rounded-xl px-3 text-sm font-semibold focus:outline-none"
+                  style={{ background: "#FFFFFF", border: "1px solid #FFE4A0", color: "#0B1B3D" }}
+                >
+                  <option value="">Myself ({user?.full_name || user?.email})</option>
+                  {leaderAccounts.map(account => (
+                    <option key={account.id} value={account.id}>
+                      {account.leader_name}{account.leader_title ? ` — ${account.leader_title}` : ""}
+                    </option>
+                  ))}
+                </select>
+                {postAsLeaderId && (
+                  <p className="text-[11px] mt-2" style={{ color: "#8B6914" }}>
+                    ⚠ This post will appear under the leader's identity. Action is logged.
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="rounded-2xl p-4" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-4 h-4" style={{ color: "#0B3FD9" }} />

@@ -1,0 +1,96 @@
+{
+  "name": "ManagedLeaderAccount",
+  "type": "object",
+  "properties": {
+    "leader_name": {
+      "type": "string",
+      "description": "Display name of the leader (shown on posts)"
+    },
+    "leader_email": {
+      "type": "string",
+      "description": "Email identifier for the leader account"
+    },
+    "leader_title": {
+      "type": "string",
+      "description": "Optional title or role, e.g. 'ECD President', 'Youth Director'"
+    },
+    "leader_country": {
+      "type": "string"
+    },
+    "leader_bio": {
+      "type": "string"
+    },
+    "leader_profile_picture_url": {
+      "type": "string",
+      "description": "Profile photo URL"
+    },
+    "leader_cover_picture_url": {
+      "type": "string"
+    },
+    "manager_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 3,
+      "description": "Up to 3 admin/user emails authorized to post on behalf of this leader"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "notes": {
+      "type": "string",
+      "description": "Internal notes about this account"
+    }
+  },
+  "required": [
+    "leader_name",
+    "leader_email"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "read": true,
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
+}
