@@ -28,6 +28,7 @@ import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModa
 import MyGlowGroupsSidebar from "@/components/feed/MyGlowGroupsSidebar";
 import MobileFeed from "@/components/feed/MobileFeed";
 import FeedDropList from "@/components/feed/FeedDropList";
+import PinnedPostsRow from "@/components/feed/PinnedPostsRow";
 import { queueOfflineAction } from "@/lib/offlineCache";
 import useGuestPreview from "@/hooks/useGuestPreview";
 import GuestPreviewBanner from "@/components/pledge/GuestPreviewBanner";
@@ -209,6 +210,31 @@ export default function Feed() {
     staleTime: 1000 * 60 * 2,
   });
 
+  // Pinned posts — fetched globally so they always appear on top regardless of pagination.
+  const { data: pinnedDrops = [] } = useQuery({
+    queryKey: ["pinnedGlowDrops"],
+    queryFn: () => base44.entities.GlowDrop.filter({ pinned: true }, "-pinned_at", 20),
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: false,
+  });
+
+  // Debounce the search input so we don't hit the DB on every keystroke.
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 350);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
+  // Server-side search — fetches a wider pool of drops from the DB so that older posts
+  // (beyond the paginated feed) still match search queries.
+  const { data: searchDrops = [], isFetching: searchFetching } = useQuery({
+    queryKey: ["searchGlowDrops", debouncedSearch],
+    queryFn: () => base44.entities.GlowDrop.list("-created_date", 500),
+    enabled: debouncedSearch.length >= 2,
+    staleTime: 1000 * 60 * 2,
+    refetchOnWindowFocus: false,
+  });
+
   const updateDropsCache = (updater) => {
     queryClient.setQueryData(["allGlowDrops"], old => {
       if (!old?.pages) return old;
@@ -354,30 +380,49 @@ export default function Feed() {
   const followingEmails = useMemo(() => new Set(following.map(f => f.following_email)), [following]);
 
   const filteredDrops = useMemo(() => {
-    return [...drops]
-      .filter((drop) => {
-        const matchesFilter = activeFilter === 'All' ||
-          (activeFilter === 'Following' && followingEmails.has(drop.user_email)) ||
-          (activeFilter === 'Most Liked' && (drop.likes_count || 0) >= 1) ||
-          (activeFilter === 'Devotional' && drop.category === 'Devotional') ||
-          (activeFilter === 'Testimony' && drop.category === 'Testimony');
+    const isSearching = debouncedSearch.length >= 2;
+    // When searching: use the wider DB pool so older posts are findable.
+    // Otherwise: use the paginated feed pool, but merge in pinned drops so they always show.
+    const sourceMap = new Map();
+    const baseSource = isSearching ? searchDrops : drops;
+    baseSource.forEach(d => { if (d?.id) sourceMap.set(d.id, d); });
+    if (!isSearching) {
+      pinnedDrops.forEach(d => { if (d?.id && !sourceMap.has(d.id)) sourceMap.set(d.id, d); });
+    }
+    const source = Array.from(sourceMap.values());
 
-        const q = searchQuery.toLowerCase();
-        const dropAuthor = getUserInfo(drop.user_email);
-        const matchesSearch = !searchQuery ||
-          drop.verse?.toLowerCase().includes(q) ||
-          drop.reflection?.toLowerCase().includes(q) ||
-          drop.hashtags?.toLowerCase().includes(q) ||
-          drop.category?.toLowerCase().includes(q) ||
-          dropAuthor?.full_name?.toLowerCase().includes(q);
+    const filtered = source.filter((drop) => {
+      const matchesFilter = activeFilter === 'All' ||
+        (activeFilter === 'Following' && followingEmails.has(drop.user_email)) ||
+        (activeFilter === 'Most Liked' && (drop.likes_count || 0) >= 1) ||
+        (activeFilter === 'Devotional' && drop.category === 'Devotional') ||
+        (activeFilter === 'Testimony' && drop.category === 'Testimony');
 
-        return matchesFilter && matchesSearch;
-      })
-      .sort((a, b) => {
-        if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
-        return new Date(b.created_date || 0) - new Date(a.created_date || 0);
-      });
-  }, [drops, activeFilter, searchQuery, followingEmails, users, leaderAccounts, user?.email]);
+      const q = debouncedSearch.toLowerCase();
+      const dropAuthor = getUserInfo(drop.user_email);
+      const matchesSearch = !isSearching ||
+        drop.verse?.toLowerCase().includes(q) ||
+        drop.reflection?.toLowerCase().includes(q) ||
+        drop.hashtags?.toLowerCase().includes(q) ||
+        drop.category?.toLowerCase().includes(q) ||
+        dropAuthor?.full_name?.toLowerCase().includes(q);
+
+      return matchesFilter && matchesSearch;
+    });
+
+    return filtered.sort((a, b) => {
+      // Pinned posts always float to the top (skipped during search).
+      if (!isSearching) {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        if (a.pinned && b.pinned) {
+          return new Date(b.pinned_at || b.created_date || 0) - new Date(a.pinned_at || a.created_date || 0);
+        }
+      }
+      if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
+      return new Date(b.created_date || 0) - new Date(a.created_date || 0);
+    });
+  }, [drops, pinnedDrops, searchDrops, debouncedSearch, activeFilter, followingEmails, users, leaderAccounts, user?.email]);
 
   const trendingTopics = useMemo(() => {
     const counts = new Map();
@@ -451,6 +496,7 @@ export default function Feed() {
           onOpenStatusComposer={() => user ? setIsStatusModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
           onOpenDropModal={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
           filteredDrops={filteredDrops}
+          pinnedDrops={pinnedDrops}
           displayCount={displayCount}
           drops={drops}
           likeMutation={likeMutation}
@@ -464,11 +510,11 @@ export default function Feed() {
           leaderAccounts={leaderAccounts}
           following={following}
           followMutation={followMutation}
-          hasMore={displayCount < filteredDrops.length || hasNextPage}
-          isLoadingMore={isFetchingNextPage}
+          hasMore={debouncedSearch.length >= 2 ? displayCount < filteredDrops.length : (displayCount < filteredDrops.length || hasNextPage)}
+          isLoadingMore={isFetchingNextPage || searchFetching}
           onLoadMore={() => {
             if (displayCount < filteredDrops.length) setDisplayCount(prev => prev + 10);
-            else if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+            else if (hasNextPage && !isFetchingNextPage && debouncedSearch.length < 2) fetchNextPage();
           }}
         />
         <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
@@ -714,6 +760,9 @@ export default function Feed() {
             <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#FFC107", color: "#0D1B3D", boxShadow: "0 4px 12px rgba(255, 193, 7, 0.3)" }}>⚡ Daily Drops</Link>
           </div>
 
+          {/* Pinned Announcements (above the filter bar, after Daily Drops button) */}
+          <PinnedPostsRow pinnedDrops={pinnedDrops} getUserInfo={getUserInfo} />
+
           {/* Filter Bar */}
           <div className="flex gap-2 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">
             {['All', 'Following', 'Most Liked', 'Devotional', 'Testimony'].map(filter => (
@@ -768,11 +817,11 @@ export default function Feed() {
                   leaderAccounts={leaderAccounts}
                   following={following}
                   followMutation={followMutation}
-                  hasMore={displayCount < filteredDrops.length || hasNextPage}
-                  isLoadingMore={isFetchingNextPage}
+                  hasMore={debouncedSearch.length >= 2 ? displayCount < filteredDrops.length : (displayCount < filteredDrops.length || hasNextPage)}
+                  isLoadingMore={isFetchingNextPage || searchFetching}
                   onLoadMore={() => {
                     if (displayCount < filteredDrops.length) setDisplayCount(prev => prev + 10);
-                    else if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+                    else if (hasNextPage && !isFetchingNextPage && debouncedSearch.length < 2) fetchNextPage();
                   }}
                 />
               </>

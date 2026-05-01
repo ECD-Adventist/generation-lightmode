@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronDown, Shield, User, Check } from "lucide-react";
+import { ChevronDown, Shield, User, Check, BarChart3 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 /**
  * Account switcher shown on the Profile page for managers (or admins) of leader accounts.
@@ -121,6 +123,24 @@ export default function LeaderAccountSwitcher({ currentUser, managedAccounts = [
               );
             })}
           </div>
+
+          {/* Analytics CTA — visible when an active leader is selected */}
+          {activeLeader && (
+            <>
+              <div style={{ height: 1, background: "#E6ECF5" }} />
+              <Link
+                to={`${createPageUrl("LeaderAnalytics")}?leader=${encodeURIComponent(activeLeader.leader_email)}`}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2.5 transition no-underline"
+                style={{ background: "linear-gradient(90deg, #FFF8E6 0%, #FFFCF0 100%)", color: "#CC7A00" }}
+                onMouseOver={e => { e.currentTarget.style.background = "#FFF0CC"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "linear-gradient(90deg, #FFF8E6 0%, #FFFCF0 100%)"; }}
+              >
+                <BarChart3 className="w-4 h-4 shrink-0" />
+                <span className="text-xs font-black uppercase tracking-wider">View Leader Analytics</span>
+              </Link>
+            </>
+          )}
         </div>
       )}
     </div>

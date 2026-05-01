@@ -207,6 +207,24 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     }
   });
 
+  // Pin / unpin a drop to the top of the feed (admin/super_admin only).
+  const pinMutation = useMutation({
+    mutationFn: async () => {
+      const willPin = !drop.pinned;
+      await base44.entities.GlowDrop.update(drop.id, {
+        pinned: willPin,
+        pinned_at: willPin ? new Date().toISOString() : null,
+      });
+      return willPin;
+    },
+    onSuccess: (willPin) => {
+      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+      queryClient.invalidateQueries({ queryKey: ["pinnedGlowDrops"] });
+      toast.success(willPin ? "📌 Pinned to top of feed" : "Unpinned from feed");
+    },
+    onError: () => toast.error("Failed to update pin status")
+  });
+
   const handleLike = (e) => {
     e.stopPropagation();
     setLikeBurst(true);
@@ -254,6 +272,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 40%, #1A6B3F 70%, #D4B82E 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35), 0 0 20px rgba(212, 184, 46, 0.4)" }}>
           <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           {leaderForDrop.leader_title || "Official Leader"}
+        </div>
+      )}
+      {drop.pinned && (
+        <div className={`absolute -top-3 ${isLeaderPost ? "right-5 sm:right-6" : "left-5 sm:left-6"} z-30 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg`}
+          style={{ background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)", color: "#0B1B3D", boxShadow: "0 4px 14px rgba(255, 159, 26, 0.45)" }}>
+          📌 Pinned
         </div>
       )}
       <style>{`
@@ -664,6 +688,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 <DropdownMenuItem onClick={(e) => { e.stopPropagation(); repostMutation.mutate(); }} className="hover:bg-muted cursor-pointer focus:bg-muted">
                   Repost
                 </DropdownMenuItem>
+                {(user?.role === "admin" || user?.role === "super_admin") && (
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); pinMutation.mutate(); }} className="hover:bg-muted cursor-pointer focus:bg-muted">
+                    {drop.pinned ? "📌 Unpin from feed" : "📌 Pin to top of feed"}
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
             {drop.reposts_count > 0 && <span className="text-white text-[11px] sm:text-xs font-bold drop-shadow-md">{drop.reposts_count}</span>}
