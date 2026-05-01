@@ -30,6 +30,7 @@ export default function MobileFeed({
   isLoading,
   isError,
   onRefetch,
+  leaderAccounts = [],
 }) {
   const filters = ["All", "Following", "Most Liked", "Devotional", "Testimony"];
   const greeting = new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening";
@@ -229,6 +230,7 @@ export default function MobileFeed({
                   userLikes={userLikes}
                   allUsers={allUsers}
                   savedDropRecords={savedDropRecords}
+                  leaderAccounts={leaderAccounts}
                 />
               );
             })}

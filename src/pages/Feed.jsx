@@ -119,6 +119,14 @@ export default function Feed() {
     retry: false
   });
 
+  // Managed leader accounts — used to resolve leader profile photo/name on posts
+  // and to authorize managers to delete posts under their leader's identity.
+  const { data: leaderAccounts = [] } = useQuery({
+    queryKey: ["allLeaderAccounts"],
+    queryFn: () => base44.entities.ManagedLeaderAccount.list(),
+    staleTime: 1000 * 60 * 5,
+  });
+
   const { data: following = [] } = useQuery({
     queryKey: ["following", user?.email],
     queryFn: () => base44.entities.Follow.filter({ follower_email: user?.email }),
@@ -274,6 +282,18 @@ export default function Feed() {
     if (user?.email === email) return user;
     const found = users.find(u => u.email === email);
     if (found) return found;
+    // Resolve managed leader identity (posts created via "Post as leader")
+    const leader = leaderAccounts.find(a => a.leader_email === email);
+    if (leader) {
+      return {
+        email: leader.leader_email,
+        full_name: leader.leader_name,
+        bio: leader.leader_bio,
+        profile_picture_url: leader.leader_profile_picture_url,
+        country: leader.leader_country,
+        is_managed_leader: true,
+      };
+    }
     return { full_name: email?.split('@')[0] || "Glow Believer", email };
   };
 
@@ -407,6 +427,7 @@ export default function Feed() {
           isLoading={dropsLoading}
           isError={dropsError}
           onRefetch={() => queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] })}
+          leaderAccounts={leaderAccounts}
         />
         <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
         <StatusComposerModal isOpen={isStatusModalOpen} onClose={() => setIsStatusModalOpen(false)} user={user} />
@@ -713,6 +734,7 @@ export default function Feed() {
                         userLikes={userLikes}
                         allUsers={users}
                         savedDropRecords={savedDropRecords}
+                        leaderAccounts={leaderAccounts}
                       />
                     </div>
                   );

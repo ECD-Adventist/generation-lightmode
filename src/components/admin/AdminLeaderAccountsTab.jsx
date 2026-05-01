@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Plus, Trash2, Edit3, Search, UserPlus, X, Camera, Shield, ChevronRight } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit3, Search, UserPlus, X, Camera, Shield, ChevronRight, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import LeaderAccountFormModal from "./leader-accounts/LeaderAccountFormModal";
 
@@ -65,13 +67,22 @@ export default function AdminLeaderAccountsTab() {
             Create leader identities and assign up to 3 admins/users who can post on their behalf. Posts will appear under the leader's name.
           </p>
         </div>
-        <button
-          onClick={handleNew}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition shrink-0"
-          style={{ background: t.gradient, color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11,63,217,0.25)" }}
-        >
-          <Plus className="w-4 h-4" /> New Leader Account
-        </button>
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <Link
+            to={`${createPageUrl("AdminCenter")}?tab=leader-posts`}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition"
+            style={{ background: t.accentSoft, color: t.accent, border: `1px solid ${t.border}` }}
+          >
+            <FileText className="w-4 h-4" /> Manage Leader Posts
+          </Link>
+          <button
+            onClick={handleNew}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition"
+            style={{ background: t.gradient, color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11,63,217,0.25)" }}
+          >
+            <Plus className="w-4 h-4" /> New Leader Account
+          </button>
+        </div>
       </div>
 
       <div className="mb-5 relative max-w-md">

@@ -17,7 +17,7 @@ import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
 import { getDisplayName } from "@/lib/displayName";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [] }) {
+export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [] }) {
   const isMobile = useIsMobile();
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
@@ -441,23 +441,30 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-card border border-border text-foreground w-40 z-50">
-                {user?.email === drop.user_email ? (
-                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); deleteDropMutation.mutate(); }} className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer focus:bg-red-50 focus:text-red-600">
-                    Delete Post
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem onClick={(e) => {
-                    e.stopPropagation();
-                    if(!user) return toast.error("Please login to report");
-                    const reason = window.prompt("Why are you reporting this content?");
-                    if(reason) {
-                      base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason })
-                        .then(() => toast.success("Content reported to moderators."));
-                    }
-                  }} className="hover:bg-muted cursor-pointer focus:bg-muted">
-                    Report Post
-                  </DropdownMenuItem>
-                )}
+                {(() => {
+                  // Managers of the leader account whose email matches the drop owner can also delete.
+                  const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
+                  const isManagerOfLeader = !!leaderForDrop && Array.isArray(leaderForDrop.manager_emails) && leaderForDrop.manager_emails.includes(user?.email);
+                  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+                  const canDelete = user?.email === drop.user_email || isManagerOfLeader || isAdmin;
+                  return canDelete ? (
+                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }} className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer focus:bg-red-50 focus:text-red-600">
+                      Delete Post
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={(e) => {
+                      e.stopPropagation();
+                      if(!user) return toast.error("Please login to report");
+                      const reason = window.prompt("Why are you reporting this content?");
+                      if(reason) {
+                        base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason })
+                          .then(() => toast.success("Content reported to moderators."));
+                      }
+                    }} className="hover:bg-muted cursor-pointer focus:bg-muted">
+                      Report Post
+                    </DropdownMenuItem>
+                  );
+                })()}
                 <DropdownMenuItem onClick={(e) => { e.stopPropagation(); repostMutation.mutate(); }} className="hover:bg-muted cursor-pointer focus:bg-muted">
                   Repost
                 </DropdownMenuItem>
