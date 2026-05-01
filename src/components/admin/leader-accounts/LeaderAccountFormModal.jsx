@@ -55,22 +55,13 @@ export default function LeaderAccountFormModal({ account, onClose, onSaved }) {
     return () => clearTimeout(timer);
   }, [newManager]);
 
-  const sendWelcomeEmail = async (managerEmail, managerName) => {
-    try {
-      await base44.functions.invoke("sendLeaderManagerWelcome", {
-        manager_email: managerEmail,
-        manager_name: managerName || "",
-        leader_name: form.leader_name,
-        leader_title: form.leader_title,
-        leader_email: form.leader_email,
-      });
-    } catch (e) {
-      // Non-fatal — email failure shouldn't block account save
-      console.warn("Welcome email failed:", e?.message);
-    }
-  };
+  // Track which managers were already on the account when the modal opened
+  // so we only email NEWLY added ones (and only after a successful save).
+  const initialManagersRef = useRef(account?.manager_emails || []);
+  // Map<email, fullName> for managers we resolved via search — used for email greeting.
+  const newManagerNamesRef = useRef({});
 
-  const addManagerByEmail = async (email, fullName) => {
+  const addManagerByEmail = (email, fullName) => {
     const lower = (email || "").trim().toLowerCase();
     if (!lower) return;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lower)) {
@@ -86,17 +77,11 @@ export default function LeaderAccountFormModal({ account, onClose, onSaved }) {
       return;
     }
     setForm(prev => ({ ...prev, manager_emails: [...prev.manager_emails, lower] }));
+    if (fullName) newManagerNamesRef.current[lower] = fullName;
     setNewManager("");
     setShowResults(false);
     setSearchResults([]);
-
-    // Send welcome email — only if leader name is set (otherwise email lacks context)
-    if (form.leader_name?.trim()) {
-      sendWelcomeEmail(lower, fullName);
-      toast.success(`Added ${lower} • welcome email sent`);
-    } else {
-      toast.success(`Added ${lower}`);
-    }
+    toast.success(`Added ${lower} — welcome email will send when you save.`);
   };
 
   const handlePhotoSelect = async (e) => {
@@ -142,6 +127,34 @@ export default function LeaderAccountFormModal({ account, onClose, onSaved }) {
         await base44.entities.ManagedLeaderAccount.create(payload);
         toast.success("Account created");
       }
+
+      // Send welcome emails ONLY to newly added managers, AFTER successful save.
+      const newManagers = form.manager_emails.filter(
+        email => !initialManagersRef.current.includes(email)
+      );
+      if (newManagers.length > 0) {
+        const emailResults = await Promise.allSettled(
+          newManagers.map(email =>
+            base44.functions.invoke("sendLeaderManagerWelcome", {
+              manager_email: email,
+              manager_name: newManagerNamesRef.current[email] || "",
+              leader_name: payload.leader_name,
+              leader_title: payload.leader_title,
+              leader_email: payload.leader_email,
+            })
+          )
+        );
+        const sent = emailResults.filter(r => r.status === "fulfilled").length;
+        const failed = emailResults.length - sent;
+        if (sent > 0) toast.success(`Welcome email sent to ${sent} manager${sent > 1 ? "s" : ""}`);
+        if (failed > 0) {
+          toast.error(`${failed} welcome email${failed > 1 ? "s" : ""} failed to send`);
+          emailResults.forEach((r, i) => {
+            if (r.status === "rejected") console.error(`Welcome email failed for ${newManagers[i]}:`, r.reason);
+          });
+        }
+      }
+
       onSaved();
     } catch (err) {
       toast.error(err?.message || "Save failed");
@@ -337,7 +350,7 @@ export default function LeaderAccountFormModal({ account, onClose, onSaved }) {
                 )}
 
                 <p className="text-[10px] mt-1.5 flex items-center gap-1" style={{ color: t.textMuted }}>
-                  <Mail className="w-3 h-3" /> A branded welcome email is sent automatically when a manager is added.
+                  <Mail className="w-3 h-3" /> A branded welcome email is sent automatically after you save.
                 </p>
               </div>
             )}
