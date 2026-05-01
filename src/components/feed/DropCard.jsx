@@ -414,57 +414,128 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         {!drop.media_url && (
           <>
-            {isLeaderPost && (
+            {isLeaderPost ? (
               <>
+                {/* Cinematic dark hero background */}
                 <img
                   src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2"
                   alt=""
                   aria-hidden="true"
                   className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none z-0"
-                  style={{ filter: "grayscale(100%) contrast(1.05) brightness(0.95)", opacity: 0.18 }}
+                  style={{ filter: "grayscale(100%) contrast(1.1) brightness(0.55)" }}
                   loading="lazy"
                 />
-                <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "linear-gradient(160deg, rgba(248,250,255,0.55) 0%, rgba(238,243,255,0.35) 50%, rgba(255,252,240,0.55) 100%)" }} />
+                {/* Vignette + cinematic gradient */}
+                <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "linear-gradient(180deg, rgba(8,12,28,0.55) 0%, rgba(8,12,28,0.30) 35%, rgba(8,12,28,0.55) 75%, rgba(8,12,28,0.85) 100%)" }} />
+                <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse at center, transparent 30%, rgba(8,12,28,0.6) 100%)" }} />
+                {/* Soft gold/cyan ambient accents */}
+                <div className="absolute -top-10 -left-10 w-72 h-72 rounded-full blur-[80px] opacity-30 pointer-events-none z-0" style={{ background: "radial-gradient(circle, rgba(0,128,254,0.45), transparent)" }} />
+                <div className="absolute -bottom-12 -right-10 w-80 h-80 rounded-full blur-[90px] opacity-25 pointer-events-none z-0" style={{ background: "radial-gradient(circle, rgba(212,184,46,0.5), transparent)" }} />
+              </>
+            ) : (
+              <>
+                <div className="absolute top-4 left-4 w-20 h-20 rounded-full blur-2xl opacity-20 pointer-events-none bg-cyan-400" />
+                <div className="absolute bottom-8 right-16 w-32 h-32 rounded-full blur-3xl opacity-15 pointer-events-none bg-blue-600" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[60px] opacity-10 pointer-events-none bg-amber-400" />
+                <div className="absolute top-6 left-6 text-[80px] sm:text-[120px] leading-none font-serif pointer-events-none select-none z-0 text-blue-600/5">"</div>
               </>
             )}
-            <div className="absolute top-4 left-4 w-20 h-20 rounded-full blur-2xl opacity-20 pointer-events-none bg-cyan-400" />
-            <div className="absolute bottom-8 right-16 w-32 h-32 rounded-full blur-3xl opacity-15 pointer-events-none bg-blue-600" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[60px] opacity-10 pointer-events-none bg-amber-400" />
-            <div className="absolute top-6 left-6 text-[80px] sm:text-[120px] leading-none font-serif pointer-events-none select-none z-0 text-blue-600/5">"</div>
             
-            <div className={`p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-8 sm:py-12" : ""}`}>
-              {drop.verse && (
-                <h2
-                  className={`font-bold mb-3 sm:mb-6 leading-tight ${
-                    isLeaderPost
-                      ? "text-base sm:text-2xl lg:text-3xl font-['Space_Grotesk']"
-                      : "text-lg sm:text-3xl lg:text-4xl font-['Space_Grotesk'] line-clamp-4 text-blue-600 dark:text-blue-400"
-                  }`}
-                  style={isLeaderPost ? { color: "#0A2A6E", textShadow: "0 1px 2px rgba(11,63,217,0.08)" } : undefined}
-                >
-                  {isLeaderPost ? `“${drop.verse}”` : drop.verse}
-                </h2>
+            <div className={`p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
+              {isLeaderPost ? (
+                <div className="w-full max-w-2xl flex flex-col items-center text-center">
+                  {/* Decorative open quote */}
+                  <div
+                    aria-hidden="true"
+                    className="font-serif leading-none select-none mb-2 sm:mb-4"
+                    style={{
+                      fontSize: "clamp(64px, 9vw, 110px)",
+                      background: "linear-gradient(135deg, #FFD000 0%, #D4B82E 60%, #4DA8FF 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                      textShadow: "0 4px 30px rgba(212,184,46,0.25)",
+                    }}
+                  >
+                    “
+                  </div>
+
+                  {drop.verse && (() => {
+                    const plain = containsHtml(drop.reflection || "")
+                      ? (drop.reflection || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+                      : (drop.reflection || "");
+                    const hasReflection = plain.length > 0;
+                    return (
+                      <h2
+                        className={`font-['Space_Grotesk'] font-semibold leading-[1.35] tracking-[-0.005em] ${hasReflection ? "mb-5 sm:mb-7" : "mb-3"}`}
+                        style={{
+                          color: "#FFFFFF",
+                          fontSize: "clamp(17px, 2.1vw, 26px)",
+                          textShadow: "0 2px 16px rgba(0,0,0,0.55)",
+                          maxWidth: "44ch",
+                        }}
+                      >
+                        {drop.verse}
+                      </h2>
+                    );
+                  })()}
+
+                  {drop.reflection && (() => {
+                    const plain = containsHtml(drop.reflection)
+                      ? drop.reflection.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+                      : drop.reflection;
+                    if (!plain) return null;
+                    return (
+                      <p
+                        className="font-['Inter'] leading-relaxed italic"
+                        style={{
+                          color: "rgba(232,238,255,0.88)",
+                          fontSize: "clamp(13px, 1.2vw, 15px)",
+                          textShadow: "0 1px 10px rgba(0,0,0,0.5)",
+                          maxWidth: "52ch",
+                        }}
+                      >
+                        {plain}
+                      </p>
+                    );
+                  })()}
+
+                  {/* Gold divider + attribution */}
+                  <div className="mt-7 sm:mt-9 flex items-center gap-3 w-full justify-center">
+                    <div className="h-px flex-1 max-w-[70px]" style={{ background: "linear-gradient(90deg, transparent, rgba(212,184,46,0.8))" }} />
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="font-['Space_Grotesk'] text-[11px] sm:text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FFD000", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>
+                        — {getDisplayName(dropUser)}
+                      </span>
+                      {leaderForDrop?.leader_title && (
+                        <span className="font-['Inter'] text-[9px] sm:text-[10px] tracking-[0.18em] uppercase" style={{ color: "rgba(220,228,245,0.7)" }}>
+                          {leaderForDrop.leader_title}
+                        </span>
+                      )}
+                    </div>
+                    <div className="h-px flex-1 max-w-[70px]" style={{ background: "linear-gradient(90deg, rgba(212,184,46,0.8), transparent)" }} />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {drop.verse && (
+                    <h2 className="font-bold mb-3 sm:mb-6 leading-tight text-lg sm:text-3xl lg:text-4xl font-['Space_Grotesk'] line-clamp-4 text-blue-600 dark:text-blue-400">
+                      {drop.verse}
+                    </h2>
+                  )}
+                  {drop.reflection && (() => {
+                    const plain = containsHtml(drop.reflection)
+                      ? drop.reflection.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+                      : drop.reflection;
+                    return (
+                      <p className="text-sm sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic line-clamp-4 sm:line-clamp-none" style={{ color: "#3A4A6B" }}>
+                        "{plain.length > 140 ? plain.slice(0, 140) + '…' : plain}"
+                      </p>
+                    );
+                  })()}
+                  <div className="mt-6 w-16 h-1 rounded-full bg-gradient-to-r from-blue-600 to-cyan-400" />
+                </>
               )}
-              {drop.reflection && (() => {
-                const plain = containsHtml(drop.reflection)
-                  ? drop.reflection.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
-                  : drop.reflection;
-                if (isLeaderPost) {
-                  return (
-                    <p className="text-sm sm:text-base lg:text-lg font-['Inter'] leading-relaxed max-w-xl italic text-center" style={{ color: "#1F2D52" }}>
-                      {plain}
-                    </p>
-                  );
-                }
-                return (
-                  <p className="text-sm sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic line-clamp-4 sm:line-clamp-none" style={{ color: "#3A4A6B" }}>
-                    "{plain.length > 140 ? plain.slice(0, 140) + '…' : plain}"
-                  </p>
-                );
-              })()}
-              <div className={`mt-6 w-16 h-1 rounded-full ${isLeaderPost ? "" : "bg-gradient-to-r from-blue-600 to-cyan-400"}`}
-                style={isLeaderPost ? { background: "linear-gradient(90deg, #0080FE 0%, #0040A0 50%, #D4B82E 100%)" } : undefined}
-              />
             </div>
           </>
         )}
@@ -475,44 +546,48 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           </div>
         )}
 
+        {(() => {
+          // Leader text posts share the dark glass treatment with media posts.
+          const useGlass = drop.media_url || isLeaderPost;
+          return (
         <div className="absolute right-2 sm:right-3 bottom-4 sm:bottom-6 z-20 flex flex-col items-center gap-3 sm:gap-5">
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleLike}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${likeBurst ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-[#6B7280]/50 backdrop-blur-md" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${likeBurst ? 'dc-anim-pulse' : ''} ${useGlass ? "bg-black/35 backdrop-blur-md border border-white/15" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
               title={userHasLiked ? "Unlike this drop" : "Like this drop"}
             >
-              <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${likeBurst ? 'dc-anim-like' : ''} ${userHasLiked ? "text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : drop.media_url ? "text-white hover:scale-110" : "text-blue-600 dark:text-blue-400 hover:scale-110"}`} />
+              <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${likeBurst ? 'dc-anim-like' : ''} ${userHasLiked ? "text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : useGlass ? "text-white hover:scale-110" : "text-blue-600 dark:text-blue-400 hover:scale-110"}`} />
             </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{drop.likes_count || 0}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${useGlass ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{drop.likes_count || 0}</span>
           </div>
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleCommentToggle}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${drop.media_url ? "bg-[#6B7280]/50 backdrop-blur-md" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${useGlass ? "bg-black/35 backdrop-blur-md border border-white/15" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
             >
-              <MessageCircle className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${commentBounce ? 'dc-anim-bounce' : ''} ${showComments ? "text-cyan-500" : drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
+              <MessageCircle className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${commentBounce ? 'dc-anim-bounce' : ''} ${showComments ? "text-cyan-500" : useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{comments.length}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${useGlass ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{comments.length}</span>
           </div>
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleShareClick}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${sharePulse ? 'dc-anim-pulse' : ''} ${drop.media_url ? "bg-[#6B7280]/50 backdrop-blur-md" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${sharePulse ? 'dc-anim-pulse' : ''} ${useGlass ? "bg-black/35 backdrop-blur-md border border-white/15" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
             >
-              <Share2 className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${sharePulse ? 'dc-anim-bounce' : ''} ${drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
+              <Share2 className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${sharePulse ? 'dc-anim-bounce' : ''} ${useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${drop.media_url ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{drop.shares_count || 0}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${useGlass ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{drop.shares_count || 0}</span>
           </div>
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleSaveClick}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${drop.media_url ? "bg-[#6B7280]/50 backdrop-blur-md" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${useGlass ? "bg-black/35 backdrop-blur-md border border-white/15" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
             >
-              <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${saveBounce ? 'dc-anim-bounce' : ''} ${isSaved ? "fill-amber-400 text-amber-400" : drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
+              <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${saveBounce ? 'dc-anim-bounce' : ''} ${isSaved ? "fill-amber-400 text-amber-400" : useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
           </div>
 
@@ -521,9 +596,9 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
               <DropdownMenuTrigger asChild>
                 <button
                   onClick={(e) => e.stopPropagation()}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all focus:outline-none border ${drop.media_url ? "bg-black/30 border-white/20 backdrop-blur-md" : "bg-white border-[#E2E8F0] shadow-sm"}`}
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all focus:outline-none border ${useGlass ? "bg-black/30 border-white/20 backdrop-blur-md" : "bg-white border-[#E2E8F0] shadow-sm"}`}
                 >
-                  <MoreHorizontal className={`w-4 h-4 ${drop.media_url ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
+                  <MoreHorizontal className={`w-4 h-4 ${useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-card border border-border text-foreground w-40 z-50">
@@ -559,6 +634,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             {drop.reposts_count > 0 && <span className="text-white text-[11px] sm:text-xs font-bold drop-shadow-md">{drop.reposts_count}</span>}
           </div>
         </div>
+          );
+        })()}
       </div>
 
       {/* Verse & Reflection */}
