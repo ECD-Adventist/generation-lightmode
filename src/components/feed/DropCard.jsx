@@ -340,17 +340,15 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           </>
         )}
 
-        {isLeaderPost && canFollowAuthor && (
+        {isLeaderPost && canFollowAuthor && !isFollowingAuthor && (
           <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-30" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               onClick={() => followMutation.mutate(drop.user_email)}
               className="rounded-full px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-black leading-none uppercase tracking-wider transition active:scale-95 backdrop-blur-md"
-              style={isFollowingAuthor
-                ? { background: "rgba(0,0,0,0.4)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.25)" }
-                : { background: "linear-gradient(90deg, #0080FE, #0040A0)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(0,128,254,0.4)", border: "1px solid rgba(255,255,255,0.2)" }}
+              style={{ background: "linear-gradient(90deg, #0080FE, #0040A0)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(0,128,254,0.4)", border: "1px solid rgba(255,255,255,0.2)" }}
             >
-              {isFollowingAuthor ? "Following" : "+ Follow"}
+              + Follow
             </button>
           </div>
         )}
