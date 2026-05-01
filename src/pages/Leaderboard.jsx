@@ -27,7 +27,7 @@ export default function Leaderboard() {
   });
 
   const { data: drops = [] } = useQuery({
-    queryKey: ["allGlowDrops"],
+    queryKey: ["leaderboardDrops"],
     queryFn: () => base44.entities.GlowDrop.list('-created_date', 500),
     enabled: !!user,
   });
