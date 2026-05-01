@@ -4,9 +4,15 @@ Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
 
   try {
+    // Verify caller is authenticated — public user listing requires a session.
+    const me = await base44.auth.me();
+    if (!me) {
+      return Response.json({ error: "Authentication required to view users" }, { status: 401 });
+    }
+
     const payload = await req.json().catch(() => ({}));
     const requestedEmails = Array.isArray(payload.emails) ? new Set(payload.emails.filter(Boolean)) : null;
-    const limit = Math.min(Number(payload.limit) || 100, 100);
+    const limit = Math.min(Number(payload.limit) || 200, 500);
     const allUsers = await base44.asServiceRole.entities.User.list();
     const HIDDEN_EMAILS = (Deno.env.get('PUBLIC_USER_HIDDEN_EMAILS') || '')
       .split(',')

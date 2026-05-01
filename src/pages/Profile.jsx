@@ -50,18 +50,22 @@ export default function Profile() {
   const viewUserEmail = urlParams.get("user");
 
   const { data: allUsersForProfile = [] } = useQuery({
-    queryKey: ["allUsersForProfile"],
+    queryKey: ["allUsersForProfile", viewUserEmail || "self"],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
-      return res.data;
+      // When viewing another user's profile, request them explicitly so they aren't
+      // missed due to the default 100-user limit.
+      const params = viewUserEmail ? { emails: [viewUserEmail] } : {};
+      const res = await base44.functions.invoke("listPublicUsers", params);
+      const data = Array.isArray(res.data) ? res.data : [];
+      return data;
     },
-    enabled: true
+    enabled: !!currentUser
   });
 
   const { data: publicLeaderAccounts = [] } = useQuery({
     queryKey: ["publicLeaderAccountsForProfile"],
     queryFn: () => base44.entities.ManagedLeaderAccount.filter({ active: true }),
-    enabled: !!viewUserEmail,
+    enabled: !!viewUserEmail && !!currentUser,
   });
 
   useEffect(() => {
@@ -98,44 +102,60 @@ export default function Profile() {
     checkAuth();
   }, [viewUserEmail]);
 
+  const allUsersLoaded = useRef(false);
+
   useEffect(() => {
-    if (viewUserEmail && allUsersForProfile.length > 0) {
-      if (currentUser && viewUserEmail === currentUser.email) {
-        setUser(currentUser);
-        setEditData({
-          full_name: currentUser.full_name || "",
-          country: currentUser.country || "",
-          bio: currentUser.bio || "",
-          website_url: currentUser.website_url || "",
-          profile_picture_url: currentUser.profile_picture_url || "",
-          cover_picture_url: currentUser.cover_picture_url || "",
-          gender: currentUser.gender || "",
-          date_of_birth: currentUser.date_of_birth || "",
-          phone: currentUser.phone || "",
-          city: currentUser.city || "",
-          address: currentUser.address || "",
-          postal_code: currentUser.postal_code || ""
-        });
-      } else {
-        const found = allUsersForProfile.find(u => u.email === viewUserEmail);
-        if (found) {
-          setUser(found);
-        } else {
-          const leader = publicLeaderAccounts.find(a => a.leader_email === viewUserEmail);
-          if (leader) {
-            setUser({
-              email: leader.leader_email,
-              full_name: leader.leader_name,
-              profile_picture_url: leader.leader_profile_picture_url,
-              cover_picture_url: leader.leader_cover_picture_url,
-              bio: leader.leader_bio,
-              country: leader.leader_country,
-              glow_score: 0,
-              is_managed_leader: true,
-            });
-          }
-        }
-      }
+    if (!viewUserEmail) return;
+    if (allUsersForProfile.length > 0) allUsersLoaded.current = true;
+
+    if (currentUser && viewUserEmail === currentUser.email) {
+      setUser(currentUser);
+      setEditData({
+        full_name: currentUser.full_name || "",
+        country: currentUser.country || "",
+        bio: currentUser.bio || "",
+        website_url: currentUser.website_url || "",
+        profile_picture_url: currentUser.profile_picture_url || "",
+        cover_picture_url: currentUser.cover_picture_url || "",
+        gender: currentUser.gender || "",
+        date_of_birth: currentUser.date_of_birth || "",
+        phone: currentUser.phone || "",
+        city: currentUser.city || "",
+        address: currentUser.address || "",
+        postal_code: currentUser.postal_code || ""
+      });
+      return;
+    }
+
+    const found = allUsersForProfile.find(u => u.email === viewUserEmail);
+    if (found) {
+      setUser(found);
+      return;
+    }
+
+    const leader = publicLeaderAccounts.find(a => a.leader_email === viewUserEmail);
+    if (leader) {
+      setUser({
+        email: leader.leader_email,
+        full_name: leader.leader_name,
+        profile_picture_url: leader.leader_profile_picture_url,
+        cover_picture_url: leader.leader_cover_picture_url,
+        bio: leader.leader_bio,
+        country: leader.leader_country,
+        glow_score: 0,
+        is_managed_leader: true,
+      });
+      return;
+    }
+
+    // If the public users list has loaded but the target wasn't found,
+    // create a minimal fallback profile so the page doesn't spin forever.
+    if (allUsersLoaded.current) {
+      setUser({
+        email: viewUserEmail,
+        full_name: viewUserEmail.split('@')[0] || "User",
+        glow_score: 0,
+      });
     }
   }, [viewUserEmail, currentUser, allUsersForProfile, publicLeaderAccounts]);
 
