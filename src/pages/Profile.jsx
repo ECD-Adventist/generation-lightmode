@@ -25,7 +25,6 @@ import { getDisplayName } from "@/lib/displayName";
 import MobileProfile from "@/components/profile/MobileProfile";
 import CountryFlag from "@/components/common/CountryFlag";
 import DropGridTile from "@/components/profile/DropGridTile";
-import DropCard from "@/components/feed/DropCard";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -533,21 +532,17 @@ export default function Profile() {
         );
       }
       return (
-        <div className="space-y-5">
+        <div className="grid grid-cols-2 gap-3">
           {myDrops.map(drop => (
-            <DropCard
+            <DropGridTile
               key={drop.id}
               drop={drop}
-              user={currentUser}
-              dropUser={displayUser}
-              likeMutation={profileLikeMutation}
-              handleShare={handleDropShare}
-              userLikes={profileUserLikes}
-              allUsers={allUsersForProfile}
-              savedDropRecords={profileSavedDrops}
-              leaderAccounts={isLeaderProfile ? [{ leader_email: displayUser.email, leader_title: leaderTitle, leader_name: getDisplayName(displayUser) }] : publicLeaderAccounts}
-              following={currentUserFollowing}
-              followMutation={followMutation}
+              onClick={() => setViewingDropId(drop.id)}
+              authorName={getDisplayName(displayUser)}
+              authorTitle={leaderTitle}
+              isLeader={isLeaderProfile}
+              commentsCount={commentsByDropId.get(drop.id) || 0}
+              isSaved={savedDropIdSet.has(drop.id)}
             />
           ))}
         </div>
