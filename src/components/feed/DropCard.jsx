@@ -17,7 +17,6 @@ import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
 import { getDisplayName } from "@/lib/displayName";
 import { useIsMobile } from "@/hooks/use-mobile";
 import CountryFlag from "@/components/common/CountryFlag";
-import LightModePostArtwork from "@/components/feed/LightModePostArtwork";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
@@ -453,13 +452,135 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         )}
 
         {!drop.media_url && (
-          <div className="absolute inset-0 z-0">
-            <LightModePostArtwork
-              verse={drop.verse}
-              reflection={cleanReflection(drop.reflection)}
-              category={drop.category}
-            />
-          </div>
+          <>
+            {isLeaderPost ? (
+              <>
+                {/* Cinematic dark hero background */}
+                <img
+                  src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2"
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none z-0"
+                  style={{ filter: "grayscale(100%) contrast(1.1) brightness(0.55)" }}
+                  loading="lazy"
+                />
+                {/* Vignette + cinematic gradient */}
+                <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "linear-gradient(180deg, rgba(8,12,28,0.55) 0%, rgba(8,12,28,0.30) 35%, rgba(8,12,28,0.55) 75%, rgba(8,12,28,0.85) 100%)" }} />
+                <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse at center, transparent 30%, rgba(8,12,28,0.6) 100%)" }} />
+                {/* Soft gold/cyan ambient accents */}
+                <div className="absolute -top-10 -left-10 w-72 h-72 rounded-full blur-[80px] opacity-30 pointer-events-none z-0" style={{ background: "radial-gradient(circle, rgba(0,128,254,0.45), transparent)" }} />
+                <div className="absolute -bottom-12 -right-10 w-80 h-80 rounded-full blur-[90px] opacity-25 pointer-events-none z-0" style={{ background: "radial-gradient(circle, rgba(212,184,46,0.5), transparent)" }} />
+              </>
+            ) : (
+              <>
+                <div className="absolute top-4 left-4 w-20 h-20 rounded-full blur-2xl opacity-20 pointer-events-none bg-cyan-400" />
+                <div className="absolute bottom-8 right-16 w-32 h-32 rounded-full blur-3xl opacity-15 pointer-events-none bg-blue-600" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[60px] opacity-10 pointer-events-none bg-amber-400" />
+                <div className="absolute top-6 left-6 text-[80px] sm:text-[120px] leading-none font-serif pointer-events-none select-none z-0 text-blue-600/5">"</div>
+              </>
+            )}
+            
+            <div className={`p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
+              {isLeaderPost ? (
+                <div className="w-full max-w-2xl flex flex-col items-center text-center">
+                  {/* Decorative open quote */}
+                  <div
+                    aria-hidden="true"
+                    className="font-serif leading-none select-none mb-2 sm:mb-4"
+                    style={{
+                      fontSize: "clamp(64px, 9vw, 110px)",
+                      background: "linear-gradient(135deg, #FFD000 0%, #D4B82E 60%, #4DA8FF 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                      textShadow: "0 4px 30px rgba(212,184,46,0.25)",
+                    }}
+                  >
+                    “
+                  </div>
+
+                  {drop.verse && (() => {
+                    const cleaned = cleanReflection(drop.reflection || "");
+                    const plain = containsHtml(cleaned)
+                      ? cleaned.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+                      : cleaned;
+                    const hasReflection = plain.length > 0;
+                    return (
+                      <h2
+                        className={`font-['Space_Grotesk'] font-semibold leading-[1.35] tracking-[-0.005em] ${hasReflection ? "mb-5 sm:mb-7" : "mb-3"}`}
+                        style={{
+                          color: "#FFFFFF",
+                          fontSize: "clamp(17px, 2.1vw, 26px)",
+                          textShadow: "0 2px 16px rgba(0,0,0,0.55)",
+                          maxWidth: "44ch",
+                        }}
+                      >
+                        {drop.verse}
+                      </h2>
+                    );
+                  })()}
+
+                  {drop.reflection && (() => {
+                    const cleaned = cleanReflection(drop.reflection);
+                    const plain = containsHtml(cleaned)
+                      ? cleaned.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+                      : cleaned;
+                    if (!plain) return null;
+                    return (
+                      <p
+                        className="font-['Inter'] leading-relaxed italic"
+                        style={{
+                          color: "rgba(232,238,255,0.88)",
+                          fontSize: "clamp(13px, 1.2vw, 15px)",
+                          textShadow: "0 1px 10px rgba(0,0,0,0.5)",
+                          maxWidth: "52ch",
+                        }}
+                      >
+                        {plain}
+                      </p>
+                    );
+                  })()}
+
+                  {/* Gold divider + attribution */}
+                  <div className="mt-7 sm:mt-9 flex items-center gap-3 w-full justify-center">
+                    <div className="h-px flex-1 max-w-[70px]" style={{ background: "linear-gradient(90deg, transparent, rgba(212,184,46,0.8))" }} />
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="font-['Space_Grotesk'] text-[11px] sm:text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FFD000", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>
+                        — {getDisplayName(dropUser)}
+                      </span>
+                      {leaderForDrop?.leader_title && (
+                        <span className="font-['Inter'] text-[9px] sm:text-[10px] tracking-[0.18em] uppercase" style={{ color: "rgba(220,228,245,0.7)" }}>
+                          {leaderForDrop.leader_title}
+                        </span>
+                      )}
+                    </div>
+                    <div className="h-px flex-1 max-w-[70px]" style={{ background: "linear-gradient(90deg, rgba(212,184,46,0.8), transparent)" }} />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {drop.verse && (
+                    <h2 className="font-bold mb-3 sm:mb-6 leading-tight text-lg sm:text-3xl lg:text-4xl font-['Space_Grotesk'] line-clamp-4 text-blue-600 dark:text-blue-400">
+                      {drop.verse}
+                    </h2>
+                  )}
+                  {cleanReflection(drop.reflection) && (() => {
+                    const cleaned = cleanReflection(drop.reflection);
+                    const plain = containsHtml(cleaned)
+                      ? cleaned.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+                      : cleaned;
+                    if (!plain) return null;
+                    return (
+                      <p className="text-sm sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic line-clamp-4 sm:line-clamp-none" style={{ color: "#3A4A6B" }}>
+                        "{plain.length > 140 ? plain.slice(0, 140) + '…' : plain}"
+                      </p>
+                    );
+                  })()}
+                  <div className="mt-6 w-16 h-1 rounded-full bg-gradient-to-r from-blue-600 to-cyan-400" />
+                </>
+              )}
+            </div>
+          </>
         )}
 
         {likeBurst && (

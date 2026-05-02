@@ -10,7 +10,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import TruthCardComments from "@/components/daily-drops/TruthCardComments";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileDailyTruthFeed from "@/components/daily-drops/MobileDailyTruthFeed";
-import LightModePostArtwork from "@/components/feed/LightModePostArtwork";
 
 export default function DailyDropsPage() {
   const isMobile = useIsMobile();
@@ -183,13 +182,9 @@ function TruthCard({ drop, onShare, user, featured }) {
       ? { background: "#FFFFFF", border: "1px solid #B8E5FF", boxShadow: "0 4px 16px rgba(31, 184, 255, 0.1)" }
       : { background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }
     }>
-      <div className="p-3 bg-[#02071f]">
-        {drop.media_url ? (
-          <img src={drop.media_url} alt="" className="w-full max-h-80 object-contain bg-black rounded-2xl" />
-        ) : (
-          <LightModePostArtwork verse={drop.verse} reflection={drop.reflection} category={drop.category} />
-        )}
-      </div>
+      {drop.media_url && (
+        <img src={drop.media_url} alt="" className="w-full max-h-80 object-contain bg-black" />
+      )}
       <div className="p-5">
          {isSystemPost ? (
            <Link to={createPageUrl("GenerationLightMode")} className="flex items-center gap-2 mb-4 pb-4 border-b hover:opacity-80 transition" style={{ borderColor: "#E6ECF5" }}>

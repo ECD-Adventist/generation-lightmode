@@ -8,7 +8,6 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import LightModePostArtwork from "@/components/feed/LightModePostArtwork";
 
 export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = [] }) {
   const [showComments, setShowComments] = useState(false);
@@ -104,8 +103,13 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
 
       {/* Text-only card background */}
       {!drop.media_url && (
-        <div className="p-2 bg-[#02071f]">
-          <LightModePostArtwork verse={drop.verse} reflection={drop.reflection} category={drop.category} compact />
+        <div className="bg-gradient-to-br from-[#0D1524] via-[#0B0F1A] to-[#1a103c] px-6 pt-6 pb-4 min-h-[120px] flex flex-col justify-center">
+          {drop.verse && (
+            <h3 className="text-[#00CFFF] font-bold text-base leading-snug mb-2">"{drop.verse}"</h3>
+          )}
+          {drop.reflection && (
+            <p className="text-gray-300 text-sm leading-relaxed">{drop.reflection}</p>
+          )}
         </div>
       )}
 
