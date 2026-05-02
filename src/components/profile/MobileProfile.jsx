@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Camera, Settings, Share2, Grid, Bookmark, Target, Award, Building2, Heart, Sparkles, Zap, Edit3, MessageCircle, UserPlus, UserCheck, Globe, X } from "lucide-react";
+import { Camera, Settings, Share2, Grid, Bookmark, Target, Award, Building2, Heart, Sparkles, Zap, Edit3, MessageCircle, UserPlus, UserCheck, Globe, X, BadgeCheck } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
 import { getGlowRank } from "@/components/profile/ProfileHighlights";
 
@@ -32,6 +32,9 @@ export default function MobileProfile({
   onTabChange,
   children, // tab content rendered by parent
   userInstitutionApps = [],
+  isLeader = false,
+  leaderTitle,
+  onEditLeader,
 }) {
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
@@ -42,13 +45,18 @@ export default function MobileProfile({
   const glowRank = getGlowRank(user?.glow_score || 0);
   const displayName = getDisplayName(user);
 
-  const stats = [
+  const stats = isLeader ? [
+    { value: myDrops.length, label: "Posts" },
+    { value: myFollowers.length, label: "Followers", onClick: () => onSetConnectionsView("Followers") },
+  ] : [
     { value: myDrops.length, label: "Drops" },
     { value: myFollowers.length, label: "Followers", onClick: () => onSetConnectionsView("Followers") },
     { value: myFollowing.length, label: "Following", onClick: () => onSetConnectionsView("Following") },
   ];
 
-  const tabs = [
+  const tabs = isLeader ? [
+    { key: "drops", icon: Grid, label: "Posts" },
+  ] : [
     { key: "drops", icon: Grid, label: "Drops" },
     ...(isOwnProfile ? [{ key: "saved", icon: Bookmark, label: "Saved" }] : []),
     { key: "missions", icon: Target, label: "Missions" },
@@ -110,9 +118,21 @@ export default function MobileProfile({
             style={{
               background: user.cover_picture_url
                 ? `url(${user.cover_picture_url}) center/cover`
+                : isLeader
+                ? "linear-gradient(135deg, #0A1A3A 0%, #0F2D6B 50%, #1A4FA0 100%)"
                 : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)",
             }}
           >
+            {isLeader && (
+              <>
+                <div className="absolute inset-0 z-[5] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(8,12,28,0.30) 0%, rgba(8,12,28,0.10) 40%, rgba(8,12,28,0.55) 100%)" }} />
+                <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-md"
+                  style={{ background: "linear-gradient(135deg, rgba(0,128,254,0.95) 0%, rgba(0,64,160,0.95) 50%, rgba(212,184,46,0.95) 100%)", boxShadow: "0 4px 12px rgba(0,128,254,0.4)" }}>
+                  <BadgeCheck className="w-3 h-3 text-white" strokeWidth={2.5} />
+                  <span className="text-[9px] font-black uppercase tracking-wider text-white">Verified Leader</span>
+                </div>
+              </>
+            )}
             {/* Sweeping shimmer */}
             <div style={{
               position: "absolute", top: 0, bottom: 0, left: 0, width: "30%",
@@ -151,24 +171,45 @@ export default function MobileProfile({
               type="button"
               onClick={() => setViewerImage({ url: user.profile_picture_url || defaultAvatar, alt: "Profile photo" })}
               className="relative w-24 h-24 rounded-full p-[3px] active:scale-95 transition"
-              style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9, #FFD000)", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.35)" }}
+              style={{
+                background: isLeader
+                  ? "linear-gradient(135deg, #0080FE 0%, #0040A0 50%, #FFD000 100%)"
+                  : "linear-gradient(135deg, #1FB8FF, #0B3FD9, #FFD000)",
+                boxShadow: isLeader
+                  ? "0 10px 28px rgba(0, 128, 254, 0.4), 0 0 0 1px rgba(255, 208, 0, 0.3)"
+                  : "0 10px 28px rgba(11, 63, 217, 0.35)",
+              }}
             >
               <div className="w-full h-full rounded-full overflow-hidden relative" style={{ background: "#FFFFFF", border: "3px solid #FFFFFF" }}>
                 <img src={user.profile_picture_url || defaultAvatar} className="w-full h-full object-cover" />
               </div>
+              {isLeader && (
+                <span className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full flex items-center justify-center shadow-lg"
+                  style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 50%, #D4B82E 100%)", border: "2px solid #FFFFFF" }}>
+                  <BadgeCheck className="w-4 h-4 text-white" strokeWidth={3} />
+                </span>
+              )}
             </button>
             <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={onProfileImageSelect} disabled={uploadingImage} />
 
             <div className="flex-1 min-w-0 pb-1.5">
               <h1 className="text-lg font-black font-['Space_Grotesk'] truncate" style={{ color: "#0B1B3D" }}>{displayName}</h1>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <Sparkles className="w-3 h-3" style={{ color: glowRank.color }} />
-                <span className="text-[11px] font-black" style={{ color: glowRank.color }}>{glowRank.name}</span>
-                <span className="text-[11px]" style={{ color: "#8A97B5" }}>·</span>
-                <span className="text-[11px] font-bold flex items-center gap-0.5" style={{ color: "#0B1B3D" }}>
-                  <Zap className="w-2.5 h-2.5" style={{ color: "#FFD000" }} /> {user.glow_score || 0}
-                </span>
-              </div>
+              {isLeader ? (
+                leaderTitle && (
+                  <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full mt-1" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFEFC2 100%)", border: "1px solid #FFD000" }}>
+                    <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: "#8B6914" }}>{leaderTitle}</span>
+                  </div>
+                )
+              ) : (
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <Sparkles className="w-3 h-3" style={{ color: glowRank.color }} />
+                  <span className="text-[11px] font-black" style={{ color: glowRank.color }}>{glowRank.name}</span>
+                  <span className="text-[11px]" style={{ color: "#8A97B5" }}>·</span>
+                  <span className="text-[11px] font-bold flex items-center gap-0.5" style={{ color: "#0B1B3D" }}>
+                    <Zap className="w-2.5 h-2.5" style={{ color: "#FFD000" }} /> {user.glow_score || 0}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -183,12 +224,12 @@ export default function MobileProfile({
                   <Globe className="w-2.5 h-2.5" /> {user.country}
                 </span>
               )}
-              {myMemberships.length > 0 && (
+              {!isLeader && myMemberships.length > 0 && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black" style={{ background: "rgba(31, 184, 255, 0.12)", color: "#0B3FD9", border: "1px solid #B8E5FF" }}>
                   {myMemberships.length} Group{myMemberships.length > 1 ? "s" : ""}
                 </span>
               )}
-              {certificates.length > 0 && (
+              {!isLeader && certificates.length > 0 && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black" style={{ background: "#FFF8E6", color: "#CC7A00", border: "1px solid #FFE4A0" }}>
                   🏆 {certificates.length}
                 </span>
@@ -196,8 +237,23 @@ export default function MobileProfile({
             </div>
           </div>
 
+          {/* Official leader banner */}
+          {isLeader && (
+            <div className="mt-3 rounded-2xl px-3 py-2.5 flex items-center gap-2 relative overflow-hidden"
+              style={{ background: "linear-gradient(135deg, #0A1A3A 0%, #0F2D6B 60%, #1A4FA0 100%)", boxShadow: "0 4px 14px rgba(11, 27, 61, 0.2)" }}>
+              <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full blur-2xl opacity-40 pointer-events-none" style={{ background: "#FFD000" }} />
+              <div className="relative w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #FFD000 0%, #D4B82E 100%)" }}>
+                <BadgeCheck className="w-3.5 h-3.5" style={{ color: "#0B1B3D" }} strokeWidth={2.5} />
+              </div>
+              <div className="relative flex-1 min-w-0">
+                <div className="text-[8px] font-black uppercase tracking-widest" style={{ color: "#FFD000" }}>Official Leader</div>
+                <div className="text-[10px] font-bold text-white">Verified by Generation LightMode</div>
+              </div>
+            </div>
+          )}
+
           {/* Stats row */}
-          <div className="mt-4 grid grid-cols-3 gap-2">
+          <div className={`mt-4 grid gap-2 ${isLeader ? "grid-cols-2" : "grid-cols-3"}`}>
             {stats.map((s, i) => {
               const Tag = s.onClick ? "button" : "div";
               return (
@@ -213,8 +269,10 @@ export default function MobileProfile({
           <div className="mt-3 flex items-center gap-2">
             {isOwnProfile ? (
               <>
-                <button onClick={onEditProfile} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-[12px] font-black active:scale-95 transition" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.3)" }}>
-                  <Edit3 className="w-3.5 h-3.5" /> Edit Profile
+                <button onClick={isLeader && onEditLeader ? onEditLeader : onEditProfile} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-[12px] font-black active:scale-95 transition" style={isLeader
+                  ? { background: "linear-gradient(135deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 159, 26, 0.35)" }
+                  : { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.3)" }}>
+                  <Edit3 className="w-3.5 h-3.5" /> {isLeader ? "Edit Leader Profile" : "Edit Profile"}
                 </button>
                 <button onClick={onShareProfile} className="flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-[12px] font-black active:scale-95 transition" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>
                   <Share2 className="w-3.5 h-3.5" />

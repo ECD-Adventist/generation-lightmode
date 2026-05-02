@@ -13,6 +13,7 @@ import ExecutiveProfileHeader from "@/components/institution/ExecutiveProfileHea
 import { isNotificationEnabled } from "@/lib/notifications";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 import LeaderAccountSwitcher from "@/components/profile/LeaderAccountSwitcher";
+import LeaderProfileHeader from "@/components/profile/LeaderProfileHeader";
 import LeaderAccountFormModal from "@/components/admin/leader-accounts/LeaderAccountFormModal";
 import PledgeModal from "@/components/pledge/PledgeModal";
 import ProfileHighlights, { getGlowRank } from "@/components/profile/ProfileHighlights";
@@ -482,6 +483,14 @@ export default function Profile() {
   const canEditLeader = isViewingLeader && isOwnProfile;
   const canEditAny = canEditProfile || canEditLeader;
 
+  // The displayed profile is a leader account if either:
+  //   - the manager has explicitly switched into leader view, or
+  //   - we're viewing someone else's profile and that profile resolves to a managed leader.
+  const isLeaderProfile = isViewingLeader || !!displayUser?.is_managed_leader;
+  const leaderTitle = isViewingLeader
+    ? activeLeaderAccount?.leader_title
+    : (publicLeaderAccounts.find(a => a.leader_email === displayUser?.email)?.leader_title);
+
   // MOBILE-ONLY branded shell — reuses same tab content by rendering a trimmed version (v2)
   const mobileTabContent = (() => {
     if (activeProfileTab === "drops") {
@@ -586,11 +595,14 @@ export default function Profile() {
         isOwnProfile={canEditAny}
         profileEmail={profileEmail}
         myDrops={myDrops}
-        myFollowers={isViewingLeader ? [] : myFollowers}
-        myFollowing={isViewingLeader ? [] : myFollowing}
-        myMemberships={isViewingLeader ? [] : myMemberships}
-        certificates={isViewingLeader ? [] : certificates}
-        onEditProfile={() => isViewingLeader ? setIsEditingLeader(true) : setIsEditing(true)}
+        myFollowers={myFollowers}
+        myFollowing={isLeaderProfile ? [] : myFollowing}
+        myMemberships={isLeaderProfile ? [] : myMemberships}
+        certificates={isLeaderProfile ? [] : certificates}
+        isLeader={isLeaderProfile}
+        leaderTitle={leaderTitle}
+        onEditProfile={() => setIsEditing(true)}
+        onEditLeader={() => setIsEditingLeader(true)}
         onShareProfile={handleShareProfile}
         onFollowToggle={() => followMutation.mutate(profileEmail)}
         isFollowingThisUser={isFollowingThisUser}
@@ -600,7 +612,7 @@ export default function Profile() {
         onSetConnectionsView={setConnectionsView}
         activeTab={activeProfileTab === "story_analytics" ? "drops" : activeProfileTab}
         onTabChange={setActiveProfileTab}
-        userInstitutionApps={isViewingLeader ? [] : userInstitutionApps}
+        userInstitutionApps={isLeaderProfile ? [] : userInstitutionApps}
       >
         {mobileTabContent}
       </MobileProfile>
@@ -743,7 +755,26 @@ export default function Profile() {
             )}
           </div>
         )}
-        {userInstitutionApps.length > 0 && !isViewingLeader ? (
+        {isLeaderProfile ? (
+          <LeaderProfileHeader
+            leaderUser={displayUser}
+            leaderTitle={leaderTitle}
+            postsCount={myDrops.length}
+            followersCount={myFollowers.length}
+            followingCount={isViewingLeader ? undefined : myFollowing.length}
+            isOwnProfile={isOwnProfile}
+            canEditLeader={canEditLeader}
+            canFollow={!isOwnProfile && !!currentUser}
+            isFollowingThisUser={isFollowingThisUser}
+            profileEmail={profileEmail}
+            onEditLeader={() => setIsEditingLeader(true)}
+            onFollowToggle={() => followMutation.mutate(profileEmail)}
+            onShareProfile={handleShareProfile}
+            onProfileImageSelect={e => handleImageSelect(e, "profile")}
+            onCoverImageSelect={e => handleImageSelect(e, "cover")}
+            uploadingImage={uploadingImage}
+          />
+        ) : userInstitutionApps.length > 0 ? (
           <>
             <ExecutiveProfileHeader
               user={user} isOwnProfile={isOwnProfile} profileEmail={profileEmail}
@@ -915,8 +946,8 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Highlights Section — personal gamification, hidden in leader view */}
-            {!isViewingLeader && (
+            {/* Highlights Section — personal gamification, hidden for leader profiles */}
+            {!isLeaderProfile && (
               <div className="px-4 mb-6">
                 <ProfileHighlights user={user} profileCompletion={profileCompletion} nextLevelXp={nextLevelXp} recentActivity={recentActivity} onShare={handleShareProfile} />
               </div>
@@ -979,7 +1010,7 @@ export default function Profile() {
 
         {/* Tabs */}
         <div className="flex border-t border-b mb-2 overflow-x-auto hide-scrollbar mx-4" style={{ borderColor: "#E6ECF5" }}>
-          {(isViewingLeader ? [
+          {(isLeaderProfile ? [
             { key: "drops", icon: <Grid className="w-4 h-4" />, label: "LEADER POSTS" },
           ] : [
             { key: "drops", icon: <Grid className="w-4 h-4" />, label: "DROPS" },
