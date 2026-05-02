@@ -97,7 +97,7 @@ export default function LeaderProfileHeader({
           <div className="absolute top-4 right-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md"
             style={{ background: "linear-gradient(135deg, rgba(0,128,254,0.92) 0%, rgba(0,64,160,0.92) 50%, rgba(212,184,46,0.92) 100%)", boxShadow: "0 4px 14px rgba(0,128,254,0.45)" }}>
             <BadgeCheck className="w-4 h-4 text-white" strokeWidth={2.5} />
-            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-white">Verified Leader</span>
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-white">Verified Leader Account</span>
           </div>
 
           {canEditLeader && (
