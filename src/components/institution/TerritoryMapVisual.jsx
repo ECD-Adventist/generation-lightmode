@@ -88,7 +88,7 @@ function getCountryColor(isoId, isSelected) {
   return ECD_COLORS[idx % ECD_COLORS.length] || "#00CFFF";
 }
 
-export default function TerritoryMapVisual({ territories, institutionName, memberCount, ownerEmail, hqCountry }) {
+export default function TerritoryMapVisual({ territories, institutionName, memberCount, ownerEmail, hqCountry, compact = false }) {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, name: "" });
 
@@ -167,24 +167,25 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
           </div>
         </div>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-4 divide-x" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", divideColor: "rgba(255,255,255,0.04)" }}>
-          {stats.map(stat => (
-            <div key={stat.label} className="px-4 py-3 text-center" style={{ borderRight: "1px solid rgba(255,255,255,0.04)" }}>
-              <div className="flex items-center justify-center gap-1.5 mb-1">
-                <div style={{ color: stat.color }}>{stat.icon}</div>
+        {!compact && (
+          <div className="grid grid-cols-4 divide-x" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", divideColor: "rgba(255,255,255,0.04)" }}>
+            {stats.map(stat => (
+              <div key={stat.label} className="px-4 py-3 text-center" style={{ borderRight: "1px solid rgba(255,255,255,0.04)" }}>
+                <div className="flex items-center justify-center gap-1.5 mb-1">
+                  <div style={{ color: stat.color }}>{stat.icon}</div>
+                </div>
+                <div className="text-xl font-black" style={{ color: stat.color, fontFamily: "Space Grotesk, sans-serif", textShadow: `0 0 20px ${stat.color}50` }}>{stat.value}</div>
+                <div className="text-[9px] uppercase tracking-wider mt-0.5" style={{ color: "rgba(200,208,224,0.4)" }}>{stat.label}</div>
               </div>
-              <div className="text-xl font-black" style={{ color: stat.color, fontFamily: "Space Grotesk, sans-serif", textShadow: `0 0 20px ${stat.color}50` }}>{stat.value}</div>
-              <div className="text-[9px] uppercase tracking-wider mt-0.5" style={{ color: "rgba(200,208,224,0.4)" }}>{stat.label}</div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Map + Side panel */}
         <div className="flex flex-col lg:flex-row">
 
           {/* Map */}
-          <div className="relative flex-1" style={{ minHeight: 400, background: "radial-gradient(circle at 50% 45%, #101A33 0%, #080C14 72%)" }}>
+          <div className="relative flex-1" style={{ minHeight: compact ? 280 : 400, background: "radial-gradient(circle at 50% 45%, #101A33 0%, #080C14 72%)" }}>
 
             {/* Glow effect behind map */}
             <div className="absolute inset-0 pointer-events-none" style={{
@@ -290,58 +291,55 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
             </ComposableMap>
           </div>
 
-          {/* Right Panel */}
-          <div className="lg:w-52 shrink-0 flex flex-col" style={{
-            background: "linear-gradient(180deg, #0B0F1A 0%, #080C14 100%)",
-            borderTop: "1px solid rgba(0,207,255,0.10)",
-            borderLeft: "1px solid rgba(0,207,255,0.10)"
-          }}>
-
-            {/* Division badge */}
-            <div className="px-5 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-              <div className="flex items-center gap-2 mb-2">
-                <Star className="w-3.5 h-3.5 text-[#FFD000]" />
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#FFD000]">ECD Division</span>
+          {!compact && (
+            <div className="lg:w-52 shrink-0 flex flex-col" style={{
+              background: "linear-gradient(180deg, #0B0F1A 0%, #080C14 100%)",
+              borderTop: "1px solid rgba(0,207,255,0.10)",
+              borderLeft: "1px solid rgba(0,207,255,0.10)"
+            }}>
+              <div className="px-5 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Star className="w-3.5 h-3.5 text-[#FFD000]" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#FFD000]">Territory Hub</span>
+                </div>
+                <div className="text-xs font-bold text-white leading-tight">{institutionName || "Institution"}</div>
+                <div className="text-[10px] text-gray-500 mt-0.5">HQ: {hqResolvedCountry || "Registered location"}</div>
+                <div className="text-[10px] text-[#00CFFF] mt-1 font-bold">{usersInMap || 0} registered user{usersInMap === 1 ? "" : "s"} in this map</div>
               </div>
-              <div className="text-xs font-bold text-white leading-tight">{institutionName || "Institution"}</div>
-              <div className="text-[10px] text-gray-500 mt-0.5">HQ: {hqResolvedCountry || "Registered location"}</div>
-              <div className="text-[10px] text-[#00CFFF] mt-1 font-bold">{usersInMap || 0} registered user{usersInMap === 1 ? "" : "s"} in this map</div>
-            </div>
 
-            {/* Nation list */}
-            <div className="flex-1 overflow-y-auto px-3 py-3">
-              <div className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-600 px-2 mb-2">Nations</div>
-              <div className="space-y-0.5">
-                {countries.map((country, i) => (
-                  <button
-                    key={country}
-                    onClick={() => setSelectedCountry(selectedCountry === country ? null : country)}
-                    className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg text-left transition-all group"
-                    style={{
-                      background: selectedCountry === country ? "rgba(0,207,255,0.12)" : "transparent",
-                      border: selectedCountry === country ? "1px solid rgba(0,207,255,0.34)" : "1px solid transparent",
-                    }}
-                    onMouseOver={e => { if (selectedCountry !== country) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
-                    onMouseOut={e => { if (selectedCountry !== country) e.currentTarget.style.background = "transparent"; }}
-                  >
-                    <div
-                      className="w-2 h-2 rounded-full shrink-0"
-                      style={{ background: ECD_COLORS[i % ECD_COLORS.length], boxShadow: `0 0 6px ${ECD_COLORS[i % ECD_COLORS.length]}80` }}
-                    />
-                    <span className="text-[11px] font-medium flex-1 truncate" style={{ color: selectedCountry === country ? "#00CFFF" : "rgba(200,208,224,0.72)" }}>
-                      {country === "Democratic Republic of Congo" ? "DR Congo" : country}
-                    </span>
-                    {selectedCountry === country && <ChevronRight className="w-3 h-3 text-[#00CFFF] shrink-0" />}
-                  </button>
-                ))}
+              <div className="flex-1 overflow-y-auto px-3 py-3">
+                <div className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-600 px-2 mb-2">Nations</div>
+                <div className="space-y-0.5">
+                  {countries.map((country, i) => (
+                    <button
+                      key={country}
+                      onClick={() => setSelectedCountry(selectedCountry === country ? null : country)}
+                      className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg text-left transition-all group"
+                      style={{
+                        background: selectedCountry === country ? "rgba(0,207,255,0.12)" : "transparent",
+                        border: selectedCountry === country ? "1px solid rgba(0,207,255,0.34)" : "1px solid transparent",
+                      }}
+                      onMouseOver={e => { if (selectedCountry !== country) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
+                      onMouseOut={e => { if (selectedCountry !== country) e.currentTarget.style.background = "transparent"; }}
+                    >
+                      <div
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ background: ECD_COLORS[i % ECD_COLORS.length], boxShadow: `0 0 6px ${ECD_COLORS[i % ECD_COLORS.length]}80` }}
+                      />
+                      <span className="text-[11px] font-medium flex-1 truncate" style={{ color: selectedCountry === country ? "#00CFFF" : "rgba(200,208,224,0.72)" }}>
+                        {country === "Democratic Republic of Congo" ? "DR Congo" : country}
+                      </span>
+                      {selectedCountry === country && <ChevronRight className="w-3 h-3 text-[#00CFFF] shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                <div className="text-[9px] text-gray-600 text-center">Click a country to explore</div>
               </div>
             </div>
-
-            {/* Bottom hint */}
-            <div className="px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-              <div className="text-[9px] text-gray-600 text-center">Click a country to explore</div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
