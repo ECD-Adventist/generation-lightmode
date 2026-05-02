@@ -269,7 +269,7 @@ export default function AdminInstitutionTab() {
                 </>
               )}
 
-              {selectedApp.status === "rejected" && (
+              {["rejected", "revoked"].includes(selectedApp.status) && (
                 <Button
                   onClick={() => reinstateAppMutation.mutate(selectedApp.id)}
                   disabled={isActionLoading}

@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertTriangle, CheckCircle, Clock, Filter, Layers, Loader2, Search, ShieldAlert, Trash2, Users, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle, Clock, Filter, Layers, RotateCcw, Search, ShieldAlert, Trash2, Users, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 
@@ -67,7 +67,17 @@ export default function AdminInstitutionApplicationsView({ applications, allUser
     onSuccess: (nextStatus) => {
       queryClient.invalidateQueries({ queryKey: ["institutionApplications"] });
       setSelectedIds([]);
-      toast.success(`${nextStatus === "approved" ? "Approved" : "Rejected"} ${selectedIds.length} application(s).`);
+      toast.success(`${nextStatus === "approved" ? "Approved" : nextStatus === "pending" ? "Reinstated" : "Rejected"} ${selectedIds.length} application(s).`);
+    },
+  });
+
+  const reinstateMutation = useMutation({
+    mutationFn: async (id) => {
+      await base44.entities.InstitutionApplication.update(id, { status: "pending", admin_notes: adminNotes });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["institutionApplications"] });
+      toast.success("Application reinstated for review.");
     },
   });
 
@@ -204,18 +214,31 @@ export default function AdminInstitutionApplicationsView({ applications, allUser
                     <Filter className="w-3 h-3" /> Submitted {app.created_date ? new Date(app.created_date).toLocaleDateString() : "recently"}
                   </div>
                 </button>
-                <button
-                  onClick={() => {
-                    if (window.confirm(`Delete application for ${app.institution_name}? This cannot be undone.`)) {
-                      deleteMutation.mutate([app.id]);
-                    }
-                  }}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition hover:opacity-80"
-                  style={{ background: "rgba(239,68,68,0.12)", color: t.danger, border: `1px solid ${t.danger}33` }}
-                  title="Delete application"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="flex flex-col gap-2 shrink-0">
+                  {["rejected", "revoked"].includes(app.status) && (
+                    <button
+                      onClick={() => reinstateMutation.mutate(app.id)}
+                      disabled={reinstateMutation.isPending}
+                      className="w-10 h-10 rounded-xl flex items-center justify-center transition hover:opacity-80 disabled:opacity-50"
+                      style={{ background: `${t.warning}22`, color: t.warning, border: `1px solid ${t.warning}44` }}
+                      title="Reinstate for review"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Delete application for ${app.institution_name}? This cannot be undone.`)) {
+                        deleteMutation.mutate([app.id]);
+                      }
+                    }}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center transition hover:opacity-80"
+                    style={{ background: "rgba(239,68,68,0.12)", color: t.danger, border: `1px solid ${t.danger}33` }}
+                    title="Delete application"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           );
