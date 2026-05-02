@@ -70,11 +70,13 @@ export default function MobileBottomNav({ currentPageName }) {
                 if (key === "Feed") {
                   e.preventDefault();
                   sessionStorage.removeItem("scroll_pos_/Feed");
-                  window.location.href = createPageUrl("Feed");
+                  window.location.href = `${createPageUrl("Feed")}?refresh=${Date.now()}`;
                   return;
                 }
-                if (key === "Profile" && location.search) {
+                if (key === "Profile") {
+                  e.preventDefault();
                   sessionStorage.removeItem("scroll_pos_/Profile");
+                  window.location.href = createPageUrl("Profile");
                   return;
                 }
                 if (active) {
