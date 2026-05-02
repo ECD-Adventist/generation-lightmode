@@ -24,7 +24,7 @@ import AppFooter from "@/components/AppFooter";
 import { getDisplayName } from "@/lib/displayName";
 import MobileProfile from "@/components/profile/MobileProfile";
 import CountryFlag from "@/components/common/CountryFlag";
-import DropCard from "@/components/feed/DropCard";
+import DropGridTile from "@/components/profile/DropGridTile";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -532,21 +532,17 @@ export default function Profile() {
         );
       }
       return (
-        <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
           {myDrops.map(drop => (
-            <DropCard
+            <DropGridTile
               key={drop.id}
               drop={drop}
-              user={currentUser}
-              dropUser={displayUser}
-              likeMutation={profileLikeMutation}
-              handleShare={handleDropShare}
-              userLikes={profileUserLikes}
-              allUsers={allUsersForProfile}
-              savedDropRecords={profileSavedDrops}
-              leaderAccounts={[...managedLeaderAccounts, ...publicLeaderAccounts].filter(Boolean)}
-              following={currentUserFollowing}
-              followMutation={followMutation}
+              onClick={() => setViewingDropId(drop.id)}
+              authorName={getDisplayName(displayUser)}
+              authorTitle={leaderTitle}
+              isLeader={isLeaderProfile}
+              commentsCount={commentsByDropId.get(drop.id) || 0}
+              isSaved={savedDropIdSet.has(drop.id)}
             />
           ))}
         </div>
@@ -1086,21 +1082,17 @@ export default function Profile() {
                 )}
               </div>
             ) : (
-              <div className="max-w-2xl mx-auto">
+              <div className="grid grid-cols-3 gap-3 sm:gap-4">
                 {myDrops.map(drop => (
-                  <DropCard
+                  <DropGridTile
                     key={drop.id}
                     drop={drop}
-                    user={currentUser}
-                    dropUser={displayUser}
-                    likeMutation={profileLikeMutation}
-                    handleShare={handleDropShare}
-                    userLikes={profileUserLikes}
-                    allUsers={allUsersForProfile}
-                    savedDropRecords={profileSavedDrops}
-                    leaderAccounts={[...managedLeaderAccounts, ...publicLeaderAccounts].filter(Boolean)}
-                    following={currentUserFollowing}
-                    followMutation={followMutation}
+                    onClick={() => setViewingDropId(drop.id)}
+                    authorName={getDisplayName(displayUser)}
+                    authorTitle={leaderTitle}
+                    isLeader={isLeaderProfile}
+                    commentsCount={commentsByDropId.get(drop.id) || 0}
+                    isSaved={savedDropIdSet.has(drop.id)}
                   />
                 ))}
               </div>
