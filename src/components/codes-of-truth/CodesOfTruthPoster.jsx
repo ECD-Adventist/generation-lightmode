@@ -1,6 +1,6 @@
 import React from "react";
 
-export const CODES_OF_TRUTH_BACKGROUND_URL = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/9f447b683_BACKGROUNDTMP-03.jpg";
+export const CODES_OF_TRUTH_BACKGROUND_URL = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/d68c01a4b_BACKGROUNDTMP-03.jpg";
 
 function cleanCodeText(text = "") {
   return String(text)
