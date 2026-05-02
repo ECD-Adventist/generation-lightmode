@@ -510,29 +510,32 @@ export default function Profile() {
         );
       }
       return (
-        <FeedDropList
-          drops={myDrops}
-          displayCount={myDrops.length}
-          getUserInfo={(email) => {
-            if (email === displayUser?.email) return displayUser;
-            if (email === currentUser?.email) return currentUser;
-            const found = allUsersForProfile.find(u => u.email === email);
-            if (found) return found;
-            return { full_name: email?.split('@')[0] || "Glow Believer", email };
-          }}
-          user={currentUser}
-          likeMutation={profileLikeMutation}
-          handleShare={handleDropShare}
-          userLikes={profileUserLikes}
-          allUsers={allUsersForProfile}
-          savedDropRecords={profileSavedDrops}
-          leaderAccounts={isViewingLeader && activeLeaderAccount ? [activeLeaderAccount] : (displayUser?.is_managed_leader ? [{ leader_email: displayUser.email, leader_name: displayUser.full_name, leader_title: leaderTitle, leader_profile_picture_url: displayUser.profile_picture_url, leader_country: displayUser.country, leader_bio: displayUser.bio }] : [])}
-          following={currentUserFollowing}
-          followMutation={followMutation}
-          hasMore={false}
-          isLoadingMore={false}
-          onLoadMore={() => {}}
-        />
+        <div className="grid grid-cols-3 gap-2 [&_>div]:!mb-0">
+          <FeedDropList
+            drops={myDrops}
+            displayCount={myDrops.length}
+            getUserInfo={(email) => {
+              if (email === displayUser?.email) return displayUser;
+              if (email === currentUser?.email) return currentUser;
+              const found = allUsersForProfile.find(u => u.email === email);
+              if (found) return found;
+              return { full_name: email?.split('@')[0] || "Glow Believer", email };
+            }}
+            user={currentUser}
+            likeMutation={profileLikeMutation}
+            handleShare={handleDropShare}
+            userLikes={profileUserLikes}
+            allUsers={allUsersForProfile}
+            savedDropRecords={profileSavedDrops}
+            leaderAccounts={isViewingLeader && activeLeaderAccount ? [activeLeaderAccount] : (displayUser?.is_managed_leader ? [{ leader_email: displayUser.email, leader_name: displayUser.full_name, leader_title: leaderTitle, leader_profile_picture_url: displayUser.profile_picture_url, leader_country: displayUser.country, leader_bio: displayUser.bio }] : [])}
+            following={currentUserFollowing}
+            followMutation={followMutation}
+            hasMore={false}
+            isLoadingMore={false}
+            onLoadMore={() => {}}
+            footerClassName="col-span-3 py-4 text-center text-xs"
+          />
+        </div>
       );
     }
     if (activeProfileTab === "saved" && isOwnProfile) {
@@ -1052,9 +1055,9 @@ export default function Profile() {
           })}
         </div>
 
-        {/* DROPS TAB — feed-style post cards */}
+        {/* DROPS TAB — feed-style post cards in a 3-column grid */}
         {activeProfileTab === "drops" && (
-          <div className="px-4 max-w-2xl mx-auto">
+          <div className="px-4">
             {myDrops.length === 0 ? (
               <div className="py-24 flex flex-col items-center justify-center rounded-[1.5rem]" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
                 <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: "#EEF3FF", border: "2px solid #D6E4FF" }}>
@@ -1069,29 +1072,32 @@ export default function Profile() {
                 )}
               </div>
             ) : (
-              <FeedDropList
-                drops={myDrops}
-                displayCount={myDrops.length}
-                getUserInfo={(email) => {
-                  if (email === displayUser?.email) return displayUser;
-                  if (email === currentUser?.email) return currentUser;
-                  const found = allUsersForProfile.find(u => u.email === email);
-                  if (found) return found;
-                  return { full_name: email?.split('@')[0] || "Glow Believer", email };
-                }}
-                user={currentUser}
-                likeMutation={profileLikeMutation}
-                handleShare={handleDropShare}
-                userLikes={profileUserLikes}
-                allUsers={allUsersForProfile}
-                savedDropRecords={profileSavedDrops}
-                leaderAccounts={isViewingLeader && activeLeaderAccount ? [activeLeaderAccount] : (displayUser?.is_managed_leader ? [{ leader_email: displayUser.email, leader_name: displayUser.full_name, leader_title: leaderTitle, leader_profile_picture_url: displayUser.profile_picture_url, leader_country: displayUser.country, leader_bio: displayUser.bio }] : [])}
-                following={currentUserFollowing}
-                followMutation={followMutation}
-                hasMore={false}
-                isLoadingMore={false}
-                onLoadMore={() => {}}
-              />
+              <div className="grid grid-cols-3 gap-3 sm:gap-4 [&_>div]:!mb-0">
+                <FeedDropList
+                  drops={myDrops}
+                  displayCount={myDrops.length}
+                  getUserInfo={(email) => {
+                    if (email === displayUser?.email) return displayUser;
+                    if (email === currentUser?.email) return currentUser;
+                    const found = allUsersForProfile.find(u => u.email === email);
+                    if (found) return found;
+                    return { full_name: email?.split('@')[0] || "Glow Believer", email };
+                  }}
+                  user={currentUser}
+                  likeMutation={profileLikeMutation}
+                  handleShare={handleDropShare}
+                  userLikes={profileUserLikes}
+                  allUsers={allUsersForProfile}
+                  savedDropRecords={profileSavedDrops}
+                  leaderAccounts={isViewingLeader && activeLeaderAccount ? [activeLeaderAccount] : (displayUser?.is_managed_leader ? [{ leader_email: displayUser.email, leader_name: displayUser.full_name, leader_title: leaderTitle, leader_profile_picture_url: displayUser.profile_picture_url, leader_country: displayUser.country, leader_bio: displayUser.bio }] : [])}
+                  following={currentUserFollowing}
+                  followMutation={followMutation}
+                  hasMore={false}
+                  isLoadingMore={false}
+                  onLoadMore={() => {}}
+                  footerClassName="col-span-3 py-6 text-center text-sm"
+                />
+              </div>
             )}
           </div>
         )}
