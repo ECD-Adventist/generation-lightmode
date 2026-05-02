@@ -36,15 +36,15 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
       />
 
       {/* Text block — anchored to the upper-left quadrant, away from the bright eclipse flash on the right */}
-      <div className="absolute z-10 top-[26%] left-[7%] right-[42%] flex flex-col items-start text-left">
+      <div className="absolute z-10 top-[20%] left-[7%] right-[30%] flex flex-col items-start text-left">
         {/* Decorative cyan open-quote */}
         <div
           aria-hidden="true"
           className="font-serif leading-none select-none mb-2"
           style={{
             color: "#00DFFF",
-            fontSize: "clamp(34px, 6vw, 64px)",
-            textShadow: "0 0 18px rgba(0,223,255,0.55)",
+            fontSize: "clamp(48px, 8.5vw, 92px)",
+            textShadow: "0 0 22px rgba(0,223,255,0.6)",
           }}
         >
           “
@@ -55,7 +55,7 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
             className="font-['Space_Grotesk'] font-black uppercase mb-3"
             style={{
               color: "#FFD000",
-              fontSize: "clamp(10px, 1.1vw, 13px)",
+              fontSize: "clamp(11px, 1.3vw, 15px)",
               letterSpacing: "0.28em",
               textShadow: "0 0 12px rgba(255,208,0,0.55), 0 2px 10px rgba(0,0,0,0.8)",
             }}
@@ -66,11 +66,11 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
 
         {cleanedText && (
           <p
-            className="font-['Space_Grotesk'] font-bold leading-[1.18] line-clamp-6"
+            className="font-['Space_Grotesk'] font-bold leading-[1.15] line-clamp-7"
             style={{
               color: "#FFFFFF",
-              fontSize: "clamp(16px, 2.5vw, 28px)",
-              letterSpacing: "-0.02em",
+              fontSize: "clamp(22px, 4vw, 44px)",
+              letterSpacing: "-0.025em",
               textShadow: "0 4px 22px rgba(0,0,0,0.85)",
             }}
           >
@@ -80,7 +80,7 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
 
         {/* Thin gold underline accent */}
         <div
-          className="mt-5 h-[2px] w-16"
+          className="mt-6 h-[2px] w-20"
           style={{
             background: "linear-gradient(90deg, #FFD000, rgba(255,208,0,0))",
             boxShadow: "0 0 10px rgba(255,208,0,0.5)",
