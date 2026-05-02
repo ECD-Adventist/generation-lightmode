@@ -18,7 +18,7 @@ import { getDisplayName } from "@/lib/displayName";
 import { useIsMobile } from "@/hooks/use-mobile";
 import CountryFlag from "@/components/common/CountryFlag";
 
-export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation }) {
+export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
@@ -612,7 +612,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             >
               <MessageCircle className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${commentBounce ? 'dc-anim-bounce' : ''} ${showComments ? "text-cyan-500" : useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${useGlass ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{comments.length}</span>
+            <span className={`text-[11px] sm:text-xs font-bold ${useGlass ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{showComments ? comments.length : commentsCount}</span>
           </div>
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">

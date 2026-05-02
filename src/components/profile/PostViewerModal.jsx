@@ -5,7 +5,7 @@ import DropCard from "@/components/feed/DropCard";
 export default function PostViewerModal({
   isOpen, onClose, drops, initialDropId,
   user, currentUser, allUsers,
-  likeMutation, handleShare, userLikes, savedDropRecords, leaderAccounts = [], following = [], followMutation
+  likeMutation, handleShare, userLikes, savedDropRecords, leaderAccounts = [], following = [], followMutation, commentsByDropId
 }) {
   const scrollRef = useRef(null);
   const initialRef = useRef(null);
@@ -132,6 +132,7 @@ export default function PostViewerModal({
                   leaderAccounts={leaderAccounts || []}
                   following={following || []}
                   followMutation={followMutation}
+                  commentsCount={commentsByDropId?.get?.(drop.id) || 0}
                 />
               </div>
             ))}

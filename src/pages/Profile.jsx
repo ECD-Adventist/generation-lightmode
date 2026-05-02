@@ -690,6 +690,7 @@ export default function Profile() {
         leaderAccounts={[...publicLeaderAccounts, ...managedLeaderAccounts]}
         following={currentUserFollowing}
         followMutation={followMutation}
+        commentsByDropId={commentsByDropId}
       />
     </div>
 
@@ -1252,6 +1253,7 @@ export default function Profile() {
         leaderAccounts={[...publicLeaderAccounts, ...managedLeaderAccounts]}
         following={currentUserFollowing}
         followMutation={followMutation}
+        commentsByDropId={commentsByDropId}
       />
       <AppFooter />
     </div>
