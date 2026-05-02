@@ -38,6 +38,23 @@ export default function ExecutiveProfileHeader({
   const cardBg = "#FFFFFF";
   const borderColor = "#E6ECF5";
 
+  const syncMapToPublicPage = async (mapData) => {
+    if (primaryPage?.id) {
+      await base44.entities.InstitutionPage.update(primaryPage.id, mapData);
+    }
+  };
+
+  const saveMapData = async (appRecord, mapData) => {
+    if (appRecord?.institution_page_id) {
+      await base44.entities.InstitutionPage.update(appRecord.institution_page_id, mapData);
+      return;
+    }
+    if (appRecord?.id) {
+      await base44.entities.InstitutionApplication.update(appRecord.id, mapData);
+    }
+    await syncMapToPublicPage(mapData);
+  };
+
   return (
     <>
       <style>{`
@@ -152,8 +169,10 @@ export default function ExecutiveProfileHeader({
                           onClick={async () => {
                             const appWithMap = institutionApps.find(a => a.organization_map_url);
                             if (!appWithMap || !window.confirm("Delete this organization map?")) return;
-                            await base44.entities.InstitutionApplication.update(appWithMap.id, { organization_map_url: "", extracted_territories: "" });
+                            await saveMapData(appWithMap, { organization_map_url: "", extracted_territories: "" });
                             queryClient.invalidateQueries({ queryKey: ["profileInstitutionApps"] });
+                            queryClient.invalidateQueries({ queryKey: ["publicInstitutionPagesForProfile"] });
+                            queryClient.invalidateQueries({ queryKey: ["allInstitutionPages"] });
                             toast.success("Organization map deleted.");
                           }}
                           disabled={uploadingMap}
@@ -179,9 +198,11 @@ export default function ExecutiveProfileHeader({
                         setMapUploadProgress({ step: 3, percent: 85, label: "Saving to profile..." });
                         const appWithMap = institutionApps.find(a => a.organization_map_url) || primaryApp;
                         const updateData = { organization_map_url: file_url }; if (extractedTerritories.length > 0) updateData.extracted_territories = JSON.stringify(extractedTerritories);
-                        await base44.entities.InstitutionApplication.update(appWithMap.id, updateData);
+                        await saveMapData(appWithMap, updateData);
                         setMapUploadProgress({ step: 4, percent: 100, label: "Done!" }); await new Promise(r => setTimeout(r, 600));
                         queryClient.invalidateQueries({ queryKey: ["profileInstitutionApps"] });
+                        queryClient.invalidateQueries({ queryKey: ["publicInstitutionPagesForProfile"] });
+                        queryClient.invalidateQueries({ queryKey: ["allInstitutionPages"] });
                         toast.success(`Organization map updated! ${extractedTerritories.length} territories extracted.`);
                       } catch { toast.error("Failed to upload map"); }
                       finally { setUploadingMap(false); setMapUploadProgress(null); }

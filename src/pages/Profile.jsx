@@ -252,6 +252,30 @@ export default function Profile() {
     enabled: !!profileEmail,
   });
 
+  const { data: publicInstitutionPages = [] } = useQuery({
+    queryKey: ["publicInstitutionPagesForProfile", profileEmail],
+    queryFn: () => base44.entities.InstitutionPage.filter({ owner_email: profileEmail }),
+    enabled: !!profileEmail,
+  });
+
+  const visibleInstitutionApps = useMemo(() => {
+    if (userInstitutionApps.length > 0) return userInstitutionApps;
+    return publicInstitutionPages.map(page => ({
+      id: page.id,
+      user_email: page.owner_email,
+      institution_name: page.name,
+      institution_type: page.category,
+      country: page.location,
+      contact_email: page.contact_email,
+      contact_phone: page.contact_phone,
+      logo_url: page.logo_url,
+      organization_map_url: page.organization_map_url,
+      extracted_territories: page.extracted_territories,
+      status: "approved",
+      institution_page_id: page.id,
+    }));
+  }, [userInstitutionApps, publicInstitutionPages]);
+
   const { data: profileUserLikes = [] } = useQuery({
     queryKey: ["profileUserLikes", currentUser?.email],
     queryFn: () => base44.entities.GlowDropLike.filter({ user_email: currentUser?.email }),
@@ -635,7 +659,7 @@ export default function Profile() {
         onSetConnectionsView={setConnectionsView}
         activeTab={activeProfileTab === "story_analytics" ? "drops" : activeProfileTab}
         onTabChange={setActiveProfileTab}
-        userInstitutionApps={isLeaderProfile ? [] : userInstitutionApps}
+        userInstitutionApps={isLeaderProfile ? [] : visibleInstitutionApps}
       >
         {mobileTabContent}
       </MobileProfile>
@@ -801,7 +825,7 @@ export default function Profile() {
             onCoverImageSelect={e => handleImageSelect(e, "cover")}
             uploadingImage={uploadingImage}
           />
-        ) : userInstitutionApps.length > 0 ? (
+        ) : visibleInstitutionApps.length > 0 ? (
           <>
             <ExecutiveProfileHeader
               user={user} isOwnProfile={isOwnProfile} profileEmail={profileEmail}
@@ -810,7 +834,7 @@ export default function Profile() {
               onFollowToggle={() => followMutation.mutate(profileEmail)} isFollowingThisUser={isFollowingThisUser}
               currentUser={currentUser} onProfileImageSelect={e => handleImageSelect(e, "profile")}
               onCoverImageSelect={e => handleImageSelect(e, "cover")} uploadingImage={uploadingImage}
-              institutionApps={userInstitutionApps}
+              institutionApps={visibleInstitutionApps}
             />
             <div className="h-8" />
           </>
@@ -959,7 +983,7 @@ export default function Profile() {
                       <CountryFlag country={displayUser.country} size="xs" /> {displayUser.country || "Global Citizen"}
                     </span>
                     {!isViewingLeader && myMemberships.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(31, 184, 255, 0.12)", border: "1px solid #B8E5FF", color: "#0B3FD9" }}>{myMemberships.length} GlowGroup{myMemberships.length > 1 ? "s" : ""}</span>}
-                    {!isViewingLeader && userInstitutionApps.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}>Institution linked</span>}
+                    {!isViewingLeader && visibleInstitutionApps.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}>Institution linked</span>}
                   </div>
                   <p className="leading-relaxed whitespace-pre-line">
                     {displayUser.bio || (isViewingLeader ? "Leader account managed by your team." : "Digital Missionary ⚡ Spreading light through faith in the online world.")}
@@ -1053,7 +1077,7 @@ export default function Profile() {
             { key: "institutions", icon: <Building2 className="w-4 h-4" />, label: "INSTITUTIONS" },
           ]).map(tab => {
             const isActive = activeProfileTab === tab.key;
-            const isInstitutions = tab.key === "institutions" && userInstitutionApps.length > 0;
+            const isInstitutions = tab.key === "institutions" && visibleInstitutionApps.length > 0;
             return (
               <button
                 key={tab.key}

@@ -53,6 +53,35 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, skipped: true, reason: 'No recipient email' });
     }
 
+    const slugBase = String(app.institution_name || 'institution')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'institution';
+
+    const existingPages = await base44.asServiceRole.entities.InstitutionPage.filter({ owner_email: app.user_email });
+    const existingPage = existingPages.find(page => page.name?.toLowerCase() === app.institution_name?.toLowerCase()) || existingPages[0];
+    const pageData = {
+      name: app.institution_name,
+      slug: existingPage?.slug || `${slugBase}-${String(app.user_email || '').split('@')[0].toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+      owner_email: app.user_email,
+      logo_url: app.logo_url || existingPage?.logo_url || '',
+      mission_statement: app.commitment_description || existingPage?.mission_statement || '',
+      category: app.institution_type === 'organization' ? 'ministry' : (app.institution_type || 'ministry'),
+      contact_email: app.contact_email || app.user_email,
+      contact_phone: app.contact_phone || '',
+      location: app.country || '',
+      organization_map_url: app.organization_map_url || existingPage?.organization_map_url || '',
+      extracted_territories: app.extracted_territories || existingPage?.extracted_territories || '',
+      verified: true,
+    };
+
+    let institutionPage;
+    if (existingPage?.id) {
+      institutionPage = await base44.asServiceRole.entities.InstitutionPage.update(existingPage.id, pageData);
+    } else {
+      institutionPage = await base44.asServiceRole.entities.InstitutionPage.create(pageData);
+    }
+
     await base44.asServiceRole.integrations.Core.SendEmail({
       from_name: 'Generation LightMode',
       to: recipient,
@@ -60,7 +89,7 @@ Deno.serve(async (req) => {
       body: congratulationsBody(app),
     });
 
-    return Response.json({ success: true, to: recipient });
+    return Response.json({ success: true, to: recipient, institution_page_id: institutionPage?.id });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

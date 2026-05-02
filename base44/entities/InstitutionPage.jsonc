@@ -50,6 +50,14 @@
     "location": {
       "type": "string"
     },
+    "organization_map_url": {
+      "type": "string",
+      "description": "Public organization structure/map image URL"
+    },
+    "extracted_territories": {
+      "type": "string",
+      "description": "JSON string of territories extracted from the org map"
+    },
     "social_links": {
       "type": "string",
       "description": "JSON string of social media links such as Facebook, Instagram, YouTube, X, LinkedIn"
