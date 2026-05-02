@@ -20,22 +20,27 @@ export default function ProfileInstitutionsTab({ profileEmail, isOwnProfile }) {
 
   const isLoading = appsLoading || pagesLoading;
 
-  // For public view, only show approved applications
-  const visibleApps = isOwnProfile ? applications : applications.filter(a => a.status === "approved");
+  const ownedPages = institutionPages.filter(p => p.owner_email === profileEmail);
 
-  const findPage = (app) => {
-    return institutionPages.find(
+  const applicationItems = (isOwnProfile ? applications : applications.filter(a => a.status === "approved")).map(app => {
+    const page = institutionPages.find(
       p => p.owner_email === app.user_email && p.name?.toLowerCase() === app.institution_name?.toLowerCase()
-    ) || institutionPages.find(
-      p => p.owner_email === app.user_email
-    );
-  };
+    ) || institutionPages.find(p => p.owner_email === app.user_email);
+
+    return { type: "application", app, page, id: app.id };
+  });
+
+  const pageOnlyItems = ownedPages
+    .filter(page => !applicationItems.some(item => item.page?.id === page.id))
+    .map(page => ({ type: "page", page, id: page.id }));
+
+  const visibleItems = [...applicationItems, ...pageOnlyItems];
 
   if (isLoading) {
     return <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-[#00CFFF] animate-spin" /></div>;
   }
 
-  if (visibleApps.length === 0) {
+  if (visibleItems.length === 0) {
     return (
       <div className="text-center py-20 text-gray-500 bg-[#121826]/50 rounded-2xl border border-white/5">
         <Building2 className="w-10 h-10 mx-auto mb-3 opacity-30" />
@@ -52,15 +57,20 @@ export default function ProfileInstitutionsTab({ profileEmail, isOwnProfile }) {
 
   return (
     <div className="py-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {visibleApps.map(app => {
-        const page = findPage(app);
-        const isApproved = app.status === "approved";
+      {visibleItems.map(item => {
+        const app = item.app;
+        const page = item.page;
+        const isApproved = item.type === "page" || app?.status === "approved";
+        const name = app?.institution_name || page?.name;
+        const type = app?.institution_type || page?.category;
+        const location = app?.country || page?.location;
+        const logoUrl = app?.logo_url || page?.logo_url;
 
         return (
-          <div key={app.id} className="bg-[#121826] rounded-2xl p-5 border border-white/5 hover:border-white/15 transition">
+          <div key={item.id} className="bg-[#121826] rounded-2xl p-5 border border-white/5 hover:border-white/15 transition">
             <div className="flex items-center gap-3 mb-3">
-              {app.logo_url ? (
-                <img src={app.logo_url} alt="" className="w-12 h-12 rounded-xl object-cover border border-white/10" />
+              {logoUrl ? (
+                <img src={logoUrl} alt="" className="w-12 h-12 rounded-xl object-cover border border-white/10" />
               ) : (
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00CFFF]/20 to-[#8A5CFF]/20 flex items-center justify-center border border-white/10">
                   <Building2 className="w-5 h-5 text-[#00CFFF]" />
@@ -68,10 +78,10 @@ export default function ProfileInstitutionsTab({ profileEmail, isOwnProfile }) {
               )}
               <div className="min-w-0 flex-1">
                 <h4 className="font-bold text-white truncate flex items-center gap-1.5">
-                  {app.institution_name}
+                  {name}
                   {isApproved && <Shield className="w-3.5 h-3.5 text-[#00CFFF] shrink-0" />}
                 </h4>
-                <p className="text-xs text-gray-500 capitalize">{app.institution_type} • {app.country}</p>
+                <p className="text-xs text-gray-500 capitalize">{type} • {location}</p>
               </div>
             </div>
 
@@ -94,7 +104,7 @@ export default function ProfileInstitutionsTab({ profileEmail, isOwnProfile }) {
               </div>
             ) : isApproved ? (
               <div className="text-center py-2.5 rounded-xl bg-green-500/10 text-green-400 text-xs font-bold">
-                ✓ Approved — Dashboard being set up
+                ✓ Approved — Institution profile ready
               </div>
             ) : isOwnProfile ? (
               <div className={`text-center py-2.5 rounded-xl text-xs font-bold ${app.status === "rejected" ? "bg-red-500/10 text-red-400" : "bg-yellow-500/10 text-yellow-400"}`}>
