@@ -36,10 +36,10 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
   const cleanedText = truncateForPoster(cleaned, 180);
   // Auto-shrink type for longer copy so it never overflows into the bottom logo area
   const len = cleanedText?.length || 0;
-  const bodyFontSize = len > 140 ? "clamp(14px, 2.2vw, 22px)"
-    : len > 90 ? "clamp(16px, 2.6vw, 26px)"
-    : len > 50 ? "clamp(18px, 3.1vw, 32px)"
-    : "clamp(22px, 3.8vw, 40px)";
+  const bodyFontSize = len > 140 ? "clamp(13px, 2vw, 20px)"
+    : len > 90 ? "clamp(15px, 2.35vw, 24px)"
+    : len > 50 ? "clamp(17px, 2.7vw, 28px)"
+    : "clamp(20px, 3.2vw, 34px)";
 
   return (
     <div
@@ -50,15 +50,15 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
         backgroundPosition: "center",
       }}
     >
-      {/* Text block — anchored to the upper-left quadrant, above the baked-in "Faith. Always On" + logo lockup */}
-      <div className="absolute z-10 top-[8%] bottom-[34%] left-[8%] right-[34%] flex flex-col items-start text-left overflow-hidden">
+      {/* Text block — clear of the author chip and balanced inside the upper-left readable zone */}
+      <div className="absolute z-10 top-[13%] bottom-[40%] left-[8%] right-[38%] flex flex-col items-start text-left overflow-hidden">
         {verse && (
           <div
-            className="font-['Space_Grotesk'] font-black uppercase mb-3"
+            className="font-['Space_Grotesk'] font-black uppercase mb-2"
             style={{
               color: "#FFD000",
-              fontSize: "clamp(11px, 1.3vw, 15px)",
-              letterSpacing: "0.28em",
+              fontSize: "clamp(9px, 1.05vw, 13px)",
+              letterSpacing: "0.24em",
               textShadow: "0 0 12px rgba(255,208,0,0.55), 0 2px 10px rgba(0,0,0,0.8)",
             }}
           >
@@ -68,12 +68,12 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
 
         {cleanedText && (
           <p
-            className="font-['Space_Grotesk'] font-semibold leading-[1.22] line-clamp-6"
+            className="font-['Space_Grotesk'] font-semibold leading-[1.18] line-clamp-5"
             style={{
               color: "#FFFFFF",
               fontSize: bodyFontSize,
-              letterSpacing: "-0.015em",
-              textShadow: "0 2px 8px rgba(0,0,0,0.75), 0 0 18px rgba(0,0,0,0.55)",
+              letterSpacing: "-0.025em",
+              textShadow: "0 3px 12px rgba(0,0,0,0.9), 0 0 18px rgba(0,0,0,0.65)",
             }}
           >
             {cleanedText}
