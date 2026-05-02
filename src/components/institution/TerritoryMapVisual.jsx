@@ -88,7 +88,7 @@ function getCountryColor(isoId, isSelected) {
   return ECD_COLORS[idx % ECD_COLORS.length] || "#00CFFF";
 }
 
-export default function TerritoryMapVisual({ territories, institutionName, memberCount, ownerEmail, hqCountry }) {
+export default function TerritoryMapVisual({ territories, institutionName, memberCount, ownerEmail, hqCountry, compact = false }) {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, name: "" });
 
@@ -149,42 +149,46 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
         boxShadow: "0 0 60px rgba(0,207,255,0.10), 0 0 120px rgba(138,92,255,0.08), 0 24px 80px rgba(0,0,0,0.45)"
       }}>
 
-        {/* Header */}
-        <div className="px-5 py-4 flex items-center gap-3" style={{
-          borderBottom: "1px solid rgba(0,207,255,0.16)",
-          background: "linear-gradient(90deg, rgba(0,207,255,0.10) 0%, rgba(138,92,255,0.08) 50%, transparent 100%)"
-        }}>
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(0,207,255,0.14)", border: "1px solid rgba(0,207,255,0.34)", boxShadow: "0 0 18px rgba(0,207,255,0.25)" }}>
-            <Globe className="w-4 h-4 text-[#00CFFF]" />
-          </div>
-          <div>
-            <div className="text-[11px] font-black text-[#00CFFF] uppercase tracking-[0.25em]">{institutionName || "Organization"} Map</div>
-            <div className="text-[9px] text-gray-500 uppercase tracking-widest mt-0.5">Extracted territory visualization · {countries.length} nation{countries.length === 1 ? "" : "s"}</div>
-          </div>
-          <div className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: "rgba(255,208,0,0.10)", border: "1px solid rgba(255,208,0,0.26)" }}>
-            <div className="w-1.5 h-1.5 rounded-full bg-[#FFD000] animate-pulse" />
-            <span className="text-[10px] font-bold text-[#FFD000]">LIVE</span>
-          </div>
-        </div>
-
-        {/* Stats row */}
-        <div className="grid grid-cols-4 divide-x" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", divideColor: "rgba(255,255,255,0.04)" }}>
-          {stats.map(stat => (
-            <div key={stat.label} className="px-4 py-3 text-center" style={{ borderRight: "1px solid rgba(255,255,255,0.04)" }}>
-              <div className="flex items-center justify-center gap-1.5 mb-1">
-                <div style={{ color: stat.color }}>{stat.icon}</div>
+        {!compact && (
+          <>
+            {/* Header */}
+            <div className="px-5 py-4 flex items-center gap-3" style={{
+              borderBottom: "1px solid rgba(0,207,255,0.16)",
+              background: "linear-gradient(90deg, rgba(0,207,255,0.10) 0%, rgba(138,92,255,0.08) 50%, transparent 100%)"
+            }}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(0,207,255,0.14)", border: "1px solid rgba(0,207,255,0.34)", boxShadow: "0 0 18px rgba(0,207,255,0.25)" }}>
+                <Globe className="w-4 h-4 text-[#00CFFF]" />
               </div>
-              <div className="text-xl font-black" style={{ color: stat.color, fontFamily: "Space Grotesk, sans-serif", textShadow: `0 0 20px ${stat.color}50` }}>{stat.value}</div>
-              <div className="text-[9px] uppercase tracking-wider mt-0.5" style={{ color: "rgba(200,208,224,0.4)" }}>{stat.label}</div>
+              <div>
+                <div className="text-[11px] font-black text-[#00CFFF] uppercase tracking-[0.25em]">{institutionName || "Organization"} Map</div>
+                <div className="text-[9px] text-gray-500 uppercase tracking-widest mt-0.5">Extracted territory visualization · {countries.length} nation{countries.length === 1 ? "" : "s"}</div>
+              </div>
+              <div className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: "rgba(255,208,0,0.10)", border: "1px solid rgba(255,208,0,0.26)" }}>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#FFD000] animate-pulse" />
+                <span className="text-[10px] font-bold text-[#FFD000]">LIVE</span>
+              </div>
             </div>
-          ))}
-        </div>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-4 divide-x" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", divideColor: "rgba(255,255,255,0.04)" }}>
+              {stats.map(stat => (
+                <div key={stat.label} className="px-4 py-3 text-center" style={{ borderRight: "1px solid rgba(255,255,255,0.04)" }}>
+                  <div className="flex items-center justify-center gap-1.5 mb-1">
+                    <div style={{ color: stat.color }}>{stat.icon}</div>
+                  </div>
+                  <div className="text-xl font-black" style={{ color: stat.color, fontFamily: "Space Grotesk, sans-serif", textShadow: `0 0 20px ${stat.color}50` }}>{stat.value}</div>
+                  <div className="text-[9px] uppercase tracking-wider mt-0.5" style={{ color: "rgba(200,208,224,0.4)" }}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Map + Side panel */}
         <div className="flex flex-col lg:flex-row">
 
           {/* Map */}
-          <div className="relative flex-1" style={{ minHeight: 400, background: "radial-gradient(circle at 50% 45%, #101A33 0%, #080C14 72%)" }}>
+          <div className="relative flex-1" style={{ minHeight: compact ? 260 : 400, background: "radial-gradient(circle at 50% 45%, #101A33 0%, #080C14 72%)" }}>
 
             {/* Glow effect behind map */}
             <div className="absolute inset-0 pointer-events-none" style={{
@@ -291,7 +295,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
           </div>
 
           {/* Right Panel */}
-          <div className="lg:w-52 shrink-0 flex flex-col" style={{
+          {!compact && <div className="lg:w-52 shrink-0 flex flex-col" style={{
             background: "linear-gradient(180deg, #0B0F1A 0%, #080C14 100%)",
             borderTop: "1px solid rgba(0,207,255,0.10)",
             borderLeft: "1px solid rgba(0,207,255,0.10)"
@@ -341,7 +345,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
             <div className="px-4 py-3" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
               <div className="text-[9px] text-gray-600 text-center">Click a country to explore</div>
             </div>
-          </div>
+          </div>}
         </div>
       </div>
 
