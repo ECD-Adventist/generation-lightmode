@@ -24,6 +24,7 @@ import AppFooter from "@/components/AppFooter";
 import { getDisplayName } from "@/lib/displayName";
 import MobileProfile from "@/components/profile/MobileProfile";
 import CountryFlag from "@/components/common/CountryFlag";
+import FeedDropList from "@/components/feed/FeedDropList";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -495,35 +496,43 @@ export default function Profile() {
   // MOBILE-ONLY branded shell — reuses same tab content by rendering a trimmed version (v2)
   const mobileTabContent = (() => {
     if (activeProfileTab === "drops") {
+      if (myDrops.length === 0) {
+        return (
+          <div className="py-16 text-center rounded-2xl" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
+            <Grid className="w-8 h-8 mx-auto mb-2" style={{ color: "#1FB8FF" }} />
+            <p className="text-sm font-bold" style={{ color: "#0B1B3D" }}>{isLeaderProfile ? "No Leader Posts Yet" : "No Drops Yet"}</p>
+            {isOwnProfile && !isLeaderProfile && (
+              <button onClick={() => setIsDropModalOpen(true)} className="mt-3 px-5 py-2 rounded-full text-xs font-black" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}>
+                Share your first Drop
+              </button>
+            )}
+          </div>
+        );
+      }
       return (
-        <div className="grid grid-cols-2 gap-2">
-          {myDrops.length === 0 ? (
-            <div className="col-span-2 py-16 text-center rounded-2xl" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
-              <Grid className="w-8 h-8 mx-auto mb-2" style={{ color: "#1FB8FF" }} />
-              <p className="text-sm font-bold" style={{ color: "#0B1B3D" }}>No Drops Yet</p>
-              {isOwnProfile && (
-                <button onClick={() => setIsDropModalOpen(true)} className="mt-3 px-5 py-2 rounded-full text-xs font-black" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}>
-                  Share your first Drop
-                </button>
-              )}
-            </div>
-          ) : myDrops.map(drop => (
-            <button key={drop.id} onClick={() => setViewingDropId(drop.id)} className="aspect-[4/5] relative rounded-2xl overflow-hidden active:scale-95 transition"
-              style={{ background: drop.media_url ? "#FFFFFF" : "linear-gradient(135deg, #EEF3FF, #DDE7FB)", border: "1px solid #E6ECF5" }}
-            >
-              {drop.media_url ? (
-                <img src={drop.media_url} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center p-3 text-center">
-                  <span className="text-xs font-black font-['Space_Grotesk'] line-clamp-5" style={{ color: "#0B3FD9" }}>{drop.verse}</span>
-                </div>
-              )}
-              <div className="absolute bottom-1 left-1 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-black backdrop-blur-md" style={{ background: "rgba(11,27,61,0.55)", color: "#FFFFFF" }}>
-                <Heart className="w-2.5 h-2.5 fill-white" /> {drop.likes_count || 0}
-              </div>
-            </button>
-          ))}
-        </div>
+        <FeedDropList
+          drops={myDrops}
+          displayCount={myDrops.length}
+          getUserInfo={(email) => {
+            if (email === displayUser?.email) return displayUser;
+            if (email === currentUser?.email) return currentUser;
+            const found = allUsersForProfile.find(u => u.email === email);
+            if (found) return found;
+            return { full_name: email?.split('@')[0] || "Glow Believer", email };
+          }}
+          user={currentUser}
+          likeMutation={profileLikeMutation}
+          handleShare={handleDropShare}
+          userLikes={profileUserLikes}
+          allUsers={allUsersForProfile}
+          savedDropRecords={profileSavedDrops}
+          leaderAccounts={isViewingLeader && activeLeaderAccount ? [activeLeaderAccount] : (displayUser?.is_managed_leader ? [{ leader_email: displayUser.email, leader_name: displayUser.full_name, leader_title: leaderTitle, leader_profile_picture_url: displayUser.profile_picture_url, leader_country: displayUser.country, leader_bio: displayUser.bio }] : [])}
+          following={currentUserFollowing}
+          followMutation={followMutation}
+          hasMore={false}
+          isLoadingMore={false}
+          onLoadMore={() => {}}
+        />
       );
     }
     if (activeProfileTab === "saved" && isOwnProfile) {
@@ -1043,49 +1052,46 @@ export default function Profile() {
           })}
         </div>
 
-        {/* DROPS TAB */}
+        {/* DROPS TAB — feed-style post cards */}
         {activeProfileTab === "drops" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 px-4">
-            {myDrops.map(drop => (
-              <button
-                key={drop.id}
-                onClick={() => setViewingDropId(drop.id)}
-                className="aspect-[4/5] relative group cursor-pointer overflow-hidden flex flex-col items-center justify-center p-3 text-center rounded-[1.25rem] transition-all hover:-translate-y-0.5"
-                style={{ background: drop.media_url ? "#FFFFFF" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}
-              >
-                {drop.media_url ? (
-                  <>
-                    <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="absolute inset-0 w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10" />
-                  </>
-                ) : (
-                  <div className="relative z-10 w-full h-full flex items-center justify-center px-3">
-                    <span className="font-bold font-['Space_Grotesk'] text-sm sm:text-lg md:text-xl break-words line-clamp-5 leading-tight" style={{ color: "#0B3FD9" }}>
-                      {drop.verse}
-                    </span>
-                  </div>
-                )}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]" style={{ background: "rgba(11, 27, 61, 0.55)" }}>
-                  <div className="flex items-center gap-2 font-bold text-lg md:text-2xl text-white">
-                    <Heart className="w-5 h-5 md:w-7 md:h-7 fill-white" /> {drop.likes_count || 0}
-                  </div>
-                  <div className="text-sm text-white/90 font-medium">Open post</div>
-                </div>
-              </button>
-            ))}
-            {myDrops.length === 0 && (
-              <div className="col-span-full py-24 flex flex-col items-center justify-center rounded-[1.5rem]" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
+          <div className="px-4 max-w-2xl mx-auto">
+            {myDrops.length === 0 ? (
+              <div className="py-24 flex flex-col items-center justify-center rounded-[1.5rem]" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
                 <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: "#EEF3FF", border: "2px solid #D6E4FF" }}>
                   <Grid className="w-10 h-10" style={{ color: "#1FB8FF" }} />
                 </div>
-                <h2 className="text-2xl font-bold font-['Space_Grotesk'] mb-2" style={{ color: "#0B1B3D" }}>No Drops Yet</h2>
-                <p className="mb-6 text-center max-w-md" style={{ color: "#6B7FA0" }}>When you share verses and reflections, they will appear on your profile grid.</p>
-                {isOwnProfile && (
+                <h2 className="text-2xl font-bold font-['Space_Grotesk'] mb-2" style={{ color: "#0B1B3D" }}>{isLeaderProfile ? "No Leader Posts Yet" : "No Drops Yet"}</h2>
+                <p className="mb-6 text-center max-w-md" style={{ color: "#6B7FA0" }}>When verses and reflections are shared, they'll appear here as full posts.</p>
+                {isOwnProfile && !isLeaderProfile && (
                   <button onClick={() => setIsDropModalOpen(true)} className="px-6 py-3 font-bold rounded-full transition" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35)" }}>
                     Share your first Drop
                   </button>
                 )}
               </div>
+            ) : (
+              <FeedDropList
+                drops={myDrops}
+                displayCount={myDrops.length}
+                getUserInfo={(email) => {
+                  if (email === displayUser?.email) return displayUser;
+                  if (email === currentUser?.email) return currentUser;
+                  const found = allUsersForProfile.find(u => u.email === email);
+                  if (found) return found;
+                  return { full_name: email?.split('@')[0] || "Glow Believer", email };
+                }}
+                user={currentUser}
+                likeMutation={profileLikeMutation}
+                handleShare={handleDropShare}
+                userLikes={profileUserLikes}
+                allUsers={allUsersForProfile}
+                savedDropRecords={profileSavedDrops}
+                leaderAccounts={isViewingLeader && activeLeaderAccount ? [activeLeaderAccount] : (displayUser?.is_managed_leader ? [{ leader_email: displayUser.email, leader_name: displayUser.full_name, leader_title: leaderTitle, leader_profile_picture_url: displayUser.profile_picture_url, leader_country: displayUser.country, leader_bio: displayUser.bio }] : [])}
+                following={currentUserFollowing}
+                followMutation={followMutation}
+                hasMore={false}
+                isLoadingMore={false}
+                onLoadMore={() => {}}
+              />
             )}
           </div>
         )}
