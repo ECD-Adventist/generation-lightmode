@@ -43,6 +43,12 @@ export default function Post() {
     enabled: !!currentUser,
   });
 
+  const { data: leaderAccounts = [] } = useQuery({
+    queryKey: ["allLeaderAccounts"],
+    queryFn: () => base44.entities.ManagedLeaderAccount.list(),
+    staleTime: 1000 * 60 * 5,
+  });
+
   const { data: userLikes = [] } = useQuery({
     queryKey: ["userLikes", currentUser?.email],
     queryFn: () => base44.entities.GlowDropLike.filter({ user_email: currentUser?.email }),
@@ -55,6 +61,17 @@ export default function Post() {
     if (currentUser?.email === email) return currentUser;
     const found = allUsers.find((u) => u.email === email);
     if (found) return found;
+    const leader = leaderAccounts.find(a => a.leader_email === email);
+    if (leader) {
+      return {
+        email: leader.leader_email,
+        full_name: leader.leader_name,
+        bio: leader.leader_bio,
+        profile_picture_url: leader.leader_profile_picture_url,
+        country: leader.leader_country,
+        is_managed_leader: true,
+      };
+    }
     return { full_name: email?.split("@")[0] || "Glow Believer", email };
   };
 
@@ -118,7 +135,7 @@ export default function Post() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-6 md:py-8 font-['Inter'] bg-background text-foreground">
+    <div className="min-h-screen px-4 py-6 md:py-8 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <Link to={backUrl} className="inline-flex items-center gap-2 transition" style={{ color: "#4A5878" }}>
@@ -134,6 +151,7 @@ export default function Post() {
           handleShare={handleShare}
           userLikes={userLikes}
           allUsers={allUsers}
+          leaderAccounts={leaderAccounts}
         />
       </div>
     </div>
