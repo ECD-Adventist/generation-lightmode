@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import DeleteAccountModal from "@/components/settings/DeleteAccountModal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileSettings from "@/components/settings/MobileSettings";
+import { getDisplayName } from "@/lib/displayName";
 
 const NOTIF_KEYS = [
   { key: "notif_likes", label: "Likes on your Glow Drops", icon: "❤️" },
@@ -22,6 +23,8 @@ export default function Settings() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingName, setSavingName] = useState(false);
+  const [displayName, setDisplayName] = useState("");
   const [prefs, setPrefs] = useState({});
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -32,6 +35,7 @@ export default function Settings() {
         if (!isAuth) { base44.auth.redirectToLogin("/Settings"); return; }
         const me = await base44.auth.me();
         setUser(me);
+        setDisplayName(getDisplayName(me));
         const saved = {};
         NOTIF_KEYS.forEach(({ key }) => { saved[key] = me[key] !== false; });
         setPrefs(saved);
@@ -48,6 +52,24 @@ export default function Settings() {
     try { await base44.auth.updateMe(prefs); toast.success("Preferences saved!"); }
     catch { toast.error("Failed to save"); }
     finally { setSaving(false); }
+  };
+
+  const saveDisplayName = async () => {
+    const nextName = displayName.trim();
+    if (!nextName) return toast.error("Display name is required");
+    setSavingName(true);
+    try {
+      const res = await base44.functions.invoke("updateProfile", { display_name: nextName });
+      if (!res.data?.success) throw new Error(res.data?.error || "Save failed");
+      const updated = await base44.auth.me();
+      setUser(updated);
+      setDisplayName(getDisplayName(updated));
+      toast.success("Display name saved!");
+    } catch (err) {
+      toast.error(err?.response?.data?.error || err.message || "Failed to save display name");
+    } finally {
+      setSavingName(false);
+    }
   };
 
   const handleLogout = () => base44.auth.logout(createPageUrl("Home"));
@@ -76,6 +98,7 @@ export default function Settings() {
       <>
         <MobileSettings
           user={user} prefs={prefs} togglePref={togglePref} savePrefs={savePrefs}
+          displayName={displayName} setDisplayName={setDisplayName} saveDisplayName={saveDisplayName} savingName={savingName}
           saving={saving} handleLogout={handleLogout} handleDeleteAccount={handleDeleteAccount}
           notifKeys={NOTIF_KEYS}
         />
@@ -113,13 +136,27 @@ export default function Settings() {
           <div className="flex items-center gap-4 mb-4">
             <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-14 h-14 rounded-full object-cover border-2 border-border bg-muted" alt="Profile" />
             <div>
-              <p className="font-bold text-foreground">{user?.full_name}</p>
+              <p className="font-bold text-foreground">{getDisplayName(user)}</p>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
               <p className="text-sm mt-0.5 text-muted-foreground">{user?.country || "No country set"}</p>
             </div>
           </div>
+          <div className="space-y-2 mb-4">
+            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Display Name</label>
+            <div className="flex gap-2">
+              <input
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="flex-1 h-10 rounded-xl border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                placeholder="Your public display name"
+              />
+              <button onClick={saveDisplayName} disabled={savingName} className="px-4 rounded-xl text-sm font-bold bg-blue-600 text-white disabled:opacity-60">
+                {savingName ? "Saving…" : "Save"}
+              </button>
+            </div>
+          </div>
           <Link to={createPageUrl("Profile")} className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline">
-            Edit Profile <ChevronRight className="w-3.5 h-3.5" />
+            Edit full profile <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 

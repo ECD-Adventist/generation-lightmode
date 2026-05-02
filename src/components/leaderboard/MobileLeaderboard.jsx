@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Trophy, TrendingUp, MapPin, Flame } from "lucide-react";
 import GlobalGlowLeaderboard from "@/components/leaderboard/GlobalGlowLeaderboard";
 import MobilePageHeader from "@/components/mobile/MobilePageHeader";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function MobileLeaderboard({ user, leaderboard, timeFilter, setTimeFilter, likesPerUser }) {
   const filters = [
@@ -69,11 +70,11 @@ export default function MobileLeaderboard({ user, leaderboard, timeFilter, setTi
                     {medal ? <span className="text-2xl">{medal}</span> : <span className="text-[13px] font-black" style={{ color: isMe ? "#CC7A00" : "#8A97B5", fontFamily: "Space Grotesk, sans-serif" }}>#{index + 1}</span>}
                   </div>
                   <div className="w-11 h-11 rounded-full overflow-hidden shrink-0" style={{ border: `2px solid ${isTop ? "#FFE4A0" : "#E6ECF5"}` }}>
-                    <img src={w.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" alt={w.full_name} />
+                    <img src={w.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" alt={getDisplayName(w)} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <h3 className="font-bold text-[14px] truncate" style={{ color: "#0B1B3D" }}>{w.full_name}</h3>
+                      <h3 className="font-bold text-[14px] truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(w)}</h3>
                       {isMe && <span className="px-1.5 py-0.5 text-[9px] font-bold rounded-full shrink-0" style={{ background: "rgba(255,208,0,0.15)", color: "#CC7A00" }}>You</span>}
                     </div>
                     {w.country && (

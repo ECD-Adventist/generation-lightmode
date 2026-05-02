@@ -9,6 +9,7 @@ import ConversationsList from "@/components/messages/ConversationsList";
 import ChatWindow from "@/components/messages/ChatWindow";
 import GroupChatWindow from "@/components/messages/GroupChatWindow";
 import { isNotificationEnabled } from "@/lib/notifications";
+import { getDisplayName } from "@/lib/displayName";
 import MobileMessagesList from "@/components/messages/MobileMessagesList";
 
 export default function Messages() {
@@ -138,7 +139,7 @@ export default function Messages() {
         base44.entities.Notification.create({
           user_email: otherEmail,
           type: "message",
-          message: `${user.full_name || 'Someone'} sent you a message: "${(content?.trim() || 'shared a file').slice(0, 60)}${(content?.trim() || 'shared a file').length > 60 ? '...' : ''}"`,
+          message: `${getDisplayName(user)} sent you a message: "${(content?.trim() || 'shared a file').slice(0, 60)}${(content?.trim() || 'shared a file').length > 60 ? '...' : ''}"`,
           link: `/Messages?user=${encodeURIComponent(user.email)}`,
         }).catch(() => {});
       }

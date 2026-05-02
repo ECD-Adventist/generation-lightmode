@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Sparkles, RefreshCw, BookOpen, CheckCircle2, Zap, Home, ChevronRight, Loader2 } from "lucide-react";
 import AppTopNav from "@/components/AppTopNav";
 import AppFooter from "@/components/AppFooter";
+import { getDisplayName } from "@/lib/displayName";
 
 const STORAGE_KEY = "lightReflections_cache";
 
@@ -87,7 +88,7 @@ export default function LightReflections() {
     const prompt = `You are a personalized spiritual coach for Generation LightMode — a global Christian youth faith movement.
 
 User Profile:
-- Name: ${user.full_name || "Believer"}
+- Name: ${getDisplayName(user)}
 - Country: ${user.country || "Unknown"}
 - Glow Score (XP): ${user.glow_score || 0}
 - Completed Challenges: ${challengesContext}

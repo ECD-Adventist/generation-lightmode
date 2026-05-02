@@ -105,7 +105,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         base44.entities.Notification.create({
           user_email: drop.user_email,
           type: "reply",
-          message: `${user.full_name || 'Someone'} commented on your Glow Drop: "${content.trim().slice(0, 50)}${content.trim().length > 50 ? '...' : ''}"`,
+          message: `${getDisplayName(user)} commented on your Glow Drop: "${content.trim().slice(0, 50)}${content.trim().length > 50 ? '...' : ''}"`,
           link: `/Post?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`
         }).catch(() => {});
       }
@@ -195,7 +195,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       await base44.entities.GlowDrop.create({
         user_email: user.email,
         verse: drop.verse,
-        reflection: `[Reposted from ${dropUser.full_name}]\n\n${drop.reflection || ""}`,
+        reflection: `[Reposted from ${getDisplayName(dropUser)}]\n\n${drop.reflection || ""}`,
         media_url: drop.media_url,
         category: drop.category,
         hashtags: drop.hashtags,
@@ -212,7 +212,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     e.stopPropagation();
     setLikeBurst(true);
     setTimeout(() => setLikeBurst(false), 600);
-    likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: dropUser.full_name });
+    likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: getDisplayName(dropUser) });
   };
 
   const handleCommentToggle = (e) => {
@@ -331,7 +331,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         onDoubleClick={() => {
           setLikeBurst(true);
           setTimeout(() => setLikeBurst(false), 600);
-          likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: dropUser.full_name });
+          likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: getDisplayName(dropUser) });
         }}
       >
         {drop.media_url && (

@@ -7,6 +7,7 @@ import { Home, Zap, Bell, User, Globe } from "lucide-react";
 import PrayerRequestCard from "@/components/prayer/PrayerRequestCard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobilePrayerWall from "@/components/prayer/MobilePrayerWall";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function PrayerWall() {
   const isMobile = useIsMobile();
@@ -99,7 +100,7 @@ export default function PrayerWall() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["prayerComments"] }),
   });
 
-  const getName = (email) => allUsers.find((entry) => entry.email === email)?.full_name || email?.split("@")[0] || "Believer";
+  const getName = (email) => getDisplayName(allUsers.find((entry) => entry.email === email) || { email });
 
   if (!user) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><span style={{ color: "#1FB8FF" }}>Loading prayer wall...</span></div>;
 

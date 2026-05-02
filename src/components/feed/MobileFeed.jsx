@@ -39,7 +39,7 @@ export default function MobileFeed({
 }) {
   const filters = ["All", "Following", "Most Liked", "Devotional", "Testimony"];
   const greeting = new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening";
-  const firstName = user?.full_name?.split(" ")[0] || "Friend";
+  const firstName = (user?.display_name || user?.full_name || "Friend").split(" ")[0] || "Friend";
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "linear-gradient(180deg, #F6F8FC 0%, #EEF3FF 40%, #E2EBFF 100%)", color: "#0B1B3D" }}>
@@ -164,7 +164,7 @@ export default function MobileFeed({
                   </div>
                 </div>
                 <span className="text-[10px] font-bold truncate w-[68px] text-center" style={{ color: "#0B1B3D" }}>
-                  {storyUser?.email === user?.email ? "You" : storyUser?.full_name?.split(" ")[0] || "User"}
+                  {storyUser?.email === user?.email ? "You" : (storyUser?.display_name || storyUser?.full_name || "User").split(" ")[0] || "User"}
                 </span>
               </button>
             );

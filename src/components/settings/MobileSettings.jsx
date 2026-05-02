@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Loader2, Bell, Shield, LogOut, ChevronRight, Globe, BookOpen, Trash2 } from "lucide-react";
 import MobilePageHeader from "@/components/mobile/MobilePageHeader";
+import { getDisplayName } from "@/lib/displayName";
 
-export default function MobileSettings({ user, prefs, togglePref, savePrefs, saving, handleLogout, handleDeleteAccount, notifKeys }) {
+export default function MobileSettings({ user, prefs, togglePref, savePrefs, displayName, setDisplayName, saveDisplayName, savingName, saving, handleLogout, handleDeleteAccount, notifKeys }) {
   return (
     <div className="min-h-screen pb-24 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       <MobilePageHeader title="Settings" subtitle="Preferences & account" />
@@ -18,13 +19,26 @@ export default function MobileSettings({ user, prefs, togglePref, savePrefs, sav
           <div className="flex items-center gap-3 mb-3">
             <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-14 h-14 rounded-full object-cover" style={{ border: "2px solid #E6ECF5" }} alt="Profile" />
             <div className="min-w-0">
-              <p className="font-bold truncate" style={{ color: "#0B1B3D" }}>{user?.full_name}</p>
+              <p className="font-bold truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(user)}</p>
               <p className="text-[12px] truncate" style={{ color: "#6B7FA0" }}>{user?.email}</p>
               <p className="text-[11px] mt-0.5" style={{ color: "#8A97B5" }}>{user?.country || "No country set"}</p>
             </div>
           </div>
+          <div className="space-y-2 mb-3">
+            <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#6B7FA0" }}>Display Name</label>
+            <input
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="w-full h-11 rounded-xl px-3 text-sm focus:outline-none"
+              style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
+              placeholder="Your public display name"
+            />
+            <button onClick={saveDisplayName} disabled={savingName} className="w-full py-2.5 rounded-xl text-sm font-bold disabled:opacity-60" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}>
+              {savingName ? "Saving…" : "Save Display Name"}
+            </button>
+          </div>
           <Link to={createPageUrl("Profile")} className="flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-bold" style={{ background: "#EEF3FF", color: "#0B3FD9" }}>
-            Edit Profile <ChevronRight className="w-4 h-4" />
+            Edit full profile <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
 

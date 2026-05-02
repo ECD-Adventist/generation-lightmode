@@ -7,6 +7,7 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileLeaderboard from "@/components/leaderboard/MobileLeaderboard";
+import { getDisplayName } from "@/lib/displayName";
 
 export default function Leaderboard() {
   const isMobile = useIsMobile();
@@ -157,11 +158,11 @@ export default function Leaderboard() {
                     {medal ? <span className="text-4xl">{medal}</span> : <span className="text-lg font-black font-['Space_Grotesk']" style={{ color: isCurrentUser ? "#CC7A00" : "#8A97B5" }}>#{index + 1}</span>}
                   </div>
                   <div className="w-14 h-14 rounded-full overflow-hidden shrink-0 border-2" style={{ borderColor: isTopThree ? "#FFE4A0" : "#E6ECF5" }}>
-                    <img src={warrior.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" alt={warrior.full_name} />
+                    <img src={warrior.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" alt={getDisplayName(warrior)} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-lg truncate" style={{ color: "#0B1B3D" }}>{warrior.full_name}</h3>
+                      <h3 className="font-bold text-lg truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(warrior)}</h3>
                       {isCurrentUser && <span className="px-2 py-0.5 text-xs font-bold rounded-full" style={{ background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}>You</span>}
                     </div>
                     <div className="flex items-center gap-2 text-sm" style={{ color: "#6B7FA0" }}>

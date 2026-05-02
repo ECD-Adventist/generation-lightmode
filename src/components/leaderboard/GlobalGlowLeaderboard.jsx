@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Trophy, Globe, MapPin, Church, Zap, ArrowUp, Flame, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { getDisplayName } from "@/lib/displayName";
 
 const FILTERS = [
   { id: "global", label: "Global", icon: Globe },
@@ -119,11 +120,11 @@ export default function GlobalGlowLeaderboard({ currentUser }) {
                   <MedalOrRank index={index} isCurrentUser={isCurrentUser} />
                 </div>
                 <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 border-2" style={{ borderColor: isTop3 ? "#FFE4A0" : "#E6ECF5" }}>
-                  <img src={warrior.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" alt={warrior.full_name} />
+                  <img src={warrior.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" alt={getDisplayName(warrior)} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-bold text-sm truncate" style={{ color: isCurrentUser ? "#CC7A00" : "#0B1B3D" }}>{warrior.full_name}</span>
+                    <span className="font-bold text-sm truncate" style={{ color: isCurrentUser ? "#CC7A00" : "#0B1B3D" }}>{getDisplayName(warrior)}</span>
                     {isCurrentUser && <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0" style={{ background: "rgba(255,208,0,0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}>You</span>}
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px]" style={{ color: "#8A97B5" }}>
