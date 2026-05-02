@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Camera, Settings, Share2, Grid, Bookmark, Target, Award, Building2, Heart, Sparkles, Zap, Edit3, MessageCircle, UserPlus, UserCheck, Globe, X, BadgeCheck } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
 import { getGlowRank } from "@/components/profile/ProfileHighlights";
+import CountryFlag from "@/components/common/CountryFlag";
 
 /**
  * Mobile-only profile redesign — LightMode branded.
@@ -193,7 +194,10 @@ export default function MobileProfile({
             <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={onProfileImageSelect} disabled={uploadingImage} />
 
             <div className="flex-1 min-w-0 pb-1.5">
-              <h1 className="text-lg font-black font-['Space_Grotesk'] truncate" style={{ color: "#0B1B3D" }}>{displayName}</h1>
+              <h1 className="text-lg font-black font-['Space_Grotesk'] truncate flex items-center gap-1.5" style={{ color: "#0B1B3D" }}>
+                <span className="truncate">{displayName}</span>
+                <CountryFlag country={user?.country} size="sm" />
+              </h1>
               {isLeader ? (
                 leaderTitle && (
                   <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full mt-1" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFEFC2 100%)", border: "1px solid #FFD000" }}>
@@ -221,7 +225,7 @@ export default function MobileProfile({
             <div className="flex items-center gap-2 flex-wrap">
               {user.country && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black" style={{ background: "#EEF3FF", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>
-                  <Globe className="w-2.5 h-2.5" /> {user.country}
+                  <CountryFlag country={user.country} size="xs" /> {user.country}
                 </span>
               )}
               {!isLeader && myMemberships.length > 0 && (

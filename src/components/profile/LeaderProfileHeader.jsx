@@ -3,6 +3,7 @@ import { Camera, BadgeCheck, Globe, MessageCircle, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { getDisplayName } from "@/lib/displayName";
+import CountryFlag from "@/components/common/CountryFlag";
 
 /**
  * Premium leader profile header — visually distinct from regular user profiles.
@@ -146,6 +147,7 @@ export default function LeaderProfileHeader({
             <div className="flex flex-col md:flex-row md:items-center gap-2">
               <h1 className="text-3xl font-black font-['Space_Grotesk'] flex items-center gap-2 justify-center md:justify-start" style={{ color: "#0B1B3D" }}>
                 {getDisplayName(leaderUser)}
+                <CountryFlag country={leaderUser.country} size="md" />
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full shrink-0 shadow-[0_0_12px_rgba(0,128,254,0.55)]"
                   style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 50%, #D4B82E 100%)" }}>
                   <BadgeCheck className="w-3.5 h-3.5 text-white" strokeWidth={3} />
@@ -215,7 +217,7 @@ export default function LeaderProfileHeader({
               <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                 <span className="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5"
                   style={{ background: "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>
-                  <Globe className="w-3 h-3" /> {leaderUser.country}
+                  <CountryFlag country={leaderUser.country} size="xs" /> {leaderUser.country}
                 </span>
               </div>
             )}

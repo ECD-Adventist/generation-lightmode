@@ -23,6 +23,7 @@ import StoryAnalyticsDashboard from "@/components/profile/StoryAnalyticsDashboar
 import AppFooter from "@/components/AppFooter";
 import { getDisplayName } from "@/lib/displayName";
 import MobileProfile from "@/components/profile/MobileProfile";
+import CountryFlag from "@/components/common/CountryFlag";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -867,7 +868,10 @@ export default function Profile() {
               <div className="flex-1 text-center md:text-left mt-2 md:mt-16">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4 justify-center md:justify-start">
                   <div className="flex flex-col md:flex-row md:items-center gap-3">
-                    <h1 className="text-3xl font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{getDisplayName(displayUser)}</h1>
+                    <h1 className="text-3xl font-bold font-['Space_Grotesk'] flex items-center gap-2 justify-center md:justify-start" style={{ color: "#0B1B3D" }}>
+                      {getDisplayName(displayUser)}
+                      <CountryFlag country={displayUser.country} size="md" />
+                    </h1>
                     {isViewingLeader ? (
                       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full w-fit mx-auto md:mx-0" style={{ background: "#FFF8E6", border: "1px solid #FFE4A0", boxShadow: "0 2px 6px rgba(255, 159, 26, 0.12)" }}>
                         <Sparkles className="w-4 h-4" style={{ color: "#CC7A00" }} />
@@ -925,7 +929,9 @@ export default function Profile() {
 
                 <div className="text-sm max-w-md mx-auto md:mx-0 space-y-3" style={{ color: "#3A4A6B" }}>
                   <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" style={{ background: "#EEF3FF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>{displayUser.country || "Global Citizen"}</span>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5" style={{ background: "#EEF3FF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>
+                      <CountryFlag country={displayUser.country} size="xs" /> {displayUser.country || "Global Citizen"}
+                    </span>
                     {!isViewingLeader && myMemberships.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(31, 184, 255, 0.12)", border: "1px solid #B8E5FF", color: "#0B3FD9" }}>{myMemberships.length} GlowGroup{myMemberships.length > 1 ? "s" : ""}</span>}
                     {!isViewingLeader && userInstitutionApps.length > 0 && <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}>Institution linked</span>}
                   </div>

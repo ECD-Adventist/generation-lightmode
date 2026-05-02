@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { createPageUrl } from "@/utils";
+import CountryFlag from "@/components/common/CountryFlag";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
@@ -32,7 +33,10 @@ export default function ProfileConnectionsModal({ title, items, allUsers, curren
                   <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(email)}`} onClick={onClose} className="flex items-center gap-3 min-w-0">
                     <img src={person?.profile_picture_url || defaultAvatar} alt={person?.full_name || email} className="w-11 h-11 rounded-full object-cover border border-[#E6ECF5]" />
                     <div className="min-w-0">
-                      <div className="font-bold text-sm text-[#0B1B3D] truncate">{person?.full_name || email.split("@")[0]}</div>
+                      <div className="font-bold text-sm text-[#0B1B3D] truncate flex items-center gap-1.5">
+                        <span className="truncate">{person?.full_name || email.split("@")[0]}</span>
+                        <CountryFlag country={person?.country} size="xs" />
+                      </div>
                       <div className="text-xs text-[#6B7FA0] truncate">{email}</div>
                     </div>
                   </Link>

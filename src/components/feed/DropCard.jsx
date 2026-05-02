@@ -16,6 +16,7 @@ import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
 import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
 import { getDisplayName } from "@/lib/displayName";
 import { useIsMobile } from "@/hooks/use-mobile";
+import CountryFlag from "@/components/common/CountryFlag";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation }) {
   const isMobile = useIsMobile();
@@ -400,6 +401,9 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                     <span className="whitespace-normal break-words max-w-[190px] sm:max-w-none sm:whitespace-nowrap leading-tight">
                       {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(dropUser)}
                     </span>
+                    {drop.user_email !== "system@lightmode.com" && dropUser?.country && (
+                      <CountryFlag country={dropUser.country} size="xs" />
+                    )}
                     {isLeaderPost ? (
                       <span className="flex items-center justify-center w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full shrink-0 shadow-[0_0_6px_rgba(0,128,254,0.45)]" style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 50%, #D4B82E 100%)", color: "#FFFFFF" }} title="Verified Leader">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="w-1.5 h-1.5 sm:w-2 sm:h-2"><polyline points="20 6 9 17 4 12"></polyline></svg>

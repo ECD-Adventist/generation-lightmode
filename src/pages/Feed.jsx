@@ -34,6 +34,7 @@ import { queueOfflineAction } from "@/lib/offlineCache";
 import useGuestPreview from "@/hooks/useGuestPreview";
 import GuestPreviewBanner from "@/components/pledge/GuestPreviewBanner";
 import GuestPreviewWall from "@/components/pledge/GuestPreviewWall";
+import CountryFlag from "@/components/common/CountryFlag";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
@@ -883,7 +884,10 @@ export default function Feed() {
                        <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex flex-col min-w-0 flex-1">
-                      <span className="font-bold text-xs truncate" style={{ color: "#0B1B3D" }}>{u.full_name}</span>
+                      <span className="font-bold text-xs truncate flex items-center gap-1" style={{ color: "#0B1B3D" }}>
+                        <span className="truncate">{u.full_name}</span>
+                        <CountryFlag country={u.country} size="xs" />
+                      </span>
                       <span className="text-[9px] truncate" style={{ color: "#8A97B5" }}>{u.country || "Global Believer"}</span>
                     </div>
                   </Link>
