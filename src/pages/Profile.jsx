@@ -264,6 +264,28 @@ export default function Profile() {
     enabled: !!currentUser,
   });
 
+  // Aggregate comment counts for the profile's drops, so each grid tile shows real data.
+  const { data: dropComments = [] } = useQuery({
+    queryKey: ["profileDropComments", profileEmail, myDrops.map(d => d.id).join("|")],
+    queryFn: async () => {
+      if (myDrops.length === 0) return [];
+      const results = await Promise.all(
+        myDrops.map(d => base44.entities.GlowDropComment.filter({ drop_id: d.id }).catch(() => []))
+      );
+      return results.flat();
+    },
+    enabled: myDrops.length > 0,
+    staleTime: 1000 * 60 * 2,
+  });
+
+  const commentsByDropId = useMemo(() => {
+    const map = new Map();
+    dropComments.forEach(c => map.set(c.drop_id, (map.get(c.drop_id) || 0) + 1));
+    return map;
+  }, [dropComments]);
+
+  const savedDropIdSet = useMemo(() => new Set(profileSavedDrops.map(s => s.drop_id)), [profileSavedDrops]);
+
   const profileLikeMutation = useMutation({
     mutationFn: async ({ id, authorEmail, authorName }) => {
       if (!currentUser) { toast.error("Please log in to like"); return; }
@@ -519,6 +541,8 @@ export default function Profile() {
               authorName={getDisplayName(displayUser)}
               authorTitle={leaderTitle}
               isLeader={isLeaderProfile}
+              commentsCount={commentsByDropId.get(drop.id) || 0}
+              isSaved={savedDropIdSet.has(drop.id)}
             />
           ))}
         </div>
@@ -1060,7 +1084,16 @@ export default function Profile() {
             ) : (
               <div className="grid grid-cols-3 gap-3 sm:gap-4">
                 {myDrops.map(drop => (
-                  <DropGridTile key={drop.id} drop={drop} onClick={() => setViewingDropId(drop.id)} />
+                  <DropGridTile
+                    key={drop.id}
+                    drop={drop}
+                    onClick={() => setViewingDropId(drop.id)}
+                    authorName={getDisplayName(displayUser)}
+                    authorTitle={leaderTitle}
+                    isLeader={isLeaderProfile}
+                    commentsCount={commentsByDropId.get(drop.id) || 0}
+                    isSaved={savedDropIdSet.has(drop.id)}
+                  />
                 ))}
               </div>
             )}
