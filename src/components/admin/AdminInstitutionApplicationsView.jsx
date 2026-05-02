@@ -21,6 +21,7 @@ export default function AdminInstitutionApplicationsView({ applications, allUser
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
+  const [riskOnly, setRiskOnly] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
 
   const stats = useMemo(() => ({
@@ -40,16 +41,23 @@ export default function AdminInstitutionApplicationsView({ applications, allUser
     return counts;
   }, [applications]);
 
+  const flaggedApplicationIds = useMemo(() => new Set(
+    applications
+      .filter(app => duplicateNames.get(app.institution_name?.trim().toLowerCase()) > 1 || !allUsers.some(u => u.email === app.user_email))
+      .map(app => app.id)
+  ), [applications, allUsers, duplicateNames]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return applications.filter(app => {
       const applicant = allUsers.find(u => u.email === app.user_email);
       const matchesStatus = status === "all" || app.status === status;
+      const matchesRisk = !riskOnly || flaggedApplicationIds.has(app.id);
       const matchesSearch = !q || [app.institution_name, app.contact_person, app.contact_email, app.user_email, app.country, applicant?.full_name]
         .filter(Boolean).some(value => String(value).toLowerCase().includes(q));
-      return matchesStatus && matchesSearch;
+      return matchesStatus && matchesRisk && matchesSearch;
     });
-  }, [applications, allUsers, search, status]);
+  }, [applications, allUsers, search, status, riskOnly, flaggedApplicationIds]);
 
   const bulkMutation = useMutation({
     mutationFn: async (nextStatus) => {
@@ -68,10 +76,10 @@ export default function AdminInstitutionApplicationsView({ applications, allUser
   };
 
   const kpis = [
-    { label: "Total Applications", value: stats.total, icon: Layers, color: t.accent },
-    { label: "Pending Review", value: stats.pending, icon: Clock, color: t.warning },
-    { label: "Approved", value: stats.approved, icon: CheckCircle, color: t.success },
-    { label: "Risk Flags", value: applications.filter(app => duplicateNames.get(app.institution_name?.trim().toLowerCase()) > 1 || !allUsers.some(u => u.email === app.user_email)).length, icon: AlertTriangle, color: t.danger },
+    { label: "Total Applications", value: stats.total, icon: Layers, color: t.accent, filter: "all" },
+    { label: "Pending Review", value: stats.pending, icon: Clock, color: t.warning, filter: "pending" },
+    { label: "Approved", value: stats.approved, icon: CheckCircle, color: t.success, filter: "approved" },
+    { label: "Risk Flags", value: flaggedApplicationIds.size, icon: AlertTriangle, color: t.danger, filter: "risk" },
   ];
 
   return (
@@ -80,7 +88,16 @@ export default function AdminInstitutionApplicationsView({ applications, allUser
         {kpis.map((item) => {
           const Icon = item.icon;
           return (
-            <div key={item.label} className="adm-card adm-card-accent">
+            <button
+              key={item.label}
+              onClick={() => {
+                setSearch("");
+                setRiskOnly(item.filter === "risk");
+                setStatus(item.filter === "risk" ? "all" : item.filter);
+              }}
+              className="adm-card adm-card-accent text-left transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent"
+              style={{ borderColor: (riskOnly && item.filter === "risk") || (!riskOnly && status === item.filter) ? item.color : undefined }}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <div className="adm-stat-big" style={{ color: item.color }}>{item.value}</div>
@@ -90,7 +107,7 @@ export default function AdminInstitutionApplicationsView({ applications, allUser
                   <Icon className="w-5 h-5" style={{ color: item.color }} />
                 </div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
@@ -103,12 +120,18 @@ export default function AdminInstitutionApplicationsView({ applications, allUser
           </div>
           <div className="flex flex-wrap gap-2">
             {Object.keys(statusMeta).map(key => (
-              <button key={key} onClick={() => setStatus(key)} className="px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition" style={status === key ? { background: statusMeta[key].color, color: key === "pending" ? "#0B0F1A" : "#FFFFFF", borderColor: statusMeta[key].color } : { color: t.textSecondary, borderColor: t.border, background: t.surfaceMuted }}>
+              <button key={key} onClick={() => { setStatus(key); setRiskOnly(false); }} className="px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition" style={!riskOnly && status === key ? { background: statusMeta[key].color, color: key === "pending" ? "#0B0F1A" : "#FFFFFF", borderColor: statusMeta[key].color } : { color: t.textSecondary, borderColor: t.border, background: t.surfaceMuted }}>
                 {statusMeta[key].label} {key !== "all" ? stats[key] : stats.total}
               </button>
             ))}
           </div>
         </div>
+
+        {riskOnly && (
+          <div className="mt-4 rounded-2xl px-4 py-3 text-sm font-bold flex items-center gap-2" style={{ background: `${t.danger}18`, color: t.danger, border: `1px solid ${t.danger}33` }}>
+            <AlertTriangle className="w-4 h-4" /> Showing applications with risk flags
+          </div>
+        )}
 
         {selectedIds.length > 0 && (
           <div className="mt-4 rounded-2xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ background: t.accentSoft, border: `1px solid ${t.borderStrong}` }}>
