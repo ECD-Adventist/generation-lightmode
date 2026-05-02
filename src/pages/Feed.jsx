@@ -14,6 +14,7 @@ import DropCard from "@/components/feed/DropCard";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import DailyChallenges from "@/components/feed/DailyChallenges";
 import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
+import useFeedUserSearch from "@/hooks/useFeedUserSearch";
 import AIContentSuggestions from "@/components/feed/AIContentSuggestions";
 import { isNotificationEnabled } from "@/lib/notifications";
 import useNetworkStatus from "@/hooks/useNetworkStatus";
@@ -75,6 +76,10 @@ export default function Feed() {
   // before showing the sign-in / pledge wall.
   const guestPreview = useGuestPreview();
 
+  // Reset paginated display when the search query changes so newly-fetched
+  // matching drops are visible from the top of the list.
+  useEffect(() => { setDisplayCount(10); }, [searchQuery]);
+
   useEffect(() => {
     async function checkAuth() {
       try {
@@ -107,6 +112,10 @@ export default function Feed() {
   } = useGlowDropsFeed();
 
   const { drops, lastCached, syncing, syncQueue } = useOfflineSync(liveDrops, isOnline);
+
+  // Global user-by-name/email search. Fetches matched users + their recent drops
+  // when the local feed cache doesn't already contain them.
+  const userSearch = useFeedUserSearch(searchQuery);
 
   const { pullDistance, isRefreshing, threshold } = usePullToRefresh(feedScrollRef, async () => {
     await queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
@@ -322,7 +331,7 @@ export default function Feed() {
       };
     }
     if (user?.email === email) return user;
-    const found = users.find(u => u.email === email);
+    const found = (userSearch.isActive ? usersWithSearch : users).find(u => u.email === email);
     if (found) return found;
     // Resolve managed leader identity (posts created via "Post as leader")
     const leader = leaderAccounts.find(a => a.leader_email === email);
@@ -354,8 +363,26 @@ export default function Feed() {
 
   const followingEmails = useMemo(() => new Set(following.map(f => f.following_email)), [following]);
 
+  // When the user is searching, merge in any drops fetched from global user search
+  // (de-duplicated by id). This lets searches find creators whose posts aren't
+  // yet in the local feed cache.
+  const dropsWithSearch = useMemo(() => {
+    if (!userSearch.isActive || userSearch.matchedDrops.length === 0) return drops;
+    const seen = new Set(drops.map(d => d.id));
+    const extras = userSearch.matchedDrops.filter(d => d?.id && !seen.has(d.id));
+    return [...drops, ...extras];
+  }, [drops, userSearch.isActive, userSearch.matchedDrops]);
+
+  // Merge matched users into the resolution pool so author chips show name/photo.
+  const usersWithSearch = useMemo(() => {
+    if (!userSearch.isActive || userSearch.matchedUsers.length === 0) return users;
+    const byEmail = new Map(users.map(u => [u.email, u]));
+    userSearch.matchedUsers.forEach(u => { if (u?.email && !byEmail.has(u.email)) byEmail.set(u.email, u); });
+    return Array.from(byEmail.values());
+  }, [users, userSearch.isActive, userSearch.matchedUsers]);
+
   const filteredDrops = useMemo(() => {
-    return [...drops]
+    return [...dropsWithSearch]
       .filter((drop) => {
         // Pinned drops are already rendered in the PinnedLeaderPosts ribbon — exclude them here
         // so they don't appear twice. Only excluded on "All" filter so users can still find
@@ -370,12 +397,14 @@ export default function Feed() {
 
         const q = searchQuery.toLowerCase();
         const dropAuthor = getUserInfo(drop.user_email);
+        const dropAuthorEmail = (drop.user_email || "").toLowerCase();
         const matchesSearch = !searchQuery ||
           drop.verse?.toLowerCase().includes(q) ||
           drop.reflection?.toLowerCase().includes(q) ||
           drop.hashtags?.toLowerCase().includes(q) ||
           drop.category?.toLowerCase().includes(q) ||
-          dropAuthor?.full_name?.toLowerCase().includes(q);
+          dropAuthor?.full_name?.toLowerCase().includes(q) ||
+          dropAuthorEmail.includes(q);
 
         return matchesFilter && matchesSearch;
       })
@@ -383,7 +412,7 @@ export default function Feed() {
         if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
         return new Date(b.created_date || 0) - new Date(a.created_date || 0);
       });
-  }, [drops, activeFilter, searchQuery, followingEmails, users, leaderAccounts, user?.email]);
+  }, [dropsWithSearch, activeFilter, searchQuery, followingEmails, usersWithSearch, leaderAccounts, user?.email]);
 
   const trendingTopics = useMemo(() => {
     const counts = new Map();
@@ -462,9 +491,9 @@ export default function Feed() {
           likeMutation={likeMutation}
           handleShare={handleShare}
           userLikes={userLikes}
-          allUsers={users}
+          allUsers={usersWithSearch}
           savedDropRecords={savedDropRecords}
-          isLoading={dropsLoading}
+          isLoading={dropsLoading || (userSearch.isActive && userSearch.isLoading)}
           isError={dropsError}
           onRefetch={() => queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] })}
           leaderAccounts={leaderAccounts}
@@ -624,7 +653,7 @@ export default function Feed() {
                  type="text"
                  value={searchQuery}
                  onChange={(e) => setSearchQuery(e.target.value)}
-                 placeholder="Search drops by verse, reflection, hashtag..."
+                 placeholder="Search drops, people, hashtags..."
                  className="w-full rounded-full py-2.5 pl-9 pr-9 text-sm focus:outline-none transition"
                  style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
                />
@@ -632,6 +661,11 @@ export default function Feed() {
                  <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 transition" style={{ color: "#8A97B5" }}>
                    <X className="w-4 h-4" />
                  </button>
+               )}
+               {userSearch.isActive && userSearch.isLoading && (
+                 <div className="absolute -bottom-5 left-3 flex items-center gap-1.5 text-[10px] font-semibold" style={{ color: "#1FB8FF" }}>
+                   <Loader2 className="w-3 h-3 animate-spin" /> Searching people…
+                 </div>
                )}
              </div>
           </div>
@@ -772,7 +806,7 @@ export default function Feed() {
                   likeMutation={likeMutation}
                   handleShare={handleShare}
                   userLikes={userLikes}
-                  allUsers={users}
+                  allUsers={usersWithSearch}
                   savedDropRecords={savedDropRecords}
                   leaderAccounts={leaderAccounts}
                   following={following}
