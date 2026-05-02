@@ -468,7 +468,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <>
 
             
-            <div className={`p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center ${isKeepIt100 ? "justify-center pb-[42%]" : "justify-center"} ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
+            <div className={isKeepIt100 ? "absolute z-10 top-[15.5%] bottom-[31%] left-[13%] right-[16%] flex items-center justify-center text-center" : `p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
               {isKeepIt100 ? (
                 <div className="w-full max-w-[76%] sm:max-w-[64%] flex flex-col items-center justify-center text-center">
                   {cleanReflection(drop.reflection) && (() => {
