@@ -250,7 +250,7 @@ export default function MobileProfile({
                 <BadgeCheck className="w-3.5 h-3.5" style={{ color: "#0B1B3D" }} strokeWidth={2.5} />
               </div>
               <div className="relative flex-1 min-w-0">
-                <div className="text-[8px] font-black uppercase tracking-widest" style={{ color: "#FFD000" }}>Official Administrator</div>
+                <div className="text-[8px] font-black uppercase tracking-widest" style={{ color: "#FFD000" }}>Official Administrator Account</div>
                 <div className="text-[10px] font-bold text-white">Verified by Generation LightMode</div>
               </div>
             </div>
