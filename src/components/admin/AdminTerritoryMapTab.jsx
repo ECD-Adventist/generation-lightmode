@@ -32,18 +32,10 @@ export default function AdminTerritoryMapTab({ currentUser }) {
   const [groupBy, setGroupBy] = useState("country");
   const [expanded, setExpanded] = useState({});
 
-  const { data: rawUsers = [], isLoading } = useQuery({
+  const { data: users = [], isLoading } = useQuery({
     queryKey: ["territory_map_users"],
-    queryFn: () => base44.functions.invoke("listAllUsersAdmin", {}).then(r => r.data || []),
+    queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []),
   });
-
-  const { data: pubUsers = [] } = useQuery({
-    queryKey: ["pub_users_territory"],
-    queryFn: () => base44.functions.invoke("listPublicUsers", {}).then(r => r.data || []),
-    enabled: rawUsers.length === 0,
-  });
-
-  const users = rawUsers.length > 0 ? rawUsers : pubUsers;
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();

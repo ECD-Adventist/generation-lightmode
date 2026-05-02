@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 function normalizeCountry(country) {
   if (!country) return country;
@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'Admin access required' }, { status: 403 });
   }
 
-  const users = await base44.asServiceRole.entities.User.list();
+  const users = await base44.asServiceRole.entities.User.list('-created_date', 10000);
   let updatedCount = 0;
   const changes = [];
 

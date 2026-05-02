@@ -30,17 +30,18 @@ function AssignModal({ user: targetUser, onClose, onSave, t, isDark }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await base44.asServiceRole?.entities?.User?.update(targetUser.id, {
+      await base44.functions.invoke("assignUserTerritory", {
+        userId: targetUser.id,
         territory_name: territoryName,
         territory_level: territoryLevel,
         territory_countries: territoryCountries,
-        territory_status: status,
+        status,
       });
       onSave();
       toast.success(`Territory updated for ${targetUser.full_name || targetUser.email}`);
       onClose();
     } catch {
-      toast.error("Could not update directly — please use the backend assign function.");
+      toast.error("Could not update territory assignment.");
     } finally {
       setSaving(false);
     }
@@ -143,7 +144,7 @@ export default function AdminTerritoryAssignTab() {
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["assign_tab_users"],
-    queryFn: () => base44.functions.invoke("listPublicUsers", {}).then(r => r.data || []),
+    queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []),
   });
 
   const filtered = useMemo(() => {

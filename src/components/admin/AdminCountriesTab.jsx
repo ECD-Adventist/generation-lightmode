@@ -5,6 +5,7 @@ import { Globe, Zap, Users, TrendingUp, Award, RefreshCw, Loader2 } from "lucide
 import { toast } from "sonner";
 import CountriesWorldMap from "./CountriesWorldMap";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
+import { getUserCountry, normalizeCountryName } from "@/lib/countryUtils";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
@@ -27,7 +28,7 @@ export default function AdminCountriesTab({ user, territoryRestricted, territory
       } else {
         toast.success(`Merged ${updated} user record(s). Refreshing...`);
         queryClient.invalidateQueries({ queryKey: ["admin_users_countries"] });
-        queryClient.invalidateQueries({ queryKey: ["admin_users"] });
+        queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
         queryClient.invalidateQueries({ queryKey: ["analytics_users"] });
       }
     } catch (err) {
@@ -39,42 +40,52 @@ export default function AdminCountriesTab({ user, territoryRestricted, territory
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin_users_countries"],
-    queryFn: () => base44.functions.invoke("listPublicUsers", {}).then(r => r.data || []),
+    queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []),
   });
   const { data: drops = [] } = useQuery({
     queryKey: ["admin_drops_countries"],
-    queryFn: () => base44.entities.GlowDrop.list(),
+    queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000),
   });
   const { data: groups = [] } = useQuery({
     queryKey: ["admin_groups_countries"],
-    queryFn: () => base44.entities.GlowGroup.list(),
+    queryFn: () => base44.entities.GlowGroup.list("-created_date", 10000),
   });
 
-  const allowedCountries = (territoryCountries || "").split(",").map(item => item.trim()).filter(Boolean);
+  const allowedCountries = (territoryCountries || "").split(",").map(normalizeCountryName).filter(Boolean);
 
   const scopedUsers = territoryRestricted && territoryApproved
-    ? users.filter(entry => allowedCountries.includes(entry.country))
+    ? users.filter(entry => allowedCountries.includes(getUserCountry(entry)))
     : users;
 
   const scopedGroups = territoryRestricted && territoryApproved
-    ? groups.filter(group => allowedCountries.includes(group.country))
+    ? groups.filter(group => allowedCountries.includes(normalizeCountryName(group.country)))
     : groups;
+
+  const scopedDrops = territoryRestricted && territoryApproved
+    ? drops.filter(drop => {
+        const owner = users.find(entry => entry.email === drop.user_email);
+        return owner && allowedCountries.includes(getUserCountry(owner));
+      })
+    : drops;
 
   const countryStats = useMemo(() => {
     const map = {};
     scopedUsers.forEach(u => {
-      if (!u.country) return;
-      if (!map[u.country]) map[u.country] = { country: u.country, users: 0, totalXP: 0, drops: 0, groups: 0 };
-      map[u.country].users++;
-      map[u.country].totalXP += u.glow_score || 0;
+      const country = getUserCountry(u);
+      if (!country) return;
+      if (!map[country]) map[country] = { country, users: 0, totalXP: 0, drops: 0, groups: 0 };
+      map[country].users++;
+      map[country].totalXP += u.glow_score || 0;
     });
-    drops.forEach(d => {
+    scopedDrops.forEach(d => {
       if (!d.user_email) return;
       const u = scopedUsers.find(u => u.email === d.user_email);
-      if (u?.country && map[u.country]) map[u.country].drops++;
+      const country = getUserCountry(u);
+      if (country && map[country]) map[country].drops++;
     });
     scopedGroups.forEach(g => {
-      if (g.country && map[g.country]) map[g.country].groups++;
+      const country = normalizeCountryName(g.country);
+      if (country && map[country]) map[country].groups++;
     });
     return Object.values(map)
       .map(c => ({ ...c, score: c.users * 10 + c.totalXP + c.drops * 2 + c.groups * 5 }))
@@ -113,7 +124,7 @@ export default function AdminCountriesTab({ user, territoryRestricted, territory
           { label: "Nations Active", value: countryStats.length, icon: Globe, color: isDark ? "#22c55e" : "#16a34a" },
           { label: "Total Members", value: totalUsers, icon: Users, color: isDark ? "#00CFFF" : "#0B3FD9" },
           { label: "Total XP Earned", value: totalXP.toLocaleString(), icon: Zap, color: isDark ? "#FFD000" : "#d97706" },
-          { label: "Glow Drops", value: drops.length, icon: TrendingUp, color: isDark ? "#8A5CFF" : "#7e22ce" },
+          { label: "Glow Drops", value: scopedDrops.length, icon: TrendingUp, color: isDark ? "#8A5CFF" : "#7e22ce" },
         ].map((s, i) => (
           <div key={i} className="border rounded-2xl p-4 flex items-center gap-3" style={{ background: t.surface, borderColor: t.border }}>
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${s.color}18`, border: `1px solid ${s.color}30` }}>

@@ -6,6 +6,7 @@ import {
 } from "recharts";
 import { Users, Zap, Globe, MessageSquare, Heart, Target, TrendingUp, TrendingDown, Activity, UserCheck } from "lucide-react";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
+import { getUserCountry } from "@/lib/countryUtils";
 
 function StatCard({ label, value, sub, icon, color, trend, trendValue, t }) {
   const isUp = trend === "up";
@@ -100,21 +101,21 @@ export default function AdminAnalyticsTab({ user, territoryRestricted, territory
     queryFn: () => base44.entities.Follow.list("-created_date", 10000),
   });
 
-  const allowedCountries = (territoryCountries || "").split(",").map(item => item.trim()).filter(Boolean);
+  const allowedCountries = (territoryCountries || "").split(",").map(item => getUserCountry({ country: item })).filter(Boolean);
 
   const scopedUsers = territoryRestricted && territoryApproved
-    ? users.filter(entry => allowedCountries.includes(entry.country))
+    ? users.filter(entry => allowedCountries.includes(getUserCountry(entry)))
     : users;
 
   const scopedDrops = territoryRestricted && territoryApproved
     ? drops.filter(drop => {
         const owner = users.find(entry => entry.email === drop.user_email);
-        return owner && allowedCountries.includes(owner.country);
+        return owner && allowedCountries.includes(getUserCountry(owner));
       })
     : drops;
 
   const scopedGroups = territoryRestricted && territoryApproved
-    ? groups.filter(group => allowedCountries.includes(group.country))
+    ? groups.filter(group => allowedCountries.includes(getUserCountry(group)))
     : groups;
 
   const registrationsChart = useMemo(() => {
@@ -156,7 +157,8 @@ export default function AdminAnalyticsTab({ user, territoryRestricted, territory
   const topCountries = useMemo(() => {
     const map = {};
     scopedUsers.forEach(u => {
-      if (u.country) map[u.country] = (map[u.country] || 0) + 1;
+      const country = getUserCountry(u);
+      if (country) map[country] = (map[country] || 0) + 1;
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([country, count]) => ({ country, count }));
   }, [scopedUsers]);

@@ -7,6 +7,7 @@ import {
 import { Users, Zap, TrendingUp, Globe } from "lucide-react";
 import { format, subDays, eachDayOfInterval, startOfDay } from "date-fns";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
+import { getUserCountry, normalizeCountryName } from "@/lib/countryUtils";
 
 const CustomTooltip = ({ active, payload, label, t }) => {
   if (!active || !payload?.length) return null;
@@ -41,10 +42,10 @@ export default function AdminChartsTab({ territoryRestricted, territoryCountries
     queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000),
   });
 
-  const allowedCountries = (territoryCountries || "").split(",").map(s => s.trim()).filter(Boolean);
+  const allowedCountries = (territoryCountries || "").split(",").map(normalizeCountryName).filter(Boolean);
 
   const users = territoryRestricted && territoryApproved
-    ? rawUsers.filter(u => allowedCountries.includes(u.country))
+    ? rawUsers.filter(u => allowedCountries.includes(getUserCountry(u)))
     : rawUsers;
 
   const registrationData = useMemo(() => {
@@ -64,14 +65,14 @@ export default function AdminChartsTab({ territoryRestricted, territoryCountries
   const territoryData = useMemo(() => {
     const map = {};
     users.forEach(u => {
-      const key = u.territory_name || u.country || "Unknown";
+      const key = u.territory_name || getUserCountry(u) || "Unknown";
       if (!map[key]) map[key] = { territory: key, users: 0, xp: 0, drops: 0 };
       map[key].users++;
       map[key].xp += u.glow_score || 0;
     });
     drops.forEach(d => {
       const u = users.find(u => u.email === d.user_email);
-      const key = (u?.territory_name || u?.country || "Unknown");
+      const key = (u?.territory_name || getUserCountry(u) || "Unknown");
       if (map[key]) map[key].drops++;
     });
     return Object.values(map).sort((a, b) => b.xp - a.xp).slice(0, 10);
@@ -82,7 +83,7 @@ export default function AdminChartsTab({ territoryRestricted, territoryCountries
     return leaderEmails.map(email => {
       const u = users.find(u => u.email === email);
       const led = groups.filter(g => g.leader_email === email);
-      const region = u?.territory_name || u?.country || "Unknown";
+      const region = u?.territory_name || getUserCountry(u) || "Unknown";
       return {
         name: u?.full_name || email.split("@")[0],
         region,

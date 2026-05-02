@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Crown, Target, HandHeart, Users2, MessageCircle, Flame, CheckCircle2, Zap } from "lucide-react";
 import { AnimatedNumber } from "./useCountUp";
+import { getUserCountry } from "@/lib/countryUtils";
 
 /* ─── Shared PanelShell (kept local so this file stays independent) ──── */
 function PanelShell({ title, subtitle, icon: Icon, iconColor, t, isDark, children, delay = 0, badge = null }) {
@@ -69,14 +70,16 @@ export function LeadingCountriesPanel({ users, drops, t, isDark }) {
   const ranked = useMemo(() => {
     const map = {};
     users.forEach(u => {
-      if (!u.country) return;
-      if (!map[u.country]) map[u.country] = { country: u.country, users: 0, drops: 0, emails: new Set() };
-      map[u.country].users++;
-      map[u.country].emails.add(u.email);
+      const country = getUserCountry(u);
+      if (!country) return;
+      if (!map[country]) map[country] = { country, users: 0, drops: 0, emails: new Set() };
+      map[country].users++;
+      map[country].emails.add(u.email);
     });
     drops.forEach(d => {
       const owner = users.find(u => u.email === d.user_email);
-      if (owner?.country && map[owner.country]) map[owner.country].drops++;
+      const country = getUserCountry(owner);
+      if (country && map[country]) map[country].drops++;
     });
     return Object.values(map)
       .map(c => ({ ...c, score: c.users * 2 + c.drops }))
@@ -134,8 +137,8 @@ export function LeadingCountriesPanel({ users, drops, t, isDark }) {
 export function ChallengeImpactPanel({ t, isDark }) {
   const accentColor = isDark ? "#8A5CFF" : "#7e22ce";
 
-  const { data: challenges = [] } = useQuery({ queryKey: ["dx_challenges"], queryFn: () => base44.entities.Challenge.list("-created_date", 20) });
-  const { data: submissions = [] } = useQuery({ queryKey: ["dx_submissions"], queryFn: () => base44.entities.ChallengeSubmission.list("-created_date", 200) });
+  const { data: challenges = [] } = useQuery({ queryKey: ["dx_challenges"], queryFn: () => base44.entities.Challenge.list("-created_date", 10000) });
+  const { data: submissions = [] } = useQuery({ queryKey: ["dx_submissions"], queryFn: () => base44.entities.ChallengeSubmission.list("-created_date", 10000) });
 
   const stats = useMemo(() => {
     const active = challenges.filter(c => c.active);
@@ -212,8 +215,8 @@ export function ChallengeImpactPanel({ t, isDark }) {
 export function CommunityPulsePanel({ scopedGroups, t, isDark }) {
   const accentColor = isDark ? "#f43f5e" : "#e11d48";
 
-  const { data: prayers = [] } = useQuery({ queryKey: ["dx_prayers"], queryFn: () => base44.entities.PrayerRequest.list("-created_date", 200) });
-  const { data: groupMembers = [] } = useQuery({ queryKey: ["dx_groupMembers"], queryFn: () => base44.entities.GlowGroupMember.list("-created_date", 500) });
+  const { data: prayers = [] } = useQuery({ queryKey: ["dx_prayers"], queryFn: () => base44.entities.PrayerRequest.list("-created_date", 10000) });
+  const { data: groupMembers = [] } = useQuery({ queryKey: ["dx_groupMembers"], queryFn: () => base44.entities.GlowGroupMember.list("-created_date", 10000) });
 
   const stats = useMemo(() => {
     const answered = prayers.filter(p => p.answered).length;

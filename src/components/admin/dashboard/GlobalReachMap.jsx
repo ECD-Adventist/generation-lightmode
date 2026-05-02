@@ -3,6 +3,7 @@ import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "re
 import { Globe2, MapPin, Plus, Minus, RotateCcw } from "lucide-react";
 import { AnimatedNumber } from "./useCountUp";
 import { countryCoordinates } from "@/lib/countryCoordinates";
+import { getUserCountry } from "@/lib/countryUtils";
 
 // Lightweight world topojson (countries only). react-simple-maps accepts a URL.
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -50,7 +51,10 @@ export default function GlobalReachMap({ users, t, isDark }) {
 
   const countryPoints = useMemo(() => {
     const counts = {};
-    users.forEach(u => { if (u.country) counts[u.country] = (counts[u.country] || 0) + 1; });
+    users.forEach(u => {
+      const country = getUserCountry(u);
+      if (country) counts[country] = (counts[country] || 0) + 1;
+    });
     return Object.entries(counts)
       .map(([country, count]) => {
         const coords = countryCoordinates[country];

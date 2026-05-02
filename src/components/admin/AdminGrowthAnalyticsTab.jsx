@@ -6,6 +6,7 @@ import {
 } from "recharts";
 import { Globe, Users, TrendingUp, Zap, MapPin, CheckCircle, Activity } from "lucide-react";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
+import { getUserCountry } from "@/lib/countryUtils";
 
 const COLORS = ["#00CFFF", "#8A5CFF", "#FFD000", "#10B981", "#F43F5E", "#F97316", "#EC4899", "#6366F1", "#14B8A6", "#EAB308"];
 
@@ -45,33 +46,33 @@ export default function AdminGrowthAnalyticsTab({ territoryRestricted, territory
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ["adminAllUsersGrowth"],
-    queryFn: async () => { const r = await base44.functions.invoke("listPublicUsers", {}); return r.data; },
+    queryFn: async () => { const r = await base44.functions.invoke("adminListUsers", {}); return r.data || []; },
   });
 
   const { data: drops = [] } = useQuery({
     queryKey: ["adminDropsGrowth"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 500),
+    queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000),
   });
 
   const { data: groups = [] } = useQuery({
     queryKey: ["adminGroupsGrowth"],
-    queryFn: () => base44.entities.GlowGroup.filter({}),
+    queryFn: () => base44.entities.GlowGroup.list("-created_date", 10000),
   });
 
   const { data: challenges = [] } = useQuery({
     queryKey: ["adminChallengesGrowth"],
-    queryFn: () => base44.entities.Challenge.list(),
+    queryFn: () => base44.entities.Challenge.list("-created_date", 10000),
   });
 
   const { data: submissions = [] } = useQuery({
     queryKey: ["adminSubmissionsGrowth"],
-    queryFn: () => base44.entities.ChallengeSubmission.list(),
+    queryFn: () => base44.entities.ChallengeSubmission.list("-created_date", 10000),
   });
 
   const users = useMemo(() => {
     if (!territoryRestricted || !territoryCountries) return allUsers;
-    const allowed = territoryCountries.split(",").map(c => c.trim().toLowerCase());
-    return allUsers.filter(u => allowed.includes((u.country || "").toLowerCase()));
+    const allowed = territoryCountries.split(",").map(c => getUserCountry({ country: c }).toLowerCase()).filter(Boolean);
+    return allUsers.filter(u => allowed.includes(getUserCountry(u).toLowerCase()));
   }, [allUsers, territoryRestricted, territoryCountries]);
 
   const profileFields = ["bio", "country", "city", "profile_picture_url", "gender", "date_of_birth"];
@@ -104,8 +105,9 @@ export default function AdminGrowthAnalyticsTab({ territoryRestricted, territory
   const countryData = useMemo(() => {
     const map = {};
     users.forEach(u => {
-      if (!u.country) return;
-      map[u.country] = (map[u.country] || 0) + 1;
+      const country = getUserCountry(u);
+      if (!country) return;
+      map[country] = (map[country] || 0) + 1;
     });
     return Object.entries(map).sort(([, a], [, b]) => b - a).slice(0, 10).map(([country, count]) => ({ country, count }));
   }, [users]);
@@ -113,8 +115,9 @@ export default function AdminGrowthAnalyticsTab({ territoryRestricted, territory
   const xpByCountry = useMemo(() => {
     const map = {};
     users.forEach(u => {
-      if (!u.country) return;
-      map[u.country] = (map[u.country] || 0) + (u.glow_score || 0);
+      const country = getUserCountry(u);
+      if (!country) return;
+      map[country] = (map[country] || 0) + (u.glow_score || 0);
     });
     return Object.entries(map).sort(([, a], [, b]) => b - a).slice(0, 10).map(([country, xp]) => ({ country, xp }));
   }, [users]);
@@ -300,7 +303,7 @@ export default function AdminGrowthAnalyticsTab({ territoryRestricted, territory
             </thead>
             <tbody>
               {countryData.map((row, i) => {
-                const totalXpForCountry = users.filter(u => u.country === row.country).reduce((s, u) => s + (u.glow_score || 0), 0);
+                const totalXpForCountry = users.filter(u => getUserCountry(u) === row.country).reduce((s, u) => s + (u.glow_score || 0), 0);
                 const avgXpForCountry = row.count > 0 ? Math.round(totalXpForCountry / row.count) : 0;
                 return (
                   <tr key={row.country} className="border-b transition hover:opacity-80" style={{ borderColor: t.border, background: isDark ? "rgba(255,255,255,0.02)" : "transparent" }}>
