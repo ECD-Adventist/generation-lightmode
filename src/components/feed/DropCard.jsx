@@ -52,7 +52,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     drop.category === "Keep It 100" ||
     (drop.hashtags && /keepit100/i.test(drop.hashtags))
   );
-  const KEEP_IT_100_BG = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/31aefa0b5_BACKGROUNDTMP-02.jpg";
+  const KEEP_IT_100_BG = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/ae9c17d35_BACKGROUNDTMP-02.jpg";
 
   const getRepostOwner = (reflection) => {
     const matches = Array.from(reflection?.matchAll(/\[Reposted from (.+?)\]\s*/gi) || []);
