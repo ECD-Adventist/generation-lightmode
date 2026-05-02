@@ -47,6 +47,13 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   const isFollowingAuthor = following.some(f => f.following_email === drop.user_email);
   const canFollowAuthor = !!user && user.email !== drop.user_email && typeof followMutation?.mutate === "function";
 
+  // Keep It 100 posts get a custom branded background image (cyan frame + golden splatter + logos baked in).
+  const isKeepIt100 = !drop.media_url && (
+    drop.category === "Keep It 100" ||
+    (drop.hashtags && /keepit100/i.test(drop.hashtags))
+  );
+  const KEEP_IT_100_BG = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/31aefa0b5_BACKGROUNDTMP-02.jpg";
+
   const getRepostOwner = (reflection) => {
     const matches = Array.from(reflection?.matchAll(/\[Reposted from (.+?)\]\s*/gi) || []);
     if (!matches.length) return null;
@@ -325,9 +332,15 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         className={`relative w-full rounded-xl sm:rounded-[1.5rem] overflow-hidden shadow-inner ${
           drop.media_url
             ? 'aspect-[4/5] sm:aspect-[3/4]'
-            : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center'
+            : isKeepIt100
+              ? 'aspect-[4/5] flex flex-col justify-center items-center text-center'
+              : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center'
         }`}
-        style={{ background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" }}
+        style={
+          isKeepIt100
+            ? { backgroundImage: `url(${KEEP_IT_100_BG})`, backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#0B1733" }
+            : { background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" }
+        }
         onDoubleClick={() => {
           setLikeBurst(true);
           setTimeout(() => setLikeBurst(false), 600);
@@ -455,8 +468,42 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <>
 
             
-            <div className={`p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
-              {isLeaderPost ? (
+            <div className={`p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center ${isKeepIt100 ? "justify-start pt-[18%] sm:pt-[16%] pb-[40%]" : "justify-center"} ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
+              {isKeepIt100 ? (
+                <div className="w-full max-w-[80%] flex flex-col items-center justify-center text-center px-2 sm:px-4">
+                  {drop.verse && (
+                    <h2
+                      className="font-['Space_Grotesk'] font-bold leading-[1.3] mb-3 sm:mb-4"
+                      style={{
+                        color: "#FFFFFF",
+                        fontSize: "clamp(15px, 2.2vw, 24px)",
+                        textShadow: "0 2px 12px rgba(0,0,0,0.5)",
+                      }}
+                    >
+                      {drop.verse}
+                    </h2>
+                  )}
+                  {cleanReflection(drop.reflection) && (() => {
+                    const cleaned = cleanReflection(drop.reflection);
+                    const plain = containsHtml(cleaned)
+                      ? cleaned.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+                      : cleaned;
+                    if (!plain) return null;
+                    return (
+                      <p
+                        className="font-['Inter'] italic leading-relaxed line-clamp-5"
+                        style={{
+                          color: "rgba(255,255,255,0.85)",
+                          fontSize: "clamp(11px, 1.3vw, 14px)",
+                          textShadow: "0 1px 8px rgba(0,0,0,0.5)",
+                        }}
+                      >
+                        "{plain}"
+                      </p>
+                    );
+                  })()}
+                </div>
+              ) : isLeaderPost ? (
                 <div className="w-full max-w-2xl flex flex-col items-center text-center">
                   {/* Decorative open quote */}
                   <div
