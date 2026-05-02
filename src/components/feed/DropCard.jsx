@@ -496,9 +496,10 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   </div>
 
                   {drop.verse && (() => {
-                    const plain = containsHtml(drop.reflection || "")
-                      ? (drop.reflection || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
-                      : (drop.reflection || "");
+                    const cleaned = cleanReflection(drop.reflection || "");
+                    const plain = containsHtml(cleaned)
+                      ? cleaned.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+                      : cleaned;
                     const hasReflection = plain.length > 0;
                     return (
                       <h2
@@ -516,9 +517,10 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   })()}
 
                   {drop.reflection && (() => {
-                    const plain = containsHtml(drop.reflection)
-                      ? drop.reflection.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
-                      : drop.reflection;
+                    const cleaned = cleanReflection(drop.reflection);
+                    const plain = containsHtml(cleaned)
+                      ? cleaned.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+                      : cleaned;
                     if (!plain) return null;
                     return (
                       <p
@@ -558,10 +560,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                       {drop.verse}
                     </h2>
                   )}
-                  {drop.reflection && (() => {
-                    const plain = containsHtml(drop.reflection)
-                      ? drop.reflection.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
-                      : drop.reflection;
+                  {cleanReflection(drop.reflection) && (() => {
+                    const cleaned = cleanReflection(drop.reflection);
+                    const plain = containsHtml(cleaned)
+                      ? cleaned.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+                      : cleaned;
+                    if (!plain) return null;
                     return (
                       <p className="text-sm sm:text-lg lg:text-xl font-['Inter'] leading-relaxed max-w-md italic line-clamp-4 sm:line-clamp-none" style={{ color: "#3A4A6B" }}>
                         "{plain.length > 140 ? plain.slice(0, 140) + '…' : plain}"
