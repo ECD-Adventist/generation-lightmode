@@ -65,24 +65,24 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, name: "" });
 
   const highlightedIsoCodes = useMemo(() => {
-    const codes = new Set(ECD_ISO_CODES);
+    const codes = new Set();
     territories.forEach(t => {
-      const code = COUNTRY_NAME_TO_ISO[t.country || ""];
+      const code = COUNTRY_NAME_TO_ISO[t.country || t.name || ""];
       if (code) codes.add(code);
     });
-    return codes;
+    return codes.size > 0 ? codes : new Set(ECD_ISO_CODES);
   }, [territories]);
 
   const regions = useMemo(() => [...new Set(territories.map(t => t.region).filter(Boolean))], [territories]);
   const countries = useMemo(() => {
     const normalized = new Map();
     territories.forEach(t => {
-      const raw = (t.country || "").trim();
+      const raw = (t.country || t.name || "").trim();
       if (!raw) return;
       const key = raw.toLowerCase().replace(/[^a-z]/g, "");
       if (!normalized.has(key)) normalized.set(key, raw);
     });
-    return [...normalized.values()];
+    return normalized.size > 0 ? [...normalized.values()] : ECD_COUNTRIES;
   }, [territories]);
 
   const handleCountryClick = (geo) => {
@@ -93,7 +93,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
   };
 
   const stats = [
-    { label: "ECD Nations", value: ECD_COUNTRIES.length, icon: <Globe className="w-4 h-4" />, color: "#E74C3C", bg: "rgba(231,76,60,0.12)" },
+    { label: "Nations", value: countries.length, icon: <Globe className="w-4 h-4" />, color: "#E74C3C", bg: "rgba(231,76,60,0.12)" },
     { label: "Regions", value: regions.length || 1, icon: <Layers className="w-4 h-4" />, color: "#F39C12", bg: "rgba(243,156,18,0.12)" },
     { label: "Territories", value: territories.length || 9, icon: <MapPin className="w-4 h-4" />, color: "#8A5CFF", bg: "rgba(138,92,255,0.12)" },
     { label: "Members", value: memberCount || "—", icon: <Users className="w-4 h-4" />, color: "#00CFFF", bg: "rgba(0,207,255,0.12)" },
@@ -116,8 +116,8 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
             <Globe className="w-4 h-4 text-[#E74C3C]" />
           </div>
           <div>
-            <div className="text-[11px] font-black text-[#E74C3C] uppercase tracking-[0.25em]">ECD Territory Map</div>
-            <div className="text-[9px] text-gray-500 uppercase tracking-widest mt-0.5">East-Central Africa Division · 12 Nations</div>
+            <div className="text-[11px] font-black text-[#E74C3C] uppercase tracking-[0.25em]">{institutionName || "Organization"} Map</div>
+            <div className="text-[9px] text-gray-500 uppercase tracking-widest mt-0.5">Extracted territory visualization · {countries.length} nation{countries.length === 1 ? "" : "s"}</div>
           </div>
           <div className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: "rgba(231,76,60,0.1)", border: "1px solid rgba(231,76,60,0.2)" }}>
             <div className="w-1.5 h-1.5 rounded-full bg-[#E74C3C] animate-pulse" />
@@ -257,15 +257,15 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
                 <Star className="w-3.5 h-3.5 text-[#F39C12]" />
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#F39C12]">ECD Division</span>
               </div>
-              <div className="text-xs font-bold text-white leading-tight">East-Central Africa</div>
-              <div className="text-[10px] text-gray-500 mt-0.5">Seventh-day Adventist</div>
+              <div className="text-xs font-bold text-white leading-tight">{institutionName || "Institution"}</div>
+              <div className="text-[10px] text-gray-500 mt-0.5">Organization territory view</div>
             </div>
 
             {/* Nation list */}
             <div className="flex-1 overflow-y-auto px-3 py-3">
               <div className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-600 px-2 mb-2">Nations</div>
               <div className="space-y-0.5">
-                {ECD_COUNTRIES.map((country, i) => (
+                {countries.map((country, i) => (
                   <button
                     key={country}
                     onClick={() => setSelectedCountry(selectedCountry === country ? null : country)}

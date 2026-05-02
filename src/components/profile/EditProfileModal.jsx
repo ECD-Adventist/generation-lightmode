@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { X, Camera, Loader2, Calendar, Trash2 } from "lucide-react";
+import { X, Camera, Loader2, Calendar, Trash2, Facebook, Instagram, Youtube, Linkedin, Music2, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,10 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
+  const parseSocialLinks = (value) => {
+    try { return value ? JSON.parse(value) : {}; } catch { return {}; }
+  };
+
   const [editData, setEditData] = useState({
     display_name: user?.display_name || user?.full_name || "",
     country: user?.country || "",
@@ -30,6 +34,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
     city: user?.city || "",
     address: user?.address || "",
     postal_code: user?.postal_code || "",
+    social_links: parseSocialLinks(user?.social_links),
   });
 
   // Sync when user prop changes (e.g. after an image upload outside modal)
@@ -48,11 +53,13 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
         city: user.city || "",
         address: user.address || "",
         postal_code: user.postal_code || "",
+        social_links: parseSocialLinks(user.social_links),
       });
     }
   }, [user?.email, isOpen]); // re-sync on open
 
   const set = (field, value) => setEditData(prev => ({ ...prev, [field]: value }));
+  const setSocial = (field, value) => setEditData(prev => ({ ...prev, social_links: { ...prev.social_links, [field]: value } }));
 
   const handleImageSelect = (e, type) => {
     const file = e.target.files[0];
@@ -88,7 +95,8 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
     }
     setSaving(true);
     try {
-      const res = await base44.functions.invoke("updateProfile", editData);
+      const payload = { ...editData, social_links: JSON.stringify(editData.social_links || {}) };
+      const res = await base44.functions.invoke("updateProfile", payload);
       if (!res.data?.success) throw new Error(res.data?.error || "Save failed");
 
       // Re-fetch the fresh user record from the server (source of truth)
@@ -276,6 +284,29 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
             <div>
               <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Website / Link</Label>
               <Input value={editData.website_url} onChange={e => set("website_url", e.target.value)} placeholder="https://your-link.com" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
+            </div>
+
+            {/* Social Links */}
+            <div>
+              <Label className="text-[10px] uppercase tracking-wider mb-3 block" style={{ color: "#6B7FA0" }}>Social Media Links</Label>
+              <div className="grid grid-cols-1 gap-3">
+                {[
+                  { key: "facebook", label: "Facebook", icon: Facebook, placeholder: "https://facebook.com/..." },
+                  { key: "instagram", label: "Instagram", icon: Instagram, placeholder: "https://instagram.com/..." },
+                  { key: "youtube", label: "YouTube", icon: Youtube, placeholder: "https://youtube.com/..." },
+                  { key: "tiktok", label: "TikTok", icon: Music2, placeholder: "https://tiktok.com/@..." },
+                  { key: "linkedin", label: "LinkedIn", icon: Linkedin, placeholder: "https://linkedin.com/in/..." },
+                  { key: "whatsapp", label: "WhatsApp", icon: MessageCircle, placeholder: "https://wa.me/..." },
+                ].map(item => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.key} className="relative">
+                      <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#0B3FD9" }} />
+                      <Input value={editData.social_links?.[item.key] || ""} onChange={e => setSocial(item.key, e.target.value)} placeholder={item.placeholder} className="h-11 rounded-xl pl-10" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 

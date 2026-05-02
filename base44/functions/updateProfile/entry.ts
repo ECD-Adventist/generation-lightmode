@@ -51,6 +51,7 @@ Deno.serve(async (req) => {
         if (has('city')) customUpdate.city = clean(body.city) || '';
         if (has('address')) customUpdate.address = clean(body.address) || '';
         if (has('postal_code')) customUpdate.postal_code = clean(body.postal_code) || '';
+        if (has('social_links')) customUpdate.social_links = clean(body.social_links) || '';
 
         // Update custom fields via updateMe
         if (Object.keys(customUpdate).length > 0) {

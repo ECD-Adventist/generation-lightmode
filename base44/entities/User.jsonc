@@ -44,6 +44,10 @@
     "display_name": {
       "type": "string",
       "description": "User-editable display name shown throughout the app. Falls back to full_name when empty."
+    },
+    "social_links": {
+      "type": "string",
+      "description": "JSON string of social media profile links such as Facebook, Instagram, YouTube, TikTok, LinkedIn, X, WhatsApp."
     }
   },
   "required": [

@@ -2,7 +2,7 @@ import React, { useRef, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Camera, Shield, MapPin, ExternalLink, Building2, Crown, Sparkles, Upload, Loader2 } from "lucide-react";
+import { Camera, Shield, MapPin, ExternalLink, Building2, Crown, Sparkles, Upload, Loader2, Trash2, Facebook, Instagram, Youtube, Linkedin, Music2, MessageCircle } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import TerritoryMapVisual from "@/components/institution/TerritoryMapVisual";
@@ -23,6 +23,17 @@ export default function ExecutiveProfileHeader({
 
   const { data: institutionPages = [] } = useQuery({ queryKey: ["allInstitutionPages"], queryFn: () => base44.entities.InstitutionPage.list("-created_date", 100) });
   const primaryPage = useMemo(() => institutionPages.find(p => p.owner_email === profileEmail && p.name?.toLowerCase() === primaryApp?.institution_name?.toLowerCase()) || institutionPages.find(p => p.owner_email === profileEmail), [institutionPages, profileEmail, primaryApp]);
+  const socialLinks = useMemo(() => {
+    try { return user.social_links ? JSON.parse(user.social_links) : {}; } catch { return {}; }
+  }, [user.social_links]);
+  const visibleSocialLinks = [
+    { key: "facebook", label: "Facebook", icon: Facebook },
+    { key: "instagram", label: "Instagram", icon: Instagram },
+    { key: "youtube", label: "YouTube", icon: Youtube },
+    { key: "tiktok", label: "TikTok", icon: Music2 },
+    { key: "linkedin", label: "LinkedIn", icon: Linkedin },
+    { key: "whatsapp", label: "WhatsApp", icon: MessageCircle },
+  ].filter(item => socialLinks[item.key]);
 
   const cardBg = "#FFFFFF";
   const borderColor = "#E6ECF5";
@@ -84,6 +95,11 @@ export default function ExecutiveProfileHeader({
             <div className="flex flex-wrap gap-3 items-center mb-4 mt-1">
               {user.country && <span className="flex items-center gap-1 text-xs" style={{ color: "#6B7FA0" }}><MapPin className="w-3 h-3" /> {user.country}</span>}
               {user.website_url && <a href={user.website_url.startsWith("http") ? user.website_url : `https://${user.website_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-semibold hover:underline" style={{ color: "#0B3FD9" }}><ExternalLink className="w-3 h-3" /> {user.website_url.replace(/^https?:\/\//, "")}</a>}
+              {visibleSocialLinks.map(item => {
+                const Icon = item.icon;
+                const url = socialLinks[item.key].startsWith("http") ? socialLinks[item.key] : `https://${socialLinks[item.key]}`;
+                return <a key={item.key} href={url} target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-full flex items-center justify-center transition hover:scale-105" style={{ background: "#EEF3FF", color: "#0B3FD9", border: "1px solid #D6E4FF" }} title={item.label}><Icon className="w-3.5 h-3.5" /></a>;
+              })}
               <span className="text-xs" style={{ color: "#8A97B5" }}>Joined {user.created_date ? new Date(user.created_date).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "recently"}</span>
             </div>
 
@@ -130,10 +146,28 @@ export default function ExecutiveProfileHeader({
                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: "#CC7A00" }}>Organization Map</h3>
                 {isOwnProfile && (
                   <>
-                    <button onClick={() => orgMapInputRef.current?.click()} disabled={uploadingMap} className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold transition" style={{ color: "#6B7FA0", background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
-                      {uploadingMap ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />} {institutionApps.some(app => app.organization_map_url) ? "Replace" : "Upload"}
-                    </button>
-                    <input ref={orgMapInputRef} type="file" accept="image/png" className="hidden" onChange={async (e) => {
+                    <div className="ml-auto flex items-center gap-2">
+                      {institutionApps.some(app => app.organization_map_url) && (
+                        <button
+                          onClick={async () => {
+                            const appWithMap = institutionApps.find(a => a.organization_map_url);
+                            if (!appWithMap || !window.confirm("Delete this organization map?")) return;
+                            await base44.entities.InstitutionApplication.update(appWithMap.id, { organization_map_url: "", extracted_territories: "" });
+                            queryClient.invalidateQueries({ queryKey: ["profileInstitutionApps"] });
+                            toast.success("Organization map deleted.");
+                          }}
+                          disabled={uploadingMap}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold transition"
+                          style={{ color: "#dc2626", background: "#FEF2F2", border: "1px solid #FECACA" }}
+                        >
+                          <Trash2 className="w-3 h-3" /> Delete
+                        </button>
+                      )}
+                      <button onClick={() => orgMapInputRef.current?.click()} disabled={uploadingMap} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold transition" style={{ color: "#6B7FA0", background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                        {uploadingMap ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />} {institutionApps.some(app => app.organization_map_url) ? "Replace" : "Upload"}
+                      </button>
+                    </div>
+                    <input ref={orgMapInputRef} type="file" accept="image/*" className="hidden" onChange={async (e) => {
                       const file = e.target.files?.[0]; if (!file) return; e.target.value = null;
                       setUploadingMap(true);
                       setMapUploadProgress({ step: 1, percent: 25, label: "Uploading image..." });
@@ -141,7 +175,7 @@ export default function ExecutiveProfileHeader({
                         const { file_url } = await base44.integrations.Core.UploadFile({ file });
                         setMapUploadProgress({ step: 2, percent: 50, label: "AI extracting territories..." });
                         let extractedTerritories = [];
-                        try { const extractResult = await base44.integrations.Core.InvokeLLM({ prompt: `Analyze this organization map image. Extract all territory names, regions, countries, and any hierarchical structure visible. Return a JSON array of objects with fields: name, region, country.`, file_urls: [file_url], response_json_schema: { type: "object", properties: { territories: { type: "array", items: { type: "object", properties: { name: { type: "string" }, region: { type: "string" }, country: { type: "string" } } } } } } }); extractedTerritories = extractResult?.territories || []; } catch (aiErr) { console.warn("AI extraction failed:", aiErr); }
+                        try { const extractResult = await base44.integrations.Core.InvokeLLM({ prompt: `Analyze this organization map image. Extract all countries, territories, regions, fields, conferences, unions, and any visible hierarchy. Return a JSON array of objects with fields: name, region, country. If only countries are visible, use the country as both name and country.`, file_urls: [file_url], response_json_schema: { type: "object", properties: { territories: { type: "array", items: { type: "object", properties: { name: { type: "string" }, region: { type: "string" }, country: { type: "string" } } } } } } }); extractedTerritories = extractResult?.territories || []; } catch (aiErr) { console.warn("AI extraction failed:", aiErr); }
                         setMapUploadProgress({ step: 3, percent: 85, label: "Saving to profile..." });
                         const appWithMap = institutionApps.find(a => a.organization_map_url) || primaryApp;
                         const updateData = { organization_map_url: file_url }; if (extractedTerritories.length > 0) updateData.extracted_territories = JSON.stringify(extractedTerritories);
@@ -178,7 +212,7 @@ export default function ExecutiveProfileHeader({
               {institutionApps.some(app => app.organization_map_url) ? (() => {
                 const appWithMap = institutionApps.find(a => a.organization_map_url);
                 if (appWithMap?.extracted_territories) { try { const territories = JSON.parse(appWithMap.extracted_territories); if (territories.length > 0) return <TerritoryMapVisual territories={territories} institutionName={appWithMap.institution_name} memberCount={0} ownerEmail={profileEmail} />; } catch {} }
-                return <div className="rounded-2xl overflow-hidden p-4" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}><img src={appWithMap?.organization_map_url} alt="Organization Map" className="w-full h-auto object-contain max-h-[460px]" /></div>;
+                return <TerritoryMapVisual territories={[]} institutionName={appWithMap.institution_name} memberCount={0} ownerEmail={profileEmail} />;
               })() : isOwnProfile && !mapUploadProgress ? (
                 <button onClick={() => orgMapInputRef.current?.click()} disabled={uploadingMap} className="w-full border-2 border-dashed rounded-xl p-8 transition text-center" style={{ borderColor: "#D6E4FF" }}>
                   <Upload className="w-8 h-8 mx-auto mb-2" style={{ color: "#8A97B5" }} />
