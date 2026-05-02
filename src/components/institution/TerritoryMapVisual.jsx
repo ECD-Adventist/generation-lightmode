@@ -167,7 +167,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
           </div>
         </div>
 
-        {!compact && (
+        {compact ? null : (
           <div className="grid grid-cols-4 divide-x" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)", divideColor: "rgba(255,255,255,0.04)" }}>
             {stats.map(stat => (
               <div key={stat.label} className="px-4 py-3 text-center" style={{ borderRight: "1px solid rgba(255,255,255,0.04)" }}>
@@ -291,7 +291,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
             </ComposableMap>
           </div>
 
-          {!compact && (
+          {compact ? null : (
             <div className="lg:w-52 shrink-0 flex flex-col" style={{
               background: "linear-gradient(180deg, #0B0F1A 0%, #080C14 100%)",
               borderTop: "1px solid rgba(0,207,255,0.10)",
