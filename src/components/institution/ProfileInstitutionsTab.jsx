@@ -20,10 +20,25 @@ export default function ProfileInstitutionsTab({ profileEmail, isOwnProfile }) {
 
   const isLoading = appsLoading || pagesLoading;
 
-  // For public view, only show approved applications
+  const ownedPages = institutionPages.filter(p => p.owner_email === profileEmail);
+
+  // For public view, only show approved applications. If the user already has
+  // Institution Profile pages, show those too even when no application record exists.
   const visibleApps = isOwnProfile ? applications : applications.filter(a => a.status === "approved");
+  const pageBackedApps = ownedPages.map(page => ({
+    id: `page-${page.id}`,
+    user_email: page.owner_email,
+    institution_name: page.name,
+    institution_type: page.category,
+    country: page.location,
+    logo_url: page.logo_url,
+    status: "approved",
+    institution_page_id: page.id,
+  }));
+  const visibleInstitutions = visibleApps.length > 0 ? visibleApps : pageBackedApps;
 
   const findPage = (app) => {
+    if (app.institution_page_id) return institutionPages.find(p => p.id === app.institution_page_id);
     return institutionPages.find(
       p => p.owner_email === app.user_email && p.name?.toLowerCase() === app.institution_name?.toLowerCase()
     ) || institutionPages.find(
@@ -35,7 +50,7 @@ export default function ProfileInstitutionsTab({ profileEmail, isOwnProfile }) {
     return <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 text-[#00CFFF] animate-spin" /></div>;
   }
 
-  if (visibleApps.length === 0) {
+  if (visibleInstitutions.length === 0) {
     return (
       <div className="text-center py-20 text-gray-500 bg-[#121826]/50 rounded-2xl border border-white/5">
         <Building2 className="w-10 h-10 mx-auto mb-3 opacity-30" />
@@ -52,7 +67,7 @@ export default function ProfileInstitutionsTab({ profileEmail, isOwnProfile }) {
 
   return (
     <div className="py-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {visibleApps.map(app => {
+      {visibleInstitutions.map(app => {
         const page = findPage(app);
         const isApproved = app.status === "approved";
 
