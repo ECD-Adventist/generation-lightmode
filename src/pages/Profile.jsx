@@ -532,7 +532,7 @@ export default function Profile() {
         );
       }
       return (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-3">
           {myDrops.map(drop => (
             <DropGridTile
               key={drop.id}
