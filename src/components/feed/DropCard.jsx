@@ -17,6 +17,7 @@ import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
 import { getDisplayName } from "@/lib/displayName";
 import { useIsMobile } from "@/hooks/use-mobile";
 import CountryFlag from "@/components/common/CountryFlag";
+import OfficialPostArt from "@/components/feed/OfficialPostArt";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
@@ -44,6 +45,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   // Leader posts (created via "Post as leader") get a distinct premium treatment.
   const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
   const isLeaderPost = !!leaderForDrop;
+  const isOfficialPost = drop.user_email === "system@lightmode.com";
   const isFollowingAuthor = following.some(f => f.following_email === drop.user_email);
   const canFollowAuthor = !!user && user.email !== drop.user_email && typeof followMutation?.mutate === "function";
 
@@ -240,7 +242,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   return (
     <div
       className="rounded-[1.75rem] sm:rounded-[2.25rem] mb-6 sm:mb-8 p-2 sm:p-3 transition-all duration-300 group hover:-translate-y-0.5 relative"
-      style={isLeaderPost ? {
+      style={(isLeaderPost || isOfficialPost) ? {
         background: "linear-gradient(135deg, #FFFFFF 0%, #F4F8FF 50%, #FFFCF0 100%)",
         border: "1px solid #FFE4A0",
         boxShadow: "0 1px 2px rgba(212, 184, 46, 0.06), 0 8px 24px rgba(11, 63, 217, 0.10), 0 16px 48px rgba(255, 208, 0, 0.10)"
@@ -250,11 +252,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         boxShadow: "0 1px 2px rgba(11, 63, 217, 0.04), 0 8px 24px rgba(11, 63, 217, 0.08), 0 16px 48px rgba(11, 63, 217, 0.04)"
       }}
     >
-      {isLeaderPost && (
+      {(isLeaderPost || isOfficialPost) && (
         <div className="absolute -top-3 left-5 sm:left-6 z-30 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg"
           style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 40%, #1A6B3F 70%, #D4B82E 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35), 0 0 20px rgba(212, 184, 46, 0.4)" }}>
           <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          {leaderForDrop.leader_title || "Official Leader"}
+          {isOfficialPost ? "Official LightMode" : (leaderForDrop.leader_title || "Official Leader")}
         </div>
       )}
       <style>{`
@@ -361,9 +363,9 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
                 className="inline-flex items-center gap-2 backdrop-blur-md rounded-full pr-2.5 sm:pr-3.5 pl-1 py-1 cursor-pointer transition no-underline max-w-[calc(100vw-1.5rem)] sm:max-w-none"
                 style={{
-                  background: drop.media_url ? "rgba(0,0,0,0.4)" : (isLeaderPost ? "rgba(255,255,255,0.96)" : "#FFFFFF"),
-                  border: drop.media_url ? "none" : "1px solid #E2E8F0",
-                  boxShadow: drop.media_url ? "none" : "0 2px 8px rgba(0,0,0,0.05)"
+                  background: (drop.media_url || isOfficialPost) ? "rgba(0,0,0,0.42)" : (isLeaderPost ? "rgba(255,255,255,0.96)" : "#FFFFFF"),
+                  border: (drop.media_url || isOfficialPost) ? "1px solid rgba(255,255,255,0.16)" : "1px solid #E2E8F0",
+                  boxShadow: (drop.media_url || isOfficialPost) ? "0 8px 22px rgba(0,0,0,0.18)" : "0 2px 8px rgba(0,0,0,0.05)"
                 }}
               >
                 {isLeaderPost ? (
@@ -397,7 +399,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   </div>
                 )}
                 <div className="flex flex-col items-start justify-center min-w-0">
-                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 ${drop.media_url ? "text-white" : ""}`} style={drop.media_url ? {} : { color: "#0B1B3D" }}>
+                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 ${(drop.media_url || isOfficialPost) ? "text-white" : ""}`} style={(drop.media_url || isOfficialPost) ? {} : { color: "#0B1B3D" }}>
                     <span className="whitespace-normal break-words max-w-[190px] sm:max-w-none sm:whitespace-nowrap leading-tight">
                       {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(dropUser)}
                     </span>
@@ -420,7 +422,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                       </span>
                     )}
                   </span>
-                  <span className={`text-[9px] sm:text-[10px] font-medium leading-none whitespace-nowrap ${drop.media_url ? "text-white/80" : ""}`} style={drop.media_url ? {} : { color: "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
+                  <span className={`text-[9px] sm:text-[10px] font-medium leading-none whitespace-nowrap ${(drop.media_url || isOfficialPost) ? "text-white/80" : ""}`} style={(drop.media_url || isOfficialPost) ? {} : { color: "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
                 </div>
               </Link>
             );
@@ -453,7 +455,9 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         {!drop.media_url && (
           <>
-            {isLeaderPost ? (
+            {isOfficialPost ? (
+              <OfficialPostArt verse={drop.verse} reflection={drop.reflection} category={drop.category} />
+            ) : isLeaderPost ? (
               <>
                 {/* Cinematic dark hero background */}
                 <img
@@ -591,7 +595,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         {(() => {
           // Leader text posts share the dark glass treatment with media posts.
-          const useGlass = drop.media_url || isLeaderPost;
+          const useGlass = drop.media_url || isLeaderPost || isOfficialPost;
           return (
         <div className="absolute right-2 sm:right-3 bottom-4 sm:bottom-6 z-20 flex flex-col items-center gap-3 sm:gap-5">
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
