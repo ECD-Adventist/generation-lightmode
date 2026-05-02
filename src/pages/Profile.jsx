@@ -24,7 +24,6 @@ import AppFooter from "@/components/AppFooter";
 import { getDisplayName } from "@/lib/displayName";
 import MobileProfile from "@/components/profile/MobileProfile";
 import CountryFlag from "@/components/common/CountryFlag";
-import FeedDropList from "@/components/feed/FeedDropList";
 import DropGridTile from "@/components/profile/DropGridTile";
 
 export default function Profile() {
@@ -513,7 +512,14 @@ export default function Profile() {
       return (
         <div className="grid grid-cols-3 gap-2">
           {myDrops.map(drop => (
-            <DropGridTile key={drop.id} drop={drop} onClick={() => setViewingDropId(drop.id)} />
+            <DropGridTile
+              key={drop.id}
+              drop={drop}
+              onClick={() => setViewingDropId(drop.id)}
+              authorName={getDisplayName(displayUser)}
+              authorTitle={leaderTitle}
+              isLeader={isLeaderProfile}
+            />
           ))}
         </div>
       );
