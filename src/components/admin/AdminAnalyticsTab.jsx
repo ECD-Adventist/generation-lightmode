@@ -70,34 +70,34 @@ export default function AdminAnalyticsTab({ user, territoryRestricted, territory
   const { data: users = [] } = useQuery({
     queryKey: ["analytics_users"],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
+      const res = await base44.functions.invoke("adminListUsers", {});
       return res.data || [];
     }
   });
 
   const { data: drops = [] } = useQuery({
     queryKey: ["analytics_drops"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 500),
+    queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000),
   });
 
   const { data: groups = [] } = useQuery({
     queryKey: ["analytics_groups"],
-    queryFn: () => base44.entities.GlowGroup.list(),
+    queryFn: () => base44.entities.GlowGroup.list("-created_date", 10000),
   });
 
   const { data: prayers = [] } = useQuery({
     queryKey: ["analytics_prayers"],
-    queryFn: () => base44.entities.PrayerRequest.list("-created_date", 200),
+    queryFn: () => base44.entities.PrayerRequest.list("-created_date", 10000),
   });
 
   const { data: challenges = [] } = useQuery({
     queryKey: ["analytics_challenges"],
-    queryFn: () => base44.entities.ChallengeSubmission.list("-created_date", 200),
+    queryFn: () => base44.entities.ChallengeSubmission.list("-created_date", 10000),
   });
 
   const { data: follows = [] } = useQuery({
     queryKey: ["analytics_follows"],
-    queryFn: () => base44.entities.Follow.list("-created_date", 500),
+    queryFn: () => base44.entities.Follow.list("-created_date", 10000),
   });
 
   const allowedCountries = (territoryCountries || "").split(",").map(item => item.trim()).filter(Boolean);

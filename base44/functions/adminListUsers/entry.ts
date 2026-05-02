@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
-    const allUsers = await base44.asServiceRole.entities.User.list('-created_date');
+    const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 10000);
 
     const adminUsers = allUsers.map(u => ({
       id: u.id,

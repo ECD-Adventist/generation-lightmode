@@ -18,10 +18,10 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
   const isDark = theme === "dark";
 
   const allowedCountries = (territoryCountries || "").split(",").map(s => s.trim()).filter(Boolean);
-  const { data: users = [] } = useQuery({ queryKey: ["admin_users"], queryFn: () => base44.functions.invoke("listPublicUsers", {}).then(r => r.data) });
-  const { data: drops = [] } = useQuery({ queryKey: ["admin_drops"], queryFn: () => base44.entities.GlowDrop.list() });
-  const { data: groups = [] } = useQuery({ queryKey: ["admin_groups"], queryFn: () => base44.entities.GlowGroup.list() });
-  const { data: challenges = [] } = useQuery({ queryKey: ["admin_challenges"], queryFn: () => base44.entities.Challenge.list() });
+  const { data: users = [] } = useQuery({ queryKey: ["admin_users_full"], queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []) });
+  const { data: drops = [] } = useQuery({ queryKey: ["admin_drops"], queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000) });
+  const { data: groups = [] } = useQuery({ queryKey: ["admin_groups"], queryFn: () => base44.entities.GlowGroup.list("-created_date", 10000) });
+  const { data: challenges = [] } = useQuery({ queryKey: ["admin_challenges"], queryFn: () => base44.entities.Challenge.list("-created_date", 10000) });
 
   const scopedUsers = territoryRestricted && territoryApproved ? users.filter(u => allowedCountries.includes(u.country)) : users;
   const scopedDrops = territoryRestricted && territoryApproved ? drops.filter(d => { const o = users.find(u => u.email === d.user_email); return o && allowedCountries.includes(o.country); }) : drops;
@@ -41,7 +41,12 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
   const dropsData = useMemo(() => {
     const ds = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     const c = { Sun:0,Mon:0,Tue:0,Wed:0,Thu:0,Fri:0,Sat:0 };
-    scopedDrops.forEach(d => { if (!d.created_date) return; c[ds[new Date(d.created_date).getDay()]]++; });
+    const weekAgo = Date.now() - 7 * 86400000;
+    scopedDrops.forEach(d => {
+      if (!d.created_date) return;
+      const createdAt = new Date(d.created_date).getTime();
+      if (createdAt >= weekAgo) c[ds[new Date(d.created_date).getDay()]]++;
+    });
     return ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(n => ({ name: n, drops: c[n] }));
   }, [scopedDrops]);
 

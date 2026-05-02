@@ -30,15 +30,15 @@ export default function AdminChartsTab({ territoryRestricted, territoryCountries
 
   const { data: rawUsers = [] } = useQuery({
     queryKey: ["charts_users"],
-    queryFn: () => base44.functions.invoke("listPublicUsers", {}).then(r => r.data || []),
+    queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []),
   });
   const { data: groups = [] } = useQuery({
     queryKey: ["charts_groups"],
-    queryFn: () => base44.entities.GlowGroup.list(),
+    queryFn: () => base44.entities.GlowGroup.list("-created_date", 10000),
   });
   const { data: drops = [] } = useQuery({
     queryKey: ["charts_drops"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 500),
+    queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000),
   });
 
   const allowedCountries = (territoryCountries || "").split(",").map(s => s.trim()).filter(Boolean);
