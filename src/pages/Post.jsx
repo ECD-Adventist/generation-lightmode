@@ -55,6 +55,24 @@ export default function Post() {
     enabled: !!currentUser,
   });
 
+  const { data: savedDropRecords = [] } = useQuery({
+    queryKey: ["savedDrops", currentUser?.email],
+    queryFn: () => base44.entities.SavedDrop.filter({ user_email: currentUser?.email }),
+    enabled: !!currentUser,
+  });
+
+  const { data: following = [] } = useQuery({
+    queryKey: ["following", currentUser?.email],
+    queryFn: () => base44.entities.Follow.filter({ follower_email: currentUser?.email }),
+    enabled: !!currentUser,
+  });
+
+  const { data: postComments = [] } = useQuery({
+    queryKey: ["postComments", dropId],
+    queryFn: () => base44.entities.GlowDropComment.filter({ drop_id: dropId }),
+    enabled: !!dropId,
+  });
+
   const backUrl = backUser ? `${createPageUrl("Profile")}?user=${encodeURIComponent(backUser)}` : createPageUrl("Feed");
 
   const getUserInfo = (email) => {
@@ -91,6 +109,32 @@ export default function Post() {
       queryClient.invalidateQueries({ queryKey: ["postDrop", dropId] });
       queryClient.invalidateQueries({ queryKey: ["userLikes", currentUser?.email] });
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+    },
+  });
+
+  const followMutation = useMutation({
+    mutationFn: async (targetEmail) => {
+      if (!currentUser) { toast.error("Please log in to follow"); return; }
+      const existing = following.find(f => f.following_email === targetEmail);
+      if (existing) {
+        await base44.entities.Follow.delete(existing.id);
+        return "unfollow";
+      }
+      await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: targetEmail });
+      const targetUser = getUserInfo(targetEmail);
+      if (isNotificationEnabled(targetUser, "follows")) {
+        await base44.entities.Notification.create({
+          user_email: targetEmail,
+          type: "follow",
+          message: `${currentUser.full_name || "Someone"} started following you.`,
+          link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`
+        });
+      }
+      return "follow";
+    },
+    onSuccess: (action) => {
+      queryClient.invalidateQueries({ queryKey: ["following", currentUser?.email] });
+      toast.success(action === "unfollow" ? "Unfollowed" : "Following! ⚡");
     },
   });
 
@@ -151,7 +195,11 @@ export default function Post() {
           handleShare={handleShare}
           userLikes={userLikes}
           allUsers={allUsers}
+          savedDropRecords={savedDropRecords}
           leaderAccounts={leaderAccounts}
+          following={following}
+          followMutation={followMutation}
+          commentsCount={postComments.length}
         />
       </div>
     </div>
