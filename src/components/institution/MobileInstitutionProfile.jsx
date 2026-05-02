@@ -152,7 +152,7 @@ export default function MobileInstitutionProfile({
         @keyframes mip-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
       `}</style>
 
-      <div className="relative z-20 flex items-center justify-between px-4 safe-pt pt-4 pb-2">
+      <div className="relative z-20 flex items-center justify-between px-4 safe-pt pt-7 pb-3">
         <Link to={createPageUrl("Feed")} className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)", color: "#00CFFF", border: "1px solid rgba(0,207,255,0.18)" }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </Link>
@@ -225,7 +225,7 @@ export default function MobileInstitutionProfile({
       </div>
 
       {(hasMap || isOwnProfile) && (
-        <div className="px-3 mt-4">
+        <div className="px-3 mt-7">
           <div className="rounded-[1.5rem] overflow-hidden" style={{ background: "#0B0F1A", border: "1px solid rgba(0,207,255,0.18)", boxShadow: "0 12px 32px rgba(0,0,0,0.25)" }}>
             <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1px solid rgba(0,207,255,0.12)" }}>
               <Sparkles className="w-4 h-4" style={{ color: "#FFD000" }} />

@@ -29,7 +29,10 @@ export default function MobileBottomNav({ currentPageName }) {
   useEffect(() => {
     const currentTab = tabs.find(t => t.match.includes(currentPageName) || location.pathname.startsWith(`/${t.key}`));
     if (currentTab) {
-      sessionStorage.setItem(`tab_history_${currentTab.key}`, location.pathname + location.search);
+      const cleanPath = currentTab.key === "Profile" || currentTab.key === "Feed"
+        ? createPageUrl(currentTab.key)
+        : location.pathname + location.search;
+      sessionStorage.setItem(`tab_history_${currentTab.key}`, cleanPath);
     }
   }, [location, currentPageName]);
 
@@ -56,11 +59,24 @@ export default function MobileBottomNav({ currentPageName }) {
       <div className="flex items-stretch justify-around px-2">
         {tabs.map(({ key, label, icon: Icon, match }) => {
           const active = match.includes(currentPageName) || location.pathname === `/${key}`;
+          const targetPath = key === "Profile" || key === "Feed"
+            ? createPageUrl(key)
+            : (sessionStorage.getItem(`tab_history_${key}`) || createPageUrl(key));
           return (
             <Link
               key={key}
-              to={active ? "#" : (sessionStorage.getItem(`tab_history_${key}`) || createPageUrl(key))}
+              to={targetPath}
               onClick={(e) => {
+                if (key === "Feed") {
+                  e.preventDefault();
+                  sessionStorage.removeItem("scroll_pos_/Feed");
+                  window.location.href = createPageUrl("Feed");
+                  return;
+                }
+                if (key === "Profile" && location.search) {
+                  sessionStorage.removeItem("scroll_pos_/Profile");
+                  return;
+                }
                 if (active) {
                   e.preventDefault();
                   window.scrollTo({ top: 0, behavior: 'smooth' });

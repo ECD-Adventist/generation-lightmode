@@ -188,7 +188,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
         <div className="flex flex-col lg:flex-row">
 
           {/* Map */}
-          <div className="relative flex-1" style={{ minHeight: compact ? 260 : 400, background: "radial-gradient(circle at 50% 45%, #101A33 0%, #080C14 72%)" }}>
+          <div className="relative flex-1" style={{ minHeight: compact ? 260 : 400, height: compact ? 260 : "auto", background: "radial-gradient(circle at 50% 45%, #101A33 0%, #080C14 72%)" }}>
 
             {/* Glow effect behind map */}
             <div className="absolute inset-0 pointer-events-none" style={{
@@ -220,8 +220,8 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
 
             <ComposableMap
               projection="geoMercator"
-              projectionConfig={{ scale: 780, center: [36, 0] }}
-              style={{ width: "100%", height: "100%" }}
+              projectionConfig={{ scale: compact ? 620 : 780, center: compact ? [35, 0] : [36, 0] }}
+              style={{ width: "100%", height: compact ? 260 : "100%" }}
             >
               <Geographies geography={GEO_URL}>
                 {({ geographies }) =>
