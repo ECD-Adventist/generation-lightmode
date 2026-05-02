@@ -35,7 +35,6 @@ export default function AdminInstitutionTab() {
     mutationFn: async (appId) => {
       const app = applications.find(a => a.id === appId);
       await base44.entities.InstitutionApplication.update(appId, { status: "approved", admin_notes: adminNotes });
-      await base44.functions.invoke("notifyInstitutionApplicationApproved", { data: { ...app, status: "approved", admin_notes: adminNotes } });
 
       if (app?.user_email) {
         const applicant = allUsers.find(u => u.email === app.user_email);
@@ -49,6 +48,8 @@ export default function AdminInstitutionTab() {
           });
         }
       }
+
+      base44.functions.invoke("notifyInstitutionApplicationApproved", { data: { ...app, status: "approved", admin_notes: adminNotes } }).catch(() => {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["institutionApplications"] });
@@ -58,6 +59,9 @@ export default function AdminInstitutionTab() {
       setSelectedApp(null);
       setAdminNotes("");
       toast.success("Application approved and control center access saved!");
+    },
+    onError: () => {
+      toast.error("Approval failed. Please try again.");
     },
   });
 

@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const payload = await req.json().catch(() => ({}));
-    const app = payload.data;
+    const app = payload.data || payload;
 
     if (!app?.institution_name || app.status !== 'approved') {
       return Response.json({ success: true, skipped: true, reason: 'Application is not approved' });
