@@ -625,13 +625,13 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         {(() => {
           // Leader text posts share the dark glass treatment with media posts.
-          const useGlass = drop.media_url || isLeaderPost;
+          const useGlass = drop.media_url || isLeaderPost || isKeepIt100;
           return (
         <div className="absolute right-2 sm:right-3 bottom-4 sm:bottom-6 z-20 flex flex-col items-center gap-3 sm:gap-5">
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleLike}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${likeBurst ? 'dc-anim-pulse' : ''} ${useGlass ? "bg-black/35 backdrop-blur-md border border-white/15" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${likeBurst ? 'dc-anim-pulse' : ''} ${useGlass ? "bg-[#06112b]/85 backdrop-blur-md border border-cyan-300/40 shadow-[0_0_16px_rgba(0,207,255,0.24)]" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
               title={userHasLiked ? "Unlike this drop" : "Like this drop"}
             >
               <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${likeBurst ? 'dc-anim-like' : ''} ${userHasLiked ? "text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : useGlass ? "text-white hover:scale-110" : "text-blue-600 dark:text-blue-400 hover:scale-110"}`} />
@@ -642,7 +642,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleCommentToggle}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${useGlass ? "bg-black/35 backdrop-blur-md border border-white/15" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${useGlass ? "bg-[#06112b]/85 backdrop-blur-md border border-cyan-300/40 shadow-[0_0_16px_rgba(0,207,255,0.24)]" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
             >
               <MessageCircle className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${commentBounce ? 'dc-anim-bounce' : ''} ${showComments ? "text-cyan-500" : useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
@@ -652,7 +652,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleShareClick}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${sharePulse ? 'dc-anim-pulse' : ''} ${useGlass ? "bg-black/35 backdrop-blur-md border border-white/15" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
+              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${sharePulse ? 'dc-anim-pulse' : ''} ${useGlass ? "bg-[#06112b]/85 backdrop-blur-md border border-cyan-300/40 shadow-[0_0_16px_rgba(0,207,255,0.24)]" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
             >
               <Share2 className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${sharePulse ? 'dc-anim-bounce' : ''} ${useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
@@ -662,7 +662,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleSaveClick}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${useGlass ? "bg-black/35 backdrop-blur-md border border-white/15" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${useGlass ? "bg-[#06112b]/85 backdrop-blur-md border border-cyan-300/40 shadow-[0_0_16px_rgba(0,207,255,0.24)]" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
             >
               <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${saveBounce ? 'dc-anim-bounce' : ''} ${isSaved ? "fill-amber-400 text-amber-400" : useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
             </button>
@@ -673,7 +673,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
               <DropdownMenuTrigger asChild>
                 <button
                   onClick={(e) => e.stopPropagation()}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all focus:outline-none border ${useGlass ? "bg-black/30 border-white/20 backdrop-blur-md" : "bg-white border-[#E2E8F0] shadow-sm"}`}
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all focus:outline-none border ${useGlass ? "bg-[#06112b]/85 border-cyan-300/40 backdrop-blur-md shadow-[0_0_16px_rgba(0,207,255,0.24)]" : "bg-white border-[#E2E8F0] shadow-sm"}`}
                 >
                   <MoreHorizontal className={`w-4 h-4 ${useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
                 </button>
