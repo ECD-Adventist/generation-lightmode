@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { Loader2, X, Send, Image as ImageIcon, Calendar as CalendarIcon, Sparkles } from "lucide-react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
-import BrandedVerseCard from "@/components/feed/BrandedVerseCard";
 
 const CATEGORIES = ["Devotional", "Testimony", "Scripture", "Prayer", "Encouragement", "Teaching", "Announcement"];
 const BRAND_EMAIL = "system@lightmode.com";
@@ -194,21 +193,6 @@ export default function CustomPostComposer() {
           />
         </div>
       </div>
-
-      {/* Feed Preview */}
-      {(form.verse || form.reflection) && !previewUrl && (
-        <div>
-          <Label className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">
-            Feed Preview
-          </Label>
-          <div className="max-w-sm mx-auto rounded-[1.35rem] bg-black p-2 shadow-[0_18px_50px_rgba(0,207,255,0.18)]">
-            <BrandedVerseCard verse={form.verse} reflection={form.reflection} compact />
-          </div>
-          <p className="mt-2 text-center text-[11px] text-gray-500">
-            This is how text-only official posts will appear in the feed.
-          </p>
-        </div>
-      )}
 
       {/* Hashtags */}
       <div>
