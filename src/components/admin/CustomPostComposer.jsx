@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Loader2, X, Send, Image as ImageIcon, Calendar as CalendarIcon, Sparkles } from "lucide-react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
+import LightModePostArtwork from "@/components/feed/LightModePostArtwork";
 
 const CATEGORIES = ["Devotional", "Testimony", "Scripture", "Prayer", "Encouragement", "Teaching", "Announcement"];
 const BRAND_EMAIL = "system@lightmode.com";
@@ -288,6 +289,16 @@ export default function CustomPostComposer() {
           </div>
         )}
       </div>
+
+      {/* Live Preview */}
+      {!previewUrl && (form.verse || form.reflection || form.category) && (
+        <div>
+          <Label className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">Feed Preview</Label>
+          <div className="max-w-sm rounded-2xl overflow-hidden border border-[#00CFFF]/20 bg-[#02071f] p-2">
+            <LightModePostArtwork verse={form.verse} reflection={form.reflection} category={form.category} compact />
+          </div>
+        </div>
+      )}
 
       {/* Submit */}
       <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
