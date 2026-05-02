@@ -1,61 +1,94 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 
 /**
- * Global user-by-name/email search for the Feed.
+ * Global Feed search across BOTH regular users and managed leader accounts.
  *
- * When the user types into the Feed search box, we:
- *   1) Debounce the input (400ms).
- *   2) Look up matching users globally via `listPublicUsers` (name OR email contains).
- *   3) For the top matches, fetch their recent drops via GlowDrop.filter.
- *
- * This lets users find a creator's posts even when those posts haven't been
- * loaded into the local feed cache yet.
- *
- * Cheap by design:
- * - Debounced so we don't fire on every keystroke
- * - Only runs when query.length >= 2
- * - React Query caches results (typing the same name twice = 0 extra calls)
- * - We cap to top 5 matched users and 30 drops per user
+ * - Debounced (400ms), only runs when query.length >= 2
+ * - Step 1: matches by name/email across `listPublicUsers` AND `ManagedLeaderAccount`
+ * - Step 2: fetches recent drops for each matched email
+ *   (leader posts use `leader_email` as `user_email` on GlowDrop, so the same
+ *   GlowDrop.filter({ user_email }) query works for both).
+ * - React-Query cached so repeated searches don't re-fetch.
  */
 export default function useFeedUserSearch(rawQuery, { enabled = true } = {}) {
   const [debounced, setDebounced] = useState("");
 
   useEffect(() => {
     const trimmed = (rawQuery || "").trim();
-    if (trimmed.length < 2) {
-      setDebounced("");
-      return;
-    }
+    if (trimmed.length < 2) { setDebounced(""); return; }
     const t = setTimeout(() => setDebounced(trimmed.toLowerCase()), 400);
     return () => clearTimeout(t);
   }, [rawQuery]);
 
-  // Step 1 — find matching users globally.
-  const { data: matchedUsers = [] } = useQuery({
-    queryKey: ["feedUserSearch:users", debounced],
+  const isActive = enabled && debounced.length >= 2;
+
+  // Pull all public users (regular accounts).
+  const { data: allPublicUsers = [] } = useQuery({
+    queryKey: ["feedUserSearch:allUsers"],
     queryFn: async () => {
       const res = await base44.functions.invoke("listPublicUsers", { limit: 500 });
-      const all = Array.isArray(res.data) ? res.data : [];
-      const q = debounced;
-      return all
-        .filter(u => {
-          const name = (u.full_name || "").toLowerCase();
-          const email = (u.email || "").toLowerCase();
-          return name.includes(q) || email.includes(q);
-        })
-        .slice(0, 5);
+      return Array.isArray(res.data) ? res.data : [];
     },
-    enabled: enabled && debounced.length >= 2,
+    enabled: isActive,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
   });
 
+  // Pull all active leader accounts.
+  const { data: allLeaderAccounts = [] } = useQuery({
+    queryKey: ["feedUserSearch:allLeaderAccounts"],
+    queryFn: () => base44.entities.ManagedLeaderAccount.filter({ active: true }),
+    enabled: isActive,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+  });
+
+  // Filter both pools by name/email substring and merge into one user-shape.
+  const matchedUsers = useMemo(() => {
+    if (!isActive) return [];
+    const q = debounced;
+
+    const fromUsers = allPublicUsers.filter(u => {
+      const name = (u.full_name || "").toLowerCase();
+      const email = (u.email || "").toLowerCase();
+      return name.includes(q) || email.includes(q);
+    });
+
+    const fromLeaders = allLeaderAccounts
+      .filter(a => {
+        const name = (a.leader_name || "").toLowerCase();
+        const email = (a.leader_email || "").toLowerCase();
+        const title = (a.leader_title || "").toLowerCase();
+        return name.includes(q) || email.includes(q) || title.includes(q);
+      })
+      .map(a => ({
+        id: `leader_${a.id}`,
+        email: a.leader_email,
+        full_name: a.leader_name,
+        profile_picture_url: a.leader_profile_picture_url,
+        cover_picture_url: a.leader_cover_picture_url,
+        bio: a.leader_bio,
+        country: a.leader_country,
+        is_managed_leader: true,
+        leader_title: a.leader_title,
+      }));
+
+    // Merge — leaders win over a same-email user (so the verified leader
+    // identity always renders on author chips).
+    const byEmail = new Map();
+    fromUsers.forEach(u => { if (u.email) byEmail.set(u.email, u); });
+    fromLeaders.forEach(u => { if (u.email) byEmail.set(u.email, u); });
+    return Array.from(byEmail.values()).slice(0, 8);
+  }, [isActive, debounced, allPublicUsers, allLeaderAccounts]);
+
   const matchedEmails = matchedUsers.map(u => u.email).filter(Boolean);
 
-  // Step 2 — fetch recent drops for each matched user.
+  // Fetch recent drops for each matched email (works for users AND leaders,
+  // since leader posts are stored with leader_email as user_email).
   const { data: matchedDrops = [], isFetching: dropsLoading } = useQuery({
     queryKey: ["feedUserSearch:drops", matchedEmails.join("|")],
     queryFn: async () => {
@@ -67,14 +100,14 @@ export default function useFeedUserSearch(rawQuery, { enabled = true } = {}) {
       );
       return results.flat();
     },
-    enabled: enabled && matchedEmails.length > 0,
+    enabled: isActive && matchedEmails.length > 0,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
   });
 
   return {
-    isActive: debounced.length >= 2,
+    isActive,
     matchedUsers,
     matchedDrops,
     isLoading: dropsLoading,

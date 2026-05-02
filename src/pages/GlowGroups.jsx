@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight, Home, Bell, User, Video, Loader2, MessageCircle } from "lucide-react";
 import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
 import CreateGroupModal from "@/components/groups/CreateGroupModal";
@@ -56,7 +56,7 @@ export default function GlowGroups() {
     enabled: authChecked,
   });
 
-  const { data: users = [], isError: usersError } = useQuery({
+  const { data: regularUsers = [], isError: usersError } = useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
       const res = await base44.functions.invoke('listPublicUsers', {});
@@ -64,6 +64,38 @@ export default function GlowGroups() {
     },
     retry: 2,
   });
+
+  // Managed leader accounts — these are NOT in the User entity, so we fetch
+  // them separately and merge them into the `users` list so they appear in
+  // People search, Light Leaders, and follow flows just like regular users.
+  const { data: leaderAccounts = [] } = useQuery({
+    queryKey: ["activeLeaderAccountsForExplore"],
+    queryFn: () => base44.entities.ManagedLeaderAccount.filter({ active: true }),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const users = useMemo(() => {
+    const safeRegular = Array.isArray(regularUsers) ? regularUsers : [];
+    const leadersAsUsers = leaderAccounts.map(a => ({
+      id: `leader_${a.id}`,
+      email: a.leader_email,
+      full_name: a.leader_name,
+      profile_picture_url: a.leader_profile_picture_url,
+      cover_picture_url: a.leader_cover_picture_url,
+      bio: a.leader_bio,
+      country: a.leader_country,
+      glow_score: 0,
+      faith_streak_count: 0,
+      is_managed_leader: true,
+      leader_title: a.leader_title,
+    }));
+    // Leaders take precedence over a same-email regular user so the
+    // verified-leader identity always wins.
+    const byEmail = new Map();
+    safeRegular.forEach(u => { if (u.email) byEmail.set(u.email, u); });
+    leadersAsUsers.forEach(u => { if (u.email) byEmail.set(u.email, u); });
+    return Array.from(byEmail.values());
+  }, [regularUsers, leaderAccounts]);
 
   const { data: drops = [] } = useQuery({
     queryKey: ["glowGroupsDropCounts"],
