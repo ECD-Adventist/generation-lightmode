@@ -130,7 +130,7 @@ export default function MobileProfile({
                 <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-md"
                   style={{ background: "linear-gradient(135deg, rgba(0,128,254,0.95) 0%, rgba(0,64,160,0.95) 50%, rgba(212,184,46,0.95) 100%)", boxShadow: "0 4px 12px rgba(0,128,254,0.4)" }}>
                   <BadgeCheck className="w-3 h-3 text-white" strokeWidth={2.5} />
-                  <span className="text-[9px] font-black uppercase tracking-wider text-white">Verified Leader</span>
+                  <span className="text-[9px] font-black uppercase tracking-wider text-white">Verified</span>
                 </div>
               </>
             )}
@@ -250,7 +250,7 @@ export default function MobileProfile({
                 <BadgeCheck className="w-3.5 h-3.5" style={{ color: "#0B1B3D" }} strokeWidth={2.5} />
               </div>
               <div className="relative flex-1 min-w-0">
-                <div className="text-[8px] font-black uppercase tracking-widest" style={{ color: "#FFD000" }}>Official Leader</div>
+                <div className="text-[8px] font-black uppercase tracking-widest" style={{ color: "#FFD000" }}>Official Administrator</div>
                 <div className="text-[10px] font-bold text-white">Verified by Generation LightMode</div>
               </div>
             </div>
