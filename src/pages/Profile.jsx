@@ -687,6 +687,9 @@ export default function Profile() {
         handleShare={handleDropShare}
         userLikes={profileUserLikes}
         savedDropRecords={profileSavedDrops}
+        leaderAccounts={[...publicLeaderAccounts, ...managedLeaderAccounts]}
+        following={currentUserFollowing}
+        followMutation={followMutation}
       />
     </div>
 
@@ -1246,6 +1249,9 @@ export default function Profile() {
         handleShare={handleDropShare}
         userLikes={profileUserLikes}
         savedDropRecords={profileSavedDrops}
+        leaderAccounts={[...publicLeaderAccounts, ...managedLeaderAccounts]}
+        following={currentUserFollowing}
+        followMutation={followMutation}
       />
       <AppFooter />
     </div>

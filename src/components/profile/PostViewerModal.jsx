@@ -5,7 +5,7 @@ import DropCard from "@/components/feed/DropCard";
 export default function PostViewerModal({
   isOpen, onClose, drops, initialDropId,
   user, currentUser, allUsers,
-  likeMutation, handleShare, userLikes, savedDropRecords
+  likeMutation, handleShare, userLikes, savedDropRecords, leaderAccounts = [], following = [], followMutation
 }) {
   const scrollRef = useRef(null);
   const initialRef = useRef(null);
@@ -63,7 +63,7 @@ export default function PostViewerModal({
 
       {/* Modal panel — full height on mobile, centered card on desktop */}
       <div
-        className="absolute inset-0 md:inset-auto md:top-0 md:bottom-0 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-[520px] flex flex-col"
+        className="absolute inset-0 md:inset-auto md:top-0 md:bottom-0 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-2xl flex flex-col"
         style={{ animation: "pvm-slide-up 0.25s ease-out", background: "#F6F8FC" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -114,7 +114,7 @@ export default function PostViewerModal({
 
         {/* Scrollable feed */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto hide-scrollbar">
-          <div className="py-4 px-2 md:px-4 space-y-4 md:space-y-6">
+          <div className="py-4 px-3 sm:px-4 max-w-2xl mx-auto w-full">
             {drops.map((drop) => (
               <div
                 key={drop.id}
@@ -129,6 +129,9 @@ export default function PostViewerModal({
                   userLikes={userLikes || []}
                   savedDropRecords={savedDropRecords || []}
                   allUsers={allUsers || []}
+                  leaderAccounts={leaderAccounts || []}
+                  following={following || []}
+                  followMutation={followMutation}
                 />
               </div>
             ))}
