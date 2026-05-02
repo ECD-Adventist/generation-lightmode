@@ -23,6 +23,7 @@ import StoryAnalyticsDashboard from "@/components/profile/StoryAnalyticsDashboar
 import AppFooter from "@/components/AppFooter";
 import { getDisplayName } from "@/lib/displayName";
 import MobileProfile from "@/components/profile/MobileProfile";
+import MobileInstitutionProfile from "@/components/institution/MobileInstitutionProfile";
 import CountryFlag from "@/components/common/CountryFlag";
 import DropGridTile from "@/components/profile/DropGridTile";
 
@@ -636,33 +637,58 @@ export default function Profile() {
           />
         </div>
       )}
-      <MobileProfile
-        user={displayUser}
-        currentUser={currentUser}
-        isOwnProfile={canEditAny}
-        profileEmail={profileEmail}
-        myDrops={myDrops}
-        myFollowers={myFollowers}
-        myFollowing={isLeaderProfile ? [] : myFollowing}
-        myMemberships={isLeaderProfile ? [] : myMemberships}
-        certificates={isLeaderProfile ? [] : certificates}
-        isLeader={isLeaderProfile}
-        leaderTitle={leaderTitle}
-        onEditProfile={() => setIsEditing(true)}
-        onEditLeader={() => setIsEditingLeader(true)}
-        onShareProfile={handleShareProfile}
-        onFollowToggle={() => followMutation.mutate(profileEmail)}
-        isFollowingThisUser={isFollowingThisUser}
-        onProfileImageSelect={(e) => handleImageSelect(e, "profile")}
-        onCoverImageSelect={(e) => handleImageSelect(e, "cover")}
-        uploadingImage={uploadingImage}
-        onSetConnectionsView={setConnectionsView}
-        activeTab={activeProfileTab === "story_analytics" ? "drops" : activeProfileTab}
-        onTabChange={setActiveProfileTab}
-        userInstitutionApps={isLeaderProfile ? [] : visibleInstitutionApps}
-      >
-        {mobileTabContent}
-      </MobileProfile>
+      {visibleInstitutionApps.length > 0 && !isLeaderProfile ? (
+        <MobileInstitutionProfile
+          user={displayUser}
+          currentUser={currentUser}
+          isOwnProfile={canEditAny}
+          profileEmail={profileEmail}
+          myDrops={myDrops}
+          myFollowers={myFollowers}
+          myFollowing={myFollowing}
+          institutionApps={visibleInstitutionApps}
+          onEditProfile={() => setIsEditing(true)}
+          onShareProfile={handleShareProfile}
+          onFollowToggle={() => followMutation.mutate(profileEmail)}
+          isFollowingThisUser={isFollowingThisUser}
+          onProfileImageSelect={(e) => handleImageSelect(e, "profile")}
+          onCoverImageSelect={(e) => handleImageSelect(e, "cover")}
+          uploadingImage={uploadingImage}
+          onSetConnectionsView={setConnectionsView}
+          activeTab={activeProfileTab === "story_analytics" ? "drops" : activeProfileTab}
+          onTabChange={setActiveProfileTab}
+        >
+          {mobileTabContent}
+        </MobileInstitutionProfile>
+      ) : (
+        <MobileProfile
+          user={displayUser}
+          currentUser={currentUser}
+          isOwnProfile={canEditAny}
+          profileEmail={profileEmail}
+          myDrops={myDrops}
+          myFollowers={myFollowers}
+          myFollowing={isLeaderProfile ? [] : myFollowing}
+          myMemberships={isLeaderProfile ? [] : myMemberships}
+          certificates={isLeaderProfile ? [] : certificates}
+          isLeader={isLeaderProfile}
+          leaderTitle={leaderTitle}
+          onEditProfile={() => setIsEditing(true)}
+          onEditLeader={() => setIsEditingLeader(true)}
+          onShareProfile={handleShareProfile}
+          onFollowToggle={() => followMutation.mutate(profileEmail)}
+          isFollowingThisUser={isFollowingThisUser}
+          onProfileImageSelect={(e) => handleImageSelect(e, "profile")}
+          onCoverImageSelect={(e) => handleImageSelect(e, "cover")}
+          uploadingImage={uploadingImage}
+          onSetConnectionsView={setConnectionsView}
+          activeTab={activeProfileTab === "story_analytics" ? "drops" : activeProfileTab}
+          onTabChange={setActiveProfileTab}
+          userInstitutionApps={isLeaderProfile ? [] : visibleInstitutionApps}
+        >
+          {mobileTabContent}
+        </MobileProfile>
+      )}
 
       {/* Modals shared across mobile */}
       {cropData && (
