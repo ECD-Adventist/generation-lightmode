@@ -151,6 +151,7 @@ export default function AdminInstitutionApplicationsView({ applications, allUser
             <div className="flex gap-2">
               <Button onClick={() => bulkMutation.mutate("approved")} disabled={bulkMutation.isPending} className="rounded-xl font-bold" style={{ background: t.success, color: "#fff" }}>Bulk Approve</Button>
               <Button onClick={() => bulkMutation.mutate("rejected")} disabled={bulkMutation.isPending} className="rounded-xl font-bold" style={{ background: t.danger, color: "#fff" }}>Bulk Reject</Button>
+              <Button onClick={() => bulkMutation.mutate("pending")} disabled={bulkMutation.isPending} className="rounded-xl font-bold" style={{ background: t.warning, color: "#0B0F1A" }}>Reinstate</Button>
               <Button
                 onClick={() => {
                   if (window.confirm(`Delete ${selectedIds.length} selected application(s)? This cannot be undone.`)) {

@@ -71,10 +71,23 @@ export default function AdminInstitutionTab() {
     },
   });
 
+  const reinstateAppMutation = useMutation({
+    mutationFn: async (appId) => {
+      await base44.entities.InstitutionApplication.update(appId, { status: "pending", admin_notes: adminNotes });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["institutionApplications"] });
+      setSelectedApp(null);
+      setAdminNotes("");
+      toast.success("Application reinstated for review!");
+    },
+  });
+
   const getApplicantInfo = (email) => {
     return allUsers.find(u => u.email === email);
   };
 
+  const isActionLoading = approveAppMutation.isPending || rejectAppMutation.isPending || reinstateAppMutation.isPending;
   const selectedApplicant = selectedApp ? getApplicantInfo(selectedApp.user_email) : null;
   const applicationTimeline = selectedApp ? [
     { label: "Submitted", date: selectedApp.created_date, done: true },
@@ -232,7 +245,7 @@ export default function AdminInstitutionTab() {
                   <div className="flex gap-3">
                     <Button
                       onClick={() => approveAppMutation.mutate(selectedApp.id)}
-                      disabled={approveAppMutation.isPending}
+                      disabled={isActionLoading}
                       className="flex-1 font-bold h-12 rounded-xl transition hover:opacity-90 disabled:opacity-50"
                       style={{ background: isDark ? "#22c55e" : "#16a34a", color: "#fff" }}
                     >
@@ -240,7 +253,7 @@ export default function AdminInstitutionTab() {
                     </Button>
                     <Button
                       onClick={() => rejectAppMutation.mutate(selectedApp.id)}
-                      disabled={rejectAppMutation.isPending}
+                      disabled={isActionLoading}
                       className="flex-1 font-bold h-12 rounded-xl transition hover:opacity-90 disabled:opacity-50"
                       style={{ background: isDark ? "#ef4444" : "#dc2626", color: "#fff" }}
                     >
@@ -248,6 +261,17 @@ export default function AdminInstitutionTab() {
                     </Button>
                   </div>
                 </>
+              )}
+
+              {selectedApp.status === "rejected" && (
+                <Button
+                  onClick={() => reinstateAppMutation.mutate(selectedApp.id)}
+                  disabled={isActionLoading}
+                  className="w-full font-bold h-12 rounded-xl transition hover:opacity-90 disabled:opacity-50"
+                  style={{ background: isDark ? "#f59e0b" : "#d97706", color: "#fff" }}
+                >
+                  {reinstateAppMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Reinstate for Review"}
+                </Button>
               )}
 
               {selectedApp.status !== "pending" && selectedApp.admin_notes && (
