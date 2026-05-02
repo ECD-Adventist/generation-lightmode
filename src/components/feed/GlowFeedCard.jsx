@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 
 export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = [] }) {
   const [showComments, setShowComments] = useState(false);
@@ -89,6 +90,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
   };
 
   const territory = dropUser?.territory_name || dropUser?.country || null;
+  const isKeepIt100 = !drop.media_url && (drop.category === "Keep It 100" || /keepit100/i.test(drop.hashtags || ""));
 
   return (
     <div className="bg-[#121826]/80 backdrop-blur-sm border border-white/10 rounded-3xl overflow-hidden hover:border-[#00CFFF]/30 transition-all duration-300 shadow-xl">
@@ -103,6 +105,9 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
 
       {/* Text-only card background */}
       {!drop.media_url && (
+        isKeepIt100 ? (
+          <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="w-full aspect-[4/5]" />
+        ) : (
         <div className="bg-gradient-to-br from-[#0D1524] via-[#0B0F1A] to-[#1a103c] px-6 pt-6 pb-4 min-h-[120px] flex flex-col justify-center">
           {drop.verse && (
             <h3 className="text-[#00CFFF] font-bold text-base leading-snug mb-2">"{drop.verse}"</h3>
@@ -111,6 +116,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
             <p className="text-gray-300 text-sm leading-relaxed">{drop.reflection}</p>
           )}
         </div>
+        )
       )}
 
       <div className="px-4 py-4 space-y-3">

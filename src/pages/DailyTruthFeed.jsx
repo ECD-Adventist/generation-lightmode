@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import TruthCardComments from "@/components/daily-drops/TruthCardComments";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileDailyTruthFeed from "@/components/daily-drops/MobileDailyTruthFeed";
+import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 
 export default function DailyDropsPage() {
   const isMobile = useIsMobile();
@@ -149,6 +150,7 @@ function TruthCard({ drop, onShare, user, featured }) {
   const queryClient = useQueryClient();
   
   const isSystemPost = drop.user_email === "system@lightmode.com";
+  const isKeepIt100 = drop.category === "Keep It 100";
 
   const { data: creatorUser } = useQuery({
     queryKey: ["userProfile", drop.user_email],
@@ -182,7 +184,9 @@ function TruthCard({ drop, onShare, user, featured }) {
       ? { background: "#FFFFFF", border: "1px solid #B8E5FF", boxShadow: "0 4px 16px rgba(31, 184, 255, 0.1)" }
       : { background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }
     }>
-      {drop.media_url && (
+      {isKeepIt100 ? (
+        <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="w-full aspect-[4/5]" />
+      ) : drop.media_url && (
         <img src={drop.media_url} alt="" className="w-full max-h-80 object-contain bg-black" />
       )}
       <div className="p-5">

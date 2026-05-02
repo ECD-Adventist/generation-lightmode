@@ -17,6 +17,7 @@ import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
 import { getDisplayName } from "@/lib/displayName";
 import { useIsMobile } from "@/hooks/use-mobile";
 import CountryFlag from "@/components/common/CountryFlag";
+import KeepIt100Poster, { KEEP_IT_100_BACKGROUND_URL } from "@/components/keep-it-100/KeepIt100Poster";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
@@ -52,7 +53,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     drop.category === "Keep It 100" ||
     (drop.hashtags && /keepit100/i.test(drop.hashtags))
   );
-  const KEEP_IT_100_BG = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/ae9c17d35_BACKGROUNDTMP-02.jpg";
+  const KEEP_IT_100_BG = KEEP_IT_100_BACKGROUND_URL;
 
   const getRepostOwner = (reflection) => {
     const matches = Array.from(reflection?.matchAll(/\[Reposted from (.+?)\]\s*/gi) || []);

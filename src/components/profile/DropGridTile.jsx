@@ -1,6 +1,7 @@
 import React from "react";
 import { Heart, MessageCircle, Bookmark, Pin, Sparkles, Image as ImageIcon, Quote } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 
 const LEADER_BG = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2";
 
@@ -20,6 +21,7 @@ export default function DropGridTile({ drop, onClick, authorName, authorTitle, i
   const reflection = stripRepostPrefix(drop.reflection || "");
   const likes = drop.likes_count || 0;
   const isPinned = !!drop.pinned;
+  const isKeepIt100 = !hasMedia && (drop.category === "Keep It 100" || /keepit100/i.test(drop.hashtags || ""));
 
   const timeAgo = (() => {
     if (!drop.created_date) return null;
@@ -56,6 +58,8 @@ export default function DropGridTile({ drop, onClick, authorName, authorTitle, i
           <img src={drop.media_url} alt={drop.verse || "Drop"} loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30" />
         </>
+      ) : isKeepIt100 ? (
+        <KeepIt100Poster text={reflection || drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-105" />
       ) : (
         <>
           <img src={LEADER_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ filter: "grayscale(100%) contrast(1.08) brightness(0.5)" }} />
@@ -85,7 +89,7 @@ export default function DropGridTile({ drop, onClick, authorName, authorTitle, i
             <ImageIcon className="w-3 h-3 text-white" />
           </span>
         )}
-        {!hasMedia && !isLeader && (
+          {!hasMedia && !isLeader && !isKeepIt100 && (
           <span className="w-6 h-6 rounded-full flex items-center justify-center backdrop-blur-md" style={{ background: "rgba(0,0,0,0.4)" }}>
             <Quote className="w-3 h-3 text-white" />
           </span>
@@ -99,7 +103,7 @@ export default function DropGridTile({ drop, onClick, authorName, authorTitle, i
             <p className="text-white text-[11px] sm:text-xs font-bold leading-snug line-clamp-3 drop-shadow-md">{drop.verse}</p>
           </div>
         )
-      ) : (
+      ) : isKeepIt100 ? null : (
         <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 pt-9 pb-12 text-center">
           <div className="font-serif leading-none mb-1" style={{ fontSize: "clamp(44px, 12vw, 60px)", color: isLeader ? "#FFD000" : "#5AC8FF" }}>“</div>
           {drop.verse && (

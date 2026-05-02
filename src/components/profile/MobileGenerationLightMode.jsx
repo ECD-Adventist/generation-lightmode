@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Heart, Sparkles, Users, BookOpen, ArrowRight, MessageCircle, UserPlus, UserCheck, ChevronLeft, Globe } from "lucide-react";
 import { format } from "date-fns";
+import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 
 const ACCOUNT_EMAIL = "system@lightmode.com";
 const ACCOUNT_NAME = "Generation LightMode";
@@ -158,6 +159,9 @@ export default function MobileGenerationLightMode() {
                     <span className="text-[10px]" style={{ color: "#8A97B5" }}>{format(postedDate, "MMM d")}</span>
                   )}
                 </div>
+                {post.category === "Keep It 100" && (
+                  <KeepIt100Poster text={post.reflection} verse={post.verse} className="w-full aspect-[4/5] rounded-2xl mb-3" />
+                )}
                 {post.verse && <p className="font-bold text-sm mb-1" style={{ color: "#0B3FD9" }}>{post.verse}</p>}
                 {post.reflection && <p className="text-[13px] leading-relaxed whitespace-pre-line line-clamp-3" style={{ color: "#3A4A6B" }}>{post.reflection}</p>}
                 {post.hashtags && <div className="text-[11px] font-medium mt-1.5" style={{ color: "#0B3FD9" }}>{post.hashtags}</div>}
