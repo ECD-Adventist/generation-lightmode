@@ -568,7 +568,58 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                     <div className="h-px flex-1 max-w-[70px]" style={{ background: "linear-gradient(90deg, rgba(212,184,46,0.8), transparent)" }} />
                   </div>
                 </div>
+              ) : drop.category === "Keep It 100" || (drop.hashtags && drop.hashtags.includes("KeepIt100")) ? (
+                /* Keep It 100 Template */
+                <div className="w-full max-w-2xl flex flex-col items-center text-center">
+                  <div className="w-full rounded-3xl p-6 sm:p-10 relative" style={{
+                    border: "3px solid #00CFFF",
+                    boxShadow: "0 0 40px rgba(0, 207, 255, 0.3), inset 0 0 30px rgba(0, 207, 255, 0.08)"
+                  }}>
+                    <div aria-hidden="true" className="font-serif leading-none select-none mb-4 sm:mb-6" style={{
+                      fontSize: "clamp(56px, 8vw, 90px)",
+                      background: "linear-gradient(135deg, #FFFFFF 0%, #C8D0E0 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                      opacity: 0.4
+                    }}>
+                      "
+                    </div>
+                    {drop.verse && (
+                      <h2 className="font-italic leading-relaxed tracking-wide mb-4 sm:mb-6" style={{
+                        color: "#FFFFFF",
+                        fontSize: "clamp(16px, 2vw, 24px)",
+                        fontStyle: "italic",
+                        fontFamily: "'Inter', sans-serif",
+                        maxWidth: "50ch",
+                      }}>
+                        {drop.verse}
+                      </h2>
+                    )}
+                    {drop.reflection && (() => {
+                      const cleaned = cleanReflection(drop.reflection);
+                      const plain = containsHtml(cleaned) ? cleaned.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : cleaned;
+                      if (!plain) return null;
+                      return <p className="font-['Inter'] leading-relaxed italic mb-6 sm:mb-8" style={{ color: "rgba(255,255,255,0.75)", fontSize: "clamp(13px, 1.15vw, 15px)", maxWidth: "50ch" }}>{plain}</p>;
+                    })()}
+                    {drop.verse && (
+                      <div className="mb-6 sm:mb-8 flex items-center justify-center gap-2">
+                        <div className="h-px w-8" style={{ background: "rgba(255,208,0,0.5)" }} />
+                        <span className="font-['Space_Grotesk'] font-black text-base sm:text-lg tracking-wide" style={{ color: "#FFD000" }}>
+                          {drop.verse.split(' ').slice(-1)[0] || "Word"}
+                        </span>
+                        <div className="h-px w-8" style={{ background: "rgba(255,208,0,0.5)" }} />
+                      </div>
+                    )}
+                    <div className="flex items-center justify-center gap-3 sm:gap-4 mb-2">
+                      <span className="text-2xl sm:text-3xl font-serif opacity-30" style={{ color: "#FFFFFF" }}>»</span>
+                      <span className="font-['Brush_Script_MT','cursive'] text-lg sm:text-2xl tracking-wide" style={{ color: "#FFD000", fontStyle: "italic" }}>Faith. Always On</span>
+                      <span className="text-2xl sm:text-3xl font-serif opacity-30" style={{ color: "#FFFFFF" }}>«</span>
+                    </div>
+                  </div>
+                </div>
               ) : (
+                /* Original Template */
                 <>
                   {drop.verse && (
                     <h2 className="font-bold mb-3 sm:mb-6 leading-tight text-lg sm:text-3xl lg:text-4xl font-['Space_Grotesk'] line-clamp-4 text-blue-600 dark:text-blue-400">
