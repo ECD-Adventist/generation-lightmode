@@ -50,6 +50,19 @@
     "location": {
       "type": "string"
     },
+    "social_links": {
+      "type": "string",
+      "description": "JSON string of social media links such as Facebook, Instagram, YouTube, X, LinkedIn"
+    },
+    "setup_completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when the approved institution has completed the guided setup wizard"
+    },
+    "setup_completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "team_members": {
       "type": "string",
       "description": "JSON string of team member objects"

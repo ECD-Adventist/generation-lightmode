@@ -6,6 +6,7 @@ import { Loader2, CheckCircle, XCircle, Clock, ShieldAlert } from "lucide-react"
 import { toast } from "sonner";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import AdminInstitutionAuditTab from "./AdminInstitutionAuditTab";
+import AdminInstitutionApplicationsView from "./AdminInstitutionApplicationsView";
 
 export default function AdminInstitutionTab() {
   const { theme } = useAdminTheme();
@@ -74,6 +75,13 @@ export default function AdminInstitutionTab() {
     return allUsers.find(u => u.email === email);
   };
 
+  const selectedApplicant = selectedApp ? getApplicantInfo(selectedApp.user_email) : null;
+  const applicationTimeline = selectedApp ? [
+    { label: "Submitted", date: selectedApp.created_date, done: true },
+    { label: "Reviewed", date: selectedApp.updated_date, done: selectedApp.status !== "pending" },
+    { label: selectedApp.status === "approved" ? "Approved" : selectedApp.status === "rejected" ? "Rejected" : selectedApp.status === "revoked" ? "Revoked" : "Awaiting decision", date: selectedApp.updated_date, done: selectedApp.status !== "pending" },
+  ] : [];
+
   const statusConfig = {
     pending: { icon: Clock, color: isDark ? "text-yellow-400" : "text-amber-600", bg: isDark ? "bg-yellow-500/10" : "bg-amber-100" },
     approved: { icon: CheckCircle, color: isDark ? "text-green-400" : "text-green-700", bg: isDark ? "bg-green-500/10" : "bg-green-100" },
@@ -127,55 +135,43 @@ export default function AdminInstitutionTab() {
           <p>No institution applications yet.</p>
         </div>
       ) : (
-        <div className="grid gap-4">
-          {applications.map(app => {
-            const Config = statusConfig[app.status] || statusConfig.pending;
-            const Icon = Config.icon;
-
-            return (
-              <div
-                key={app.id}
-                className="rounded-2xl p-6 border transition cursor-pointer shadow-sm hover:shadow-md"
-                style={{ background: t.surface, borderColor: t.border }}
-                onClick={() => setSelectedApp(app)}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-bold" style={{ color: t.textPrimary }}>{app.institution_name}</h3>
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${Config.bg} ${Config.color}`}>
-                        {app.status}
-                      </span>
-                    </div>
-                    <p className="text-sm mb-3" style={{ color: t.textSecondary }}>
-                      <span className="font-semibold" style={{ color: t.textPrimary }}>{app.contact_person}</span> • {app.institution_type} • {app.country}
-                    </p>
-                    <div className="flex gap-6 text-xs" style={{ color: t.textMuted }}>
-                      <div><span style={{ color: t.textSecondary }}>Email:</span> {app.contact_email}</div>
-                      <div><span style={{ color: t.textSecondary }}>Phone:</span> {app.contact_phone || "N/A"}</div>
-                    </div>
-                  </div>
-                  {app.logo_url && (
-                    <img src={app.logo_url} alt="Logo" className="w-16 h-16 rounded-lg object-cover border" style={{ borderColor: t.border }} />
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <AdminInstitutionApplicationsView
+          applications={applications}
+          allUsers={allUsers}
+          onSelectApp={setSelectedApp}
+          adminNotes={adminNotes}
+        />
       )}
 
       {selectedApp && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="rounded-3xl border max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 shadow-2xl" style={{ background: t.surface, borderColor: t.border }}>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold" style={{ color: t.textPrimary }}>{selectedApp.institution_name}</h2>
+              <div>
+                <h2 className="text-2xl font-bold" style={{ color: t.textPrimary }}>{selectedApp.institution_name}</h2>
+                <p className="text-xs mt-1" style={{ color: t.textMuted }}>{selectedApplicant?.full_name || "Unknown applicant"} • {selectedApp.user_email}</p>
+              </div>
               <button onClick={() => setSelectedApp(null)} className="transition hover:opacity-70" style={{ color: t.textSecondary }}>
                 ✕
               </button>
             </div>
 
             <div className="space-y-6">
+              <div className="rounded-2xl p-4 border" style={{ background: t.surfaceMuted, borderColor: t.border }}>
+                <p className="text-xs uppercase tracking-wider font-bold mb-3" style={{ color: t.textSecondary }}>Application Timeline</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {applicationTimeline.map((item, index) => (
+                    <div key={item.label} className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black" style={{ background: item.done ? t.successSoft : t.warningSoft, color: item.done ? t.success : t.warning }}>{item.done ? "✓" : index + 1}</div>
+                      <div>
+                        <p className="text-xs font-bold" style={{ color: t.textPrimary }}>{item.label}</p>
+                        <p className="text-[10px]" style={{ color: t.textMuted }}>{item.date ? new Date(item.date).toLocaleDateString() : "Pending"}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {selectedApp.logo_url && (
                 <div className="flex justify-center">
                   <img src={selectedApp.logo_url} alt="Logo" className="w-32 h-32 rounded-xl object-cover border" style={{ borderColor: t.border }} />

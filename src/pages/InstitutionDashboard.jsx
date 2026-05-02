@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, ArrowLeft, Building2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import InstitutionDashboardEditor from "@/components/institution/InstitutionDashboardEditor";
+import InstitutionSetupWizard from "@/components/institution/InstitutionSetupWizard";
 
 export default function InstitutionDashboard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const urlParams = new URLSearchParams(window.location.search);
   const pageId = urlParams.get("id");
@@ -77,7 +79,14 @@ export default function InstitutionDashboard() {
         </div>
       </div>
 
-      <InstitutionDashboardEditor page={page} user={user} />
+      {!page.setup_completed ? (
+        <InstitutionSetupWizard
+          page={page}
+          onComplete={() => queryClient.invalidateQueries({ queryKey: ["institutionPageEdit", pageId] })}
+        />
+      ) : (
+        <InstitutionDashboardEditor page={page} user={user} />
+      )}
     </div>
   );
 }

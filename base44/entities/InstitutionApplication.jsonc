@@ -52,7 +52,8 @@
       "enum": [
         "pending",
         "approved",
-        "rejected"
+        "rejected",
+        "revoked"
       ],
       "default": "pending"
     },
@@ -71,7 +72,9 @@
     "commitment_description"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
     "read": {
       "$or": [
         {
