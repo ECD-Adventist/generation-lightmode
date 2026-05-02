@@ -51,8 +51,8 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
         backgroundPosition: "center",
       }}
     >
-      {/* Premium text block — lowered into the left-center dark space and clear of the author chip/logo lockup */}
-      <div className="absolute z-10 top-[22%] bottom-[31%] left-[8%] right-[39%] flex flex-col items-start justify-center text-left overflow-hidden">
+      {/* Premium text block — fitted into the lower-left empty space and clear of the author chip/logo lockup */}
+      <div className="absolute z-10 top-[29%] bottom-[23%] left-[9%] right-[41%] flex flex-col items-start justify-center text-left overflow-hidden">
         {verse && (
           <div
             className="font-['Space_Grotesk'] font-black uppercase mb-3"
@@ -69,7 +69,7 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
 
         {cleanedText && (
           <p
-            className="font-['Space_Grotesk'] font-medium leading-[1.16] line-clamp-6 max-w-[17ch]"
+            className="font-['Space_Grotesk'] font-medium leading-[1.14] line-clamp-6 max-w-[16ch]"
             style={{
               color: "#FFFFFF",
               fontSize: bodyFontSize,
