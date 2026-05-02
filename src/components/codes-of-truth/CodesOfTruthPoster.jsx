@@ -36,10 +36,11 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
   const cleanedText = truncateForPoster(cleaned, 180);
   // Auto-shrink type for longer copy so it never overflows into the bottom logo area
   const len = cleanedText?.length || 0;
-  const bodyFontSize = len > 140 ? "clamp(13px, 1.8vw, 18px)"
-    : len > 90 ? "clamp(14px, 2vw, 21px)"
-    : len > 50 ? "clamp(16px, 2.25vw, 24px)"
-    : "clamp(18px, 2.65vw, 28px)";
+  const bodyFontSize = len > 160 ? "clamp(12px, 1.7vw, 18px)"
+    : len > 120 ? "clamp(13px, 1.95vw, 21px)"
+    : len > 80 ? "clamp(15px, 2.25vw, 25px)"
+    : len > 45 ? "clamp(18px, 2.75vw, 31px)"
+    : "clamp(22px, 3.35vw, 38px)";
 
   return (
     <div
@@ -68,7 +69,7 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
 
         {cleanedText && (
           <p
-            className="font-['Space_Grotesk'] font-medium leading-[1.16] line-clamp-5 max-w-[15.5ch]"
+            className="font-['Space_Grotesk'] font-medium leading-[1.16] line-clamp-6 max-w-[17ch]"
             style={{
               color: "#FFFFFF",
               fontSize: bodyFontSize,
