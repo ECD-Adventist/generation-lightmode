@@ -52,7 +52,7 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
       }}
     >
       {/* Premium text block — lowered into the left-center dark space and clear of the author chip/logo lockup */}
-      <div className="absolute z-10 top-[17%] bottom-[36%] left-[8%] right-[39%] flex flex-col items-start justify-center text-left overflow-hidden">
+      <div className="absolute z-10 top-[22%] bottom-[31%] left-[8%] right-[39%] flex flex-col items-start justify-center text-left overflow-hidden">
         {verse && (
           <div
             className="font-['Space_Grotesk'] font-black uppercase mb-3"
