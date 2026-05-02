@@ -1,6 +1,6 @@
 import React from "react";
 
-export const CODES_OF_TRUTH_BACKGROUND_URL = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/d68c01a4b_BACKGROUNDTMP-03.jpg";
+export const CODES_OF_TRUTH_BACKGROUND_URL = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/7066ef85f_BACKGROUNDTMP-03.jpg";
 
 function cleanCodeText(text = "") {
   let out = String(text)
@@ -36,9 +36,10 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
   const cleanedText = truncateForPoster(cleaned, 180);
   // Auto-shrink type for longer copy so it never overflows into the bottom logo area
   const len = cleanedText?.length || 0;
-  const bodyFontSize = len > 140 ? "clamp(16px, 2.6vw, 28px)"
-    : len > 90 ? "clamp(18px, 3.1vw, 34px)"
-    : "clamp(22px, 4vw, 44px)";
+  const bodyFontSize = len > 140 ? "clamp(14px, 2.2vw, 22px)"
+    : len > 90 ? "clamp(16px, 2.6vw, 26px)"
+    : len > 50 ? "clamp(18px, 3.1vw, 32px)"
+    : "clamp(22px, 3.8vw, 40px)";
 
   return (
     <div
@@ -49,30 +50,8 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
         backgroundPosition: "center",
       }}
     >
-      {/* Subtle left-side darkening so text always reads cleanly over the eclipse art */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 45%, rgba(0,0,0,0) 65%)",
-        }}
-      />
-
-      {/* Text block — anchored to the upper-left quadrant, away from the bright eclipse flash on the right */}
-      <div className="absolute z-10 top-[18%] bottom-[22%] left-[7%] right-[30%] flex flex-col items-start text-left overflow-hidden">
-        {/* Decorative cyan open-quote */}
-        <div
-          aria-hidden="true"
-          className="font-serif leading-none select-none mb-2"
-          style={{
-            color: "#00DFFF",
-            fontSize: "clamp(48px, 8.5vw, 92px)",
-            textShadow: "0 0 22px rgba(0,223,255,0.6)",
-          }}
-        >
-          “
-        </div>
-
+      {/* Text block — anchored to the upper-left quadrant, above the baked-in "Faith. Always On" + logo lockup */}
+      <div className="absolute z-10 top-[8%] bottom-[34%] left-[8%] right-[34%] flex flex-col items-start text-left overflow-hidden">
         {verse && (
           <div
             className="font-['Space_Grotesk'] font-black uppercase mb-3"
@@ -89,26 +68,17 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
 
         {cleanedText && (
           <p
-            className="font-['Space_Grotesk'] font-bold leading-[1.18] line-clamp-6"
+            className="font-['Space_Grotesk'] font-semibold leading-[1.22] line-clamp-6"
             style={{
               color: "#FFFFFF",
               fontSize: bodyFontSize,
-              letterSpacing: "-0.02em",
-              textShadow: "0 4px 22px rgba(0,0,0,0.85)",
+              letterSpacing: "-0.015em",
+              textShadow: "0 2px 8px rgba(0,0,0,0.75), 0 0 18px rgba(0,0,0,0.55)",
             }}
           >
             {cleanedText}
           </p>
         )}
-
-        {/* Thin gold underline accent */}
-        <div
-          className="mt-6 h-[2px] w-20"
-          style={{
-            background: "linear-gradient(90deg, #FFD000, rgba(255,208,0,0))",
-            boxShadow: "0 0 10px rgba(255,208,0,0.5)",
-          }}
-        />
       </div>
     </div>
   );
