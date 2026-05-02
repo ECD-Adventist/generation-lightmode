@@ -9,6 +9,7 @@ import { createPageUrl } from "@/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
+import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 
 export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = [] }) {
   const [showComments, setShowComments] = useState(false);
@@ -91,6 +92,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
 
   const territory = dropUser?.territory_name || dropUser?.country || null;
   const isKeepIt100 = !drop.media_url && (drop.category === "Keep It 100" || /keepit100/i.test(drop.hashtags || ""));
+  const isCodeOfTruth = !drop.media_url && drop.category === "Code of Truth";
 
   return (
     <div className="bg-[#121826]/80 backdrop-blur-sm border border-white/10 rounded-3xl overflow-hidden hover:border-[#00CFFF]/30 transition-all duration-300 shadow-xl">
@@ -107,6 +109,8 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
       {!drop.media_url && (
         isKeepIt100 ? (
           <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="w-full aspect-[4/5]" />
+        ) : isCodeOfTruth ? (
+          <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="w-full aspect-[4/5]" />
         ) : (
         <div className="bg-gradient-to-br from-[#0D1524] via-[#0B0F1A] to-[#1a103c] px-6 pt-6 pb-4 min-h-[120px] flex flex-col justify-center">
           {drop.verse && (

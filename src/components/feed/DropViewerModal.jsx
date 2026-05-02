@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
+import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -152,6 +153,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
   const isOwner = user?.email === drop.user_email;
   const dropAuthor = getCommentUser(drop.user_email);
   const isKeepIt100 = !drop.media_url && (drop.category === "Keep It 100" || /keepit100/i.test(drop.hashtags || ""));
+  const isCodeOfTruth = !drop.media_url && drop.category === "Code of Truth";
 
   const renderCommentContent = (text) => {
     if (!text) return null;
@@ -222,6 +224,8 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
             <img src={drop.media_url} alt="Drop" className="w-full h-full object-contain max-h-[92vh]" />
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="w-full max-w-[520px] aspect-[4/5]" />
+          ) : isCodeOfTruth ? (
+            <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="w-full max-w-[520px] aspect-[4/5]" />
           ) : (
             <div className="w-full h-full min-h-[400px] bg-gradient-to-br from-[#EEF3FF] via-[#F6F8FC] to-[#DDE7FB] flex flex-col items-center justify-center p-10 text-center">
               {drop.verse && (

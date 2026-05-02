@@ -9,6 +9,7 @@ import AppFooter from "@/components/AppFooter";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileGenerationLightMode from "@/components/profile/MobileGenerationLightMode";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
+import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 
 const ACCOUNT_EMAIL = "system@lightmode.com";
 const ACCOUNT_NAME = "Generation LightMode";
@@ -204,6 +205,9 @@ export default function GenerationLightMode() {
                     </div>
                     {post.category === "Keep It 100" && (
                       <KeepIt100Poster text={post.reflection} verse={post.verse} className="w-full max-w-[260px] aspect-[4/5] rounded-2xl mb-3" />
+                    )}
+                    {post.category === "Code of Truth" && (
+                      <CodesOfTruthPoster text={post.reflection} verse={post.verse} className="w-full max-w-[260px] aspect-[4/5] rounded-2xl mb-3" />
                     )}
                     {post.verse && (
                       <p className="font-bold text-sm mb-1.5" style={{ color: "#0B3FD9" }}>{post.verse}</p>

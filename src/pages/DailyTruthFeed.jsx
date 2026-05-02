@@ -11,6 +11,7 @@ import TruthCardComments from "@/components/daily-drops/TruthCardComments";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileDailyTruthFeed from "@/components/daily-drops/MobileDailyTruthFeed";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
+import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 
 export default function DailyDropsPage() {
   const isMobile = useIsMobile();
@@ -151,6 +152,7 @@ function TruthCard({ drop, onShare, user, featured }) {
   
   const isSystemPost = drop.user_email === "system@lightmode.com";
   const isKeepIt100 = drop.category === "Keep It 100";
+  const isCodeOfTruth = drop.category === "Code of Truth";
 
   const { data: creatorUser } = useQuery({
     queryKey: ["userProfile", drop.user_email],
@@ -186,6 +188,8 @@ function TruthCard({ drop, onShare, user, featured }) {
     }>
       {isKeepIt100 ? (
         <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="w-full aspect-[4/5]" />
+      ) : isCodeOfTruth ? (
+        <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="w-full aspect-[4/5]" />
       ) : drop.media_url && (
         <img src={drop.media_url} alt="" className="w-full max-h-80 object-contain bg-black" />
       )}

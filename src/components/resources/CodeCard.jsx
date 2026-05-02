@@ -4,11 +4,13 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Download, Share2, Repeat2, Loader2, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
+import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 
 export default function CodeCard({ code, user }) {
   const queryClient = useQueryClient();
   const [isSharing, setIsSharing] = useState(false);
   const isKeepIt100 = code.source_document === "keeping_it_100";
+  const isCodeOfTruth = code.source_document === "codes_of_truth" || !isKeepIt100;
 
   const { data: engagementList = [] } = useQuery({
     queryKey: ["codeEngagement", code.id],
@@ -124,6 +126,8 @@ export default function CodeCard({ code, user }) {
       <div className="aspect-square relative bg-gradient-to-br from-[#0B0F1A] to-[#121826] flex flex-col items-center justify-center p-6 text-center overflow-hidden">
         {isKeepIt100 ? (
           <KeepIt100Poster text={code.slogan_text} verse={code.bible_reference} className="absolute inset-0 w-full h-full" />
+        ) : isCodeOfTruth ? (
+          <CodesOfTruthPoster text={code.slogan_text} verse={code.bible_reference} className="absolute inset-0 w-full h-full" />
         ) : code.poster_image_url ? (
           <img src={code.poster_image_url} alt={code.title || "Poster"} className="absolute inset-0 w-full h-full object-cover" />
         ) : (

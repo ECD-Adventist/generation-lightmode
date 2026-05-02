@@ -18,6 +18,7 @@ import { getDisplayName } from "@/lib/displayName";
 import { useIsMobile } from "@/hooks/use-mobile";
 import CountryFlag from "@/components/common/CountryFlag";
 import KeepIt100Poster, { KEEP_IT_100_BACKGROUND_URL } from "@/components/keep-it-100/KeepIt100Poster";
+import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
@@ -54,6 +55,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     (drop.hashtags && /keepit100/i.test(drop.hashtags))
   );
   const KEEP_IT_100_BG = KEEP_IT_100_BACKGROUND_URL;
+  const isCodeOfTruth = !drop.media_url && drop.category === "Code of Truth";
 
   const getRepostOwner = (reflection) => {
     const matches = Array.from(reflection?.matchAll(/\[Reposted from (.+?)\]\s*/gi) || []);
@@ -333,14 +335,16 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         className={`relative w-full rounded-xl sm:rounded-[1.5rem] overflow-hidden shadow-inner ${
           drop.media_url
             ? 'aspect-[4/5] sm:aspect-[3/4]'
-            : isKeepIt100
+            : isKeepIt100 || isCodeOfTruth
               ? 'aspect-[4/5] flex flex-col justify-center items-center text-center'
               : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center'
         }`}
         style={
           isKeepIt100
             ? { backgroundImage: `url(${KEEP_IT_100_BG})`, backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#0B1733" }
-            : { background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" }
+            : isCodeOfTruth
+              ? { background: "#000000" }
+              : { background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" }
         }
         onDoubleClick={() => {
           setLikeBurst(true);
@@ -469,7 +473,10 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <>
 
             
-            <div className={isKeepIt100 ? "absolute z-10 top-[15.5%] bottom-[31%] left-[13%] right-[16%] flex items-center justify-center text-center" : `p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
+            {isCodeOfTruth && (
+              <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
+            )}
+            <div className={isKeepIt100 ? "absolute z-10 top-[15.5%] bottom-[31%] left-[13%] right-[16%] flex items-center justify-center text-center" : isCodeOfTruth ? "hidden" : `p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
               {isKeepIt100 ? (
                 <div className="w-full max-w-[76%] sm:max-w-[64%] flex flex-col items-center justify-center text-center">
                   {cleanReflection(drop.reflection) && (() => {
@@ -626,7 +633,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         {(() => {
           // Leader text posts share the dark glass treatment with media posts.
-          const useGlass = drop.media_url || isLeaderPost || isKeepIt100;
+          const useGlass = drop.media_url || isLeaderPost || isKeepIt100 || isCodeOfTruth;
           return (
         <div className="absolute right-2 sm:right-3 bottom-4 sm:bottom-6 z-20 flex flex-col items-center gap-3 sm:gap-5">
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
