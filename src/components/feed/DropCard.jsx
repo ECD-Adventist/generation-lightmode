@@ -468,37 +468,52 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           <>
 
             
-            <div className={`p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center ${isKeepIt100 ? "justify-start pt-[18%] sm:pt-[16%] pb-[40%]" : "justify-center"} ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
+            <div className={`p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center ${isKeepIt100 ? "justify-center pt-[14%] pb-[36%]" : "justify-center"} ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
               {isKeepIt100 ? (
-                <div className="w-full max-w-[80%] flex flex-col items-center justify-center text-center px-2 sm:px-4">
+                <div className="w-full max-w-[78%] sm:max-w-[68%] flex flex-col items-center justify-center text-center">
+                  {/* Verse reference — golden, refined, uppercase tracker */}
                   {drop.verse && (
-                    <h2
-                      className="font-['Space_Grotesk'] font-bold leading-[1.3] mb-3 sm:mb-4"
-                      style={{
-                        color: "#FFFFFF",
-                        fontSize: "clamp(15px, 2.2vw, 24px)",
-                        textShadow: "0 2px 12px rgba(0,0,0,0.5)",
-                      }}
-                    >
-                      {drop.verse}
-                    </h2>
+                    <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                      <div className="h-px w-6 sm:w-10" style={{ background: "linear-gradient(90deg, transparent, rgba(255,208,0,0.7))" }} />
+                      <span
+                        className="font-['Space_Grotesk'] font-bold uppercase whitespace-nowrap"
+                        style={{
+                          color: "#FFD000",
+                          fontSize: "clamp(10px, 1.1vw, 13px)",
+                          letterSpacing: "0.22em",
+                          textShadow: "0 1px 8px rgba(0,0,0,0.6)",
+                        }}
+                      >
+                        {drop.verse}
+                      </span>
+                      <div className="h-px w-6 sm:w-10" style={{ background: "linear-gradient(90deg, rgba(255,208,0,0.7), transparent)" }} />
+                    </div>
                   )}
+
+                  {/* Reflection — the hero quote */}
                   {cleanReflection(drop.reflection) && (() => {
                     const cleaned = cleanReflection(drop.reflection);
                     const plain = containsHtml(cleaned)
                       ? cleaned.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
                       : cleaned;
                     if (!plain) return null;
+                    // Strip leading pin emoji + "Keep It 100" label + redundant wrapping quotes for cleaner display.
+                    const stripped = plain
+                      .replace(/^\s*📌\s*/, "")
+                      .replace(/^\s*keep\s*it\s*100\s*[:\-–]?\s*/i, "")
+                      .replace(/^["“'']+|["”'']+$/g, "")
+                      .trim();
                     return (
                       <p
-                        className="font-['Inter'] italic leading-relaxed line-clamp-5"
+                        className="font-['Space_Grotesk'] font-medium leading-[1.35] line-clamp-6"
                         style={{
-                          color: "rgba(255,255,255,0.85)",
-                          fontSize: "clamp(11px, 1.3vw, 14px)",
-                          textShadow: "0 1px 8px rgba(0,0,0,0.5)",
+                          color: "#FFFFFF",
+                          fontSize: "clamp(17px, 2.6vw, 28px)",
+                          letterSpacing: "-0.005em",
+                          textShadow: "0 2px 14px rgba(0,0,0,0.55)",
                         }}
                       >
-                        "{plain}"
+                        {stripped}
                       </p>
                     );
                   })()}
