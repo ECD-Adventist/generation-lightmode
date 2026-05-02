@@ -453,32 +453,43 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         {!drop.media_url && (
           <>
-            {isLeaderPost ? (
-              <>
-                {/* Cinematic dark hero background */}
-                <img
-                  src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2"
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none z-0"
-                  style={{ filter: "grayscale(100%) contrast(1.1) brightness(0.55)" }}
-                  loading="lazy"
-                />
-                {/* Vignette + cinematic gradient */}
-                <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "linear-gradient(180deg, rgba(8,12,28,0.55) 0%, rgba(8,12,28,0.30) 35%, rgba(8,12,28,0.55) 75%, rgba(8,12,28,0.85) 100%)" }} />
-                <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "radial-gradient(ellipse at center, transparent 30%, rgba(8,12,28,0.6) 100%)" }} />
-                {/* Soft gold/cyan ambient accents */}
-                <div className="absolute -top-10 -left-10 w-72 h-72 rounded-full blur-[80px] opacity-30 pointer-events-none z-0" style={{ background: "radial-gradient(circle, rgba(0,128,254,0.45), transparent)" }} />
-                <div className="absolute -bottom-12 -right-10 w-80 h-80 rounded-full blur-[90px] opacity-25 pointer-events-none z-0" style={{ background: "radial-gradient(circle, rgba(212,184,46,0.5), transparent)" }} />
-              </>
-            ) : (
-              <>
-                <div className="absolute top-4 left-4 w-20 h-20 rounded-full blur-2xl opacity-20 pointer-events-none bg-cyan-400" />
-                <div className="absolute bottom-8 right-16 w-32 h-32 rounded-full blur-3xl opacity-15 pointer-events-none bg-blue-600" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[60px] opacity-10 pointer-events-none bg-amber-400" />
-                <div className="absolute top-6 left-6 text-[80px] sm:text-[120px] leading-none font-serif pointer-events-none select-none z-0 text-blue-600/5">"</div>
-              </>
-            )}
+            <>
+              {/* Dark navy background with golden splatter accents */}
+              <div className="absolute inset-0 pointer-events-none z-0" style={{ background: "#0B0F1A" }} />
+
+              {/* Golden splatter accents - top right */}
+              <div className="absolute -top-20 -right-20 w-96 h-96 pointer-events-none z-0 opacity-40" style={{
+                background: "radial-gradient(ellipse 80% 60% at 100% 0%, #FFD000 0%, rgba(255,208,0,0.3) 30%, transparent 70%)",
+                filter: "blur(60px)"
+              }} />
+
+              {/* Golden splatter accents - bottom left */}
+              <div className="absolute -bottom-24 -left-24 w-96 h-96 pointer-events-none z-0 opacity-35" style={{
+                background: "radial-gradient(ellipse 75% 75% at 0% 100%, #FFD000 0%, rgba(255,208,0,0.25) 40%, transparent 70%)",
+                filter: "blur(70px)"
+              }} />
+
+              {/* Subtle starfield effect */}
+              <div className="absolute inset-0 pointer-events-none z-0 opacity-30" style={{
+                backgroundImage: `
+                  radial-gradient(1px 1px at 20% 30%, #FFFFFF, rgba(255,255,255,0)),
+                  radial-gradient(1px 1px at 60% 70%, #FFFFFF, rgba(255,255,255,0)),
+                  radial-gradient(1.5px 1.5px at 50% 50%, #FFFFFF, rgba(255,255,255,0)),
+                  radial-gradient(1px 1px at 80% 10%, #FFFFFF, rgba(255,255,255,0)),
+                  radial-gradient(2px 2px at 90% 60%, #FFD000, rgba(255,208,0,0)),
+                  radial-gradient(1px 1px at 30% 80%, #FFFFFF, rgba(255,255,255,0))
+                `,
+                backgroundSize: "200% 200%, 150% 150%, 180% 180%, 250% 250%, 220% 220%, 190% 190%",
+                backgroundPosition: "0% 0%, 40% 60%, 50% 50%, 80% 10%, 90% 60%, 30% 80%"
+              }} />
+
+              {/* World map watermark at bottom */}
+              <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-0 opacity-8" style={{
+                backgroundImage: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600"><path fill="%23FFFFFF" d="M100,250 L150,240 L180,260 L200,280 L220,260 L280,250 L300,200 L350,180 L380,220 L400,250 L420,240 L480,260 L500,280 L520,250 L580,240 L620,200 L680,180 L720,220 L750,260 L780,280 L820,250 L880,240 L900,280 Z M120,350 L160,340 L200,360 L240,380 L280,360 L320,340 L360,350 L400,370 L440,360 L480,340 L520,350 L560,370 L600,380 L640,360 L680,340 L720,350 L760,370 L800,360 L840,340 L880,350"/></svg>')`,
+                backgroundRepeat: "repeat-x",
+                backgroundSize: "contain"
+              }} />
+            </>
             
             <div className={`p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
               {isLeaderPost ? (
