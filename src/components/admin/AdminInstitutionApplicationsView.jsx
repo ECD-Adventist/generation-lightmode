@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertTriangle, CheckCircle, Clock, Filter, Layers, Loader2, Search, ShieldAlert, Users, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle, Clock, Filter, Layers, Loader2, Search, ShieldAlert, Trash2, Users, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 
@@ -68,6 +68,18 @@ export default function AdminInstitutionApplicationsView({ applications, allUser
       queryClient.invalidateQueries({ queryKey: ["institutionApplications"] });
       setSelectedIds([]);
       toast.success(`${nextStatus === "approved" ? "Approved" : "Rejected"} ${selectedIds.length} application(s).`);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (ids) => {
+      await Promise.all(ids.map(id => base44.entities.InstitutionApplication.delete(id)));
+      return ids.length;
+    },
+    onSuccess: (count) => {
+      queryClient.invalidateQueries({ queryKey: ["institutionApplications"] });
+      setSelectedIds([]);
+      toast.success(`Deleted ${count} application(s).`);
     },
   });
 
@@ -139,6 +151,18 @@ export default function AdminInstitutionApplicationsView({ applications, allUser
             <div className="flex gap-2">
               <Button onClick={() => bulkMutation.mutate("approved")} disabled={bulkMutation.isPending} className="rounded-xl font-bold" style={{ background: t.success, color: "#fff" }}>Bulk Approve</Button>
               <Button onClick={() => bulkMutation.mutate("rejected")} disabled={bulkMutation.isPending} className="rounded-xl font-bold" style={{ background: t.danger, color: "#fff" }}>Bulk Reject</Button>
+              <Button
+                onClick={() => {
+                  if (window.confirm(`Delete ${selectedIds.length} selected application(s)? This cannot be undone.`)) {
+                    deleteMutation.mutate(selectedIds);
+                  }
+                }}
+                disabled={deleteMutation.isPending}
+                className="rounded-xl font-bold"
+                style={{ background: "#7f1d1d", color: "#fff" }}
+              >
+                <Trash2 className="w-4 h-4 mr-1" /> Delete
+              </Button>
             </div>
           </div>
         )}
@@ -178,6 +202,18 @@ export default function AdminInstitutionApplicationsView({ applications, allUser
                   <div className="mt-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider" style={{ color: t.textMuted }}>
                     <Filter className="w-3 h-3" /> Submitted {app.created_date ? new Date(app.created_date).toLocaleDateString() : "recently"}
                   </div>
+                </button>
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Delete application for ${app.institution_name}? This cannot be undone.`)) {
+                      deleteMutation.mutate([app.id]);
+                    }
+                  }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition hover:opacity-80"
+                  style={{ background: "rgba(239,68,68,0.12)", color: t.danger, border: `1px solid ${t.danger}33` }}
+                  title="Delete application"
+                >
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
