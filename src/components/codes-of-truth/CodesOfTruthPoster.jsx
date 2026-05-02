@@ -6,7 +6,8 @@ function cleanCodeText(text = "") {
   return String(text)
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
-    .replace(/^\s*🔐\s*/, "")
+    .replace(/^\s*📌\s*/, "")
+    .replace(/^\s*daily\s*code\s*of\s*truth\s*[:\-–]?\s*/i, "")
     .replace(/^\s*code\s*of\s*truth\s*[:\-–]?\s*/i, "")
     .replace(/^\s*codes\s*of\s*truth\s*[:\-–]?\s*/i, "")
     .replace(/^["“'']+|["”'']+$/g, "")
@@ -25,53 +26,66 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
         backgroundPosition: "center",
       }}
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/0 to-black/10 pointer-events-none" />
+      {/* Subtle left-side darkening so text always reads cleanly over the eclipse art */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 45%, rgba(0,0,0,0) 65%)",
+        }}
+      />
 
-      <div className="absolute z-10 top-[20%] bottom-[28%] left-[13%] right-[13%] flex items-center justify-center text-center">
-        <div className="w-full max-w-[82%] flex flex-col items-center justify-center text-center">
+      {/* Text block — anchored to the upper-left quadrant, away from the bright eclipse flash on the right */}
+      <div className="absolute z-10 top-[26%] left-[7%] right-[42%] flex flex-col items-start text-left">
+        {/* Decorative cyan open-quote */}
+        <div
+          aria-hidden="true"
+          className="font-serif leading-none select-none mb-2"
+          style={{
+            color: "#00DFFF",
+            fontSize: "clamp(34px, 6vw, 64px)",
+            textShadow: "0 0 18px rgba(0,223,255,0.55)",
+          }}
+        >
+          “
+        </div>
+
+        {verse && (
           <div
-            className="font-serif leading-none mb-1 sm:mb-2 select-none"
+            className="font-['Space_Grotesk'] font-black uppercase mb-3"
             style={{
-              color: "#00DFFF",
-              fontSize: "clamp(34px, 7vw, 74px)",
-              textShadow: "0 0 18px rgba(0,223,255,0.45), 0 4px 18px rgba(0,0,0,0.7)",
+              color: "#FFD000",
+              fontSize: "clamp(10px, 1.1vw, 13px)",
+              letterSpacing: "0.28em",
+              textShadow: "0 0 12px rgba(255,208,0,0.55), 0 2px 10px rgba(0,0,0,0.8)",
             }}
           >
-            “
+            {verse}
           </div>
+        )}
 
-          {cleanedText && (
-            <p
-              className="font-['Space_Grotesk'] font-black leading-[1.06] line-clamp-5"
-              style={{
-                color: "#FFFFFF",
-                fontSize: "clamp(19px, 3.25vw, 38px)",
-                letterSpacing: "-0.04em",
-                textShadow: "0 4px 22px rgba(0,0,0,0.88), 0 0 18px rgba(255,208,0,0.18)",
-              }}
-            >
-              {cleanedText}
-            </p>
-          )}
+        {cleanedText && (
+          <p
+            className="font-['Space_Grotesk'] font-bold leading-[1.18] line-clamp-6"
+            style={{
+              color: "#FFFFFF",
+              fontSize: "clamp(16px, 2.5vw, 28px)",
+              letterSpacing: "-0.02em",
+              textShadow: "0 4px 22px rgba(0,0,0,0.85)",
+            }}
+          >
+            {cleanedText}
+          </p>
+        )}
 
-          {verse && (
-            <div className="mt-4 sm:mt-6 flex items-center justify-center gap-2 sm:gap-3 max-w-full">
-              <div className="h-px w-8 sm:w-14" style={{ background: "linear-gradient(90deg, transparent, rgba(255,208,0,0.95))" }} />
-              <span
-                className="font-['Space_Grotesk'] font-black uppercase whitespace-nowrap truncate"
-                style={{
-                  color: "#FFD000",
-                  fontSize: "clamp(9px, 1.06vw, 13px)",
-                  letterSpacing: "0.23em",
-                  textShadow: "0 0 12px rgba(255,208,0,0.55), 0 2px 10px rgba(0,0,0,0.8)",
-                }}
-              >
-                {verse}
-              </span>
-              <div className="h-px w-8 sm:w-14" style={{ background: "linear-gradient(90deg, rgba(255,208,0,0.95), transparent)" }} />
-            </div>
-          )}
-        </div>
+        {/* Thin gold underline accent */}
+        <div
+          className="mt-5 h-[2px] w-16"
+          style={{
+            background: "linear-gradient(90deg, #FFD000, rgba(255,208,0,0))",
+            boxShadow: "0 0 10px rgba(255,208,0,0.5)",
+          }}
+        />
       </div>
     </div>
   );
