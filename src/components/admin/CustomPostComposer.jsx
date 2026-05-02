@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, X, Send, Image as ImageIcon, Calendar as CalendarIcon, Sparkles } from "lucide-react";
 import ReactQuill from "react-quill-new";
-import OfficialPostArt from "@/components/feed/OfficialPostArt";
 import "react-quill-new/dist/quill.snow.css";
 
 const CATEGORIES = ["Devotional", "Testimony", "Scripture", "Prayer", "Encouragement", "Teaching", "Announcement"];
@@ -288,30 +287,6 @@ export default function CustomPostComposer() {
             </p>
           </div>
         )}
-      </div>
-
-      {/* Feed Preview */}
-      <div className="pt-2">
-        <Label className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">Feed Preview</Label>
-        <div className="rounded-[1.75rem] p-2 border border-[#FFD000]/25" style={{ background: "linear-gradient(135deg, rgba(255,208,0,0.12), rgba(0,207,255,0.08))", boxShadow: "0 18px 46px rgba(0,0,0,0.25)" }}>
-          <div className="relative min-h-[460px] rounded-[1.35rem] overflow-hidden">
-            {previewUrl ? (
-              <>
-                <img src={previewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/35" />
-              </>
-            ) : (
-              <OfficialPostArt verse={form.verse || "Your headline here"} reflection={form.reflection || "Your official LightMode message will appear here exactly in this feed-style card."} category={form.category} />
-            )}
-            <div className="absolute top-4 left-4 z-20 inline-flex items-center gap-2 rounded-full pl-1 pr-3 py-1 backdrop-blur-md" style={{ background: "rgba(0,0,0,0.42)", border: "1px solid rgba(255,255,255,0.16)" }}>
-              <img src={BRAND_LOGO} alt="" className="w-8 h-8 rounded-full object-cover" />
-              <div>
-                <div className="text-xs font-bold text-white leading-none">Generation LightMode</div>
-                <div className="text-[10px] text-white/70 mt-0.5">Official preview</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Submit */}
