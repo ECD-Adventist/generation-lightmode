@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
-import { Globe, Users, MapPin, Layers, Star, ChevronRight } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { Building2, Globe, Users, MapPin, Layers, Star, ChevronRight } from "lucide-react";
 import TerritoryDrillDownPanel from "./TerritoryDrillDownPanel";
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -45,6 +47,33 @@ const ECD_ISO_CODES = new Set(
   ECD_COUNTRIES.map(c => COUNTRY_NAME_TO_ISO[c]).filter(Boolean)
 );
 
+const HQ_COORDINATES = {
+  "Sudan": [30.2176, 12.8628],
+  "South Sudan": [31.307, 6.877],
+  "Ethiopia": [39.7823, 9.145],
+  "Eritrea": [39.7823, 15.1794],
+  "Somalia": [46.1996, 5.1521],
+  "Djibouti": [42.5903, 11.8251],
+  "Uganda": [32.2903, 1.3733],
+  "Kenya": [37.9062, -0.0236],
+  "Tanzania": [34.8888, -6.369],
+  "Democratic Republic of Congo": [21.7587, -4.0383],
+  "Rwanda": [29.8739, -1.9403],
+  "Burundi": [29.9189, -3.3731],
+  "Seychelles": [55.492, -4.6796],
+};
+
+function resolveCountryName(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+  const directCode = COUNTRY_NAME_TO_ISO[raw];
+  if (directCode) return ISO_TO_COUNTRY[directCode] || raw;
+  const compact = raw.toLowerCase().replace(/[^a-z]/g, "");
+  const match = Object.keys(COUNTRY_NAME_TO_ISO).find(name => name.toLowerCase().replace(/[^a-z]/g, "") === compact);
+  if (!match) return null;
+  return ISO_TO_COUNTRY[COUNTRY_NAME_TO_ISO[match]] || match;
+}
+
 // LightMode dark palette — cyan, gold, violet, royal blue
 const ECD_COLORS = [
   "#00CFFF", "#FFD000", "#8A5CFF", "#2979FF", "#1FB8FF",
@@ -59,14 +88,24 @@ function getCountryColor(isoId, isSelected) {
   return ECD_COLORS[idx % ECD_COLORS.length] || "#00CFFF";
 }
 
-export default function TerritoryMapVisual({ territories, institutionName, memberCount, ownerEmail }) {
+export default function TerritoryMapVisual({ territories, institutionName, memberCount, ownerEmail, hqCountry }) {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, name: "" });
+
+  const { data: mapUsers = [] } = useQuery({
+    queryKey: ["territoryMapUsers"],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicUsers", {});
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    staleTime: 1000 * 60 * 10,
+  });
 
   const highlightedIsoCodes = useMemo(() => {
     const codes = new Set();
     territories.forEach(t => {
-      const code = COUNTRY_NAME_TO_ISO[t.country || t.name || ""];
+      const country = resolveCountryName(t.country || t.name);
+      const code = COUNTRY_NAME_TO_ISO[country];
       if (code) codes.add(code);
     });
     return codes.size > 0 ? codes : new Set(ECD_ISO_CODES);
@@ -74,15 +113,19 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
 
   const regions = useMemo(() => [...new Set(territories.map(t => t.region).filter(Boolean))], [territories]);
   const countries = useMemo(() => {
-    const normalized = new Map();
-    territories.forEach(t => {
-      const raw = (t.country || t.name || "").trim();
-      if (!raw) return;
-      const key = raw.toLowerCase().replace(/[^a-z]/g, "");
-      if (!normalized.has(key)) normalized.set(key, raw);
-    });
-    return normalized.size > 0 ? [...normalized.values()] : ECD_COUNTRIES;
-  }, [territories]);
+    const names = [...highlightedIsoCodes].map(code => ISO_TO_COUNTRY[code]).filter(Boolean);
+    return names.length > 0 ? names : ECD_COUNTRIES;
+  }, [highlightedIsoCodes]);
+
+  const usersInMap = useMemo(() => {
+    return mapUsers.filter(user => {
+      const country = resolveCountryName(user.country);
+      return country && highlightedIsoCodes.has(COUNTRY_NAME_TO_ISO[country]);
+    }).length;
+  }, [mapUsers, highlightedIsoCodes]);
+
+  const hqResolvedCountry = resolveCountryName(hqCountry) || countries[0];
+  const hqCoordinates = HQ_COORDINATES[hqResolvedCountry] || HQ_COORDINATES.Kenya;
 
   const handleCountryClick = (geo) => {
     const isoId = String(geo.id);
@@ -95,7 +138,7 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
     { label: "Nations", value: countries.length, icon: <Globe className="w-4 h-4" />, color: "#00CFFF", bg: "rgba(0,207,255,0.12)" },
     { label: "Regions", value: regions.length || 1, icon: <Layers className="w-4 h-4" />, color: "#FFD000", bg: "rgba(255,208,0,0.12)" },
     { label: "Territories", value: territories.length || 9, icon: <MapPin className="w-4 h-4" />, color: "#8A5CFF", bg: "rgba(138,92,255,0.12)" },
-    { label: "Members", value: memberCount || "—", icon: <Users className="w-4 h-4" />, color: "#1FB8FF", bg: "rgba(31,184,255,0.12)" },
+    { label: "Users", value: usersInMap || memberCount || "—", icon: <Users className="w-4 h-4" />, color: "#1FB8FF", bg: "rgba(31,184,255,0.12)" },
   ];
 
   return (
@@ -234,11 +277,15 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
                   })
                 }
               </Geographies>
-              {/* Center marker on Tanzania */}
-              <Marker coordinates={[34.8, -6.4]}>
-                <circle r={18} fill="rgba(0,207,255,0.08)" />
-                <circle r={8} fill="rgba(255,208,0,0.24)" />
-                <circle r={4} fill="#FFD000" stroke="#00CFFF" strokeWidth={1.5} />
+              {/* HQ marker from registration country */}
+              <Marker coordinates={hqCoordinates}>
+                <circle r={20} fill="rgba(255,208,0,0.10)" />
+                <circle r={10} fill="rgba(0,207,255,0.18)" />
+                <circle r={5} fill="#FFD000" stroke="#00CFFF" strokeWidth={1.5} />
+                <g transform="translate(-7,-27)">
+                  <rect width="14" height="14" rx="4" fill="#0B0F1A" stroke="#FFD000" strokeWidth="1" />
+                  <Building2 x="3" y="3" width="8" height="8" color="#FFD000" />
+                </g>
               </Marker>
             </ComposableMap>
           </div>
@@ -257,7 +304,8 @@ export default function TerritoryMapVisual({ territories, institutionName, membe
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#FFD000]">ECD Division</span>
               </div>
               <div className="text-xs font-bold text-white leading-tight">{institutionName || "Institution"}</div>
-              <div className="text-[10px] text-gray-500 mt-0.5">Organization territory view</div>
+              <div className="text-[10px] text-gray-500 mt-0.5">HQ: {hqResolvedCountry || "Registered location"}</div>
+              <div className="text-[10px] text-[#00CFFF] mt-1 font-bold">{usersInMap || 0} registered user{usersInMap === 1 ? "" : "s"} in this map</div>
             </div>
 
             {/* Nation list */}
