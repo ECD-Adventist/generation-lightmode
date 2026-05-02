@@ -36,10 +36,10 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
   const cleanedText = truncateForPoster(cleaned, 180);
   // Auto-shrink type for longer copy so it never overflows into the bottom logo area
   const len = cleanedText?.length || 0;
-  const bodyFontSize = len > 140 ? "clamp(12px, 1.85vw, 18px)"
-    : len > 90 ? "clamp(14px, 2.15vw, 22px)"
-    : len > 50 ? "clamp(16px, 2.45vw, 26px)"
-    : "clamp(18px, 2.8vw, 30px)";
+  const bodyFontSize = len > 140 ? "clamp(13px, 2vw, 20px)"
+    : len > 90 ? "clamp(15px, 2.35vw, 24px)"
+    : len > 50 ? "clamp(17px, 2.7vw, 28px)"
+    : "clamp(20px, 3.2vw, 34px)";
 
   return (
     <div
@@ -50,8 +50,8 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
         backgroundPosition: "center",
       }}
     >
-      {/* Text block — centered lower in the open dark space, clear of the author chip and bottom branding */}
-      <div className="absolute z-10 top-[18%] bottom-[42%] left-[9%] right-[37%] flex flex-col items-center text-center overflow-hidden">
+      {/* Text block — clear of the author chip and balanced inside the upper-left readable zone */}
+      <div className="absolute z-10 top-[13%] bottom-[40%] left-[8%] right-[38%] flex flex-col items-start text-left overflow-hidden">
         {verse && (
           <div
             className="font-['Space_Grotesk'] font-black uppercase mb-2"
@@ -68,11 +68,11 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
 
         {cleanedText && (
           <p
-            className="font-['Space_Grotesk'] font-medium leading-[1.16] line-clamp-5"
+            className="font-['Space_Grotesk'] font-semibold leading-[1.18] line-clamp-5"
             style={{
               color: "#FFFFFF",
               fontSize: bodyFontSize,
-              letterSpacing: "-0.02em",
+              letterSpacing: "-0.025em",
               textShadow: "0 3px 12px rgba(0,0,0,0.9), 0 0 18px rgba(0,0,0,0.65)",
             }}
           >
