@@ -246,9 +246,33 @@ export default function Profile() {
     enabled: !!profileEmail
   });
 
+  const { data: approvedInstitutionPages = [] } = useQuery({
+    queryKey: ["profileInstitutionPages", profileEmail],
+    queryFn: () => base44.entities.InstitutionPage.filter({ owner_email: profileEmail }),
+    enabled: !!profileEmail,
+  });
+
   const { data: userInstitutionApps = [] } = useQuery({
-    queryKey: ["profileInstitutionApps", profileEmail],
-    queryFn: () => base44.entities.InstitutionApplication.filter({ user_email: profileEmail, status: "approved" }),
+    queryKey: ["profileInstitutionApps", profileEmail, approvedInstitutionPages.length, isOwnProfile, currentUser?.role],
+    queryFn: async () => {
+      const publicPages = approvedInstitutionPages.map(page => ({
+        id: page.id,
+        user_email: page.owner_email,
+        institution_name: page.name,
+        institution_type: page.category,
+        country: page.location,
+        contact_email: page.contact_email,
+        contact_phone: page.contact_phone,
+        logo_url: page.logo_url,
+        organization_map_url: page.organization_map_url,
+        extracted_territories: page.extracted_territories,
+        status: "approved",
+        from_public_page: true,
+      }));
+      if (publicPages.length > 0 && !isOwnProfile && currentUser?.role !== "admin" && currentUser?.role !== "super_admin") return publicPages;
+      const apps = await base44.entities.InstitutionApplication.filter({ user_email: profileEmail, status: "approved" }).catch(() => []);
+      return apps.length > 0 ? apps : publicPages;
+    },
     enabled: !!profileEmail,
   });
 

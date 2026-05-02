@@ -37,6 +37,23 @@ export default function AdminInstitutionTab() {
       await base44.entities.InstitutionApplication.update(appId, { status: "approved", admin_notes: adminNotes });
 
       if (app?.user_email) {
+        const existingPages = await base44.entities.InstitutionPage.filter({ owner_email: app.user_email });
+        const matchingPage = existingPages.find(p => p.name?.toLowerCase() === app.institution_name?.toLowerCase()) || existingPages[0];
+        const pageData = {
+          name: app.institution_name,
+          owner_email: app.user_email,
+          category: app.institution_type === "church" ? "church" : app.institution_type === "school" ? "school" : app.institution_type === "organization" ? "ministry" : "other",
+          contact_email: app.contact_email,
+          contact_phone: app.contact_phone || "",
+          location: app.country || "",
+          logo_url: app.logo_url || "",
+          organization_map_url: app.organization_map_url || "",
+          extracted_territories: app.extracted_territories || "",
+          verified: true
+        };
+        if (matchingPage?.id) await base44.entities.InstitutionPage.update(matchingPage.id, pageData);
+        else await base44.entities.InstitutionPage.create({ ...pageData, slug: app.institution_name?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || app.user_email });
+
         const applicant = allUsers.find(u => u.email === app.user_email);
         if (applicant?.id) {
           const nextRole = applicant.role && applicant.role !== "user" ? applicant.role : "church_admin";

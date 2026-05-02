@@ -152,8 +152,12 @@ export default function ExecutiveProfileHeader({
                           onClick={async () => {
                             const appWithMap = institutionApps.find(a => a.organization_map_url);
                             if (!appWithMap || !window.confirm("Delete this organization map?")) return;
-                            await base44.entities.InstitutionApplication.update(appWithMap.id, { organization_map_url: "", extracted_territories: "" });
+                            if (appWithMap.from_public_page) await base44.entities.InstitutionPage.update(appWithMap.id, { organization_map_url: "", extracted_territories: "" });
+                            else await base44.entities.InstitutionApplication.update(appWithMap.id, { organization_map_url: "", extracted_territories: "" });
+                            if (primaryPage?.id) await base44.entities.InstitutionPage.update(primaryPage.id, { organization_map_url: "", extracted_territories: "" });
                             queryClient.invalidateQueries({ queryKey: ["profileInstitutionApps"] });
+                            queryClient.invalidateQueries({ queryKey: ["profileInstitutionPages"] });
+                            queryClient.invalidateQueries({ queryKey: ["allInstitutionPages"] });
                             toast.success("Organization map deleted.");
                           }}
                           disabled={uploadingMap}
@@ -178,10 +182,14 @@ export default function ExecutiveProfileHeader({
                         try { const extractResult = await base44.integrations.Core.InvokeLLM({ prompt: `Analyze this organization map image. Extract all countries, territories, regions, fields, conferences, unions, and any visible hierarchy. Return a JSON array of objects with fields: name, region, country. If only countries are visible, use the country as both name and country.`, file_urls: [file_url], response_json_schema: { type: "object", properties: { territories: { type: "array", items: { type: "object", properties: { name: { type: "string" }, region: { type: "string" }, country: { type: "string" } } } } } } }); extractedTerritories = extractResult?.territories || []; } catch (aiErr) { console.warn("AI extraction failed:", aiErr); }
                         setMapUploadProgress({ step: 3, percent: 85, label: "Saving to profile..." });
                         const appWithMap = institutionApps.find(a => a.organization_map_url) || primaryApp;
-                        const updateData = { organization_map_url: file_url }; if (extractedTerritories.length > 0) updateData.extracted_territories = JSON.stringify(extractedTerritories);
-                        await base44.entities.InstitutionApplication.update(appWithMap.id, updateData);
+                        const updateData = { organization_map_url: file_url, extracted_territories: JSON.stringify(extractedTerritories) };
+                        if (appWithMap.from_public_page) await base44.entities.InstitutionPage.update(appWithMap.id, updateData);
+                        else await base44.entities.InstitutionApplication.update(appWithMap.id, updateData);
+                        if (primaryPage?.id) await base44.entities.InstitutionPage.update(primaryPage.id, updateData);
                         setMapUploadProgress({ step: 4, percent: 100, label: "Done!" }); await new Promise(r => setTimeout(r, 600));
                         queryClient.invalidateQueries({ queryKey: ["profileInstitutionApps"] });
+                        queryClient.invalidateQueries({ queryKey: ["profileInstitutionPages"] });
+                        queryClient.invalidateQueries({ queryKey: ["allInstitutionPages"] });
                         toast.success(`Organization map updated! ${extractedTerritories.length} territories extracted.`);
                       } catch { toast.error("Failed to upload map"); }
                       finally { setUploadingMap(false); setMapUploadProgress(null); }
