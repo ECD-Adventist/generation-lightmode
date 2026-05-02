@@ -470,73 +470,50 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             
             <div className={`p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center ${isKeepIt100 ? "justify-center pt-[14%] pb-[36%]" : "justify-center"} ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
               {isKeepIt100 ? (
-                <div className="w-full max-w-[76%] sm:max-w-[66%] flex flex-col items-center justify-center text-center">
-                  <div
-                    className="relative w-full rounded-2xl sm:rounded-[1.75rem] px-4 py-5 sm:px-7 sm:py-8 overflow-hidden"
-                    style={{
-                      background: "linear-gradient(180deg, rgba(2,10,35,0.72) 0%, rgba(2,10,35,0.38) 100%)",
-                      border: "1px solid rgba(0,207,255,0.36)",
-                      boxShadow: "0 0 28px rgba(0,207,255,0.18), inset 0 1px 0 rgba(255,255,255,0.12)",
-                      backdropFilter: "blur(8px)",
-                    }}
-                  >
-                    <div
-                      className="absolute inset-x-8 top-0 h-px"
-                      style={{ background: "linear-gradient(90deg, transparent, rgba(255,208,0,0.9), rgba(0,207,255,0.9), transparent)" }}
-                    />
-                    <div className="mb-3 sm:mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1"
-                      style={{ background: "rgba(255,208,0,0.12)", border: "1px solid rgba(255,208,0,0.28)" }}
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#FFD000", boxShadow: "0 0 10px #FFD000" }} />
-                      <span className="font-['Space_Grotesk'] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.28em]" style={{ color: "#FFD000" }}>
-                        Keep It 100
+                <div className="w-full max-w-[76%] sm:max-w-[64%] flex flex-col items-center justify-center text-center">
+                  {cleanReflection(drop.reflection) && (() => {
+                    const cleaned = cleanReflection(drop.reflection);
+                    const plain = containsHtml(cleaned)
+                      ? cleaned.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+                      : cleaned;
+                    if (!plain) return null;
+                    const stripped = plain
+                      .replace(/^\s*📌\s*/, "")
+                      .replace(/^\s*keep\s*it\s*100\s*[:\-–]?\s*/i, "")
+                      .replace(/^["“'']+|["”'']+$/g, "")
+                      .trim();
+                    return (
+                      <p
+                        className="font-['Space_Grotesk'] font-semibold leading-[1.18] line-clamp-5"
+                        style={{
+                          color: "#FFFFFF",
+                          fontSize: "clamp(20px, 3.2vw, 34px)",
+                          letterSpacing: "-0.035em",
+                          textShadow: "0 4px 20px rgba(0,0,0,0.72), 0 0 18px rgba(0,207,255,0.22)",
+                        }}
+                      >
+                        {stripped}
+                      </p>
+                    );
+                  })()}
+
+                  {drop.verse && (
+                    <div className="mt-5 sm:mt-7 flex items-center justify-center gap-3">
+                      <div className="h-px w-8 sm:w-14" style={{ background: "linear-gradient(90deg, transparent, rgba(255,208,0,0.85))" }} />
+                      <span
+                        className="font-['Space_Grotesk'] font-black uppercase whitespace-nowrap"
+                        style={{
+                          color: "#FFD000",
+                          fontSize: "clamp(10px, 1.08vw, 13px)",
+                          letterSpacing: "0.26em",
+                          textShadow: "0 0 12px rgba(255,208,0,0.5), 0 2px 10px rgba(0,0,0,0.7)",
+                        }}
+                      >
+                        {drop.verse}
                       </span>
+                      <div className="h-px w-8 sm:w-14" style={{ background: "linear-gradient(90deg, rgba(255,208,0,0.85), transparent)" }} />
                     </div>
-
-                    {cleanReflection(drop.reflection) && (() => {
-                      const cleaned = cleanReflection(drop.reflection);
-                      const plain = containsHtml(cleaned)
-                        ? cleaned.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
-                        : cleaned;
-                      if (!plain) return null;
-                      const stripped = plain
-                        .replace(/^\s*📌\s*/, "")
-                        .replace(/^\s*keep\s*it\s*100\s*[:\-–]?\s*/i, "")
-                        .replace(/^["“'']+|["”'']+$/g, "")
-                        .trim();
-                      return (
-                        <p
-                          className="font-['Space_Grotesk'] font-semibold leading-[1.22] line-clamp-5"
-                          style={{
-                            color: "#FFFFFF",
-                            fontSize: "clamp(18px, 2.9vw, 31px)",
-                            letterSpacing: "-0.025em",
-                            textShadow: "0 3px 18px rgba(0,0,0,0.68)",
-                          }}
-                        >
-                          {stripped}
-                        </p>
-                      );
-                    })()}
-
-                    {drop.verse && (
-                      <div className="mt-4 sm:mt-6 flex items-center justify-center gap-3">
-                        <div className="h-px w-8 sm:w-12" style={{ background: "linear-gradient(90deg, transparent, rgba(0,207,255,0.75))" }} />
-                        <span
-                          className="font-['Space_Grotesk'] font-black uppercase whitespace-nowrap"
-                          style={{
-                            color: "#8DF4FF",
-                            fontSize: "clamp(10px, 1.05vw, 12px)",
-                            letterSpacing: "0.24em",
-                            textShadow: "0 0 12px rgba(0,207,255,0.55)",
-                          }}
-                        >
-                          {drop.verse}
-                        </span>
-                        <div className="h-px w-8 sm:w-12" style={{ background: "linear-gradient(90deg, rgba(0,207,255,0.75), transparent)" }} />
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               ) : isLeaderPost ? (
                 <div className="w-full max-w-2xl flex flex-col items-center text-center">
