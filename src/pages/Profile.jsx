@@ -25,6 +25,7 @@ import { getDisplayName } from "@/lib/displayName";
 import MobileProfile from "@/components/profile/MobileProfile";
 import CountryFlag from "@/components/common/CountryFlag";
 import FeedDropList from "@/components/feed/FeedDropList";
+import DropGridTile from "@/components/profile/DropGridTile";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -510,31 +511,10 @@ export default function Profile() {
         );
       }
       return (
-        <div className="grid grid-cols-3 gap-2 [&_>div]:!mb-0">
-          <FeedDropList
-            drops={myDrops}
-            displayCount={myDrops.length}
-            getUserInfo={(email) => {
-              if (email === displayUser?.email) return displayUser;
-              if (email === currentUser?.email) return currentUser;
-              const found = allUsersForProfile.find(u => u.email === email);
-              if (found) return found;
-              return { full_name: email?.split('@')[0] || "Glow Believer", email };
-            }}
-            user={currentUser}
-            likeMutation={profileLikeMutation}
-            handleShare={handleDropShare}
-            userLikes={profileUserLikes}
-            allUsers={allUsersForProfile}
-            savedDropRecords={profileSavedDrops}
-            leaderAccounts={isViewingLeader && activeLeaderAccount ? [activeLeaderAccount] : (displayUser?.is_managed_leader ? [{ leader_email: displayUser.email, leader_name: displayUser.full_name, leader_title: leaderTitle, leader_profile_picture_url: displayUser.profile_picture_url, leader_country: displayUser.country, leader_bio: displayUser.bio }] : [])}
-            following={currentUserFollowing}
-            followMutation={followMutation}
-            hasMore={false}
-            isLoadingMore={false}
-            onLoadMore={() => {}}
-            footerClassName="col-span-3 py-4 text-center text-xs"
-          />
+        <div className="grid grid-cols-3 gap-2">
+          {myDrops.map(drop => (
+            <DropGridTile key={drop.id} drop={drop} onClick={() => setViewingDropId(drop.id)} />
+          ))}
         </div>
       );
     }
@@ -1072,31 +1052,10 @@ export default function Profile() {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-3 sm:gap-4 [&_>div]:!mb-0">
-                <FeedDropList
-                  drops={myDrops}
-                  displayCount={myDrops.length}
-                  getUserInfo={(email) => {
-                    if (email === displayUser?.email) return displayUser;
-                    if (email === currentUser?.email) return currentUser;
-                    const found = allUsersForProfile.find(u => u.email === email);
-                    if (found) return found;
-                    return { full_name: email?.split('@')[0] || "Glow Believer", email };
-                  }}
-                  user={currentUser}
-                  likeMutation={profileLikeMutation}
-                  handleShare={handleDropShare}
-                  userLikes={profileUserLikes}
-                  allUsers={allUsersForProfile}
-                  savedDropRecords={profileSavedDrops}
-                  leaderAccounts={isViewingLeader && activeLeaderAccount ? [activeLeaderAccount] : (displayUser?.is_managed_leader ? [{ leader_email: displayUser.email, leader_name: displayUser.full_name, leader_title: leaderTitle, leader_profile_picture_url: displayUser.profile_picture_url, leader_country: displayUser.country, leader_bio: displayUser.bio }] : [])}
-                  following={currentUserFollowing}
-                  followMutation={followMutation}
-                  hasMore={false}
-                  isLoadingMore={false}
-                  onLoadMore={() => {}}
-                  footerClassName="col-span-3 py-6 text-center text-sm"
-                />
+              <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                {myDrops.map(drop => (
+                  <DropGridTile key={drop.id} drop={drop} onClick={() => setViewingDropId(drop.id)} />
+                ))}
               </div>
             )}
           </div>
