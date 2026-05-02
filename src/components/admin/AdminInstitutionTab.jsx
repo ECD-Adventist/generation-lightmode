@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, Clock, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
+import AdminInstitutionAuditTab from "./AdminInstitutionAuditTab";
 
 export default function AdminInstitutionTab() {
   const { theme } = useAdminTheme();
@@ -14,6 +15,7 @@ export default function AdminInstitutionTab() {
   const queryClient = useQueryClient();
   const [selectedApp, setSelectedApp] = useState(null);
   const [adminNotes, setAdminNotes] = useState("");
+  const [activeView, setActiveView] = useState("applications");
 
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ["institutionApplications"],
@@ -48,6 +50,7 @@ export default function AdminInstitutionTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["institutionApplications"] });
+      queryClient.invalidateQueries({ queryKey: ["adminInstitutionAuditUsers"] });
       queryClient.invalidateQueries({ queryKey: ["allUsers"] });
       setSelectedApp(null);
       setAdminNotes("");
@@ -75,6 +78,7 @@ export default function AdminInstitutionTab() {
     pending: { icon: Clock, color: isDark ? "text-yellow-400" : "text-amber-600", bg: isDark ? "bg-yellow-500/10" : "bg-amber-100" },
     approved: { icon: CheckCircle, color: isDark ? "text-green-400" : "text-green-700", bg: isDark ? "bg-green-500/10" : "bg-green-100" },
     rejected: { icon: XCircle, color: isDark ? "text-red-400" : "text-red-700", bg: isDark ? "bg-red-500/10" : "bg-red-100" },
+    revoked: { icon: ShieldAlert, color: isDark ? "text-red-300" : "text-red-800", bg: isDark ? "bg-red-500/10" : "bg-red-100" },
   };
 
   if (isLoading) {
@@ -102,14 +106,30 @@ export default function AdminInstitutionTab() {
         </div>
       </div>
 
-      {applications.length === 0 ? (
+      <div className="flex gap-2 rounded-2xl border p-1 w-fit" style={{ background: t.surface, borderColor: t.border }}>
+        {[
+          { id: "applications", label: "Applications" },
+          { id: "audit", label: "Institution Audit" },
+        ].map((view) => (
+          <button
+            key={view.id}
+            onClick={() => setActiveView(view.id)}
+            className="px-4 py-2 rounded-xl text-sm font-bold transition"
+            style={activeView === view.id ? { background: t.gradient, color: "#FFFFFF" } : { color: t.textSecondary }}
+          >
+            {view.label}
+          </button>
+        ))}
+      </div>
+
+      {activeView === "audit" ? <AdminInstitutionAuditTab /> : applications.length === 0 ? (
         <div className="text-center py-20 rounded-2xl border" style={{ background: t.surface, borderColor: t.border, color: t.textSecondary }}>
           <p>No institution applications yet.</p>
         </div>
       ) : (
         <div className="grid gap-4">
           {applications.map(app => {
-            const Config = statusConfig[app.status];
+            const Config = statusConfig[app.status] || statusConfig.pending;
             const Icon = Config.icon;
 
             return (
