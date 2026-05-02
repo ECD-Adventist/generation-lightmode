@@ -152,7 +152,7 @@ export default function MobileInstitutionProfile({
         @keyframes mip-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
       `}</style>
 
-      <div className="relative z-20 flex items-center justify-between px-4 safe-pt pt-7 pb-3">
+      <div className="relative z-20 flex items-center justify-between px-4 safe-pt pt-12 pb-4">
         <Link to={createPageUrl("Feed")} className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)", color: "#00CFFF", border: "1px solid rgba(0,207,255,0.18)" }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </Link>
