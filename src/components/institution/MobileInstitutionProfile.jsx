@@ -146,7 +146,7 @@ export default function MobileInstitutionProfile({
   ];
 
   return (
-    <div className="min-h-screen font-['Inter']" style={{ background: "linear-gradient(180deg, #0B0F1A 0%, #121826 46%, #EEF3FF 46%, #E2EBFF 100%)", color: "#0B1B3D" }}>
+    <div className="min-h-screen font-['Inter']" style={{ background: "linear-gradient(180deg, #0B0F1A 0px, #121826 320px, #EEF3FF 320px, #E2EBFF 100%)", color: "#0B1B3D" }}>
       <style>{`
         @keyframes mip-sweep { 0% { transform: translateX(-150%) skewX(-20deg); } 100% { transform: translateX(300%) skewX(-20deg); } }
         @keyframes mip-spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
