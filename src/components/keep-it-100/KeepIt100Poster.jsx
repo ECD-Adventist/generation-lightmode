@@ -3,12 +3,18 @@ import React from "react";
 export const KEEP_IT_100_BACKGROUND_URL = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/ae9c17d35_BACKGROUNDTMP-02.jpg";
 
 function cleanKeepIt100Text(text = "") {
-  return String(text)
+  let out = String(text)
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
+    .trim();
+  // Strip repost prefixes
+  while (/^\[reposted from [^\]]+\]\s*/i.test(out)) {
+    out = out.replace(/^\[reposted from [^\]]+\]\s*/i, "");
+  }
+  return out
     .replace(/^\s*📌\s*/, "")
     .replace(/^\s*keep\s*it\s*100\s*[:\-–]?\s*/i, "")
-    .replace(/^["“'']+|["”'']+$/g, "")
+    .replace(/^[""'']+|[""'']+$/g, "")
     .trim();
 }
 
