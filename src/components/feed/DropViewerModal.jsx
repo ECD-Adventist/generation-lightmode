@@ -154,6 +154,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
   const dropAuthor = getCommentUser(drop.user_email);
   const isKeepIt100 = !drop.media_url && (drop.category === "Keep It 100" || /keepit100/i.test(drop.hashtags || ""));
   const isCodeOfTruth = !drop.media_url && drop.category === "Code of Truth";
+  const cleanReflection = (r) => r?.replace(/^(\[Reposted from .+?\]\s*)+/i, "").trim() || "";
 
   const renderCommentContent = (text) => {
     if (!text) return null;
@@ -233,8 +234,8 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                   {drop.verse}
                 </h2>
               )}
-              {drop.reflection && (
-                <p className="text-lg text-[#3A4A6B] font-['Inter'] leading-relaxed max-w-md">"{drop.reflection}"</p>
+              {cleanReflection(drop.reflection) && (
+                <p className="text-lg text-[#3A4A6B] font-['Inter'] leading-relaxed max-w-md">"{cleanReflection(drop.reflection)}"</p>
               )}
             </div>
           )}
@@ -314,7 +315,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
               <div className="text-sm leading-relaxed">
                 <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} onClick={onClose} className="font-bold text-[#0B1B3D] mr-1.5 no-underline hover:underline">{dropAuthor?.full_name}</Link>
                 {drop.verse && <span className="text-[#0B3FD9] font-semibold">{drop.verse} </span>}
-                {drop.reflection && <span className="text-[#3A4A6B]">{drop.reflection}</span>}
+                {cleanReflection(drop.reflection) && <span className="text-[#3A4A6B]">{cleanReflection(drop.reflection)}</span>}
                 {drop.hashtags && (
                   <div className="text-[#0B3FD9] text-xs mt-1.5 font-medium">
                     {drop.hashtags.split(" ").map(t => t.startsWith("#") ? t : `#${t}`).join(" ")}
