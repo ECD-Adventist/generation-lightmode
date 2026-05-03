@@ -31,6 +31,13 @@ function truncateForPoster(text, maxChars = 180) {
   return (lastSpace > 80 ? slice.slice(0, lastSpace) : slice).replace(/[,;:.!?\-–—\s]+$/, "") + "…";
 }
 
+function splitVerseLabel(verse = "") {
+  const cleaned = String(verse).trim();
+  const match = cleaned.match(/^(.+?)\s*[-–—]\s*(.+)$/);
+  if (!match) return { reference: cleaned, quote: "" };
+  return { reference: match[1].trim(), quote: match[2].trim() };
+}
+
 export default function CodesOfTruthPoster({ text, verse, className = "" }) {
   const cleaned = cleanCodeText(text);
   const cleanedText = truncateForPoster(cleaned, 180);
@@ -41,6 +48,7 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
     : len > 80 ? "clamp(15px, 2.25vw, 25px)"
     : len > 45 ? "clamp(18px, 2.75vw, 31px)"
     : "clamp(22px, 3.35vw, 38px)";
+  const verseParts = splitVerseLabel(verse);
 
   return (
     <div
@@ -54,19 +62,33 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
       {/* Premium text block — fitted into the lower-left empty space and clear of the author chip/logo lockup */}
       <div className="absolute z-10 top-[29%] bottom-[23%] left-[9%] right-[41%] flex flex-col items-start justify-center text-left overflow-hidden">
         {verse && (
-          <div
-            className="font-['Space_Grotesk'] font-bold mb-3 px-2.5 py-1 rounded-full max-w-full"
-            style={{
-              color: "#FFE37A",
-              background: "linear-gradient(90deg, rgba(255,208,0,0.14), rgba(255,208,0,0.04))",
-              border: "1px solid rgba(255,208,0,0.24)",
-              fontSize: "clamp(8px, 0.85vw, 10px)",
-              lineHeight: "1.35",
-              letterSpacing: "0.08em",
-              textShadow: "0 2px 8px rgba(0,0,0,0.9)",
-            }}
-          >
-            {verse}
+          <div className="mb-4 max-w-[18ch]">
+            <div
+              className="font-['Space_Grotesk'] font-black uppercase inline-flex rounded-full px-2 py-1 mb-2"
+              style={{
+                color: "#00CFFF",
+                background: "rgba(0,207,255,0.12)",
+                border: "1px solid rgba(0,207,255,0.28)",
+                fontSize: "clamp(7px, 0.78vw, 10px)",
+                letterSpacing: "0.24em",
+                textShadow: "0 0 10px rgba(0,207,255,0.45), 0 2px 10px rgba(0,0,0,0.85)",
+              }}
+            >
+              {verseParts.reference}
+            </div>
+            {verseParts.quote && (
+              <div
+                className="font-['Space_Grotesk'] font-bold uppercase leading-[1.25]"
+                style={{
+                  color: "#FFD000",
+                  fontSize: "clamp(8px, 0.9vw, 12px)",
+                  letterSpacing: "0.22em",
+                  textShadow: "0 0 10px rgba(255,208,0,0.45), 0 2px 10px rgba(0,0,0,0.9)",
+                }}
+              >
+                {verseParts.quote}
+              </div>
+            )}
           </div>
         )}
 
