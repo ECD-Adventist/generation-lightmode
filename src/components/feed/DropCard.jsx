@@ -65,8 +65,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   };
 
   const cleanReflection = (reflection) => reflection?.replace(/^(\[Reposted from .+?\]\s*)+/i, "").trim() || "";
-  const displayLeaderForDrop = leaderForDrop;
-  const isLeaderPost = !!leaderForDrop;
+  const repostOwnerName = getRepostOwner(drop.reflection);
+  const repostLeaderForDrop = repostOwnerName
+    ? leaderAccounts.find(a => a.leader_name?.toLowerCase() === repostOwnerName.toLowerCase())
+    : null;
+  const displayLeaderForDrop = leaderForDrop || repostLeaderForDrop;
+  const isLeaderPost = !!displayLeaderForDrop;
 
   const savedForThisDrop = savedDropRecords.filter(s => s.drop_id === drop.id);
   const isSaved = savedForThisDrop.length > 0;
@@ -206,7 +210,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       await base44.entities.GlowDrop.create({
         user_email: user.email,
         verse: drop.verse,
-        reflection: cleanReflection(drop.reflection),
+        reflection: `[Reposted from ${getDisplayName(dropUser)}]\n\n${drop.reflection || ""}`,
         media_url: drop.media_url,
         category: drop.category,
         hashtags: drop.hashtags,
@@ -265,7 +269,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         <div className="absolute -top-3 left-5 sm:left-6 z-30 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg"
           style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 40%, #1A6B3F 70%, #D4B82E 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35), 0 0 20px rgba(212, 184, 46, 0.4)" }}>
           <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          {displayLeaderForDrop?.leader_title || "Official Leader"}
+          {displayLeaderForDrop?.leader_title || (repostLeaderForDrop ? "Reposted Leader" : "Official Leader")}
         </div>
       )}
       <style>{`
@@ -602,7 +606,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                     <div className="h-px flex-1 max-w-[70px]" style={{ background: "linear-gradient(90deg, transparent, rgba(212,184,46,0.8))" }} />
                     <div className="flex flex-col items-center gap-0.5">
                       <span className="font-['Space_Grotesk'] text-[11px] sm:text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FFD000", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>
-                        — {getDisplayName(dropUser)}
+                        — {repostLeaderForDrop ? repostOwnerName : getDisplayName(dropUser)}
                       </span>
                       {displayLeaderForDrop?.leader_title && (
                         <span className="font-['Inter'] text-[9px] sm:text-[10px] tracking-[0.18em] uppercase" style={{ color: "rgba(220,228,245,0.7)" }}>
@@ -740,7 +744,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       {/* Verse & Reflection */}
       {(drop.verse || drop.reflection) && (
         <div className="px-3 sm:px-4 pt-3 pb-1">
-
+          {getRepostOwner(drop.reflection) && (
+            <p className="text-xs mb-2" style={{ color: "#6B7FA0" }}>
+              Reposted from <Link to={getRepostOwner(drop.reflection) === "Generation LightMode" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{getRepostOwner(drop.reflection)}</Link>
+            </p>
+          )}
           {drop.verse && (
             <div className="font-bold text-sm mb-1 break-words" style={{ color: "#0B3FD9" }}>
               {drop.verse}
