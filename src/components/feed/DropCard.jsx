@@ -476,7 +476,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             {isCodeOfTruth && (
               <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
             )}
-            <div className={isKeepIt100 ? "absolute z-10 top-[15.5%] bottom-[31%] left-[13%] right-[16%] flex items-center justify-center text-center" : isCodeOfTruth ? "hidden" : `p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
+            <div className={isKeepIt100 ? "absolute z-10 top-[15.5%] bottom-[35%] left-[13%] right-[16%] flex items-center justify-center text-center overflow-hidden" : isCodeOfTruth ? "hidden" : `p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
               {isKeepIt100 ? (
                 <div className="w-full max-w-[76%] sm:max-w-[64%] flex flex-col items-center justify-center text-center">
                   {cleanReflection(drop.reflection) && (() => {
@@ -492,10 +492,10 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                       .trim();
                     return (
                       <p
-                        className="font-['Space_Grotesk'] font-semibold leading-[1.18] line-clamp-5"
+                        className="font-['Space_Grotesk'] font-semibold leading-[1.18] line-clamp-4"
                         style={{
                           color: "#FFFFFF",
-                          fontSize: "clamp(20px, 3.2vw, 34px)",
+                          fontSize: "clamp(18px, 2.8vw, 30px)",
                           letterSpacing: "-0.035em",
                           textShadow: "0 4px 20px rgba(0,0,0,0.72), 0 0 18px rgba(0,207,255,0.22)",
                         }}

@@ -24,14 +24,14 @@ export default function KeepIt100Poster({ text, verse, className = "" }) {
         backgroundPosition: "center",
       }}
     >
-      <div className="absolute z-10 top-[15.5%] bottom-[31%] left-[13%] right-[16%] flex items-center justify-center text-center">
+      <div className="absolute z-10 top-[15.5%] bottom-[35%] left-[13%] right-[16%] flex items-center justify-center text-center overflow-hidden">
         <div className="w-full max-w-[86%] flex flex-col items-center justify-center text-center">
           {cleanedText && (
             <p
-              className="font-['Space_Grotesk'] font-semibold leading-[1.18] line-clamp-5"
+              className="font-['Space_Grotesk'] font-semibold leading-[1.18] line-clamp-4"
               style={{
                 color: "#FFFFFF",
-                fontSize: "clamp(11px, 2.4vw, 26px)",
+                fontSize: "clamp(10px, 2.2vw, 22px)",
                 letterSpacing: "-0.035em",
                 textShadow: "0 4px 20px rgba(0,0,0,0.72), 0 0 18px rgba(0,207,255,0.22)",
               }}
