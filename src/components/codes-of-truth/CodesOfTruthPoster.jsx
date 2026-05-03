@@ -53,35 +53,35 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
     >
       {/* Premium text block — fitted into the lower-left empty space and clear of the author chip/logo lockup */}
       <div className="absolute z-10 top-[29%] bottom-[23%] left-[9%] right-[41%] flex flex-col items-start justify-center text-left overflow-hidden">
-        {verse && (
-          <div
-            className="font-['Space_Grotesk'] font-bold mb-3 px-2.5 py-1 rounded-full max-w-full"
-            style={{
-              color: "#FFE37A",
-              background: "linear-gradient(90deg, rgba(255,208,0,0.14), rgba(255,208,0,0.04))",
-              border: "1px solid rgba(255,208,0,0.24)",
-              fontSize: "clamp(8px, 0.85vw, 10px)",
-              lineHeight: "1.35",
-              letterSpacing: "0.08em",
-              textShadow: "0 2px 8px rgba(0,0,0,0.9)",
-            }}
-          >
-            {verse}
-          </div>
-        )}
-
         {cleanedText && (
           <p
-            className="font-['Space_Grotesk'] font-medium leading-[1.14] line-clamp-6 max-w-[16ch]"
+            className="font-['Space_Grotesk'] font-semibold leading-[1.14] line-clamp-6 max-w-[16ch]"
             style={{
-              color: "#FFFFFF",
+              color: "#FFD000",
               fontSize: bodyFontSize,
               letterSpacing: "-0.035em",
-              textShadow: "0 3px 14px rgba(0,0,0,0.95), 0 0 22px rgba(0,0,0,0.75)",
+              textShadow: "0 3px 14px rgba(0,0,0,0.95), 0 0 18px rgba(255,208,0,0.18)",
             }}
           >
             {cleanedText}
           </p>
+        )}
+
+        {verse && (
+          <div className="mt-4 pt-3 border-t border-white/25 max-w-[16ch]">
+            <div
+              className="font-['Space_Grotesk'] font-black uppercase"
+              style={{
+                color: "#FFFFFF",
+                fontSize: "clamp(8px, 0.9vw, 11px)",
+                letterSpacing: "0.24em",
+                lineHeight: 1.45,
+                textShadow: "0 2px 10px rgba(0,0,0,0.9), 0 0 12px rgba(255,255,255,0.22)",
+              }}
+            >
+              {verse}
+            </div>
+          </div>
         )}
       </div>
     </div>
