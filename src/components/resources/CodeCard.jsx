@@ -123,7 +123,7 @@ export default function CodeCard({ code, user }) {
   return (
     <div className="bg-[#121826] border border-white/10 rounded-2xl overflow-hidden flex flex-col group transition-all hover:border-[#00CFFF]/50 hover:shadow-[0_0_20px_rgba(0,207,255,0.1)]">
       {/* Poster Image / Content */}
-      <div className="aspect-square relative bg-gradient-to-br from-[#0B0F1A] to-[#121826] flex flex-col items-center justify-center p-6 text-center overflow-hidden">
+      <div className={`${isKeepIt100 || isCodeOfTruth ? "aspect-[4/5]" : "aspect-square"} relative bg-gradient-to-br from-[#0B0F1A] to-[#121826] flex flex-col items-center justify-center p-6 text-center overflow-hidden`}>
         {isKeepIt100 ? (
           <KeepIt100Poster text={code.slogan_text} verse={code.bible_reference} className="absolute inset-0 w-full h-full" />
         ) : isCodeOfTruth ? (

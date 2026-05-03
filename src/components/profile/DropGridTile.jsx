@@ -45,7 +45,7 @@ export default function DropGridTile({ drop, onClick, authorName, authorTitle, i
     <button
       type="button"
       onClick={onClick}
-      className="group aspect-[4/5] sm:aspect-square relative overflow-hidden rounded-[1.35rem] sm:rounded-[1.4rem] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      className={`group ${isKeepIt100 || isCodeOfTruth ? "aspect-[4/5]" : "aspect-[4/5] sm:aspect-square"} relative overflow-hidden rounded-[1.35rem] sm:rounded-[1.4rem] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
       style={{
         background: hasMedia ? "#0B1B3D" : "#070B18",
         border: isLeader ? "1px solid #FFE4A0" : isPinned ? "1px solid #B8E5FF" : "1px solid #E6ECF5",

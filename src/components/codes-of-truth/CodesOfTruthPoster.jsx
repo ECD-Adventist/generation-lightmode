@@ -43,11 +43,11 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
   const cleanedText = truncateForPoster(cleaned, 180);
   // Auto-shrink type for longer copy so it never overflows into the bottom logo area
   const len = cleanedText?.length || 0;
-  const bodyFontSize = len > 160 ? "clamp(12px, 1.7vw, 18px)"
-    : len > 120 ? "clamp(13px, 1.95vw, 21px)"
-    : len > 80 ? "clamp(15px, 2.25vw, 25px)"
-    : len > 45 ? "clamp(18px, 2.75vw, 31px)"
-    : "clamp(22px, 3.35vw, 38px)";
+  const bodyFontSize = len > 160 ? "clamp(10px, 5.8cqw, 18px)"
+    : len > 120 ? "clamp(11px, 6.6cqw, 21px)"
+    : len > 80 ? "clamp(13px, 8cqw, 25px)"
+    : len > 45 ? "clamp(16px, 10cqw, 31px)"
+    : "clamp(18px, 11cqw, 38px)";
   const verseParts = splitVerseLabel(verse);
 
   return (
@@ -57,10 +57,11 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
         backgroundImage: `url(${CODES_OF_TRUTH_BACKGROUND_URL})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
+        containerType: "inline-size",
       }}
     >
       {/* Premium text block — fitted into the lower-left empty space and clear of the author chip/logo lockup */}
-      <div className="absolute z-10 top-[29%] bottom-[23%] left-[9%] right-[41%] flex flex-col items-start justify-center text-left overflow-hidden">
+      <div className="absolute z-10 top-[30%] bottom-[22%] left-[9%] right-[39%] flex flex-col items-start justify-center text-left overflow-hidden">
         {verse && (
           <div className="mb-4 max-w-[18ch]">
             <div
@@ -69,7 +70,7 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
                 color: "#00CFFF",
                 background: "rgba(0,207,255,0.12)",
                 border: "1px solid rgba(0,207,255,0.28)",
-                fontSize: "clamp(7px, 0.78vw, 10px)",
+                fontSize: "clamp(6px, 2.9cqw, 10px)",
                 letterSpacing: "0.24em",
                 textShadow: "0 0 10px rgba(0,207,255,0.45), 0 2px 10px rgba(0,0,0,0.85)",
               }}
@@ -81,7 +82,7 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
                 className="font-['Space_Grotesk'] font-bold uppercase leading-[1.25]"
                 style={{
                   color: "#FFD000",
-                  fontSize: "clamp(8px, 0.9vw, 12px)",
+                  fontSize: "clamp(7px, 3.2cqw, 12px)",
                   letterSpacing: "0.22em",
                   textShadow: "0 0 10px rgba(255,208,0,0.45), 0 2px 10px rgba(0,0,0,0.9)",
                 }}
