@@ -45,7 +45,6 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   // Leader posts (created via "Post as leader") get a distinct premium treatment.
   const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
-  const isLeaderPost = !!leaderForDrop;
   const isFollowingAuthor = following.some(f => f.following_email === drop.user_email);
   const canFollowAuthor = !!user && user.email !== drop.user_email && typeof followMutation?.mutate === "function";
 
@@ -66,6 +65,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   };
 
   const cleanReflection = (reflection) => reflection?.replace(/^(\[Reposted from .+?\]\s*)+/i, "").trim() || "";
+  const repostOwnerName = getRepostOwner(drop.reflection);
+  const repostLeaderForDrop = repostOwnerName
+    ? leaderAccounts.find(a => a.leader_name?.toLowerCase() === repostOwnerName.toLowerCase())
+    : null;
+  const displayLeaderForDrop = leaderForDrop || repostLeaderForDrop;
+  const isLeaderPost = !!displayLeaderForDrop;
 
   const savedForThisDrop = savedDropRecords.filter(s => s.drop_id === drop.id);
   const isSaved = savedForThisDrop.length > 0;
@@ -264,7 +269,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         <div className="absolute -top-3 left-5 sm:left-6 z-30 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg"
           style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 40%, #1A6B3F 70%, #D4B82E 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35), 0 0 20px rgba(212, 184, 46, 0.4)" }}>
           <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          {leaderForDrop.leader_title || "Official Leader"}
+          {displayLeaderForDrop?.leader_title || (repostLeaderForDrop ? "Reposted Leader" : "Official Leader")}
         </div>
       )}
       <style>{`
@@ -397,7 +402,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   boxShadow: (drop.media_url || isLeaderPost) ? "none" : "0 2px 8px rgba(0,0,0,0.05)"
                 }}
               >
-                {isLeaderPost ? (
+                {leaderForDrop ? (
                   <div className="dc-leader-avatar w-7 h-7 sm:w-9 sm:h-9 shrink-0">
                     <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF" }}>
                       <img
@@ -435,7 +440,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                     {drop.user_email !== "system@lightmode.com" && dropUser?.country && (
                       <CountryFlag country={dropUser.country} size="xs" />
                     )}
-                    {isLeaderPost ? (
+                    {leaderForDrop ? (
                       <span className="flex items-center justify-center w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full shrink-0 shadow-[0_0_6px_rgba(0,128,254,0.45)]" style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 50%, #D4B82E 100%)", color: "#FFFFFF" }} title="Verified Leader">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="w-1.5 h-1.5 sm:w-2 sm:h-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                       </span>
@@ -601,11 +606,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                     <div className="h-px flex-1 max-w-[70px]" style={{ background: "linear-gradient(90deg, transparent, rgba(212,184,46,0.8))" }} />
                     <div className="flex flex-col items-center gap-0.5">
                       <span className="font-['Space_Grotesk'] text-[11px] sm:text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FFD000", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>
-                        — {getDisplayName(dropUser)}
+                        — {repostLeaderForDrop ? repostOwnerName : getDisplayName(dropUser)}
                       </span>
-                      {leaderForDrop?.leader_title && (
+                      {displayLeaderForDrop?.leader_title && (
                         <span className="font-['Inter'] text-[9px] sm:text-[10px] tracking-[0.18em] uppercase" style={{ color: "rgba(220,228,245,0.7)" }}>
-                          {leaderForDrop.leader_title}
+                          {displayLeaderForDrop.leader_title}
                         </span>
                       )}
                     </div>
