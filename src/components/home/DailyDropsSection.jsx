@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { BookOpen, Heart, Share2, Loader2, ArrowRight, Zap } from "lucide-react";
 import { format } from "date-fns";
 import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
+import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 
 const categoryThemes = {
   "Code of Truth": {
@@ -99,13 +100,14 @@ export default function DailyDropsSection() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24, marginBottom: 40 }}>
             {displayDrops.map((drop, idx) => {
               const theme = categoryThemes[drop.category] || fallbackTheme;
+              const isCodeOfTruth = drop.category === "Code of Truth";
               return (
                 <div key={drop.id}
                   style={{
-                    background: theme.gradientBg,
+                    background: isCodeOfTruth ? "#000000" : theme.gradientBg,
                     border: `1px solid ${theme.borderColor}`,
                     borderRadius: 26,
-                    padding: "28px 26px",
+                    padding: isCodeOfTruth ? 0 : "28px 26px",
                     minHeight: 280,
                     position: "relative",
                     overflow: "hidden",
@@ -115,6 +117,10 @@ export default function DailyDropsSection() {
                   onMouseOver={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = `0 24px 60px ${theme.glow}`; }}
                   onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
                 >
+                  {isCodeOfTruth ? (
+                    <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
+                  ) : (
+                    <>
                   {/* Corner glow */}
                   <div style={{ position: "absolute", top: 0, left: 0, width: 180, height: 180, background: `radial-gradient(circle at top left, ${theme.accentSoft}, transparent 60%)`, pointerEvents: "none" }} />
                   {/* Accent top bar */}
@@ -211,7 +217,9 @@ export default function DailyDropsSection() {
                         {theme.hashtag}
                       </div>
                     </div>
-                  </div>
+                    </div>
+                    </>
+                  )}
                 </div>
               );
             })}
