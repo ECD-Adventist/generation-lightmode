@@ -43,11 +43,11 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
   const cleanedText = truncateForPoster(cleaned, 180);
   // Auto-shrink type for longer copy so it never overflows into the bottom logo area
   const len = cleanedText?.length || 0;
-  const bodyFontSize = len > 160 ? "clamp(10px, 5.8cqw, 18px)"
-    : len > 120 ? "clamp(11px, 6.6cqw, 21px)"
-    : len > 80 ? "clamp(13px, 8cqw, 25px)"
-    : len > 45 ? "clamp(16px, 10cqw, 31px)"
-    : "clamp(18px, 11cqw, 38px)";
+  const bodyFontSize = len > 160 ? "clamp(8px, 4.5cqw, 14px)"
+    : len > 120 ? "clamp(9px, 5.2cqw, 16px)"
+    : len > 80 ? "clamp(10px, 6cqw, 19px)"
+    : len > 45 ? "clamp(12px, 7.5cqw, 23px)"
+    : "clamp(14px, 9cqw, 28px)";
   const verseParts = splitVerseLabel(verse);
 
   return (
@@ -65,12 +65,12 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
         {verse && (
           <div className="mb-4 max-w-[18ch]">
             <div
-              className="font-['Space_Grotesk'] font-black uppercase inline-flex rounded-full px-2 py-1 mb-2"
+              className="font-['Space_Grotesk'] font-black uppercase inline-flex rounded-full px-1.5 py-0.5 mb-1.5"
               style={{
                 color: "#00CFFF",
                 background: "rgba(0,207,255,0.12)",
                 border: "1px solid rgba(0,207,255,0.28)",
-                fontSize: "clamp(6px, 2.9cqw, 10px)",
+                fontSize: "clamp(5px, 2.2cqw, 8px)",
                 letterSpacing: "0.24em",
                 textShadow: "0 0 10px rgba(0,207,255,0.45), 0 2px 10px rgba(0,0,0,0.85)",
               }}
@@ -82,7 +82,7 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
                 className="font-['Space_Grotesk'] font-bold uppercase leading-[1.25]"
                 style={{
                   color: "#FFD000",
-                  fontSize: "clamp(7px, 3.2cqw, 12px)",
+                  fontSize: "clamp(5px, 2.5cqw, 10px)",
                   letterSpacing: "0.22em",
                   textShadow: "0 0 10px rgba(255,208,0,0.45), 0 2px 10px rgba(0,0,0,0.9)",
                 }}

@@ -45,7 +45,7 @@ export default function DropGridTile({ drop, onClick, authorName, authorTitle, i
     <button
       type="button"
       onClick={onClick}
-      className={`group ${isKeepIt100 || isCodeOfTruth ? "aspect-[4/5]" : "aspect-[4/5] sm:aspect-square"} relative overflow-hidden rounded-[1.35rem] sm:rounded-[1.4rem] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+      className="group aspect-[4/5] relative overflow-hidden rounded-[1.35rem] sm:rounded-[1.4rem] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
       style={{
         background: hasMedia ? "#0B1B3D" : "#070B18",
         border: isLeader ? "1px solid #FFE4A0" : isPinned ? "1px solid #B8E5FF" : "1px solid #E6ECF5",
@@ -109,22 +109,22 @@ export default function DropGridTile({ drop, onClick, authorName, authorTitle, i
         )
       ) : isKeepIt100 || isCodeOfTruth ? null : (
         <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 pt-9 pb-12 text-center">
-          <div className="font-serif leading-none mb-1" style={{ fontSize: "clamp(44px, 12vw, 60px)", color: isLeader ? "#FFD000" : "#5AC8FF" }}>“</div>
+          <div className="font-serif leading-none mb-1" style={{ fontSize: "clamp(28px, 7vw, 40px)", color: isLeader ? "#FFD000" : "#5AC8FF" }}>“</div>
           {drop.verse && (
-            <p className="font-['Space_Grotesk'] font-black text-white text-[12px] sm:text-xs md:text-sm leading-tight line-clamp-5 drop-shadow-md">
+            <p className="font-['Space_Grotesk'] font-black text-white text-[10px] sm:text-[11px] md:text-xs leading-tight line-clamp-5 drop-shadow-md">
               {drop.verse}
             </p>
           )}
           {!drop.verse && reflection && (
-            <p className="font-['Space_Grotesk'] font-black text-white text-[12px] sm:text-xs md:text-sm leading-tight line-clamp-6 drop-shadow-md">
+            <p className="font-['Space_Grotesk'] font-black text-white text-[10px] sm:text-[11px] md:text-xs leading-tight line-clamp-6 drop-shadow-md">
               {reflection}
             </p>
           )}
           {isLeader && (authorName || authorTitle) && (
             <div className="mt-2 flex flex-col items-center gap-0.5">
               <div className="h-px w-10" style={{ background: "linear-gradient(90deg, transparent, #FFD000, transparent)" }} />
-              {authorName && <span className="text-[10px] sm:text-[9px] font-black tracking-[0.14em] uppercase" style={{ color: "#FFD000" }}>— {authorName}</span>}
-              {authorTitle && <span className="text-[8px] sm:text-[8px] tracking-[0.12em] uppercase text-white/70 line-clamp-1">{authorTitle}</span>}
+              {authorName && <span className="text-[9px] font-black tracking-[0.14em] uppercase" style={{ color: "#FFD000" }}>— {authorName}</span>}
+              {authorTitle && <span className="text-[7px] tracking-[0.12em] uppercase text-white/70 line-clamp-1">{authorTitle}</span>}
             </div>
           )}
         </div>
