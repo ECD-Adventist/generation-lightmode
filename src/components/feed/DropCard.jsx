@@ -70,7 +70,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     ? leaderAccounts.find(a => a.leader_name?.toLowerCase() === repostOwnerName.toLowerCase())
     : null;
   const displayLeaderForDrop = leaderForDrop || repostLeaderForDrop;
-  const isLeaderPost = !!displayLeaderForDrop;
+  const isLeaderPost = !!leaderForDrop;
+  const isLeaderContent = !!displayLeaderForDrop;
 
   const savedForThisDrop = savedDropRecords.filter(s => s.drop_id === drop.id);
   const isSaved = savedForThisDrop.length > 0;
@@ -349,7 +350,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             ? { backgroundImage: `url(${KEEP_IT_100_BG})`, backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#0B1733" }
             : isCodeOfTruth
               ? { background: "#000000" }
-              : isLeaderPost && !drop.media_url
+              : isLeaderContent && !drop.media_url
                 ? { background: "linear-gradient(160deg, #070B18 0%, #0B1B3D 40%, #0B2870 80%, #0B1B3D 100%)" }
                 : { background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" }
         }
@@ -367,7 +368,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         )}
 
         {/* Leader text-only background image */}
-        {isLeaderPost && !drop.media_url && !isKeepIt100 && !isCodeOfTruth && (
+        {isLeaderContent && !drop.media_url && !isKeepIt100 && !isCodeOfTruth && (
           <>
             <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover z-0" style={{ filter: "grayscale(100%) contrast(1.08) brightness(0.4)" }} />
             <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(180deg, rgba(8,12,28,0.45) 0%, rgba(8,12,28,0.20) 40%, rgba(8,12,28,0.92) 100%)" }} />
@@ -397,9 +398,9 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
                 className="inline-flex items-center gap-2 backdrop-blur-md rounded-full pr-2.5 sm:pr-3.5 pl-1 py-1 cursor-pointer transition no-underline max-w-[calc(100vw-1.5rem)] sm:max-w-none"
                 style={{
-                  background: (drop.media_url || isLeaderPost) ? "rgba(0,0,0,0.4)" : "#FFFFFF",
-                  border: (drop.media_url || isLeaderPost) ? "none" : "1px solid #E2E8F0",
-                  boxShadow: (drop.media_url || isLeaderPost) ? "none" : "0 2px 8px rgba(0,0,0,0.05)"
+                  background: (drop.media_url || isLeaderContent) ? "rgba(0,0,0,0.4)" : "#FFFFFF",
+                  border: (drop.media_url || isLeaderContent) ? "none" : "1px solid #E2E8F0",
+                  boxShadow: (drop.media_url || isLeaderContent) ? "none" : "0 2px 8px rgba(0,0,0,0.05)"
                 }}
               >
                 {leaderForDrop ? (
@@ -433,7 +434,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   </div>
                 )}
                 <div className="flex flex-col items-start justify-center min-w-0">
-                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 ${(drop.media_url || isLeaderPost) ? "text-white" : ""}`} style={(drop.media_url || isLeaderPost) ? {} : { color: "#0B1B3D" }}>
+                  <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 ${(drop.media_url || isLeaderContent) ? "text-white" : ""}`} style={(drop.media_url || isLeaderContent) ? {} : { color: "#0B1B3D" }}>
                     <span className="whitespace-normal break-words max-w-[190px] sm:max-w-none sm:whitespace-nowrap leading-tight">
                       {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(dropUser)}
                     </span>
@@ -456,7 +457,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                       </span>
                     )}
                   </span>
-                  <span className={`text-[9px] sm:text-[10px] font-medium leading-none whitespace-nowrap ${(drop.media_url || isLeaderPost) ? "text-white/80" : ""}`} style={(drop.media_url || isLeaderPost) ? {} : { color: "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
+                  <span className={`text-[9px] sm:text-[10px] font-medium leading-none whitespace-nowrap ${(drop.media_url || isLeaderContent) ? "text-white/80" : ""}`} style={(drop.media_url || isLeaderContent) ? {} : { color: "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
                 </div>
               </Link>
             );
@@ -494,7 +495,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
             {isCodeOfTruth && (
               <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
             )}
-            <div className={isKeepIt100 ? "absolute z-10 top-[15.5%] bottom-[35%] left-[13%] right-[16%] flex items-center justify-center text-center overflow-hidden" : isCodeOfTruth ? "hidden" : `p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderPost ? "py-10 sm:py-14" : ""}`}>
+            <div className={isKeepIt100 ? "absolute z-10 top-[15.5%] bottom-[35%] left-[13%] right-[16%] flex items-center justify-center text-center overflow-hidden" : isCodeOfTruth ? "hidden" : `p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderContent ? "py-10 sm:py-14" : ""}`}>
               {isKeepIt100 ? (
                 <div className="w-full max-w-[76%] sm:max-w-[64%] flex flex-col items-center justify-center text-center">
                   {cleanReflection(drop.reflection) && (() => {
@@ -541,7 +542,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                     </div>
                   )}
                 </div>
-              ) : isLeaderPost ? (
+              ) : isLeaderContent ? (
                 <div className="w-full max-w-2xl flex flex-col items-center text-center">
                   {/* Decorative open quote */}
                   <div
@@ -608,9 +609,9 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                       <span className="font-['Space_Grotesk'] text-[11px] sm:text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FFD000", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>
                         — {repostLeaderForDrop ? repostOwnerName : getDisplayName(dropUser)}
                       </span>
-                      {displayLeaderForDrop?.leader_title && (
+                      {isLeaderPost && leaderForDrop?.leader_title && (
                         <span className="font-['Inter'] text-[9px] sm:text-[10px] tracking-[0.18em] uppercase" style={{ color: "rgba(220,228,245,0.7)" }}>
-                          {displayLeaderForDrop.leader_title}
+                          {leaderForDrop.leader_title}
                         </span>
                       )}
                     </div>
@@ -651,7 +652,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         {(() => {
           // Leader text posts share the dark glass treatment with media posts.
-          const useGlass = drop.media_url || isLeaderPost || isKeepIt100 || isCodeOfTruth;
+          const useGlass = drop.media_url || isLeaderContent || isKeepIt100 || isCodeOfTruth;
           return (
         <div className="absolute right-2 sm:right-3 bottom-4 sm:bottom-6 z-20 flex flex-col items-center gap-3 sm:gap-5">
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
