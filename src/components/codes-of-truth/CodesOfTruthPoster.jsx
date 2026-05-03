@@ -55,12 +55,15 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
       <div className="absolute z-10 top-[29%] bottom-[23%] left-[9%] right-[41%] flex flex-col items-start justify-center text-left overflow-hidden">
         {verse && (
           <div
-            className="font-['Space_Grotesk'] font-black uppercase mb-3"
+            className="font-['Space_Grotesk'] font-bold mb-3 px-2.5 py-1 rounded-full max-w-full"
             style={{
-              color: "#FFD000",
-              fontSize: "clamp(8px, 0.9vw, 11px)",
-              letterSpacing: "0.32em",
-              textShadow: "0 0 10px rgba(255,208,0,0.5), 0 2px 10px rgba(0,0,0,0.85)",
+              color: "#FFE37A",
+              background: "linear-gradient(90deg, rgba(255,208,0,0.14), rgba(255,208,0,0.04))",
+              border: "1px solid rgba(255,208,0,0.24)",
+              fontSize: "clamp(8px, 0.85vw, 10px)",
+              lineHeight: "1.35",
+              letterSpacing: "0.08em",
+              textShadow: "0 2px 8px rgba(0,0,0,0.9)",
             }}
           >
             {verse}
