@@ -5,7 +5,6 @@ import { Heart, RefreshCw, Share2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 
 export default function DailyTruthWidget() {
   const [likedIds, setLikedIds] = useState(() => {
@@ -63,19 +62,13 @@ export default function DailyTruthWidget() {
 
         {/* Poster Card */}
         <div style={{
-          background: dailyCode.source_document === "codes_of_truth" ? "#000000" : "linear-gradient(135deg, #0B0F1A 0%, #121826 50%, #0B0F1A 100%)",
+          background: "linear-gradient(135deg, #0B0F1A 0%, #121826 50%, #0B0F1A 100%)",
           border: "1px solid rgba(0,207,255,0.25)",
           borderRadius: 24,
           overflow: "hidden",
           boxShadow: "0 0 50px rgba(0,207,255,0.1)",
           position: "relative",
         }}>
-          {dailyCode.source_document === "codes_of_truth" ? (
-            <div className="mx-auto w-full max-w-[420px] aspect-[4/5]">
-              <CodesOfTruthPoster text={dailyCode.slogan_text} verse={dailyCode.bible_reference} className="w-full h-full" />
-            </div>
-          ) : (
-            <>
           {/* Glow accents */}
           <div style={{ position: "absolute", top: -60, right: -60, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,207,255,0.15) 0%, transparent 70%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", bottom: -60, left: -60, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(138,92,255,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
@@ -151,8 +144,6 @@ export default function DailyTruthWidget() {
               </Link>
             </div>
           </div>
-            </>
-          )}
         </div>
       </div>
     </section>
