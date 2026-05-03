@@ -731,7 +731,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
               Reposted from <Link to={getRepostOwner(drop.reflection) === "Generation LightMode" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{getRepostOwner(drop.reflection)}</Link>
             </p>
           )}
-          {drop.verse && !isCodeOfTruth && (
+          {drop.verse && (
             <div className="font-bold text-sm mb-1 break-words" style={{ color: "#0B3FD9" }}>
               {drop.verse}
             </div>
