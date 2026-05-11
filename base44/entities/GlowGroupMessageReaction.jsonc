@@ -23,7 +23,28 @@
   ],
   "rls": {
     "create": {
-      "data.user_email": "{{user.email}}"
+      "$or": [
+        {
+          "in": {
+            "group_id": {
+              "$entity": "GlowGroupMember",
+              "params": {
+                "user_email": "{{user.email}}"
+              }
+            }
+          }
+        },
+        {
+          "in": {
+            "group_id": {
+              "$entity": "GlowGroup",
+              "params": {
+                "leader_email": "{{user.email}}"
+              }
+            }
+          }
+        }
+      ]
     },
     "read": true,
     "update": false,
