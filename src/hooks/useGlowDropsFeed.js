@@ -16,8 +16,9 @@ export default function useGlowDropsFeed() {
     staleTime: 1000 * 60 * 3,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    retry: 1,
+    refetchOnReconnect: true,
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
   });
 
   const seen = new Set();

@@ -110,6 +110,7 @@ export default function Feed() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch: refetchDrops,
   } = useGlowDropsFeed();
 
   const { drops, lastCached, syncing, syncQueue } = useOfflineSync(liveDrops, isOnline);
@@ -496,7 +497,7 @@ export default function Feed() {
           savedDropRecords={savedDropRecords}
           isLoading={dropsLoading || (userSearch.isActive && userSearch.isLoading)}
           isError={dropsError}
-          onRefetch={() => queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] })}
+          onRefetch={() => refetchDrops()}
           leaderAccounts={leaderAccounts}
           following={following}
           followMutation={followMutation}
