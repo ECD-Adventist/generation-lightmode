@@ -22,9 +22,27 @@
     "code_id"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "created_by": "{{user.email}}"
+    },
     "read": true,
-    "update": true,
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
     "delete": {
       "$or": [
         {
