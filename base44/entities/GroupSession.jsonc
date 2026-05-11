@@ -30,7 +30,9 @@
     "scheduled_at"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.host_email": "{{user.email}}"
+    },
     "read": true,
     "update": {
       "$or": [
