@@ -121,7 +121,7 @@ export default function GlobalReach() {
 
   const { data: glowDrops = [] } = useQuery({
     queryKey: ["mapGlowDrops"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 200),
+    queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000),
     enabled: !!user,
   });
 

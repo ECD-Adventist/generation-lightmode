@@ -11,8 +11,8 @@ Deno.serve(async (req) => {
 
     const payload = await req.json().catch(() => ({}));
     const requestedEmails = Array.isArray(payload.emails) ? new Set(payload.emails.filter(Boolean)) : null;
-    const limit = Math.min(Number(payload.limit) || 200, 500);
-    const allUsers = await base44.asServiceRole.entities.User.list();
+    const limit = Math.min(Number(payload.limit) || 10000, 10000);
+    const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 10000);
     const HIDDEN_EMAILS = (Deno.env.get('PUBLIC_USER_HIDDEN_EMAILS') || '')
       .split(',')
       .map(email => email.trim())

@@ -11,12 +11,12 @@ Deno.serve(async (req) => {
     }
 
     const [users, groups, groupMembers, drops, challenges, submissions] = await Promise.all([
-      base44.asServiceRole.entities.User.list('-created_date', 2000),
-      base44.asServiceRole.entities.GlowGroup.list(),
-      base44.asServiceRole.entities.GlowGroupMember.list(),
-      base44.asServiceRole.entities.GlowDrop.list('-created_date', 500),
-      base44.asServiceRole.entities.Challenge.list('-created_date', 100),
-      base44.asServiceRole.entities.ChallengeSubmission.list('-created_date', 1000),
+      base44.asServiceRole.entities.User.list('-created_date', 10000),
+      base44.asServiceRole.entities.GlowGroup.list('-created_date', 10000),
+      base44.asServiceRole.entities.GlowGroupMember.list('-created_date', 10000),
+      base44.asServiceRole.entities.GlowDrop.list('-created_date', 10000),
+      base44.asServiceRole.entities.Challenge.list('-created_date', 10000),
+      base44.asServiceRole.entities.ChallengeSubmission.list('-created_date', 10000),
     ]);
 
     const hiddenEmails = new Set(['nottainnovation@gmail.com']);
