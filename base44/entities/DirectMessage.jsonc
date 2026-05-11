@@ -38,7 +38,9 @@
     "content"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.sender_email": "{{user.email}}"
+    },
     "read": {
       "$or": [
         {
