@@ -106,10 +106,10 @@ export default function Home() {
     return <MobileHome t={t} triggerSwitchOn={triggerSwitchOn} liveCountries={liveCountries} galleryImages={[...galleryImages1, ...galleryImages2]} />;
   }
 
-  return <DesktopHome t={t} isRTL={isRTL} triggerSwitchOn={triggerSwitchOn} liveCountries={liveCountries} />;
+  return <DesktopHome t={t} isRTL={isRTL} triggerSwitchOn={triggerSwitchOn} liveCountries={liveCountries} snapshot={snapshot} />;
 }
 
-function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries }) {
+function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
   const statsRef = useRef(null);
   const [statsVisible, setStatsVisible] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
@@ -539,10 +539,10 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries }) {
           <div style={{ position: "absolute", top: 20, right: 20, zIndex: 1000, background: "rgba(11,15,26,0.92)", backdropFilter: "blur(14px)", borderRadius: 16, padding: "16px 18px", border: "1px solid rgba(0,207,255,0.2)", minWidth: 180 }}>
             <div style={{ fontSize: 9, fontWeight: 800, color: "#00CFFF", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12, fontFamily: "Space Grotesk, sans-serif" }}>Live Statistics</div>
             {[
-              { label: "Members", value: liveCountries.reduce((s, c) => s + (c.users || 0), 0), color: "#00CFFF" },
-              { label: "Countries", value: liveCountries.length, color: "#FFD000" },
-              { label: "GlowGroups", value: liveCountries.reduce((s, c) => s + (c.groups || 0), 0), color: "#8A5CFF" },
-              { label: "Glow Drops", value: liveCountries.reduce((s, c) => s + (c.drops || 0), 0), color: "#1DA1FF" },
+              { label: "Members", value: snapshot?.totalUsers || 0, color: "#00CFFF" },
+              { label: "Countries", value: snapshot?.totalCountries || 0, color: "#FFD000" },
+              { label: "GlowGroups", value: snapshot?.totalGroups || 0, color: "#8A5CFF" },
+              { label: "Glow Drops", value: snapshot?.totalDrops || 0, color: "#1DA1FF" },
             ].map((stat, index, arr) => (
               <div key={stat.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: index === arr.length - 1 ? "none" : "1px solid rgba(255,255,255,0.04)" }}>
                 <span style={{ fontSize: 11, color: "#8A9BB0", fontFamily: "Inter, sans-serif" }}>{stat.label}</span>

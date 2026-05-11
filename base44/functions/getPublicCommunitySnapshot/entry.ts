@@ -19,15 +19,41 @@ Deno.serve(async (req) => {
       base44.asServiceRole.entities.ChallengeSubmission.list('-created_date', 10000),
     ]);
 
-    const hiddenEmails = new Set(['nottainnovation@gmail.com']);
-    const normalizeCountry = (countryName) => {
-      const value = (countryName || 'Global').trim();
-      if (value === 'DR Congo' || value === 'Democratic Republic of the Congo' || value === 'République Démocratique du Congo') return 'République Démocratique du Congo';
-      return value || 'Global';
+    const COUNTRY_ALIASES = {
+      "usa": "United States",
+      "u.s.a.": "United States",
+      "us": "United States",
+      "united states of america": "United States",
+      "uk": "United Kingdom",
+      "great britain": "United Kingdom",
+      "england": "United Kingdom",
+      "southafrica": "South Africa",
+      "united republic of tanzania": "Tanzania",
+      "tanzanie": "Tanzania",
+      "kenia": "Kenya",
+      "ouganda": "Uganda",
+      "ethiopie": "Ethiopia",
+      "éthiopie": "Ethiopia",
+      "drc": "Democratic Republic of the Congo",
+      "rdc": "Democratic Republic of the Congo",
+      "dr congo": "Democratic Republic of the Congo",
+      "congo dr": "Democratic Republic of the Congo",
+      "congo, democratic republic": "Democratic Republic of the Congo",
+      "république démocratique du congo": "Democratic Republic of the Congo",
+      "republique democratique du congo": "Democratic Republic of the Congo",
+      "rep. dem. du congo": "Democratic Republic of the Congo",
+      "democratic republic of congo": "Democratic Republic of the Congo",
+      "s. sudan": "South Sudan",
+      "ivory coast": "Côte d'Ivoire",
     };
 
-    const publicUsers = users.filter((user) => !hiddenEmails.has(user.email));
-    const userCountryByEmail = new Map(publicUsers.map((user) => [user.email, normalizeCountry(user.country)]));
+    const normalizeCountry = (countryName) => {
+      if (!countryName) return "";
+      const cleaned = String(countryName).trim().replace(/\s+/g, " ");
+      return COUNTRY_ALIASES[cleaned.toLowerCase()] || cleaned;
+    };
+
+    const userCountryByEmail = new Map(users.map((user) => [user.email, normalizeCountry(user.country)]));
 
     const countryStatsMap = new Map();
     const ensureCountry = (countryName) => {
@@ -38,8 +64,9 @@ Deno.serve(async (req) => {
       return countryStatsMap.get(country);
     };
 
-    publicUsers.forEach((user) => {
-      ensureCountry(user.country).users += 1;
+    users.forEach((user) => {
+      const country = normalizeCountry(user.country);
+      if (country) ensureCountry(country).users += 1;
     });
 
     groups.forEach((group) => {
@@ -47,7 +74,8 @@ Deno.serve(async (req) => {
     });
 
     drops.forEach((drop) => {
-      ensureCountry(userCountryByEmail.get(drop.user_email)).drops += 1;
+      const country = userCountryByEmail.get(drop.user_email);
+      if (country) ensureCountry(country).drops += 1;
     });
 
     const memberCountByGroup = groupMembers.reduce((acc, member) => {
@@ -99,11 +127,13 @@ Deno.serve(async (req) => {
       category: drop.category || '',
     }));
 
+    const totalCountries = new Set(users.map((user) => normalizeCountry(user.country)).filter(Boolean)).size;
+
     return Response.json({
-      totalUsers: publicUsers.length,
+      totalUsers: users.length,
       totalGroups: groups.length,
       totalDrops: drops.length,
-      totalCountries: countryStats.length,
+      totalCountries,
       totalChallenges: publicChallenges.filter((challenge) => challenge.active).length,
       countryStats,
       topGroups,
