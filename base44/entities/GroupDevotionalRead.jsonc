@@ -17,7 +17,48 @@
     "create": {
       "data.user_email": "{{user.email}}"
     },
-    "read": true,
+    "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "in": {
+            "data.devotional_id": {
+              "$entity": "GroupDevotional",
+              "params": {
+                "group_id": {
+                  "$entity": "GlowGroupMember",
+                  "params": {
+                    "user_email": "{{user.email}}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "in": {
+            "data.devotional_id": {
+              "$entity": "GroupDevotional",
+              "params": {
+                "group_id": {
+                  "$entity": "GlowGroup",
+                  "params": {
+                    "leader_email": "{{user.email}}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
     "update": false,
     "delete": {
       "data.user_email": "{{user.email}}"
