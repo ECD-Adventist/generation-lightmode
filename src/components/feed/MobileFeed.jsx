@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Bell, Plus, Sparkles, Flame, Zap, Image as ImageIcon, Smile } from "lucide-react";
-import FeedDropList from "@/components/feed/FeedDropList";
+import MobileFeedDropList from "@/components/feed/MobileFeedDropList";
 
 /**
  * Mobile-only Feed shell — LightMode branded (premium redesign).
@@ -221,7 +221,7 @@ export default function MobileFeed({
             </div>
           </div>
         ) : (
-          <FeedDropList
+          <MobileFeedDropList
             drops={filteredDrops}
             displayCount={displayCount}
             getUserInfo={getUserInfo}
@@ -229,11 +229,8 @@ export default function MobileFeed({
             likeMutation={likeMutation}
             handleShare={handleShare}
             userLikes={userLikes}
-            allUsers={allUsers}
             savedDropRecords={savedDropRecords}
             leaderAccounts={leaderAccounts}
-            following={following}
-            followMutation={followMutation}
             hasMore={hasMore}
             isLoadingMore={isLoadingMore}
             onLoadMore={onLoadMore}
