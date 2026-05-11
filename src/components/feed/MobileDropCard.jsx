@@ -157,7 +157,7 @@ function MobileDropCard({
       </div>
 
       {/* Media (lazy-loaded) */}
-      {drop.media_url && (
+      {drop.media_url ? (
         <Link to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}>
           <img
             src={drop.media_url}
@@ -168,13 +168,10 @@ function MobileDropCard({
             style={{ aspectRatio: "4 / 5", objectFit: "cover", background: "#F1F5FB" }}
           />
         </Link>
-      )}
-
-      {/* Text-only fallback */}
-      {!drop.media_url && (
+      ) : (
         <Link
           to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
-          className="block px-4 py-6 no-underline"
+          className="block px-4 py-6 no-underline min-h-[140px]"
           style={{ background: "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)" }}
         >
           {drop.verse && (
@@ -182,11 +179,13 @@ function MobileDropCard({
               {drop.verse}
             </p>
           )}
-          {reflectionText && (
-            <p className="text-[13px] italic leading-snug line-clamp-4" style={{ color: "#3A4A6B" }}>
-              "{reflectionText.length > 180 ? reflectionText.slice(0, 180) + "…" : reflectionText}"
+          {reflectionText ? (
+            <p className="text-[13px] italic leading-snug line-clamp-5" style={{ color: "#3A4A6B" }}>
+              "{reflectionText.length > 220 ? reflectionText.slice(0, 220) + "…" : reflectionText}"
             </p>
-          )}
+          ) : !drop.verse ? (
+            <p className="text-[13px] italic" style={{ color: "#8A97B5" }}>Tap to view post</p>
+          ) : null}
         </Link>
       )}
 
