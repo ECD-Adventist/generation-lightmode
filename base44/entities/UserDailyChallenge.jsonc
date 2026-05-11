@@ -18,7 +18,9 @@
     "challenge_id"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
     "read": true,
     "update": {
       "created_by": "{{user.email}}"
