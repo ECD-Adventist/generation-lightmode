@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 Deno.serve(async (req) => {
   try {
@@ -11,28 +11,27 @@ Deno.serve(async (req) => {
     }
 
     const [users, groups, groupMembers, drops, challenges, submissions] = await Promise.all([
-      base44.asServiceRole.entities.User.list('-created_date', 10000),
-      base44.asServiceRole.entities.GlowGroup.list('-created_date', 10000),
-      base44.asServiceRole.entities.GlowGroupMember.list('-created_date', 10000),
-      base44.asServiceRole.entities.GlowDrop.list('-created_date', 10000),
-      base44.asServiceRole.entities.Challenge.list('-created_date', 10000),
-      base44.asServiceRole.entities.ChallengeSubmission.list('-created_date', 10000),
+      base44.asServiceRole.entities.User.list('-created_date', 2000),
+      base44.asServiceRole.entities.GlowGroup.list(),
+      base44.asServiceRole.entities.GlowGroupMember.list(),
+      base44.asServiceRole.entities.GlowDrop.list('-created_date', 500),
+      base44.asServiceRole.entities.Challenge.list('-created_date', 100),
+      base44.asServiceRole.entities.ChallengeSubmission.list('-created_date', 1000),
     ]);
 
+    const hiddenEmails = new Set(['nottainnovation@gmail.com']);
     const normalizeCountry = (countryName) => {
-      const value = (countryName || '').trim();
-      if (!value || value === 'Global') return '';
+      const value = (countryName || 'Global').trim();
       if (value === 'DR Congo' || value === 'Democratic Republic of the Congo' || value === 'République Démocratique du Congo') return 'République Démocratique du Congo';
-      return value;
+      return value || 'Global';
     };
 
-    const publicUsers = users;
+    const publicUsers = users.filter((user) => !hiddenEmails.has(user.email));
     const userCountryByEmail = new Map(publicUsers.map((user) => [user.email, normalizeCountry(user.country)]));
 
     const countryStatsMap = new Map();
     const ensureCountry = (countryName) => {
       const country = normalizeCountry(countryName);
-      if (!country) return null;
       if (!countryStatsMap.has(country)) {
         countryStatsMap.set(country, { country, users: 0, groups: 0, drops: 0 });
       }
@@ -40,18 +39,15 @@ Deno.serve(async (req) => {
     };
 
     publicUsers.forEach((user) => {
-      const stats = ensureCountry(user.country);
-      if (stats) stats.users += 1;
+      ensureCountry(user.country).users += 1;
     });
 
     groups.forEach((group) => {
-      const stats = ensureCountry(group.country);
-      if (stats) stats.groups += 1;
+      ensureCountry(group.country).groups += 1;
     });
 
     drops.forEach((drop) => {
-      const stats = ensureCountry(userCountryByEmail.get(drop.user_email));
-      if (stats) stats.drops += 1;
+      ensureCountry(userCountryByEmail.get(drop.user_email)).drops += 1;
     });
 
     const memberCountByGroup = groupMembers.reduce((acc, member) => {
@@ -107,7 +103,7 @@ Deno.serve(async (req) => {
       totalUsers: publicUsers.length,
       totalGroups: groups.length,
       totalDrops: drops.length,
-      totalCountries: new Set(publicUsers.map((user) => normalizeCountry(user.country)).filter(Boolean)).size,
+      totalCountries: countryStats.length,
       totalChallenges: publicChallenges.filter((challenge) => challenge.active).length,
       countryStats,
       topGroups,

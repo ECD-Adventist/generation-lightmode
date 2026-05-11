@@ -23,58 +23,9 @@
   ],
   "rls": {
     "create": {
-      "$or": [
-        {
-          "in": {
-            "data.group_id": {
-              "$entity": "GlowGroupMember",
-              "params": {
-                "user_email": "{{user.email}}"
-              }
-            }
-          }
-        },
-        {
-          "in": {
-            "data.group_id": {
-              "$entity": "GlowGroup",
-              "params": {
-                "leader_email": "{{user.email}}"
-              }
-            }
-          }
-        }
-      ]
+      "data.author_email": "{{user.email}}"
     },
-    "read": {
-      "$or": [
-        {
-          "in": {
-            "data.group_id": {
-              "$entity": "GlowGroupMember",
-              "params": {
-                "user_email": "{{user.email}}"
-              }
-            }
-          }
-        },
-        {
-          "in": {
-            "data.group_id": {
-              "$entity": "GlowGroup",
-              "params": {
-                "leader_email": "{{user.email}}"
-              }
-            }
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
+    "read": true,
     "update": {
       "created_by": "{{user.email}}"
     },
