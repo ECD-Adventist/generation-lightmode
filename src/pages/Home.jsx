@@ -106,10 +106,10 @@ export default function Home() {
     return <MobileHome t={t} triggerSwitchOn={triggerSwitchOn} liveCountries={liveCountries} galleryImages={[...galleryImages1, ...galleryImages2]} />;
   }
 
-  return <DesktopHome t={t} isRTL={isRTL} triggerSwitchOn={triggerSwitchOn} liveCountries={liveCountries} snapshot={snapshot} />;
+  return <DesktopHome t={t} isRTL={isRTL} triggerSwitchOn={triggerSwitchOn} liveCountries={liveCountries} />;
 }
 
-function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
+function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries }) {
   const statsRef = useRef(null);
   const [statsVisible, setStatsVisible] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
@@ -436,10 +436,10 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
             <p style={{ color: "#8A9BB0", fontSize: 16, fontFamily: "Inter, sans-serif", maxWidth: 500, margin: "0 auto" }}>{t("statsSubtitle")}</p>
           </div>
           <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
-            <StatCard value={snapshot?.totalUsers || 0} suffix="+" label="Members" icon={Users} color="#00CFFF" started={statsVisible} />
-            <StatCard value={liveCountries.length} suffix="" label="Countries" icon={Globe} color="#FFD000" started={statsVisible} />
-            <StatCard value={snapshot?.totalGroups || 0} suffix="" label="GlowGroups" icon={Star} color="#8A5CFF" started={statsVisible} />
-            <StatCard value={snapshot?.totalDrops || 0} suffix="" label="Glow Drops" icon={Star} color="#1DA1FF" started={statsVisible} />
+            <StatCard value={1000000} suffix="+" label="Youth to be Mobilized" icon={Users} color="#00CFFF" started={statsVisible} />
+            <StatCard value={10000000} suffix="+" label="Peers to be Reached" icon={Users} color="#FFD000" started={statsVisible} />
+            <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#8A5CFF" started={statsVisible} />
+            <StatCard value={500} suffix="+" label="Glow Groups Target" icon={Star} color="#1DA1FF" started={statsVisible} />
           </div>
         </div>
       </section>
