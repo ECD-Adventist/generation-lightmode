@@ -32,7 +32,26 @@
   ],
   "rls": {
     "create": {
-      "data.sender_email": "{{user.email}}"
+      "$or": [
+        {
+          "data.sender_email": "{{user.email}}"
+        },
+        {
+          "in": {
+            "data.session_id": {
+              "$entity": "GroupSession",
+              "params": {
+                "group_id": {
+                  "$entity": "GlowGroupMember",
+                  "params": {
+                    "user_email": "{{user.email}}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "read": {
       "$or": [
