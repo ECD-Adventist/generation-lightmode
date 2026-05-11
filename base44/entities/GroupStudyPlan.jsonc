@@ -32,7 +32,25 @@
         }
       ]
     },
-    "read": true,
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "in": {
+            "data.group_id": {
+              "$entity": "GlowGroupMember",
+              "params": {
+                "user_email": "{{user.email}}"
+              }
+            }
+          }
+        }
+      ]
+    },
     "update": {
       "$or": [
         {
