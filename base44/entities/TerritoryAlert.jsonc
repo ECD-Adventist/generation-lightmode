@@ -55,7 +55,7 @@
     "summary"
   ],
   "rls": {
-    "create": true,
+    "create": false,
     "read": {
       "$or": [
         {
