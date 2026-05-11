@@ -55,7 +55,23 @@
     "title"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "$or": [
+        {
+          "data.added_by": "{{user.email}}"
+        },
+        {
+          "in": {
+            "data.group_id": {
+              "$entity": "GlowGroup",
+              "params": {
+                "leader_email": "{{user.email}}"
+              }
+            }
+          }
+        }
+      ]
+    },
     "read": true,
     "update": {
       "$or": [
