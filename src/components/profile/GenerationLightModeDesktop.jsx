@@ -129,35 +129,41 @@ export default function GenerationLightModeDesktop({
               </div>
             </div>
 
-            <div className="rounded-[40px] p-8 flex flex-col justify-between" style={{ background: "rgba(255,255,255,0.82)", border: "1px solid rgba(217,203,170,0.65)", boxShadow: "0 24px 70px rgba(11,27,61,0.08)" }}>
+            <div className="rounded-[40px] overflow-hidden flex flex-col justify-between" style={{ background: "rgba(255,255,255,0.86)", border: "1px solid rgba(217,203,170,0.65)", boxShadow: "0 24px 70px rgba(11,27,61,0.08)" }}>
               <div>
-                <div className="flex items-start justify-between gap-4 mb-8">
-                  <div className="w-28 h-28 rounded-full p-1 shrink-0" style={{ background: "linear-gradient(135deg, #FFD000, #0B3FD9)", boxShadow: "0 16px 40px rgba(11,63,217,0.22)" }}>
-                    <div className="w-full h-full rounded-full overflow-hidden bg-white border-4 border-white">
-                      <img src={accountImage} alt={accountName} className="w-full h-full object-cover" />
+                <div className="relative h-44 overflow-hidden" style={{ background: "#0B1B3D" }}>
+                  <img src={HERO_COVER_URL} alt="Generation LightMode profile cover" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(11,27,61,0.10) 0%, rgba(11,27,61,0.74) 100%)" }} />
+                  <div className="absolute bottom-5 left-8 right-8 flex items-end justify-between gap-4">
+                    <div className="w-28 h-28 rounded-full p-1 shrink-0 translate-y-12" style={{ background: "linear-gradient(135deg, #FFD000, #0B3FD9)", boxShadow: "0 16px 40px rgba(11,63,217,0.22)" }}>
+                      <div className="w-full h-full rounded-full overflow-hidden bg-white border-4 border-white">
+                        <img src={accountImage} alt={accountName} className="w-full h-full object-cover" />
+                      </div>
                     </div>
+                    {me?.email && me.email !== accountEmail && (
+                      <button
+                        onClick={() => followMutation.mutate()}
+                        className="px-6 py-3 rounded-full font-black text-sm transition-all shrink-0 flex items-center gap-2 hover:-translate-y-0.5"
+                        style={isFollowing
+                          ? { background: "rgba(255,255,255,0.92)", color: "#4A5878", border: "1px solid rgba(255,255,255,0.6)" }
+                          : { background: "#FFD000", color: "#0B1B3D", boxShadow: "0 10px 26px rgba(0,0,0,0.24)" }}
+                      >
+                        {isFollowing ? <><UserCheck className="w-4 h-4" /> Following</> : <><UserPlus className="w-4 h-4" /> Follow</>}
+                      </button>
+                    )}
                   </div>
-                  {me?.email && me.email !== accountEmail && (
-                    <button
-                      onClick={() => followMutation.mutate()}
-                      className="px-6 py-3 rounded-full font-black text-sm transition-all shrink-0 flex items-center gap-2 hover:-translate-y-0.5"
-                      style={isFollowing
-                        ? { background: "#F4EFE2", color: "#4A5878", border: "1px solid #E0D4B8" }
-                        : { background: "#0B1B3D", color: "#FFFFFF", boxShadow: "0 10px 26px rgba(11,27,61,0.24)" }}
-                    >
-                      {isFollowing ? <><UserCheck className="w-4 h-4" /> Following</> : <><UserPlus className="w-4 h-4" /> Follow</>}
-                    </button>
-                  )}
                 </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-black mb-4" style={{ background: "#FFF6D8", color: "#8A5A00", border: "1px solid #EAD08B" }}>
-                  <Sparkles className="w-3 h-3" /> Official Account
+                <div className="p-8 pt-16">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-black mb-4" style={{ background: "#FFF6D8", color: "#8A5A00", border: "1px solid #EAD08B" }}>
+                    <Sparkles className="w-3 h-3" /> Official Account
+                  </div>
+                  <h2 className="text-4xl font-black font-['Space_Grotesk'] leading-tight mb-4">{accountName}</h2>
+                  <p className="text-base leading-relaxed mb-7" style={{ color: "#4D5870" }}>
+                    The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
+                  </p>
                 </div>
-                <h2 className="text-4xl font-black font-['Space_Grotesk'] leading-tight mb-4">{accountName}</h2>
-                <p className="text-base leading-relaxed mb-7" style={{ color: "#4D5870" }}>
-                  The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
-                </p>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-3 px-8 pb-8">
                 {[
                   { icon: Users, value: follows.length, label: "Followers", color: "#0B3FD9" },
                   { icon: BookOpen, value: posts.length, label: "Posts", color: "#A86B00" },
