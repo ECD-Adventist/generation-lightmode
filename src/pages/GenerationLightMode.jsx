@@ -14,7 +14,7 @@ import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 const ACCOUNT_EMAIL = "system@lightmode.com";
 const ACCOUNT_NAME = "Generation LightMode";
 const ACCOUNT_IMAGE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg";
-const HERO_BG_URL = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/5be5a34f8_generated_image.png";
+const HERO_BG_URL = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2";
 
 export default function GenerationLightMode() {
   const isMobile = useIsMobile();
