@@ -10,25 +10,35 @@ import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import LeaderAccountFormModal from "./leader-accounts/LeaderAccountFormModal";
 
 function LeaderStats({ email, t }) {
-  const { data: drops = [], isLoading } = useQuery({
+  const { data: drops = [], isLoading: isLoadingDrops } = useQuery({
     queryKey: ["leaderStats", email],
     queryFn: () => base44.entities.GlowDrop.filter({ user_email: email }),
     enabled: !!email,
   });
 
-  if (isLoading) return <div className="text-[11px] opacity-70" style={{ color: t.textSecondary }}>Loading stats...</div>;
+  const { data: followers = [], isLoading: isLoadingFollowers } = useQuery({
+    queryKey: ["leaderFollowers", email],
+    queryFn: () => base44.entities.Follow.filter({ following_email: email }),
+    enabled: !!email,
+  });
+
+  if (isLoadingDrops || isLoadingFollowers) return <div className="text-[11px] opacity-70" style={{ color: t.textSecondary }}>Loading stats...</div>;
 
   const totalLikes = drops.reduce((sum, drop) => sum + (drop.likes_count || 0) + (drop.bonus_likes_count || 0), 0);
 
   return (
-    <div className="flex gap-4 mt-2 justify-center">
+    <div className="flex gap-6 mt-2 justify-center">
       <div className="flex flex-col items-center">
         <span className="text-lg font-bold" style={{ color: t.textPrimary }}>{drops.length}</span>
         <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: t.accent }}>Posts</span>
       </div>
       <div className="flex flex-col items-center">
         <span className="text-lg font-bold" style={{ color: t.textPrimary }}>{totalLikes}</span>
-        <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: t.accentDeep }}>Likes</span>
+        <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: t.accent }}>Likes</span>
+      </div>
+      <div className="flex flex-col items-center">
+        <span className="text-lg font-bold" style={{ color: t.textPrimary }}>{followers.length}</span>
+        <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: t.accent }}>Followers</span>
       </div>
     </div>
   );

@@ -19,7 +19,9 @@ export default function AdminLeaderPostsTab() {
   const queryClient = useQueryClient();
 
   const [search, setSearch] = useState("");
-  const [leaderFilter, setLeaderFilter] = useState("all");
+  const [leaderFilter, setLeaderFilter] = useState(() => {
+    return new URLSearchParams(window.location.search).get("leader") || "all";
+  });
 
   const { data: accounts = [] } = useQuery({
     queryKey: ["managedLeaderAccounts"],
