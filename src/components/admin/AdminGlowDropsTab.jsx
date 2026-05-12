@@ -28,7 +28,10 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
 
   const { data: drops = [], isLoading } = useQuery({
     queryKey: ["admin_drops_all"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 200),
+    queryFn: async () => {
+      const response = await base44.functions.invoke("adminListGlowDrops", {});
+      return response.data?.drops || [];
+    },
   });
 
   const allowedCountries = (territoryCountries || "").split(",").map(item => item.trim()).filter(Boolean);
