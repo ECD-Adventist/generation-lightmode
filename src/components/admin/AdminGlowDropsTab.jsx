@@ -60,13 +60,18 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
   // Aggregate stats
   const stats = useMemo(() => {
     const now = new Date();
-    const last24h = scopedDrops.filter(d => d.created_date && (now - new Date(d.created_date)) / (1000 * 60 * 60) <= 24).length;
+    const countWithinHours = (hours) => scopedDrops.filter(d =>
+      d.created_date && (now - new Date(d.created_date)) / (1000 * 60 * 60) <= hours
+    ).length;
+
     return {
       total: scopedDrops.length,
       approved: counts.approved,
       rejected: counts.rejected,
       hidden: counts.hidden,
-      last24h,
+      last24h: countWithinHours(24),
+      last7d: countWithinHours(24 * 7),
+      last30d: countWithinHours(24 * 30),
     };
   }, [scopedDrops, counts]);
 
@@ -82,8 +87,11 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
 
       // Status tab
       if (filter === "hidden" && !d.hidden) return false;
-      if (filter === "last24h" && (!d.created_date || (new Date() - new Date(d.created_date)) / (1000 * 60 * 60) > 24)) return false;
-      if (!["all", "hidden", "last24h"].includes(filter) && status !== filter) return false;
+      const ageHours = d.created_date ? (Date.now() - new Date(d.created_date).getTime()) / (1000 * 60 * 60) : null;
+      if (filter === "last24h" && (ageHours === null || ageHours > 24)) return false;
+      if (filter === "last7d" && (ageHours === null || ageHours > 24 * 7)) return false;
+      if (filter === "last30d" && (ageHours === null || ageHours > 24 * 30)) return false;
+      if (!["all", "hidden", "last24h", "last7d", "last30d"].includes(filter) && status !== filter) return false;
 
       // Category
       if (filterCategory !== "all" && d.category !== filterCategory) return false;

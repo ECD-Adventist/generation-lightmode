@@ -8,10 +8,12 @@ export default function GlowDropsStats({ stats, t, activeFilter, onFilterChange 
     { key: "rejected", label: "Rejected",      value: stats.rejected,   icon: <XCircle size={18} />,       color: "#ef4444" },
     { key: "hidden", label: "Hidden",        value: stats.hidden,     icon: <EyeOff size={18} />,        color: "#8A5CFF" },
     { key: "last24h", label: "Last 24 hrs",   value: `+${stats.last24h}`, icon: <Clock size={18} />,      color: "#FFD000", highlight: stats.last24h > 0 },
+    { key: "last7d", label: "Last 7 days",    value: `+${stats.last7d}`,  icon: <Clock size={18} />,      color: "#F59E0B", highlight: stats.last7d > 0 },
+    { key: "last30d", label: "Last 30 days",  value: `+${stats.last30d}`, icon: <Clock size={18} />,      color: "#38BDF8", highlight: stats.last30d > 0 },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
       {tiles.map((s) => {
         const isActive = activeFilter === s.key;
         return (
