@@ -9,6 +9,7 @@ import GlowDropsFilterBar from "./drops/GlowDropsFilterBar";
 import GlowDropCard from "./drops/GlowDropCard";
 import BulkActionsBar from "./drops/BulkActionsBar";
 import DropPreviewModal from "./drops/DropPreviewModal";
+import LightBoostersManager from "./drops/LightBoostersManager";
 
 export default function AdminGlowDropsTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
   const { theme } = useAdminTheme();
@@ -23,6 +24,7 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
   const [selected, setSelected] = useState(new Set());
   const [busy, setBusy] = useState(false);
   const [previewDrop, setPreviewDrop] = useState(null);
+  const [activeSection, setActiveSection] = useState("moderation");
 
   const { data: drops = [], isLoading } = useQuery({
     queryKey: ["admin_drops_all"],
@@ -170,6 +172,26 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
         </p>
       </div>
 
+      <div className="flex flex-wrap gap-2 rounded-2xl border p-2" style={{ background: t.surface, borderColor: t.border }}>
+        {[
+          { key: "moderation", label: "Drops Moderation" },
+          { key: "boosters", label: "Light Boosters" }
+        ].map(section => (
+          <button
+            key={section.key}
+            onClick={() => setActiveSection(section.key)}
+            className="px-4 py-2 rounded-xl text-sm font-bold transition"
+            style={activeSection === section.key
+              ? { background: t.gradient, color: "#FFFFFF" }
+              : { color: t.textSecondary, background: "transparent" }}
+          >
+            {section.label}
+          </button>
+        ))}
+      </div>
+
+      {activeSection === "boosters" ? <LightBoostersManager t={t} /> : <>
+
       <GlowDropsStats stats={stats} t={t} />
 
       <GlowDropsFilterBar
@@ -241,6 +263,7 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
           t={t} isDark={isDark}
         />
       )}
+      </>}
     </div>
   );
 }
