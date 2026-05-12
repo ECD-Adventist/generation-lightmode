@@ -24,7 +24,17 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const drops = await base44.asServiceRole.entities.GlowDrop.list('-created_date', 1000);
+    // Paginate through all drops — entity list() caps each call, so loop until exhausted.
+    const PAGE_SIZE = 1000;
+    const drops = [];
+    let skip = 0;
+    while (true) {
+      const batch = await base44.asServiceRole.entities.GlowDrop.list('-created_date', PAGE_SIZE, skip);
+      if (!batch || batch.length === 0) break;
+      drops.push(...batch);
+      if (batch.length < PAGE_SIZE) break;
+      skip += PAGE_SIZE;
+    }
 
     return Response.json({ drops, total: drops.length });
   } catch (error) {
