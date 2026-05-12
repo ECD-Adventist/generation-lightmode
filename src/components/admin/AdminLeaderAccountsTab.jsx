@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Plus, Trash2, Edit3, Search, UserPlus, X, Camera, Shield, ChevronRight, FileText } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit3, Search, UserPlus, Camera, Shield, FileText, UsersRound } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -16,6 +16,7 @@ export default function AdminLeaderAccountsTab() {
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [autoFollowingId, setAutoFollowingId] = useState(null);
 
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ["managedLeaderAccounts"],
@@ -55,6 +56,22 @@ export default function AdminLeaderAccountsTab() {
   const handleDelete = (account) => {
     if (!confirm(`Delete the account for ${account.leader_name}? This cannot be undone.`)) return;
     deleteMutation.mutate(account.id);
+  };
+
+  const handleAutoFollow = async (account) => {
+    if (!confirm(`Make all registered users follow ${account.leader_name}? Existing followers will be skipped.`)) return;
+    setAutoFollowingId(account.id);
+    try {
+      const response = await base44.functions.invoke("adminMakeUsersFollowLeader", {
+        leader_email: account.leader_email,
+      });
+      const result = response.data || {};
+      toast.success(`Auto-follow complete: ${result.created || 0} new follower${result.created === 1 ? "" : "s"} added.`);
+    } catch (error) {
+      toast.error(error?.response?.data?.error || error?.message || "Auto-follow failed");
+    } finally {
+      setAutoFollowingId(null);
+    }
   };
 
   return (
@@ -151,22 +168,34 @@ export default function AdminLeaderAccountsTab() {
                 )}
               </div>
 
-              <div className="flex gap-2">
+              <div className="space-y-2">
                 <button
-                  onClick={() => handleEdit(account)}
-                  className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-bold transition"
-                  style={{ background: t.accentSoft, color: t.accent, border: `1px solid ${t.border}` }}
+                  onClick={() => handleAutoFollow(account)}
+                  disabled={autoFollowingId === account.id || account.active === false}
+                  className="w-full flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-bold transition disabled:opacity-50"
+                  style={{ background: "rgba(34,197,94,0.12)", color: "#22C55E", border: "1px solid rgba(34,197,94,0.28)" }}
+                  title="Make users follow this leader"
                 >
-                  <Edit3 className="w-3.5 h-3.5" /> Edit
+                  {autoFollowingId === account.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UsersRound className="w-3.5 h-3.5" />}
+                  Make users follow this leader
                 </button>
-                <button
-                  onClick={() => handleDelete(account)}
-                  className="w-9 h-9 rounded-lg flex items-center justify-center transition"
-                  style={{ background: "rgba(239,68,68,0.08)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.2)" }}
-                  title="Delete"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(account)}
+                    className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-bold transition"
+                    style={{ background: t.accentSoft, color: t.accent, border: `1px solid ${t.border}` }}
+                  >
+                    <Edit3 className="w-3.5 h-3.5" /> Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(account)}
+                    className="w-9 h-9 rounded-lg flex items-center justify-center transition"
+                    style={{ background: "rgba(239,68,68,0.08)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.2)" }}
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
