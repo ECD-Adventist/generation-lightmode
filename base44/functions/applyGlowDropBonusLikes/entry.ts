@@ -2,6 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 const MAX_BONUS_LIKES = 24;
 const BATCH_LIMIT = 100;
+const BOOSTER_POOL_LIMIT = 500;
 
 function parseDate(value) {
   if (!value) return null;
@@ -22,9 +23,15 @@ Deno.serve(async (req) => {
     const now = new Date();
     const oneHourMs = 60 * 60 * 1000;
     const drops = await base44.asServiceRole.entities.GlowDrop.filter({ bonus_likes_enabled: true }, '-created_date', BATCH_LIMIT);
+    const boosters = await base44.asServiceRole.entities.User.filter({
+      light_booster_opt_in: true,
+      light_booster_approved: true,
+      status: 'active'
+    }, '-updated_date', BOOSTER_POOL_LIMIT);
 
     let boosted = 0;
     let completed = 0;
+    let skippedNoBooster = 0;
 
     for (const drop of drops) {
       const bonusCount = Number(drop.bonus_likes_count || 0);
@@ -38,6 +45,25 @@ Deno.serve(async (req) => {
       const lastAppliedAt = parseDate(drop.bonus_likes_last_applied_at) || createdAt;
       if (!lastAppliedAt || now.getTime() - lastAppliedAt.getTime() < oneHourMs) continue;
 
+      const existingLikes = await base44.asServiceRole.entities.GlowDropLike.filter({ drop_id: drop.id }, '-created_date', 1000);
+      const alreadyLikedEmails = new Set(existingLikes.map((like) => like.user_email));
+      const eligibleBoosters = boosters.filter((booster) =>
+        booster.email &&
+        booster.email !== drop.user_email &&
+        !alreadyLikedEmails.has(booster.email)
+      );
+
+      if (eligibleBoosters.length === 0) {
+        skippedNoBooster += 1;
+        continue;
+      }
+
+      const booster = eligibleBoosters[(bonusCount + existingLikes.length) % eligibleBoosters.length];
+      await base44.asServiceRole.entities.GlowDropLike.create({
+        drop_id: drop.id,
+        user_email: booster.email
+      });
+
       const newBonusCount = bonusCount + 1;
       await base44.asServiceRole.entities.GlowDrop.update(drop.id, {
         likes_count: Number(drop.likes_count || 0) + 1,
@@ -50,7 +76,7 @@ Deno.serve(async (req) => {
       if (newBonusCount >= MAX_BONUS_LIKES) completed += 1;
     }
 
-    return Response.json({ success: true, checked: drops.length, boosted, completed });
+    return Response.json({ success: true, checked: drops.length, boosters: boosters.length, boosted, completed, skippedNoBooster });
   } catch (error) {
     console.error('Bonus likes error:', error);
     return Response.json({ error: error.message }, { status: 500 });

@@ -35,7 +35,7 @@
     "suspended_at": {
       "type": "string",
       "format": "date-time",
-      "description": "Timestamp when the user was suspended."
+      "description": "Timestamp when a user was suspended."
     },
     "suspended_by": {
       "type": "string",
@@ -48,6 +48,16 @@
     "social_links": {
       "type": "string",
       "description": "JSON string of social media profile links such as Facebook, Instagram, YouTube, TikTok, LinkedIn, X, WhatsApp."
+    },
+    "light_booster_opt_in": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, the user has consented to be part of the Light Boosters pool for automatic community encouragement likes."
+    },
+    "light_booster_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Admin approval flag allowing this opted-in user to be used for Light Booster bonus likes."
     }
   },
   "required": [
