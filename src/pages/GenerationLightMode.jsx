@@ -97,45 +97,40 @@ export default function GenerationLightMode() {
       </div>
 
       <main className="max-w-5xl mx-auto px-5 -mt-24 relative z-10">
-        <section className="rounded-[22px] bg-white shadow-[0_18px_45px_rgba(7,23,51,0.16)] border border-[#EFE6D0] overflow-hidden">
-          <div className="h-40 md:h-52 relative" style={{ background: `#071733 url(${HERO_BG_URL}) center/cover no-repeat` }}>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#071733]/75 via-[#071733]/35 to-transparent" />
-          </div>
-          <div className="p-7 pt-0">
-            <div className="flex flex-col md:flex-row md:items-end gap-6 -mt-14 relative z-10">
-              <div className="w-28 h-28 rounded-full p-[4px] shrink-0" style={{ background: "linear-gradient(135deg, #F3E4B8 0%, #B58B35 100%)" }}>
-                <div className="w-full h-full rounded-full overflow-hidden bg-[#071733] border-[3px] border-white">
-                  <img src={ACCOUNT_IMAGE} alt={ACCOUNT_NAME} className="w-full h-full object-cover" />
-                </div>
+        <section className="rounded-[22px] bg-white p-7 shadow-[0_18px_45px_rgba(7,23,51,0.16)] border border-[#EFE6D0]">
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
+            <div className="w-28 h-28 rounded-full p-[4px] shrink-0" style={{ background: "linear-gradient(135deg, #F3E4B8 0%, #B58B35 100%)" }}>
+              <div className="w-full h-full rounded-full overflow-hidden bg-[#071733] border-[3px] border-white">
+                <img src={ACCOUNT_IMAGE} alt={ACCOUNT_NAME} className="w-full h-full object-cover" />
               </div>
-              <div className="flex-1 min-w-0 pt-3">
-                <div className="flex flex-wrap items-center gap-3 mb-2">
-                  <h2 className="text-3xl font-black font-['Space_Grotesk'] tracking-tight text-[#071733]">{ACCOUNT_NAME}</h2>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#EAF2FF] text-[#0B3FD9]">
-                    <Sparkles className="w-3 h-3" /> Official Account
-                  </span>
-                </div>
-                <p className="text-sm leading-relaxed max-w-2xl mb-4 text-[#1F2F4D]">
-                  The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
-                </p>
-                <div className="flex flex-wrap items-center gap-5 text-sm text-[#5D6472]">
-                  <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> <strong className="text-[#071733]">{follows.length}</strong> followers</span>
-                  <span className="flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-[#B58B35]" /> <strong className="text-[#071733]">{posts.length}</strong> posts</span>
-                  <span className="flex items-center gap-1.5"><Globe className="w-4 h-4" /> Global movement</span>
-                </div>
-              </div>
-              {me?.email && me.email !== ACCOUNT_EMAIL && (
-                <button
-                  onClick={() => followMutation.mutate()}
-                  className="px-6 py-3 rounded-full font-bold text-sm transition-all shrink-0 flex items-center gap-2 mb-1"
-                  style={isFollowing
-                    ? { background: "#FAFBF7", color: "#071733", border: "1px solid #D8C391" }
-                    : { background: "#071733", color: "#D6B86A", boxShadow: "0 10px 22px rgba(7,23,51,0.22)" }}
-                >
-                  {isFollowing ? <><UserCheck className="w-4 h-4" /> Following</> : <><UserPlus className="w-4 h-4" /> Follow</>}
-                </button>
-              )}
             </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h2 className="text-3xl font-black font-['Space_Grotesk'] tracking-tight text-[#071733]">{ACCOUNT_NAME}</h2>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#EAF2FF] text-[#0B3FD9]">
+                  <Sparkles className="w-3 h-3" /> Official Account
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed max-w-2xl mb-4 text-[#1F2F4D]">
+                The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
+              </p>
+              <div className="flex flex-wrap items-center gap-5 text-sm text-[#5D6472]">
+                <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> <strong className="text-[#071733]">{follows.length}</strong> followers</span>
+                <span className="flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-[#B58B35]" /> <strong className="text-[#071733]">{posts.length}</strong> posts</span>
+                <span className="flex items-center gap-1.5"><Globe className="w-4 h-4" /> Global movement</span>
+              </div>
+            </div>
+            {me?.email && me.email !== ACCOUNT_EMAIL && (
+              <button
+                onClick={() => followMutation.mutate()}
+                className="px-6 py-3 rounded-full font-bold text-sm transition-all shrink-0 flex items-center gap-2"
+                style={isFollowing
+                  ? { background: "#FAFBF7", color: "#071733", border: "1px solid #D8C391" }
+                  : { background: "#071733", color: "#D6B86A", boxShadow: "0 10px 22px rgba(7,23,51,0.22)" }}
+              >
+                {isFollowing ? <><UserCheck className="w-4 h-4" /> Following</> : <><UserPlus className="w-4 h-4" /> Follow</>}
+              </button>
+            )}
           </div>
         </section>
 

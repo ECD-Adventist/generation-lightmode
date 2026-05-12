@@ -45,13 +45,18 @@
           }
         },
         {
-          "user_condition": {
-            "role": "admin"
+          "in": {
+            "data.group_id": {
+              "$entity": "GlowGroup",
+              "params": {
+                "leader_email": "{{user.email}}"
+              }
+            }
           }
         },
         {
           "user_condition": {
-            "role": "super_admin"
+            "role": "admin"
           }
         }
       ]

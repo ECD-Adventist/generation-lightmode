@@ -79,13 +79,7 @@
   ],
   "rls": {
     "create": {
-      "data.applicant_email": "{{user.email}}"
-    },
-    "read": {
       "$or": [
-        {
-          "data.applicant_email": "{{user.email}}"
-        },
         {
           "user_condition": {
             "role": "admin"
@@ -98,6 +92,7 @@
         }
       ]
     },
+    "read": true,
     "update": {
       "$or": [
         {
