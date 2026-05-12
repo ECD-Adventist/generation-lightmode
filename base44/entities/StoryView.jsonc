@@ -23,16 +23,6 @@
           "data.viewer_email": "{{user.email}}"
         },
         {
-          "in": {
-            "data.story_id": {
-              "$entity": "Story",
-              "params": {
-                "user_email": "{{user.email}}"
-              }
-            }
-          }
-        },
-        {
           "user_condition": {
             "role": "admin"
           }
