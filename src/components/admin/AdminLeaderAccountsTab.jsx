@@ -1,12 +1,38 @@
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Plus, Trash2, Edit3, Search, UserPlus, Camera, Shield, FileText, UsersRound, Mail, Share2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Edit3, Search, UserPlus, Camera, Shield, FileText, UsersRound, Mail, Share2, Activity, CheckSquare, XSquare, Download, Power, PowerOff } from "lucide-react";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import LeaderAccountFormModal from "./leader-accounts/LeaderAccountFormModal";
+
+function LeaderStats({ email }) {
+  const { data: drops = [], isLoading } = useQuery({
+    queryKey: ["leaderStats", email],
+    queryFn: () => base44.entities.GlowDrop.filter({ user_email: email }),
+    enabled: !!email,
+  });
+
+  if (isLoading) return <div className="text-[11px] text-[#C8D0E0] opacity-70">Loading stats...</div>;
+
+  const totalLikes = drops.reduce((sum, drop) => sum + (drop.likes_count || 0) + (drop.bonus_likes_count || 0), 0);
+
+  return (
+    <div className="flex gap-4 mt-2 justify-center">
+      <div className="flex flex-col items-center">
+        <span className="text-lg font-bold text-[#FFFFFF]">{drops.length}</span>
+        <span className="text-[10px] text-[#00CFFF] uppercase tracking-wider font-semibold">Posts</span>
+      </div>
+      <div className="flex flex-col items-center">
+        <span className="text-lg font-bold text-[#FFFFFF]">{totalLikes}</span>
+        <span className="text-[10px] text-[#8A5CFF] uppercase tracking-wider font-semibold">Likes</span>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminLeaderAccountsTab() {
   const { theme } = useAdminTheme();
@@ -17,6 +43,47 @@ export default function AdminLeaderAccountsTab() {
   const [editing, setEditing] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [autoFollowingId, setAutoFollowingId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+
+  const toggleSelection = (id) => {
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelectedIds(newSet);
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === filtered?.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filtered?.map(a => a.id) || []));
+  };
+
+  const toggleStatusMutation = useMutation({
+    mutationFn: ({ id, active }) => base44.entities.ManagedLeaderAccount.update(id, { active }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["managedLeaderAccounts"] });
+      toast.success("Account status updated");
+    },
+    onError: (e) => toast.error(e?.message || "Failed to update status")
+  });
+
+  const handleBulkDelete = async () => {
+    if (!selectedIds.size) return;
+    if (!confirm(`Are you sure you want to delete ${selectedIds.size} accounts? This cannot be undone.`)) return;
+    
+    let deletedCount = 0;
+    for (const id of selectedIds) {
+      try {
+        await base44.entities.ManagedLeaderAccount.delete(id);
+        deletedCount++;
+      } catch (err) {
+        toast.error(`Failed to delete one account: ${err.message}`);
+      }
+    }
+    toast.success(`Successfully deleted ${deletedCount} accounts`);
+    setSelectedIds(new Set());
+    queryClient.invalidateQueries({ queryKey: ["managedLeaderAccounts"] });
+  };
+
 
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ["managedLeaderAccounts"],
@@ -102,16 +169,32 @@ export default function AdminLeaderAccountsTab() {
         </div>
       </div>
 
-      <div className="mb-5 relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: t.textMuted }} />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by leader name, email, or manager..."
-          className="w-full pl-9 pr-3 h-10 rounded-xl text-sm focus:outline-none"
-          style={{ background: t.surface, border: `1px solid ${t.border}`, color: t.textPrimary }}
-        />
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: t.textMuted }} />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by leader name, email, or manager..."
+            className="w-full pl-9 pr-3 h-10 rounded-xl text-sm focus:outline-none"
+            style={{ background: t.surface, border: `1px solid ${t.border}`, color: t.textPrimary }}
+          />
+        </div>
+        
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-3 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-full px-4 py-2 text-sm text-[#C8D0E0]">
+            <span className="font-semibold text-[#00CFFF]">{selectedIds.size} selected</span>
+            <div className="w-px h-4 bg-[rgba(255,255,255,0.1)]"></div>
+            <button onClick={toggleAll} className="hover:text-white transition">Select All</button>
+            <button 
+              onClick={handleBulkDelete}
+              className="flex items-center gap-1.5 text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] px-2 py-1 rounded-full transition ml-2"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Bulk Delete
+            </button>
+          </div>
+        )}
       </div>
 
       {isLoading ? (
@@ -133,6 +216,26 @@ export default function AdminLeaderAccountsTab() {
             }}>
               {/* Subtle hover gradient */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.08) 100%)" }} />
+
+              {/* Top Controls: Checkbox & Status Switch */}
+              <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(account.id)}
+                  onChange={() => toggleSelection(account.id)}
+                  className="w-4 h-4 rounded border-[#2A344A] bg-[#161D2B] checked:bg-[#00CFFF] checked:border-[#00CFFF] cursor-pointer"
+                />
+                <div className="flex items-center gap-2" title="Toggle account active status">
+                  <span className="text-[10px] uppercase font-bold text-[#8A9BB0]">
+                    {account.active !== false ? 'Active' : 'Inactive'}
+                  </span>
+                  <Switch
+                    checked={account.active !== false}
+                    onCheckedChange={(checked) => toggleStatusMutation.mutate({ id: account.id, active: checked })}
+                    className="data-[state=checked]:bg-[#00CFFF] data-[state=unchecked]:bg-[#2A344A]"
+                  />
+                </div>
+              </div>
 
               {/* Avatar Section */}
               <div className="relative w-[140px] h-[140px] mx-auto mb-6 mt-2 shrink-0">
@@ -163,7 +266,7 @@ export default function AdminLeaderAccountsTab() {
                   {account.leader_bio ? (account.leader_bio.length > 80 ? account.leader_bio.substring(0, 80) + '...' : account.leader_bio) : "No bio provided."}
                 </p>
 
-                <div className="flex flex-wrap justify-center gap-2 mb-6">
+                <div className="flex flex-wrap justify-center gap-2 mb-4">
                   {account.leader_title && (
                     <span className="px-3 py-1 rounded-full text-[11px] font-semibold inline-block" style={{ background: "rgba(255, 255, 255, 0.05)", color: "#C8D0E0", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
                       {account.leader_title}
@@ -177,6 +280,10 @@ export default function AdminLeaderAccountsTab() {
                   <span className="px-3 py-1 rounded-full text-[11px] font-semibold inline-block" style={{ background: "rgba(255, 255, 255, 0.05)", color: "#C8D0E0", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
                     👥 {(account.manager_emails || []).length} Manager{((account.manager_emails || []).length !== 1) ? 's' : ''}
                   </span>
+                </div>
+                
+                <div className="mb-6 w-full border-t border-[rgba(255,255,255,0.04)] pt-3">
+                   <LeaderStats email={account.leader_email} />
                 </div>
               </div>
 
@@ -199,6 +306,13 @@ export default function AdminLeaderAccountsTab() {
                 >
                   <Share2 className="w-5 h-5 text-[#C8D0E0] group-hover/btn:text-[#00CFFF]" strokeWidth={1.5} />
                 </button>
+                <Link
+                  to={`${createPageUrl("AdminCenter")}?tab=leader-posts&leader=${encodeURIComponent(account.leader_email)}`}
+                  className="w-10 h-10 rounded-full flex items-center justify-center transition hover:bg-[rgba(255,255,255,0.08)] group/btn"
+                  title="View Activity Logs"
+                >
+                  <Activity className="w-5 h-5 text-[#C8D0E0] group-hover/btn:text-[#00CFFF]" strokeWidth={1.5} />
+                </Link>
                 <button
                   onClick={() => handleEdit(account)}
                   className="w-10 h-10 rounded-full flex items-center justify-center transition hover:bg-[rgba(255,255,255,0.08)] group/btn"
