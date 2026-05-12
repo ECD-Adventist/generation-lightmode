@@ -20,7 +20,7 @@
     "read": {
       "$or": [
         {
-          "data.blocker_email": "{{user.email}}"
+          "created_by": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -38,7 +38,7 @@
     "delete": {
       "$or": [
         {
-          "data.blocker_email": "{{user.email}}"
+          "created_by": "{{user.email}}"
         },
         {
           "user_condition": {
