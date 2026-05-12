@@ -45,6 +45,21 @@
       "type": "number",
       "default": 0
     },
+    "bonus_likes_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Temporary launch boost: number of automatic hourly bonus likes added to this drop. Stops at 24."
+    },
+    "bonus_likes_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Temporary launch boost flag. New user-created drops can receive 1 automatic bonus like per hour until 24."
+    },
+    "bonus_likes_last_applied_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the last automatic bonus like was applied."
+    },
     "category": {
       "type": "string"
     },

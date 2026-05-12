@@ -86,6 +86,9 @@ Deno.serve(async (req) => {
       media_url: media_url || null,
       status: 'approved',
       hidden: false,
+      likes_count: 0,
+      bonus_likes_count: 0,
+      bonus_likes_enabled: true,
     };
 
     // Create as service role when posting on behalf of a leader (so RLS passes)

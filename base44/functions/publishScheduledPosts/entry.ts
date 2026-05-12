@@ -31,6 +31,8 @@ Deno.serve(async (req) => {
           media_url: post.media_url || undefined,
           status: 'approved',
           likes_count: 0,
+          bonus_likes_count: 0,
+          bonus_likes_enabled: true,
         });
         await base44.asServiceRole.entities.ScheduledPost.update(post.id, {
           status: 'published',
