@@ -15,6 +15,7 @@ import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 export default function AdminLeaderPostsTab() {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
+  const isDark = theme === "dark";
   const queryClient = useQueryClient();
 
   const [search, setSearch] = useState("");
@@ -106,7 +107,7 @@ export default function AdminLeaderPostsTab() {
           <select
             value={leaderFilter}
             onChange={(e) => setLeaderFilter(e.target.value)}
-            className="w-full pl-9 pr-3 h-10 rounded-xl text-sm focus:outline-none appearance-none"
+            className="w-full pl-9 pr-8 h-10 rounded-xl text-sm focus:outline-none appearance-none"
             style={{ background: t.surface, border: `1px solid ${t.border}`, color: t.textPrimary }}
           >
             <option value="all">All leaders ({accounts.length})</option>
@@ -114,6 +115,9 @@ export default function AdminLeaderPostsTab() {
               <option key={a.id} value={a.leader_email}>{a.leader_name}{a.leader_title ? ` — ${a.leader_title}` : ""}</option>
             ))}
           </select>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={t.textMuted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
         </div>
       </div>
 
@@ -134,8 +138,17 @@ export default function AdminLeaderPostsTab() {
           {filtered.map(drop => {
             const account = accountsByEmail[drop.user_email];
             return (
-              <div key={drop.id} className="rounded-2xl p-4 flex items-start gap-4" style={{ background: t.surface, border: `1px solid ${t.border}` }}>
-                <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 flex items-center justify-center" style={{ background: t.accentSoft, border: `1px solid ${t.border}` }}>
+              <div key={drop.id} className="rounded-2xl p-4 flex items-start gap-4 relative overflow-hidden group" style={{ 
+                background: isDark 
+                  ? "linear-gradient(180deg, rgba(0, 207, 255, 0.04) 0%, rgba(15, 20, 33, 1) 100%)"
+                  : `linear-gradient(180deg, ${t.surfaceAlt} 0%, ${t.surface} 100%)`,
+                backgroundColor: t.surface,
+                border: `1px solid ${t.border}`,
+                boxShadow: t.shadow
+              }}>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: isDark ? "linear-gradient(180deg, rgba(0,207,255,0.05) 0%, rgba(138,92,255,0.05) 100%)" : `linear-gradient(180deg, ${t.accentSoft} 0%, transparent 100%)` }} />
+                
+                <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative z-10" style={{ background: t.surfaceMuted, border: `1px solid ${t.border}` }}>
                   {account?.leader_profile_picture_url ? (
                     <img src={account.leader_profile_picture_url} alt={account.leader_name} className="w-full h-full object-cover" />
                   ) : (
@@ -143,7 +156,7 @@ export default function AdminLeaderPostsTab() {
                   )}
                 </div>
 
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1 relative z-10">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className="font-bold text-sm font-['Space_Grotesk']" style={{ color: t.textPrimary }}>{account?.leader_name || drop.user_email}</span>
                     {account?.leader_title && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: t.accentSoft, color: t.accent }}>{account.leader_title}</span>}
@@ -162,12 +175,12 @@ export default function AdminLeaderPostsTab() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 relative z-10">
                   <Link
                     to={`${createPageUrl("Post")}?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
                     target="_blank"
-                    className="w-9 h-9 rounded-lg flex items-center justify-center transition"
-                    style={{ background: t.accentSoft, color: t.accent, border: `1px solid ${t.border}` }}
+                    className={`w-9 h-9 rounded-lg flex items-center justify-center transition hover:opacity-80`}
+                    style={{ background: t.accentSoft, color: t.accent, border: `1px solid ${isDark ? t.border : t.borderStrong}` }}
                     title="Open post"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -175,8 +188,8 @@ export default function AdminLeaderPostsTab() {
                   <button
                     onClick={() => handleDelete(drop)}
                     disabled={deleteMutation.isPending}
-                    className="w-9 h-9 rounded-lg flex items-center justify-center transition disabled:opacity-50"
-                    style={{ background: "rgba(239,68,68,0.08)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.2)" }}
+                    className={`w-9 h-9 rounded-lg flex items-center justify-center transition disabled:opacity-50 hover:opacity-80`}
+                    style={{ background: t.dangerSoft, color: t.danger, border: `1px solid ${isDark ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.4)'}` }}
                     title="Delete post"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
