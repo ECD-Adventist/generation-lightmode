@@ -113,10 +113,12 @@ export default function GenerationLightMode() {
         <section className="rounded-[22px] bg-white shadow-[0_18px_45px_rgba(7,23,51,0.16)] border border-[#EFE6D0] overflow-hidden">
           {/* Cover Image */}
           <div 
-            className="h-48 bg-cover bg-center relative"
+            className="h-48 relative"
             style={{
-              background: `linear-gradient(135deg, rgba(7,23,51,0.4) 0%, rgba(7,23,51,0.2) 100%), url(${HERO_BG_URL}) center/cover no-repeat`,
-              backgroundBlendMode: "overlay"
+              backgroundImage: `linear-gradient(135deg, rgba(7,23,51,0.35) 0%, rgba(7,23,51,0.15) 100%), url(${HERO_BG_URL})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat"
             }}
           />
 
@@ -128,7 +130,7 @@ export default function GenerationLightMode() {
                   <img src={ACCOUNT_IMAGE} alt={ACCOUNT_NAME} className="w-full h-full object-cover" />
                 </div>
               </div>
-              <div className="flex-1 min-w-0 pt-4">
+              <div className="flex-1 min-w-0 md:pt-20">
                 <div className="flex flex-wrap items-center gap-3 mb-3">
                   <h2 className="text-3xl font-black font-['Space_Grotesk'] tracking-tight text-[#071733]">{ACCOUNT_NAME}</h2>
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#EAF2FF] text-[#0B3FD9]">
