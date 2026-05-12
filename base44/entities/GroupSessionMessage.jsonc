@@ -18,8 +18,8 @@
     "content"
   ],
   "rls": {
-    "create": null,
-    "read": null,
+    "create": true,
+    "read": true,
     "update": false,
     "delete": {
       "$or": [
