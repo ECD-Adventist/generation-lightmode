@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import GlowDropsStats from "./drops/GlowDropsStats";
 import GlowDropsFilterBar from "./drops/GlowDropsFilterBar";
-import GlowDropCard from "./drops/GlowDropCard";
+import AdminGlowDropGridCard from "./drops/AdminGlowDropGridCard";
 import BulkActionsBar from "./drops/BulkActionsBar";
 import DropPreviewModal from "./drops/DropPreviewModal";
 import LightBoostersManager from "./drops/LightBoostersManager";
@@ -234,9 +234,9 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
           <p className="text-lg font-medium">No drops match your filters.</p>
         </div>
       ) : (
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
           {displayedDrops.map(drop => (
-            <GlowDropCard
+            <AdminGlowDropGridCard
               key={drop.id}
               drop={drop}
               selected={selected.has(drop.id)}
