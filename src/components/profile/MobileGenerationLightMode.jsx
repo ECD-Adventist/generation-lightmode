@@ -71,9 +71,14 @@ export default function MobileGenerationLightMode() {
       </div>
 
       {/* Cover */}
-      <div className="relative h-40" style={{ background: COVER_GRADIENT }}>
-        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 30% 40%, rgba(255,255,255,0.3), transparent 55%)" }} />
-        <div className="absolute bottom-2 right-4 text-white/10 text-4xl font-black font-['Space_Grotesk'] select-none pointer-events-none tracking-tighter leading-none">GLM ⚡</div>
+      <div className="relative h-44 overflow-hidden" style={{ background: "#0B1B3D" }}>
+        <img
+          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2"
+          alt="Generation LightMode cover"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(11,27,61,0.12), rgba(11,27,61,0.72))" }} />
+        <div className="absolute bottom-2 right-4 text-white/20 text-4xl font-black font-['Space_Grotesk'] select-none pointer-events-none tracking-tighter leading-none">GLM ⚡</div>
       </div>
 
       {/* Profile block */}

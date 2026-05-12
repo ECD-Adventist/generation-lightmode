@@ -14,7 +14,7 @@ import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 const ACCOUNT_EMAIL = "system@lightmode.com";
 const ACCOUNT_NAME = "Generation LightMode";
 const ACCOUNT_IMAGE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg";
-const COVER_GRADIENT = "linear-gradient(120deg, #0B1B3D 0%, #0B2870 25%, #0B3FD9 50%, #1FB8FF 80%, #5AD8FF 100%)";
+const HERO_BG_URL = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/5be5a34f8_generated_image.png";
 
 export default function GenerationLightMode() {
   const isMobile = useIsMobile();
@@ -63,178 +63,164 @@ export default function GenerationLightMode() {
   };
 
   return (
-    <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
-      {/* Top Nav Bar */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.9)", borderColor: "#E2E8F0" }}>
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
-            <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="LightMode" style={{ height: 48, width: "auto" }} />
-          </Link>
-          <div className="flex items-center gap-1 sm:gap-2">
-            {[
-              { to: "Feed", icon: <Home className="w-4 h-4" />, label: "Feed" },
-              { to: "GlowGroups", icon: <Users className="w-4 h-4" />, label: "Groups" },
-              { to: "Notifications", icon: <Bell className="w-4 h-4" />, label: "Alerts" },
-              { to: "Dashboard", icon: <Zap className="w-4 h-4" />, label: "Dashboard" },
-              { to: "Messages", icon: <MessageCircle className="w-4 h-4" />, label: "Messages" },
-            ].map(item => (
-              <Link key={item.to} to={createPageUrl(item.to)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl transition text-sm font-semibold no-underline" style={{ color: "#4A5878" }}
-                onMouseOver={e => { e.currentTarget.style.background = "#EEF3FF"; e.currentTarget.style.color = "#0B3FD9"; }}
-                onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#4A5878"; }}
-              >
-                {item.icon}<span className="hidden sm:inline">{item.label}</span>
-              </Link>
-            ))}
+    <div className="min-h-screen font-['Inter']" style={{ background: "#FAFBF7", color: "#071733" }}>
+      <div className="relative overflow-hidden" style={{ background: `#071733 url(${HERO_BG_URL}) center/cover no-repeat` }}>
+        <div className="border-b border-white/10">
+          <div className="max-w-5xl mx-auto px-5 py-4 flex items-center justify-between gap-6">
+            <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
+              <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="LightMode" className="h-9 w-auto object-contain" />
+            </Link>
+            <div className="flex items-center gap-5 text-white/90">
+              {[
+                { to: "Feed", icon: <Home className="w-3.5 h-3.5" />, label: "Feed" },
+                { to: "GlowGroups", icon: <Users className="w-3.5 h-3.5" />, label: "Groups" },
+                { to: "Notifications", icon: <Bell className="w-3.5 h-3.5" />, label: "Alerts" },
+                { to: "Dashboard", icon: <Zap className="w-3.5 h-3.5" />, label: "Dashboard" },
+                { to: "Messages", icon: <MessageCircle className="w-3.5 h-3.5" />, label: "Messages" },
+              ].map(item => (
+                <Link key={item.to} to={createPageUrl(item.to)} className="flex items-center gap-1.5 text-sm font-medium no-underline transition hover:text-[#D6B86A]">
+                  {item.icon}<span>{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-5xl mx-auto px-5 pt-12 pb-28">
+          <div className="flex items-end gap-8">
+            <h1 className="font-['Space_Grotesk'] font-black uppercase leading-[0.9] tracking-[-0.06em] text-[#D6B86A] text-[72px] md:text-[108px] lg:text-[128px]">
+              GENERATION<br />LIGHTMODE
+            </h1>
+            <div className="hidden md:block pb-4 text-[#D6B86A] font-['Space_Grotesk'] font-black text-6xl tracking-tight">GLM ⚡</div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto pt-4 sm:pt-6 px-3 sm:px-4">
-        {/* Cover Section */}
-        <div className="relative rounded-[2rem] overflow-hidden" style={{ boxShadow: "0 12px 48px rgba(11,63,217,0.1)" }}>
-          <div className="h-52 sm:h-72 w-full relative overflow-hidden" style={{ background: COVER_GRADIENT }}>
-            {/* Light sweeps — on-brand blues only */}
-            <div className="absolute inset-0 opacity-20" style={{ background: "radial-gradient(circle at 25% 50%, rgba(255,255,255,0.35), transparent 55%)" }} />
-            <div className="absolute inset-0 opacity-15" style={{ background: "radial-gradient(circle at 80% 30%, rgba(90,216,255,0.5), transparent 45%)" }} />
-            {/* Decorative orbs */}
-            <div className="absolute top-8 left-12 w-3 h-3 rounded-full" style={{ background: "#FFFFFF", boxShadow: "0 0 20px rgba(255,255,255,0.6)" }} />
-            <div className="absolute bottom-16 left-24 w-2 h-2 rounded-full" style={{ background: "#5AD8FF", boxShadow: "0 0 16px #5AD8FF" }} />
-            <div className="absolute top-16 right-20 w-2.5 h-2.5 rounded-full" style={{ background: "#FFFFFF", boxShadow: "0 0 14px rgba(255,255,255,0.8)" }} />
-            {/* Brand text watermark */}
-            <div className="absolute bottom-2 sm:bottom-4 right-4 sm:right-6 text-white/10 text-5xl sm:text-7xl font-black font-['Space_Grotesk'] select-none pointer-events-none tracking-tighter leading-none">GLM ⚡</div>
-          </div>
-
-          {/* Profile card — seamless continuation of cover */}
-          <div className="relative">
-            <div className="bg-white border-t border-[#E6ECF5]">
-              <div className="p-6 sm:p-8">
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-                  {/* Avatar */}
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 50%, #0B2870 100%)", boxShadow: "0 8px 32px rgba(11,63,217,0.25)" }}>
-                    <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "3px solid #FFFFFF" }}>
-                      <img src={ACCOUNT_IMAGE} alt={ACCOUNT_NAME} className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 text-center sm:text-left mt-2">
-                    <div className="flex flex-col sm:flex-row items-center gap-3 mb-2">
-                      <h1 className="text-2xl sm:text-3xl font-black font-['Space_Grotesk']">{ACCOUNT_NAME}</h1>
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold" style={{ background: "linear-gradient(90deg, rgba(31,184,255,0.1), rgba(11,63,217,0.08))", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>
-                        <Sparkles className="w-3 h-3" /> Official Account
-                      </span>
-                    </div>
-                    <p className="text-sm leading-relaxed max-w-xl mb-4" style={{ color: "#4A5878" }}>
-                      The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
-                    </p>
-                    <div className="flex items-center gap-5 text-sm flex-wrap justify-center sm:justify-start" style={{ color: "#6B7FA0" }}>
-                      <span className="flex items-center gap-1.5"><Users className="w-4 h-4" style={{ color: "#0B3FD9" }} /> <strong style={{ color: "#0B1B3D" }}>{follows.length}</strong> followers</span>
-                      <span className="flex items-center gap-1.5"><BookOpen className="w-4 h-4" style={{ color: "#CC7A00" }} /> <strong style={{ color: "#0B1B3D" }}>{posts.length}</strong> posts</span>
-                      <span className="flex items-center gap-1.5"><Globe className="w-4 h-4" style={{ color: "#1FB8FF" }} /> Global movement</span>
-                    </div>
-                  </div>
-
-                  {/* Follow Button */}
-                  {me?.email && me.email !== ACCOUNT_EMAIL && (
-                    <button
-                      onClick={() => followMutation.mutate()}
-                      className="mt-4 sm:mt-0 px-7 py-3 rounded-full font-bold text-sm transition-all shrink-0 flex items-center gap-2"
-                      style={isFollowing
-                        ? { background: "#F6F8FC", color: "#4A5878", border: "1px solid #E6ECF5" }
-                        : { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 16px rgba(11,63,217,0.3)" }}
-                    >
-                      {isFollowing ? <><UserCheck className="w-4 h-4" /> Following</> : <><UserPlus className="w-4 h-4" /> Follow</>}
-                    </button>
-                  )}
-                </div>
+      <main className="max-w-5xl mx-auto px-5 -mt-24 relative z-10">
+        <section className="rounded-[22px] bg-white p-7 shadow-[0_18px_45px_rgba(7,23,51,0.16)] border border-[#EFE6D0]">
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
+            <div className="w-28 h-28 rounded-full p-[4px] shrink-0" style={{ background: "linear-gradient(135deg, #F3E4B8 0%, #B58B35 100%)" }}>
+              <div className="w-full h-full rounded-full overflow-hidden bg-[#071733] border-[3px] border-white">
+                <img src={ACCOUNT_IMAGE} alt={ACCOUNT_NAME} className="w-full h-full object-cover" />
               </div>
             </div>
-          </div>
-        </div>
-        <div className="h-6" />
-
-        {/* Content Categories Stats */}
-        <div className="mb-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { icon: "🔐", label: "Codes of Truth", count: codeOfTruthCount, color: "#0B3FD9", bg: "rgba(11,63,217,0.06)", border: "#D6E4FF", tab: "codes_of_truth" },
-              { icon: "💯", label: "Keep It 100", count: keepIt100Count, color: "#CC7A00", bg: "rgba(255,208,0,0.06)", border: "#FFE4A0", tab: "keeping_it_100" },
-              { icon: "📖", label: "Daily Verse", count: dailyVerseCount, color: "#8A5CFF", bg: "rgba(138,92,255,0.06)", border: "rgba(138,92,255,0.25)", tab: "daily_verse" },
-            ].map(item => (
-              <Link
-                key={item.tab}
-                to={`${createPageUrl("DailyTruthFeed")}?tab=${item.tab}`}
-                className="rounded-2xl p-5 flex items-center gap-4 transition-all hover:-translate-y-0.5 no-underline group"
-                style={{ background: "#FFFFFF", border: `1px solid ${item.border}`, boxShadow: "0 4px 12px rgba(11,63,217,0.04)" }}
-              >
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0" style={{ background: item.bg }}>
-                  {item.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm" style={{ color: "#0B1B3D" }}>{item.label}</div>
-                  <div className="text-xs mt-0.5" style={{ color: "#6B7FA0" }}>{item.count} posts</div>
-                </div>
-                <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: item.color }} />
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Latest Posts */}
-        <div className="pb-12">
-          <div className="rounded-[2rem] bg-white border border-[#E6ECF5] overflow-hidden" style={{ boxShadow: "0 8px 32px rgba(11,63,217,0.06)" }}>
-            <div className="flex items-center justify-between p-6 pb-4 border-b" style={{ borderColor: "#E6ECF5" }}>
-              <h2 className="text-xl font-bold font-['Space_Grotesk']">Latest Posts</h2>
-              <Link to={createPageUrl("DailyTruthFeed")} className="text-sm font-bold flex items-center gap-1 no-underline" style={{ color: "#0B3FD9" }}>
-                View all <ArrowRight className="w-4 h-4" />
-              </Link>
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h2 className="text-3xl font-black font-['Space_Grotesk'] tracking-tight text-[#071733]">{ACCOUNT_NAME}</h2>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#EAF2FF] text-[#0B3FD9]">
+                  <Sparkles className="w-3 h-3" /> Official Account
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed max-w-2xl mb-4 text-[#1F2F4D]">
+                The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
+              </p>
+              <div className="flex flex-wrap items-center gap-5 text-sm text-[#5D6472]">
+                <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> <strong className="text-[#071733]">{follows.length}</strong> followers</span>
+                <span className="flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-[#B58B35]" /> <strong className="text-[#071733]">{posts.length}</strong> posts</span>
+                <span className="flex items-center gap-1.5"><Globe className="w-4 h-4" /> Global movement</span>
+              </div>
             </div>
-            <div className="divide-y" style={{ borderColor: "#F0F4FA" }}>
-              {posts.slice(0, 10).map((post) => {
+            {me?.email && me.email !== ACCOUNT_EMAIL && (
+              <button
+                onClick={() => followMutation.mutate()}
+                className="px-6 py-3 rounded-full font-bold text-sm transition-all shrink-0 flex items-center gap-2"
+                style={isFollowing
+                  ? { background: "#FAFBF7", color: "#071733", border: "1px solid #D8C391" }
+                  : { background: "#071733", color: "#D6B86A", boxShadow: "0 10px 22px rgba(7,23,51,0.22)" }}
+              >
+                {isFollowing ? <><UserCheck className="w-4 h-4" /> Following</> : <><UserPlus className="w-4 h-4" /> Follow</>}
+              </button>
+            )}
+          </div>
+        </section>
+
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-7">
+          {[
+            { icon: "🔐", label: "Codes of Truth", count: codeOfTruthCount, tab: "codes_of_truth" },
+            { icon: "💯", label: "Keep It 100", count: keepIt100Count, tab: "keeping_it_100" },
+            { icon: "📖", label: "Daily Verse", count: dailyVerseCount, tab: "daily_verse" },
+          ].map(item => (
+            <Link
+              key={item.tab}
+              to={`${createPageUrl("DailyTruthFeed")}?tab=${item.tab}`}
+              className="rounded-2xl p-5 flex items-center gap-4 bg-white border border-[#D8C391] shadow-[0_12px_28px_rgba(181,139,53,0.13)] no-underline transition hover:-translate-y-0.5"
+            >
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-[#F7F1E2]">{item.icon}</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-black text-sm text-[#071733]">{item.label}</div>
+                <div className="text-xs mt-1 text-[#5D6472]">{item.count} posts</div>
+              </div>
+            </Link>
+          ))}
+        </section>
+
+        <section className="pt-11 pb-16">
+          <div className="flex items-center justify-between mb-5 px-5">
+            <h2 className="text-2xl font-black font-['Space_Grotesk'] text-[#071733]">Latest Posts</h2>
+            <Link to={createPageUrl("DailyTruthFeed")} className="text-sm font-bold flex items-center gap-1 no-underline text-[#071733]">
+              View all <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="space-y-6">
+            {posts.length > 0 && (() => {
+              const renderPost = (post, index, variant = "card") => {
                 const catStyle = getCategoryStyle(post.category);
                 const postedDate = post.created_date ? new Date(post.created_date.endsWith('Z') ? post.created_date : post.created_date + 'Z') : null;
+                const hasPoster = post.category === "Keep It 100" || post.category === "Code of Truth";
+                const Poster = post.category === "Keep It 100" ? KeepIt100Poster : CodesOfTruthPoster;
+                const isFeatured = variant === "featured";
+                const isWide = variant === "wide" && hasPoster;
+
                 return (
-                  <div key={post.id} className="p-5 sm:p-6 hover:bg-[#FAFBFE] transition-colors">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold" style={{ background: catStyle.bg, color: catStyle.color, border: `1px solid ${catStyle.border}` }}>
-                        {catStyle.icon} {post.category || "Daily Drop"}
-                      </span>
-                      {postedDate && (
-                        <span className="text-[11px]" style={{ color: "#8A97B5" }}>{format(postedDate, "MMM d, yyyy")}</span>
+                  <article key={post.id} className={`bg-white border border-[#D8C391] shadow-[0_14px_34px_rgba(7,23,51,0.09)] overflow-hidden ${isFeatured ? "rounded-2xl p-6" : isWide ? "rounded-2xl p-0 md:grid md:grid-cols-[300px_1fr]" : "rounded-2xl p-5"}`}>
+                    {isWide && <Poster text={post.reflection} verse={post.verse} className="w-full h-full min-h-[310px] object-cover" />}
+                    <div className={isWide ? "p-8 flex flex-col justify-center" : ""}>
+                      <div className="flex items-center gap-2 mb-3 flex-wrap">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#F3E4B8] text-[#7C5A17]">
+                          {catStyle.icon} {post.category || "Daily Drop"}
+                        </span>
+                        {postedDate && <span className="text-[11px] text-[#7A8190]">{format(postedDate, "MMM d, yyyy")}</span>}
+                      </div>
+                      {!isWide && hasPoster && !isFeatured && <Poster text={post.reflection} verse={post.verse} className="w-full aspect-[4/5] rounded-xl mb-4" />}
+                      {post.verse && (
+                        <h3 className={`${isFeatured ? "text-xl md:text-2xl" : "text-lg"} font-black leading-tight mb-2 text-[#071733]`}>{post.verse}</h3>
                       )}
+                      {post.category && <div className="text-sm mb-3 text-[#071733]">📖 {post.category}</div>}
+                      {post.reflection && (
+                        <p className="text-sm leading-relaxed whitespace-pre-line line-clamp-4 text-[#1F2F4D]">{post.reflection}</p>
+                      )}
+                      {post.hashtags && <div className="text-xs font-bold mt-3 text-[#071733]">{post.hashtags}</div>}
+                      <div className="flex items-center gap-5 mt-4 text-xs text-[#5D6472]">
+                        <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5" /> {post.likes_count || 0}</span>
+                        <span className="flex items-center gap-1"><MessageCircle className="w-3.5 h-3.5" /> {post.shares_count || 0}</span>
+                      </div>
                     </div>
-                    {post.category === "Keep It 100" && (
-                      <KeepIt100Poster text={post.reflection} verse={post.verse} className="w-full max-w-[260px] aspect-[4/5] rounded-2xl mb-3" />
-                    )}
-                    {post.category === "Code of Truth" && (
-                      <CodesOfTruthPoster text={post.reflection} verse={post.verse} className="w-full max-w-[260px] aspect-[4/5] rounded-2xl mb-3" />
-                    )}
-                    {post.verse && (
-                      <p className="font-bold text-sm mb-1.5" style={{ color: "#0B3FD9" }}>{post.verse}</p>
-                    )}
-                    {post.reflection && (
-                      <p className="text-sm leading-relaxed whitespace-pre-line line-clamp-3" style={{ color: "#3A4A6B" }}>{post.reflection}</p>
-                    )}
-                    {post.hashtags && (
-                      <div className="text-xs font-medium mt-2" style={{ color: "#0B3FD9" }}>{post.hashtags}</div>
-                    )}
-                    <div className="flex items-center gap-5 mt-3 text-xs" style={{ color: "#8A97B5" }}>
-                      <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5" /> {post.likes_count || 0}</span>
-                      <span className="flex items-center gap-1"><MessageCircle className="w-3.5 h-3.5" /> {post.shares_count || 0}</span>
-                    </div>
-                  </div>
+                  </article>
                 );
-              })}
-              {posts.length === 0 && (
-                <div className="p-10 text-center" style={{ color: "#8A97B5" }}>
-                  <div className="text-4xl mb-3">✨</div>
-                  <p>No posts yet. Stay tuned!</p>
-                </div>
-              )}
-            </div>
+              };
+
+              return (
+                <>
+                  {renderPost(posts[0], 0, "featured")}
+                  {posts[1] && renderPost(posts[1], 1, "wide")}
+                  {posts.length > 2 && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                      {posts.slice(2, 10).map((post, index) => renderPost(post, index + 2, "card"))}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+            {posts.length === 0 && (
+              <div className="p-10 text-center rounded-2xl bg-white border border-[#D8C391] text-[#5D6472]">
+                <div className="text-4xl mb-3">✨</div>
+                <p>No posts yet. Stay tuned!</p>
+              </div>
+            )}
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
       <AppFooter />
     </div>
   );
