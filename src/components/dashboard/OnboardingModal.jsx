@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -56,6 +56,7 @@ function DesktopOnboardingModal({ isOpen, onCompleted }) {
   const [bio, setBio] = useState("");
   const [profilePic, setProfilePic] = useState("");
   const [phone, setPhone] = useState("");
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     const initializeFromUser = async () => {
@@ -79,8 +80,16 @@ function DesktopOnboardingModal({ isOpen, onCompleted }) {
         }
       } catch (err) { console.error("Failed to load user data:", err); }
     };
-    if (isOpen) initializeFromUser();
-  }, [isOpen, onCompleted]);
+    if (!isOpen) {
+      hasInitializedRef.current = false;
+      return;
+    }
+
+    if (!hasInitializedRef.current) {
+      hasInitializedRef.current = true;
+      initializeFromUser();
+    }
+  }, [isOpen]);
 
   const handlePicUpload = async (e) => {
     const file = e.target.files?.[0];

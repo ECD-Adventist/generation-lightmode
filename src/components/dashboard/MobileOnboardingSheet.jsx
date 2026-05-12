@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
@@ -51,6 +51,7 @@ export default function MobileOnboardingSheet({ isOpen, onCompleted }) {
   const [bio, setBio] = useState("");
   const [profilePic, setProfilePic] = useState("");
   const [phone, setPhone] = useState("");
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     const initializeFromUser = async () => {
@@ -74,8 +75,16 @@ export default function MobileOnboardingSheet({ isOpen, onCompleted }) {
         }
       } catch (err) { console.error("Failed to load user data:", err); }
     };
-    if (isOpen) initializeFromUser();
-  }, [isOpen, onCompleted]);
+    if (!isOpen) {
+      hasInitializedRef.current = false;
+      return;
+    }
+
+    if (!hasInitializedRef.current) {
+      hasInitializedRef.current = true;
+      initializeFromUser();
+    }
+  }, [isOpen]);
 
   const handlePicUpload = async (e) => {
     const file = e.target.files?.[0];
