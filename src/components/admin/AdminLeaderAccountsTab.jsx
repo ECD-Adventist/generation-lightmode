@@ -9,26 +9,26 @@ import { createPageUrl } from "@/utils";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import LeaderAccountFormModal from "./leader-accounts/LeaderAccountFormModal";
 
-function LeaderStats({ email }) {
+function LeaderStats({ email, t }) {
   const { data: drops = [], isLoading } = useQuery({
     queryKey: ["leaderStats", email],
     queryFn: () => base44.entities.GlowDrop.filter({ user_email: email }),
     enabled: !!email,
   });
 
-  if (isLoading) return <div className="text-[11px] text-[#C8D0E0] opacity-70">Loading stats...</div>;
+  if (isLoading) return <div className="text-[11px] opacity-70" style={{ color: t.textSecondary }}>Loading stats...</div>;
 
   const totalLikes = drops.reduce((sum, drop) => sum + (drop.likes_count || 0) + (drop.bonus_likes_count || 0), 0);
 
   return (
     <div className="flex gap-4 mt-2 justify-center">
       <div className="flex flex-col items-center">
-        <span className="text-lg font-bold text-[#FFFFFF]">{drops.length}</span>
-        <span className="text-[10px] text-[#00CFFF] uppercase tracking-wider font-semibold">Posts</span>
+        <span className="text-lg font-bold" style={{ color: t.textPrimary }}>{drops.length}</span>
+        <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: t.accent }}>Posts</span>
       </div>
       <div className="flex flex-col items-center">
-        <span className="text-lg font-bold text-[#FFFFFF]">{totalLikes}</span>
-        <span className="text-[10px] text-[#8A5CFF] uppercase tracking-wider font-semibold">Likes</span>
+        <span className="text-lg font-bold" style={{ color: t.textPrimary }}>{totalLikes}</span>
+        <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: t.accentDeep }}>Likes</span>
       </div>
     </div>
   );
@@ -183,13 +183,14 @@ export default function AdminLeaderAccountsTab() {
         </div>
         
         {selectedIds.size > 0 && (
-          <div className="flex items-center gap-3 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-full px-4 py-2 text-sm text-[#C8D0E0]">
-            <span className="font-semibold text-[#00CFFF]">{selectedIds.size} selected</span>
-            <div className="w-px h-4 bg-[rgba(255,255,255,0.1)]"></div>
-            <button onClick={toggleAll} className="hover:text-white transition">Select All</button>
+          <div className="flex items-center gap-3 border rounded-full px-4 py-2 text-sm" style={{ background: isDark ? "rgba(255,255,255,0.05)" : t.surface, borderColor: t.border, color: t.textSecondary }}>
+            <span className="font-semibold" style={{ color: t.accent }}>{selectedIds.size} selected</span>
+            <div className="w-px h-4" style={{ background: t.border }}></div>
+            <button onClick={toggleAll} className="hover:opacity-70 transition" style={{ color: t.textPrimary }}>Select All</button>
             <button 
               onClick={handleBulkDelete}
-              className="flex items-center gap-1.5 text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] px-2 py-1 rounded-full transition ml-2"
+              className="flex items-center gap-1.5 px-2 py-1 rounded-full transition ml-2 hover:opacity-80"
+              style={{ color: t.danger, background: t.dangerSoft }}
             >
               <Trash2 className="w-3.5 h-3.5" /> Bulk Delete
             </button>
@@ -209,13 +210,15 @@ export default function AdminLeaderAccountsTab() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filtered.map(account => (
             <div key={account.id} className="rounded-[24px] p-6 relative overflow-hidden group break-inside-avoid flex flex-col" style={{ 
-              background: "linear-gradient(180deg, rgba(0, 207, 255, 0.15) 0%, rgba(22, 29, 43, 1) 35%)",
-              backgroundColor: "#161D2B",
-              border: "1px solid rgba(255, 255, 255, 0.06)", 
-              boxShadow: "0 8px 30px rgba(0,0,0,0.4)"
+              background: isDark 
+                ? "linear-gradient(180deg, rgba(0, 207, 255, 0.15) 0%, rgba(22, 29, 43, 1) 35%)"
+                : `linear-gradient(180deg, ${t.accentSoft} 0%, ${t.surface} 35%)`,
+              backgroundColor: t.surface,
+              border: `1px solid ${t.border}`, 
+              boxShadow: t.shadowLg
             }}>
               {/* Subtle hover gradient */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.08) 100%)" }} />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: isDark ? "linear-gradient(180deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.08) 100%)" : `linear-gradient(180deg, ${t.accentSoft} 0%, transparent 100%)` }} />
 
               {/* Top Controls: Checkbox & Status Switch */}
               <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
@@ -223,16 +226,16 @@ export default function AdminLeaderAccountsTab() {
                   type="checkbox"
                   checked={selectedIds.has(account.id)}
                   onChange={() => toggleSelection(account.id)}
-                  className="w-4 h-4 rounded border-[#2A344A] bg-[#161D2B] checked:bg-[#00CFFF] checked:border-[#00CFFF] cursor-pointer"
+                  className={`w-4 h-4 rounded border cursor-pointer ${isDark ? "border-[#2A344A] bg-[#161D2B] checked:bg-[#00CFFF] checked:border-[#00CFFF]" : "border-[rgba(11,63,217,0.2)] bg-white checked:bg-[#0B3FD9] checked:border-[#0B3FD9]"}`}
                 />
                 <div className="flex items-center gap-2" title="Toggle account active status">
-                  <span className="text-[10px] uppercase font-bold text-[#8A9BB0]">
+                  <span className="text-[10px] uppercase font-bold" style={{ color: t.textMuted }}>
                     {account.active !== false ? 'Active' : 'Inactive'}
                   </span>
                   <Switch
                     checked={account.active !== false}
                     onCheckedChange={(checked) => toggleStatusMutation.mutate({ id: account.id, active: checked })}
-                    className="data-[state=checked]:bg-[#00CFFF] data-[state=unchecked]:bg-[#2A344A]"
+                    className={isDark ? "data-[state=checked]:bg-[#00CFFF] data-[state=unchecked]:bg-[#2A344A]" : "data-[state=checked]:bg-[#0B3FD9] data-[state=unchecked]:bg-[#E2E8F0]"}
                   />
                 </div>
               </div>
@@ -240,13 +243,13 @@ export default function AdminLeaderAccountsTab() {
               {/* Avatar Section */}
               <div className="relative w-[140px] h-[140px] mx-auto mb-6 mt-2 shrink-0">
                 {/* Glowing gradient ring */}
-                <div className="absolute inset-[-6px] rounded-full" style={{ background: "linear-gradient(180deg, #00CFFF 0%, #8A5CFF 60%, transparent 100%)", opacity: 0.9 }} />
-                <div className="absolute inset-0 rounded-full" style={{ background: "#161D2B" }} />
-                <div className="absolute inset-[5px] rounded-full overflow-hidden bg-[#1A2235]">
+                <div className="absolute inset-[-6px] rounded-full" style={{ background: isDark ? "linear-gradient(180deg, #00CFFF 0%, #8A5CFF 60%, transparent 100%)" : t.gradient, opacity: isDark ? 0.9 : 0.6 }} />
+                <div className="absolute inset-0 rounded-full" style={{ background: t.surface }} />
+                <div className="absolute inset-[5px] rounded-full overflow-hidden" style={{ background: t.surfaceMuted }}>
                   {account.leader_profile_picture_url ? (
                     <img src={account.leader_profile_picture_url} alt={account.leader_name} className="w-full h-full object-cover" />
                   ) : (
-                    <Camera className="w-8 h-8 m-auto mt-[50px] text-[#C8D0E0] opacity-50" />
+                    <Camera className="w-8 h-8 m-auto mt-[50px] opacity-50" style={{ color: t.textMuted }} />
                   )}
                 </div>
               </div>
@@ -254,86 +257,86 @@ export default function AdminLeaderAccountsTab() {
               {/* Info Section */}
               <div className="flex-1 relative flex flex-col items-center text-center">
                 <div className="flex items-center justify-center gap-2 mb-1">
-                  <h3 className="font-bold text-[22px] leading-tight" style={{ color: "#FFFFFF", fontFamily: "'Space Grotesk', sans-serif" }}>
+                  <h3 className="font-bold text-[22px] leading-tight" style={{ color: t.textPrimary, fontFamily: "'Space Grotesk', sans-serif" }}>
                     {account.leader_name}
                   </h3>
                   {account.active === false && (
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0" style={{ background: "rgba(239,68,68,0.12)", color: "#EF4444" }}>INACTIVE</span>
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0" style={{ background: t.dangerSoft, color: t.danger }}>INACTIVE</span>
                   )}
                 </div>
                 
-                <p className="text-[14px] mb-4 text-[#C8D0E0]" style={{ fontFamily: "Inter, sans-serif", minHeight: "42px" }}>
+                <p className="text-[14px] mb-4" style={{ color: t.textSecondary, fontFamily: "Inter, sans-serif", minHeight: "42px" }}>
                   {account.leader_bio ? (account.leader_bio.length > 80 ? account.leader_bio.substring(0, 80) + '...' : account.leader_bio) : "No bio provided."}
                 </p>
 
                 <div className="flex flex-wrap justify-center gap-2 mb-4">
                   {account.leader_title && (
-                    <span className="px-3 py-1 rounded-full text-[11px] font-semibold inline-block" style={{ background: "rgba(255, 255, 255, 0.05)", color: "#C8D0E0", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                    <span className="px-3 py-1 rounded-full text-[11px] font-semibold inline-block" style={{ background: isDark ? "rgba(255, 255, 255, 0.05)" : t.surfaceAlt, color: t.textSecondary, border: `1px solid ${isDark ? "rgba(255, 255, 255, 0.08)" : t.border}` }}>
                       {account.leader_title}
                     </span>
                   )}
                   {account.leader_country && (
-                    <span className="px-3 py-1 rounded-full text-[11px] font-semibold inline-block" style={{ background: "rgba(255, 255, 255, 0.05)", color: "#C8D0E0", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                    <span className="px-3 py-1 rounded-full text-[11px] font-semibold inline-block" style={{ background: isDark ? "rgba(255, 255, 255, 0.05)" : t.surfaceAlt, color: t.textSecondary, border: `1px solid ${isDark ? "rgba(255, 255, 255, 0.08)" : t.border}` }}>
                       📍 {account.leader_country}
                     </span>
                   )}
-                  <span className="px-3 py-1 rounded-full text-[11px] font-semibold inline-block" style={{ background: "rgba(255, 255, 255, 0.05)", color: "#C8D0E0", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                  <span className="px-3 py-1 rounded-full text-[11px] font-semibold inline-block" style={{ background: isDark ? "rgba(255, 255, 255, 0.05)" : t.surfaceAlt, color: t.textSecondary, border: `1px solid ${isDark ? "rgba(255, 255, 255, 0.08)" : t.border}` }}>
                     👥 {(account.manager_emails || []).length} Manager{((account.manager_emails || []).length !== 1) ? 's' : ''}
                   </span>
                 </div>
                 
-                <div className="mb-6 w-full border-t border-[rgba(255,255,255,0.04)] pt-3">
-                   <LeaderStats email={account.leader_email} />
+                <div className="mb-6 w-full border-t pt-3" style={{ borderColor: t.border }}>
+                   <LeaderStats email={account.leader_email} t={t} />
                 </div>
               </div>
 
               {/* Action Icons Strip */}
-              <div className="flex items-center justify-center gap-2 pt-4 mt-auto border-t border-[rgba(255,255,255,0.06)] relative z-10">
+              <div className="flex items-center justify-center gap-2 pt-4 mt-auto border-t relative z-10" style={{ borderColor: t.border }}>
                 <a
                   href={`mailto:${account.leader_email}`}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition hover:bg-[rgba(255,255,255,0.08)] group/btn"
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition group/btn ${isDark ? 'hover:bg-[rgba(255,255,255,0.08)]' : 'hover:bg-[rgba(11,63,217,0.08)]'}`}
                   title={`Email ${account.leader_name} (${account.leader_email})`}
                 >
-                  <Mail className="w-5 h-5 text-[#C8D0E0] group-hover/btn:text-[#00CFFF]" strokeWidth={1.5} />
+                  <Mail className={`w-5 h-5 transition ${isDark ? 'text-[#C8D0E0] group-hover/btn:text-[#00CFFF]' : 'text-[#6B7FA0] group-hover/btn:text-[#0B3FD9]'}`} strokeWidth={1.5} />
                 </a>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(`https://generationlightmode.com/leader/${account.id}`);
                     toast.success("Profile link copied");
                   }}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition hover:bg-[rgba(255,255,255,0.08)] group/btn"
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition group/btn ${isDark ? 'hover:bg-[rgba(255,255,255,0.08)]' : 'hover:bg-[rgba(11,63,217,0.08)]'}`}
                   title="Copy Profile Link"
                 >
-                  <Share2 className="w-5 h-5 text-[#C8D0E0] group-hover/btn:text-[#00CFFF]" strokeWidth={1.5} />
+                  <Share2 className={`w-5 h-5 transition ${isDark ? 'text-[#C8D0E0] group-hover/btn:text-[#00CFFF]' : 'text-[#6B7FA0] group-hover/btn:text-[#0B3FD9]'}`} strokeWidth={1.5} />
                 </button>
                 <Link
                   to={`${createPageUrl("AdminCenter")}?tab=leader-posts&leader=${encodeURIComponent(account.leader_email)}`}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition hover:bg-[rgba(255,255,255,0.08)] group/btn"
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition group/btn ${isDark ? 'hover:bg-[rgba(255,255,255,0.08)]' : 'hover:bg-[rgba(11,63,217,0.08)]'}`}
                   title="View Activity Logs"
                 >
-                  <Activity className="w-5 h-5 text-[#C8D0E0] group-hover/btn:text-[#00CFFF]" strokeWidth={1.5} />
+                  <Activity className={`w-5 h-5 transition ${isDark ? 'text-[#C8D0E0] group-hover/btn:text-[#00CFFF]' : 'text-[#6B7FA0] group-hover/btn:text-[#0B3FD9]'}`} strokeWidth={1.5} />
                 </Link>
                 <button
                   onClick={() => handleEdit(account)}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition hover:bg-[rgba(255,255,255,0.08)] group/btn"
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition group/btn ${isDark ? 'hover:bg-[rgba(255,255,255,0.08)]' : 'hover:bg-[rgba(11,63,217,0.08)]'}`}
                   title="Edit Account"
                 >
-                  <Edit3 className="w-5 h-5 text-[#C8D0E0] group-hover/btn:text-[#00CFFF]" strokeWidth={1.5} />
+                  <Edit3 className={`w-5 h-5 transition ${isDark ? 'text-[#C8D0E0] group-hover/btn:text-[#00CFFF]' : 'text-[#6B7FA0] group-hover/btn:text-[#0B3FD9]'}`} strokeWidth={1.5} />
                 </button>
                 <button
                   onClick={() => handleAutoFollow(account)}
                   disabled={autoFollowingId === account.id || account.active === false}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition hover:bg-[rgba(255,255,255,0.08)] disabled:opacity-50 group/btn"
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition disabled:opacity-50 group/btn ${isDark ? 'hover:bg-[rgba(255,255,255,0.08)]' : 'hover:bg-[rgba(11,63,217,0.08)]'}`}
                   title="Auto-Follow: Make users follow this leader"
                 >
-                  {autoFollowingId === account.id ? <Loader2 className="w-5 h-5 animate-spin text-[#C8D0E0]" strokeWidth={1.5} /> : <UsersRound className="w-5 h-5 text-[#C8D0E0] group-hover/btn:text-[#00CFFF]" strokeWidth={1.5} />}
+                  {autoFollowingId === account.id ? <Loader2 className={`w-5 h-5 animate-spin transition ${isDark ? 'text-[#C8D0E0]' : 'text-[#6B7FA0]'}`} strokeWidth={1.5} /> : <UsersRound className={`w-5 h-5 transition ${isDark ? 'text-[#C8D0E0] group-hover/btn:text-[#00CFFF]' : 'text-[#6B7FA0] group-hover/btn:text-[#0B3FD9]'}`} strokeWidth={1.5} />}
                 </button>
                 <button
                   onClick={() => handleDelete(account)}
-                  className="w-10 h-10 rounded-full flex items-center justify-center transition hover:bg-[rgba(239,68,68,0.15)] group/btn"
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition group/btn ${isDark ? 'hover:bg-[rgba(239,68,68,0.15)]' : 'hover:bg-[rgba(239,68,68,0.08)]'}`}
                   title="Delete Account"
                 >
-                  <Trash2 className="w-5 h-5 text-[#C8D0E0] group-hover/btn:text-[#EF4444]" strokeWidth={1.5} />
+                  <Trash2 className={`w-5 h-5 transition ${isDark ? 'text-[#C8D0E0] group-hover/btn:text-[#EF4444]' : 'text-[#6B7FA0] group-hover/btn:text-[#DC2626]'}`} strokeWidth={1.5} />
                 </button>
               </div>
             </div>
