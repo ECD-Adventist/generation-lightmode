@@ -79,7 +79,8 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
 
       // Status tab
       if (filter === "hidden" && !d.hidden) return false;
-      if (filter !== "all" && filter !== "hidden" && status !== filter) return false;
+      if (filter === "last24h" && (!d.created_date || (new Date() - new Date(d.created_date)) / (1000 * 60 * 60) > 24)) return false;
+      if (!["all", "hidden", "last24h"].includes(filter) && status !== filter) return false;
 
       // Category
       if (filterCategory !== "all" && d.category !== filterCategory) return false;
@@ -192,7 +193,7 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
 
       {activeSection === "boosters" ? <LightBoostersManager t={t} /> : <>
 
-      <GlowDropsStats stats={stats} t={t} />
+      <GlowDropsStats stats={stats} t={t} activeFilter={filter} onFilterChange={setFilter} />
 
       <GlowDropsFilterBar
         filter={filter} setFilter={setFilter}
