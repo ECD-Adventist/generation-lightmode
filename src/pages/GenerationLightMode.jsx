@@ -64,19 +64,7 @@ export default function GenerationLightMode() {
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#FAFBF7", color: "#071733" }}>
-      {/* Hero Cover with Background Image */}
-      <div 
-        className="relative overflow-hidden"
-        style={{
-          background: `linear-gradient(135deg, rgba(7,23,51,0.75) 0%, rgba(7,23,51,0.65) 100%), url(${HERO_BG_URL}) center/cover no-repeat`,
-          backgroundBlendMode: "overlay",
-          minHeight: "500px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between"
-        }}
-      >
-        {/* Top Nav */}
+      <div className="relative overflow-hidden" style={{ background: `#071733 url(${HERO_BG_URL}) center/cover no-repeat` }}>
         <div className="border-b border-white/10">
           <div className="max-w-5xl mx-auto px-5 py-4 flex items-center justify-between gap-6">
             <Link to={createPageUrl("Home")} className="flex items-center gap-2 shrink-0">
@@ -98,8 +86,7 @@ export default function GenerationLightMode() {
           </div>
         </div>
 
-        {/* Hero Title Section */}
-        <div className="max-w-5xl mx-auto px-5 py-16">
+        <div className="max-w-5xl mx-auto px-5 pt-12 pb-28">
           <div className="flex items-end gap-8">
             <h1 className="font-['Space_Grotesk'] font-black uppercase leading-[0.9] tracking-[-0.06em] text-[#D6B86A] text-[72px] md:text-[108px] lg:text-[128px]">
               GENERATION<br />LIGHTMODE
@@ -110,54 +97,40 @@ export default function GenerationLightMode() {
       </div>
 
       <main className="max-w-5xl mx-auto px-5 -mt-24 relative z-10">
-        <section className="rounded-[22px] bg-white shadow-[0_18px_45px_rgba(7,23,51,0.16)] border border-[#EFE6D0] overflow-hidden">
-          {/* Cover Image */}
-          <div 
-            className="h-48 relative"
-            style={{
-              backgroundImage: `linear-gradient(135deg, rgba(7,23,51,0.35) 0%, rgba(7,23,51,0.15) 100%), url(${HERO_BG_URL})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat"
-            }}
-          />
-
-          {/* Profile Info */}
-          <div className="px-7 pt-0 pb-7">
-            <div className="flex flex-col md:flex-row md:items-start gap-6 -mt-16 relative z-10">
-              <div className="w-32 h-32 rounded-full p-[4px] shrink-0" style={{ background: "linear-gradient(135deg, #F3E4B8 0%, #B58B35 100%)" }}>
-                <div className="w-full h-full rounded-full overflow-hidden bg-[#071733] border-[4px] border-white">
-                  <img src={ACCOUNT_IMAGE} alt={ACCOUNT_NAME} className="w-full h-full object-cover" />
-                </div>
+        <section className="rounded-[22px] bg-white p-7 shadow-[0_18px_45px_rgba(7,23,51,0.16)] border border-[#EFE6D0]">
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
+            <div className="w-28 h-28 rounded-full p-[4px] shrink-0" style={{ background: "linear-gradient(135deg, #F3E4B8 0%, #B58B35 100%)" }}>
+              <div className="w-full h-full rounded-full overflow-hidden bg-[#071733] border-[3px] border-white">
+                <img src={ACCOUNT_IMAGE} alt={ACCOUNT_NAME} className="w-full h-full object-cover" />
               </div>
-              <div className="flex-1 min-w-0 md:pt-20">
-                <div className="flex flex-wrap items-center gap-3 mb-3">
-                  <h2 className="text-3xl font-black font-['Space_Grotesk'] tracking-tight text-[#071733]">{ACCOUNT_NAME}</h2>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#EAF2FF] text-[#0B3FD9]">
-                    <Sparkles className="w-3 h-3" /> Official Account
-                  </span>
-                </div>
-                <p className="text-sm leading-relaxed max-w-2xl mb-4 text-[#1F2F4D]">
-                  The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
-                </p>
-                <div className="flex flex-wrap items-center gap-5 text-sm text-[#5D6472]">
-                  <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> <strong className="text-[#071733]">{follows.length}</strong> followers</span>
-                  <span className="flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-[#B58B35]" /> <strong className="text-[#071733]">{posts.length}</strong> posts</span>
-                  <span className="flex items-center gap-1.5"><Globe className="w-4 h-4" /> Global movement</span>
-                </div>
-              </div>
-              {me?.email && me.email !== ACCOUNT_EMAIL && (
-                <button
-                  onClick={() => followMutation.mutate()}
-                  className="px-6 py-3 rounded-full font-bold text-sm transition-all shrink-0 flex items-center gap-2 md:mt-8"
-                  style={isFollowing
-                    ? { background: "#FAFBF7", color: "#071733", border: "1px solid #D8C391" }
-                    : { background: "#071733", color: "#D6B86A", boxShadow: "0 10px 22px rgba(7,23,51,0.22)" }}
-                >
-                  {isFollowing ? <><UserCheck className="w-4 h-4" /> Following</> : <><UserPlus className="w-4 h-4" /> Follow</>}
-                </button>
-              )}
             </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h2 className="text-3xl font-black font-['Space_Grotesk'] tracking-tight text-[#071733]">{ACCOUNT_NAME}</h2>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#EAF2FF] text-[#0B3FD9]">
+                  <Sparkles className="w-3 h-3" /> Official Account
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed max-w-2xl mb-4 text-[#1F2F4D]">
+                The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
+              </p>
+              <div className="flex flex-wrap items-center gap-5 text-sm text-[#5D6472]">
+                <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> <strong className="text-[#071733]">{follows.length}</strong> followers</span>
+                <span className="flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-[#B58B35]" /> <strong className="text-[#071733]">{posts.length}</strong> posts</span>
+                <span className="flex items-center gap-1.5"><Globe className="w-4 h-4" /> Global movement</span>
+              </div>
+            </div>
+            {me?.email && me.email !== ACCOUNT_EMAIL && (
+              <button
+                onClick={() => followMutation.mutate()}
+                className="px-6 py-3 rounded-full font-bold text-sm transition-all shrink-0 flex items-center gap-2"
+                style={isFollowing
+                  ? { background: "#FAFBF7", color: "#071733", border: "1px solid #D8C391" }
+                  : { background: "#071733", color: "#D6B86A", boxShadow: "0 10px 22px rgba(7,23,51,0.22)" }}
+              >
+                {isFollowing ? <><UserCheck className="w-4 h-4" /> Following</> : <><UserPlus className="w-4 h-4" /> Follow</>}
+              </button>
+            )}
           </div>
         </section>
 
@@ -189,39 +162,38 @@ export default function GenerationLightMode() {
             </Link>
           </div>
 
-          <div>
+          <div className="space-y-6">
             {posts.length > 0 && (() => {
-              const renderPost = (post, variant = "card") => {
+              const renderPost = (post, index, variant = "card") => {
                 const catStyle = getCategoryStyle(post.category);
                 const postedDate = post.created_date ? new Date(post.created_date.endsWith('Z') ? post.created_date : post.created_date + 'Z') : null;
                 const hasPoster = post.category === "Keep It 100" || post.category === "Code of Truth";
                 const Poster = post.category === "Keep It 100" ? KeepIt100Poster : CodesOfTruthPoster;
                 const isFeatured = variant === "featured";
-                const isCompact = variant === "compact";
+                const isWide = variant === "wide" && hasPoster;
 
                 return (
-                  <article key={post.id} className={`bg-white border border-[#D8C391] shadow-[0_12px_28px_rgba(7,23,51,0.09)] overflow-hidden rounded-2xl ${isFeatured ? "p-6" : isCompact ? "p-4" : "p-5"}`}>
-                    {hasPoster && (isFeatured || !isCompact) && <Poster text={post.reflection} verse={post.verse} className={`w-full ${isFeatured ? "aspect-video" : "aspect-[4/5]"} rounded-xl mb-4`} />}
-                    <div>
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#F3E4B8] text-[#7C5A17]">
-                          {catStyle.icon} {post.category || "Drop"}
+                  <article key={post.id} className={`bg-white border border-[#D8C391] shadow-[0_14px_34px_rgba(7,23,51,0.09)] overflow-hidden ${isFeatured ? "rounded-2xl p-6" : isWide ? "rounded-2xl p-0 md:grid md:grid-cols-[300px_1fr]" : "rounded-2xl p-5"}`}>
+                    {isWide && <Poster text={post.reflection} verse={post.verse} className="w-full h-full min-h-[310px] object-cover" />}
+                    <div className={isWide ? "p-8 flex flex-col justify-center" : ""}>
+                      <div className="flex items-center gap-2 mb-3 flex-wrap">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#F3E4B8] text-[#7C5A17]">
+                          {catStyle.icon} {post.category || "Daily Drop"}
                         </span>
-                        {postedDate && <span className="text-[10px] text-[#7A8190]">{format(postedDate, "MMM d")}</span>}
+                        {postedDate && <span className="text-[11px] text-[#7A8190]">{format(postedDate, "MMM d, yyyy")}</span>}
                       </div>
+                      {!isWide && hasPoster && !isFeatured && <Poster text={post.reflection} verse={post.verse} className="w-full aspect-[4/5] rounded-xl mb-4" />}
                       {post.verse && (
-                        <h3 className={`${isFeatured ? "text-xl" : isCompact ? "text-sm" : "text-base"} font-black leading-tight mb-2 text-[#071733]`}>
-                          {post.verse}
-                        </h3>
+                        <h3 className={`${isFeatured ? "text-xl md:text-2xl" : "text-lg"} font-black leading-tight mb-2 text-[#071733]`}>{post.verse}</h3>
                       )}
+                      {post.category && <div className="text-sm mb-3 text-[#071733]">📖 {post.category}</div>}
                       {post.reflection && (
-                        <p className={`${isCompact ? "text-xs line-clamp-2" : "text-sm line-clamp-3"} leading-relaxed whitespace-pre-line text-[#1F2F4D]`}>
-                          {post.reflection}
-                        </p>
+                        <p className="text-sm leading-relaxed whitespace-pre-line line-clamp-4 text-[#1F2F4D]">{post.reflection}</p>
                       )}
-                      <div className="flex items-center gap-4 mt-3 text-xs text-[#5D6472]">
-                        <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {post.likes_count || 0}</span>
-                        {!isCompact && <span className="flex items-center gap-1"><MessageCircle className="w-3 h-3" /> {post.shares_count || 0}</span>}
+                      {post.hashtags && <div className="text-xs font-bold mt-3 text-[#071733]">{post.hashtags}</div>}
+                      <div className="flex items-center gap-5 mt-4 text-xs text-[#5D6472]">
+                        <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5" /> {post.likes_count || 0}</span>
+                        <span className="flex items-center gap-1"><MessageCircle className="w-3.5 h-3.5" /> {post.shares_count || 0}</span>
                       </div>
                     </div>
                   </article>
@@ -230,15 +202,11 @@ export default function GenerationLightMode() {
 
               return (
                 <>
-                  {/* Featured Post — Full width */}
-                  <div className="mb-8">
-                    {renderPost(posts[0], "featured")}
-                  </div>
-
-                  {/* Grid Layout — 3-col responsive */}
-                  {posts.length > 1 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
-                      {posts.slice(1, 13).map((post) => renderPost(post, "card"))}
+                  {renderPost(posts[0], 0, "featured")}
+                  {posts[1] && renderPost(posts[1], 1, "wide")}
+                  {posts.length > 2 && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                      {posts.slice(2, 10).map((post, index) => renderPost(post, index + 2, "card"))}
                     </div>
                   )}
                 </>
