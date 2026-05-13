@@ -1,8 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 const MAX_BONUS_LIKES = 24;
-const BATCH_LIMIT = 100;
+const BATCH_LIMIT = 500;
 const BOOSTER_POOL_LIMIT = 500;
+const MAX_DROPS_PER_RUN = 25;
 
 function parseDate(value) {
   if (!value) return null;
@@ -22,7 +23,7 @@ Deno.serve(async (req) => {
 
     const now = new Date();
     const oneHourMs = 60 * 60 * 1000;
-    const drops = await base44.asServiceRole.entities.GlowDrop.filter({ bonus_likes_enabled: true }, '-created_date', BATCH_LIMIT);
+    const drops = await base44.asServiceRole.entities.GlowDrop.filter({ status: 'approved', hidden: false }, '-created_date', BATCH_LIMIT);
     const boosters = await base44.asServiceRole.entities.User.filter({
       light_booster_opt_in: true,
       light_booster_approved: true,
@@ -33,10 +34,15 @@ Deno.serve(async (req) => {
     let completed = 0;
     let skippedNoBooster = 0;
 
+    let processedDrops = 0;
+
     for (const drop of drops) {
+      if (processedDrops >= MAX_DROPS_PER_RUN) break;
       const bonusCount = Number(drop.bonus_likes_count || 0);
       if (bonusCount >= MAX_BONUS_LIKES) {
-        await base44.asServiceRole.entities.GlowDrop.update(drop.id, { bonus_likes_enabled: false });
+        if (drop.bonus_likes_enabled) {
+          await base44.asServiceRole.entities.GlowDrop.update(drop.id, { bonus_likes_enabled: false });
+        }
         completed += 1;
         continue;
       }
@@ -50,21 +56,25 @@ Deno.serve(async (req) => {
       const boostsToApply = Math.min(MAX_BONUS_LIKES - bonusCount, expectedBonusCount - bonusCount);
       if (boostsToApply <= 0) continue;
 
-      const existingLikes = await base44.asServiceRole.entities.GlowDropLike.filter({ drop_id: drop.id }, '-created_date', 1000);
-      const alreadyLikedEmails = new Set(existingLikes.map((like) => like.user_email));
-      const eligibleBoosters = boosters.filter((booster) =>
-        booster.email &&
-        booster.email !== drop.user_email &&
-        !alreadyLikedEmails.has(booster.email)
-      );
+      let recordedBoosterLikes = 0;
 
-      const recordedBoosterLikes = Math.min(boostsToApply, eligibleBoosters.length);
-      for (let i = 0; i < recordedBoosterLikes; i += 1) {
-        const booster = eligibleBoosters[(bonusCount + existingLikes.length + i) % eligibleBoosters.length];
-        await base44.asServiceRole.entities.GlowDropLike.create({
-          drop_id: drop.id,
-          user_email: booster.email
-        });
+      if (boosters.length > 0) {
+        const existingLikes = await base44.asServiceRole.entities.GlowDropLike.filter({ drop_id: drop.id }, '-created_date', 1000);
+        const alreadyLikedEmails = new Set(existingLikes.map((like) => like.user_email));
+        const eligibleBoosters = boosters.filter((booster) =>
+          booster.email &&
+          booster.email !== drop.user_email &&
+          !alreadyLikedEmails.has(booster.email)
+        );
+
+        recordedBoosterLikes = Math.min(boostsToApply, eligibleBoosters.length);
+        for (let i = 0; i < recordedBoosterLikes; i += 1) {
+          const booster = eligibleBoosters[(bonusCount + existingLikes.length + i) % eligibleBoosters.length];
+          await base44.asServiceRole.entities.GlowDropLike.create({
+            drop_id: drop.id,
+            user_email: booster.email
+          });
+        }
       }
 
       const syntheticBoosts = boostsToApply - recordedBoosterLikes;
@@ -79,10 +89,11 @@ Deno.serve(async (req) => {
       });
 
       boosted += boostsToApply;
+      processedDrops += 1;
       if (newBonusCount >= MAX_BONUS_LIKES) completed += 1;
     }
 
-    return Response.json({ success: true, checked: drops.length, boosters: boosters.length, boosted, completed, skippedNoBooster });
+    return Response.json({ success: true, checked: drops.length, processedDrops, boosters: boosters.length, boosted, completed, skippedNoBooster });
   } catch (error) {
     console.error('Bonus likes error:', error);
     return Response.json({ error: error.message }, { status: 500 });
