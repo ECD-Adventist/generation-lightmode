@@ -54,7 +54,17 @@ Deno.serve(async (req) => {
       );
 
       if (eligibleBoosters.length === 0) {
+        const newBonusCount = bonusCount + 1;
+        await base44.asServiceRole.entities.GlowDrop.update(drop.id, {
+          likes_count: Number(drop.likes_count || 0) + 1,
+          bonus_likes_count: newBonusCount,
+          bonus_likes_last_applied_at: now.toISOString(),
+          bonus_likes_enabled: newBonusCount < MAX_BONUS_LIKES,
+        });
+
+        boosted += 1;
         skippedNoBooster += 1;
+        if (newBonusCount >= MAX_BONUS_LIKES) completed += 1;
         continue;
       }
 
