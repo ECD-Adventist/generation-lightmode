@@ -6,6 +6,8 @@ import { createPageUrl } from "@/utils";
 import AppFooter from "@/components/AppFooter";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
+import OfficialProfileHighlights from "@/components/profile/OfficialProfileHighlights";
+import OfficialDropsShowcase from "@/components/profile/OfficialDropsShowcase";
 
 const HERO_COVER_URL = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2";
 
@@ -177,6 +179,14 @@ export default function GenerationLightModeDesktop({
           </div>
         </section>
 
+        <OfficialProfileHighlights
+          followersCount={follows.length}
+          postsCount={posts.length}
+          codeCount={codeOfTruthCount}
+          keepCount={keepIt100Count}
+          verseCount={dailyVerseCount}
+        />
+
         <section className="relative max-w-6xl mx-auto px-5 py-8">
           <div className="flex items-end justify-between gap-6 mb-6">
             <div>
@@ -192,50 +202,7 @@ export default function GenerationLightModeDesktop({
           </div>
         </section>
 
-        <section className="relative max-w-6xl mx-auto px-5 py-8 pb-16">
-          <div className="rounded-[40px] p-7 lg:p-8" style={{ background: "#F3EEE2", border: "1px solid rgba(217,203,170,0.75)" }}>
-            <div className="flex items-center justify-between gap-4 mb-7">
-              <div>
-                <p className="text-xs uppercase tracking-[0.22em] font-black mb-2" style={{ color: "#A86B00" }}>Latest from the movement</p>
-                <h2 className="text-3xl font-black font-['Space_Grotesk']">Latest Posts</h2>
-              </div>
-              <Link to={createPageUrl("DailyTruthFeed")} className="flex items-center gap-2 font-black text-sm no-underline" style={{ color: "#0B3FD9" }}>
-                View all <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            {featuredPost ? (
-              <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-6">
-                <article className="rounded-[32px] overflow-hidden" style={{ background: "#FFFFFF", border: "1px solid rgba(217,203,170,0.7)", boxShadow: "0 24px 60px rgba(11,27,61,0.08)" }}>
-                  <div className="p-7">
-                    <div className="flex items-center gap-2 mb-4 flex-wrap">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black" style={{ background: featuredStyle.bg, color: featuredStyle.color, border: `1px solid ${featuredStyle.border}` }}>
-                        {featuredStyle.icon} Featured · {featuredPost.category || "Daily Drop"}
-                      </span>
-                      {featuredDate && <span className="text-[11px]" style={{ color: "#8D7C5A" }}>{format(featuredDate, "MMMM d, yyyy")}</span>}
-                    </div>
-                    <PostArtwork post={featuredPost} className="w-full max-w-[320px] aspect-[4/5] rounded-[28px] mb-5 shadow-xl" />
-                    {featuredPost.verse && <h3 className="text-xl font-black font-['Space_Grotesk'] leading-snug mb-3" style={{ color: "#0B1B3D" }}>{featuredPost.verse}</h3>}
-                    {featuredPost.reflection && <p className="text-base leading-relaxed whitespace-pre-line" style={{ color: "#4D5870" }}>{featuredPost.reflection}</p>}
-                    {featuredPost.hashtags && <p className="text-sm font-black mt-4" style={{ color: "#0B3FD9" }}>{featuredPost.hashtags}</p>}
-                    <div className="flex items-center gap-5 mt-5 text-xs" style={{ color: "#8D7C5A" }}>
-                      <span className="flex items-center gap-1"><Heart className="w-4 h-4" /> {featuredPost.likes_count || 0}</span>
-                      <span className="flex items-center gap-1"><MessageCircle className="w-4 h-4" /> {featuredPost.shares_count || 0}</span>
-                    </div>
-                  </div>
-                </article>
-                <div className="grid gap-4 content-start">
-                  {posts.slice(1, 7).map((post) => <PostSnippet key={post.id} post={post} getCategoryStyle={getCategoryStyle} />)}
-                </div>
-              </div>
-            ) : (
-              <div className="p-12 text-center rounded-[28px] bg-white" style={{ color: "#8D7C5A" }}>
-                <div className="text-5xl mb-4">✨</div>
-                <p>No posts yet. Stay tuned!</p>
-              </div>
-            )}
-          </div>
-        </section>
+        <OfficialDropsShowcase posts={posts} />
       </main>
       <AppFooter />
     </div>
