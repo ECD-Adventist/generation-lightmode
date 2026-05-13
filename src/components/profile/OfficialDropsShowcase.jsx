@@ -45,6 +45,7 @@ export default function OfficialDropsShowcase({ posts }) {
               authorName="Generation LightMode"
               authorTitle="Official Movement"
               isLeader
+              leaderBadgeLabel="Official"
               commentsCount={0}
             />
           ))}

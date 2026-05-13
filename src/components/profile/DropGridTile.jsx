@@ -17,7 +17,7 @@ function compactCount(n) {
   return num.toString();
 }
 
-export default function DropGridTile({ drop, onClick, authorName, authorTitle, isLeader = false, commentsCount = 0, isSaved = false }) {
+export default function DropGridTile({ drop, onClick, authorName, authorTitle, isLeader = false, leaderBadgeLabel = "Leader", commentsCount = 0, isSaved = false }) {
   const hasMedia = !!drop.media_url;
   const reflection = stripRepostPrefix(drop.reflection || "");
   const likes = drop.likes_count || 0;
@@ -84,7 +84,7 @@ export default function DropGridTile({ drop, onClick, authorName, authorTitle, i
           )}
           {isLeader && (
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider backdrop-blur-md" style={{ background: "linear-gradient(135deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 2px 8px rgba(255, 159, 26, 0.4)" }}>
-              <Sparkles className="w-2.5 h-2.5" /> Leader
+              <Sparkles className="w-2.5 h-2.5" /> {leaderBadgeLabel}
             </span>
           )}
         </div>

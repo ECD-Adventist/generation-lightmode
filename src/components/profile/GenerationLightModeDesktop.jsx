@@ -140,11 +140,11 @@ export default function GenerationLightModeDesktop({
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-20%] bottom-[-20%] left-0 w-1/3" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.42), rgba(255,208,0,0.28), transparent)", filter: "blur(2px)", animation: "glm-hero-light-sweep 5.5s ease-in-out infinite" }} />
               </div>
+              <div className="absolute top-7 left-7 inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: "linear-gradient(135deg, #1D7CFF 0%, #0B5FE8 100%)", color: "#FFFFFF", boxShadow: "0 10px 28px rgba(29,124,255,0.38)", border: "1px solid rgba(255,255,255,0.28)" }}>
+                <BadgeCheck className="w-4 h-4" strokeWidth={3} />
+                <span className="text-xs uppercase tracking-[0.08em] font-black">Verified</span>
+              </div>
               <div className="absolute inset-x-0 bottom-0 p-10">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-5" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.22)", color: "#FFF" }}>
-                  <Sparkles className="w-4 h-4 text-[#FFD000]" />
-                  <span className="text-xs uppercase tracking-[0.18em] font-black">Official Movement Page</span>
-                </div>
                 <h1 className="text-5xl xl:text-6xl font-black font-['Space_Grotesk'] leading-none text-white max-w-xl">Faith, always on.</h1>
                 <p className="mt-5 text-lg leading-relaxed max-w-xl" style={{ color: "#E9E3D0" }}>
                   Daily truth drops, campaign highlights, and movement updates from Generation LightMode.
@@ -160,8 +160,8 @@ export default function GenerationLightModeDesktop({
                     <div className="relative z-10 w-full h-full rounded-full overflow-hidden bg-white border-4 border-white">
                       <img src={accountImage} alt={accountName} className="w-full h-full object-cover" />
                     </div>
-                    <span className="absolute bottom-1 right-1 z-20 w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0B3FD9, #1FB8FF)", border: "3px solid #FFFFFF", boxShadow: "0 0 18px rgba(31,184,255,0.75)" }}>
-                      <BadgeCheck className="w-5 h-5 text-white" strokeWidth={3} />
+                    <span className="absolute -bottom-0.5 -right-0.5 z-20 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#1D7CFF", border: "3px solid #FFFFFF", boxShadow: "0 0 0 2px rgba(29,124,255,0.18), 0 8px 18px rgba(29,124,255,0.45)" }}>
+                      <BadgeCheck className="w-4.5 h-4.5 text-white" strokeWidth={3} />
                     </span>
                   </div>
                   {me?.email && me.email !== accountEmail && (
@@ -179,12 +179,7 @@ export default function GenerationLightModeDesktop({
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-black mb-4" style={{ background: "#FFF6D8", color: "#8A5A00", border: "1px solid #EAD08B" }}>
                   <Sparkles className="w-3 h-3" /> Official Account
                 </div>
-                <h2 className="text-4xl font-black font-['Space_Grotesk'] leading-tight mb-4 flex items-center gap-3 flex-wrap">
-                  {accountName}
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full" style={{ background: "linear-gradient(135deg, #0B3FD9, #1FB8FF)", boxShadow: "0 0 18px rgba(31,184,255,0.55)" }} title="Verified official account">
-                    <BadgeCheck className="w-5 h-5 text-white" strokeWidth={3} />
-                  </span>
-                </h2>
+                <h2 className="text-4xl font-black font-['Space_Grotesk'] leading-tight mb-4">{accountName}</h2>
                 <p className="text-base leading-relaxed mb-7" style={{ color: "#4D5870" }}>
                   The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
                 </p>
