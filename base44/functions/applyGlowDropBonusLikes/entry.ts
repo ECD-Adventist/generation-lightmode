@@ -43,7 +43,12 @@ Deno.serve(async (req) => {
 
       const createdAt = parseDate(drop.created_date);
       const lastAppliedAt = parseDate(drop.bonus_likes_last_applied_at) || createdAt;
-      if (!lastAppliedAt || now.getTime() - lastAppliedAt.getTime() < oneHourMs) continue;
+      if (!lastAppliedAt) continue;
+
+      const postAgeHours = Math.floor((now.getTime() - createdAt.getTime()) / oneHourMs);
+      const expectedBonusCount = Math.min(MAX_BONUS_LIKES, postAgeHours);
+      const boostsToApply = Math.min(MAX_BONUS_LIKES - bonusCount, expectedBonusCount - bonusCount);
+      if (boostsToApply <= 0) continue;
 
       const existingLikes = await base44.asServiceRole.entities.GlowDropLike.filter({ drop_id: drop.id }, '-created_date', 1000);
       const alreadyLikedEmails = new Set(existingLikes.map((like) => like.user_email));
@@ -53,36 +58,27 @@ Deno.serve(async (req) => {
         !alreadyLikedEmails.has(booster.email)
       );
 
-      if (eligibleBoosters.length === 0) {
-        const newBonusCount = bonusCount + 1;
-        await base44.asServiceRole.entities.GlowDrop.update(drop.id, {
-          likes_count: Number(drop.likes_count || 0) + 1,
-          bonus_likes_count: newBonusCount,
-          bonus_likes_last_applied_at: now.toISOString(),
-          bonus_likes_enabled: newBonusCount < MAX_BONUS_LIKES,
+      const recordedBoosterLikes = Math.min(boostsToApply, eligibleBoosters.length);
+      for (let i = 0; i < recordedBoosterLikes; i += 1) {
+        const booster = eligibleBoosters[(bonusCount + existingLikes.length + i) % eligibleBoosters.length];
+        await base44.asServiceRole.entities.GlowDropLike.create({
+          drop_id: drop.id,
+          user_email: booster.email
         });
-
-        boosted += 1;
-        skippedNoBooster += 1;
-        if (newBonusCount >= MAX_BONUS_LIKES) completed += 1;
-        continue;
       }
 
-      const booster = eligibleBoosters[(bonusCount + existingLikes.length) % eligibleBoosters.length];
-      await base44.asServiceRole.entities.GlowDropLike.create({
-        drop_id: drop.id,
-        user_email: booster.email
-      });
+      const syntheticBoosts = boostsToApply - recordedBoosterLikes;
+      if (syntheticBoosts > 0) skippedNoBooster += 1;
 
-      const newBonusCount = bonusCount + 1;
+      const newBonusCount = bonusCount + boostsToApply;
       await base44.asServiceRole.entities.GlowDrop.update(drop.id, {
-        likes_count: Number(drop.likes_count || 0) + 1,
+        likes_count: Number(drop.likes_count || 0) + boostsToApply,
         bonus_likes_count: newBonusCount,
         bonus_likes_last_applied_at: now.toISOString(),
         bonus_likes_enabled: newBonusCount < MAX_BONUS_LIKES,
       });
 
-      boosted += 1;
+      boosted += boostsToApply;
       if (newBonusCount >= MAX_BONUS_LIKES) completed += 1;
     }
 
