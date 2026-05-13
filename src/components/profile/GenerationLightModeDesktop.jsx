@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Bell, BookOpen, Globe, Heart, Home, MessageCircle, Sparkles, UserCheck, UserPlus, Users, Zap } from "lucide-react";
+import { ArrowRight, BadgeCheck, Bell, BookOpen, Globe, Heart, Home, MessageCircle, Sparkles, UserCheck, UserPlus, Users, Zap } from "lucide-react";
 import { format } from "date-fns";
 import { createPageUrl } from "@/utils";
 import AppFooter from "@/components/AppFooter";
@@ -113,12 +113,33 @@ export default function GenerationLightModeDesktop({
       </div>
 
       <main className="relative overflow-hidden">
+        <style>{`
+          @keyframes glm-hero-light-sweep {
+            0% { transform: translateX(-120%) rotate(10deg); opacity: 0; }
+            18% { opacity: 0.9; }
+            45% { opacity: 0.55; }
+            100% { transform: translateX(220%) rotate(10deg); opacity: 0; }
+          }
+          @keyframes glm-profile-orbit {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+          }
+          @keyframes glm-profile-pulse {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(255,208,0,0.28), 0 0 34px rgba(31,184,255,0.35), 0 18px 42px rgba(11,63,217,0.20); }
+            50% { box-shadow: 0 0 0 7px rgba(255,208,0,0.42), 0 0 58px rgba(31,184,255,0.65), 0 24px 56px rgba(11,63,217,0.30); }
+          }
+        `}</style>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 20% 0%, rgba(255,208,0,0.16), transparent 36%), radial-gradient(circle at 85% 12%, rgba(11,63,217,0.10), transparent 32%)" }} />
         <section className="relative max-w-6xl mx-auto px-5 pt-10 pb-8">
           <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-stretch">
-            <div className="rounded-[40px] overflow-hidden min-h-[520px] relative shadow-2xl" style={{ background: "#0B1B3D" }}>
+            <div className="rounded-[40px] overflow-hidden min-h-[520px] relative shadow-2xl" style={{ background: "#0B1B3D", boxShadow: "0 0 0 1px rgba(255,208,0,0.28), 0 0 55px rgba(31,184,255,0.32), 0 28px 80px rgba(11,27,61,0.28)" }}>
               <img src={HERO_COVER_URL} alt="Generation LightMode cover" className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(11,27,61,0.10) 0%, rgba(11,27,61,0.55) 58%, rgba(11,27,61,0.92) 100%)" }} />
+              <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(11,27,61,0.02) 0%, rgba(11,27,61,0.42) 58%, rgba(11,27,61,0.88) 100%)" }} />
+              <div className="absolute -top-24 -left-20 w-72 h-72 rounded-full blur-[70px] opacity-70" style={{ background: "rgba(31,184,255,0.58)" }} />
+              <div className="absolute -bottom-20 -right-16 w-80 h-80 rounded-full blur-[80px] opacity-65" style={{ background: "rgba(255,208,0,0.50)" }} />
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[-20%] bottom-[-20%] left-0 w-1/3" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.42), rgba(255,208,0,0.28), transparent)", filter: "blur(2px)", animation: "glm-hero-light-sweep 5.5s ease-in-out infinite" }} />
+              </div>
               <div className="absolute inset-x-0 bottom-0 p-10">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-5" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.22)", color: "#FFF" }}>
                   <Sparkles className="w-4 h-4 text-[#FFD000]" />
@@ -134,10 +155,14 @@ export default function GenerationLightModeDesktop({
             <div className="rounded-[40px] p-8 flex flex-col justify-between" style={{ background: "rgba(255,255,255,0.82)", border: "1px solid rgba(217,203,170,0.65)", boxShadow: "0 24px 70px rgba(11,27,61,0.08)" }}>
               <div>
                 <div className="flex items-start justify-between gap-4 mb-8">
-                  <div className="w-28 h-28 rounded-full p-1 shrink-0" style={{ background: "linear-gradient(135deg, #FFD000, #0B3FD9)", boxShadow: "0 16px 40px rgba(11,63,217,0.22)" }}>
-                    <div className="w-full h-full rounded-full overflow-hidden bg-white border-4 border-white">
+                  <div className="relative w-28 h-28 rounded-full p-[4px] shrink-0 overflow-hidden" style={{ background: "#07142F", animation: "glm-profile-pulse 2.8s ease-in-out infinite" }}>
+                    <div className="absolute top-1/2 left-1/2 w-[240%] h-[240%]" style={{ background: "conic-gradient(from 0deg, transparent 45%, #1FB8FF 62%, #FFFFFF 72%, #FFD000 84%, transparent 100%)", animation: "glm-profile-orbit 3.6s linear infinite" }} />
+                    <div className="relative z-10 w-full h-full rounded-full overflow-hidden bg-white border-4 border-white">
                       <img src={accountImage} alt={accountName} className="w-full h-full object-cover" />
                     </div>
+                    <span className="absolute bottom-1 right-1 z-20 w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0B3FD9, #1FB8FF)", border: "3px solid #FFFFFF", boxShadow: "0 0 18px rgba(31,184,255,0.75)" }}>
+                      <BadgeCheck className="w-5 h-5 text-white" strokeWidth={3} />
+                    </span>
                   </div>
                   {me?.email && me.email !== accountEmail && (
                     <button
@@ -154,7 +179,12 @@ export default function GenerationLightModeDesktop({
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-black mb-4" style={{ background: "#FFF6D8", color: "#8A5A00", border: "1px solid #EAD08B" }}>
                   <Sparkles className="w-3 h-3" /> Official Account
                 </div>
-                <h2 className="text-4xl font-black font-['Space_Grotesk'] leading-tight mb-4">{accountName}</h2>
+                <h2 className="text-4xl font-black font-['Space_Grotesk'] leading-tight mb-4 flex items-center gap-3 flex-wrap">
+                  {accountName}
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full" style={{ background: "linear-gradient(135deg, #0B3FD9, #1FB8FF)", boxShadow: "0 0 18px rgba(31,184,255,0.55)" }} title="Verified official account">
+                    <BadgeCheck className="w-5 h-5 text-white" strokeWidth={3} />
+                  </span>
+                </h2>
                 <p className="text-base leading-relaxed mb-7" style={{ color: "#4D5870" }}>
                   The official Generation LightMode profile — daily drops, movement announcements, campaign highlights, and platform updates. Faith. Always On. ⚡
                 </p>
