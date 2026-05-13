@@ -155,13 +155,15 @@ export default function GenerationLightModeDesktop({
             <div className="rounded-[40px] p-8 flex flex-col justify-between" style={{ background: "rgba(255,255,255,0.82)", border: "1px solid rgba(217,203,170,0.65)", boxShadow: "0 24px 70px rgba(11,27,61,0.08)" }}>
               <div>
                 <div className="flex items-start justify-between gap-4 mb-8">
-                  <div className="relative w-28 h-28 rounded-full p-[4px] shrink-0 overflow-hidden" style={{ background: "#07142F", animation: "glm-profile-pulse 2.8s ease-in-out infinite" }}>
-                    <div className="absolute top-1/2 left-1/2 w-[240%] h-[240%]" style={{ background: "conic-gradient(from 0deg, transparent 45%, #1FB8FF 62%, #FFFFFF 72%, #FFD000 84%, transparent 100%)", animation: "glm-profile-orbit 3.6s linear infinite" }} />
+                  <div className="relative w-28 h-28 rounded-full p-[4px] shrink-0" style={{ background: "#07142F", animation: "glm-profile-pulse 2.8s ease-in-out infinite" }}>
+                    <div className="absolute inset-0 rounded-full overflow-hidden">
+                      <div className="absolute top-1/2 left-1/2 w-[240%] h-[240%]" style={{ background: "conic-gradient(from 0deg, transparent 45%, #1FB8FF 62%, #FFFFFF 72%, #FFD000 84%, transparent 100%)", animation: "glm-profile-orbit 3.6s linear infinite" }} />
+                    </div>
                     <div className="relative z-10 w-full h-full rounded-full overflow-hidden bg-white border-4 border-white">
                       <img src={accountImage} alt={accountName} className="w-full h-full object-cover" />
                     </div>
-                    <span className="absolute -bottom-0.5 -right-0.5 z-20 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#1D7CFF", border: "3px solid #FFFFFF", boxShadow: "0 0 0 2px rgba(29,124,255,0.18), 0 8px 18px rgba(29,124,255,0.45)" }}>
-                      <BadgeCheck className="w-4.5 h-4.5 text-white" strokeWidth={3} />
+                    <span className="absolute -bottom-1 -right-1 z-20 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "#1D7CFF", border: "3px solid #FFFFFF", boxShadow: "0 0 0 2px rgba(29,124,255,0.18), 0 8px 18px rgba(29,124,255,0.45)" }}>
+                      <BadgeCheck className="w-4 h-4 text-white" strokeWidth={3} />
                     </span>
                   </div>
                   {me?.email && me.email !== accountEmail && (
