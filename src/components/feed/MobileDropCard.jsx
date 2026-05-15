@@ -76,49 +76,69 @@ function MobileDropCard({
   const profileLink = drop.user_email === "system@lightmode.com"
     ? createPageUrl("GenerationLightMode")
     : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`;
+  const postLink = createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`;
 
   const [showComments, setShowComments] = useState(false);
 
   return (
     <article
-      className="rounded-2xl overflow-hidden mb-3"
-      style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.05)" }}
+      className="relative rounded-[1.35rem] overflow-hidden mb-4"
+      style={{ background: "#FFFFFF", border: "1px solid rgba(230,236,245,0.95)", boxShadow: "0 10px 26px rgba(11, 63, 217, 0.10)" }}
     >
-      {/* Header */}
-      <div className="flex items-center gap-2.5 px-3 py-2.5">
-        <Link to={profileLink} className="shrink-0">
-          <img
-            src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
-            alt=""
-            width="36"
-            height="36"
-            loading="lazy"
-            decoding="async"
-            className="w-9 h-9 rounded-full object-cover"
-            style={{ border: isLeaderPost ? "2px solid #FFD000" : "1px solid #E6ECF5" }}
-          />
-        </Link>
-        <div className="flex-1 min-w-0">
-          <Link to={profileLink} className="block no-underline">
-            <div className="flex items-center gap-1">
-              <span className="text-[13px] font-bold truncate" style={{ color: "#0B1B3D" }}>
-                {getDisplayName(dropUser)}
-              </span>
-              {isLeaderPost && (
-                <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full" style={{ background: "#FFF3CC", color: "#CC7A00" }}>
-                  Leader
-                </span>
+      <Link to={postLink} className="block relative no-underline">
+        <div className="relative overflow-hidden" style={{ aspectRatio: "4 / 5", background: drop.media_url ? "#DDE7FB" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)" }}>
+          {drop.media_url ? (
+            <img
+              src={drop.media_url}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 p-5 flex flex-col justify-center" style={{ background: "linear-gradient(135deg, #EAF3FF 0%, #D4E6FF 55%, #C7DEF8 100%)" }}>
+              {drop.verse && (
+                <p className="text-[18px] font-black leading-tight mb-3 line-clamp-4" style={{ color: "#0B3FD9" }}>
+                  {drop.verse}
+                </p>
               )}
+              {reflectionText ? (
+                <p className="text-[14px] italic leading-snug line-clamp-6" style={{ color: "#3A4A6B" }}>
+                  “{reflectionText.length > 260 ? reflectionText.slice(0, 260) + "…" : reflectionText}”
+                </p>
+              ) : !drop.verse ? (
+                <p className="text-[14px] italic" style={{ color: "#8A97B5" }}>Tap to view post</p>
+              ) : null}
             </div>
-            <div className="text-[11px]" style={{ color: "#8A97B5" }}>
-              {drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}
-            </div>
-          </Link>
-        </div>
+          )}
 
+          <div className="absolute inset-x-0 top-0 h-28 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.48), rgba(0,0,0,0))" }} />
+          <div className="absolute inset-x-0 bottom-0 h-28 pointer-events-none" style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.34), rgba(0,0,0,0))" }} />
+
+          <div className="absolute top-3 left-3 right-12 flex items-center gap-2.5">
+            <div className="shrink-0 w-10 h-10 rounded-full p-[2px]" style={{ background: isLeaderPost ? "linear-gradient(135deg, #FFD000, #FF9F1A)" : "rgba(255,255,255,0.85)" }}>
+              <img
+                src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full rounded-full object-cover"
+              />
+            </div>
+            <div className="min-w-0 rounded-full px-3 py-1.5" style={{ background: "rgba(0,0,0,0.42)", backdropFilter: "blur(10px)" }}>
+              <div className="text-[12px] font-black truncate text-white">{getDisplayName(dropUser)}</div>
+              <div className="text-[10px] text-white/80">
+                {drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      </Link>
+
+      <div className="absolute top-3 right-3 z-20">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full" style={{ color: "#6B7FA0" }}>
+            <button className="w-9 h-9 flex items-center justify-center rounded-full" style={{ color: "#FFFFFF", background: "rgba(0,0,0,0.34)", backdropFilter: "blur(10px)" }}>
               <MoreHorizontal className="w-4 h-4" />
             </button>
           </DropdownMenuTrigger>
@@ -156,79 +176,43 @@ function MobileDropCard({
         </DropdownMenu>
       </div>
 
-      {/* Media (lazy-loaded) */}
-      {drop.media_url ? (
-        <Link to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}>
-          <img
-            src={drop.media_url}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            className="w-full block"
-            style={{ aspectRatio: "4 / 5", objectFit: "cover", background: "#F1F5FB" }}
-          />
-        </Link>
-      ) : (
-        <Link
-          to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
-          className="block px-4 py-6 no-underline min-h-[140px]"
-          style={{ background: "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)" }}
-        >
-          {drop.verse && (
-            <p className="text-base font-bold leading-snug mb-2 line-clamp-3" style={{ color: "#0B3FD9" }}>
-              {drop.verse}
-            </p>
-          )}
-          {reflectionText ? (
-            <p className="text-[13px] italic leading-snug line-clamp-5" style={{ color: "#3A4A6B" }}>
-              "{reflectionText.length > 220 ? reflectionText.slice(0, 220) + "…" : reflectionText}"
-            </p>
-          ) : !drop.verse ? (
-            <p className="text-[13px] italic" style={{ color: "#8A97B5" }}>Tap to view post</p>
-          ) : null}
-        </Link>
-      )}
-
-      {/* Action bar */}
-      <div className="flex items-center gap-1 px-2 py-2">
-        <button
-          onClick={handleLike}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-full active:scale-95 transition"
-        >
-          <Heart className={`w-5 h-5 ${userHasLiked ? "fill-red-500 text-red-500" : ""}`} style={{ color: userHasLiked ? undefined : "#0B1B3D" }} />
-          <span className="text-[12px] font-bold" style={{ color: "#0B1B3D" }}>{drop.likes_count || 0}</span>
+      <div className="absolute right-3 bottom-14 z-20 flex flex-col gap-3">
+        <button onClick={handleLike} className="w-12 h-12 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.62)", backdropFilter: "blur(12px)", color: userHasLiked ? "#EF4444" : "#FFFFFF" }}>
+          <Heart className={`w-5 h-5 ${userHasLiked ? "fill-red-500 text-red-500" : "fill-white/25"}`} />
         </button>
-        <Link
-          to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-full active:scale-95 transition no-underline"
-        >
-          <MessageCircle className="w-5 h-5" style={{ color: "#0B1B3D" }} />
+        <Link to={postLink} className="w-12 h-12 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.62)", backdropFilter: "blur(12px)", color: "#FFFFFF" }}>
+          <MessageCircle className="w-5 h-5" />
         </Link>
-        <button
-          onClick={() => handleShare(drop)}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-full active:scale-95 transition"
-        >
+        <button onClick={() => handleShare(drop)} className="w-12 h-12 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.62)", backdropFilter: "blur(12px)", color: "#FFFFFF" }}>
+          <Share2 className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="flex items-center gap-4 px-4 py-3">
+        <button onClick={handleLike} className="flex items-center gap-1.5 active:scale-95 transition">
+          <Heart className={`w-5 h-5 ${userHasLiked ? "fill-red-500 text-red-500" : ""}`} style={{ color: userHasLiked ? undefined : "#0B1B3D" }} />
+          <span className="text-[12px] font-black" style={{ color: "#0B1B3D" }}>{drop.likes_count || 0}</span>
+        </button>
+        <Link to={postLink} className="flex items-center gap-1.5 active:scale-95 transition no-underline">
+          <MessageCircle className="w-5 h-5" style={{ color: "#0B1B3D" }} />
+          <span className="text-[12px] font-black" style={{ color: "#0B1B3D" }}>0</span>
+        </Link>
+        <button onClick={() => handleShare(drop)} className="active:scale-95 transition">
           <Share2 className="w-5 h-5" style={{ color: "#0B1B3D" }} />
         </button>
         <div className="flex-1" />
-        <button
-          onClick={() => toggleSaveMutation.mutate()}
-          className="px-2.5 py-1.5 rounded-full active:scale-95 transition"
-        >
+        <button onClick={() => toggleSaveMutation.mutate()} className="active:scale-95 transition">
           <Bookmark className={`w-5 h-5 ${isSaved ? "fill-amber-400 text-amber-400" : ""}`} style={{ color: isSaved ? undefined : "#0B1B3D" }} />
         </button>
       </div>
 
-      {/* Caption preview (when media exists) */}
       {drop.media_url && (drop.verse || reflectionText) && (
-        <div className="px-3 pb-3 -mt-1">
+        <div className="px-4 pb-4 -mt-1">
           {drop.verse && (
-            <p className="text-[13px] font-bold mb-0.5 line-clamp-2" style={{ color: "#0B3FD9" }}>{drop.verse}</p>
+            <p className="text-[13px] font-black mb-1 line-clamp-2" style={{ color: "#0B3FD9" }}>{drop.verse}</p>
           )}
           {reflectionText && (
-            <p className="text-[13px] leading-snug line-clamp-3" style={{ color: "#3A4A6B" }}>
-              {reflectionText}
-            </p>
+            <p className="text-[13px] leading-snug line-clamp-3" style={{ color: "#3A4A6B" }}>{reflectionText}</p>
           )}
         </div>
       )}
