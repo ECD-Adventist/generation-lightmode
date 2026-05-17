@@ -32,6 +32,7 @@ import FeedDropList from "@/components/feed/FeedDropList";
 import PinnedLeaderPosts from "@/components/feed/PinnedLeaderPosts";
 import { queueOfflineAction } from "@/lib/offlineCache";
 import useGuestPreview from "@/hooks/useGuestPreview";
+import useDeferredMount from "@/hooks/useDeferredMount";
 import GuestPreviewBanner from "@/components/pledge/GuestPreviewBanner";
 import GuestPreviewWall from "@/components/pledge/GuestPreviewWall";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -68,10 +69,14 @@ export default function Feed() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
   const [isClaimInstitutionOpen, setIsClaimInstitutionOpen] = useState(false);
-  const [displayCount, setDisplayCount] = useState(10);
+  // Mobile starts at 4 cards to minimize initial GPU/decoding cost; desktop bumps to 10 once mounted.
+  const isMobileViewport = typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
+  const [displayCount, setDisplayCount] = useState(isMobileViewport ? 4 : 10);
   const queryClient = useQueryClient();
   const feedEndRef = useRef(null);
   const feedScrollRef = useRef(null);
+  // Defer non-critical queries (stories, suggestedUsers, leaderAccounts) until after first paint.
+  const deferredReady = useDeferredMount(700);
 
   // Guest preview: let unauthenticated visitors browse the feed for 3 minutes
   // before showing the sign-in / pledge wall.
@@ -79,7 +84,7 @@ export default function Feed() {
 
   // Reset paginated display when the search query changes so newly-fetched
   // matching drops are visible from the top of the list.
-  useEffect(() => { setDisplayCount(10); }, [searchQuery]);
+  useEffect(() => { setDisplayCount(isMobileViewport ? 4 : 10); }, [searchQuery, isMobileViewport]);
 
   useEffect(() => {
     async function checkAuth() {
@@ -149,7 +154,8 @@ export default function Feed() {
         .filter(u => u.email !== user?.email)
         .slice(0, 8);
     },
-    enabled: !!user?.email,
+    // Deferred — only fetch after first paint to keep initial feed render fast.
+    enabled: !!user?.email && deferredReady,
     staleTime: 1000 * 60 * 15,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
@@ -158,9 +164,11 @@ export default function Feed() {
 
   // Managed leader accounts — used to resolve leader profile photo/name on posts
   // and to authorize managers to delete posts under their leader's identity.
+  // Deferred: not critical to the very first post render.
   const { data: leaderAccounts = [] } = useQuery({
     queryKey: ["allLeaderAccounts"],
     queryFn: () => base44.entities.ManagedLeaderAccount.list(),
+    enabled: deferredReady,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -170,10 +178,11 @@ export default function Feed() {
     enabled: !!user
   });
 
+  // Deferred — stories are a secondary section above the feed.
   const { data: stories = [] } = useQuery({
     queryKey: ["activeStories"],
     queryFn: () => base44.entities.Story.list("-created_date", 50),
-    enabled: !!user
+    enabled: !!user && deferredReady
   });
 
   const followMutation = useMutation({
@@ -504,7 +513,7 @@ export default function Feed() {
           hasMore={displayCount < filteredDrops.length || hasNextPage}
           isLoadingMore={isFetchingNextPage}
           onLoadMore={() => {
-            if (displayCount < filteredDrops.length) setDisplayCount(prev => prev + 10);
+            if (displayCount < filteredDrops.length) setDisplayCount(prev => prev + 4);
             else if (hasNextPage && !isFetchingNextPage) fetchNextPage();
           }}
         />

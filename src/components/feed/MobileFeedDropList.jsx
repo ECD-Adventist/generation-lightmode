@@ -1,12 +1,12 @@
 import React, { memo, useEffect, useRef } from "react";
 import MobileDropCard from "@/components/feed/MobileDropCard";
+import MobileDropCardSkeleton from "@/components/feed/MobileDropCardSkeleton";
 
 /**
- * Chunked, lightweight mobile feed list.
- * - Smaller initial chunk than the desktop list (handled by parent's displayCount).
- * - Smaller IntersectionObserver rootMargin (200px) so we don't pre-render
- *   far-away cards on low-end mobile devices.
- * - Renders MobileDropCard (lightweight) instead of the full DropCard.
+ * Virtualized mobile feed list.
+ * - Renders ONLY the cards within `displayCount` (parent starts at 4 on mobile).
+ * - IntersectionObserver rootMargin reduced to 120px → barely pre-renders.
+ * - Skeleton placeholder shown while initial load (or "loading more") is in flight.
  */
 function MobileFeedDropList({
   drops,
@@ -34,7 +34,7 @@ function MobileFeedDropList({
       ([entry]) => {
         if (entry.isIntersecting) onLoadMore?.();
       },
-      { rootMargin: "200px 0px" }
+      { rootMargin: "120px 0px" }
     );
 
     observer.observe(node);
@@ -58,6 +58,12 @@ function MobileFeedDropList({
           leaderAccounts={leaderAccounts}
         />
       ))}
+      {isLoadingMore && (
+        <>
+          <MobileDropCardSkeleton />
+          <MobileDropCardSkeleton />
+        </>
+      )}
       <div ref={sentinelRef} className={footerClassName} style={footerStyle}>
         {hasMore || isLoadingMore ? "Loading more..." : drops.length === 0 ? "" : `Showing ${drops.length} posts`}
       </div>

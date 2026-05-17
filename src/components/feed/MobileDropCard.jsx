@@ -8,6 +8,7 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getDisplayName } from "@/lib/displayName";
+import { feedThumb, avatarThumb } from "@/lib/imageProxy";
 
 /**
  * Lightweight mobile-only DropCard.
@@ -83,13 +84,13 @@ function MobileDropCard({
   return (
     <article
       className="relative rounded-[1.35rem] overflow-hidden mb-4"
-      style={{ background: "#FFFFFF", border: "1px solid rgba(230,236,245,0.95)", boxShadow: "0 10px 26px rgba(11, 63, 217, 0.10)" }}
+      style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.06)" }}
     >
       <Link to={postLink} className="block relative no-underline">
         <div className="relative overflow-hidden" style={{ aspectRatio: "4 / 5", background: drop.media_url ? "#DDE7FB" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)" }}>
           {drop.media_url ? (
             <img
-              src={drop.media_url}
+              src={feedThumb(drop.media_url)}
               alt=""
               loading="lazy"
               decoding="async"
@@ -118,14 +119,14 @@ function MobileDropCard({
           <div className="absolute top-3 left-3 right-12 flex items-center gap-2.5">
             <div className="shrink-0 w-10 h-10 rounded-full p-[2px]" style={{ background: isLeaderPost ? "linear-gradient(135deg, #FFD000, #FF9F1A)" : "rgba(255,255,255,0.85)" }}>
               <img
-                src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
+                src={avatarThumb(dropUser?.profile_picture_url) || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
                 alt=""
                 loading="lazy"
                 decoding="async"
                 className="w-full h-full rounded-full object-cover"
               />
             </div>
-            <div className="min-w-0 rounded-full px-3 py-1.5" style={{ background: "rgba(0,0,0,0.42)", backdropFilter: "blur(10px)" }}>
+            <div className="min-w-0 rounded-full px-3 py-1.5" style={{ background: "rgba(0,0,0,0.55)" }}>
               <div className="text-[12px] font-black truncate text-white">{getDisplayName(dropUser)}</div>
               <div className="text-[10px] text-white/80">
                 {drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}
@@ -138,7 +139,7 @@ function MobileDropCard({
       <div className="absolute top-3 right-3 z-20">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-9 h-9 flex items-center justify-center rounded-full" style={{ color: "#FFFFFF", background: "rgba(0,0,0,0.34)", backdropFilter: "blur(10px)" }}>
+            <button className="w-9 h-9 flex items-center justify-center rounded-full" style={{ color: "#FFFFFF", background: "rgba(0,0,0,0.45)" }}>
               <MoreHorizontal className="w-4 h-4" />
             </button>
           </DropdownMenuTrigger>
@@ -177,13 +178,13 @@ function MobileDropCard({
       </div>
 
       <div className="absolute right-3 bottom-14 z-20 flex flex-col gap-3">
-        <button onClick={handleLike} className="w-12 h-12 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.62)", backdropFilter: "blur(12px)", color: userHasLiked ? "#EF4444" : "#FFFFFF" }}>
-          <Heart className={`w-5 h-5 ${userHasLiked ? "fill-red-500 text-red-500" : "fill-white/25"}`} />
+        <button onClick={handleLike} className="w-12 h-12 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.85)", color: userHasLiked ? "#EF4444" : "#0B1B3D" }}>
+          <Heart className={`w-5 h-5 ${userHasLiked ? "fill-red-500 text-red-500" : ""}`} />
         </button>
-        <Link to={postLink} className="w-12 h-12 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.62)", backdropFilter: "blur(12px)", color: "#FFFFFF" }}>
+        <Link to={postLink} className="w-12 h-12 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.85)", color: "#0B1B3D" }}>
           <MessageCircle className="w-5 h-5" />
         </Link>
-        <button onClick={() => handleShare(drop)} className="w-12 h-12 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.62)", backdropFilter: "blur(12px)", color: "#FFFFFF" }}>
+        <button onClick={() => handleShare(drop)} className="w-12 h-12 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.85)", color: "#0B1B3D" }}>
           <Share2 className="w-5 h-5" />
         </button>
       </div>

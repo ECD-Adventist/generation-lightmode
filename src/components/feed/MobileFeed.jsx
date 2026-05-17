@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Bell, Plus, Sparkles, Flame, Zap, Image as ImageIcon, Smile } from "lucide-react";
 import MobileFeedDropList from "@/components/feed/MobileFeedDropList";
+import MobileDropCardSkeleton from "@/components/feed/MobileDropCardSkeleton";
 
 /**
  * Mobile-only Feed shell — LightMode branded (premium redesign).
@@ -196,10 +197,11 @@ export default function MobileFeed({
       {/* FEED */}
       <div className="px-3 pb-24 space-y-4">
         {isLoading && drops.length === 0 ? (
-          <div className="py-16 text-center">
-            <div className="inline-block w-10 h-10 rounded-full border-[3px] animate-spin" style={{ borderColor: "#D6E4FF", borderTopColor: "#0B3FD9" }} />
-            <p className="text-xs font-semibold mt-3" style={{ color: "#6B7FA0" }}>Loading your light feed…</p>
-          </div>
+          <>
+            <MobileDropCardSkeleton />
+            <MobileDropCardSkeleton />
+            <MobileDropCardSkeleton />
+          </>
         ) : isError && filteredDrops.length === 0 ? (
           <div className="py-16 text-center rounded-[1.5rem]" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
             <div className="text-3xl mb-2">↻</div>
