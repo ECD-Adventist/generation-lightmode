@@ -97,15 +97,15 @@ function MobileDropCard({
               className="absolute inset-0 w-full h-full object-cover"
             />
           ) : (
-            <div className="absolute inset-0 px-10 py-12 flex flex-col items-center justify-center text-center" style={{ background: "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
+            <div className="absolute inset-0 pl-6 pr-[5.75rem] pt-20 pb-10 flex flex-col items-center justify-center text-center" style={{ background: "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
               {drop.verse && (
-                <p className="text-[26px] font-black leading-tight mb-6" style={{ color: "#62A4FF", fontFamily: "Space Grotesk, Inter, sans-serif" }}>
+                <p className="text-[21px] font-black leading-tight mb-5 line-clamp-6" style={{ color: "#62A4FF", fontFamily: "Space Grotesk, Inter, sans-serif" }}>
                   {drop.verse}
                 </p>
               )}
               {reflectionText ? (
-                <p className="text-[18px] italic leading-snug line-clamp-7" style={{ color: "#344B73" }}>
-                  “{reflectionText.length > 230 ? reflectionText.slice(0, 230) + "…" : reflectionText}”
+                <p className="text-[15px] italic leading-snug line-clamp-5" style={{ color: "#344B73" }}>
+                  “{reflectionText.length > 190 ? reflectionText.slice(0, 190) + "…" : reflectionText}”
                 </p>
               ) : !drop.verse ? (
                 <p className="text-[15px] italic" style={{ color: "#8A97B5" }}>Tap to view post</p>
@@ -133,31 +133,31 @@ function MobileDropCard({
           </div>
         </Link>
 
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-4">
+        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
           <button onClick={handleLike} className="flex flex-col items-center gap-1 active:scale-95 transition">
-            <span className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: userHasLiked ? "#EF4444" : "#0B3FD9" }}>
+            <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: userHasLiked ? "#EF4444" : "#0B3FD9" }}>
               <Heart className={`w-5 h-5 ${userHasLiked ? "fill-red-500 text-red-500" : ""}`} />
             </span>
             <span className="text-[11px] font-black" style={{ color: drop.media_url ? "#FFFFFF" : "#0B1B3D", textShadow: drop.media_url ? "0 1px 4px rgba(0,0,0,0.45)" : "none" }}>{drop.likes_count || 0}</span>
           </button>
           <Link to={postLink} className="flex flex-col items-center gap-1 active:scale-95 transition no-underline">
-            <span className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: "#0B3FD9" }}>
+            <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: "#0B3FD9" }}>
               <MessageCircle className="w-5 h-5" />
             </span>
             <span className="text-[11px] font-black" style={{ color: drop.media_url ? "#FFFFFF" : "#0B1B3D", textShadow: drop.media_url ? "0 1px 4px rgba(0,0,0,0.45)" : "none" }}>0</span>
           </Link>
           <button onClick={() => handleShare(drop)} className="flex flex-col items-center gap-1 active:scale-95 transition">
-            <span className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: "#0B3FD9" }}>
+            <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: "#0B3FD9" }}>
               <Share2 className="w-5 h-5" />
             </span>
             <span className="text-[11px] font-black" style={{ color: drop.media_url ? "#FFFFFF" : "#0B1B3D", textShadow: drop.media_url ? "0 1px 4px rgba(0,0,0,0.45)" : "none" }}>0</span>
           </button>
-          <button onClick={() => toggleSaveMutation.mutate()} className="w-12 h-12 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: isSaved ? "#F59E0B" : "#0B3FD9" }}>
+          <button onClick={() => toggleSaveMutation.mutate()} className="w-11 h-11 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: isSaved ? "#F59E0B" : "#0B3FD9" }}>
             <Bookmark className={`w-5 h-5 ${isSaved ? "fill-amber-400 text-amber-400" : ""}`} />
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="w-12 h-12 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: "#0B3FD9" }}>
+              <button className="w-11 h-11 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: "#0B3FD9" }}>
                 <MoreHorizontal className="w-5 h-5" />
               </button>
             </DropdownMenuTrigger>
