@@ -55,88 +55,15 @@
     "title"
   ],
   "rls": {
-    "create": {
-      "$or": [
-        {
-          "in": {
-            "group_id": {
-              "$entity": "GlowGroupMember",
-              "params": {
-                "user_email": "{{user.email}}"
-              }
-            }
-          }
-        },
-        {
-          "in": {
-            "group_id": {
-              "$entity": "GlowGroup",
-              "params": {
-                "leader_email": "{{user.email}}"
-              }
-            }
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "super_admin"
-          }
-        }
-      ]
-    },
-    "read": {
-      "$or": [
-        {
-          "in": {
-            "group_id": {
-              "$entity": "GlowGroupMember",
-              "params": {
-                "user_email": "{{user.email}}"
-              }
-            }
-          }
-        },
-        {
-          "in": {
-            "group_id": {
-              "$entity": "GlowGroup",
-              "params": {
-                "leader_email": "{{user.email}}"
-              }
-            }
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "super_admin"
-          }
-        }
-      ]
-    },
+    "create": true,
+    "read": true,
     "update": {
       "$or": [
         {
           "created_by": "{{user.email}}"
         },
         {
-          "in": {
-            "group_id": {
-              "$entity": "GlowGroup",
-              "params": {
-                "leader_email": "{{user.email}}"
-              }
-            }
-          }
+          "data.added_by": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -156,14 +83,7 @@
           "created_by": "{{user.email}}"
         },
         {
-          "in": {
-            "group_id": {
-              "$entity": "GlowGroup",
-              "params": {
-                "leader_email": "{{user.email}}"
-              }
-            }
-          }
+          "data.added_by": "{{user.email}}"
         },
         {
           "user_condition": {
