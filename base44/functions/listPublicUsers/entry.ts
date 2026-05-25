@@ -11,6 +11,7 @@ Deno.serve(async (req) => {
 
     const payload = await req.json().catch(() => ({}));
     const requestedEmails = Array.isArray(payload.emails) ? new Set(payload.emails.filter(Boolean)) : null;
+    const includeCount = payload.include_count === true;
     const limit = Math.min(Number(payload.limit) || 10000, 10000);
     const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 10000);
     const HIDDEN_EMAILS = (Deno.env.get('PUBLIC_USER_HIDDEN_EMAILS') || '')
@@ -50,6 +51,15 @@ Deno.serve(async (req) => {
         // Hide privileged roles from public — show only safe non-admin roles
         role: ADMIN_ROLES.includes(u.role) ? undefined : (u.role || 'user'),
       }));
+
+    if (includeCount) {
+      return Response.json({
+        users: publicUsers,
+        totalUsers: allUsers.length,
+        visibleUsers: publicUsers.length,
+        hiddenUsers: Math.max(0, allUsers.length - publicUsers.length)
+      });
+    }
 
     return Response.json(publicUsers);
   } catch (error) {

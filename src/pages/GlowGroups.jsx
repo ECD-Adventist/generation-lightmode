@@ -56,14 +56,17 @@ export default function GlowGroups() {
     enabled: authChecked,
   });
 
-  const { data: regularUsers = [], isError: usersError } = useQuery({
+  const { data: usersPayload = { users: [], totalUsers: 0 }, isError: usersError } = useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
-      const res = await base44.functions.invoke('listPublicUsers', {});
+      const res = await base44.functions.invoke('listPublicUsers', { include_count: true });
       return res.data;
     },
     retry: 2,
   });
+
+  const regularUsers = Array.isArray(usersPayload) ? usersPayload : (usersPayload.users || []);
+  const systemUserCount = Array.isArray(usersPayload) ? regularUsers.length : (usersPayload.totalUsers || regularUsers.length);
 
   // Managed leader accounts — these are NOT in the User entity, so we fetch
   // them separately and merge them into the `users` list so they appear in
@@ -196,10 +199,13 @@ export default function GlowGroups() {
     }
   });
 
-  const filteredUsers = users.filter(u =>
-    u.email !== user?.email &&
-    (u.full_name?.toLowerCase().includes(search.toLowerCase()) || (u.country || "").toLowerCase().includes(search.toLowerCase()))
-  );
+  const peopleSearchQuery = search.trim().toLowerCase();
+  const filteredUsers = users.filter(u => {
+    if (u.email === user?.email) return false;
+    if (!peopleSearchQuery) return true;
+    return [u.full_name, u.display_name, u.email, u.country, u.city, u.bio, u.leader_title]
+      .some(value => (value || "").toLowerCase().includes(peopleSearchQuery));
+  });
 
   const filteredGroups = realGroups.filter(g =>
     g.name?.toLowerCase().includes(search.toLowerCase()) || (g.country || "").toLowerCase().includes(search.toLowerCase())
@@ -231,6 +237,7 @@ export default function GlowGroups() {
         <MobileGlowGroups
           user={user}
           users={users}
+          systemUserCount={systemUserCount}
           drops={drops}
           following={following}
           realGroups={realGroups}
@@ -316,10 +323,15 @@ export default function GlowGroups() {
         {/* PEOPLE TAB */}
         {activeTab === "people" && (
           <div className="space-y-3">
+            <div className="rounded-2xl px-4 py-3 flex items-center justify-between" style={{ background: "#EEF3FF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>
+              <span className="text-sm font-bold">Users in system</span>
+              <span className="text-lg font-black" style={{ fontFamily: "Space Grotesk, sans-serif" }}>{systemUserCount}</span>
+            </div>
             {filteredUsers.length === 0 && (
               <div className="text-center py-20" style={{ color: "#8A97B5" }}>
                 <div className="text-4xl mb-3">🔍</div>
                 <p>No people found.</p>
+                <p className="text-xs mt-2">Search now checks name, display name, email, country, city, and bio.</p>
               </div>
             )}
             {filteredUsers.map(u => {

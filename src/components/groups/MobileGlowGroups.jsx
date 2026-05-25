@@ -15,6 +15,7 @@ import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
 export default function MobileGlowGroups({
   user,
   users,
+  systemUserCount,
   drops,
   following,
   realGroups,
@@ -36,10 +37,12 @@ export default function MobileGlowGroups({
     return m;
   }, [drops]);
 
-  const filteredUsers = useMemo(() => users.filter(u =>
-    u.email !== user?.email &&
-    (getDisplayName(u)?.toLowerCase().includes(q) || (u.country || "").toLowerCase().includes(q))
-  ), [users, user, q]);
+  const filteredUsers = useMemo(() => users.filter(u => {
+    if (u.email === user?.email) return false;
+    if (!q) return true;
+    return [getDisplayName(u), u.full_name, u.display_name, u.email, u.country, u.city, u.bio, u.leader_title]
+      .some(value => (value || "").toLowerCase().includes(q));
+  }), [users, user, q]);
 
   const filteredGroups = useMemo(() => realGroups.filter(g =>
     g.name?.toLowerCase().includes(q) || (g.country || "").toLowerCase().includes(q)
@@ -64,7 +67,7 @@ export default function MobileGlowGroups({
   const stats = [
     { label: "Groups", value: realGroups.length, color: "#0B3FD9" },
     { label: "You joined", value: myMemberships.length, color: "#CC7A00" },
-    { label: "Members", value: users.length, color: "#1FB8FF" },
+    { label: "System users", value: systemUserCount || users.length, color: "#1FB8FF" },
   ];
 
   return (
@@ -317,11 +320,11 @@ export default function MobileGlowGroups({
                 <Users className="w-3.5 h-3.5" style={{ color: "#0B3FD9" }} />
                 <h3 className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: "#0B3FD9" }}>People</h3>
               </div>
-              <span className="text-[10px] font-bold" style={{ color: "#8A97B5" }}>{filteredUsers.length}</span>
+              <span className="text-[10px] font-bold" style={{ color: "#8A97B5" }}>{filteredUsers.length} shown · {systemUserCount || users.length} total</span>
             </div>
 
             {filteredUsers.length === 0 ? (
-              <EmptyState emoji="🔍" title="No people found" subtitle="Try a different search" />
+              <EmptyState emoji="🔍" title="No people found" subtitle="Search checks name, display name, email, country, city, and bio" />
             ) : filteredUsers.map(u => {
               const isFollowing = following.some(f => f.following_email === u.email);
               const userDrops = dropCountByUser[u.email] || 0;
