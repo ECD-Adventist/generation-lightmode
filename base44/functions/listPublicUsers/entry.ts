@@ -14,16 +14,11 @@ Deno.serve(async (req) => {
     const includeCount = payload.include_count === true;
     const limit = Math.min(Number(payload.limit) || 10000, 10000);
     const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 10000);
-    const HIDDEN_EMAILS = (Deno.env.get('PUBLIC_USER_HIDDEN_EMAILS') || '')
-      .split(',')
-      .map(email => email.trim())
-      .filter(Boolean);
 
     // Only expose safe public fields — NO PII (no address, phone, DOB, gender, postal_code)
     // Admin roles are hidden from public — only non-privileged roles are exposed
     const ADMIN_ROLES = ['admin', 'super_admin', 'ecd_admin', 'country_admin', 'union_admin', 'conference_field_admin', 'church_admin', 'moderator'];
     const publicUsers = allUsers
-      .filter(u => !HIDDEN_EMAILS.includes(u.email))
       .filter(u => !requestedEmails || requestedEmails.has(u.email))
       .slice(0, limit)
       .map(u => ({
@@ -57,7 +52,7 @@ Deno.serve(async (req) => {
         users: publicUsers,
         totalUsers: allUsers.length,
         visibleUsers: publicUsers.length,
-        hiddenUsers: Math.max(0, allUsers.length - publicUsers.length)
+        hiddenUsers: 0
       });
     }
 
