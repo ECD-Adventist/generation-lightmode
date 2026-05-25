@@ -24,7 +24,7 @@ function cleanCodeText(text = "") {
   return out;
 }
 
-function truncateForPoster(text, maxChars = 180) {
+function truncateForPoster(text, maxChars = 145) {
   if (!text || text.length <= maxChars) return text;
   const slice = text.slice(0, maxChars);
   const lastSpace = slice.lastIndexOf(" ");
@@ -43,11 +43,11 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
   const cleanedText = truncateForPoster(cleaned, 180);
   // Auto-shrink type for longer copy so it never overflows into the bottom logo area
   const len = cleanedText?.length || 0;
-  const bodyFontSize = len > 160 ? "clamp(7px, 3.8cqw, 12px)"
-    : len > 120 ? "clamp(8px, 4.5cqw, 14px)"
-    : len > 80 ? "clamp(9px, 5.2cqw, 16px)"
-    : len > 45 ? "clamp(10px, 6.5cqw, 20px)"
-    : "clamp(12px, 8cqw, 24px)";
+  const bodyFontSize = len > 120 ? "clamp(7px, 3cqw, 10px)"
+    : len > 90 ? "clamp(8px, 3.5cqw, 11px)"
+    : len > 60 ? "clamp(9px, 4cqw, 13px)"
+    : len > 35 ? "clamp(10px, 4.8cqw, 15px)"
+    : "clamp(12px, 5.6cqw, 18px)";
   const verseParts = splitVerseLabel(verse);
 
   return (
@@ -61,9 +61,9 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
       }}
     >
       {/* Premium text block — fitted into the lower-left empty space and clear of the author chip/logo lockup */}
-      <div className="absolute z-10 top-[30%] bottom-[28%] left-[9%] right-[39%] flex flex-col items-start justify-center text-left overflow-hidden">
+      <div className="absolute z-10 top-[29%] bottom-[31%] left-[9%] right-[42%] flex flex-col items-start justify-center text-left overflow-hidden">
         {verse && (
-          <div className="mb-4 max-w-[18ch]">
+          <div className="mb-2 max-w-[18ch]">
             <div
               className="font-['Space_Grotesk'] font-black uppercase inline-flex rounded-full px-1.5 py-0.5 mb-1.5"
               style={{
@@ -95,7 +95,7 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
 
         {cleanedText && (
           <p
-            className="font-['Space_Grotesk'] font-medium leading-[1.14] line-clamp-5 max-w-[16ch]"
+            className="font-['Space_Grotesk'] font-semibold leading-[1.08] line-clamp-4 max-w-[15ch]"
             style={{
               color: "#FFFFFF",
               fontSize: bodyFontSize,
