@@ -22,9 +22,7 @@
     "author_email"
   ],
   "rls": {
-    "create": {
-      "data.author_email": "{{user.email}}"
-    },
+    "create": true,
     "read": true,
     "update": {
       "created_by": "{{user.email}}"
