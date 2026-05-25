@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getDisplayName } from "@/lib/displayName";
 import { feedThumb, avatarThumb } from "@/lib/imageProxy";
+import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
+import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 
 /**
  * Lightweight mobile-only DropCard.
@@ -31,6 +33,9 @@ function MobileDropCard({
 
   const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
   const isLeaderPost = !!leaderForDrop;
+  const isKeepIt100 = !drop.media_url && (drop.category === "Keep It 100" || /keepit100/i.test(drop.hashtags || ""));
+  const isCodeOfTruth = !drop.media_url && drop.category === "Code of Truth";
+  const usesDesignedPoster = isKeepIt100 || isCodeOfTruth;
 
   const savedForThisDrop = savedDropRecords.filter(s => s.drop_id === drop.id);
   const isSaved = savedForThisDrop.length > 0;
@@ -86,7 +91,7 @@ function MobileDropCard({
       className="relative rounded-[2rem] mb-5 p-3 overflow-hidden"
       style={{ background: "#FFFFFF", border: "1px solid #D6E4FF", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.10)" }}
     >
-      <div className="relative rounded-[1.45rem] overflow-hidden" style={{ aspectRatio: "4 / 5", background: drop.media_url ? "#DDE7FB" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
+      <div className="relative rounded-[1.45rem] overflow-hidden" style={{ aspectRatio: "4 / 5", background: drop.media_url ? "#DDE7FB" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
         <Link to={postLink} className="absolute inset-0 block no-underline">
           {drop.media_url ? (
             <img
@@ -96,21 +101,25 @@ function MobileDropCard({
               decoding="async"
               className="absolute inset-0 w-full h-full object-cover"
             />
+          ) : isKeepIt100 ? (
+            <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
+          ) : isCodeOfTruth ? (
+            <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
           ) : (
             <div className="absolute inset-0 pl-6 pr-[5.75rem] pt-20 pb-10 flex flex-col items-center justify-center text-center" style={{ background: "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
               {drop.verse && (
-                <p className="text-[21px] font-black leading-tight mb-5 line-clamp-6" style={{ color: "#62A4FF", fontFamily: "Space Grotesk, Inter, sans-serif" }}>
+                <p className="text-[20px] font-black leading-tight mb-4 line-clamp-7" style={{ color: "#62A4FF", fontFamily: "Space Grotesk, Inter, sans-serif" }}>
                   {drop.verse}
                 </p>
               )}
               {reflectionText ? (
-                <p className="text-[15px] italic leading-snug line-clamp-5" style={{ color: "#344B73" }}>
-                  “{reflectionText.length > 190 ? reflectionText.slice(0, 190) + "…" : reflectionText}”
+                <p className="text-[14px] italic leading-snug line-clamp-6" style={{ color: "#344B73" }}>
+                  “{reflectionText.length > 220 ? reflectionText.slice(0, 220) + "…" : reflectionText}”
                 </p>
               ) : !drop.verse ? (
                 <p className="text-[15px] italic" style={{ color: "#8A97B5" }}>Tap to view post</p>
               ) : null}
-              <div className="mt-7 w-16 h-1 rounded-full" style={{ background: "linear-gradient(90deg, #0B3FD9, #1FB8FF)" }} />
+              <div className="mt-6 w-16 h-1 rounded-full" style={{ background: "linear-gradient(90deg, #0B3FD9, #1FB8FF)" }} />
             </div>
           )}
         </Link>
