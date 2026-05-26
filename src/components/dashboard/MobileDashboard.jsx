@@ -1,9 +1,6 @@
-import React, { useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MobilePageHeader from "@/components/mobile/MobilePageHeader";
-import usePullToRefresh from "@/hooks/usePullToRefresh";
-import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 import OverviewTab from "@/components/dashboard/OverviewTab";
 import LeaderboardTab from "@/components/dashboard/LeaderboardTab";
 import SubmitDropTab from "@/components/dashboard/SubmitDropTab";
@@ -30,28 +27,10 @@ const TABS = [
 
 export default function MobileDashboard({ user }) {
   const [active, setActive] = useState("overview");
-  const scrollRef = useRef(null);
-  const queryClient = useQueryClient();
-
-  // Pull-to-refresh: only enabled on the Overview tab (which loads aggregated data).
-  const { pullDistance, isRefreshing, threshold } = usePullToRefresh(scrollRef, async () => {
-    if (active !== "overview") return;
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["myGlowDrops", user.email] }),
-      queryClient.invalidateQueries({ queryKey: ["myMemberships", user.email] }),
-      queryClient.invalidateQueries({ queryKey: ["overviewPublicUsers"] }),
-      queryClient.invalidateQueries({ queryKey: ["activeChallenges"] }),
-      queryClient.invalidateQueries({ queryKey: ["myCertificates", user.email] }),
-      queryClient.invalidateQueries({ queryKey: ["communityFeedOverview"] }),
-      queryClient.invalidateQueries({ queryKey: ["unreadNotifications", user.email] }),
-      queryClient.invalidateQueries({ queryKey: ["overviewDailyCodesLatest"] }),
-    ]);
-  });
 
   return (
-    <div ref={scrollRef} className="min-h-screen pb-24 font-['Inter'] overflow-y-auto" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+    <div className="min-h-screen pb-24 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       <MobilePageHeader title="Dashboard" subtitle={`Welcome, ${(user.full_name || "").split(" ")[0]}`} />
-      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} threshold={threshold} />
 
       <div className="px-3 py-4 space-y-4">
         {/* XP Hero */}

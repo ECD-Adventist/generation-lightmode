@@ -6,7 +6,6 @@ import LanguageSelector from "./components/LanguageSelector";
 import { useAppLanguage } from "./components/i18n/useAppLanguage";
 import { useSwitchItOn } from "./components/pledge/SwitchItOnProvider";
 import MobileBottomNav from "./components/mobile/MobileBottomNav";
-import MobileHeader from "./components/mobile/MobileHeader";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -84,8 +83,6 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   useEffect(() => {
-    if (location.state?.preserveMobileTabState) return;
-
     if (location.hash) {
       requestAnimationFrame(() => {
         const target = document.getElementById(location.hash.slice(1));
@@ -95,7 +92,7 @@ export default function Layout({ children, currentPageName }) {
     }
 
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, [location.pathname, location.search, location.hash, location.state]);
+  }, [location.pathname, location.search, location.hash]);
 
   return (
     <div dir={isRTL ? "rtl" : "ltr"} className="bg-background min-h-screen text-foreground" style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
@@ -546,9 +543,6 @@ export default function Layout({ children, currentPageName }) {
         )}
       </nav>
       )}
-
-      {/* Mobile top header — only on app-shell pages that don't already have their own header */}
-      {isAppShellPage && isMobileViewport && <MobileHeader currentPageName={currentPageName} />}
 
       {/* Page Content */}
       <main className={`${isAppShellPage || currentPageName === "Home" || hideDesktopChrome ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"} ${isAppShellPage ? "has-mobile-bottom-nav" : ""}`}>

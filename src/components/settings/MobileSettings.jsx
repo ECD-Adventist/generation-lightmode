@@ -54,7 +54,7 @@ export default function MobileSettings({ user, prefs, togglePref, savePrefs, dis
                   <span className="text-lg shrink-0">{icon}</span>
                   <span className="text-[13px] truncate" style={{ color: "#0B1B3D" }}>{label}</span>
                 </div>
-                <button aria-label={`Toggle ${label}`} onClick={() => togglePref(key)} className="w-12 h-7 rounded-full transition-colors relative shrink-0" style={{ background: prefs[key] ? "#0B3FD9" : "#E2E8F0" }}>
+                <button onClick={() => togglePref(key)} className="w-12 h-7 rounded-full transition-colors relative shrink-0" style={{ background: prefs[key] ? "#0B3FD9" : "#E2E8F0" }}>
                   <span className="absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all" style={{ left: prefs[key] ? 26 : 4 }} />
                 </button>
               </div>
@@ -94,16 +94,16 @@ export default function MobileSettings({ user, prefs, togglePref, savePrefs, dis
           <LogOut className="w-4 h-4" /> Sign Out
         </button>
 
-        {/* Account Deletion */}
+        {/* Danger zone */}
         <div className="rounded-2xl p-4" style={{ background: "rgba(239,68,68,0.04)", border: "1px solid rgba(239,68,68,0.2)" }}>
           <h2 className="text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-2" style={{ color: "#EF4444" }}>
-            <Trash2 className="w-3 h-3" /> Account Deletion
+            <Trash2 className="w-3 h-3" /> Danger Zone
           </h2>
           <p className="text-[12px] mb-3" style={{ color: "#B91C1C" }}>
-            Deleting your account permanently removes your profile, posts, messages, comments, follows, and group memberships. This cannot be undone.
+            Permanently delete your account and all content. Cannot be undone.
           </p>
           <button onClick={handleDeleteAccount} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm min-h-[48px]" style={{ background: "rgba(239,68,68,0.1)", color: "#DC2626", border: "1px solid rgba(239,68,68,0.25)" }}>
-            <Trash2 className="w-4 h-4" /> Confirm Account Deletion
+            <Trash2 className="w-4 h-4" /> Delete My Account
           </button>
         </div>
       </div>

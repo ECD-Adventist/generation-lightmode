@@ -11,13 +11,10 @@ import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
 import { compressImageUnder2MB } from "@/lib/imageUtils";
 import PhotoEditorModal from "@/components/feed/PhotoEditorModal";
 import { queueDropForSync } from "@/lib/offlineCache";
-import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
 
 export default function SubmitDropModal({ isOpen, onClose, user }) {
-  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [file, setFile] = useState(null);
@@ -395,35 +392,19 @@ RULES:
                   <UserCircle2 className="w-4 h-4" style={{ color: "#CC7A00" }} />
                   <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#CC7A00" }}>Post As</span>
                 </div>
-                {isMobile ? (
-                  <BottomSheetSelect
-                    value={postAsLeaderId}
-                    onChange={setPostAsLeaderId}
-                    placeholder="Post as"
-                    options={[
-                      { value: "", label: `Myself (${user?.full_name || user?.email})` },
-                      ...leaderAccounts.map(account => ({
-                        value: account.id,
-                        label: `${account.leader_name}${account.leader_title ? ` — ${account.leader_title}` : ""}`,
-                      })),
-                    ]}
-                    triggerStyle={{ background: "#FFFFFF", border: "1px solid #FFE4A0", color: "#0B1B3D", minHeight: 44 }}
-                  />
-                ) : (
-                  <select
-                    value={postAsLeaderId}
-                    onChange={(e) => setPostAsLeaderId(e.target.value)}
-                    className="w-full h-11 rounded-xl px-3 text-sm font-semibold focus:outline-none"
-                    style={{ background: "#FFFFFF", border: "1px solid #FFE4A0", color: "#0B1B3D" }}
-                  >
-                    <option value="">Myself ({user?.full_name || user?.email})</option>
-                    {leaderAccounts.map(account => (
-                      <option key={account.id} value={account.id}>
-                        {account.leader_name}{account.leader_title ? ` — ${account.leader_title}` : ""}
-                      </option>
-                    ))}
-                  </select>
-                )}
+                <select
+                  value={postAsLeaderId}
+                  onChange={(e) => setPostAsLeaderId(e.target.value)}
+                  className="w-full h-11 rounded-xl px-3 text-sm font-semibold focus:outline-none"
+                  style={{ background: "#FFFFFF", border: "1px solid #FFE4A0", color: "#0B1B3D" }}
+                >
+                  <option value="">Myself ({user?.full_name || user?.email})</option>
+                  {leaderAccounts.map(account => (
+                    <option key={account.id} value={account.id}>
+                      {account.leader_name}{account.leader_title ? ` — ${account.leader_title}` : ""}
+                    </option>
+                  ))}
+                </select>
                 {postAsLeaderId && (
                   <p className="text-[11px] mt-2" style={{ color: "#8B6914" }}>
                     ⚠ This post will appear under the leader's identity. Action is logged.
