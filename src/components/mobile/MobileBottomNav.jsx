@@ -1,18 +1,17 @@
 import React, { useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Zap, Users, User, Search, MessageCircle } from "lucide-react";
+import { Zap, LayoutDashboard, Bell } from "lucide-react";
 
 const tabs = [
   { key: "Feed", label: "Feed", icon: Zap, match: ["Feed", "GlowFeed", "Post"] },
-  { key: "Discover", label: "Search", icon: Search, match: ["Discover"] },
-  { key: "GlowGroups", label: "Groups", icon: Users, match: ["GlowGroups", "GroupChat", "GroupSession"] },
-  { key: "Messages", label: "Messages", icon: MessageCircle, match: ["Messages"] },
-  { key: "Profile", label: "Profile", icon: User, match: ["Profile", "Settings"] },
+  { key: "Dashboard", label: "Dashboard", icon: LayoutDashboard, match: ["Dashboard"] },
+  { key: "Notifications", label: "Alerts", icon: Bell, match: ["Notifications"] },
 ];
 
 export default function MobileBottomNav({ currentPageName }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const scrollPositions = useRef({});
 
   // 1. Save scroll position on scroll
@@ -67,16 +66,9 @@ export default function MobileBottomNav({ currentPageName }) {
               key={key}
               to={targetPath}
               onClick={(e) => {
-                if (key === "Feed") {
+                if (!active && ["Feed", "Dashboard", "Notifications"].includes(key)) {
                   e.preventDefault();
-                  sessionStorage.removeItem("scroll_pos_/Feed");
-                  window.location.href = `${createPageUrl("Feed")}?refresh=${Date.now()}`;
-                  return;
-                }
-                if (key === "Profile") {
-                  e.preventDefault();
-                  sessionStorage.removeItem("scroll_pos_/Profile");
-                  window.location.href = createPageUrl("Profile");
+                  navigate(targetPath, { replace: false, state: { preserveMobileTabState: true } });
                   return;
                 }
                 if (active) {
@@ -84,6 +76,7 @@ export default function MobileBottomNav({ currentPageName }) {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
               }}
+              aria-label={label}
               className="flex-1 flex flex-col items-center justify-center gap-1 py-2"
               style={{
                 minHeight: 56,

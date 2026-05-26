@@ -111,7 +111,7 @@ export default function Settings() {
     <div className="min-h-screen pb-20 font-['Inter'] bg-background text-foreground">
       {/* Nav */}
       <div className="sticky top-0 z-50 backdrop-blur-xl border-b bg-background/95 border-border px-6 py-3 flex items-center gap-4">
-        <Link to={createPageUrl("Feed")} className="flex items-center gap-2 transition text-muted-foreground hover:text-foreground">
+        <Link to={createPageUrl("Feed")} aria-label="Back to Feed" className="flex items-center gap-2 transition text-muted-foreground hover:text-foreground">
           <Home className="w-4 h-4" />
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
@@ -172,7 +172,7 @@ export default function Settings() {
                   <span className="text-lg">{icon}</span>
                   <span className="text-sm text-foreground">{label}</span>
                 </div>
-                <button onClick={() => togglePref(key)} className={`w-11 h-6 rounded-full transition-colors duration-200 relative ${prefs[key] ? "bg-blue-500" : "bg-muted border border-border"}`}>
+                <button aria-label={`Toggle ${label}`} onClick={() => togglePref(key)} className={`w-11 h-6 rounded-full transition-colors duration-200 relative ${prefs[key] ? "bg-blue-500" : "bg-muted border border-border"}`}>
                   <span className="absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200" style={{ left: prefs[key] ? 24 : 4 }} />
                 </button>
               </div>
@@ -214,19 +214,19 @@ export default function Settings() {
           <LogOut className="w-4 h-4" /> Sign Out
         </button>
 
-        {/* Delete Account */}
+        {/* Account Deletion */}
         <div className="rounded-2xl p-6 bg-red-500/5 border border-red-500/20">
           <h2 className="text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2 text-red-500">
-            <Trash2 className="w-3.5 h-3.5" /> Danger Zone
+            <Trash2 className="w-3.5 h-3.5" /> Account Deletion
           </h2>
           <p className="text-sm mb-4 text-red-600/80 dark:text-red-400/80">
-            Permanently delete your account. This removes <strong>all your Glow Drops, comments, prayer requests, follows, and group memberships</strong>. This action cannot be undone.
+            Deleting your account is permanent. It removes <strong>your profile, Glow Drops, comments, prayer requests, follows, messages, and group memberships</strong>. This cannot be undone.
           </p>
           <button
             onClick={handleDeleteAccount}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition min-h-[44px] bg-red-500/10 text-red-600 border border-red-500/20 hover:bg-red-500/20 dark:text-red-400"
           >
-            <Trash2 className="w-4 h-4" /> Delete My Account
+            <Trash2 className="w-4 h-4" /> Confirm Account Deletion
           </button>
         </div>
       </div>

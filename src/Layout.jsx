@@ -83,6 +83,8 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   useEffect(() => {
+    if (location.state?.preserveMobileTabState) return;
+
     if (location.hash) {
       requestAnimationFrame(() => {
         const target = document.getElementById(location.hash.slice(1));
@@ -92,7 +94,7 @@ export default function Layout({ children, currentPageName }) {
     }
 
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, [location.pathname, location.search, location.hash]);
+  }, [location.pathname, location.search, location.hash, location.state]);
 
   return (
     <div dir={isRTL ? "rtl" : "ltr"} className="bg-background min-h-screen text-foreground" style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
