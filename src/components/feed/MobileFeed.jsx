@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Bell, Plus, Sparkles, Flame, Zap, Image as ImageIcon, Smile } from "lucide-react";
 import MobileFeedDropList from "@/components/feed/MobileFeedDropList";
 import MobileDropCardSkeleton from "@/components/feed/MobileDropCardSkeleton";
+import usePullToRefresh from "@/hooks/usePullToRefresh";
+import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 
 /**
  * Mobile-only Feed shell — LightMode branded (premium redesign).
@@ -41,9 +43,14 @@ export default function MobileFeed({
   const filters = ["All", "Following", "Most Liked", "Devotional", "Testimony"];
   const greeting = new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening";
   const firstName = (user?.display_name || user?.full_name || "Friend").split(" ")[0] || "Friend";
+  const scrollRef = useRef(null);
+  const { pullDistance, isRefreshing, threshold } = usePullToRefresh(scrollRef, async () => {
+    await onRefetch?.();
+  });
 
   return (
-    <div className="min-h-screen font-['Inter']" style={{ background: "linear-gradient(180deg, #F6F8FC 0%, #EEF3FF 40%, #E2EBFF 100%)", color: "#0B1B3D" }}>
+    <div ref={scrollRef} className="min-h-screen font-['Inter'] overflow-y-auto overscroll-y-contain" style={{ background: "linear-gradient(180deg, #F6F8FC 0%, #EEF3FF 40%, #E2EBFF 100%)", color: "#0B1B3D" }}>
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} threshold={threshold} />
       <style>{`
         @keyframes mf-float { 0%,100% { transform: translateY(0) scale(1); opacity: 0.22 } 50% { transform: translateY(-18px) scale(1.08); opacity: 0.42 } }
         @keyframes mf-shimmer {

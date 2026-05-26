@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
 import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
+import usePullToRefresh from "@/hooks/usePullToRefresh";
+import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 
 /**
  * Mobile-only GlowGroups — LightMode branded community hub (premium redesign).
@@ -24,10 +26,15 @@ export default function MobileGlowGroups({
   followMutation,
   joinMutation,
   onOpenCreate,
+  onRefresh,
 }) {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("groups"); // people | groups | sessions | leaders
   const navigate = useNavigate();
+  const scrollRef = useRef(null);
+  const { pullDistance, isRefreshing, threshold } = usePullToRefresh(scrollRef, async () => {
+    await onRefresh?.();
+  });
   const q = search.trim().toLowerCase();
   const firstName = user?.full_name?.split(" ")[0] || "Friend";
 
@@ -71,7 +78,8 @@ export default function MobileGlowGroups({
   ];
 
   return (
-    <div className="min-h-screen font-['Inter'] relative overflow-hidden" style={{ background: "linear-gradient(180deg, #F6F8FC 0%, #EEF3FF 40%, #E2EBFF 100%)", color: "#0B1B3D" }}>
+    <div ref={scrollRef} className="min-h-screen font-['Inter'] relative overflow-hidden overflow-y-auto overscroll-y-contain" style={{ background: "linear-gradient(180deg, #F6F8FC 0%, #EEF3FF 40%, #E2EBFF 100%)", color: "#0B1B3D" }}>
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} threshold={threshold} />
       <style>{`
         @keyframes mgg-float { 0%,100% { transform: translateY(0) scale(1); opacity: 0.22 } 50% { transform: translateY(-18px) scale(1.08); opacity: 0.4 } }
         @keyframes mgg-shimmer {

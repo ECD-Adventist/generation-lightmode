@@ -246,6 +246,13 @@ export default function GlowGroups() {
           followMutation={followMutation}
           joinMutation={joinMutation}
           onOpenCreate={() => setIsCreateOpen(true)}
+          onRefresh={async () => {
+            await queryClient.invalidateQueries({ queryKey: ["allGroups"] });
+            await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+            await queryClient.invalidateQueries({ queryKey: ["myMemberships", user?.email] });
+            await queryClient.invalidateQueries({ queryKey: ["myJoinRequests", user?.email] });
+            await queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
+          }}
         />
         <CreateGroupModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} user={user} />
       </div>

@@ -217,7 +217,7 @@ export default function Settings() {
         {/* Delete Account */}
         <div className="rounded-2xl p-6 bg-red-500/5 border border-red-500/20">
           <h2 className="text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2 text-red-500">
-            <Trash2 className="w-3.5 h-3.5" /> Danger Zone
+            <Trash2 className="w-3.5 h-3.5" /> Delete My Account
           </h2>
           <p className="text-sm mb-4 text-red-600/80 dark:text-red-400/80">
             Permanently delete your account. This removes <strong>all your Glow Drops, comments, prayer requests, follows, and group memberships</strong>. This action cannot be undone.

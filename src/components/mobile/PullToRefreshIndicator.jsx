@@ -14,7 +14,7 @@ export default function PullToRefreshIndicator({ pullDistance, isRefreshing, thr
       className="flex items-center justify-center w-full overflow-hidden pointer-events-none transition-[height] duration-150"
       style={{ height }}
     >
-      <div className="flex items-center gap-2 text-xs font-bold" style={{ color: "#0B3FD9" }}>
+      <div className="flex items-center gap-2 text-sm font-bold text-primary">
         {isRefreshing ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" /> Refreshing…
