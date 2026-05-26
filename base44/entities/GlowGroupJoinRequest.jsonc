@@ -43,7 +43,7 @@
         },
         {
           "in": {
-            "group_id": {
+            "data.group_id": {
               "$entity": "GlowGroup",
               "params": {
                 "leader_email": "{{user.email}}"
@@ -67,7 +67,7 @@
       "$or": [
         {
           "in": {
-            "group_id": {
+            "data.group_id": {
               "$entity": "GlowGroup",
               "params": {
                 "leader_email": "{{user.email}}"
@@ -91,6 +91,19 @@
       "$or": [
         {
           "created_by": "{{user.email}}"
+        },
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "in": {
+            "data.group_id": {
+              "$entity": "GlowGroup",
+              "params": {
+                "leader_email": "{{user.email}}"
+              }
+            }
+          }
         },
         {
           "user_condition": {
