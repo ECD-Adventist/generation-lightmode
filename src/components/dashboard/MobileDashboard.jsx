@@ -62,7 +62,7 @@ export default function MobileDashboard({ user }) {
               <button
                 key={t.id}
                 onClick={() => setActive(t.id)}
-                className="shrink-0 px-4 py-2 rounded-full text-[12px] font-bold whitespace-nowrap transition"
+                className="shrink-0 px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition"
                 style={active === t.id
                   ? { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11,63,217,0.3)" }
                   : { background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#4A5878" }}

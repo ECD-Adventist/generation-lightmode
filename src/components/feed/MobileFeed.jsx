@@ -100,7 +100,7 @@ export default function MobileFeed({
           <h1 className="text-[26px] font-black font-['Space_Grotesk'] text-white leading-tight truncate mt-1">
             Hey, {firstName} <span style={{ color: "#FFD000" }}>⚡</span>
           </h1>
-          <div className="text-[12px] text-white/80 mt-1 font-semibold">Your light is needed today.</div>
+          <div className="text-sm text-white/80 mt-1 font-semibold">Your light is needed today.</div>
         </div>
       </div>
 
@@ -111,7 +111,7 @@ export default function MobileFeed({
           className="w-full rounded-[1.25rem] p-3 flex items-center gap-2.5 active:scale-[0.99] transition text-left"
           style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.15)" }}
         >
-          <div className="flex-1 text-[13px] font-semibold py-2.5 px-4 rounded-full truncate" style={{ background: "#F6F8FC", color: "#6B7FA0", border: "1px solid #E6ECF5" }}>
+          <div className="flex-1 text-sm font-semibold py-2.5 px-4 rounded-full truncate" style={{ background: "#F6F8FC", color: "#6B7FA0", border: "1px solid #E6ECF5" }}>
             Share a light drop, {firstName}…
           </div>
           <div className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 159, 26, 0.4)" }}>
