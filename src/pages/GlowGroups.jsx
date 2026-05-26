@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight, Home, Bell, User, Video, Loader2, MessageCircle } from "lucide-react";
 import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
 import CreateGroupModal from "@/components/groups/CreateGroupModal";
@@ -10,8 +10,6 @@ import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import { isNotificationEnabled } from "@/lib/notifications";
 import AppFooter from "@/components/AppFooter";
-import usePullToRefresh from "@/hooks/usePullToRefresh";
-import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 import MobileGlowGroups from "@/components/groups/MobileGlowGroups";
 
 const rankColors = { Champion: "#FFD000", Trendsetter: "#8A5CFF", Warrior: "#1DA1FF", Starter: "#00CFFF" };
@@ -23,15 +21,6 @@ export default function GlowGroups() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const scrollRef = useRef(null);
-
-  const { pullDistance, isRefreshing, threshold } = usePullToRefresh(scrollRef, async () => {
-    await queryClient.invalidateQueries({ queryKey: ["allGroups"] });
-    await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
-    await queryClient.invalidateQueries({ queryKey: ["myMemberships", user?.email] });
-    await queryClient.invalidateQueries({ queryKey: ["myJoinRequests", user?.email] });
-    await queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
-  });
 
   useEffect(() => {
     base44.auth.isAuthenticated().then(isAuth => {
@@ -229,9 +218,7 @@ export default function GlowGroups() {
   }
 
   return (
-    <div ref={scrollRef} className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D", overflowY: "auto" }}>
-      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} threshold={threshold} />
-
+    <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       {/* MOBILE: branded redesign */}
       <div className="md:hidden">
         <MobileGlowGroups
