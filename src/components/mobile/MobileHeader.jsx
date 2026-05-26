@@ -58,7 +58,6 @@ const PAGES_WITH_OWN_HEADER = new Set([
   "GenerationLightMode",
   "GlowFeed",
   "GroupSession",
-  "Post",
 ]);
 
 export default function MobileHeader({ currentPageName }) {
