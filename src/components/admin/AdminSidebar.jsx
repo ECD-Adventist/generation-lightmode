@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map, UserCheck, PieChart, Flag, TrendingUp, ChevronDown, ChevronRight, Building2, Sparkles, ShieldCheck, FileText, Medal, AlertTriangle } from "lucide-react";
+import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map, UserCheck, PieChart, Flag, TrendingUp, ChevronDown, ChevronRight, Building2, Sparkles, ShieldCheck, FileText, Medal, AlertTriangle, Database } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
@@ -153,6 +153,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
             <SidebarItem id="settings" icon={<Settings size={16} />} label="System Settings" />
             <SidebarItem id="permissions" icon={<ShieldCheck size={16} />} label="Permissions" />
             <SidebarItem id="audit-logs" icon={<FileText size={16} />} label="Audit Logs" />
+            <SidebarItem id="supabase-export" icon={<Database size={16} />} label="Supabase Export" />
             <SidebarItem id="leader-accounts" icon={<Users size={16} />} label="Administrators Accounts" />
             <SidebarItem id="leader-posts" icon={<FileText size={16} />} label="Leader Posts" />
           </SidebarSection>
