@@ -29,9 +29,7 @@ export default function MobileBottomNav({ currentPageName }) {
   useEffect(() => {
     const currentTab = tabs.find(t => t.match.includes(currentPageName) || location.pathname.startsWith(`/${t.key}`));
     if (currentTab) {
-      const cleanPath = currentTab.key === "Profile" || currentTab.key === "Feed"
-        ? createPageUrl(currentTab.key)
-        : location.pathname + location.search;
+      const cleanPath = location.pathname + location.search;
       sessionStorage.setItem(`tab_history_${currentTab.key}`, cleanPath);
     }
   }, [location, currentPageName]);
@@ -59,29 +57,22 @@ export default function MobileBottomNav({ currentPageName }) {
       <div className="flex items-stretch justify-around px-2">
         {tabs.map(({ key, label, icon: Icon, match }) => {
           const active = match.includes(currentPageName) || location.pathname === `/${key}`;
-          const targetPath = key === "Profile" || key === "Feed"
-            ? createPageUrl(key)
-            : (sessionStorage.getItem(`tab_history_${key}`) || createPageUrl(key));
+          const targetPath = sessionStorage.getItem(`tab_history_${key}`) || createPageUrl(key);
           return (
             <Link
               key={key}
               to={targetPath}
               onClick={(e) => {
-                if (key === "Feed") {
-                  e.preventDefault();
-                  sessionStorage.removeItem("scroll_pos_/Feed");
-                  window.location.href = `${createPageUrl("Feed")}?refresh=${Date.now()}`;
-                  return;
-                }
-                if (key === "Profile") {
-                  e.preventDefault();
-                  sessionStorage.removeItem("scroll_pos_/Profile");
-                  window.location.href = createPageUrl("Profile");
-                  return;
-                }
                 if (active) {
                   e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  const rootPath = createPageUrl(key);
+                  if (location.pathname !== rootPath) {
+                    window.location.href = rootPath;
+                  } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                } else {
+                  sessionStorage.setItem('tab_switch', 'true');
                 }
               }}
               className="flex-1 flex flex-col items-center justify-center gap-1 py-2"

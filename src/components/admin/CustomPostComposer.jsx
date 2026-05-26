@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Loader2, X, Send, Image as ImageIcon, Calendar as CalendarIcon, Sparkles } from "lucide-react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
+import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 
 const CATEGORIES = ["Devotional", "Testimony", "Scripture", "Prayer", "Encouragement", "Teaching", "Announcement"];
 const BRAND_EMAIL = "system@lightmode.com";
@@ -237,13 +238,13 @@ export default function CustomPostComposer() {
       {/* Category */}
       <div>
         <Label className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">Category</Label>
-        <select
+        <BottomSheetSelect
           value={form.category}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-          className="w-full bg-[#0B0F1A] border border-white/10 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-[#00CFFF]/40"
-        >
-          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
+          onChange={(val) => setForm({ ...form, category: val })}
+          options={CATEGORIES.map(c => ({ value: c, label: c }))}
+          triggerClassName="w-full rounded-md px-3 py-2.5 text-sm"
+          triggerStyle={{ background: "#0B0F1A", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}
+        />
       </div>
 
       {/* Schedule */}

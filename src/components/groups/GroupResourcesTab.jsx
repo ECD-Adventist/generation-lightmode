@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { BookOpen, Plus, Pin, PinOff, Trash2, ExternalLink, FileText, Link as LinkIcon, Video, FileIcon, Image as ImageIcon, X, Loader2, Search, Filter } from "lucide-react";
+import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 
 const CATEGORIES = ["All", "Study Guides", "Devotionals", "Sermons", "Worship", "Prayer", "Training", "General"];
 const TYPE_ICONS = {
@@ -238,20 +239,30 @@ function AddResourceModal({ group, currentUser, onClose }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-[11px] font-bold uppercase tracking-wider block mb-1.5" style={{ color: "#6B7FA0" }}>Type</label>
-              <select value={form.resource_type} onChange={e => setForm({ ...form, resource_type: e.target.value })} className="w-full h-11 rounded-xl px-3 text-sm focus:outline-none" style={inputStyle}>
-                <option value="link">🔗 Link</option>
-                <option value="pdf">📄 PDF</option>
-                <option value="study_guide">📘 Study Guide</option>
-                <option value="video">🎥 Video</option>
-                <option value="document">📃 Document</option>
-                <option value="image">🖼️ Image</option>
-              </select>
+              <BottomSheetSelect
+                value={form.resource_type}
+                onChange={val => setForm({ ...form, resource_type: val })}
+                options={[
+                  { value: "link", label: "🔗 Link" },
+                  { value: "pdf", label: "📄 PDF" },
+                  { value: "study_guide", label: "📘 Study Guide" },
+                  { value: "video", label: "🎥 Video" },
+                  { value: "document", label: "📃 Document" },
+                  { value: "image", label: "🖼️ Image" },
+                ]}
+                triggerClassName="w-full h-11 rounded-xl px-3 text-sm"
+                triggerStyle={inputStyle}
+              />
             </div>
             <div>
               <label className="text-[11px] font-bold uppercase tracking-wider block mb-1.5" style={{ color: "#6B7FA0" }}>Category</label>
-              <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="w-full h-11 rounded-xl px-3 text-sm focus:outline-none" style={inputStyle}>
-                {CATEGORIES.filter(c => c !== "All").map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              <BottomSheetSelect
+                value={form.category}
+                onChange={val => setForm({ ...form, category: val })}
+                options={CATEGORIES.filter(c => c !== "All").map(c => ({ value: c, label: c }))}
+                triggerClassName="w-full h-11 rounded-xl px-3 text-sm"
+                triggerStyle={inputStyle}
+              />
             </div>
           </div>
           <div>

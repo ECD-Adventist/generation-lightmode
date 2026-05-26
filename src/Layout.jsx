@@ -83,6 +83,11 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   useEffect(() => {
+    if (sessionStorage.getItem('tab_switch')) {
+      sessionStorage.removeItem('tab_switch');
+      return;
+    }
+
     if (location.hash) {
       requestAnimationFrame(() => {
         const target = document.getElementById(location.hash.slice(1));

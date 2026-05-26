@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Send, Loader2, Mail, Users, Filter, Clock, CheckCircle, ChevronDown, ChevronUp, Globe, Zap, User } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 
 const XP_TIERS = [
   { label: "All XP Levels", min: 0, max: Infinity },
@@ -162,24 +163,33 @@ export default function AdminAnnouncementsTab() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="text-[10px] text-gray-500 uppercase tracking-wider mb-1.5 block flex items-center gap-1"><Globe className="w-3 h-3" /> Country</label>
-                <select value={filterCountry} onChange={e => setFilterCountry(e.target.value)}
-                  className="w-full bg-[#0B0F1A] border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-[#00CFFF]/40">
-                  {countries.map(c => <option key={c} value={c}>{c === "all" ? "All Countries" : c}</option>)}
-                </select>
+                <BottomSheetSelect
+                  value={filterCountry}
+                  onChange={setFilterCountry}
+                  options={countries.map(c => ({ value: c, label: c === "all" ? "All Countries" : c }))}
+                  triggerClassName="w-full rounded-xl px-3 py-2 text-sm"
+                  triggerStyle={{ background: "#0B0F1A", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}
+                />
               </div>
               <div>
                 <label className="text-[10px] text-gray-500 uppercase tracking-wider mb-1.5 block flex items-center gap-1"><User className="w-3 h-3" /> Role</label>
-                <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
-                  className="w-full bg-[#0B0F1A] border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-[#00CFFF]/40">
-                  {roles.map(r => <option key={r} value={r}>{r === "all" ? "All Roles" : r}</option>)}
-                </select>
+                <BottomSheetSelect
+                  value={filterRole}
+                  onChange={setFilterRole}
+                  options={roles.map(r => ({ value: r, label: r === "all" ? "All Roles" : r }))}
+                  triggerClassName="w-full rounded-xl px-3 py-2 text-sm"
+                  triggerStyle={{ background: "#0B0F1A", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}
+                />
               </div>
               <div>
                 <label className="text-[10px] text-gray-500 uppercase tracking-wider mb-1.5 block flex items-center gap-1"><Zap className="w-3 h-3" /> XP Tier</label>
-                <select value={filterXP} onChange={e => setFilterXP(Number(e.target.value))}
-                  className="w-full bg-[#0B0F1A] border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-[#00CFFF]/40">
-                  {XP_TIERS.map((t, i) => <option key={i} value={i}>{t.label}</option>)}
-                </select>
+                <BottomSheetSelect
+                  value={filterXP}
+                  onChange={(val) => setFilterXP(Number(val))}
+                  options={XP_TIERS.map((t, i) => ({ value: i, label: t.label }))}
+                  triggerClassName="w-full rounded-xl px-3 py-2 text-sm"
+                  triggerStyle={{ background: "#0B0F1A", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}
+                />
               </div>
             </div>
             {/* Recipient preview */}
