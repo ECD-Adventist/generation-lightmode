@@ -31,7 +31,35 @@
   ],
   "rls": {
     "create": {
-      "data.host_email": "{{user.email}}"
+      "$and": [
+        {
+          "data.host_email": "{{user.email}}"
+        },
+        {
+          "$or": [
+            {
+              "in": {
+                "data.group_id": {
+                  "$entity": "GlowGroup",
+                  "params": {
+                    "leader_email": "{{user.email}}"
+                  }
+                }
+              }
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            },
+            {
+              "user_condition": {
+                "role": "super_admin"
+              }
+            }
+          ]
+        }
+      ]
     },
     "read": true,
     "update": {
