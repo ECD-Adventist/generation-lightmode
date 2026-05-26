@@ -18,8 +18,10 @@
     "content"
   ],
   "rls": {
-    "create": null,
-    "read": null,
+    "create": {
+      "data.user_email": "{{user.email}}"
+    },
+    "read": true,
     "update": false,
     "delete": {
       "$or": [
