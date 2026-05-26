@@ -8,7 +8,7 @@ import { getDisplayName } from "@/lib/displayName";
 export default function MobileSettings({ user, prefs, togglePref, savePrefs, displayName, setDisplayName, saveDisplayName, savingName, saving, handleLogout, handleDeleteAccount, notifKeys }) {
   return (
     <div className="min-h-screen pb-24 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
-      <MobilePageHeader title="Settings" subtitle="Preferences & account" />
+      <MobilePageHeader title="Settings" subtitle="Preferences & account" showBack />
 
       <div className="px-4 py-5 space-y-4">
         {/* Account */}
@@ -97,7 +97,7 @@ export default function MobileSettings({ user, prefs, togglePref, savePrefs, dis
         {/* Danger zone */}
         <div className="rounded-2xl p-4" style={{ background: "rgba(239,68,68,0.04)", border: "1px solid rgba(239,68,68,0.2)" }}>
           <h2 className="text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-2" style={{ color: "#EF4444" }}>
-            <Trash2 className="w-3 h-3" /> Danger Zone
+            <Trash2 className="w-3 h-3" /> Delete Account
           </h2>
           <p className="text-[12px] mb-3" style={{ color: "#B91C1C" }}>
             Permanently delete your account and all content. Cannot be undone.

@@ -279,7 +279,7 @@ export default function Layout({ children, currentPageName }) {
       {isAppShellPage || hideDesktopChrome ? null : (
         /* Public nav for non-logged-in users */
         <nav style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, paddingTop: "env(safe-area-inset-top)",
         background: scrolled ? "rgba(11,15,26,0.85)" : "transparent",
         backdropFilter: scrolled ? "blur(24px) saturate(1.4)" : "none",
         borderBottom: "none",
