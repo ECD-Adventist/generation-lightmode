@@ -109,7 +109,9 @@
     "ecd_alignment_status"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.leader_email": "{{user.email}}"
+    },
     "read": {
       "$or": [
         {

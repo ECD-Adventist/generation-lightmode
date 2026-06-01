@@ -37,6 +37,16 @@
           "data.user_email": "{{user.email}}"
         },
         {
+          "in": {
+            "data.group_id": {
+              "$entity": "GlowGroup",
+              "params": {
+                "leader_email": "{{user.email}}"
+              }
+            }
+          }
+        },
+        {
           "user_condition": {
             "role": "admin"
           }
@@ -54,6 +64,16 @@
       "$or": [
         {
           "data.user_email": "{{user.email}}"
+        },
+        {
+          "in": {
+            "data.group_id": {
+              "$entity": "GlowGroup",
+              "params": {
+                "leader_email": "{{user.email}}"
+              }
+            }
+          }
         },
         {
           "user_condition": {

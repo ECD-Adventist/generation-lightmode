@@ -78,7 +78,9 @@
     "applicant_email"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.applicant_email": "{{user.email}}"
+    },
     "read": true,
     "update": {
       "$or": [

@@ -4,7 +4,7 @@
  * Reduces quality progressively and scales down very large images.
  */
 export function compressImageUnder2MB(file) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const MAX_BYTES = 2 * 1024 * 1024; // 2MB — matches function name & Base44 upload safety
     if (file.size <= MAX_BYTES) { resolve(file); return; }
 
@@ -50,10 +50,7 @@ export function compressImageUnder2MB(file) {
       tryCompress();
     };
 
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("This photo format could not be processed. Please choose JPG, PNG, or WebP."));
-    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
     img.src = url;
   });
 }

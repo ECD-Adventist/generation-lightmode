@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -108,38 +108,31 @@ RULES:
     if (!selected) return;
     if (!selected.type.startsWith("image/")) {
       toast.error("Please choose an image file");
-      e.target.value = "";
       return;
     }
 
     setCompressing(true);
     const originalSize = selected.size;
 
-    try {
-      // Always compress large images — never reject. Users expect to just post their photos.
-      const compressed = await compressImageUnder2MB(selected);
-      const compressedSize = compressed.size;
-      const savedPercent = originalSize > compressedSize
-        ? Math.round((1 - compressedSize / originalSize) * 100)
-        : 0;
+    // Always compress large images — never reject. Users expect to just post their photos.
+    const compressed = await compressImageUnder2MB(selected);
+    const compressedSize = compressed.size;
+    const savedPercent = originalSize > compressedSize
+      ? Math.round((1 - compressedSize / originalSize) * 100)
+      : 0;
 
-      setSizeInfo({
-        original: formatSize(originalSize),
-        compressed: formatSize(compressedSize),
-        savedPercent,
-        wasCompressed: compressedSize < originalSize,
-      });
+    setSizeInfo({
+      original: formatSize(originalSize),
+      compressed: formatSize(compressedSize),
+      savedPercent,
+      wasCompressed: compressedSize < originalSize,
+    });
+    setCompressing(false);
 
-      // Keep the real image MIME type for preview/editing. The editor exports JPEG after Apply.
-      const ext = compressed.type.includes("png") ? "png" : compressed.type.includes("webp") ? "webp" : compressed.type.includes("gif") ? "gif" : "jpg";
-      const finalFile = new File([compressed], `glow-drop-${Date.now()}.${ext}`, { type: compressed.type || selected.type || "image/jpeg" });
-      setEditorFile(finalFile);
-    } catch (error) {
-      toast.error(error?.message || "This photo could not be prepared. Please try another image.");
-    } finally {
-      setCompressing(false);
-      e.target.value = "";
-    }
+    // Open the photo editor so the user can crop/rotate/zoom before posting.
+    const finalFile = new File([compressed], `glow-drop-${Date.now()}.jpg`, { type: "image/jpeg" });
+    setEditorFile(finalFile);
+    e.target.value = "";
   };
 
   const handleEditorApply = async (editedFile) => {
@@ -360,10 +353,10 @@ RULES:
         <DialogContent className="sm:max-w-lg max-h-[92vh] overflow-y-auto z-[2000] p-0 rounded-3xl [&>button]:text-[#4A5878] [&>button]:hover:text-[#0B3FD9]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D", boxShadow: "0 16px 48px rgba(11, 63, 217, 0.18)" }}>
           <div className="relative px-6 pt-6 pb-4">
             <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9, #FFD000)" }} />
-            <DialogTitle className="text-2xl font-black font-['Space_Grotesk'] flex items-center gap-2" style={{ color: "#0B1B3D" }}>
+            <h2 className="text-2xl font-black font-['Space_Grotesk'] flex items-center gap-2" style={{ color: "#0B1B3D" }}>
               <Zap className="w-6 h-6" style={{ color: "#CC7A00" }} /> Share Your Light
-            </DialogTitle>
-            <DialogDescription className="text-sm mt-1" style={{ color: "#6B7FA0" }}>Inspire others and earn XP</DialogDescription>
+            </h2>
+            <p className="text-sm mt-1" style={{ color: "#6B7FA0" }}>Inspire others and earn XP</p>
           </div>
 
           {dailyCode && showSuggestion && (
@@ -525,7 +518,7 @@ RULES:
                   </span>
                 )}
               </div>
-              <input id="glow-drop-photo-input" ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="sr-only" />
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
 
               {preview ? (
                 <div className="relative rounded-2xl overflow-hidden flex items-center justify-center" style={{ border: "1px solid #E6ECF5", background: "#0B1B3D", minHeight: "12rem", maxHeight: "32rem" }}>
@@ -564,16 +557,18 @@ RULES:
                   )}
                 </div>
               ) : (
-                <label
-                  htmlFor="glow-drop-photo-input"
-                  className={`w-full h-28 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-2 group ${loading ? "opacity-50 pointer-events-none" : "cursor-pointer"}`}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={loading}
+                  className="w-full h-28 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-2 group disabled:opacity-50"
                   style={{ borderColor: "#D6E4FF", background: "#F6F8FC" }}
                 >
                   <ImagePlus className="w-8 h-8 transition-colors" style={{ color: "#8A97B5" }} />
                   <span className="text-xs transition-colors font-medium" style={{ color: "#8A97B5" }}>
                     Tap to add a photo
                   </span>
-                </label>
+                </button>
               )}
             </div>
 

@@ -21,12 +21,58 @@
     "content"
   ],
   "rls": {
-    "create": true,
-    "read": true,
-    "update": {
+    "create": {
+      "$and": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "$or": [
+            {
+              "in": {
+                "data.group_id": {
+                  "$entity": "GlowGroupMember",
+                  "params": {
+                    "user_email": "{{user.email}}"
+                  }
+                }
+              }
+            },
+            {
+              "in": {
+                "data.group_id": {
+                  "$entity": "GlowGroup",
+                  "params": {
+                    "leader_email": "{{user.email}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "read": {
       "$or": [
         {
-          "created_by": "{{user.email}}"
+          "in": {
+            "data.group_id": {
+              "$entity": "GlowGroupMember",
+              "params": {
+                "user_email": "{{user.email}}"
+              }
+            }
+          }
+        },
+        {
+          "in": {
+            "data.group_id": {
+              "$entity": "GlowGroup",
+              "params": {
+                "leader_email": "{{user.email}}"
+              }
+            }
+          }
         },
         {
           "user_condition": {
@@ -37,6 +83,43 @@
           "user_condition": {
             "role": "super_admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "moderator"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "in": {
+            "data.group_id": {
+              "$entity": "GlowGroup",
+              "params": {
+                "leader_email": "{{user.email}}"
+              }
+            }
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "moderator"
+          }
         }
       ]
     },
@@ -44,6 +127,16 @@
       "$or": [
         {
           "created_by": "{{user.email}}"
+        },
+        {
+          "in": {
+            "data.group_id": {
+              "$entity": "GlowGroup",
+              "params": {
+                "leader_email": "{{user.email}}"
+              }
+            }
+          }
         },
         {
           "user_condition": {

@@ -14,13 +14,25 @@
     "user_email"
   ],
   "rls": {
-    "create": {
-      "data.user_email": "{{user.email}}"
-    },
+    "create": true,
     "read": true,
     "update": false,
     "delete": {
-      "data.user_email": "{{user.email}}"
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
     }
   }
 }

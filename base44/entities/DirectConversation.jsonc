@@ -21,7 +21,16 @@
     "participant_b_email"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "$or": [
+        {
+          "data.participant_a_email": "{{user.email}}"
+        },
+        {
+          "data.participant_b_email": "{{user.email}}"
+        }
+      ]
+    },
     "read": {
       "$or": [
         {

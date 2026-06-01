@@ -17,7 +17,9 @@
     "reporter_email"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.reporter_email": "{{user.email}}"
+    },
     "read": {
       "$or": [
         {

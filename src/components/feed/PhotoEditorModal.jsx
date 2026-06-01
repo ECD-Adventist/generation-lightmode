@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { RotateCw, Check, X, Crop as CropIcon, Maximize2 } from "lucide-react";
@@ -18,7 +18,6 @@ export default function PhotoEditorModal({ file, onCancel, onApply }) {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [aspectKey, setAspectKey] = useState("original");
-  const [imageError, setImageError] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
@@ -33,7 +32,6 @@ export default function PhotoEditorModal({ file, onCancel, onApply }) {
     setScale(1);
     setPosition({ x: 0, y: 0 });
     setAspectKey("original");
-    setImageError(false);
   }, [file]);
 
   const handleImageLoad = (e) => {
@@ -157,8 +155,8 @@ export default function PhotoEditorModal({ file, onCancel, onApply }) {
       >
         <div className="px-5 pt-5 pb-3 flex items-center justify-between">
           <div>
-            <DialogTitle className="text-lg font-black font-['Space_Grotesk']">Edit Photo</DialogTitle>
-            <DialogDescription className="text-xs text-white/60 mt-0.5">Crop, rotate, and zoom before posting</DialogDescription>
+            <h2 className="text-lg font-black font-['Space_Grotesk']">Edit Photo</h2>
+            <p className="text-xs text-white/60 mt-0.5">Crop, rotate, and zoom before posting</p>
           </div>
         </div>
 
@@ -179,7 +177,6 @@ export default function PhotoEditorModal({ file, onCancel, onApply }) {
                 alt="Edit preview"
                 draggable={false}
                 onLoad={handleImageLoad}
-                onError={() => setImageError(true)}
                 className="absolute top-1/2 left-1/2 max-w-none pointer-events-none select-none"
                 style={{
                   transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px)) rotate(${rotation}deg) scale(${scale})`,
@@ -189,14 +186,6 @@ export default function PhotoEditorModal({ file, onCancel, onApply }) {
                   minHeight: rotation % 180 === 0 ? undefined : "100%",
                 }}
               />
-            )}
-            {imageError && (
-              <div className="absolute inset-0 flex items-center justify-center p-6 text-center bg-black">
-                <div>
-                  <p className="font-bold text-sm">This photo format cannot be previewed.</p>
-                  <p className="text-xs text-white/60 mt-1">Please choose a JPG, PNG, or WebP image.</p>
-                </div>
-              </div>
             )}
             {/* Grid overlay */}
             <div
@@ -265,8 +254,7 @@ export default function PhotoEditorModal({ file, onCancel, onApply }) {
           </Button>
           <Button
             onClick={handleApply}
-            disabled={imageError || !naturalSize.w}
-            className="flex-1 font-black disabled:opacity-50"
+            className="flex-1 font-black"
             style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#fff" }}
           >
             <Check className="w-4 h-4 mr-1" /> Apply
