@@ -18,9 +18,7 @@
     "reaction"
   ],
   "rls": {
-    "create": {
-      "data.user_email": "{{user.email}}"
-    },
+    "create": true,
     "read": true,
     "update": false,
     "delete": {

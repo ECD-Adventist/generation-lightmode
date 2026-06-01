@@ -31,9 +31,7 @@
     "payload"
   ],
   "rls": {
-    "create": {
-      "data.sender_email": "{{user.email}}"
-    },
+    "create": true,
     "read": {
       "$or": [
         {

@@ -27,9 +27,7 @@
     "reason"
   ],
   "rls": {
-    "create": {
-      "data.reporter_email": "{{user.email}}"
-    },
+    "create": true,
     "read": {
       "user_condition": {
         "role": "admin"

@@ -14,9 +14,7 @@
     "drop_id"
   ],
   "rls": {
-    "create": {
-      "data.user_email": "{{user.email}}"
-    },
+    "create": true,
     "read": {
       "$or": [
         {

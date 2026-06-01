@@ -22,37 +22,7 @@
     "author_email"
   ],
   "rls": {
-    "create": {
-      "$and": [
-        {
-          "data.author_email": "{{user.email}}"
-        },
-        {
-          "$or": [
-            {
-              "in": {
-                "data.group_id": {
-                  "$entity": "GlowGroupMember",
-                  "params": {
-                    "user_email": "{{user.email}}"
-                  }
-                }
-              }
-            },
-            {
-              "in": {
-                "data.group_id": {
-                  "$entity": "GlowGroup",
-                  "params": {
-                    "leader_email": "{{user.email}}"
-                  }
-                }
-              }
-            }
-          ]
-        }
-      ]
-    },
+    "create": true,
     "read": true,
     "update": {
       "created_by": "{{user.email}}"

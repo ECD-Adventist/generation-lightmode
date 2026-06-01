@@ -49,7 +49,9 @@
     "claimed_territory"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.member_email": "{{user.email}}"
+    },
     "read": {
       "$or": [
         {
@@ -61,11 +63,6 @@
         {
           "user_condition": {
             "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "super_admin"
           }
         }
       ]
@@ -79,30 +76,13 @@
           "user_condition": {
             "role": "admin"
           }
-        },
-        {
-          "user_condition": {
-            "role": "super_admin"
-          }
         }
       ]
     },
     "delete": {
-      "$or": [
-        {
-          "data.institution_owner_email": "{{user.email}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "super_admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "admin"
+      }
     }
   }
 }

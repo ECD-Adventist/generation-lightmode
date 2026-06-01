@@ -14,9 +14,7 @@
     "following_email"
   ],
   "rls": {
-    "create": {
-      "data.follower_email": "{{user.email}}"
-    },
+    "create": true,
     "read": true,
     "update": false,
     "delete": {

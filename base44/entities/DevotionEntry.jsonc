@@ -31,9 +31,7 @@
     "day_number"
   ],
   "rls": {
-    "create": {
-      "data.user_email": "{{user.email}}"
-    },
+    "create": true,
     "read": {
       "$or": [
         {

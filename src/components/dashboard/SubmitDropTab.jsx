@@ -1,19 +1,23 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Sparkles } from "lucide-react";
+import { ImagePlus, Loader2, Sparkles, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
+import { compressImageUnder2MB } from "@/lib/imageUtils";
 
 export default function SubmitDropTab({ user }) {
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({ verse: "", reflection: "", hashtags: "", category: "Devotional" });
   const [mood, setMood] = useState("");
@@ -38,8 +42,46 @@ export default function SubmitDropTab({ user }) {
     }
   };
 
+  const handleFileSelect = async (e) => {
+    const selected = e.target.files?.[0];
+    if (!selected) return;
+    if (!selected.type.startsWith("image/")) {
+      toast.error("Please choose an image file");
+      e.target.value = "";
+      return;
+    }
+
+    setCompressing(true);
+    try {
+      const compressed = await compressImageUnder2MB(selected);
+      const ext = compressed.type.includes("png") ? "png" : compressed.type.includes("webp") ? "webp" : compressed.type.includes("gif") ? "gif" : "jpg";
+      const finalFile = new File([compressed], `dashboard-drop-${Date.now()}.${ext}`, { type: compressed.type || selected.type || "image/jpeg" });
+      if (preview?.startsWith("blob:")) URL.revokeObjectURL(preview);
+      setFile(finalFile);
+      setPreview(URL.createObjectURL(finalFile));
+      toast.success("Photo ready to post");
+    } catch (error) {
+      toast.error(error?.message || "This photo could not be prepared. Please try another image.");
+    } finally {
+      setCompressing(false);
+      e.target.value = "";
+    }
+  };
+
+  const clearFile = () => {
+    if (preview?.startsWith("blob:")) URL.revokeObjectURL(preview);
+    setFile(null);
+    setPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.verse && !formData.reflection && !file) {
+      toast.error("Add a verse, reflection, or image to post");
+      return;
+    }
+
     setLoading(true);
     let finalScore = 5;
     let uploadedMediaUrl = null;
@@ -47,7 +89,7 @@ export default function SubmitDropTab({ user }) {
     try {
       if (file) {
         setAnalyzing(true);
-        const uploadRes = await base44.integrations.Core.UploadFile({ file: file });
+        const uploadRes = await base44.integrations.Core.UploadFile({ file });
         uploadedMediaUrl = uploadRes.file_url;
 
         try {
@@ -74,7 +116,7 @@ export default function SubmitDropTab({ user }) {
         setAnalyzing(false);
       }
 
-      await base44.entities.GlowDrop.create({ user_email: user.email, media_url: uploadedMediaUrl, ...formData });
+      await base44.functions.invoke("createGlowDrop", { ...formData, media_url: uploadedMediaUrl });
       const today = new Date().toISOString().split('T')[0];
       const challenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: today });
       let challengeBonus = 0;
@@ -91,10 +133,12 @@ export default function SubmitDropTab({ user }) {
       toast.success(`Glow Drop submitted! +${finalScore} XP earned!${challengeMsg}`);
 
       setFormData({ verse: "", reflection: "", hashtags: "", category: "Devotional" });
-      setFile(null);
+      clearFile();
       queryClient.invalidateQueries(["myGlowDrops"]);
+      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
     } catch (err) {
-      toast.error("Failed to submit Glow Drop");
+      const serverMsg = err?.response?.data?.error;
+      toast.error(serverMsg || err?.message || "Failed to submit Glow Drop");
     } finally {
       setLoading(false);
       setAnalyzing(false);
@@ -144,14 +188,27 @@ export default function SubmitDropTab({ user }) {
           </div>
 
           <div className="space-y-2">
-            <Label className="font-semibold uppercase tracking-wider text-xs ml-1" style={labelStyle}>Engagement Screenshot (Optional)</Label>
-            <p className="text-xs ml-1 mb-2" style={labelStyle}>Upload a screenshot showing likes, shares, or saves to earn extra impact points!</p>
-            <Input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} className="text-sm h-auto px-3 py-3 rounded-xl border-dashed border-2 cursor-pointer transition-colors file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold file:cursor-pointer" style={{ background: "#F6F8FC", border: "2px dashed #D6E4FF", color: "#0B1B3D" }} />
+            <Label className="font-semibold uppercase tracking-wider text-xs ml-1" style={labelStyle}>Photo (Optional)</Label>
+            <p className="text-xs ml-1 mb-2" style={labelStyle}>Upload a photo or screenshot; large images are optimized automatically.</p>
+            <input ref={fileInputRef} id="dashboard-drop-photo-input" type="file" accept="image/*" onChange={handleFileSelect} className="sr-only" />
+            {preview ? (
+              <div className="relative rounded-2xl overflow-hidden" style={{ border: "1px solid #E6ECF5", background: "#0B1B3D" }}>
+                <img src={preview} alt="Selected post photo" className="w-full max-h-96 object-contain" />
+                <button type="button" onClick={clearFile} disabled={loading} className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/70 text-white flex items-center justify-center disabled:opacity-50">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <label htmlFor="dashboard-drop-photo-input" className="h-28 rounded-xl border-dashed border-2 cursor-pointer transition-colors flex flex-col items-center justify-center gap-2" style={{ background: "#F6F8FC", border: "2px dashed #D6E4FF", color: "#8A97B5" }}>
+                {compressing ? <Loader2 className="w-7 h-7 animate-spin" /> : <ImagePlus className="w-8 h-8" />}
+                <span className="text-sm font-bold">{compressing ? "Preparing photo..." : "Tap to add a photo"}</span>
+              </label>
+            )}
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full h-14 mt-4 text-lg font-bold font-['Space_Grotesk'] rounded-xl border-none transition-all hover:scale-[1.02]" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>
+          <Button type="submit" disabled={loading || compressing} className="w-full h-14 mt-4 text-lg font-bold font-['Space_Grotesk'] rounded-xl border-none transition-all hover:scale-[1.02]" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>
             {loading ? (
-              <><Loader2 className="w-5 h-5 animate-spin mr-2" />{analyzing ? "Analyzing Screenshot..." : "Posting..."}</>
+              <><Loader2 className="w-5 h-5 animate-spin mr-2" />{analyzing ? "Uploading Photo..." : "Posting..."}</>
             ) : (
               <><span className="mr-2">⚡</span> Post Glow Drop</>
             )}
