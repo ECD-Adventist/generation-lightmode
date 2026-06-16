@@ -1,64 +1,70 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+
+const ADMIN_ROLES = [
+  'admin', 'super_admin', 'ecd_admin', 'country_admin',
+  'union_admin', 'conference_field_admin', 'church_admin', 'moderator'
+];
+
+const safeDisplayName = (user) => {
+  const display = (user.display_name || '').trim();
+  if (display) return display;
+  const name = (user.full_name || '').trim();
+  if (!name) return 'LightMode User';
+  return name.split(/\s+/).slice(0, 2).join(' ');
+};
+
+const publicUser = (user) => ({
+  id: user.id,
+  display_name: safeDisplayName(user),
+  profile_picture_url: user.profile_picture_url,
+  country: user.country,
+  city: user.city,
+  bio: user.bio,
+  glow_score: user.glow_score || 0,
+  faith_streak_count: user.faith_streak_count || 0,
+  created_date: user.created_date
+});
 
 Deno.serve(async (req) => {
-  const base44 = createClientFromRequest(req);
-
   try {
+    const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const payload = await req.json().catch(() => ({}));
-    const requestedEmails = Array.isArray(payload.emails) ? new Set(payload.emails.filter(Boolean)) : null;
     const includeCount = payload.include_count === true;
-    const limit = Math.min(Number(payload.limit) || 10000, 10000);
-    const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 10000);
+    const requestedLimit = Number(payload.limit) || 20;
+    const limit = Math.min(Math.max(requestedLimit, 1), 50);
+    const search = String(payload.search || payload.q || '').trim().toLowerCase().slice(0, 80);
 
-    // Only expose safe public fields — NO PII (no address, phone, DOB, gender, postal_code)
-    // Admin roles are hidden from public — only non-privileged roles are exposed
-    const ADMIN_ROLES = ['admin', 'super_admin', 'ecd_admin', 'country_admin', 'union_admin', 'conference_field_admin', 'church_admin', 'moderator'];
-    const publicUsers = allUsers
-      .filter(u => !requestedEmails || requestedEmails.has(u.email))
-      .slice(0, limit)
-      .map(u => ({
-        id: u.id,
-        full_name: u.full_name,
-        display_name: u.display_name,
-        email: u.email,
-        profile_picture_url: u.profile_picture_url,
-        cover_picture_url: u.cover_picture_url,
-        website_url: u.website_url,
-        country: u.country,
-        city: u.city,
-        bio: u.bio,
-        glow_score: u.glow_score || 0,
-        faith_streak_count: u.faith_streak_count || 0,
-        pledge_signed: u.pledge_signed,
-        pledge_signed_at: u.pledge_signed_at,
-        created_date: u.created_date,
-        notify_likes: u.notify_likes,
-        notify_follows: u.notify_follows,
-        notify_comments: u.notify_comments,
-        territory_name: u.territory_name,
-        territory_countries: u.territory_countries,
-        territory_status: u.territory_status,
-        // Hide privileged roles from public — show only safe non-admin roles
-        role: ADMIN_ROLES.includes(u.role) ? undefined : (u.role || 'user'),
-      }));
+    const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 10000);
+    const nonAdminUsers = allUsers.filter((u) => !ADMIN_ROLES.includes(u.role));
+
+    const filteredUsers = search
+      ? nonAdminUsers.filter((u) => {
+          const display = safeDisplayName(u).toLowerCase();
+          const country = String(u.country || '').toLowerCase();
+          const city = String(u.city || '').toLowerCase();
+          return display.includes(search) || country.includes(search) || city.includes(search);
+        })
+      : nonAdminUsers;
+
+    const users = filteredUsers.slice(0, limit).map(publicUser);
 
     if (includeCount) {
       return Response.json({
-        users: publicUsers,
-        totalUsers: allUsers.length,
-        visibleUsers: publicUsers.length,
-        hiddenUsers: 0
+        users,
+        totalUsers: nonAdminUsers.length,
+        visibleUsers: users.length,
+        hiddenUsers: allUsers.length - nonAdminUsers.length
       });
     }
 
-    return Response.json(publicUsers);
+    return Response.json(users);
   } catch (error) {
-    console.error("Error listing users:", error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('Error listing public users:', error.message);
+    return Response.json({ error: 'INTERNAL_SERVER_ERROR' }, { status: 500 });
   }
 });
