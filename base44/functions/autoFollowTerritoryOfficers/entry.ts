@@ -1,10 +1,6 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
-const OFFICER_TITLE_PATTERNS = [
-  /president/i,
-  /executive\s+secretar(?:y|ies)/i,
-  /treasurer/i,
-];
+const OFFICER_TITLE_PATTERNS = [/president/i, /executive\s+secretar(?:y|ies)/i, /treasurer/i];
 
 const normalize = (value) => String(value || '')
   .trim()
@@ -33,10 +29,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     let body = {};
     try { body = await req.json(); } catch { body = {}; }
@@ -59,31 +52,19 @@ Deno.serve(async (req) => {
       territoryMatches(account, userTerritories)
     );
 
-    if (officers.length === 0) {
-      return Response.json({ success: true, followed: 0, matched_officers: 0 });
-    }
+    if (officers.length === 0) return Response.json({ success: true, followed: 0, matched_officers: 0 });
 
     const existingFollows = await base44.asServiceRole.entities.Follow.filter({ follower_email: user.email });
     const alreadyFollowing = new Set(existingFollows.map((follow) => follow.following_email));
 
     const followsToCreate = officers
       .filter((officer) => !alreadyFollowing.has(officer.leader_email))
-      .map((officer) => ({
-        follower_email: user.email,
-        following_email: officer.leader_email,
-      }));
+      .map((officer) => ({ follower_email: user.email, following_email: officer.leader_email }));
 
-    if (followsToCreate.length > 0) {
-      await base44.asServiceRole.entities.Follow.bulkCreate(followsToCreate);
-    }
+    if (followsToCreate.length > 0) await base44.asServiceRole.entities.Follow.bulkCreate(followsToCreate);
 
-    return Response.json({
-      success: true,
-      followed: followsToCreate.length,
-      matched_officers: officers.length,
-      officer_emails: officers.map((officer) => officer.leader_email),
-    });
+    return Response.json({ success: true, followed: followsToCreate.length, matched_officers: officers.length });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Unable to follow territory officers' }, { status: 500 });
   }
 });

@@ -24,11 +24,11 @@ export default function useFeedUserSearch(rawQuery, { enabled = true } = {}) {
 
   const isActive = enabled && debounced.length >= 2;
 
-  // Pull all public users (regular accounts).
+  // Pull only a small server-filtered set of public users.
   const { data: allPublicUsers = [] } = useQuery({
-    queryKey: ["feedUserSearch:allUsers"],
+    queryKey: ["feedUserSearch:allUsers", debounced],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", { limit: 500 });
+      const res = await base44.functions.invoke("listPublicUsers", { search: debounced, limit: 20 });
       return Array.isArray(res.data) ? res.data : [];
     },
     enabled: isActive,
