@@ -45,7 +45,10 @@ export default function Post() {
 
   const { data: leaderAccounts = [] } = useQuery({
     queryKey: ["allLeaderAccounts"],
-    queryFn: () => base44.entities.ManagedLeaderAccount.list(),
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicLeaderAccounts", { limit: 200 });
+      return Array.isArray(res.data) ? res.data : [];
+    },
     staleTime: 1000 * 60 * 5,
   });
 

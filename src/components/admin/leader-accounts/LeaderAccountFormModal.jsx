@@ -121,7 +121,7 @@ export default function LeaderAccountFormModal({ account, onClose, onSaved }) {
         leader_email: form.leader_email.trim().toLowerCase(),
       };
       if (isEditing) {
-        await base44.entities.ManagedLeaderAccount.update(account.id, payload);
+        await base44.functions.invoke("updateManagedLeaderAccount", { account_id: account.id, updates: payload });
         toast.success("Account updated");
       } else {
         await base44.entities.ManagedLeaderAccount.create(payload);

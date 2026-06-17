@@ -8,7 +8,6 @@ function publicPrayerShape(prayer) {
     is_anonymous: prayer.is_anonymous === true,
     answered: prayer.answered === true,
     created_date: prayer.created_date || null,
-    user_email: prayer.is_anonymous === true ? null : prayer.user_email,
     matchScore: prayer.matchScore || 0,
   };
 }

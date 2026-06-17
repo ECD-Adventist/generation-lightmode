@@ -25,8 +25,8 @@ Deno.serve(async (req) => {
 
     let postAsLeader = null;
     if (post_as_leader_id) {
-      const accounts = await base44.asServiceRole.entities.ManagedLeaderAccount.filter({ id: post_as_leader_id });
-      const account = accounts[0];
+      const accounts = await base44.asServiceRole.entities.ManagedLeaderAccount.list('-created_date', 200);
+      const account = accounts.find((item) => item.id === post_as_leader_id);
       if (!account) return Response.json({ error: 'Leader account not found' }, { status: 404 });
 
       const isManager = Array.isArray(account.manager_emails) && account.manager_emails.includes(user.email);

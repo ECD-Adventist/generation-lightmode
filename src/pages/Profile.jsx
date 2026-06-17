@@ -67,8 +67,11 @@ export default function Profile() {
   });
 
   const { data: publicLeaderAccounts = [] } = useQuery({
-    queryKey: ["publicLeaderAccountsForProfile"],
-    queryFn: () => base44.entities.ManagedLeaderAccount.filter({ active: true }),
+    queryKey: ["publicLeaderAccountsForProfile", viewUserEmail],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicLeaderAccounts", viewUserEmail ? { emails: [viewUserEmail], limit: 1 } : { limit: 200 });
+      return Array.isArray(res.data) ? res.data : [];
+    },
     enabled: !!viewUserEmail && !!currentUser,
   });
 
@@ -175,9 +178,8 @@ export default function Profile() {
   const { data: managedLeaderAccounts = [] } = useQuery({
     queryKey: ["managedLeaderAccountsForUser", currentUser?.email, currentUser?.role],
     queryFn: async () => {
-      const all = await base44.entities.ManagedLeaderAccount.filter({ active: true });
-      if (currentUser?.role === "admin" || currentUser?.role === "super_admin") return all;
-      return all.filter(a => Array.isArray(a.manager_emails) && a.manager_emails.includes(currentUser.email));
+      const res = await base44.functions.invoke("listManagedLeaderAccounts", {});
+      return Array.isArray(res.data) ? res.data : [];
     },
     enabled: !!currentUser && isOwnProfile,
   });
@@ -481,7 +483,7 @@ export default function Profile() {
         const leaderUpdates = type === "profile"
           ? { leader_profile_picture_url: res.file_url }
           : { leader_cover_picture_url: res.file_url };
-        await base44.entities.ManagedLeaderAccount.update(activeLeaderAccount.id, leaderUpdates);
+        await base44.functions.invoke("updateManagedLeaderAccount", { account_id: activeLeaderAccount.id, updates: leaderUpdates });
         await queryClient.invalidateQueries({ queryKey: ["managedLeaderAccountsForUser", currentUser?.email, currentUser?.role] });
         toast.success(`Leader ${type} photo updated!`, { id: toastId });
       } else {

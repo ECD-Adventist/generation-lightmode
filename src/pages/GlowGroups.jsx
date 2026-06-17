@@ -62,7 +62,10 @@ export default function GlowGroups() {
   // People search, Light Leaders, and follow flows just like regular users.
   const { data: leaderAccounts = [] } = useQuery({
     queryKey: ["activeLeaderAccountsForExplore"],
-    queryFn: () => base44.entities.ManagedLeaderAccount.filter({ active: true }),
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicLeaderAccounts", { limit: 200 });
+      return Array.isArray(res.data) ? res.data : [];
+    },
     staleTime: 1000 * 60 * 5,
   });
 

@@ -33,16 +33,12 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [editorFile, setEditorFile] = useState(null); // file currently open in photo editor
   const [postAsLeaderId, setPostAsLeaderId] = useState(""); // empty = post as self
 
-  // Fetch leader accounts where this user is a manager (or all, if admin)
+  // Fetch only leader accounts this user is allowed to manage.
   const { data: leaderAccounts = [] } = useQuery({
     queryKey: ["myLeaderAccounts", user?.email],
     queryFn: async () => {
-      const all = await base44.entities.ManagedLeaderAccount.list();
-      const isAdmin = user?.role === "admin" || user?.role === "super_admin";
-      return all.filter(a =>
-        a.active !== false &&
-        (isAdmin || (Array.isArray(a.manager_emails) && a.manager_emails.includes(user?.email)))
-      );
+      const res = await base44.functions.invoke("listManagedLeaderAccounts", {});
+      return Array.isArray(res.data) ? res.data : [];
     },
     enabled: !!user?.email,
   });

@@ -35,8 +35,8 @@ export default function LeaderAnalytics() {
   const { data: leaderAccount, isLoading: loadingLeader } = useQuery({
     queryKey: ["leaderAccount", leaderEmail],
     queryFn: async () => {
-      const list = await base44.entities.ManagedLeaderAccount.filter({ leader_email: leaderEmail });
-      return list[0] || null;
+      const res = await base44.functions.invoke("listManagedLeaderAccounts", { leader_email: leaderEmail });
+      return Array.isArray(res.data) ? (res.data[0] || null) : null;
     },
     enabled: !!leaderEmail && !!me,
   });

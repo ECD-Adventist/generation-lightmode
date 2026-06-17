@@ -167,7 +167,10 @@ export default function Feed() {
   // Deferred: not critical to the very first post render.
   const { data: leaderAccounts = [] } = useQuery({
     queryKey: ["allLeaderAccounts"],
-    queryFn: () => base44.entities.ManagedLeaderAccount.list(),
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicLeaderAccounts", { limit: 200 });
+      return Array.isArray(res.data) ? res.data : [];
+    },
     enabled: deferredReady,
     staleTime: 1000 * 60 * 5,
   });
@@ -886,7 +889,7 @@ export default function Feed() {
             <h3 className="font-black text-xs mb-4 tracking-widest uppercase" style={{ color: "#FF9F1A" }}>People to Connect</h3>
             
             <div className="space-y-4">
-              {suggestedUsers.filter(u => u.email !== user?.email && !following.some(f => f.following_email === u.email)).map((u, i) => {
+              {suggestedUsers.filter(u => u.email && u.email !== user?.email && !following.some(f => f.following_email === u.email)).map((u, i) => {
                 return (
                 <div key={u.id} className="flex items-center gap-2">
                   <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-2 flex-1 min-w-0 no-underline hover:opacity-80 transition">
@@ -910,7 +913,7 @@ export default function Feed() {
                    </button>
                 </div>
               )})}
-              {suggestedUsers.filter(u => u.email !== user?.email).length === 0 && (
+              {suggestedUsers.filter(u => u.email && u.email !== user?.email).length === 0 && (
                 <p className="text-xs text-center py-2" style={{ color: "#8A97B5" }}>No other members yet. Invite friends!</p>
               )}
             </div>

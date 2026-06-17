@@ -1,0 +1,46 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+
+function safeLeader(account) {
+  return {
+    id: account.id,
+    leader_name: account.leader_name || '',
+    leader_email: account.leader_email || '',
+    leader_title: account.leader_title || '',
+    leader_country: account.leader_country || '',
+    leader_bio: account.leader_bio || '',
+    leader_profile_picture_url: account.leader_profile_picture_url || '',
+    leader_cover_picture_url: account.leader_cover_picture_url || '',
+    active: account.active !== false,
+  };
+}
+
+Deno.serve(async (req) => {
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const body = await req.json().catch(() => ({}));
+    const limit = Math.max(1, Math.min(Number.parseInt(body.limit, 10) || 100, 200));
+    const search = String(body.search || '').trim().toLowerCase().slice(0, 100);
+    const emails = Array.isArray(body.emails)
+      ? new Set(body.emails.map((email) => String(email || '').trim().toLowerCase()).filter(Boolean).slice(0, 100))
+      : null;
+
+    const accounts = await base44.asServiceRole.entities.ManagedLeaderAccount.filter({ active: true });
+    const filtered = accounts
+      .filter((account) => {
+        if (emails && !emails.has(String(account.leader_email || '').toLowerCase())) return false;
+        if (!search) return true;
+        const text = `${account.leader_name || ''} ${account.leader_title || ''} ${account.leader_country || ''}`.toLowerCase();
+        return text.includes(search);
+      })
+      .slice(0, limit)
+      .map(safeLeader);
+
+    return Response.json(filtered);
+  } catch (error) {
+    console.error('listPublicLeaderAccounts failed:', error?.message);
+    return Response.json({ error: 'Unable to list leader accounts' }, { status: 500 });
+  }
+});

@@ -37,10 +37,13 @@ export default function useFeedUserSearch(rawQuery, { enabled = true } = {}) {
     refetchOnWindowFocus: false,
   });
 
-  // Pull all active leader accounts.
+  // Pull only safe public leader profile fields.
   const { data: allLeaderAccounts = [] } = useQuery({
-    queryKey: ["feedUserSearch:allLeaderAccounts"],
-    queryFn: () => base44.entities.ManagedLeaderAccount.filter({ active: true }),
+    queryKey: ["feedUserSearch:allLeaderAccounts", debounced],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicLeaderAccounts", { search: debounced, limit: 20 });
+      return Array.isArray(res.data) ? res.data : [];
+    },
     enabled: isActive,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
