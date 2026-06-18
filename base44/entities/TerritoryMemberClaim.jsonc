@@ -49,7 +49,14 @@
     "claimed_territory"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "data.member_email": "{{user.email}}",
+      "user_condition": {
+        "role": {
+          "$ne": "guest"
+        }
+      }
+    },
     "read": {
       "$or": [
         {
