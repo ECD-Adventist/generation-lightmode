@@ -61,10 +61,19 @@ Deno.serve(async (req) => {
       .filter((officer) => !alreadyFollowing.has(officer.leader_email))
       .map((officer) => ({ follower_email: user.email, following_email: officer.leader_email }));
 
-    if (followsToCreate.length > 0) await base44.asServiceRole.entities.Follow.bulkCreate(followsToCreate);
+    if (followsToCreate.length > 0) {
+      // Create follows one-by-one with the service role; bulkCreate is rejected
+      // by the tightened Follow RLS when any row is evaluated in a non-owner context.
+      for (const follow of followsToCreate) {
+        await base44.asServiceRole.entities.Follow.create(follow).catch((err) => {
+          console.warn('autoFollow create failed:', err?.message);
+        });
+      }
+    }
 
     return Response.json({ success: true, followed: followsToCreate.length, matched_officers: officers.length });
   } catch (error) {
+    console.error('autoFollowTerritoryOfficers failed:', error?.message);
     return Response.json({ error: 'Unable to follow territory officers' }, { status: 500 });
   }
 });

@@ -1,16 +1,20 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+
+// Hard cap to avoid full-table scans (audit F-19). Aggregates are computed
+// server-side and only non-PII counts/snippets are returned to the client.
+const SCAN_CAP = 5000;
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
     const [users, groups, groupMembers, drops, challenges, submissions] = await Promise.all([
-      base44.asServiceRole.entities.User.list('-created_date', 10000),
-      base44.asServiceRole.entities.GlowGroup.list('-created_date', 10000),
-      base44.asServiceRole.entities.GlowGroupMember.list('-created_date', 10000),
-      base44.asServiceRole.entities.GlowDrop.list('-created_date', 10000),
-      base44.asServiceRole.entities.Challenge.list('-created_date', 10000),
-      base44.asServiceRole.entities.ChallengeSubmission.list('-created_date', 10000),
+      base44.asServiceRole.entities.User.list('-created_date', SCAN_CAP),
+      base44.asServiceRole.entities.GlowGroup.list('-created_date', SCAN_CAP),
+      base44.asServiceRole.entities.GlowGroupMember.list('-created_date', SCAN_CAP),
+      base44.asServiceRole.entities.GlowDrop.list('-created_date', SCAN_CAP),
+      base44.asServiceRole.entities.Challenge.list('-created_date', SCAN_CAP),
+      base44.asServiceRole.entities.ChallengeSubmission.list('-created_date', SCAN_CAP),
     ]);
 
     const COUNTRY_ALIASES = {
@@ -135,7 +139,7 @@ Deno.serve(async (req) => {
       challenges: publicChallenges,
     });
   } catch (error) {
-    console.error('getPublicCommunitySnapshot failed:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('getPublicCommunitySnapshot failed:', error?.message);
+    return Response.json({ error: 'Unable to load community snapshot' }, { status: 500 });
   }
 });
