@@ -33,6 +33,11 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   const queryClient = useQueryClient();
 
   const userHasLiked = userLikes.some(like => like.drop_id === drop.id);
+  const authorProfile = dropUser || {
+    email: drop.user_email,
+    full_name: drop.user_email?.split('@')[0] || "Glow Believer",
+    drop_count: 0
+  };
 
   const { data: comments = [] } = useQuery({
     queryKey: ["comments", drop.id],
@@ -40,7 +45,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     enabled: showComments
   });
 
-  const isSuperCreator = (dropUser.drop_count || 0) >= 9;
+  const isSuperCreator = (authorProfile.drop_count || 0) >= 9;
   const users = allUsers;
 
   // Leader posts (created via "Post as leader") get a distinct premium treatment.
@@ -94,7 +99,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   const getCommentUser = (email) => {
     if (user?.email === email) return user;
-    if (dropUser?.email === email) return dropUser;
+    if (authorProfile?.email === email) return authorProfile;
     const found = users.find(u => u.email === email);
     if (found) return found;
     return { full_name: email?.split('@')[0] || "Glow Believer", email };
@@ -211,7 +216,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       await base44.entities.GlowDrop.create({
         user_email: user.email,
         verse: drop.verse,
-        reflection: `[Reposted from ${getDisplayName(dropUser)}]\n\n${drop.reflection || ""}`,
+        reflection: `[Reposted from ${getDisplayName(authorProfile)}]\n\n${drop.reflection || ""}`,
         media_url: drop.media_url,
         category: drop.category,
         hashtags: drop.hashtags,
@@ -228,7 +233,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     e.stopPropagation();
     setLikeBurst(true);
     setTimeout(() => setLikeBurst(false), 600);
-    likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: getDisplayName(dropUser) });
+    likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: getDisplayName(authorProfile) });
   };
 
   const handleCommentToggle = (e) => {
@@ -357,7 +362,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         onDoubleClick={() => {
           setLikeBurst(true);
           setTimeout(() => setLikeBurst(false), 600);
-          likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: getDisplayName(dropUser) });
+          likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: getDisplayName(authorProfile) });
         }}
       >
         {drop.media_url && (
@@ -395,7 +400,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           {(() => {
             const authorChip = (
               <Link
-                to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(dropUser.email)}`}
+                to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(authorProfile.email || "")}`}
                 className="inline-flex items-center gap-2 backdrop-blur-md rounded-full pr-2.5 sm:pr-3.5 pl-1 py-1 cursor-pointer transition no-underline max-w-[calc(100vw-1.5rem)] sm:max-w-none"
                 style={{
                   background: (drop.media_url || isLeaderContent) ? "rgba(0,0,0,0.4)" : "#FFFFFF",
@@ -436,7 +441,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 <div className="flex flex-col items-start justify-center min-w-0">
                   <span className={`font-bold font-['Inter'] text-[11px] sm:text-xs flex items-center gap-1 leading-none mb-0.5 ${(drop.media_url || isLeaderContent) ? "text-white" : ""}`} style={(drop.media_url || isLeaderContent) ? {} : { color: "#0B1B3D" }}>
                     <span className="whitespace-normal break-words max-w-[190px] sm:max-w-none sm:whitespace-nowrap leading-tight">
-                      {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(dropUser)}
+                      {drop.user_email === "system@lightmode.com" ? "Generation LightMode" : getDisplayName(authorProfile)}
                     </span>
                     {drop.user_email !== "system@lightmode.com" && dropUser?.country && (
                       <CountryFlag country={dropUser.country} size="xs" />
@@ -477,7 +482,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   className="p-0 rounded-2xl overflow-hidden w-80 border-border shadow-xl z-[100] bg-card"
                   style={{ maxWidth: "90vw" }}
                 >
-                  <ProfileHoverSummary dropUser={dropUser} />
+                  <ProfileHoverSummary dropUser={authorProfile} />
                 </HoverCardContent>
               </HoverCard>
             );
@@ -607,7 +612,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                     <div className="h-px flex-1 max-w-[70px]" style={{ background: "linear-gradient(90deg, transparent, rgba(212,184,46,0.8))" }} />
                     <div className="flex flex-col items-center gap-0.5">
                       <span className="font-['Space_Grotesk'] text-[11px] sm:text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#FFD000", textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>
-                        — {repostLeaderForDrop ? repostOwnerName : getDisplayName(dropUser)}
+                        — {repostLeaderForDrop ? repostOwnerName : getDisplayName(authorProfile)}
                       </span>
                       {isLeaderPost && leaderForDrop?.leader_title && (
                         <span className="font-['Inter'] text-[9px] sm:text-[10px] tracking-[0.18em] uppercase" style={{ color: "rgba(220,228,245,0.7)" }}>
