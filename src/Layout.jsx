@@ -505,81 +505,109 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Mobile Menu */}
         {menuOpen && (
-          <div style={{
-            background: "rgba(18,24,38,0.98)",
-            backdropFilter: "blur(20px)",
-            padding: "24px",
-            borderTop: "1px solid rgba(0,207,255,0.1)",
-          }}>
-            {navLinks.map(link => (
-              <Link
-                key={link.page}
-                to={createPageUrl(link.page)}
-                className="nav-link"
-                style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }}
-                onClick={() => setMenuOpen(false)}
-              >
-                {t(link.key)}
-              </Link>
-            ))}
-            <Link to={createPageUrl("KeepIt100")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
-              💯 Keep It 100
-            </Link>
-            <Link to={createPageUrl("CodesOfTruth")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
-              🔐 Codes of Truth
-            </Link>
-            <Link to={createPageUrl("Resources")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
-              🌍 Other Resources
-            </Link>
-            
-            {userEmail ? (
-              <>
-                <button onClick={() => { setMenuOpen(false); triggerSwitchOn("Feed"); }} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17, background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
-                  ⚡ Switch It On
+          <div
+            className="md:hidden fixed inset-0 z-[5000] overflow-y-auto safe-pt safe-pb"
+            style={{
+              background: "linear-gradient(180deg, rgba(10,15,28,0.98) 0%, rgba(7,11,22,0.99) 100%)",
+              backdropFilter: "blur(24px)",
+              borderLeft: "1px solid rgba(0,207,255,0.25)",
+              boxShadow: "inset 1px 0 0 rgba(0,207,255,0.12)",
+            }}
+          >
+            <div className="px-6 pt-4 pb-8 min-h-full">
+              <div className="flex items-center justify-between mb-5">
+                <p style={{ color: "#00CFFF", fontSize: 12, fontWeight: 900, letterSpacing: "0.16em" }}>MENU</p>
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center"
+                  style={{ background: "rgba(255,255,255,0.12)", color: "#FFFFFF" }}
+                  aria-label="Close menu"
+                >
+                  <X size={20} />
                 </button>
+              </div>
 
-                {/* My Account */}
-                <p style={{ padding: "16px 0 6px", fontSize: 11, color: "#8A9BB0", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>My Account</p>
-                <Link to={createPageUrl("Feed")} className="nav-link" style={{ display: "flex", alignItems: "center", gap: 10, padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 16 }} onClick={() => setMenuOpen(false)}>
-                  <Zap size={16} style={{ color: "#00CFFF" }} /> Feed
+              <div className="space-y-2">
+                {navLinks.map(link => (
+                  <Link
+                    key={link.page}
+                    to={createPageUrl(link.page)}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-between rounded-xl px-4 py-3.5 font-bold transition active:scale-[0.99]"
+                    style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", color: "#F4F7FF" }}
+                  >
+                    <span>{t(link.key) || link.page}</span>
+                    <span style={{ color: "#8A9BB0", fontSize: 24, lineHeight: 1 }}>›</span>
+                  </Link>
+                ))}
+
+                <Link to={createPageUrl("KeepIt100")} onClick={() => setMenuOpen(false)} className="flex items-center justify-between rounded-xl px-4 py-3.5 font-bold transition active:scale-[0.99]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", color: "#F4F7FF" }}>
+                  <span className="flex items-center gap-3"><span>💯</span> Keep It 100</span>
+                  <span style={{ color: "#8A9BB0", fontSize: 24, lineHeight: 1 }}>›</span>
                 </Link>
-                <Link to={createPageUrl("Profile")} className="nav-link" style={{ display: "flex", alignItems: "center", gap: 10, padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 16 }} onClick={() => setMenuOpen(false)}>
-                  <User size={16} style={{ color: "#00CFFF" }} /> My Profile
+                <Link to={createPageUrl("CodesOfTruth")} onClick={() => setMenuOpen(false)} className="flex items-center justify-between rounded-xl px-4 py-3.5 font-bold transition active:scale-[0.99]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", color: "#F4F7FF" }}>
+                  <span className="flex items-center gap-3"><span>🔐</span> Codes of Truth</span>
+                  <span style={{ color: "#8A9BB0", fontSize: 24, lineHeight: 1 }}>›</span>
                 </Link>
-                <Link to={createPageUrl("Notifications")} className="nav-link" style={{ display: "flex", alignItems: "center", gap: 10, padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 16 }} onClick={() => setMenuOpen(false)}>
-                  <Bell size={16} style={{ color: "#00CFFF" }} /> Notifications
-                  {notifications.length > 0 && (
-                    <span style={{ marginLeft: "auto", background: "#ef4444", color: "#fff", fontSize: 11, fontWeight: 700, borderRadius: 999, minWidth: 20, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "0 6px" }}>{notifications.length}</span>
+                <Link to={createPageUrl("Resources")} onClick={() => setMenuOpen(false)} className="flex items-center justify-between rounded-xl px-4 py-3.5 font-bold transition active:scale-[0.99]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", color: "#F4F7FF" }}>
+                  <span className="flex items-center gap-3"><span>🌍</span> Resources</span>
+                  <span style={{ color: "#8A9BB0", fontSize: 24, lineHeight: 1 }}>›</span>
+                </Link>
+              </div>
+
+              {userEmail ? (
+                <div className="mt-6 rounded-2xl p-4" style={{ background: "rgba(18,24,38,0.9)", border: "1px solid rgba(0,207,255,0.18)", boxShadow: "0 18px 50px rgba(0,0,0,0.35)" }}>
+                  <p style={{ color: "#8EA0B8", fontSize: 11, fontWeight: 900, letterSpacing: "0.14em", marginBottom: 10 }}>MY ACCOUNT</p>
+                  <div className="space-y-1">
+                    <Link to={createPageUrl("Profile")} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-2 py-2.5" style={{ color: "#E8EEF8" }}>
+                      <User size={16} style={{ color: "#00CFFF" }} /> My Profile
+                    </Link>
+                    <Link to={createPageUrl("Feed")} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-2 py-2.5" style={{ color: "#E8EEF8" }}>
+                      <Zap size={16} style={{ color: "#00CFFF" }} /> Feed
+                    </Link>
+                    <Link to={createPageUrl("Notifications")} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-2 py-2.5" style={{ color: "#E8EEF8" }}>
+                      <Bell size={16} style={{ color: "#00CFFF" }} /> Notifications
+                      {notifications.length > 0 && (
+                        <span className="ml-auto rounded-full px-2 py-0.5 text-[11px] font-black" style={{ background: "#ef4444", color: "#fff" }}>{notifications.length}</span>
+                      )}
+                    </Link>
+                  </div>
+
+                  {(userRole === "admin" || userRole === "super_admin") && (
+                    <>
+                      <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "12px 0" }} />
+                      <p style={{ color: "#FFD000", fontSize: 11, fontWeight: 900, letterSpacing: "0.08em", marginBottom: 10 }}>ADMIN PANEL</p>
+                      <div className="space-y-1">
+                        {[
+                          { icon: <LayoutDashboard size={16} />, label: "Control Center", tab: "dashboard" },
+                          { icon: <Users size={16} />, label: "User Management", tab: "users" },
+                          { icon: <Flag size={16} />, label: "Moderation", tab: "drops" },
+                          { icon: <BarChart3 size={16} />, label: "Analytics", tab: "analytics" },
+                          { icon: <ShieldCheck size={16} />, label: "Settings", tab: "settings" },
+                        ].map(item => (
+                          <Link key={item.label} to={`${createPageUrl("AdminCenter")}?tab=${item.tab}`} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-2 py-2.5" style={{ color: "#E8EEF8" }}>
+                            <span style={{ color: "#FFD000" }}>{item.icon}</span> {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </>
                   )}
-                </Link>
 
-                {/* Admin Panel — admins / super_admins only */}
-                {(userRole === "admin" || userRole === "super_admin") && (
-                  <>
-                    <p style={{ padding: "16px 0 6px", fontSize: 11, color: "#FFD000", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Admin Panel</p>
-                    {[
-                      { icon: <LayoutDashboard size={16} />, label: "Control Center", tab: "dashboard" },
-                      { icon: <Users size={16} />, label: "User Management", tab: "users" },
-                      { icon: <Flag size={16} />, label: "Moderation", tab: "drops" },
-                      { icon: <BarChart3 size={16} />, label: "Analytics", tab: "analytics" },
-                      { icon: <ShieldCheck size={16} />, label: "Settings", tab: "settings" },
-                    ].map(item => (
-                      <Link key={item.label} to={`${createPageUrl("AdminCenter")}?tab=${item.tab}`} className="nav-link" style={{ display: "flex", alignItems: "center", gap: 10, padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 16 }} onClick={() => setMenuOpen(false)}>
-                        <span style={{ color: "#FFD000" }}>{item.icon}</span> {item.label}
-                      </Link>
-                    ))}
-                  </>
-                )}
-
-                <button onClick={() => { setMenuOpen(false); base44.auth.logout(); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "16px 0 0", fontSize: 16, color: "#ef4444", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
-                  <LogOut size={16} /> Sign Out
+                  <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "12px 0" }} />
+                  <button onClick={() => { setMenuOpen(false); base44.auth.logout(); }} className="flex items-center gap-3 rounded-xl px-2 py-2.5 w-full text-left" style={{ color: "#ff4d4d", background: "transparent", border: "none", cursor: "pointer" }}>
+                    <LogOut size={16} /> Sign Out
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => { setMenuOpen(false); triggerSwitchOn("Feed"); }}
+                  className="mt-6 w-full rounded-full py-4 font-black flex items-center justify-center gap-2 active:scale-[0.99]"
+                  style={{ background: "linear-gradient(90deg, #FFD000 0%, #FFA300 100%)", color: "#0B0F1A", boxShadow: "0 0 28px rgba(255,208,0,0.35)" }}
+                >
+                  <Zap size={16} /> Switch It On
                 </button>
-              </>
-            ) : (
-              <button onClick={() => { setMenuOpen(false); triggerSwitchOn("Feed"); }} className="glm-btn-primary" style={{ display: "block", textAlign: "center", marginTop: 20, width: "100%", cursor: "pointer" }}>
-                Switch It On ⚡
-              </button>
-            )}
+              )}
+            </div>
           </div>
         )}
       </nav>
