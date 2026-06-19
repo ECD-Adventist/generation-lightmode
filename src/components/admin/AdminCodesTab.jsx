@@ -324,14 +324,33 @@ export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
     if (window.confirm("Delete this poster?")) deleteMutation.mutate(id);
   };
 
+  // Throttle bulk writes into small sequential batches — a single Promise.all over
+  // hundreds of updates trips Base44's rate limit.
+  const runInBatches = async (items, fn, batchSize = 10, onProgress) => {
+    let done = 0;
+    for (let i = 0; i < items.length; i += batchSize) {
+      const batch = items.slice(i, i + batchSize);
+      await Promise.all(batch.map(fn));
+      done += batch.length;
+      onProgress?.(done);
+      if (i + batchSize < items.length) await new Promise(r => setTimeout(r, 250));
+    }
+  };
+
   const handleBulkApprove = async (ids) => {
     if (ids.size === 0) { toast.info("No posters selected"); return; }
-    const toastId = toast.loading(`Approving ${ids.size} posters...`);
-    await Promise.all([...ids].map(id => base44.entities.CodeOfTruth.update(id, { status: "approved" })));
+    const list = [...ids];
+    const toastId = toast.loading(`Approving 0/${list.length} posters...`);
+    await runInBatches(
+      list,
+      id => base44.entities.CodeOfTruth.update(id, { status: "approved" }),
+      10,
+      done => toast.loading(`Approving ${done}/${list.length} posters...`, { id: toastId })
+    );
     queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth", sourceFilter] });
     queryClient.invalidateQueries({ queryKey: ["codesOfTruth"] });
     setSelected(new Set());
-    toast.success(`${ids.size} posters approved and live!`, { id: toastId });
+    toast.success(`${list.length} posters approved and live!`, { id: toastId });
   };
 
   const toggleSelect = (id) => {
@@ -383,10 +402,16 @@ export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
           <Button
             onClick={async () => {
               if (!window.confirm(`Delete ALL ${codes.length} posters? This cannot be undone.`)) return;
-              const toastId = toast.loading(`Deleting ${codes.length} posters...`);
-              await Promise.all(codes.map(c => base44.entities.CodeOfTruth.delete(c.id)));
+              const total = codes.length;
+              const toastId = toast.loading(`Deleting 0/${total} posters...`);
+              await runInBatches(
+                codes,
+                c => base44.entities.CodeOfTruth.delete(c.id),
+                10,
+                done => toast.loading(`Deleting ${done}/${total} posters...`, { id: toastId })
+              );
               queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth", sourceFilter] });
-              toast.success(`All ${codes.length} posters deleted.`, { id: toastId });
+              toast.success(`All ${total} posters deleted.`, { id: toastId });
             }}
             className="font-bold" style={dangerBtn}
           >
