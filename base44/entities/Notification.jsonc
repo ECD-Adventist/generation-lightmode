@@ -2,8 +2,13 @@
   "name": "Notification",
   "type": "object",
   "properties": {
-    "user_email": {
-      "type": "string"
+    "user_id": {
+      "type": "string",
+      "description": "Recipient User record id"
+    },
+    "actor_user_id": {
+      "type": "string",
+      "description": "User id of the person who triggered the notification, when applicable"
     },
     "type": {
       "type": "string",
@@ -32,7 +37,7 @@
     }
   },
   "required": [
-    "user_email",
+    "user_id",
     "type",
     "message"
   ],
@@ -41,7 +46,7 @@
     "read": {
       "$or": [
         {
-          "data.user_email": "{{user.email}}"
+          "data.user_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -58,7 +63,7 @@
     "update": {
       "$or": [
         {
-          "data.user_email": "{{user.email}}"
+          "data.user_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -75,7 +80,7 @@
     "delete": {
       "$or": [
         {
-          "data.user_email": "{{user.email}}"
+          "data.user_id": "{{user.id}}"
         },
         {
           "user_condition": {
