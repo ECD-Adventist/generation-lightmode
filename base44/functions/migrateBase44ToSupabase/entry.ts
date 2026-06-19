@@ -66,7 +66,7 @@ const valueForDatabase = (value, dataType) => {
 
 const resolveDatabaseUrl = async (base44, originalUrl) => {
   const parsed = new URL(originalUrl);
-  const directHostMatch = parsed.hostname.match(/^([a-z0-9]+)\.supabase\.co$/);
+  const directHostMatch = parsed.hostname.match(/^(?:db\.)?([a-z0-9]+)\.supabase\.co$/);
   if (!directHostMatch || (parsed.port && parsed.port !== '5432')) return originalUrl;
 
   const projectRef = directHostMatch[1];
@@ -82,7 +82,7 @@ const resolveDatabaseUrl = async (base44, originalUrl) => {
   const password = parsed.password || '';
   const database = parsed.pathname || '/postgres';
   const search = parsed.search || '';
-  return `postgresql://${username}:${password}@aws-0-${project.region}.pooler.supabase.com:6543${database}${search}`;
+  return `postgresql://${username}:${password}@aws-0-${project.region}.pooler.supabase.com:5432${database}${search}`;
 };
 
 const migrateEntity = async ({ sql, base44, entityName }) => {
