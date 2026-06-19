@@ -13,7 +13,8 @@ Deno.serve(async (req) => {
     const users = await base44.asServiceRole.entities.User.list('-created_date', 500);
     
     const notifications = users.map(user => ({
-      user_email: user.email,
+      user_id: user.id,
+      actor_user_id: caller.id,
       type: "system",
       message: "🌅 Your Daily Drop is ready! Start your day with today's truth.",
       link: "/DailyTruthFeed",
