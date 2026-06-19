@@ -53,10 +53,10 @@ export default function DeleteAccountModal({ isOpen, onClose, userEmail, onConfi
             </div>
             <div>
               <h2 className="text-lg font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>
-                Delete your account?
+                Are you sure?
               </h2>
               <p className="text-sm mt-1" style={{ color: "#6B7FA0" }}>
-                This will permanently remove your profile, all your <strong>Glow Drops</strong>, messages, comments, prayer requests, follows, and <strong>group memberships</strong>. This action cannot be undone.
+                This will permanently delete your account and all your data. This cannot be undone.
               </p>
             </div>
           </div>

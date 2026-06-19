@@ -26,11 +26,35 @@ Deno.serve(async (req) => {
     const service = base44.asServiceRole;
     const counts = {};
 
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    // Delete records in small sequential chunks to stay under the API rate limit.
+    // Retries each delete a couple of times on transient 429s.
+    const deleteInBatches = async (entityName, ids) => {
+      const CHUNK = 5;
+      for (let i = 0; i < ids.length; i += CHUNK) {
+        const chunk = ids.slice(i, i + CHUNK);
+        await Promise.all(chunk.map(async (id) => {
+          for (let attempt = 0; attempt < 3; attempt++) {
+            try {
+              await service.entities[entityName].delete(id);
+              return;
+            } catch (e) {
+              const rateLimited = String(e?.message || '').toLowerCase().includes('rate limit');
+              if (rateLimited && attempt < 2) { await sleep(500 * (attempt + 1)); continue; }
+              return; // give up on this record; continue cascade
+            }
+          }
+        }));
+        await sleep(120);
+      }
+    };
+
     // Helper: delete every record matching a filter, return count
     const wipe = async (entityName, filter) => {
       try {
         const records = await service.entities[entityName].filter(filter);
-        await Promise.all(records.map((r) => service.entities[entityName].delete(r.id).catch(() => {})));
+        await deleteInBatches(entityName, records.map((r) => r.id));
         counts[entityName] = records.length;
       } catch (e) {
         console.error(`Failed to wipe ${entityName}:`, e.message);
@@ -39,11 +63,9 @@ Deno.serve(async (req) => {
     };
 
     // 1. User's Glow Drops — fetch first so we can cascade likes/comments
-    let dropIds = [];
     try {
       const drops = await service.entities.GlowDrop.filter({ user_email: email });
-      dropIds = drops.map((d) => d.id);
-      await Promise.all(drops.map((d) => service.entities.GlowDrop.delete(d.id).catch(() => {})));
+      await deleteInBatches('GlowDrop', drops.map((d) => d.id));
       counts.GlowDrop = drops.length;
     } catch (e) {
       console.error('Failed to wipe GlowDrop:', e.message);
@@ -56,6 +78,10 @@ Deno.serve(async (req) => {
     // 3. Group memberships + messages
     await wipe('GlowGroupMember', { user_email: email });
     await wipe('GlowGroupMessage', { user_email: email });
+
+    // 3b. Direct messages — both directions
+    await wipe('DirectMessage', { sender_id: user.id });
+    await wipe('DirectMessage', { recipient_id: user.id });
 
     // 4. Follows — both directions
     await wipe('Follow', { follower_email: email });
@@ -81,8 +107,18 @@ Deno.serve(async (req) => {
     try {
       const users = await service.entities.User.filter({ email });
       if (users.length > 0) {
-        await service.entities.User.delete(users[0].id);
-        counts.User = 1;
+        let deleted = false;
+        for (let attempt = 0; attempt < 5 && !deleted; attempt++) {
+          try {
+            await service.entities.User.delete(users[0].id);
+            deleted = true;
+          } catch (e) {
+            const rateLimited = String(e?.message || '').toLowerCase().includes('rate limit');
+            if (rateLimited && attempt < 4) { await sleep(800 * (attempt + 1)); continue; }
+            throw e;
+          }
+        }
+        counts.User = deleted ? 1 : 0;
       }
     } catch (e) {
       console.error('Failed to delete User record:', e.message);

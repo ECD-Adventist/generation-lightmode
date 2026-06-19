@@ -12,6 +12,7 @@ import { SwitchItOnProvider } from '@/components/pledge/SwitchItOnProvider';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import PageTransition from '@/components/transitions/PageTransition';
 import AutoTranslator from '@/components/i18n/AutoTranslator';
+import NotificationOnboardingModal from '@/components/notifications/NotificationOnboardingModal';
 
 // Code-split route pages — loaded on demand to reduce initial bundle.
 const LightReflections = lazy(() => import('./pages/LightReflections'));
@@ -134,6 +135,7 @@ function App() {
           <Router>
             <SwitchItOnProvider>
               <AutoTranslator />
+              <NotificationOnboardingModal />
               <AuthenticatedApp />
             </SwitchItOnProvider>
           </Router>
