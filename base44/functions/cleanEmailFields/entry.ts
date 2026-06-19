@@ -16,54 +16,59 @@ Deno.serve(async (req) => {
       glowDrop: { processed: 0, cleared: 0, errors: 0 },
     };
 
-    // 1. DirectMessage: clear sender_email & recipient_email
+    function getRecords(res) {
+      if (Array.isArray(res)) return res;
+      if (res && Array.isArray(res.records)) return res.records;
+      return [];
+    }
+
+    // 1. DirectMessage
     let skip = 0;
-    let hasMore = true;
-    while (hasMore) {
-      const { records, has_more } = await db.DirectMessage.list({ limit: 100, skip });
-      hasMore = has_more;
+    while (true) {
+      const records = getRecords(await db.DirectMessage.list({ limit: 100, skip }));
+      if (records.length === 0) break;
       skip += records.length;
-      for (const record of records) {
+      for (const r of records) {
         results.directMessages.processed++;
-        if ((record.sender_email && record.sender_email !== '') || (record.recipient_email && record.recipient_email !== '')) {
+        if (r.sender_email || r.recipient_email) {
           try {
-            await db.DirectMessage.update(record.id, { sender_email: null, recipient_email: null });
+            await db.DirectMessage.update(r.id, { sender_email: null, recipient_email: null });
             results.directMessages.cleared++;
-          } catch (e) { results.directMessages.errors++; }
+          } catch (_) { results.directMessages.errors++; }
         }
       }
     }
 
-    // 2. Follow: clear follower_email & following_email
-    skip = 0; hasMore = true;
-    while (hasMore) {
-      const { records, has_more } = await db.Follow.list({ limit: 100, skip });
-      hasMore = has_more;
+    // 2. Follow
+    skip = 0;
+    while (true) {
+      const records = getRecords(await db.Follow.list({ limit: 100, skip }));
+      if (records.length === 0) break;
       skip += records.length;
-      for (const record of records) {
+      for (const r of records) {
         results.follow.processed++;
-        if ((record.follower_email && record.follower_email !== '') || (record.following_email && record.following_email !== '')) {
+        if (r.follower_email || r.following_email) {
           try {
-            await db.Follow.update(record.id, { follower_email: null, following_email: null });
+            await db.Follow.update(r.id, { follower_email: null, following_email: null });
             results.follow.cleared++;
-          } catch (e) { results.follow.errors++; }
+          } catch (_) { results.follow.errors++; }
         }
       }
     }
 
-    // 3. GlowDrop: clear user_email
-    skip = 0; hasMore = true;
-    while (hasMore) {
-      const { records, has_more } = await db.GlowDrop.list({ limit: 100, skip });
-      hasMore = has_more;
+    // 3. GlowDrop
+    skip = 0;
+    while (true) {
+      const records = getRecords(await db.GlowDrop.list({ limit: 100, skip }));
+      if (records.length === 0) break;
       skip += records.length;
-      for (const record of records) {
+      for (const r of records) {
         results.glowDrop.processed++;
-        if (record.user_email && record.user_email !== '') {
+        if (r.user_email) {
           try {
-            await db.GlowDrop.update(record.id, { user_email: null });
+            await db.GlowDrop.update(r.id, { user_email: null });
             results.glowDrop.cleared++;
-          } catch (e) { results.glowDrop.errors++; }
+          } catch (_) { results.glowDrop.errors++; }
         }
       }
     }
