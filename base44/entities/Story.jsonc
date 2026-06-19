@@ -8,6 +8,10 @@
     "media_url": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "text_content": {
       "type": "string"
     },
