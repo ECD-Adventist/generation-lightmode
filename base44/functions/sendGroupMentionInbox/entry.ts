@@ -72,15 +72,22 @@ Deno.serve(async (req) => {
 
     const preview = (message_preview || '').slice(0, 120);
 
+    const mentionedUsers = await base44.asServiceRole.entities.User.list(undefined, 10000);
+    const userIdByEmail = new Map(mentionedUsers.filter((item) => item.email).map((item) => [item.email, item.id]));
+
     // Fire bell notification + inbox message for each valid mention
     for (const email of validMentions) {
-      // Bell notification
-      await base44.asServiceRole.entities.Notification.create({
-        user_email: email,
-        type: 'message',
-        message: `${actualSenderName} mentioned you in "${group.name}": "${preview}${preview.length >= 120 ? '...' : ''}"`,
-        link: `/GroupChat?id=${group_id}`,
-      }).catch(() => {});
+      const recipientId = userIdByEmail.get(email);
+      if (recipientId) {
+        await base44.asServiceRole.entities.Notification.create({
+          user_id: recipientId,
+          actor_user_id: user.id,
+          type: 'message',
+          message: `${actualSenderName} mentioned you in "${group.name}": "${preview}${preview.length >= 120 ? '...' : ''}"`,
+          link: `/GroupChat?id=${group_id}`,
+          read: false,
+        }).catch(() => {});
+      }
 
       // Inbox message — send FROM the actual human sender, not the service account
       const inboxContent = `${actualSenderName} tagged you in "${group.name}": "${preview}${preview.length >= 120 ? '...' : ''}" — Open group: /GroupChat?id=${group_id}`;
