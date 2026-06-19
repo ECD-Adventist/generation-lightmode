@@ -94,7 +94,10 @@ Deno.serve(async (req) => {
       users = await base44.asServiceRole.entities.User.list('-created_date', limit);
     }
 
-    const includeEmail = isAdmin || requestedEmails.length > 0 || search.length >= 2;
+    // Email is only returned to admins, or on the explicit "emails" batch lookup
+    // (where the caller already holds those emails — e.g. resolving feed post authors).
+    // Name/place SEARCH results never leak strangers' emails to non-admins.
+    const includeEmail = isAdmin || requestedEmails.length > 0;
     const publicUsers = users.map((item) => publicUserShape(item, { includeEmail, isAdmin }));
 
     if (includeCount) {

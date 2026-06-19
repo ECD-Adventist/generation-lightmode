@@ -32,6 +32,11 @@
       "type": "string",
       "description": "Reason recorded by admin when hiding a drop"
     },
+    "is_flagged": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, the drop is flagged for moderation and hidden from public feeds. Only visible to admins until reviewed."
+    },
     "moderation_note": {
       "type": "string",
       "description": "Internal admin note about moderation decisions"

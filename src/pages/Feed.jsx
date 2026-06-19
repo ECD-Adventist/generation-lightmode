@@ -395,9 +395,14 @@ export default function Feed() {
     return Array.from(byEmail.values());
   }, [users, userSearch.isActive, userSearch.matchedUsers]);
 
+  const isAdminViewer = user?.role === "admin" || user?.role === "super_admin" || user?.role === "moderator";
+
   const filteredDrops = useMemo(() => {
     return [...dropsWithSearch]
       .filter((drop) => {
+        // Flagged/hidden content is removed from public feeds — only moderators/admins can see it.
+        if ((drop.is_flagged || drop.hidden) && !isAdminViewer) return false;
+
         // Pinned drops are already rendered in the PinnedLeaderPosts ribbon — exclude them here
         // so they don't appear twice. Only excluded on "All" filter so users can still find
         // pinned posts via Following / Most Liked / category filters.
@@ -426,7 +431,7 @@ export default function Feed() {
         if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
         return new Date(b.created_date || 0) - new Date(a.created_date || 0);
       });
-  }, [dropsWithSearch, activeFilter, searchQuery, followingEmails, usersWithSearch, leaderAccounts, user?.email]);
+  }, [dropsWithSearch, activeFilter, searchQuery, followingEmails, usersWithSearch, leaderAccounts, user?.email, isAdminViewer]);
 
   const trendingTopics = useMemo(() => {
     const counts = new Map();
