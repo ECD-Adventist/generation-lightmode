@@ -11,6 +11,10 @@
       "default": "keeping_it_100",
       "description": "Which section this shared background applies to"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "background_url": {
       "type": "string",
       "description": "Shared background image applied to all posters in this scope that don't have their own image"

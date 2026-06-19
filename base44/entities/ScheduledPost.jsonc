@@ -9,6 +9,10 @@
       "type": "string",
       "description": "Rich HTML content"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "hashtags": {
       "type": "string"
     },

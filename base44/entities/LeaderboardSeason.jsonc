@@ -6,6 +6,10 @@
       "type": "string",
       "description": "Season name e.g. Monthly Glow Leaders - April 2026"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "start_date": {
       "type": "string",
       "format": "date"

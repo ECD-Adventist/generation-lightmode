@@ -10,6 +10,10 @@
       "type": "string",
       "description": "URL-friendly unique identifier"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "owner_email": {
       "type": "string",
       "description": "Email of the account that owns this page"

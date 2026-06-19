@@ -8,6 +8,10 @@
     "participant_b_email": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "last_message": {
       "type": "string"
     },

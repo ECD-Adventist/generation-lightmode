@@ -11,6 +11,10 @@
     "title": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "reward_xp": {
       "type": "number",
       "default": 0

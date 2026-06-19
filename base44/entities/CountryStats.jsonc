@@ -5,6 +5,10 @@
     "name": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "users_count": {
       "type": "number",
       "default": 0

@@ -5,6 +5,10 @@
     "code_id": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "shares_count": {
       "type": "number",
       "default": 0

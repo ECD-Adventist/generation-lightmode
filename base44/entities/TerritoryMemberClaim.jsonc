@@ -23,6 +23,10 @@
       "type": "string",
       "description": "Territory name the user claims to belong to"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "member_country": {
       "type": "string"
     },

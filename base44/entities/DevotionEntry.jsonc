@@ -17,6 +17,10 @@
     "reflection": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "completed": {
       "type": "boolean",
       "default": false

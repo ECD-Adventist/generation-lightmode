@@ -11,6 +11,10 @@
     "recipient_email": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "signal_type": {
       "type": "string",
       "enum": [

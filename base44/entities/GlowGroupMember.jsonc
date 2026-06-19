@@ -8,6 +8,10 @@
     "group_id": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "joined_at": {
       "type": "string",
       "format": "date-time"

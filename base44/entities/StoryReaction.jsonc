@@ -8,6 +8,10 @@
     "user_email": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "reaction_type": {
       "type": "string",
       "enum": [

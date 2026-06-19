@@ -6,6 +6,10 @@
       "type": "string",
       "description": "Country or region name"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "total_glow_score": {
       "type": "number",
       "default": 0,

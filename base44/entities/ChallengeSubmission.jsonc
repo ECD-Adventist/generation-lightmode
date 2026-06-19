@@ -11,6 +11,10 @@
     "submission_url": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "points_awarded": {
       "type": "number",
       "default": 0
