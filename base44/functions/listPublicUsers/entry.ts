@@ -16,7 +16,11 @@ const SEARCH_MAX = 20;
 const ADMIN_MAX = 200;
 
 function cleanString(value, max = 500) {
-  return typeof value === 'string' ? value.trim().slice(0, max) : '';
+  // Strip anything that isn't a plain string and trim — blocks objects carrying
+  // MongoDB operators ($regex, $ne, etc.) from ever reaching an entity query.
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'object') return '';
+  return String(value).trim().slice(0, max);
 }
 
 function publicUserShape(user, { includeEmail = false, isAdmin = false } = {}) {

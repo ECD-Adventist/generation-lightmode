@@ -18,7 +18,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
-    const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 10000);
+    // Admin-only function (403-gated above). Supports optional pagination but
+    // defaults to a full load so the admin dashboard's search/stats/heatmaps work.
+    const payload = await req.json().catch(() => ({}));
+    const requestedLimit = Number.parseInt(payload.limit, 10);
+    const limit = Number.isFinite(requestedLimit) ? Math.max(1, Math.min(requestedLimit, 10000)) : 10000;
+    const skip = Math.max(0, Number.parseInt(payload.skip, 10) || 0);
+
+    const allUsers = await base44.asServiceRole.entities.User.list('-created_date', limit, skip);
 
     const adminUsers = allUsers.map(u => ({
       id: u.id,
