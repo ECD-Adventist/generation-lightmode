@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Zap, Users, User, Search, MessageCircle } from "lucide-react";
+import { Zap, User, Search, MessageCircle, Plus } from "lucide-react";
 
 const tabs = [
   { key: "Feed", label: "Feed", icon: Zap, match: ["Feed", "GlowFeed", "Post"] },
   { key: "Discover", label: "Search", icon: Search, match: ["Discover"] },
-  { key: "GlowGroups", label: "Groups", icon: Users, match: ["GlowGroups", "GroupChat", "GroupSession"] },
+  { key: "Post", label: "Post", icon: Plus, match: [], isPostButton: true },
   { key: "Messages", label: "Messages", icon: MessageCircle, match: ["Messages"] },
   { key: "Profile", label: "Profile", icon: User, match: ["Profile", "Settings"] },
 ];
@@ -55,7 +55,38 @@ export default function MobileBottomNav({ currentPageName }) {
       aria-label="Primary mobile navigation"
     >
       <div className="flex items-stretch justify-around px-2">
-        {tabs.map(({ key, label, icon: Icon, match }) => {
+        {tabs.map(({ key, label, icon: Icon, match, isPostButton }) => {
+          if (isPostButton) {
+            return (
+              <Link
+                key={key}
+                to={`${createPageUrl("Feed")}?compose=1`}
+                onClick={() => sessionStorage.setItem('tab_switch', 'true')}
+                className="flex-1 flex flex-col items-center justify-end gap-1.5 py-2"
+                style={{ minHeight: 56, textDecoration: "none" }}
+                aria-label="Create post"
+              >
+                <span
+                  className="flex items-center justify-center rounded-full"
+                  style={{
+                    width: 50,
+                    height: 50,
+                    marginTop: -22,
+                    background: "linear-gradient(135deg, #00CFFF 0%, #8A5CFF 100%)",
+                    boxShadow: "0 6px 20px rgba(0,207,255,0.45), 0 0 0 4px rgba(11,15,26,0.95)",
+                  }}
+                >
+                  <Plus className="w-6 h-6" strokeWidth={2.6} style={{ color: "#0B0F1A" }} />
+                </span>
+                <span
+                  className="text-[10px] font-bold tracking-wide"
+                  style={{ fontFamily: "Inter, sans-serif", color: "#00CFFF" }}
+                >
+                  {label}
+                </span>
+              </Link>
+            );
+          }
           const active = match.includes(currentPageName) || location.pathname === `/${key}`;
           const targetPath = sessionStorage.getItem(`tab_history_${key}`) || createPageUrl(key);
           return (

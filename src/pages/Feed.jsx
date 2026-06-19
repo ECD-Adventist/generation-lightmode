@@ -107,6 +107,18 @@ export default function Feed() {
     checkAuth();
   }, []);
 
+  // Open the post composer when arriving via the bottom-nav "+" button (?compose=1).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("compose") === "1") {
+      if (user) setIsDropModalOpen(true);
+      else base44.auth.redirectToLogin(window.location.pathname);
+      params.delete("compose");
+      const newSearch = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (newSearch ? `?${newSearch}` : ""));
+    }
+  }, [user]);
+
   const isOnline = useNetworkStatus();
 
   const {
