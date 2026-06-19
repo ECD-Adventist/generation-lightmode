@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
@@ -11,6 +11,7 @@ import DropCard from "@/components/feed/DropCard";
 export default function Post() {
   const [currentUser, setCurrentUser] = useState(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const urlParams = new URLSearchParams(window.location.search);
   const dropId = urlParams.get("id");
@@ -76,7 +77,14 @@ export default function Post() {
     enabled: !!dropId,
   });
 
-  const backUrl = backUser ? `${createPageUrl("Profile")}?user=${encodeURIComponent(backUser)}` : createPageUrl("Feed");
+  const fallbackUrl = backUser ? `${createPageUrl("Profile")}?user=${encodeURIComponent(backUser)}` : createPageUrl("Feed");
+
+  // Go back to wherever the user actually came from. If there's no in-app
+  // history (e.g. opened via a shared link), fall back to a sensible page.
+  const handleBack = () => {
+    if (window.history.length > 1) navigate(-1);
+    else navigate(fallbackUrl);
+  };
 
   const getUserInfo = (email) => {
     if (currentUser?.email === email) return currentUser;
@@ -182,14 +190,23 @@ export default function Post() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-6 md:py-8 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-6">
-          <Link to={backUrl} className="inline-flex items-center gap-2 transition" style={{ color: "#4A5878" }}>
-            <ArrowLeft className="w-4 h-4" /> Back
-          </Link>
+    <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+      {/* Sticky header */}
+      <div className="sticky top-0 z-40 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.85)", borderColor: "#E6ECF5" }}>
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
+          <button
+            onClick={handleBack}
+            className="inline-flex items-center justify-center w-9 h-9 rounded-full transition active:scale-90"
+            style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B3FD9", boxShadow: "0 1px 4px rgba(11, 63, 217, 0.06)" }}
+            aria-label="Go back"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+          <h1 className="text-base font-bold" style={{ color: "#0B1B3D" }}>Post</h1>
         </div>
+      </div>
 
+      <div className="max-w-2xl mx-auto px-4 py-5 md:py-7">
         <DropCard
           drop={drop}
           user={currentUser}
