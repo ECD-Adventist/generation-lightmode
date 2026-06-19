@@ -219,19 +219,25 @@ Deno.serve(async (req) => {
     const existing = await base44.asServiceRole.entities.CodeOfTruth.filter({ source_document: 'keeping_it_100' });
     const existingKeys = new Set(existing.map((c) => (c.slogan_text || '').trim().toLowerCase()));
 
-    const toCreate = SLOGANS.filter((s) => body.force || !existingKeys.has(s.slogan.trim().toLowerCase()));
+    const missing = SLOGANS.filter((s) => body.force || !existingKeys.has(s.slogan.trim().toLowerCase()));
 
     if (body.dry_run) {
       return Response.json({
         success: true, dry_run: true,
         total_in_document: SLOGANS.length,
         already_in_app: existing.length,
-        will_create: toCreate.length,
+        will_create: missing.length,
       });
     }
 
+    // Create in a bounded batch with small pauses to respect rate limits.
+    // Re-run until "remaining" is 0.
+    const batchLimit = Math.max(1, Math.min(Number(body.limit || 40), 60));
+    const batch = missing.slice(0, batchLimit);
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
     let created = 0;
-    for (const s of toCreate) {
+    for (const s of batch) {
       await base44.asServiceRole.entities.CodeOfTruth.create({
         title: s.title,
         slogan_text: s.slogan,
@@ -241,6 +247,7 @@ Deno.serve(async (req) => {
         status: 'approved',
       });
       created += 1;
+      await sleep(120);
     }
 
     return Response.json({
@@ -248,6 +255,7 @@ Deno.serve(async (req) => {
       total_in_document: SLOGANS.length,
       already_in_app: existing.length,
       created,
+      remaining: Math.max(0, missing.length - created),
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

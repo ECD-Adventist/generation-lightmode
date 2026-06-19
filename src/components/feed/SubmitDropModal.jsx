@@ -411,6 +411,9 @@ RULES:
               </div>
             )}
 
+            {/* AI Draft Assistant — only shown while drafting. Once the post has a verse
+                or reflection, this helper disappears to declutter the composer. */}
+            {!formData.verse?.trim() && !formData.reflection?.trim() && (
             <div className="rounded-2xl p-4" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-4 h-4" style={{ color: "#0B3FD9" }} />
@@ -429,6 +432,7 @@ RULES:
                 </Button>
               </div>
             </div>
+            )}
 
             <div>
               <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block ml-1" style={{ color: "#6B7FA0" }}>Bible Verse</label>

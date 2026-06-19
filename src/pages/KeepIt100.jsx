@@ -9,8 +9,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const CATEGORIES = [
   "Sexuality & Purity", "Self-Control", "Sanctity of Life", "Gambling & Stewardship",
   "Education & Career", "Entrepreneurship", "Marriage & Courtship", "Peer Pressure",
-  "Spiritual Warfare", "Friendship", "Alcohol", "Entertainment", "Social Media",
-  "Modesty", "Music & Media", "Integrity", "Speech & Gossip"
+  "Spiritual Warfare", "Friendship", "God's Truth on Sexuality", "Alcohol", "Entertainment",
+  "Social Media", "Modesty", "Music & Media", "Integrity", "Speech & Gossip"
 ];
 
 export default function KeepIt100() {

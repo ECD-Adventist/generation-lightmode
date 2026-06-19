@@ -59,10 +59,18 @@ function MobileDropCard({
   });
 
   const deleteDropMutation = useMutation({
-    mutationFn: async () => { await base44.entities.GlowDrop.delete(drop.id); },
+    mutationFn: async () => {
+      const res = await base44.functions.invoke("deleteGlowDrop", { drop_id: drop.id });
+      if (!res?.data?.success) throw new Error(res?.data?.error || "Failed to delete post");
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+      queryClient.invalidateQueries({ queryKey: ["glowFeed"] });
+      queryClient.invalidateQueries({ queryKey: ["myGlowDropsProfile"] });
       toast.success("Post deleted");
+    },
+    onError: (err) => {
+      toast.error(err?.response?.data?.error || err?.message || "Could not delete post");
     },
   });
 
