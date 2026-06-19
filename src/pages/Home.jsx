@@ -427,19 +427,19 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
         <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
           <div style={{ textAlign: "center", marginBottom: 60 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.08)", border: "1px solid rgba(0,207,255,0.2)", borderRadius: 999, padding: "6px 16px", marginBottom: 20 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#00CFFF", boxShadow: "0 0 8px #00CFFF", display: "inline-block", animation: "pulse 2s ease-in-out infinite" }} />
-              <span style={{ color: "#00CFFF", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>Live Impact</span>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFD000", boxShadow: "0 0 8px #FFD000", display: "inline-block", animation: "pulse 2s ease-in-out infinite" }} />
+              <span style={{ color: "#FFD000", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>Our Vision</span>
             </div>
             <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(30px, 4vw, 52px)", letterSpacing: "-0.02em", color: "#FFFFFF", marginBottom: 12 }}>
-              {t("statsTitle")}
+              The Goal We're Chasing
             </h2>
-            <p style={{ color: "#8A9BB0", fontSize: 16, fontFamily: "Inter, sans-serif", maxWidth: 500, margin: "0 auto" }}>{t("statsSubtitle")}</p>
+            <p style={{ color: "#8A9BB0", fontSize: 16, fontFamily: "Inter, sans-serif", maxWidth: 500, margin: "0 auto" }}>The bold targets driving Generation LightMode across the East-Central Africa Division.</p>
           </div>
           <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
-            <StatCard value={1000000} suffix="+" label="Youth to be Mobilized" icon={Users} color="#00CFFF" started={statsVisible} />
-            <StatCard value={10000000} suffix="+" label="Peers to be Reached" icon={Users} color="#FFD000" started={statsVisible} />
+            <StatCard value={1000000} suffix="+" label="Youth to Mobilize (Goal)" icon={Users} color="#00CFFF" started={statsVisible} />
+            <StatCard value={10000000} suffix="+" label="Peers to Reach (Goal)" icon={Users} color="#FFD000" started={statsVisible} />
             <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#8A5CFF" started={statsVisible} />
-            <StatCard value={500} suffix="+" label="Glow Groups Target" icon={Star} color="#1DA1FF" started={statsVisible} />
+            <StatCard value={500} suffix="+" label="GlowGroups Target" icon={Star} color="#1DA1FF" started={statsVisible} />
           </div>
         </div>
       </section>

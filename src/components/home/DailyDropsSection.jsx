@@ -1,10 +1,8 @@
 import React from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { BookOpen, Heart, Share2, Loader2, ArrowRight, Zap } from "lucide-react";
-import { format } from "date-fns";
 import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
+import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
 
 const categoryThemes = {
   "Code of Truth": {
@@ -51,15 +49,10 @@ const fallbackTheme = {
 };
 
 export default function DailyDropsSection() {
-  const { data: drops = [], isLoading } = useQuery({
-    queryKey: ["dailySystemDrops"],
-    queryFn: () => base44.entities.GlowDrop.filter({ user_email: "system@lightmode.com", status: "approved" }, '-created_date', 6),
-  });
-
-  const displayDrops = drops.slice(0, 3);
-  const postedDate = (drop) => drop.created_date
-    ? format(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), "MMM d, yyyy")
-    : "";
+  // Use the public, service-role snapshot so this works for logged-out visitors
+  // and reflects the 3 most recent approved drops across all categories/authors.
+  const { data: snapshot, isLoading } = usePublicCommunitySnapshot();
+  const displayDrops = (snapshot?.recentDrops || []).slice(0, 3);
 
   return (
     <section style={{ padding: "clamp(60px, 10vw, 100px) 24px", background: "#0B0F1A", position: "relative", overflow: "hidden" }}>
@@ -98,7 +91,7 @@ export default function DailyDropsSection() {
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24, marginBottom: 40 }}>
             {displayDrops.map((drop, idx) => {
-              const theme = categoryThemes[drop.category] || fallbackTheme;
+              const theme = fallbackTheme;
               return (
                 <div key={drop.id}
                   style={{
@@ -127,7 +120,9 @@ export default function DailyDropsSection() {
                         <span style={{ fontSize: 12 }}>{theme.icon}</span>
                         <span style={{ fontSize: 10, fontWeight: 900, color: theme.accent, textTransform: "uppercase", letterSpacing: "0.1em" }}>{theme.label}</span>
                       </div>
-                      <span style={{ fontSize: 11, color: "#5A6478", fontFamily: "Inter, sans-serif" }}>{postedDate(drop)}</span>
+                      {drop.country && drop.country !== "Global" && (
+                        <span style={{ fontSize: 11, color: "#5A6478", fontFamily: "Inter, sans-serif" }}>{drop.country}</span>
+                      )}
                     </div>
 
                     {/* Verse */}
@@ -200,7 +195,7 @@ export default function DailyDropsSection() {
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 5, color: "#6A7288", fontSize: 12 }}>
                           <Share2 style={{ width: 13, height: 13 }} />
-                          <span>{drop.shares_count || 0}</span>
+                          <span>Share</span>
                         </div>
                       </div>
                       <div style={{

@@ -100,13 +100,14 @@ function ImpactStoryPanel({ drop, onClose }) {
 export default function GlobalReach() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [mapMode, setMapMode] = useState("warriors"); // "warriors" | "drops"
   const [selectedDrop, setSelectedDrop] = useState(null);
 
   useEffect(() => {
     base44.auth.isAuthenticated().then((isAuth) => {
-      if (isAuth) base44.auth.me().then(setUser);
-      else base44.auth.redirectToLogin(window.location.pathname);
+      if (isAuth) base44.auth.me().then(setUser).finally(() => setAuthChecked(true));
+      else setAuthChecked(true);
     });
   }, []);
 
@@ -153,11 +154,35 @@ export default function GlobalReach() {
   // Stats
   const totalCountries = useMemo(() => new Set(users.map(u => u.country).filter(Boolean)).size, [users]);
 
-  if (!user) return (
+  if (!user && !authChecked) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}>
       <div className="flex flex-col items-center gap-3">
         <Globe className="w-10 h-10 animate-pulse" style={{ color: "#1FB8FF" }} />
         <span style={{ color: "#6B7FA0" }}>Loading global reach...</span>
+      </div>
+    </div>
+  );
+
+  if (!user && authChecked) return (
+    <div className="min-h-screen flex items-center justify-center px-6 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+      <div className="max-w-md w-full text-center rounded-3xl p-10" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 8px 32px rgba(11, 63, 217, 0.08)" }}>
+        <div className="w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.3)" }}>
+          <Globe className="w-8 h-8 text-white" />
+        </div>
+        <h1 className="text-2xl font-bold font-['Space_Grotesk'] mb-2" style={{ color: "#0B1B3D" }}>See the Global Reach</h1>
+        <p className="text-sm mb-7" style={{ color: "#6B7FA0" }}>
+          Log in to explore the live map of Light Warriors and Glow Drops across the nations, and connect with believers in your region.
+        </p>
+        <button
+          onClick={() => base44.auth.redirectToLogin(window.location.pathname)}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full font-bold text-sm transition active:scale-[0.98]"
+          style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 6px 20px rgba(11, 63, 217, 0.3)" }}
+        >
+          <Zap className="w-4 h-4" /> Log in to view
+        </button>
+        <Link to={createPageUrl("Home")} className="block mt-4 text-xs font-semibold" style={{ color: "#0B3FD9" }}>
+          ← Back to homepage
+        </Link>
       </div>
     </div>
   );

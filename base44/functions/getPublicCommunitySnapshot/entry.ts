@@ -7,15 +7,30 @@ const SCAN_CAP = 5000;
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const svc = base44.asServiceRole;
+
+    // Read each entity independently and tolerate individual failures so a single
+    // RLS / auth hiccup can never zero-out the entire public snapshot.
+    const safeList = async (entity) => {
+      try {
+        return await svc.entities[entity].list('-created_date', SCAN_CAP);
+      } catch (e) {
+        console.error(`getPublicCommunitySnapshot: ${entity} read failed:`, e?.message);
+        return [];
+      }
+    };
 
     const [users, groups, groupMembers, drops, challenges, submissions] = await Promise.all([
-      base44.asServiceRole.entities.User.list('-created_date', SCAN_CAP),
-      base44.asServiceRole.entities.GlowGroup.list('-created_date', SCAN_CAP),
-      base44.asServiceRole.entities.GlowGroupMember.list('-created_date', SCAN_CAP),
-      base44.asServiceRole.entities.GlowDrop.list('-created_date', SCAN_CAP),
-      base44.asServiceRole.entities.Challenge.list('-created_date', SCAN_CAP),
-      base44.asServiceRole.entities.ChallengeSubmission.list('-created_date', SCAN_CAP),
+      safeList('User'),
+      safeList('GlowGroup'),
+      safeList('GlowGroupMember'),
+      safeList('GlowDrop'),
+      safeList('Challenge'),
+      safeList('ChallengeSubmission'),
     ]);
+
+    // Only approved, non-hidden drops are part of the public movement story.
+    const approvedDrops = drops.filter((d) => d.status === 'approved' && !d.hidden && !d.is_flagged);
 
     const COUNTRY_ALIASES = {
       "usa": "United States",
@@ -71,7 +86,7 @@ Deno.serve(async (req) => {
       ensureCountry(group.country).groups += 1;
     });
 
-    drops.forEach((drop) => {
+    approvedDrops.forEach((drop) => {
       const country = userCountryByEmail.get(drop.user_email);
       if (country) ensureCountry(country).drops += 1;
     });
@@ -116,7 +131,7 @@ Deno.serve(async (req) => {
       }))
       .sort((a, b) => Number(b.active) - Number(a.active) || b.participantsCount - a.participantsCount);
 
-    const recentDrops = drops.slice(0, 6).map((drop) => ({
+    const recentDrops = approvedDrops.slice(0, 6).map((drop) => ({
       id: drop.id,
       verse: drop.verse || '',
       reflection: drop.reflection || '',
@@ -130,7 +145,7 @@ Deno.serve(async (req) => {
     return Response.json({
       totalUsers: users.length,
       totalGroups: groups.length,
-      totalDrops: drops.length,
+      totalDrops: approvedDrops.length,
       totalCountries,
       totalChallenges: publicChallenges.filter((challenge) => challenge.active).length,
       countryStats,
