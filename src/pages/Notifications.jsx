@@ -88,20 +88,35 @@ export default function Notifications() {
   const markReadMutation = useMutation({
     mutationFn: (id) => base44.entities.Notification.update(id, { read: true }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.email] });
-      queryClient.invalidateQueries({ queryKey: ["notifications", user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["notifications", user?.id] });
     }
   });
 
   const markAllReadMutation = useMutation({
     mutationFn: async () => {
-      const unread = notifications.filter(n => !n.read);
-      await Promise.all(unread.map(n => base44.entities.Notification.update(n.id, { read: true })));
+      // The backend clears a bounded batch per call to respect rate limits.
+      // Keep calling until nothing remains.
+      const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+      let safety = 100;
+      let zeroProgress = 0;
+      while (safety-- > 0) {
+        const res = await base44.functions.invoke("markAllNotificationsRead", {});
+        if (!res.data?.success) throw new Error(res.data?.error || "Failed to mark all read");
+        if (!res.data.remaining) break;
+        // Track stalls (rate-limited calls that cleared nothing) and back off.
+        zeroProgress = res.data.updated > 0 ? 0 : zeroProgress + 1;
+        if (zeroProgress >= 6) break; // give up gracefully; user can tap again
+        await sleep(zeroProgress > 0 ? 1500 : 700);
+        queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.id] });
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.email] });
-      queryClient.invalidateQueries({ queryKey: ["notifications", user?.email] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["notifications", user?.id] });
+      toast.success("All notifications marked as read");
+    },
+    onError: () => toast.error("Couldn't mark all as read. Please try again.")
   });
 
   const deleteMutation = useMutation({
