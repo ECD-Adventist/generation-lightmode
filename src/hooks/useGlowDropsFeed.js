@@ -28,7 +28,10 @@ export default function useGlowDropsFeed() {
       if (!drop?.id || seen.has(drop.id)) return false;
       seen.add(drop.id);
       return true;
-    });
+    })
+    // Author email lives in the built-in `created_by` field — backfill `user_email`
+    // so author name/picture resolution works across the feed.
+    .map(drop => drop.user_email ? drop : { ...drop, user_email: drop.created_by });
 
   return { ...query, data };
 }

@@ -75,6 +75,7 @@ export default function Feed() {
   const queryClient = useQueryClient();
   const feedEndRef = useRef(null);
   const feedScrollRef = useRef(null);
+  const mobileScrollRef = useRef(null);
   // Defer non-critical queries (stories, suggestedUsers, leaderAccounts) until after first paint.
   const deferredReady = useDeferredMount(700);
 
@@ -125,6 +126,11 @@ export default function Feed() {
   const userSearch = useFeedUserSearch(searchQuery);
 
   const { pullDistance, isRefreshing, threshold } = usePullToRefresh(feedScrollRef, async () => {
+    await queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+    await queryClient.invalidateQueries({ queryKey: ["activeStories"] });
+  });
+
+  const mobilePull = usePullToRefresh(mobileScrollRef, async () => {
     await queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
     await queryClient.invalidateQueries({ queryKey: ["activeStories"] });
   });
@@ -489,10 +495,13 @@ export default function Feed() {
 
       {/* MOBILE: branded redesign */}
       <div
-        className="lg:hidden flex-1 min-h-0 overflow-y-auto"
-
+        ref={mobileScrollRef}
+        className="lg:hidden flex-1 min-h-0 overflow-y-auto overscroll-y-contain"
       >
         <MobileFeed
+          pullDistance={mobilePull.pullDistance}
+          isRefreshing={mobilePull.isRefreshing}
+          pullThreshold={mobilePull.threshold}
           user={user}
           notifications={notifications}
           searchQuery={searchQuery}
