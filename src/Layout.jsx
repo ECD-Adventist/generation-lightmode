@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Menu, X, Bell, LayoutDashboard, Users, Flag, BarChart3, MessageSquare, ShieldCheck, LogOut, User, Zap } from "lucide-react";
+import { Menu, X, Bell, LayoutDashboard, Users, Flag, BarChart3, MessageSquare, ShieldCheck, LogOut, User, Zap, ChevronRight } from "lucide-react";
 import LanguageSelector from "./components/LanguageSelector";
 import { useAppLanguage } from "./components/i18n/useAppLanguage";
 import { useSwitchItOn } from "./components/pledge/SwitchItOnProvider";
@@ -503,81 +503,104 @@ export default function Layout({ children, currentPageName }) {
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu — Premium Glassmorphism Design */}
         {menuOpen && (
           <div
-            className="md:hidden fixed inset-0 z-[5000] overflow-y-auto safe-pt safe-pb"
+            className="md:hidden fixed inset-0 z-[5000] overflow-y-auto safe-pb"
             style={{
-              background: "linear-gradient(180deg, rgba(10,15,28,0.98) 0%, rgba(7,11,22,0.99) 100%)",
-              backdropFilter: "blur(24px)",
-              borderLeft: "1px solid rgba(0,207,255,0.25)",
-              boxShadow: "inset 1px 0 0 rgba(0,207,255,0.12)",
+              background: "linear-gradient(135deg, rgba(10,15,28,0.99) 0%, rgba(18,24,38,0.98) 50%, rgba(7,11,22,0.99) 100%)",
+              backdropFilter: "blur(40px) saturate(1.8)",
+              paddingTop: "env(safe-area-inset-top)",
             }}
           >
-            <div className="px-6 pt-4 pb-8 min-h-full">
-              <div className="flex items-center justify-between mb-5">
-                <p style={{ color: "#00CFFF", fontSize: 12, fontWeight: 900, letterSpacing: "0.16em" }}>MENU</p>
+            {/* Gradient accent veil */}
+            <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(0,207,255,0.08) 0%, transparent 100%)" }} />
+
+            <div className="relative z-10 px-5 pt-6 pb-8">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <p style={{ color: "#00CFFF", fontSize: 12, fontWeight: 900, letterSpacing: "0.2em" }}>MENU</p>
+                </div>
                 <button
                   onClick={() => setMenuOpen(false)}
-                  className="w-10 h-10 rounded-2xl flex items-center justify-center"
-                  style={{ background: "rgba(255,255,255,0.12)", color: "#FFFFFF" }}
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center transition hover:bg-white/20 active:scale-90"
+                  style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.12)", color: "#FFFFFF" }}
                   aria-label="Close menu"
                 >
                   <X size={20} />
                 </button>
               </div>
 
-              <div className="space-y-2">
+              {/* Navigation Links — Premium Cards */}
+              <div className="space-y-2.5 mb-7">
                 {navLinks.map(link => (
                   <Link
                     key={link.page}
                     to={createPageUrl(link.page)}
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-between rounded-xl px-4 py-3.5 font-bold transition active:scale-[0.99]"
-                    style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", color: "#F4F7FF" }}
+                    className="group flex items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.06) 100%)",
+                      border: "1px solid rgba(0,207,255,0.15)",
+                      color: "#E8EEF8",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)"
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,207,255,0.2), inset 0 1px 0 rgba(255,255,255,0.08)"}
+                    onMouseLeave={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)"}
                   >
                     <span>{t(link.key) || link.page}</span>
-                    <span style={{ color: "#8A9BB0", fontSize: 24, lineHeight: 1 }}>›</span>
+                    <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
                   </Link>
                 ))}
 
-                <Link to={createPageUrl("KeepIt100")} onClick={() => setMenuOpen(false)} className="flex items-center justify-between rounded-xl px-4 py-3.5 font-bold transition active:scale-[0.99]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", color: "#F4F7FF" }}>
-                  <span className="flex items-center gap-3"><span>💯</span> Keep It 100</span>
-                  <span style={{ color: "#8A9BB0", fontSize: 24, lineHeight: 1 }}>›</span>
+                <Link to={createPageUrl("KeepIt100")} onClick={() => setMenuOpen(false)} className="group flex items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]" style={{ background: "linear-gradient(135deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.06) 100%)", border: "1px solid rgba(0,207,255,0.15)", color: "#E8EEF8", boxShadow: "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+                  <span className="flex items-center gap-2.5"><span style={{ fontSize: 20 }}>💯</span> Keep It 100</span>
+                  <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
                 </Link>
-                <Link to={createPageUrl("CodesOfTruth")} onClick={() => setMenuOpen(false)} className="flex items-center justify-between rounded-xl px-4 py-3.5 font-bold transition active:scale-[0.99]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", color: "#F4F7FF" }}>
-                  <span className="flex items-center gap-3"><span>🔐</span> Codes of Truth</span>
-                  <span style={{ color: "#8A9BB0", fontSize: 24, lineHeight: 1 }}>›</span>
+                <Link to={createPageUrl("CodesOfTruth")} onClick={() => setMenuOpen(false)} className="group flex items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]" style={{ background: "linear-gradient(135deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.06) 100%)", border: "1px solid rgba(0,207,255,0.15)", color: "#E8EEF8", boxShadow: "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+                  <span className="flex items-center gap-2.5"><span style={{ fontSize: 20 }}>🔐</span> Codes of Truth</span>
+                  <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
                 </Link>
-                <Link to={createPageUrl("Resources")} onClick={() => setMenuOpen(false)} className="flex items-center justify-between rounded-xl px-4 py-3.5 font-bold transition active:scale-[0.99]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", color: "#F4F7FF" }}>
-                  <span className="flex items-center gap-3"><span>🌍</span> Resources</span>
-                  <span style={{ color: "#8A9BB0", fontSize: 24, lineHeight: 1 }}>›</span>
+                <Link to={createPageUrl("Resources")} onClick={() => setMenuOpen(false)} className="group flex items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]" style={{ background: "linear-gradient(135deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.06) 100%)", border: "1px solid rgba(0,207,255,0.15)", color: "#E8EEF8", boxShadow: "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+                  <span className="flex items-center gap-2.5"><span style={{ fontSize: 20 }}>🌍</span> Resources</span>
+                  <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
                 </Link>
               </div>
 
+              {/* Account & Admin Section */}
               {userEmail ? (
-                <div className="mt-6 rounded-2xl p-4" style={{ background: "rgba(18,24,38,0.9)", border: "1px solid rgba(0,207,255,0.18)", boxShadow: "0 18px 50px rgba(0,0,0,0.35)" }}>
-                  <p style={{ color: "#8EA0B8", fontSize: 11, fontWeight: 900, letterSpacing: "0.14em", marginBottom: 10 }}>MY ACCOUNT</p>
-                  <div className="space-y-1">
-                    <Link to={createPageUrl("Profile")} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-2 py-2.5" style={{ color: "#E8EEF8" }}>
-                      <User size={16} style={{ color: "#00CFFF" }} /> My Profile
-                    </Link>
-                    <Link to={createPageUrl("Feed")} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-2 py-2.5" style={{ color: "#E8EEF8" }}>
-                      <Zap size={16} style={{ color: "#00CFFF" }} /> Feed
-                    </Link>
-                    <Link to={createPageUrl("Notifications")} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-2 py-2.5" style={{ color: "#E8EEF8" }}>
-                      <Bell size={16} style={{ color: "#00CFFF" }} /> Notifications
-                      {notifications.length > 0 && (
-                        <span className="ml-auto rounded-full px-2 py-0.5 text-[11px] font-black" style={{ background: "#ef4444", color: "#fff" }}>{notifications.length}</span>
-                      )}
-                    </Link>
+                <div className="space-y-4">
+                  {/* My Account Card */}
+                  <div className="rounded-3xl p-5" style={{ background: "linear-gradient(135deg, rgba(18,24,38,0.95) 0%, rgba(12,17,30,0.98) 100%)", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(0,207,255,0.1)" }}>
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-1.5 h-4 rounded-full" style={{ background: "linear-gradient(180deg, #00CFFF, #5AC8FF)" }} />
+                      <p style={{ color: "#8EA0B8", fontSize: 11, fontWeight: 900, letterSpacing: "0.16em", margin: 0 }}>MY ACCOUNT</p>
+                    </div>
+                    <div className="space-y-2">
+                      {[
+                        { icon: <User size={16} />, label: "My Profile", to: createPageUrl("Profile") },
+                        { icon: <Zap size={16} />, label: "Feed", to: createPageUrl("Feed") },
+                        { icon: <Bell size={16} />, label: "Notifications", to: createPageUrl("Notifications"), badge: notifications.length > 0 ? notifications.length : null }
+                      ].map(item => (
+                        <Link key={item.label} to={item.to} onClick={() => setMenuOpen(false)} className="flex items-center justify-between rounded-xl px-3 py-2.5 transition-all hover:bg-white/10" style={{ color: "#E8EEF8" }}>
+                          <span className="flex items-center gap-3">
+                            <span style={{ color: "#00CFFF" }}>{item.icon}</span> {item.label}
+                          </span>
+                          {item.badge && <span className="rounded-full px-2 py-0.5 text-xs font-bold" style={{ background: "#ef4444", color: "#fff" }}>{item.badge}</span>}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
 
+                  {/* Admin Panel Card — Super Admins */}
                   {(userRole === "admin" || userRole === "super_admin") && (
-                    <>
-                      <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "12px 0" }} />
-                      <p style={{ color: "#FFD000", fontSize: 11, fontWeight: 900, letterSpacing: "0.08em", marginBottom: 10 }}>ADMIN PANEL</p>
-                      <div className="space-y-1">
+                    <div className="rounded-3xl p-5" style={{ background: "linear-gradient(135deg, rgba(255,208,0,0.06) 0%, rgba(255,160,0,0.04) 100%)", border: "1px solid rgba(255,208,0,0.2)", boxShadow: "0 8px 32px rgba(255,208,0,0.1), inset 0 1px 0 rgba(255,208,0,0.12)" }}>
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-1.5 h-4 rounded-full" style={{ background: "linear-gradient(180deg, #FFD000, #FFA300)" }} />
+                        <p style={{ color: "#FFDB58", fontSize: 11, fontWeight: 900, letterSpacing: "0.16em", margin: 0 }}>ADMIN PANEL</p>
+                      </div>
+                      <div className="space-y-2">
                         {[
                           { icon: <LayoutDashboard size={16} />, label: "Control Center", tab: "dashboard" },
                           { icon: <Users size={16} />, label: "User Management", tab: "users" },
@@ -585,26 +608,33 @@ export default function Layout({ children, currentPageName }) {
                           { icon: <BarChart3 size={16} />, label: "Analytics", tab: "analytics" },
                           { icon: <ShieldCheck size={16} />, label: "Settings", tab: "settings" },
                         ].map(item => (
-                          <Link key={item.label} to={`${createPageUrl("AdminCenter")}?tab=${item.tab}`} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-2 py-2.5" style={{ color: "#E8EEF8" }}>
+                          <Link key={item.label} to={`${createPageUrl("AdminCenter")}?tab=${item.tab}`} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all hover:bg-white/10" style={{ color: "#E8EEF8" }}>
                             <span style={{ color: "#FFD000" }}>{item.icon}</span> {item.label}
                           </Link>
                         ))}
                       </div>
-                    </>
+                    </div>
                   )}
 
-                  <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "12px 0" }} />
-                  <button onClick={() => { setMenuOpen(false); base44.auth.logout(); }} className="flex items-center gap-3 rounded-xl px-2 py-2.5 w-full text-left" style={{ color: "#ff4d4d", background: "transparent", border: "none", cursor: "pointer" }}>
+                  {/* Sign Out Button */}
+                  <button onClick={() => { setMenuOpen(false); base44.auth.logout(); }} className="w-full flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#ff6b6b", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
                     <LogOut size={16} /> Sign Out
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => { setMenuOpen(false); triggerSwitchOn("Feed"); }}
-                  className="mt-6 w-full rounded-full py-4 font-black flex items-center justify-center gap-2 active:scale-[0.99]"
-                  style={{ background: "linear-gradient(90deg, #FFD000 0%, #FFA300 100%)", color: "#0B0F1A", boxShadow: "0 0 28px rgba(255,208,0,0.35)" }}
+                  className="w-full rounded-full py-4 font-black flex items-center justify-center gap-2.5 active:scale-[0.96] transition"
+                  style={{
+                    background: "linear-gradient(135deg, #FFD000 0%, #FFA300 50%, #FF9F1A 100%)",
+                    color: "#0B0F1A",
+                    boxShadow: "0 12px 32px rgba(255,208,0,0.4), 0 0 24px rgba(255,208,0,0.2)",
+                    fontSize: 16,
+                    fontWeight: 900,
+                    letterSpacing: "0.05em"
+                  }}
                 >
-                  <Zap size={16} /> Switch It On
+                  <Zap size={18} style={{ strokeWidth: 2.5 }} /> SWITCH IT ON
                 </button>
               )}
             </div>
