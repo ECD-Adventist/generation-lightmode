@@ -117,9 +117,9 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
       }
 
-      if (drop.user_email && drop.user_email !== user.email && isNotificationEnabled(dropUser, "comments")) {
-        base44.entities.Notification.create({
-          user_email: drop.user_email,
+      if (dropUser?.id && drop.user_email && drop.user_email !== user.email && isNotificationEnabled(dropUser, "comments")) {
+        base44.functions.invoke("createNotification", {
+          user_id: dropUser.id,
           type: "reply",
           message: `${getDisplayName(user)} commented on your Glow Drop: "${content.trim().slice(0, 50)}${content.trim().length > 50 ? '...' : ''}"`,
           link: `/Post?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`

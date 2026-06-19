@@ -52,14 +52,19 @@ Deno.serve(async (req) => {
         await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
       }
 
-      // Notify real drop author (server-side lookup — not from client)
+      // Notify real drop author using user_id only — no email stored on Notification
       if (authorEmail && authorEmail !== user.email) {
-        base44.asServiceRole.entities.Notification.create({
-          user_email: authorEmail,
-          type: 'like',
-          message: `${user.full_name || 'Someone'} liked your Glow Drop.`,
-          link: `/Post?id=${encodeURIComponent(drop_id)}&user=${encodeURIComponent(authorEmail)}`
-        }).catch(() => {});
+        const author = (await base44.asServiceRole.entities.User.filter({ email: authorEmail }))[0];
+        if (author?.id) {
+          base44.asServiceRole.entities.Notification.create({
+            user_id: author.id,
+            actor_user_id: user.id,
+            type: 'like',
+            message: `${user.full_name || 'Someone'} liked your Glow Drop.`,
+            link: `/Post?id=${encodeURIComponent(drop_id)}&user=${encodeURIComponent(authorEmail)}`,
+            read: false,
+          }).catch(() => {});
+        }
       }
 
       return Response.json({ success: true, action: 'like', likes_count: newCount });

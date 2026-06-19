@@ -135,9 +135,9 @@ export default function Messages() {
       });
 
       // Notification (fire and forget, don't block)
-      if (otherEmail && otherEmail !== user.email && isNotificationEnabled(otherUser, "messages")) {
-        base44.entities.Notification.create({
-          user_email: otherEmail,
+      if (otherUser?.id && otherEmail && otherEmail !== user.email && isNotificationEnabled(otherUser, "messages")) {
+        base44.functions.invoke("createNotification", {
+          user_id: otherUser.id,
           type: "message",
           message: `${getDisplayName(user)} sent you a message: "${(content?.trim() || 'shared a file').slice(0, 60)}${(content?.trim() || 'shared a file').length > 60 ? '...' : ''}"`,
           link: `/Messages?user=${encodeURIComponent(user.email)}`,

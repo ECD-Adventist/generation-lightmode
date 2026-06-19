@@ -21,7 +21,8 @@ Deno.serve(async (req) => {
     if (!target) return Response.json({ error: 'User not found' }, { status: 404 });
 
     await base44.asServiceRole.entities.Notification.create({
-      user_email: target.email,
+      user_id: target.id,
+      actor_user_id: caller.id,
       type: 'system',
       message: message.slice(0, 500),
       read: false,

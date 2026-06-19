@@ -199,9 +199,9 @@ export default function Feed() {
       } else {
         await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
         const targetUser = users.find(u => u.email === targetEmail);
-        if (isNotificationEnabled(targetUser, "follows")) {
-          await base44.entities.Notification.create({
-            user_email: targetEmail,
+        if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
+          await base44.functions.invoke("createNotification", {
+            user_id: targetUser.id,
             type: "follow",
             message: `${user.full_name || 'Someone'} started following you.`,
             link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`

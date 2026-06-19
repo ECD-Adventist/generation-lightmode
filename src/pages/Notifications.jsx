@@ -39,8 +39,8 @@ export default function Notifications() {
   const scrollRef = useRef(null);
 
   const { pullDistance, isRefreshing, threshold } = usePullToRefresh(scrollRef, async () => {
-    await queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.email] });
-    await queryClient.invalidateQueries({ queryKey: ["notifications", user?.email] });
+    await queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.id] });
+    await queryClient.invalidateQueries({ queryKey: ["notifications", user?.id] });
   });
 
   useEffect(() => {
@@ -51,9 +51,9 @@ export default function Notifications() {
   }, []);
 
   const { data: notifications = [], isLoading } = useQuery({
-    queryKey: ["allNotifications", user?.email],
-    queryFn: () => base44.entities.Notification.filter({ user_email: user.email }),
-    enabled: !!user,
+    queryKey: ["allNotifications", user?.id],
+    queryFn: () => base44.entities.Notification.filter({ user_id: user.id }),
+    enabled: !!user?.id,
     refetchInterval: 15000,
   });
 
@@ -75,15 +75,15 @@ export default function Notifications() {
   });
 
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.id) return;
     const unsub = base44.entities.Notification.subscribe((event) => {
-      if (event.data?.user_email === user.email) {
-        queryClient.invalidateQueries({ queryKey: ["allNotifications", user.email] });
-        queryClient.invalidateQueries({ queryKey: ["notifications", user.email] });
+      if (event.data?.user_id === user.id) {
+        queryClient.invalidateQueries({ queryKey: ["allNotifications", user.id] });
+        queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
       }
     });
     return unsub;
-  }, [user?.email, queryClient]);
+  }, [user?.id, queryClient]);
 
   const markReadMutation = useMutation({
     mutationFn: (id) => base44.entities.Notification.update(id, { read: true }),
@@ -106,7 +106,7 @@ export default function Notifications() {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Notification.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.email] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.id] })
   });
 
   const togglePreferenceMutation = useMutation({
@@ -127,9 +127,9 @@ export default function Notifications() {
       if (existingFollow) return "already_following";
       await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
       const targetUser = allUsers.find(entry => entry.email === targetEmail);
-      if (isNotificationEnabled(targetUser, "follows")) {
-        await base44.entities.Notification.create({
-          user_email: targetEmail,
+      if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
+        await base44.functions.invoke("createNotification", {
+          user_id: targetUser.id,
           type: "follow",
           message: `${user.full_name || 'Someone'} followed you back.`,
           link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
@@ -157,6 +157,10 @@ export default function Notifications() {
   }), [sorted]);
 
   const getNotificationUserEmail = (notification) => {
+    if (notification?.actor_user_id) {
+      const actor = allUsers.find(entry => entry.id === notification.actor_user_id);
+      if (actor?.email) return actor.email;
+    }
     if (!notification?.link) return null;
     const query = notification.link.split("?")[1];
     if (!query) return null;
