@@ -282,7 +282,15 @@ Respond helpfully, inspirationally, and in a way that aligns with the LightMode 
                 <span className="flex items-center gap-2.5"><span style={{ fontSize: 20 }}>🌍</span> Resources</span>
                 <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
               </Link>
-            </div>
+              <Link to={createPageUrl("Challenges")} onClick={() => setMenuOpen(false)} className="group flex items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]" style={{ background: "linear-gradient(135deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.06) 100%)", border: "1px solid rgba(0,207,255,0.15)", color: "#E8EEF8", boxShadow: "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+                <span className="flex items-center gap-2.5"><span style={{ fontSize: 20 }}>🎯</span> Challenges</span>
+                <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
+              </Link>
+              <Link to={createPageUrl("GlowGroups")} onClick={() => setMenuOpen(false)} className="group flex items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]" style={{ background: "linear-gradient(135deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.06) 100%)", border: "1px solid rgba(0,207,255,0.15)", color: "#E8EEF8", boxShadow: "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+                <span className="flex items-center gap-2.5"><span style={{ fontSize: 20 }}>🌐</span> GlowGroups</span>
+                <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
+              </Link>
+              </div>
 
             {user ? (
               <div className="space-y-4">
