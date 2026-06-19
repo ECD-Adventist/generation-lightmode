@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -47,6 +47,20 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}><PageTransition>{children}</PageTransition></Layout>
   : <PageTransition>{children}</PageTransition>;
 
+const RootRedirect = () => {
+  const { isLoadingAuth, isAuthenticated } = useAuth();
+  
+  if (isLoadingAuth) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+  
+  return isAuthenticated ? <Navigate to="/Feed" replace /> : <Navigate to="/Home" replace />;
+};
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
@@ -74,11 +88,7 @@ const AuthenticatedApp = () => {
   return (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
-      <Route path="/" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
-      } />
+      <Route path="/" element={<RootRedirect />} />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}
