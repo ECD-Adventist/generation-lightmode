@@ -35,6 +35,7 @@ export default function MobileMessagesList({
   const [search, setSearch] = useState("");
   const [showNewChat, setShowNewChat] = useState(false);
   const [newChatQuery, setNewChatQuery] = useState("");
+  const [groupFilter, setGroupFilter] = useState("all");
 
   const getUser = (email) =>
     allUsers.find((u) => u.email === email) || { full_name: email?.split("@")[0] || "User", email };
@@ -82,6 +83,8 @@ export default function MobileMessagesList({
     [joinRequests]
   );
 
+  const userLocation = (currentUser?.country || currentUser?.territory || currentUser?.location || "").toLowerCase();
+
   const groupMatchesSearch = (group) => {
     if (!q) return true;
     return group.name?.toLowerCase().includes(q) ||
@@ -90,16 +93,26 @@ export default function MobileMessagesList({
       (group.tags || "").toLowerCase().includes(q);
   };
 
+  const groupMatchesFilter = (group) => {
+    if (groupFilter === "local") {
+      const groupCountry = (group.country || "").toLowerCase();
+      return userLocation ? groupCountry.includes(userLocation) : Boolean(groupCountry.trim());
+    }
+    if (groupFilter === "interest") return Boolean((group.tags || "").trim() || (group.description || "").trim());
+    return true;
+  };
+
   const filteredGroups = useMemo(() => {
-    return myGroups.filter(groupMatchesSearch);
-  }, [myGroups, q]);
+    return myGroups.filter(groupMatchesSearch).filter(groupMatchesFilter);
+  }, [myGroups, q, groupFilter, userLocation]);
 
   const discoverGroups = useMemo(() => {
     return allGroups
       .filter(g => g.id && !myGroupIds.has(g.id) && g.leader_email !== currentUserEmail && !approvedRequestIds.has(g.id))
       .filter(groupMatchesSearch)
+      .filter(groupMatchesFilter)
       .slice(0, 30);
-  }, [allGroups, myGroupIds, currentUserEmail, approvedRequestIds, q]);
+  }, [allGroups, myGroupIds, currentUserEmail, approvedRequestIds, q, groupFilter, userLocation]);
 
   const newChatResults = useMemo(() => {
     const nq = newChatQuery.trim().toLowerCase();
@@ -255,6 +268,42 @@ export default function MobileMessagesList({
 
         {activeTab === "groups" && (
           <>
+            <div className="rounded-2xl p-3 space-y-3" style={{ background: "rgba(255,255,255,0.92)", border: "1px solid #E6ECF5", boxShadow: "0 2px 10px rgba(11, 63, 217, 0.05)" }}>
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#0B3FD9" }} />
+                <input
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Find local or interest-based GlowGroups…"
+                  className="w-full rounded-full py-2.5 pl-10 pr-9 text-[13px] font-semibold focus:outline-none"
+                  style={{ background: "#F6F8FC", color: "#0B1B3D", border: "1px solid #D6E4FF" }}
+                />
+                {search && (
+                  <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#EEF3FF", color: "#0B3FD9" }}>
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-2 overflow-x-auto mm-hide-scrollbar">
+                {[
+                  { id: "all", label: "All groups" },
+                  { id: "local", label: "Local" },
+                  { id: "interest", label: "Interest-based" },
+                ].map(filter => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setGroupFilter(filter.id)}
+                    className="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-black transition active:scale-95"
+                    style={groupFilter === filter.id
+                      ? { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 3px 10px rgba(11, 63, 217, 0.25)" }
+                      : { background: "#FFFFFF", color: "#4A5878", border: "1px solid #E6ECF5" }}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {filteredGroups.length === 0 && discoverGroups.length === 0 ? (
               <EmptyState
                 emoji="👥"
@@ -280,17 +329,7 @@ export default function MobileMessagesList({
                       className="w-full flex items-center gap-3 rounded-2xl p-3 text-left transition active:scale-[0.98]"
                       style={{ background: "#FFFFFF", border: isSelected ? "1px solid #FFD000" : "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}
                     >
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 relative" style={{
-                        background: group.profile_picture_url ? `url(${group.profile_picture_url}) center/cover` : "linear-gradient(135deg, #1FB8FF, #0B3FD9)",
-                        boxShadow: "0 4px 10px rgba(11, 63, 217, 0.2)"
-                      }}>
-                        {!group.profile_picture_url && <Users className="w-5 h-5 text-white" />}
-                        {isLeaderGroup && (
-                          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#FFD000", boxShadow: "0 2px 6px rgba(255, 208, 0, 0.5)" }}>
-                            <Crown className="w-2.5 h-2.5" style={{ color: "#0B1B3D" }} />
-                          </div>
-                        )}
-                      </div>
+                      <GroupImage group={group} isLeaderGroup={isLeaderGroup} />
                       <GroupInfo group={group} isLeaderGroup={isLeaderGroup} />
                     </button>
                   );
@@ -309,12 +348,7 @@ export default function MobileMessagesList({
                       className="w-full flex items-center gap-3 rounded-2xl p-3 text-left"
                       style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}
                     >
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{
-                        background: group.profile_picture_url ? `url(${group.profile_picture_url}) center/cover` : "linear-gradient(135deg, #1FB8FF, #0B3FD9)",
-                        boxShadow: "0 4px 10px rgba(11, 63, 217, 0.2)"
-                      }}>
-                        {!group.profile_picture_url && <Users className="w-5 h-5 text-white" />}
-                      </div>
+                      <GroupImage group={group} />
                       <GroupInfo group={group} />
                       <button
                         onClick={() => onRequestJoinGroup?.(group)}
@@ -395,6 +429,24 @@ export default function MobileMessagesList({
               </div>
             )}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GroupImage({ group, isLeaderGroup }) {
+  const imageUrl = group.cover_picture_url || group.profile_picture_url;
+  return (
+    <div className="w-16 h-12 rounded-2xl overflow-hidden flex items-center justify-center shrink-0 relative" style={{
+      background: imageUrl ? `url(${imageUrl}) center/cover` : "linear-gradient(135deg, #1FB8FF, #0B3FD9)",
+      boxShadow: "0 4px 10px rgba(11, 63, 217, 0.2)"
+    }}>
+      {!imageUrl && <Users className="w-5 h-5 text-white" />}
+      {imageUrl && <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 40%, rgba(11, 27, 61, 0.22))" }} />}
+      {isLeaderGroup && (
+        <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#FFD000", boxShadow: "0 2px 6px rgba(255, 208, 0, 0.5)" }}>
+          <Crown className="w-2.5 h-2.5" style={{ color: "#0B1B3D" }} />
         </div>
       )}
     </div>
