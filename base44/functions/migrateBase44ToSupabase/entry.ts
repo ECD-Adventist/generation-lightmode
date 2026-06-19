@@ -64,6 +64,27 @@ const valueForDatabase = (value, dataType) => {
   return value;
 };
 
+const resolveDatabaseUrl = async (base44, originalUrl) => {
+  const parsed = new URL(originalUrl);
+  const directHostMatch = parsed.hostname.match(/^([a-z0-9]+)\.supabase\.co$/);
+  if (!directHostMatch || (parsed.port && parsed.port !== '5432')) return originalUrl;
+
+  const projectRef = directHostMatch[1];
+  const { accessToken } = await base44.asServiceRole.connectors.getConnection('supabase');
+  const response = await fetch('https://api.supabase.com/v1/projects', {
+    headers: { Authorization: `Bearer ${accessToken}` }
+  });
+  const projects = await response.json();
+  const project = Array.isArray(projects) ? projects.find((item) => item.ref === projectRef) : null;
+  if (!project?.region) return originalUrl;
+
+  const username = encodeURIComponent(`postgres.${projectRef}`);
+  const password = parsed.password || '';
+  const database = parsed.pathname || '/postgres';
+  const search = parsed.search || '';
+  return `postgresql://${username}:${password}@aws-0-${project.region}.pooler.supabase.com:6543${database}${search}`;
+};
+
 const migrateEntity = async ({ sql, base44, entityName }) => {
   const entity = base44.asServiceRole.entities[entityName];
   const tableName = normalizeTableName(entityName);
@@ -139,13 +160,19 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const databaseUrl = Deno.env.get('SUPABASE_DATABASE_URL');
-    if (!databaseUrl) return Response.json({ error: 'SUPABASE_DATABASE_URL is not set' }, { status: 500 });
+    const savedDatabaseUrl = Deno.env.get('SUPABASE_DATABASE_URL');
+    if (!savedDatabaseUrl) return Response.json({ error: 'SUPABASE_DATABASE_URL is not set' }, { status: 500 });
+    const databaseUrl = await resolveDatabaseUrl(base44, savedDatabaseUrl);
 
     const payload = await req.json().catch(() => ({}));
     const requestedEntities = Array.isArray(payload.entity_names) && payload.entity_names.length > 0
       ? payload.entity_names.filter((name) => ENTITY_NAMES.includes(name))
       : ENTITY_NAMES;
+
+    if (payload.debug_connection === true) {
+      const safeUrl = new URL(databaseUrl);
+      return Response.json({ host: safeUrl.hostname, port: safeUrl.port, username: safeUrl.username, database: safeUrl.pathname });
+    }
 
     sql = postgres(databaseUrl, { ssl: 'require', max: 1, prepare: false, idle_timeout: 20 });
     await sql`select 1 as ok`;
