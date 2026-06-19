@@ -64,19 +64,8 @@ export default function MobileFeed({
 
       {/* HERO HEADER — extends under the status bar / camera notch */}
       <div className="relative overflow-hidden safe-pt pb-14 px-4" style={{
-        background: "radial-gradient(ellipse at 20% 0%, #1FB8FF 0%, transparent 55%), radial-gradient(ellipse at 95% 100%, #FFD000 0%, transparent 45%), linear-gradient(135deg, #0A2E9F 0%, #0B3FD9 55%, #1563E8 100%)"
+        background: "linear-gradient(135deg, #0A2E9F 0%, #0B3FD9 55%, #1563E8 100%)"
       }}>
-        {/* Ambient floating blobs */}
-        <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "#FFD000", opacity: 0.25, animation: "mf-float 9s ease-in-out infinite" }} />
-        <div className="absolute -bottom-16 -left-12 w-56 h-56 rounded-full blur-3xl pointer-events-none" style={{ background: "#7FE0FF", opacity: 0.28, animation: "mf-float 12s ease-in-out infinite 2s" }} />
-        {/* Shimmer sweep */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div style={{
-            position: "absolute", top: 0, bottom: 0, left: 0, width: "40%",
-            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08), rgba(255,255,255,0.14), rgba(255,255,255,0.08), transparent)",
-            animation: "mf-shimmer 6s infinite ease-in-out",
-          }} />
-        </div>
 
         {/* Top bar: logo + actions */}
         <div className="relative flex items-center gap-2 pt-3">
@@ -150,7 +139,7 @@ export default function MobileFeed({
             <span className="text-[10px] font-black" style={{ color: "#0B3FD9" }}>Your Story</span>
           </button>
 
-          {stories.slice(0, 20).map(story => {
+          {stories.slice(0, 8).map(story => {
             const storyUser = getUserInfo(story.user_email);
             const theme = story.background_theme === "violet" ? "from-[#8A5CFF] to-[#3B1E70]"
               : story.background_theme === "sunrise" ? "from-[#FFD60A] to-[#F97316]"
@@ -161,14 +150,14 @@ export default function MobileFeed({
                 <div className="relative w-[68px] h-[68px] rounded-full p-[2.5px]" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9, #FFD000)" }}>
                   <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "2.5px solid #FFFFFF" }}>
                     {story.story_type === "image" && story.media_url ? (
-                      <img src={story.media_url} className="w-full h-full object-cover" />
+                      <img src={story.media_url} className="w-full h-full object-cover" loading="lazy" />
                     ) : (
                       <div className={`w-full h-full bg-gradient-to-br ${theme} flex items-center justify-center text-white font-black text-lg`}>Aa</div>
                     )}
                   </div>
                   {/* mini avatar badge for author */}
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full overflow-hidden" style={{ border: "2.5px solid #F6F8FC", background: "#FFFFFF" }}>
-                    <img src={storyUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                    <img src={storyUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                 </div>
                 <span className="text-[10px] font-bold truncate w-[68px] text-center" style={{ color: "#0B1B3D" }}>
@@ -180,8 +169,8 @@ export default function MobileFeed({
         </div>
       </div>
 
-      {/* FILTER PILLS — refined glass sticky */}
-      <div className="sticky top-0 z-30 px-3 py-2.5 backdrop-blur-xl mb-3" style={{ background: "rgba(246, 248, 252, 0.96)", borderBottom: "1px solid rgba(214, 228, 255, 0.7)", boxShadow: "0 6px 18px rgba(11, 63, 217, 0.06)" }}>
+      {/* FILTER PILLS — refined glass sticky (no blur for perf) */}
+      <div className="sticky top-0 z-30 px-3 py-2.5 mb-3" style={{ background: "#F6F8FC", borderBottom: "1px solid rgba(214, 228, 255, 0.7)" }}>
         <div className="flex items-center gap-1.5 overflow-x-auto mf-hide-sb">
           {filters.map(f => {
             const isActive = activeFilter === f;
