@@ -2,6 +2,10 @@
   "name": "GlowDrop",
   "type": "object",
   "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the account that authored this drop. Used to resolve the author identity (e.g. system@lightmode.com for official posts)."
+    },
     "verse": {
       "type": "string"
     },
