@@ -6,6 +6,7 @@ import LanguageSelector from "./components/LanguageSelector";
 import { useAppLanguage } from "./components/i18n/useAppLanguage";
 import { useSwitchItOn } from "./components/pledge/SwitchItOnProvider";
 import MobileBottomNav from "./components/mobile/MobileBottomNav";
+import PublicMobileMenu from "./components/site/PublicMobileMenu";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -505,82 +506,14 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Mobile Menu */}
         {menuOpen && (
-          <div style={{
-            background: "rgba(18,24,38,0.98)",
-            backdropFilter: "blur(20px)",
-            padding: "24px",
-            borderTop: "1px solid rgba(0,207,255,0.1)",
-          }}>
-            {navLinks.map(link => (
-              <Link
-                key={link.page}
-                to={createPageUrl(link.page)}
-                className="nav-link"
-                style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }}
-                onClick={() => setMenuOpen(false)}
-              >
-                {t(link.key)}
-              </Link>
-            ))}
-            <Link to={createPageUrl("KeepIt100")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
-              💯 Keep It 100
-            </Link>
-            <Link to={createPageUrl("CodesOfTruth")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
-              🔐 Codes of Truth
-            </Link>
-            <Link to={createPageUrl("Resources")} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17 }} onClick={() => setMenuOpen(false)}>
-              🌍 Other Resources
-            </Link>
-            
-            {userEmail ? (
-              <>
-                <button onClick={() => { setMenuOpen(false); triggerSwitchOn("Feed"); }} className="nav-link" style={{ display: "block", padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 17, background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
-                  ⚡ Switch It On
-                </button>
-
-                {/* My Account */}
-                <p style={{ padding: "16px 0 6px", fontSize: 11, color: "#8A9BB0", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>My Account</p>
-                <Link to={createPageUrl("Feed")} className="nav-link" style={{ display: "flex", alignItems: "center", gap: 10, padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 16 }} onClick={() => setMenuOpen(false)}>
-                  <Zap size={16} style={{ color: "#00CFFF" }} /> Feed
-                </Link>
-                <Link to={createPageUrl("Profile")} className="nav-link" style={{ display: "flex", alignItems: "center", gap: 10, padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 16 }} onClick={() => setMenuOpen(false)}>
-                  <User size={16} style={{ color: "#00CFFF" }} /> My Profile
-                </Link>
-                <Link to={createPageUrl("Notifications")} className="nav-link" style={{ display: "flex", alignItems: "center", gap: 10, padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 16 }} onClick={() => setMenuOpen(false)}>
-                  <Bell size={16} style={{ color: "#00CFFF" }} /> Notifications
-                  {notifications.length > 0 && (
-                    <span style={{ marginLeft: "auto", background: "#ef4444", color: "#fff", fontSize: 11, fontWeight: 700, borderRadius: 999, minWidth: 20, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "0 6px" }}>{notifications.length}</span>
-                  )}
-                </Link>
-
-                {/* Admin Panel — admins / super_admins only */}
-                {(userRole === "admin" || userRole === "super_admin") && (
-                  <>
-                    <p style={{ padding: "16px 0 6px", fontSize: 11, color: "#FFD000", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Admin Panel</p>
-                    {[
-                      { icon: <LayoutDashboard size={16} />, label: "Control Center", tab: "dashboard" },
-                      { icon: <Users size={16} />, label: "User Management", tab: "users" },
-                      { icon: <Flag size={16} />, label: "Moderation", tab: "drops" },
-                      { icon: <BarChart3 size={16} />, label: "Analytics", tab: "analytics" },
-                      { icon: <ShieldCheck size={16} />, label: "Settings", tab: "settings" },
-                    ].map(item => (
-                      <Link key={item.label} to={`${createPageUrl("AdminCenter")}?tab=${item.tab}`} className="nav-link" style={{ display: "flex", alignItems: "center", gap: 10, padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 16 }} onClick={() => setMenuOpen(false)}>
-                        <span style={{ color: "#FFD000" }}>{item.icon}</span> {item.label}
-                      </Link>
-                    ))}
-                  </>
-                )}
-
-                <button onClick={() => { setMenuOpen(false); base44.auth.logout(); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "16px 0 0", fontSize: 16, color: "#ef4444", background: "transparent", border: "none", width: "100%", textAlign: "left", cursor: "pointer" }}>
-                  <LogOut size={16} /> Sign Out
-                </button>
-              </>
-            ) : (
-              <button onClick={() => { setMenuOpen(false); triggerSwitchOn("Feed"); }} className="glm-btn-primary" style={{ display: "block", textAlign: "center", marginTop: 20, width: "100%", cursor: "pointer" }}>
-                Switch It On ⚡
-              </button>
-            )}
-          </div>
+          <PublicMobileMenu
+            t={t}
+            userEmail={userEmail}
+            userRole={userRole}
+            notifications={notifications}
+            onClose={() => setMenuOpen(false)}
+            onSwitchItOn={triggerSwitchOn}
+          />
         )}
       </nav>
       )}
