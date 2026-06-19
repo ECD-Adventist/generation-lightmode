@@ -7,15 +7,16 @@ const CONFIG = {
     "p", "br", "strong", "b", "em", "i", "u", "s", "strike",
     "h1", "h2", "h3", "h4", "h5", "h6",
     "ul", "ol", "li", "blockquote",
-    "a", "span", "div",
-    "iframe", "img",
+    "a", "span", "div", "img",
   ],
   ALLOWED_ATTR: [
     "href", "target", "rel",
     "src", "alt", "title", "width", "height",
-    "class", "style",
-    "frameborder", "allow", "allowfullscreen",
   ],
+  // No "iframe" tag and no inline "style"/"class" — these are common XSS / clickjacking
+  // vectors. Only safe formatting + links + images remain.
+  FORBID_TAGS: ["style", "iframe", "script", "object", "embed", "form"],
+  FORBID_ATTR: ["style", "onerror", "onload", "onclick"],
   ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|\/|#)/i,
   ADD_ATTR: ["target"],
 };

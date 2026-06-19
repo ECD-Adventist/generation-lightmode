@@ -11,16 +11,41 @@ Deno.serve(async (req) => {
     const { verse, reflection, hashtags, category, media_url: rawMediaUrl, post_as_leader_id } = body;
 
     const ALLOWED_CDN_HOSTS = ['media.base44.com', 'base44.app', 'images.unsplash.com', 'res.cloudinary.com'];
+    const ALLOWED_MIME = new Set([
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+      'video/mp4', 'video/webm',
+    ]);
+    const MAX_BYTES = 10 * 1024 * 1024; // 10MB
+
     let media_url = null;
     if (rawMediaUrl) {
+      let parsed;
       try {
-        const parsed = new URL(rawMediaUrl);
-        if (ALLOWED_CDN_HOSTS.some((host) => parsed.hostname === host || parsed.hostname.endsWith('.' + host))) {
-          media_url = rawMediaUrl;
+        parsed = new URL(rawMediaUrl);
+      } catch {
+        return Response.json({ error: 'Invalid media URL.' }, { status: 400 });
+      }
+      const hostOk = ALLOWED_CDN_HOSTS.some((host) => parsed.hostname === host || parsed.hostname.endsWith('.' + host));
+      if (!hostOk) {
+        return Response.json({ error: 'Media must be uploaded through the app.' }, { status: 400 });
+      }
+
+      // Server-side MIME + size validation — verify the actual stored file, not just the URL.
+      try {
+        const head = await fetch(rawMediaUrl, { method: 'HEAD' });
+        const contentType = (head.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+        const contentLength = Number.parseInt(head.headers.get('content-length') || '0', 10);
+
+        if (contentType && !ALLOWED_MIME.has(contentType)) {
+          return Response.json({ error: 'Unsupported file type. Allowed: JPEG, PNG, GIF, WebP images and MP4/WebM video.' }, { status: 400 });
+        }
+        if (Number.isFinite(contentLength) && contentLength > MAX_BYTES) {
+          return Response.json({ error: 'File too large. Maximum size is 10MB.' }, { status: 400 });
         }
       } catch {
-        media_url = null;
+        // If the HEAD check fails (e.g. CDN blocks HEAD), fall through — host is already allowlisted.
       }
+      media_url = rawMediaUrl;
     }
 
     let postAsLeader = null;
