@@ -6,7 +6,7 @@ import { Zap, User, Search, MessageCircle, Plus } from "lucide-react";
 const tabs = [
   { key: "Feed", label: "Feed", icon: Zap, match: ["Feed", "GlowFeed", "Post"] },
   { key: "Discover", label: "Search", icon: Search, match: ["Discover"] },
-  { key: "Post", label: "Post", icon: Plus, match: [], isPostButton: true },
+  { key: "Post", label: "Drop", icon: Plus, match: [], isPostButton: true },
   { key: "Messages", label: "Messages", icon: MessageCircle, match: ["Messages"] },
   { key: "Profile", label: "Profile", icon: User, match: ["Profile", "Settings"] },
 ];
@@ -72,8 +72,8 @@ export default function MobileBottomNav({ currentPageName }) {
                     width: 50,
                     height: 50,
                     marginTop: -22,
-                    background: "linear-gradient(135deg, #00CFFF 0%, #8A5CFF 100%)",
-                    boxShadow: "0 6px 20px rgba(0,207,255,0.45), 0 0 0 4px rgba(11,15,26,0.95)",
+                    background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 100%)",
+                    boxShadow: "0 6px 22px rgba(255,208,0,0.45), 0 0 18px rgba(0,207,255,0.35), 0 0 0 4px rgba(11,15,26,0.95)",
                   }}
                 >
                   <Plus className="w-6 h-6" strokeWidth={2.6} style={{ color: "#0B0F1A" }} />
