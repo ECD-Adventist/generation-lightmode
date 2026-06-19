@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { CheckCircle, Circle, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import DevotionShareButton from "@/components/devotion/DevotionShareButton";
 
 export default function DevotionDayCard({ day, isCompleted, isActive, existingReflection, color, onToggle, onComplete, isSubmitting }) {
   const [reflection, setReflection] = useState(existingReflection || "");
@@ -25,7 +26,10 @@ export default function DevotionDayCard({ day, isCompleted, isActive, existingRe
       {isActive && (
         <div className="px-5 pb-5 pt-0 border-t" style={{ borderColor: "#E6ECF5" }}>
           <div className="rounded-xl p-4 mt-4 mb-4" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
-            <p className="text-sm font-bold mb-1" style={{ color }}>{day.verse}</p>
+            <div className="flex items-start justify-between gap-3 mb-1">
+              <p className="text-sm font-bold" style={{ color }}>{day.verse}</p>
+              <DevotionShareButton verse={day.verse} text={day.text} reflection={isCompleted ? existingReflection : ""} color={color} />
+            </div>
             <p className="text-sm leading-relaxed italic" style={{ color: "#3A4A6B" }}>"{day.text}"</p>
           </div>
 
