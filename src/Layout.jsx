@@ -45,6 +45,7 @@ export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const queryClient = useQueryClient();
   const [userEmail, setUserEmail] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
@@ -53,6 +54,7 @@ export default function Layout({ children, currentPageName }) {
       if (isAuth) {
         base44.auth.me().then(me => {
           setUserEmail(me?.email);
+          setUserId(me?.id);
           setUserRole(me?.role);
         });
       }
@@ -60,21 +62,21 @@ export default function Layout({ children, currentPageName }) {
   }, [isAppShellPage]);
 
   const { data: notifications = [] } = useQuery({
-    queryKey: ["notifications", userEmail],
-    queryFn: () => base44.entities.Notification.filter({ user_email: userEmail, read: false }),
-    enabled: !!userEmail
+    queryKey: ["notifications", userId],
+    queryFn: () => base44.entities.Notification.filter({ user_id: userId, read: false }),
+    enabled: !!userId
   });
 
   useEffect(() => {
-    if (!userEmail) return;
+    if (!userId) return;
     const unsubscribe = base44.entities.Notification.subscribe((event) => {
-      if (event.type === 'create' && event.data.user_email === userEmail && !event.data.read) {
+      if (event.type === 'create' && event.data.user_id === userId && !event.data.read) {
         toast(event.data.message, { icon: '🔔' });
-        queryClient.invalidateQueries({ queryKey: ["notifications", userEmail] });
+        queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
       }
     });
     return unsubscribe;
-  }, [userEmail, queryClient]);
+  }, [userId, queryClient]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);

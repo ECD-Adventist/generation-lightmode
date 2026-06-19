@@ -290,17 +290,17 @@ export default function Feed() {
   });
 
   const { data: notifications = [] } = useQuery({
-    queryKey: ["notifications", user?.email],
-    queryFn: () => base44.entities.Notification.filter({ user_email: user.email, read: false }),
-    enabled: !!user
+    queryKey: ["notifications", user?.id],
+    queryFn: () => base44.entities.Notification.filter({ user_id: user.id, read: false }),
+    enabled: !!user?.id
   });
 
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.id) return;
     const unsubNotifs = base44.entities.Notification.subscribe((event) => {
-      if (event.type === 'create' && event.data.user_email === user.email && !event.data.read) {
+      if (event.type === 'create' && event.data.user_id === user.id && !event.data.read) {
         toast(event.data.message, { icon: '🔔' });
-        queryClient.invalidateQueries({ queryKey: ["notifications", user.email] });
+        queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
       }
     });
     const unsubDMs = base44.entities.DirectMessage.subscribe((event) => {
@@ -310,7 +310,7 @@ export default function Feed() {
       }
     });
     return () => { unsubNotifs(); unsubDMs(); };
-  }, [user?.email, queryClient]);
+  }, [user?.id, user?.email, queryClient]);
 
   const handleShare = async (drop) => {
     const postUrl = `${window.location.origin}/Post?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`;
