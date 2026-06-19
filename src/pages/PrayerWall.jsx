@@ -65,12 +65,10 @@ export default function PrayerWall() {
 
   const postMutation = useMutation({
     mutationFn: async () => {
-      await base44.entities.PrayerRequest.create({
-        user_email: user.email,
+      await base44.functions.invoke("submitPrayerRequest", {
         content,
         category,
         is_anonymous: isAnonymous,
-        answered: false,
       });
     },
     onSuccess: () => {
