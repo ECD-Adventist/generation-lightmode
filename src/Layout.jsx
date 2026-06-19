@@ -532,66 +532,56 @@ export default function Layout({ children, currentPageName }) {
                 </button>
               </div>
 
-              {/* Navigation Links — Premium Cards */}
-              <div className="space-y-2.5 mb-7">
+              {/* Navigation Links */}
+              <div className="flex flex-col mb-8">
                 {navLinks.map(link => (
                   <Link
                     key={link.page}
                     to={createPageUrl(link.page)}
                     onClick={() => setMenuOpen(false)}
-                    className="group flex items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]"
-                    style={{
-                      background: "linear-gradient(135deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.06) 100%)",
-                      border: "1px solid rgba(0,207,255,0.15)",
-                      color: "#E8EEF8",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)"
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,207,255,0.2), inset 0 1px 0 rgba(255,255,255,0.08)"}
-                    onMouseLeave={e => e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)"}
+                    className="flex items-center justify-between px-2 py-3.5 border-b border-white/5 font-medium transition-colors hover:bg-white/5"
+                    style={{ color: "#E8EEF8", fontSize: "15px" }}
                   >
                     <span>{t(link.key) || link.page}</span>
-                    <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
+                    <ChevronRight size={16} style={{ color: "#8A9BB0" }} />
                   </Link>
                 ))}
 
-                <Link to={createPageUrl("KeepIt100")} onClick={() => setMenuOpen(false)} className="group flex items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]" style={{ background: "linear-gradient(135deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.06) 100%)", border: "1px solid rgba(0,207,255,0.15)", color: "#E8EEF8", boxShadow: "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-                  <span className="flex items-center gap-2.5"><span style={{ fontSize: 20 }}>💯</span> Keep It 100</span>
-                  <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
+                <Link to={createPageUrl("KeepIt100")} onClick={() => setMenuOpen(false)} className="flex items-center justify-between px-2 py-3.5 border-b border-white/5 font-medium transition-colors hover:bg-white/5" style={{ color: "#E8EEF8", fontSize: "15px" }}>
+                  <span className="flex items-center gap-3"><span className="text-lg">💯</span> Keep It 100</span>
+                  <ChevronRight size={16} style={{ color: "#8A9BB0" }} />
                 </Link>
-                <Link to={createPageUrl("CodesOfTruth")} onClick={() => setMenuOpen(false)} className="group flex items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]" style={{ background: "linear-gradient(135deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.06) 100%)", border: "1px solid rgba(0,207,255,0.15)", color: "#E8EEF8", boxShadow: "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-                  <span className="flex items-center gap-2.5"><span style={{ fontSize: 20 }}>🔐</span> Codes of Truth</span>
-                  <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
+                <Link to={createPageUrl("CodesOfTruth")} onClick={() => setMenuOpen(false)} className="flex items-center justify-between px-2 py-3.5 border-b border-white/5 font-medium transition-colors hover:bg-white/5" style={{ color: "#E8EEF8", fontSize: "15px" }}>
+                  <span className="flex items-center gap-3"><span className="text-lg">🔐</span> Codes of Truth</span>
+                  <ChevronRight size={16} style={{ color: "#8A9BB0" }} />
                 </Link>
-                <Link to={createPageUrl("Resources")} onClick={() => setMenuOpen(false)} className="group flex items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]" style={{ background: "linear-gradient(135deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.06) 100%)", border: "1px solid rgba(0,207,255,0.15)", color: "#E8EEF8", boxShadow: "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-                  <span className="flex items-center gap-2.5"><span style={{ fontSize: 20 }}>🌍</span> Resources</span>
-                  <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
+                <Link to={createPageUrl("Resources")} onClick={() => setMenuOpen(false)} className="flex items-center justify-between px-2 py-3.5 border-b border-white/5 font-medium transition-colors hover:bg-white/5" style={{ color: "#E8EEF8", fontSize: "15px" }}>
+                  <span className="flex items-center gap-3"><span className="text-lg">🌍</span> Resources</span>
+                  <ChevronRight size={16} style={{ color: "#8A9BB0" }} />
                 </Link>
-                <Link to={createPageUrl("Challenges")} onClick={() => setMenuOpen(false)} className="group flex items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]" style={{ background: "linear-gradient(135deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.06) 100%)", border: "1px solid rgba(0,207,255,0.15)", color: "#E8EEF8", boxShadow: "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-                  <span className="flex items-center gap-2.5"><span style={{ fontSize: 20 }}>🎯</span> Challenges</span>
-                  <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
+                <Link to={createPageUrl("Challenges")} onClick={() => setMenuOpen(false)} className="flex items-center justify-between px-2 py-3.5 border-b border-white/5 font-medium transition-colors hover:bg-white/5" style={{ color: "#E8EEF8", fontSize: "15px" }}>
+                  <span className="flex items-center gap-3"><span className="text-lg">🎯</span> Challenges</span>
+                  <ChevronRight size={16} style={{ color: "#8A9BB0" }} />
                 </Link>
-                <Link to={createPageUrl("GlowGroups")} onClick={() => setMenuOpen(false)} className="group flex items-center justify-between rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]" style={{ background: "linear-gradient(135deg, rgba(0,207,255,0.08) 0%, rgba(138,92,255,0.06) 100%)", border: "1px solid rgba(0,207,255,0.15)", color: "#E8EEF8", boxShadow: "0 4px 12px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-                  <span className="flex items-center gap-2.5"><span style={{ fontSize: 20 }}>🌐</span> GlowGroups</span>
-                  <ChevronRight size={18} style={{ color: "#8A9BB0" }} />
+                <Link to={createPageUrl("GlowGroups")} onClick={() => setMenuOpen(false)} className="flex items-center justify-between px-2 py-3.5 border-b border-white/5 font-medium transition-colors hover:bg-white/5" style={{ color: "#E8EEF8", fontSize: "15px" }}>
+                  <span className="flex items-center gap-3"><span className="text-lg">🌐</span> GlowGroups</span>
+                  <ChevronRight size={16} style={{ color: "#8A9BB0" }} />
                 </Link>
               </div>
 
               {/* Account & Admin Section */}
               {userEmail ? (
-                <div className="space-y-4">
-                  {/* My Account Card */}
-                  <div className="rounded-3xl p-5" style={{ background: "linear-gradient(135deg, rgba(18,24,38,0.95) 0%, rgba(12,17,30,0.98) 100%)", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(0,207,255,0.1)" }}>
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-1.5 h-4 rounded-full" style={{ background: "linear-gradient(180deg, #00CFFF, #5AC8FF)" }} />
-                      <p style={{ color: "#8EA0B8", fontSize: 11, fontWeight: 900, letterSpacing: "0.16em", margin: 0 }}>MY ACCOUNT</p>
-                    </div>
-                    <div className="space-y-2">
+                <div className="flex flex-col">
+                  {/* My Account */}
+                  <div className="mb-6">
+                    <p style={{ color: "#8EA0B8", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", margin: "0 0 8px 8px" }}>MY ACCOUNT</p>
+                    <div className="flex flex-col">
                       {[
                         { icon: <User size={16} />, label: "My Profile", to: createPageUrl("Profile") },
                         { icon: <Zap size={16} />, label: "Feed", to: createPageUrl("Feed") },
-                        { icon: <Bell size={16} />, label: "Notifications", to: createPageUrl("Notifications"), badge: notifications.length > 0 ? notifications.length : null }
+                        { icon: <Bell size={16} />, label: "Notifications", to: createPageUrl("Notifications"), badge: notifications?.length > 0 ? notifications.length : null }
                       ].map(item => (
-                        <Link key={item.label} to={item.to} onClick={() => setMenuOpen(false)} className="flex items-center justify-between rounded-xl px-3 py-2.5 transition-all hover:bg-white/10" style={{ color: "#E8EEF8" }}>
+                        <Link key={item.label} to={item.to} onClick={() => setMenuOpen(false)} className="flex items-center justify-between px-2 py-3.5 border-b border-white/5 font-medium transition-colors hover:bg-white/5" style={{ color: "#E8EEF8", fontSize: "15px" }}>
                           <span className="flex items-center gap-3">
                             <span style={{ color: "#00CFFF" }}>{item.icon}</span> {item.label}
                           </span>
@@ -601,14 +591,11 @@ export default function Layout({ children, currentPageName }) {
                     </div>
                   </div>
 
-                  {/* Admin Panel Card — Super Admins */}
+                  {/* Admin Panel */}
                   {(userRole === "admin" || userRole === "super_admin" || ["ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin", "moderator"].includes(userRole)) && (
-                    <div className="rounded-3xl p-5" style={{ background: "linear-gradient(135deg, rgba(255,208,0,0.06) 0%, rgba(255,160,0,0.04) 100%)", border: "1px solid rgba(255,208,0,0.2)", boxShadow: "0 8px 32px rgba(255,208,0,0.1), inset 0 1px 0 rgba(255,208,0,0.12)" }}>
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="w-1.5 h-4 rounded-full" style={{ background: "linear-gradient(180deg, #FFD000, #FFA300)" }} />
-                        <p style={{ color: "#FFDB58", fontSize: 11, fontWeight: 900, letterSpacing: "0.16em", margin: 0 }}>ADMIN PANEL</p>
-                      </div>
-                      <div className="space-y-2">
+                    <div className="mb-6">
+                      <p style={{ color: "#FFDB58", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", margin: "0 0 8px 8px" }}>ADMIN PANEL</p>
+                      <div className="flex flex-col">
                         {[
                           { icon: <LayoutDashboard size={16} />, label: "Control Center", tab: "dashboard" },
                           { icon: <Users size={16} />, label: "User Management", tab: "users" },
@@ -616,7 +603,7 @@ export default function Layout({ children, currentPageName }) {
                           { icon: <BarChart3 size={16} />, label: "Analytics", tab: "analytics" },
                           { icon: <ShieldCheck size={16} />, label: "Settings", tab: "settings" },
                         ].map(item => (
-                          <Link key={item.label} to={`${createPageUrl("AdminCenter")}?tab=${item.tab}`} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all hover:bg-white/10" style={{ color: "#E8EEF8" }}>
+                          <Link key={item.label} to={`${createPageUrl("AdminCenter")}?tab=${item.tab}`} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-2 py-3.5 border-b border-white/5 font-medium transition-colors hover:bg-white/5" style={{ color: "#E8EEF8", fontSize: "15px" }}>
                             <span style={{ color: "#FFD000" }}>{item.icon}</span> {item.label}
                           </Link>
                         ))}
@@ -625,24 +612,21 @@ export default function Layout({ children, currentPageName }) {
                   )}
 
                   {/* Sign Out Button */}
-                  <button onClick={() => { setMenuOpen(false); base44.auth.logout(); }} className="w-full flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-bold transition-all active:scale-[0.98]" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#ff6b6b", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
+                  <button onClick={() => { setMenuOpen(false); base44.auth.logout(); }} className="w-full flex items-center gap-3 px-2 py-3.5 font-medium transition-colors hover:bg-white/5" style={{ color: "#ff6b6b", fontSize: "15px" }}>
                     <LogOut size={16} /> Sign Out
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => { setMenuOpen(false); triggerSwitchOn("Feed"); }}
-                  className="w-full rounded-full py-4 font-black flex items-center justify-center gap-2.5 active:scale-[0.96] transition"
+                  className="w-full rounded-full py-3.5 font-bold flex items-center justify-center gap-2 transition"
                   style={{
-                    background: "linear-gradient(135deg, #FFD000 0%, #FFA300 50%, #FF9F1A 100%)",
+                    background: "#FFD000",
                     color: "#0B0F1A",
-                    boxShadow: "0 12px 32px rgba(255,208,0,0.4), 0 0 24px rgba(255,208,0,0.2)",
-                    fontSize: 16,
-                    fontWeight: 900,
-                    letterSpacing: "0.05em"
+                    fontSize: 15,
                   }}
                 >
-                  <Zap size={18} style={{ strokeWidth: 2.5 }} /> SWITCH IT ON
+                  <Zap size={18} /> Switch It On
                 </button>
               )}
             </div>
