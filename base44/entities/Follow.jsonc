@@ -2,11 +2,23 @@
   "name": "Follow",
   "type": "object",
   "properties": {
-    "follower_email": {
+    "follower_id": {
       "type": "string"
     },
-    "following_email": {
+    "following_id": {
       "type": "string"
+    },
+    "follower_email": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "following_email": {
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "description": {
       "type": "string",
@@ -14,14 +26,14 @@
     }
   },
   "required": [
-    "follower_email",
-    "following_email"
+    "follower_id",
+    "following_id"
   ],
   "rls": {
     "create": {
       "$or": [
         {
-          "data.follower_email": "{{user.email}}"
+          "data.follower_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -38,10 +50,10 @@
     "read": {
       "$or": [
         {
-          "data.follower_email": "{{user.email}}"
+          "data.follower_id": "{{user.id}}"
         },
         {
-          "data.following_email": "{{user.email}}"
+          "data.following_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -59,10 +71,10 @@
     "delete": {
       "$or": [
         {
-          "data.follower_email": "{{user.email}}"
+          "data.follower_id": "{{user.id}}"
         },
         {
-          "created_by": "{{user.email}}"
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
