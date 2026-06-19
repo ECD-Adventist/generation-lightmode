@@ -27,7 +27,8 @@ export default function KeepIt100() {
 
   const { data: codes = [], isLoading } = useQuery({
     queryKey: ["keepIt100Approved"],
-    queryFn: () => base44.entities.CodeOfTruth.filter({ source_document: "keeping_it_100", status: "approved" }),
+    // Explicit high limit — without it, .filter() returns only a default page and truncates the library.
+    queryFn: () => base44.entities.CodeOfTruth.filter({ source_document: "keeping_it_100", status: "approved" }, '-created_date', 1000),
   });
 
   const filteredCodes = useMemo(() => {
