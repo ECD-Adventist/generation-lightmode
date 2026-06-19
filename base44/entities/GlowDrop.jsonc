@@ -2,12 +2,6 @@
   "name": "GlowDrop",
   "type": "object",
   "properties": {
-    "user_email": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "verse": {
       "type": "string"
     },

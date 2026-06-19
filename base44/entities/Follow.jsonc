@@ -8,18 +8,6 @@
     "following_id": {
       "type": "string"
     },
-    "follower_email": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "following_email": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "description": {
       "type": "string",
       "maxLength": 1000
