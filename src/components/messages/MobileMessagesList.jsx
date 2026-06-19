@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Search, X, PenSquare, MessageCircle, Users, ArrowLeft, Crown, Sparkles } from "lucide-react";
+import { Search, X, PenSquare, MessageCircle, Users, ArrowLeft, Crown, Sparkles, UserPlus, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { getDisplayName } from "@/lib/displayName";
 
@@ -24,6 +24,10 @@ export default function MobileMessagesList({
   onStartConversation,
   // Groups
   myGroups,
+  allGroups = [],
+  joinRequests = [],
+  onRequestJoinGroup,
+  isRequestingJoin,
   selectedGroupId,
   onSelectGroup,
   currentUser,
@@ -68,12 +72,34 @@ export default function MobileMessagesList({
     );
   }), [uniqueConversations, currentUserEmail, q, allUsers]);
 
+  const myGroupIds = useMemo(() => new Set(myGroups.map(g => g.id)), [myGroups]);
+  const pendingRequestIds = useMemo(
+    () => new Set(joinRequests.filter(r => r.status === "pending").map(r => r.group_id)),
+    [joinRequests]
+  );
+  const approvedRequestIds = useMemo(
+    () => new Set(joinRequests.filter(r => r.status === "approved").map(r => r.group_id)),
+    [joinRequests]
+  );
+
+  const groupMatchesSearch = (group) => {
+    if (!q) return true;
+    return group.name?.toLowerCase().includes(q) ||
+      (group.country || "").toLowerCase().includes(q) ||
+      (group.description || "").toLowerCase().includes(q) ||
+      (group.tags || "").toLowerCase().includes(q);
+  };
+
   const filteredGroups = useMemo(() => {
-    if (!q) return myGroups;
-    return myGroups.filter(g =>
-      g.name?.toLowerCase().includes(q) || (g.country || "").toLowerCase().includes(q)
-    );
+    return myGroups.filter(groupMatchesSearch);
   }, [myGroups, q]);
+
+  const discoverGroups = useMemo(() => {
+    return allGroups
+      .filter(g => g.id && !myGroupIds.has(g.id) && g.leader_email !== currentUserEmail && !approvedRequestIds.has(g.id))
+      .filter(groupMatchesSearch)
+      .slice(0, 30);
+  }, [allGroups, myGroupIds, currentUserEmail, approvedRequestIds, q]);
 
   const newChatResults = useMemo(() => {
     const nq = newChatQuery.trim().toLowerCase();
@@ -229,53 +255,83 @@ export default function MobileMessagesList({
 
         {activeTab === "groups" && (
           <>
-            {filteredGroups.length === 0 ? (
+            {filteredGroups.length === 0 && discoverGroups.length === 0 ? (
               <EmptyState
                 emoji="👥"
                 title={q ? "No groups found" : "No GlowGroups yet"}
-                subtitle={q ? "Try a different name" : "Join or create a group to start chatting"}
+                subtitle={q ? "Try a different name" : "Search or ask to join an existing group"}
                 actionLabel={!q ? "Explore Groups" : null}
                 onActionLink={createPageUrl("GlowGroups")}
               />
-            ) : filteredGroups.map(group => {
-              const isLeaderGroup = group.leader_email === currentUser?.email;
-              const isSelected = selectedGroupId === group.id;
-              return (
-                <button
-                  key={group.id}
-                  onClick={() => onSelectGroup(group.id)}
-                  className="w-full flex items-center gap-3 rounded-2xl p-3 text-left transition active:scale-[0.98]"
-                  style={{ background: "#FFFFFF", border: isSelected ? "1px solid #FFD000" : "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}
-                >
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 relative" style={{
-                    background: group.profile_picture_url ? `url(${group.profile_picture_url}) center/cover` : "linear-gradient(135deg, #1FB8FF, #0B3FD9)",
-                    boxShadow: "0 4px 10px rgba(11, 63, 217, 0.2)"
-                  }}>
-                    {!group.profile_picture_url && <Users className="w-5 h-5 text-white" />}
-                    {isLeaderGroup && (
-                      <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#FFD000", boxShadow: "0 2px 6px rgba(255, 208, 0, 0.5)" }}>
-                        <Crown className="w-2.5 h-2.5" style={{ color: "#0B1B3D" }} />
+            ) : (
+              <>
+                {filteredGroups.length > 0 && (
+                  <div className="text-[10px] font-black uppercase tracking-[0.15em] px-2 pt-1" style={{ color: "#0B3FD9" }}>
+                    My Groups
+                  </div>
+                )}
+                {filteredGroups.map(group => {
+                  const isLeaderGroup = group.leader_email === currentUser?.email;
+                  const isSelected = selectedGroupId === group.id;
+                  return (
+                    <button
+                      key={group.id}
+                      onClick={() => onSelectGroup(group.id)}
+                      className="w-full flex items-center gap-3 rounded-2xl p-3 text-left transition active:scale-[0.98]"
+                      style={{ background: "#FFFFFF", border: isSelected ? "1px solid #FFD000" : "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}
+                    >
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 relative" style={{
+                        background: group.profile_picture_url ? `url(${group.profile_picture_url}) center/cover` : "linear-gradient(135deg, #1FB8FF, #0B3FD9)",
+                        boxShadow: "0 4px 10px rgba(11, 63, 217, 0.2)"
+                      }}>
+                        {!group.profile_picture_url && <Users className="w-5 h-5 text-white" />}
+                        {isLeaderGroup && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "#FFD000", boxShadow: "0 2px 6px rgba(255, 208, 0, 0.5)" }}>
+                            <Crown className="w-2.5 h-2.5" style={{ color: "#0B1B3D" }} />
+                          </div>
+                        )}
                       </div>
-                    )}
+                      <GroupInfo group={group} isLeaderGroup={isLeaderGroup} />
+                    </button>
+                  );
+                })}
+
+                {discoverGroups.length > 0 && (
+                  <div className="text-[10px] font-black uppercase tracking-[0.15em] px-2 pt-4" style={{ color: "#0B3FD9" }}>
+                    Discover Groups
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <div className="font-black text-sm truncate flex-1" style={{ color: "#0B1B3D" }}>{group.name}</div>
-                      {isLeaderGroup && (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded-full font-black shrink-0" style={{ background: "#FFF8E6", color: "#CC7A00" }}>Leader</span>
-                      )}
+                )}
+                {discoverGroups.map(group => {
+                  const requested = pendingRequestIds.has(group.id);
+                  return (
+                    <div
+                      key={group.id}
+                      className="w-full flex items-center gap-3 rounded-2xl p-3 text-left"
+                      style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}
+                    >
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{
+                        background: group.profile_picture_url ? `url(${group.profile_picture_url}) center/cover` : "linear-gradient(135deg, #1FB8FF, #0B3FD9)",
+                        boxShadow: "0 4px 10px rgba(11, 63, 217, 0.2)"
+                      }}>
+                        {!group.profile_picture_url && <Users className="w-5 h-5 text-white" />}
+                      </div>
+                      <GroupInfo group={group} />
+                      <button
+                        onClick={() => onRequestJoinGroup?.(group)}
+                        disabled={requested || isRequestingJoin}
+                        className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-black transition active:scale-95 disabled:opacity-70"
+                        style={requested
+                          ? { background: "#EEF3FF", color: "#0B3FD9" }
+                          : { background: "#FFD000", color: "#0B1B3D", boxShadow: "0 3px 10px rgba(255, 208, 0, 0.35)" }}
+                      >
+                        {requested ? <Clock className="w-3 h-3" /> : <UserPlus className="w-3 h-3" />}
+                        {requested ? "Requested" : "Join"}
+                      </button>
                     </div>
-                    <div className="text-[12px] truncate mt-0.5 flex items-center gap-1" style={{ color: "#6B7FA0" }}>
-                      <Sparkles className="w-3 h-3" style={{ color: "#1FB8FF" }} />
-                      {group.country || "Global"}
-                      {group.privacy === "private" && (
-                        <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold" style={{ background: "#EEF3FF", color: "#0B3FD9" }}>🔒</span>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
+                  );
+                })}
+              </>
+            )}
           </>
         )}
       </div>
@@ -341,6 +397,26 @@ export default function MobileMessagesList({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function GroupInfo({ group, isLeaderGroup }) {
+  return (
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-1.5">
+        <div className="font-black text-sm truncate flex-1" style={{ color: "#0B1B3D" }}>{group.name}</div>
+        {isLeaderGroup && (
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-black shrink-0" style={{ background: "#FFF8E6", color: "#CC7A00" }}>Leader</span>
+        )}
+      </div>
+      <div className="text-[12px] truncate mt-0.5 flex items-center gap-1" style={{ color: "#6B7FA0" }}>
+        <Sparkles className="w-3 h-3" style={{ color: "#1FB8FF" }} />
+        {group.country || "Global"}
+        {group.privacy === "private" && (
+          <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold" style={{ background: "#EEF3FF", color: "#0B3FD9" }}>🔒</span>
+        )}
+      </div>
     </div>
   );
 }

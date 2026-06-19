@@ -61,7 +61,13 @@ export default function MobileBottomNav({ currentPageName }) {
               <Link
                 key={key}
                 to={`${createPageUrl("Feed")}?compose=1`}
-                onClick={() => sessionStorage.setItem('tab_switch', 'true')}
+                onClick={(e) => {
+                  sessionStorage.setItem('tab_switch', 'true');
+                  if (currentPageName === "Feed" && location.pathname === createPageUrl("Feed")) {
+                    e.preventDefault();
+                    window.dispatchEvent(new CustomEvent("openDropComposer"));
+                  }
+                }}
                 className="flex-1 flex flex-col items-center justify-end gap-1.5 py-2"
                 style={{ minHeight: 56, textDecoration: "none" }}
                 aria-label="Create post"

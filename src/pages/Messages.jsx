@@ -68,6 +68,31 @@ export default function Messages() {
     enabled: !!user,
   });
 
+  const { data: myGroupJoinRequests = [] } = useQuery({
+    queryKey: ["myGroupJoinRequests", user?.email],
+    queryFn: () => base44.entities.GlowGroupJoinRequest.filter({ user_email: user?.email }),
+    enabled: !!user?.email,
+  });
+
+  const requestJoinGroupMutation = useMutation({
+    mutationFn: async (group) => {
+      const existing = myGroupJoinRequests.find(r => r.group_id === group.id && ["pending", "approved"].includes(r.status));
+      if (existing?.status === "pending") return existing;
+      if (existing?.status === "approved") return existing;
+      return await base44.entities.GlowGroupJoinRequest.create({
+        group_id: group.id,
+        user_email: user.email,
+        status: "pending",
+        message: `I would like to join ${group.name}.`,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myGroupJoinRequests", user?.email] });
+      toast.success("Join request sent");
+    },
+    onError: () => toast.error("Could not send join request. Try again."),
+  });
+
   // Groups the user belongs to (as member OR leader)
   const myGroups = useMemo(() => {
     const memberGroupIds = new Set(myMemberships.map(m => m.group_id));
@@ -233,6 +258,10 @@ export default function Messages() {
             onSelectConversation={setSelectedConversationId}
             onStartConversation={(email) => ensureConversationMutation.mutate(email)}
             myGroups={myGroups}
+            allGroups={allGroups}
+            joinRequests={myGroupJoinRequests}
+            onRequestJoinGroup={(group) => requestJoinGroupMutation.mutate(group)}
+            isRequestingJoin={requestJoinGroupMutation.isPending}
             selectedGroupId={selectedGroupId}
             onSelectGroup={setSelectedGroupId}
             currentUser={user}
