@@ -20,7 +20,8 @@ export default function CodesOfTruth() {
 
   const { data: codes = [], isLoading } = useQuery({
     queryKey: ["codesOfTruthPage"],
-    queryFn: () => base44.entities.CodeOfTruth.filter({ source_document: "codes_of_truth", status: "approved" }),
+    // Explicit high limit — without it, .filter() returns only a default page and truncates the library.
+    queryFn: () => base44.entities.CodeOfTruth.filter({ source_document: "codes_of_truth", status: "approved" }, '-created_date', 1000),
   });
 
   const categories = useMemo(() => {
