@@ -17,8 +17,17 @@ export default function useGlowDropsFeed() {
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
-    retry: 3,
-    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
+    // Rate-limit errors are transient — retry more persistently with a longer
+    // backoff so the feed self-heals instead of getting stuck on the error screen.
+    retry: (failureCount, error) => {
+      const isRateLimit = /rate limit/i.test(error?.message || "");
+      return failureCount < (isRateLimit ? 6 : 3);
+    },
+    retryDelay: (attempt, error) => {
+      const isRateLimit = /rate limit/i.test(error?.message || "");
+      const base = isRateLimit ? 3000 : 1000;
+      return Math.min(base * 2 ** attempt, isRateLimit ? 20000 : 8000);
+    },
   });
 
   const seen = new Set();
