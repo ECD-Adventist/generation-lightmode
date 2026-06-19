@@ -275,9 +275,13 @@ export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
 
   const { data: codes = [], isLoading } = useQuery({
     queryKey: ["adminCodesOfTruth", sourceFilter],
-    queryFn: () => sourceFilter
-      ? base44.entities.CodeOfTruth.filter({ source_document: sourceFilter }, '-created_date', 500)
-      : base44.entities.CodeOfTruth.list('-created_date', 500),
+    // Read through a service-role backend function so an admin always sees the full
+    // library — the user-scoped client could return an empty page before the session
+    // resolves, which made the tab show a false "0 / No posters found".
+    queryFn: async () => {
+      const res = await base44.functions.invoke("adminListCodes", { sourceFilter: sourceFilter || null });
+      return res.data?.codes || [];
+    },
     // Always refetch on mount so a freshly-seeded library never shows a stale empty state.
     staleTime: 0,
     refetchOnMount: "always",
