@@ -76,11 +76,18 @@
   "required": [],
   "rls": {
     "create": {
-      "user_condition": {
-        "role": {
-          "$ne": "guest"
+      "$or": [
+        {
+          "user_condition": {
+            "role": {
+              "$ne": "guest"
+            }
+          }
+        },
+        {
+          "data.user_email": "system@lightmode.com"
         }
-      }
+      ]
     },
     "read": true,
     "update": {
