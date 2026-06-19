@@ -456,7 +456,7 @@ export default function Layout({ children, currentPageName }) {
                       ))}
 
                       {/* Admin links — only for admin role */}
-                      {(userRole === "admin" || userRole === "super_admin") && (
+                      {(userRole === "admin" || userRole === "super_admin" || ["ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin", "moderator"].includes(userRole)) && (
                         <>
                           <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "6px 4px" }} />
                           <div style={{ padding: "6px 10px 4px", fontSize: 10, color: "#FFD000", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Admin Panel</div>
@@ -594,7 +594,7 @@ export default function Layout({ children, currentPageName }) {
                   </div>
 
                   {/* Admin Panel Card — Super Admins */}
-                  {(userRole === "admin" || userRole === "super_admin") && (
+                  {(userRole === "admin" || userRole === "super_admin" || ["ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin", "moderator"].includes(userRole)) && (
                     <div className="rounded-3xl p-5" style={{ background: "linear-gradient(135deg, rgba(255,208,0,0.06) 0%, rgba(255,160,0,0.04) 100%)", border: "1px solid rgba(255,208,0,0.2)", boxShadow: "0 8px 32px rgba(255,208,0,0.1), inset 0 1px 0 rgba(255,208,0,0.12)" }}>
                       <div className="flex items-center gap-2 mb-4">
                         <div className="w-1.5 h-4 rounded-full" style={{ background: "linear-gradient(180deg, #FFD000, #FFA300)" }} />
