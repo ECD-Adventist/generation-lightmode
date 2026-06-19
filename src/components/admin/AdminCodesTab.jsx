@@ -276,8 +276,11 @@ export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
   const { data: codes = [], isLoading } = useQuery({
     queryKey: ["adminCodesOfTruth", sourceFilter],
     queryFn: () => sourceFilter
-      ? base44.entities.CodeOfTruth.filter({ source_document: sourceFilter }, '-created_date')
-      : base44.entities.CodeOfTruth.list('-created_date'),
+      ? base44.entities.CodeOfTruth.filter({ source_document: sourceFilter }, '-created_date', 500)
+      : base44.entities.CodeOfTruth.list('-created_date', 500),
+    // Always refetch on mount so a freshly-seeded library never shows a stale empty state.
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const { data: settingsList = [] } = useQuery({
