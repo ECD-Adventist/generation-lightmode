@@ -324,33 +324,21 @@ export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
     if (window.confirm("Delete this poster?")) deleteMutation.mutate(id);
   };
 
-  // Throttle bulk writes into small sequential batches — a single Promise.all over
-  // hundreds of updates trips Base44's rate limit.
-  const runInBatches = async (items, fn, batchSize = 10, onProgress) => {
-    let done = 0;
-    for (let i = 0; i < items.length; i += batchSize) {
-      const batch = items.slice(i, i + batchSize);
-      await Promise.all(batch.map(fn));
-      done += batch.length;
-      onProgress?.(done);
-      if (i + batchSize < items.length) await new Promise(r => setTimeout(r, 250));
-    }
-  };
-
+  // Bulk approve via a single backend call — the server throttles the writes,
+  // so the browser makes one request instead of hundreds (which trips the rate limit).
   const handleBulkApprove = async (ids) => {
     if (ids.size === 0) { toast.info("No posters selected"); return; }
     const list = [...ids];
-    const toastId = toast.loading(`Approving 0/${list.length} posters...`);
-    await runInBatches(
-      list,
-      id => base44.entities.CodeOfTruth.update(id, { status: "approved" }),
-      10,
-      done => toast.loading(`Approving ${done}/${list.length} posters...`, { id: toastId })
-    );
-    queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth", sourceFilter] });
-    queryClient.invalidateQueries({ queryKey: ["codesOfTruth"] });
-    setSelected(new Set());
-    toast.success(`${list.length} posters approved and live!`, { id: toastId });
+    const toastId = toast.loading(`Approving ${list.length} posters...`);
+    try {
+      await base44.functions.invoke("adminBulkUpdateCodes", { action: "approve", ids: list });
+      queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth", sourceFilter] });
+      queryClient.invalidateQueries({ queryKey: ["codesOfTruth"] });
+      setSelected(new Set());
+      toast.success(`${list.length} posters approved and live!`, { id: toastId });
+    } catch {
+      toast.error("Bulk approve failed. Please try again.", { id: toastId });
+    }
   };
 
   const toggleSelect = (id) => {
@@ -403,15 +391,14 @@ export default function AdminCodesTab({ sourceFilter, title: tabTitle }) {
             onClick={async () => {
               if (!window.confirm(`Delete ALL ${codes.length} posters? This cannot be undone.`)) return;
               const total = codes.length;
-              const toastId = toast.loading(`Deleting 0/${total} posters...`);
-              await runInBatches(
-                codes,
-                c => base44.entities.CodeOfTruth.delete(c.id),
-                10,
-                done => toast.loading(`Deleting ${done}/${total} posters...`, { id: toastId })
-              );
-              queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth", sourceFilter] });
-              toast.success(`All ${total} posters deleted.`, { id: toastId });
+              const toastId = toast.loading(`Deleting ${total} posters...`);
+              try {
+                await base44.functions.invoke("adminBulkUpdateCodes", { action: "delete", ids: codes.map(c => c.id) });
+                queryClient.invalidateQueries({ queryKey: ["adminCodesOfTruth", sourceFilter] });
+                toast.success(`All ${total} posters deleted.`, { id: toastId });
+              } catch {
+                toast.error("Delete failed. Please try again.", { id: toastId });
+              }
             }}
             className="font-bold" style={dangerBtn}
           >
