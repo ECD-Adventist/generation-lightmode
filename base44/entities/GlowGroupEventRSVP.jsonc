@@ -30,7 +30,7 @@
     "create": {
       "data.user_email": "{{user.email}}"
     },
-    "read": true,
+    "read": null,
     "update": {
       "$or": [
         {

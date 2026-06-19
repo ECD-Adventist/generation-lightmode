@@ -49,7 +49,34 @@
     "create": {
       "data.leader_email": "{{user.email}}"
     },
-    "read": true,
+    "read": {
+      "$or": [
+        {
+          "data.privacy": "public"
+        },
+        {
+          "data.leader_email": "{{user.email}}"
+        },
+        {
+          "id": {
+            "$entity": "GlowGroupMember",
+            "params": {
+              "user_email": "{{user.email}}"
+            }
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
     "update": {
       "$or": [
         {
