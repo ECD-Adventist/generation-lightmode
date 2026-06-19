@@ -38,6 +38,7 @@ import AdminLeaderPostsTab from "../components/admin/AdminLeaderPostsTab";
 import AdminSupabaseExportTab from "../components/admin/AdminSupabaseExportTab";
 import { AdminThemeProvider, useAdminTheme, getAdminTokens } from "../components/admin/AdminThemeContext";
 import AdminThemeToggle from "../components/admin/AdminThemeToggle";
+import MobileAdminShell from "../components/admin/MobileAdminShell";
 
 function AdminCenterInner() {
   const [user, setUser] = useState(null);
@@ -199,7 +200,14 @@ function AdminCenterInner() {
   const topBarLogo = isDark ? LOGO_WHITE : LOGO_SKYBLUE;
 
   return (
-    <div className="flex flex-col md:flex-row" style={{ minHeight: "100vh", background: t.appBg, color: t.textPrimary }}>
+    <>
+    {/* Mobile admin shell — dedicated drawer-based navigation */}
+    <MobileAdminShell user={user} activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} isRegionalAdmin={isRegionalAdmin}>
+      {renderTab()}
+    </MobileAdminShell>
+
+    {/* Desktop layout */}
+    <div className="hidden md:flex md:flex-row" style={{ minHeight: "100vh", background: t.appBg, color: t.textPrimary }}>
       <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} isRegionalAdmin={isRegionalAdmin} />
       <div className="flex-1 flex flex-col h-screen overflow-hidden" style={{ background: contentBg }}>
         {/* Top Nav Bar */}
@@ -233,12 +241,6 @@ function AdminCenterInner() {
           </div>
         </div>
 
-        {/* Mobile top bar */}
-        <div className="md:hidden flex items-center justify-between px-4 py-3" style={{ background: t.surface, borderBottom: `1px solid ${t.border}` }}>
-          <img src={isDark ? "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/77c1a906e_LOGO-LANDSCAPE-GOLD.png" : "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/ce3018808_LOGO-LANDSCAPE-BLUE.png"} alt="LightMode" style={{ height: 28, width: "auto" }} />
-          <AdminThemeToggle />
-        </div>
-
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-7xl mx-auto pb-20 md:pb-0">
             {renderTab()}
@@ -246,6 +248,7 @@ function AdminCenterInner() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
