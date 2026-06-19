@@ -5,11 +5,23 @@
     "conversation_id": {
       "type": "string"
     },
-    "sender_email": {
+    "sender_id": {
       "type": "string"
     },
-    "recipient_email": {
+    "recipient_id": {
       "type": "string"
+    },
+    "sender_email": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "recipient_email": {
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "content": {
       "type": "string"
@@ -33,21 +45,21 @@
   },
   "required": [
     "conversation_id",
-    "sender_email",
-    "recipient_email",
+    "sender_id",
+    "recipient_id",
     "content"
   ],
   "rls": {
     "create": {
-      "data.sender_email": "{{user.email}}"
+      "data.sender_id": "{{user.id}}"
     },
     "read": {
       "$or": [
         {
-          "data.sender_email": "{{user.email}}"
+          "data.sender_id": "{{user.id}}"
         },
         {
-          "data.recipient_email": "{{user.email}}"
+          "data.recipient_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -64,10 +76,10 @@
     "update": {
       "$or": [
         {
-          "data.sender_email": "{{user.email}}"
+          "data.sender_id": "{{user.id}}"
         },
         {
-          "data.recipient_email": "{{user.email}}"
+          "data.recipient_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -84,7 +96,7 @@
     "delete": {
       "$or": [
         {
-          "data.sender_email": "{{user.email}}"
+          "data.sender_id": "{{user.id}}"
         },
         {
           "user_condition": {
