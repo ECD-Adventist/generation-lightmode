@@ -14,7 +14,13 @@
     "user_email"
   ],
   "rls": {
-    "create": true,
+    "create": {
+      "user_condition": {
+        "role": {
+          "$ne": "guest"
+        }
+      }
+    },
     "read": true,
     "update": false,
     "delete": {

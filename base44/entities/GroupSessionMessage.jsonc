@@ -21,7 +21,61 @@
     "create": {
       "data.user_email": "{{user.email}}"
     },
-    "read": true,
+    "read": {
+      "$or": [
+        {
+          "in": {
+            "data.session_id": {
+              "$entity": "GroupSession",
+              "params": {
+                "$or": [
+                  {
+                    "in": {
+                      "data.group_id": {
+                        "$entity": "GlowGroupMember",
+                        "params": {
+                          "user_email": "{{user.email}}"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "in": {
+                      "data.group_id": {
+                        "$entity": "GlowGroup",
+                        "params": {
+                          "leader_email": "{{user.email}}"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "user_condition": {
+                      "role": "admin"
+                    }
+                  },
+                  {
+                    "user_condition": {
+                      "role": "super_admin"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
     "update": false,
     "delete": {
       "$or": [

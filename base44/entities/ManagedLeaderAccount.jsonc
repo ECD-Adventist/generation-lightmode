@@ -63,22 +63,16 @@
         }
       ]
     },
-    "read": {
-      "$or": [
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        },
-        {
-          "user_condition": {
-            "role": "super_admin"
-          }
-        }
-      ]
-    },
+    "read": true,
     "update": {
       "$or": [
+        {
+          "data.manager_emails": {
+            "$in": [
+              "{{user.email}}"
+            ]
+          }
+        },
         {
           "user_condition": {
             "role": "admin"
