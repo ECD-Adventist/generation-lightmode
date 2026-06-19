@@ -8,7 +8,7 @@ const tabs = [
   { key: "Discover", label: "Search", icon: Search, match: ["Discover"] },
   { key: "Post", label: "Drop", icon: Plus, match: [], isPostButton: true },
   { key: "Messages", label: "Messages", icon: MessageCircle, match: ["Messages"] },
-  { key: "Profile", label: "Profile", icon: User, match: ["Profile", "Settings"] },
+  { key: "Profile", label: "Profile", icon: User, match: ["Profile"] },
 ];
 
 export default function MobileBottomNav({ currentPageName }) {
