@@ -9,8 +9,20 @@ const STORE_DROPS = "glowDrops";
 const STORE_QUEUE = "syncQueue";
 const STORE_META = "meta";
 
+function isIndexedDBAvailable() {
+  try {
+    return typeof indexedDB !== "undefined" && indexedDB !== null;
+  } catch {
+    return false;
+  }
+}
+
 function openDB() {
   return new Promise((resolve, reject) => {
+    if (!isIndexedDBAvailable()) {
+      reject(new Error("IndexedDB not available"));
+      return;
+    }
     const request = indexedDB.open(DB_NAME, DB_VERSION);
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
@@ -43,6 +55,7 @@ function promisifyRequest(request) {
 
 /** Cache an array of Glow Drops into IndexedDB */
 export async function cacheDrops(drops) {
+  if (!isIndexedDBAvailable()) return;
   const db = await openDB();
   const store = tx(db, STORE_DROPS, "readwrite");
   for (const drop of drops) {
@@ -56,6 +69,7 @@ export async function cacheDrops(drops) {
 
 /** Get all cached Glow Drops from IndexedDB */
 export async function getCachedDrops() {
+  if (!isIndexedDBAvailable()) return [];
   const db = await openDB();
   const store = tx(db, STORE_DROPS);
   const result = await promisifyRequest(store.getAll());
@@ -65,6 +79,7 @@ export async function getCachedDrops() {
 
 /** Get last cache timestamp */
 export async function getLastCachedAt() {
+  if (!isIndexedDBAvailable()) return null;
   const db = await openDB();
   const store = tx(db, STORE_META);
   const result = await promisifyRequest(store.get("lastCachedAt"));
@@ -73,6 +88,7 @@ export async function getLastCachedAt() {
 }
 
 export async function queueOfflineAction(type, payload) {
+  if (!isIndexedDBAvailable()) return;
   const db = await openDB();
   const store = tx(db, STORE_QUEUE, "readwrite");
   await promisifyRequest(store.add({ type, payload, queuedAt: new Date().toISOString() }));
@@ -86,6 +102,7 @@ export async function queueDropForSync(dropData) {
 
 /** Get all queued actions waiting for sync */
 export async function getQueuedActions() {
+  if (!isIndexedDBAvailable()) return [];
   const db = await openDB();
   const store = tx(db, STORE_QUEUE);
   const result = await promisifyRequest(store.getAll());
@@ -100,6 +117,7 @@ export async function getQueuedDrops() {
 
 /** Clear a specific queued action after successful sync */
 export async function removeQueuedAction(queueId) {
+  if (!isIndexedDBAvailable()) return;
   const db = await openDB();
   const store = tx(db, STORE_QUEUE, "readwrite");
   await promisifyRequest(store.delete(queueId));
@@ -113,6 +131,7 @@ export async function removeQueuedDrop(queueId) {
 
 /** Clear all cached drops (e.g., on logout) */
 export async function clearCache() {
+  if (!isIndexedDBAvailable()) return;
   const db = await openDB();
   tx(db, STORE_DROPS, "readwrite").clear();
   tx(db, STORE_QUEUE, "readwrite").clear();
