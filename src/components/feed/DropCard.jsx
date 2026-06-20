@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { isNotificationEnabled } from "@/lib/notifications";
 import ReadMoreText from "@/components/feed/ReadMoreText";
@@ -22,6 +22,8 @@ import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const clickTimerRef = useRef(null);
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
@@ -38,6 +40,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     full_name: drop.user_email?.split('@')[0] || "Glow Believer",
     drop_count: 0
   };
+  const postLink = createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email || authorProfile.email || "")}`;
 
   const { data: comments = [] } = useQuery({
     queryKey: ["comments", drop.id],
@@ -237,11 +240,28 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     }
   });
 
-  const handleLike = (e) => {
-    e.stopPropagation();
+  const triggerLike = () => {
     setLikeBurst(true);
     setTimeout(() => setLikeBurst(false), 600);
     likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: getDisplayName(authorProfile) });
+  };
+
+  const handlePostSurfaceClick = () => {
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+      triggerLike();
+      return;
+    }
+    clickTimerRef.current = setTimeout(() => {
+      clickTimerRef.current = null;
+      navigate(postLink);
+    }, 240);
+  };
+
+  const handleLike = (e) => {
+    e.stopPropagation();
+    triggerLike();
   };
 
   const handleCommentToggle = (e) => {
@@ -367,11 +387,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 ? { background: "linear-gradient(160deg, #070B18 0%, #0B1B3D 40%, #0B2870 80%, #0B1B3D 100%)" }
                 : { background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" }
         }
-        onDoubleClick={() => {
-          setLikeBurst(true);
-          setTimeout(() => setLikeBurst(false), 600);
-          likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: getDisplayName(authorProfile) });
-        }}
+        onClick={handlePostSurfaceClick}
       >
         {drop.media_url && (
           <>

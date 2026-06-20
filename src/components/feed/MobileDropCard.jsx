@@ -1,5 +1,5 @@
-import React, { memo, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { memo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -29,6 +29,8 @@ function MobileDropCard({
   leaderAccounts = [],
 }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const clickTimerRef = useRef(null);
   const userHasLiked = userLikes.some(like => like.drop_id === drop.id);
 
   const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
@@ -82,6 +84,19 @@ function MobileDropCard({
     });
   };
 
+  const handlePostSurfaceClick = () => {
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+      handleLike();
+      return;
+    }
+    clickTimerRef.current = setTimeout(() => {
+      clickTimerRef.current = null;
+      navigate(postLink);
+    }, 240);
+  };
+
   const isManagerOfLeader = !!leaderForDrop && Array.isArray(leaderForDrop.manager_emails) && leaderForDrop.manager_emails.includes(user?.email);
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
   const canDelete = user?.email === drop.user_email || isManagerOfLeader || isAdmin;
@@ -100,7 +115,13 @@ function MobileDropCard({
       style={{ background: "#FFFFFF", border: "1px solid #D6E4FF", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.10)" }}
     >
       <div className="relative rounded-[1.45rem] overflow-hidden" style={{ aspectRatio: "4 / 5", background: drop.media_url ? "#DDE7FB" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
-        <Link to={postLink} className="absolute inset-0 block no-underline">
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={handlePostSurfaceClick}
+          onKeyDown={(e) => { if (e.key === "Enter") navigate(postLink); }}
+          className="absolute inset-0 block no-underline cursor-pointer touch-manipulation"
+        >
           {drop.media_url ? (
             <img
               src={feedThumb(drop.media_url)}
@@ -130,7 +151,7 @@ function MobileDropCard({
               <div className="mt-6 w-16 h-1 rounded-full" style={{ background: "linear-gradient(90deg, #0B3FD9, #1FB8FF)" }} />
             </div>
           )}
-        </Link>
+        </div>
 
         <Link to={profileLink} className="absolute top-3 left-3 z-20 flex items-center rounded-full pr-4 py-1 pl-1 no-underline" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #E6ECF5", boxShadow: "0 4px 14px rgba(11, 27, 61, 0.12)" }}>
           <div className="shrink-0 w-9 h-9 rounded-full p-[2px] mr-2" style={{ background: isLeaderPost ? "linear-gradient(135deg, #FFD000, #FF9F1A)" : "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
