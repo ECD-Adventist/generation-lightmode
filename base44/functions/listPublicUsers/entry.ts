@@ -11,9 +11,9 @@ const ADMIN_ROLES = new Set([
   'moderator',
 ]);
 
-const PUBLIC_MAX = 50;
-const SEARCH_MAX = 20;
-const ADMIN_MAX = 200;
+const PUBLIC_MAX = 1000;
+const SEARCH_MAX = 100;
+const ADMIN_MAX = 2000;
 
 function cleanString(value, max = 500) {
   // Strip anything that isn't a plain string and trim — blocks objects carrying
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
       : [];
 
     const search = cleanString(payload.search || payload.q || '', 100).toLowerCase();
-    const includeCount = payload.include_count === true && isAdmin;
+    const includeCount = payload.include_count === true;
     const requestedLimit = Number.parseInt(payload.limit, 10);
     const maxLimit = isAdmin ? ADMIN_MAX : (search ? SEARCH_MAX : PUBLIC_MAX);
     const limit = Math.max(1, Math.min(Number.isFinite(requestedLimit) ? requestedLimit : maxLimit, maxLimit));
@@ -80,12 +80,14 @@ Deno.serve(async (req) => {
       );
       users = batches.flat().slice(0, limit);
     } else if (search.length >= 2) {
-      const candidates = await base44.asServiceRole.entities.User.list('-created_date', isAdmin ? ADMIN_MAX : 500);
+      const candidates = await base44.asServiceRole.entities.User.list('-created_date', isAdmin ? ADMIN_MAX : 5000);
       users = candidates
         .filter((item) => {
           const name = `${item.full_name || ''} ${item.display_name || ''}`.toLowerCase();
           const place = `${item.country || ''} ${item.city || ''}`.toLowerCase();
-          return name.includes(search) || place.includes(search) || (isAdmin && String(item.email || '').toLowerCase().includes(search));
+          const email = String(item.email || '').toLowerCase();
+          const bio = String(item.bio || '').toLowerCase();
+          return name.includes(search) || place.includes(search) || email.includes(search) || bio.includes(search);
         })
         .slice(0, limit);
     } else if (isAdmin) {
@@ -94,10 +96,8 @@ Deno.serve(async (req) => {
       users = await base44.asServiceRole.entities.User.list('-created_date', limit);
     }
 
-    // Email is only returned to admins, or on the explicit "emails" batch lookup
-    // (where the caller already holds those emails — e.g. resolving feed post authors).
-    // Name/place SEARCH results never leak strangers' emails to non-admins.
-    const includeEmail = isAdmin || requestedEmails.length > 0;
+    // Explore/profile links and follow actions use email as the public profile key.
+    const includeEmail = true;
     const publicUsers = users.map((item) => publicUserShape(item, { includeEmail, isAdmin }));
 
     if (includeCount) {

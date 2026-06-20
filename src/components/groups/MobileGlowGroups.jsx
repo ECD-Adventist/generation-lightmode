@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
@@ -27,6 +27,7 @@ export default function MobileGlowGroups({
   joinMutation,
   onOpenCreate,
   onRefresh,
+  onPeopleSearchChange,
 }) {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("groups"); // people | groups | sessions | leaders
@@ -38,9 +39,17 @@ export default function MobileGlowGroups({
   const q = search.trim().toLowerCase();
   const firstName = user?.full_name?.split(" ")[0] || "Friend";
 
+  useEffect(() => {
+    if (activeTab === "people" || activeTab === "leaders") onPeopleSearchChange?.(search);
+    else onPeopleSearchChange?.("");
+  }, [activeTab, search, onPeopleSearchChange]);
+
   const dropCountByUser = useMemo(() => {
     const m = {};
-    drops.forEach(d => { m[d.user_email] = (m[d.user_email] || 0) + 1; });
+    drops.forEach(d => {
+      const authorEmail = d.user_email || d.created_by;
+      if (authorEmail) m[authorEmail] = (m[authorEmail] || 0) + 1;
+    });
     return m;
   }, [drops]);
 

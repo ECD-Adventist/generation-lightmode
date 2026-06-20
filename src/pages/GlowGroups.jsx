@@ -17,6 +17,7 @@ const rankColors = { Champion: "#FFD000", Trendsetter: "#8A5CFF", Warrior: "#1DA
 export default function GlowGroups() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("groups"); // "people" | "groups" | "leaders"
+  const [mobilePeopleSearch, setMobilePeopleSearch] = useState("");
   const [authChecked, setAuthChecked] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -48,7 +49,7 @@ export default function GlowGroups() {
   const { data: usersPayload = { users: [], totalUsers: 0 }, isError: usersError } = useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
-      const res = await base44.functions.invoke('listPublicUsers', { include_count: true });
+      const res = await base44.functions.invoke('listPublicUsers', { include_count: true, include_email: true, limit: 1000 });
       return res.data;
     },
     retry: 2,
@@ -56,6 +57,18 @@ export default function GlowGroups() {
 
   const regularUsers = Array.isArray(usersPayload) ? usersPayload : (usersPayload.users || []);
   const systemUserCount = Array.isArray(usersPayload) ? regularUsers.length : (usersPayload.totalUsers || regularUsers.length);
+
+  const peopleServerSearch = ((activeTab === "people" || activeTab === "leaders") ? search : mobilePeopleSearch).trim();
+
+  const { data: searchedRegularUsers = [] } = useQuery({
+    queryKey: ["explorePeopleServerSearch", peopleServerSearch],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('listPublicUsers', { search: peopleServerSearch, include_email: true, limit: 100 });
+      return Array.isArray(res.data) ? res.data : (res.data?.users || []);
+    },
+    enabled: peopleServerSearch.length >= 2,
+    staleTime: 1000 * 60 * 5,
+  });
 
   // Managed leader accounts — these are NOT in the User entity, so we fetch
   // them separately and merge them into the `users` list so they appear in
@@ -88,9 +101,10 @@ export default function GlowGroups() {
     // verified-leader identity always wins.
     const byEmail = new Map();
     safeRegular.forEach(u => { if (u.email) byEmail.set(u.email, u); });
+    searchedRegularUsers.forEach(u => { if (u.email) byEmail.set(u.email, u); });
     leadersAsUsers.forEach(u => { if (u.email) byEmail.set(u.email, u); });
     return Array.from(byEmail.values());
-  }, [regularUsers, leaderAccounts]);
+  }, [regularUsers, searchedRegularUsers, leaderAccounts]);
 
   const { data: drops = [] } = useQuery({
     queryKey: ["glowGroupsDropCounts"],
@@ -207,7 +221,10 @@ export default function GlowGroups() {
 
   // Get drop count per user
   const dropCountByUser = {};
-  drops.forEach(d => { dropCountByUser[d.user_email] = (dropCountByUser[d.user_email] || 0) + 1; });
+  drops.forEach(d => {
+    const authorEmail = d.user_email || d.created_by;
+    if (authorEmail) dropCountByUser[authorEmail] = (dropCountByUser[authorEmail] || 0) + 1;
+  });
 
   const tabs = [
     { id: "people", label: "People", icon: Users },
@@ -243,6 +260,7 @@ export default function GlowGroups() {
             await queryClient.invalidateQueries({ queryKey: ["myJoinRequests", user?.email] });
             await queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
           }}
+          onPeopleSearchChange={setMobilePeopleSearch}
         />
         <CreateGroupModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} user={user} />
       </div>

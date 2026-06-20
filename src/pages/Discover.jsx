@@ -29,7 +29,7 @@ export default function Discover() {
   const { data: allUsers = [] } = useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
+      const res = await base44.functions.invoke("listPublicUsers", { include_email: true, limit: 1000 });
       return res.data;
     },
     enabled: !!user,
@@ -79,7 +79,8 @@ export default function Discover() {
   const topCreators = useMemo(() => {
     const likesMap = new Map();
     drops.forEach(d => {
-      likesMap.set(d.user_email, (likesMap.get(d.user_email) || 0) + (d.likes_count || 0));
+      const authorEmail = d.user_email || d.created_by;
+      if (authorEmail) likesMap.set(authorEmail, (likesMap.get(authorEmail) || 0) + (d.likes_count || 0));
     });
     return Array.from(likesMap.entries())
       .sort((a, b) => b[1] - a[1])
@@ -189,7 +190,7 @@ export default function Discover() {
                   <p>No drops found. Try a different search or hashtag.</p>
                 </div>
               ) : displayDrops.map(drop => (
-                <DropCard key={drop.id} drop={drop} user={user} dropUser={getUserInfo(drop.user_email)} likeMutation={noopLike} handleShare={noopShare} userLikes={userLikes} />
+                <DropCard key={drop.id} drop={drop} user={user} dropUser={getUserInfo(drop.user_email || drop.created_by)} likeMutation={noopLike} handleShare={noopShare} userLikes={userLikes} />
               ))}
             </div>
           </div>

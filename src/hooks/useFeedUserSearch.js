@@ -97,9 +97,18 @@ export default function useFeedUserSearch(rawQuery, { enabled = true } = {}) {
     queryFn: async () => {
       if (matchedEmails.length === 0) return [];
       const results = await Promise.all(
-        matchedEmails.map(email =>
-          base44.entities.GlowDrop.filter({ user_email: email }, "-created_date", 30).catch(() => [])
-        )
+        matchedEmails.map(async (email) => {
+          const [byEmail, byCreator] = await Promise.all([
+            base44.entities.GlowDrop.filter({ user_email: email }, "-created_date", 30).catch(() => []),
+            base44.entities.GlowDrop.filter({ created_by: email }, "-created_date", 30).catch(() => []),
+          ]);
+          const seen = new Set();
+          return [...byEmail, ...byCreator].filter((drop) => {
+            if (!drop?.id || seen.has(drop.id)) return false;
+            seen.add(drop.id);
+            return true;
+          });
+        })
       );
       return results.flat();
     },
