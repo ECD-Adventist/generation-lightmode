@@ -79,7 +79,7 @@ You may opt out of non-essential communications at any time through your account
   },
   {
     title: "7. Data Retention",
-    content: `We retain your personal data for as long as your account is active or as needed to provide you services. You may request deletion of your account and associated data at any time by contacting us at privacy@generationlightmode.org.
+    content: `We retain your personal data for as long as your account is active or as needed to provide you services. You may request deletion of your account and associated data at any time by contacting us at lightmode@ecd.adventist.org.
 
 Upon account deletion, we will delete or anonymize your personal data within 30 days, except where we are legally required to retain certain information.`
   },
@@ -95,7 +95,7 @@ However, no method of transmission over the internet or electronic storage is 10
   },
   {
     title: "9. Children's Privacy",
-    content: `The Platform is intended for users aged 13 and above. For users under 18, we encourage parental oversight. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has provided us with personal data, please contact us immediately at privacy@generationlightmode.org and we will take steps to delete such information.`
+    content: `The Platform is intended for users aged 13 and above. For users under 18, we encourage parental oversight. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has provided us with personal data, please contact us immediately at lightmode@ecd.adventist.org and we will take steps to delete such information.`
   },
   {
     title: "10. Your Rights",
@@ -109,7 +109,7 @@ However, no method of transmission over the internet or electronic storage is 10
 - **Objection**: Object to processing based on legitimate interests
 - **Withdraw consent**: Withdraw consent at any time where processing is consent-based
 
-To exercise any of these rights, contact us at privacy@generationlightmode.org. We will respond within 30 days.`
+To exercise any of these rights, contact us at lightmode@ecd.adventist.org. We will respond within 30 days.`
   },
   {
     title: "11. Cookies and Tracking Technologies",
@@ -134,7 +134,7 @@ You can control cookie settings through your browser. Disabling certain cookies 
     content: `If you have any questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us:
 
 **Generation LightMode**
-Email: privacy@generationlightmode.org
+Email: lightmode@ecd.adventist.org
 Website: generationlightmode.org
 
 We are committed to working with you to resolve any privacy concerns promptly and transparently.`
@@ -223,8 +223,8 @@ export default function Privacy() {
         }}>
           <p style={{ fontFamily: "Inter, sans-serif", fontSize: 13, color: "#8A9BB0" }}>
             Questions about this policy? Email us at{" "}
-            <a href="mailto:privacy@generationlightmode.org" style={{ color: "#00CFFF" }}>
-              privacy@generationlightmode.org
+            <a href="mailto:lightmode@ecd.adventist.org" style={{ color: "#00CFFF" }}>
+              lightmode@ecd.adventist.org
             </a>
           </p>
         </div>

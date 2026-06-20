@@ -7,7 +7,7 @@ import { ShieldCheck, User, MapPin, ChevronRight, Upload, Loader2 } from "lucide
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileOnboardingSheet from "@/components/dashboard/MobileOnboardingSheet";
-import { AGE_RESTRICTION_MESSAGE, getMinimumBirthDateForAge, isAtLeastAge } from "@/lib/agePolicy";
+import { AGE_RESTRICTION_MESSAGE, AGE_VERIFICATION_DISCLAIMER, getMinimumBirthDateForAge, isAtLeastAge } from "@/lib/agePolicy";
 
 const COUNTRIES = [
   "Afghanistan","Albania","Algeria","Angola","Argentina","Australia","Austria","Bangladesh","Belgium","Benin",
@@ -184,7 +184,7 @@ function DesktopOnboardingModal({ isOpen, onCompleted }) {
                   <button key={val} type="button" onClick={() => setGender(val)} className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition border ${gender === val ? 'bg-blue-500/10 border-blue-500/30 text-blue-600' : 'border-[#E6ECF5] text-[#6B7FA0] hover:bg-[#EEF3FF]'}`}>{label}</button>
                 ))}</div>
               </div>
-              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-[#6B7FA0]">Date of Birth <span className="text-red-500">*</span></label><input type="date" value={dob} onChange={e => setDob(e.target.value)} max={getMinimumBirthDateForAge()} className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-[#F6F8FC] border border-[#E6ECF5] text-[#0B1B3D]" /></div>
+              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-[#6B7FA0]">Age Verification <span className="text-red-500">*</span></label><input type="date" value={dob} onChange={e => setDob(e.target.value)} max={getMinimumBirthDateForAge()} className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-[#F6F8FC] border border-[#E6ECF5] text-[#0B1B3D]" /><p className="text-[11px] mt-1.5 leading-relaxed text-[#6B7FA0]">{AGE_VERIFICATION_DISCLAIMER}</p></div>
               <div className="pt-1 pb-0.5"><div className="flex items-center gap-2 mb-2"><div className="h-px flex-1 bg-[#E6ECF5]" /><span className="text-[10px] uppercase tracking-wider font-bold text-[#6B7FA0]">Location Details</span><div className="h-px flex-1 bg-[#E6ECF5]" /></div></div>
               <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-[#6B7FA0]">Street Address <span className="text-red-500">*</span></label><input value={address} onChange={e => setAddress(e.target.value)} placeholder="e.g. 12 Church Road" className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-[#F6F8FC] border border-[#E6ECF5] text-[#0B1B3D]" /></div>
               <div className="grid grid-cols-2 gap-3">

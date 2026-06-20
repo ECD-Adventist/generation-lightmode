@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { ShieldCheck, User, MapPin, ChevronRight, Upload, Loader2, Check, Mail, Lock } from "lucide-react";
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 import MobileBottomSheet from "@/components/mobile/MobileBottomSheet";
-import { AGE_RESTRICTION_MESSAGE, getMinimumBirthDateForAge, isAtLeastAge } from "@/lib/agePolicy";
+import { AGE_RESTRICTION_MESSAGE, AGE_VERIFICATION_DISCLAIMER, getMinimumBirthDateForAge, isAtLeastAge } from "@/lib/agePolicy";
 
 const COUNTRIES = [
   "Afghanistan","Albania","Algeria","Angola","Argentina","Australia","Austria","Bangladesh","Belgium","Benin",
@@ -206,8 +206,9 @@ export default function MobileOnboardingSheet({ isOpen, onCompleted }) {
               </div>
             </div>
             <div>
-              <label className={labelCls} style={labelStyle}>Date of Birth <span style={{ color: "#EF4444" }}>*</span></label>
+              <label className={labelCls} style={labelStyle}>Age Verification <span style={{ color: "#EF4444" }}>*</span></label>
               <input type="date" value={dob} onChange={e => setDob(e.target.value)} max={getMinimumBirthDateForAge()} className={inputCls} style={{ ...inputStyle, colorScheme: "light" }} />
+              <p className="text-[11px] mt-1.5 leading-relaxed" style={{ color: "#6B7FA0" }}>{AGE_VERIFICATION_DISCLAIMER}</p>
             </div>
             <div className="pt-1 pb-0.5">
               <div className="flex items-center gap-2 mb-2">

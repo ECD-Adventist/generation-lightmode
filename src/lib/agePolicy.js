@@ -1,6 +1,7 @@
 export const MINIMUM_USER_AGE = 13;
-export const PRIVACY_CONTACT_EMAIL = "privacy@generationlightmode.org";
-export const AGE_RESTRICTION_MESSAGE = `Generation LightMode is intended for users aged ${MINIMUM_USER_AGE} and above. If a child under ${MINIMUM_USER_AGE} has provided personal data, please contact ${PRIVACY_CONTACT_EMAIL} so we can take steps to delete it.`;
+export const PRIVACY_CONTACT_EMAIL = "lightmode@ecd.adventist.org";
+export const AGE_VERIFICATION_DISCLAIMER = `You must be ${MINIMUM_USER_AGE} or older to use Generation LightMode. If you are under 18, we encourage parental oversight.`;
+export const AGE_RESTRICTION_MESSAGE = `Generation LightMode is intended for users aged ${MINIMUM_USER_AGE} and above. For users under 18, we encourage parental oversight. If a child under ${MINIMUM_USER_AGE} has provided personal data, please contact ${PRIVACY_CONTACT_EMAIL} so we can take steps to delete it.`;
 
 export function getMinimumBirthDateForAge(age = MINIMUM_USER_AGE) {
   const today = new Date();

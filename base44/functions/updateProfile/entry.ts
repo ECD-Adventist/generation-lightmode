@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
     if (has('date_of_birth')) {
       const dateOfBirth = clean(body.date_of_birth) || '';
       if (dateOfBirth && !isAtLeast13(dateOfBirth)) {
-        return Response.json({ error: 'Generation LightMode is intended for users aged 13 and above. Please contact privacy@generationlightmode.org if a child under 13 has provided personal data.' }, { status: 400 });
+        return Response.json({ error: 'Generation LightMode is intended for users aged 13 and above. For users under 18, parental oversight is encouraged. Please contact lightmode@ecd.adventist.org if a child under 13 has provided personal data.' }, { status: 400 });
       }
       customUpdate.date_of_birth = dateOfBirth;
     }
