@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Search, X, Heart, Sparkles, TrendingUp, Flame, Compass } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
+import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
+import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
+
+const PROFILE_POST_BG = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2";
 
 /**
  * Mobile-only Discover — LightMode branded Explore.
@@ -276,37 +280,52 @@ function DropGrid({ drops }) {
   }
   return (
     <div className="grid grid-cols-2 gap-2">
-      {drops.map(drop => (
-        <Link
-          key={drop.id}
-          to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
-          className="relative aspect-[4/5] block overflow-hidden rounded-2xl group"
-          style={{
-            background: drop.media_url ? "#0B1B3D" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)",
-            border: "1px solid #E6ECF5",
-            boxShadow: "0 4px 14px rgba(11, 63, 217, 0.08)",
-          }}
-        >
-          {drop.media_url ? (
-            <>
-              <img src={drop.media_url} alt="" className="w-full h-full object-cover" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            </>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center p-3 text-center">
-              <span className="text-[12px] font-black line-clamp-6 leading-tight font-['Space_Grotesk']" style={{ color: "#0B3FD9" }}>
-                {drop.verse || drop.reflection?.slice(0, 80)}
-              </span>
-            </div>
-          )}
-          {(drop.likes_count || 0) > 0 && (
-            <div className="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full backdrop-blur-md" style={{ background: "rgba(255,255,255,0.92)" }}>
-              <Heart className="w-3 h-3 fill-red-500 text-red-500" />
-              <span className="text-[10px] font-black" style={{ color: "#0B1B3D" }}>{drop.likes_count}</span>
-            </div>
-          )}
-        </Link>
-      ))}
+      {drops.map(drop => {
+        const hasMedia = !!drop.media_url;
+        const isKeepIt100 = !hasMedia && (drop.category === "Keep It 100" || /keepit100/i.test(drop.hashtags || ""));
+        const isCodeOfTruth = !hasMedia && drop.category === "Code of Truth";
+        const text = (drop.verse || drop.reflection || "").replace(/^(\[Reposted from .+?\]\s*)+/i, "").trim();
+        return (
+          <Link
+            key={drop.id}
+            to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
+            className="relative aspect-[4/5] block overflow-hidden rounded-2xl group"
+            style={{
+              background: hasMedia ? "#0B1B3D" : "#070B18",
+              border: "1px solid #E6ECF5",
+              boxShadow: "0 4px 14px rgba(11, 63, 217, 0.08)",
+            }}
+          >
+            {hasMedia ? (
+              <>
+                <img src={drop.media_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/20" />
+              </>
+            ) : isKeepIt100 ? (
+              <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
+            ) : isCodeOfTruth ? (
+              <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
+            ) : (
+              <>
+                <img src={PROFILE_POST_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" style={{ filter: "grayscale(100%) contrast(1.08) brightness(0.5)" }} />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(8,12,28,0.45) 0%, rgba(8,12,28,0.20) 40%, rgba(8,12,28,0.92) 100%)" }} />
+                <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, transparent 25%, rgba(8,12,28,0.65) 100%)" }} />
+                <div className="relative z-10 w-full h-full flex items-center justify-center p-4 text-center">
+                  <span className="text-[12px] font-black line-clamp-6 leading-tight font-['Space_Grotesk'] text-white drop-shadow-md">
+                    {text}
+                  </span>
+                </div>
+              </>
+            )}
+            {(drop.likes_count || 0) > 0 && (
+              <div className="absolute bottom-2 left-2 z-20 flex items-center gap-1 px-2 py-0.5 rounded-full backdrop-blur-md" style={{ background: "rgba(255,255,255,0.92)" }}>
+                <Heart className="w-3 h-3 fill-red-500 text-red-500" />
+                <span className="text-[10px] font-black" style={{ color: "#0B1B3D" }}>{drop.likes_count}</span>
+              </div>
+            )}
+          </Link>
+        );
+      })}
     </div>
   );
 }

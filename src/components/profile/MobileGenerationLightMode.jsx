@@ -71,7 +71,7 @@ export default function MobileGenerationLightMode() {
       </div>
 
       {/* Cover */}
-      <div className="relative h-44 overflow-hidden" style={{ background: "#0B1B3D" }}>
+      <div className="relative h-36 overflow-hidden" style={{ background: "#0B1B3D" }}>
         <img
           src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2"
           alt="Generation LightMode cover"
@@ -82,9 +82,9 @@ export default function MobileGenerationLightMode() {
       </div>
 
       {/* Profile block */}
-      <div className="px-4 -mt-14 pb-5">
+      <div className="px-4 -mt-10 pb-5">
         <div className="flex items-end gap-3 mb-3">
-          <div className="w-24 h-24 rounded-full p-[3px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 50%, #0B2870 100%)", boxShadow: "0 8px 24px rgba(11,63,217,0.25)" }}>
+          <div className="w-20 h-20 rounded-full p-[3px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 50%, #0B2870 100%)", boxShadow: "0 8px 24px rgba(11,63,217,0.25)" }}>
             <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "3px solid #FFFFFF" }}>
               <img src={ACCOUNT_IMAGE} alt={ACCOUNT_NAME} className="w-full h-full object-cover" />
             </div>

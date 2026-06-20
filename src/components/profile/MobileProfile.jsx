@@ -80,7 +80,7 @@ export default function MobileProfile({
       `}</style>
 
       {/* TOP ACTION BAR — extends under the status bar / camera notch */}
-      <div className="relative z-20 flex items-center justify-between px-4 safe-pt pt-12 pb-4">
+      <div className="relative z-20 flex items-center justify-between px-4 safe-pt pt-3 pb-2">
         <Link to={createPageUrl("Feed")} className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.08)" }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         </Link>
@@ -101,7 +101,7 @@ export default function MobileProfile({
         <button
           type="button"
           onClick={() => user.cover_picture_url && setViewerImage({ url: user.cover_picture_url, alt: "Cover photo" })}
-          className="relative w-full h-40 rounded-[1.5rem] p-[2px] overflow-hidden block"
+          className="relative w-full h-32 rounded-[1.5rem] p-[2px] overflow-hidden block"
           style={{ boxShadow: "0 8px 24px rgba(11, 63, 217, 0.15)" }}
         >
           {/* Rotating conic edge light — cyan→royal-blue→gold */}
@@ -166,12 +166,12 @@ export default function MobileProfile({
 
       {/* Avatar + name block, floating over cover */}
       <div className="relative z-10">
-        <div className="relative -mt-10 px-4">
+        <div className="relative -mt-8 px-4">
           <div className="flex items-end gap-3">
             <button
               type="button"
               onClick={() => setViewerImage({ url: user.profile_picture_url || defaultAvatar, alt: "Profile photo" })}
-              className="relative w-24 h-24 rounded-full p-[3px] active:scale-95 transition"
+              className="relative w-20 h-20 rounded-full p-[3px] active:scale-95 transition"
               style={{
                 background: isLeader
                   ? "linear-gradient(135deg, #0080FE 0%, #0040A0 50%, #FFD000 100%)"
@@ -194,7 +194,7 @@ export default function MobileProfile({
             <input type="file" ref={profileInputRef} accept="image/*" className="hidden" onChange={onProfileImageSelect} disabled={uploadingImage} />
 
             <div className="flex-1 min-w-0 pb-1.5">
-              <h1 className="text-lg font-black font-['Space_Grotesk'] truncate flex items-center gap-1.5" style={{ color: "#0B1B3D" }}>
+              <h1 className="text-base font-black font-['Space_Grotesk'] truncate flex items-center gap-1.5" style={{ color: "#0B1B3D" }}>
                 <span className="truncate">{displayName}</span>
                 <CountryFlag country={user?.country} size="sm" />
               </h1>
