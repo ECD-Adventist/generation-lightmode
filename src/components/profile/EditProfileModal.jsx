@@ -8,6 +8,7 @@ import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
+import { AGE_RESTRICTION_MESSAGE, getMinimumBirthDateForAge, isAtLeastAge } from "@/lib/agePolicy";
 
 export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   const [saving, setSaving] = useState(false);
@@ -91,6 +92,10 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
     e.preventDefault();
     if (!editData.display_name.trim()) {
       toast.error("Display name is required");
+      return;
+    }
+    if (editData.date_of_birth && !isAtLeastAge(editData.date_of_birth)) {
+      toast.error(AGE_RESTRICTION_MESSAGE);
       return;
     }
     setSaving(true);
@@ -243,6 +248,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                     type="date"
                     value={editData.date_of_birth}
                     onChange={e => set("date_of_birth", e.target.value)}
+                    max={getMinimumBirthDateForAge()}
                     className="h-11 rounded-xl [color-scheme:light]"
                     style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
                   />

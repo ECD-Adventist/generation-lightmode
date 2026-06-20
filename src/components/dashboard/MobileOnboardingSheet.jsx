@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { ShieldCheck, User, MapPin, ChevronRight, Upload, Loader2, Check, Mail, Lock } from "lucide-react";
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 import MobileBottomSheet from "@/components/mobile/MobileBottomSheet";
+import { AGE_RESTRICTION_MESSAGE, getMinimumBirthDateForAge, isAtLeastAge } from "@/lib/agePolicy";
 
 const COUNTRIES = [
   "Afghanistan","Albania","Algeria","Angola","Argentina","Australia","Austria","Bangladesh","Belgium","Benin",
@@ -69,7 +70,7 @@ export default function MobileOnboardingSheet({ isOpen, onCompleted }) {
           setBio(user.bio || d.bio || "");
           setProfilePic(user.profile_picture_url || d.profile_picture_url || "");
           setPhone(user.phone || d.phone || "");
-          if ((user.privacy_consent_given || d.privacy_consent_given) && (user.full_name || d.full_name) && (user.country || d.country) && (user.gender || d.gender) && (user.date_of_birth || d.date_of_birth) && (user.city || d.city) && (user.address || d.address) && (user.postal_code || d.postal_code)) {
+          if ((user.privacy_consent_given || d.privacy_consent_given) && (user.full_name || d.full_name) && (user.country || d.country) && (user.gender || d.gender) && (user.date_of_birth || d.date_of_birth) && isAtLeastAge(user.date_of_birth || d.date_of_birth) && (user.city || d.city) && (user.address || d.address) && (user.postal_code || d.postal_code)) {
             onCompleted({ full_name: user.full_name || d.full_name || "", country: user.country || d.country || "", gender: user.gender || d.gender || "", date_of_birth: user.date_of_birth || d.date_of_birth || "", city: user.city || d.city || "", address: user.address || d.address || "", postal_code: user.postal_code || d.postal_code || "", bio: user.bio || d.bio || "", profile_picture_url: user.profile_picture_url || d.profile_picture_url || "" });
           }
         }
@@ -102,6 +103,7 @@ export default function MobileOnboardingSheet({ isOpen, onCompleted }) {
     if (!country) { toast.error("Country is required."); return; }
     if (!gender) { toast.error("Please select your gender."); return; }
     if (!dob) { toast.error("Date of birth is required."); return; }
+    if (!isAtLeastAge(dob)) { toast.error(AGE_RESTRICTION_MESSAGE); return; }
     if (!city.trim()) { toast.error("City / Town is required."); return; }
     if (!address.trim()) { toast.error("Address is required."); return; }
     if (!postalCode.trim()) { toast.error("Postal code is required."); return; }
@@ -110,6 +112,7 @@ export default function MobileOnboardingSheet({ isOpen, onCompleted }) {
   };
 
   const handleFinish = async () => {
+    if (!isAtLeastAge(dob)) { toast.error(AGE_RESTRICTION_MESSAGE); return; }
     setSaving(true);
     try {
       const me = await base44.auth.me();
@@ -204,7 +207,7 @@ export default function MobileOnboardingSheet({ isOpen, onCompleted }) {
             </div>
             <div>
               <label className={labelCls} style={labelStyle}>Date of Birth <span style={{ color: "#EF4444" }}>*</span></label>
-              <input type="date" value={dob} onChange={e => setDob(e.target.value)} max={new Date().toISOString().split("T")[0]} className={inputCls} style={{ ...inputStyle, colorScheme: "light" }} />
+              <input type="date" value={dob} onChange={e => setDob(e.target.value)} max={getMinimumBirthDateForAge()} className={inputCls} style={{ ...inputStyle, colorScheme: "light" }} />
             </div>
             <div className="pt-1 pb-0.5">
               <div className="flex items-center gap-2 mb-2">

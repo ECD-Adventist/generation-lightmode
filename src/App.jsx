@@ -8,6 +8,7 @@ import { Loader2 } from 'lucide-react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import AgeRestrictionGate from '@/components/AgeRestrictionGate';
 import { SwitchItOnProvider } from '@/components/pledge/SwitchItOnProvider';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import PageTransition from '@/components/transitions/PageTransition';
@@ -63,7 +64,7 @@ const RootRedirect = () => {
 };
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user, isAuthenticated } = useAuth();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -87,7 +88,8 @@ const AuthenticatedApp = () => {
 
   // Render the main app
   return (
-    <Suspense fallback={<RouteFallback />}>
+    <AgeRestrictionGate user={isAuthenticated ? user : null}>
+      <Suspense fallback={<RouteFallback />}>
       <Routes>
       <Route path="/" element={<RootRedirect />} />
       {Object.entries(Pages).map(([path, Page]) => (
@@ -121,7 +123,8 @@ const AuthenticatedApp = () => {
       <Route path="/LeaderAnalytics" element={<LayoutWrapper currentPageName="LeaderAnalytics"><LeaderAnalytics /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
-    </Suspense>
+      </Suspense>
+    </AgeRestrictionGate>
   );
 };
 

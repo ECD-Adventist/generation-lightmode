@@ -9,6 +9,14 @@ Deno.serve(async (req) => {
 
     const has = (key) => Object.prototype.hasOwnProperty.call(body, key);
     const clean = (value) => (typeof value === 'string' ? value.trim() : value);
+    const isAtLeast13 = (dateString) => {
+      if (!dateString) return false;
+      const birthDate = new Date(`${dateString}T00:00:00`);
+      if (Number.isNaN(birthDate.getTime())) return false;
+      const cutoff = new Date();
+      cutoff.setFullYear(cutoff.getFullYear() - 13);
+      return birthDate <= cutoff;
+    };
 
     const display_name = has('display_name') ? clean(body.display_name) : null;
     if (display_name !== null && !display_name) {
@@ -38,7 +46,13 @@ Deno.serve(async (req) => {
     if (has('profile_picture_url')) customUpdate.profile_picture_url = clean(body.profile_picture_url) || '';
     if (has('cover_picture_url')) customUpdate.cover_picture_url = clean(body.cover_picture_url) || '';
     if (has('gender')) customUpdate.gender = clean(body.gender) || '';
-    if (has('date_of_birth')) customUpdate.date_of_birth = clean(body.date_of_birth) || '';
+    if (has('date_of_birth')) {
+      const dateOfBirth = clean(body.date_of_birth) || '';
+      if (dateOfBirth && !isAtLeast13(dateOfBirth)) {
+        return Response.json({ error: 'Generation LightMode is intended for users aged 13 and above. Please contact privacy@generationlightmode.org if a child under 13 has provided personal data.' }, { status: 400 });
+      }
+      customUpdate.date_of_birth = dateOfBirth;
+    }
     if (has('phone')) customUpdate.phone = clean(body.phone) || '';
     if (has('city')) customUpdate.city = clean(body.city) || '';
     if (has('address')) customUpdate.address = clean(body.address) || '';

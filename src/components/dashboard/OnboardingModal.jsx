@@ -7,6 +7,7 @@ import { ShieldCheck, User, MapPin, ChevronRight, Upload, Loader2 } from "lucide
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileOnboardingSheet from "@/components/dashboard/MobileOnboardingSheet";
+import { AGE_RESTRICTION_MESSAGE, getMinimumBirthDateForAge, isAtLeastAge } from "@/lib/agePolicy";
 
 const COUNTRIES = [
   "Afghanistan","Albania","Algeria","Angola","Argentina","Australia","Austria","Bangladesh","Belgium","Benin",
@@ -74,7 +75,7 @@ function DesktopOnboardingModal({ isOpen, onCompleted }) {
           setBio(user.bio || d.bio || "");
           setProfilePic(user.profile_picture_url || d.profile_picture_url || "");
           setPhone(user.phone || d.phone || "");
-          if ((user.privacy_consent_given || d.privacy_consent_given) && (user.full_name || d.full_name) && (user.country || d.country) && (user.gender || d.gender) && (user.date_of_birth || d.date_of_birth) && (user.city || d.city) && (user.address || d.address) && (user.postal_code || d.postal_code)) {
+          if ((user.privacy_consent_given || d.privacy_consent_given) && (user.full_name || d.full_name) && (user.country || d.country) && (user.gender || d.gender) && (user.date_of_birth || d.date_of_birth) && isAtLeastAge(user.date_of_birth || d.date_of_birth) && (user.city || d.city) && (user.address || d.address) && (user.postal_code || d.postal_code)) {
             onCompleted({ full_name: user.full_name || d.full_name || "", country: user.country || d.country || "", gender: user.gender || d.gender || "", date_of_birth: user.date_of_birth || d.date_of_birth || "", city: user.city || d.city || "", address: user.address || d.address || "", postal_code: user.postal_code || d.postal_code || "", bio: user.bio || d.bio || "", profile_picture_url: user.profile_picture_url || d.profile_picture_url || "" });
           }
         }
@@ -107,6 +108,7 @@ function DesktopOnboardingModal({ isOpen, onCompleted }) {
     if (!country) { toast.error("Country is required."); return; }
     if (!gender) { toast.error("Please select your gender."); return; }
     if (!dob) { toast.error("Date of birth is required."); return; }
+    if (!isAtLeastAge(dob)) { toast.error(AGE_RESTRICTION_MESSAGE); return; }
     if (!city.trim()) { toast.error("City / Town is required."); return; }
     if (!address.trim()) { toast.error("Address is required."); return; }
     if (!postalCode.trim()) { toast.error("Postal code is required."); return; }
@@ -115,6 +117,7 @@ function DesktopOnboardingModal({ isOpen, onCompleted }) {
   };
 
   const handleFinish = async () => {
+    if (!isAtLeastAge(dob)) { toast.error(AGE_RESTRICTION_MESSAGE); return; }
     setSaving(true);
     try {
       const me = await base44.auth.me();
@@ -181,7 +184,7 @@ function DesktopOnboardingModal({ isOpen, onCompleted }) {
                   <button key={val} type="button" onClick={() => setGender(val)} className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition border ${gender === val ? 'bg-blue-500/10 border-blue-500/30 text-blue-600' : 'border-[#E6ECF5] text-[#6B7FA0] hover:bg-[#EEF3FF]'}`}>{label}</button>
                 ))}</div>
               </div>
-              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-[#6B7FA0]">Date of Birth <span className="text-red-500">*</span></label><input type="date" value={dob} onChange={e => setDob(e.target.value)} max={new Date().toISOString().split("T")[0]} className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-[#F6F8FC] border border-[#E6ECF5] text-[#0B1B3D]" /></div>
+              <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-[#6B7FA0]">Date of Birth <span className="text-red-500">*</span></label><input type="date" value={dob} onChange={e => setDob(e.target.value)} max={getMinimumBirthDateForAge()} className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-[#F6F8FC] border border-[#E6ECF5] text-[#0B1B3D]" /></div>
               <div className="pt-1 pb-0.5"><div className="flex items-center gap-2 mb-2"><div className="h-px flex-1 bg-[#E6ECF5]" /><span className="text-[10px] uppercase tracking-wider font-bold text-[#6B7FA0]">Location Details</span><div className="h-px flex-1 bg-[#E6ECF5]" /></div></div>
               <div><label className="block text-xs font-bold uppercase tracking-wider mb-1.5 text-[#6B7FA0]">Street Address <span className="text-red-500">*</span></label><input value={address} onChange={e => setAddress(e.target.value)} placeholder="e.g. 12 Church Road" className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition bg-[#F6F8FC] border border-[#E6ECF5] text-[#0B1B3D]" /></div>
               <div className="grid grid-cols-2 gap-3">
