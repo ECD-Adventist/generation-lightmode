@@ -116,7 +116,27 @@ export default function Post() {
       toast.success(response.data.action === 'unlike' ? "❤️ Unliked!" : "❤️ Liked!");
       return response.data;
     },
-    onSuccess: () => {
+    onMutate: async ({ id }) => {
+      await queryClient.cancelQueries({ queryKey: ["postDrop", dropId] });
+      await queryClient.cancelQueries({ queryKey: ["userLikes", currentUser?.email] });
+      const prevDrop = queryClient.getQueryData(["postDrop", dropId]);
+      const prevLikes = queryClient.getQueryData(["userLikes", currentUser?.email]) || [];
+      const alreadyLiked = prevLikes.some(like => like.drop_id === id);
+      queryClient.setQueryData(["postDrop", dropId], old => (old || []).map(item => item.id === id ? {
+        ...item,
+        likes_count: alreadyLiked ? Math.max(0, (item.likes_count || 1) - 1) : (item.likes_count || 0) + 1
+      } : item));
+      queryClient.setQueryData(["userLikes", currentUser?.email], old => alreadyLiked
+        ? (old || []).filter(like => like.drop_id !== id)
+        : [...(old || []), { drop_id: id, user_email: currentUser?.email }]
+      );
+      return { prevDrop, prevLikes };
+    },
+    onError: (err, vars, context) => {
+      if (context?.prevDrop) queryClient.setQueryData(["postDrop", dropId], context.prevDrop);
+      if (context?.prevLikes) queryClient.setQueryData(["userLikes", currentUser?.email], context.prevLikes);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["postDrop", dropId] });
       queryClient.invalidateQueries({ queryKey: ["userLikes", currentUser?.email] });
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });

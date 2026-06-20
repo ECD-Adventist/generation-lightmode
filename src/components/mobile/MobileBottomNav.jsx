@@ -25,16 +25,7 @@ export default function MobileBottomNav({ currentPageName }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [location.pathname]);
 
-  // 2. Save last path for each tab
-  useEffect(() => {
-    const currentTab = tabs.find(t => t.match.includes(currentPageName) || location.pathname.startsWith(`/${t.key}`));
-    if (currentTab) {
-      const cleanPath = location.pathname + location.search;
-      sessionStorage.setItem(`tab_history_${currentTab.key}`, cleanPath);
-    }
-  }, [location, currentPageName]);
-
-  // 3. Restore scroll position on mount/location change
+  // 2. Restore scroll position on mount/location change
   useEffect(() => {
     const savedScroll = scrollPositions.current[location.pathname] || sessionStorage.getItem(`scroll_pos_${location.pathname}`);
     if (savedScroll !== null) {
@@ -48,9 +39,8 @@ export default function MobileBottomNav({ currentPageName }) {
     <nav
       className="md:hidden fixed bottom-0 left-0 right-0 z-[900] safe-pb"
       style={{
-        background: "rgba(11,15,26,0.95)",
-        backdropFilter: "blur(20px)",
-        borderTop: "1px solid rgba(255,255,255,0.08)",
+        background: "#0B0F1A",
+        borderTop: "1px solid #1F2937",
       }}
       aria-label="Primary mobile navigation"
     >
@@ -79,7 +69,7 @@ export default function MobileBottomNav({ currentPageName }) {
                     height: 50,
                     marginTop: -22,
                     background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 100%)",
-                    boxShadow: "0 6px 22px rgba(255,208,0,0.45), 0 0 18px rgba(0,207,255,0.35), 0 0 0 4px rgba(11,15,26,0.95)",
+                    boxShadow: "0 6px 22px rgba(255,208,0,0.45), 0 0 18px rgba(0,207,255,0.35), 0 0 0 4px #0B0F1A",
                   }}
                 >
                   <Plus className="w-6 h-6" strokeWidth={2.6} style={{ color: "#0B0F1A" }} />
@@ -94,22 +84,16 @@ export default function MobileBottomNav({ currentPageName }) {
             );
           }
           const active = match.includes(currentPageName) || location.pathname === `/${key}`;
-          const targetPath = sessionStorage.getItem(`tab_history_${key}`) || createPageUrl(key);
+          const targetPath = createPageUrl(key);
           return (
             <Link
               key={key}
               to={targetPath}
               onClick={(e) => {
-                if (active) {
+                sessionStorage.setItem('tab_switch', 'true');
+                if (location.pathname === targetPath && !location.search) {
                   e.preventDefault();
-                  const rootPath = createPageUrl(key);
-                  if (location.pathname !== rootPath) {
-                    window.location.href = rootPath;
-                  } else {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }
-                } else {
-                  sessionStorage.setItem('tab_switch', 'true');
+                  window.location.href = targetPath;
                 }
               }}
               className="flex-1 flex flex-col items-center justify-center gap-1 py-2"
