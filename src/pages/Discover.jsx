@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
@@ -33,6 +33,24 @@ export default function Discover() {
       return res.data;
     },
     enabled: !!user,
+  });
+
+  // Live, server-side people search (debounced) — the local allUsers list only
+  // holds the 50 most-recent members, so searching for anyone else needs the API.
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(id);
+  }, [search]);
+
+  const { data: foundUsers = [], isFetching: searchingUsers } = useQuery({
+    queryKey: ["discoverUserSearch", debouncedSearch],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicUsers", { search: debouncedSearch, limit: 20 });
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled: !!user && debouncedSearch.length >= 2,
+    staleTime: 1000 * 60 * 2,
   });
 
   const { data: userLikes = [] } = useQuery({
@@ -103,6 +121,10 @@ export default function Discover() {
           trendingTags={trendingTags}
           topLikedDrops={topLikedDrops}
           getUserInfo={getUserInfo}
+          search={search}
+          onSearch={setSearch}
+          foundUsers={foundUsers}
+          searchingUsers={searchingUsers}
         />
       </div>
 
@@ -178,6 +200,35 @@ export default function Discover() {
                 ))}
               </div>
             </div>
+
+            {/* People search results */}
+            {search.trim().length >= 2 && (
+              <div className="mb-8">
+                <h2 className="text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2" style={{ color: "#0B3FD9" }}>
+                  <Users className="w-4 h-4" /> People
+                </h2>
+                {searchingUsers && foundUsers.length === 0 ? (
+                  <p className="text-xs" style={{ color: "#8A97B5" }}>Searching people…</p>
+                ) : foundUsers.length === 0 ? (
+                  <p className="text-xs" style={{ color: "#8A97B5" }}>No people found for "{search.trim()}".</p>
+                ) : (
+                  <div className="grid sm:grid-cols-2 gap-3 max-w-2xl">
+                    {foundUsers.filter(u => u.email).map(u => (
+                      <Link key={u.email} to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-3 p-3 rounded-2xl no-underline transition" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
+                        <div className="w-11 h-11 rounded-full overflow-hidden shrink-0" style={{ border: "1px solid #E6ECF5" }}>
+                          <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-bold truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(u)}</div>
+                          <div className="text-xs truncate" style={{ color: "#6B7FA0" }}>{u.country || "LightMode Member"}</div>
+                        </div>
+                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0" style={{ background: "#EEF3FF", color: "#0B3FD9" }}>View</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             <h2 className="text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2" style={{ color: "#0B3FD9" }}>
               <Heart className="w-4 h-4" /> {selectedTag ? `Drops with ${selectedTag}` : search ? "Search Results" : "Top Liked Drops"}
