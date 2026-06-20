@@ -15,14 +15,10 @@ export default function MobileDiscover({
   trendingTags,
   topLikedDrops,
   getUserInfo,
-  search,
-  onSearch,
-  foundUsers = [],
-  searchingUsers = false,
 }) {
+  const [search, setSearch] = useState("");
   const [tab, setTab] = useState("top"); // top | accounts | tags
-  const q = (search || "").trim().toLowerCase();
-  const setSearch = onSearch;
+  const q = search.trim().toLowerCase();
 
   const filteredDrops = useMemo(() => {
     if (!q) return topLikedDrops;
@@ -33,13 +29,17 @@ export default function MobileDiscover({
     );
   }, [drops, topLikedDrops, q]);
 
-  // People results come from the server-side search (foundUsers) so members
-  // outside the locally-cached recent list are still found. Only those with an
-  // email can be opened (profile is keyed by email).
   const filteredAccounts = useMemo(() => {
     if (!q) return [];
-    return (foundUsers || []).filter(u => u.email).slice(0, 30);
-  }, [foundUsers, q]);
+    return allUsers
+      .filter(u =>
+        (u.display_name || "").toLowerCase().includes(q) ||
+        (u.full_name || "").toLowerCase().includes(q) ||
+        (u.email || "").toLowerCase().includes(q) ||
+        (u.country || "").toLowerCase().includes(q)
+      )
+      .slice(0, 30);
+  }, [allUsers, q]);
 
   const filteredTags = useMemo(() => {
     if (!q) return trendingTags;
@@ -163,11 +163,7 @@ export default function MobileDiscover({
 
             {tab === "accounts" && (
               <div className="space-y-1 pt-1">
-                {searchingUsers && filteredAccounts.length === 0 ? (
-                  <div className="py-10 text-center text-xs" style={{ color: "#8A97B5" }}>Searching people…</div>
-                ) : filteredAccounts.length === 0 ? (
-                  <EmptyState q={search} type="accounts" />
-                ) : filteredAccounts.map(u => <AccountRow key={u.email} u={u} />)}
+                {filteredAccounts.length === 0 ? <EmptyState q={search} type="accounts" /> : filteredAccounts.map(u => <AccountRow key={u.email} u={u} />)}
               </div>
             )}
 
