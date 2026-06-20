@@ -193,7 +193,24 @@ export default function Profile() {
 
   const { data: myDrops = [] } = useQuery({
     queryKey: ["myGlowDropsProfile", profileEmail],
-    queryFn: () => base44.entities.GlowDrop.filter({ user_email: profileEmail }, '-created_date'),
+    queryFn: async () => {
+      // Some older drops have an empty user_email (a past migration cleared it) but
+      // still carry the author in created_by. Query both and merge so a user's
+      // profile shows ALL their drops regardless of which field holds their email.
+      const [byEmail, byCreator] = await Promise.all([
+        base44.entities.GlowDrop.filter({ user_email: profileEmail }, '-created_date'),
+        base44.entities.GlowDrop.filter({ created_by: profileEmail }, '-created_date').catch(() => []),
+      ]);
+      const seen = new Set();
+      const merged = [];
+      for (const d of [...byEmail, ...byCreator]) {
+        if (seen.has(d.id)) continue;
+        seen.add(d.id);
+        merged.push(d);
+      }
+      merged.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+      return merged;
+    },
     enabled: !!profileEmail
   });
 
