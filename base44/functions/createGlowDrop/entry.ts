@@ -119,9 +119,10 @@ Deno.serve(async (req) => {
       bonus_likes_enabled: true,
     };
 
-    const drop = postAsLeader
-      ? await base44.asServiceRole.entities.GlowDrop.create(dropPayload)
-      : await base44.entities.GlowDrop.create(dropPayload);
+    // Always create via service role. The user is already authenticated and rate-limited
+    // above; user-scoped creates were being rejected by RLS for some roles, causing the
+    // post to silently fail.
+    const drop = await base44.asServiceRole.entities.GlowDrop.create(dropPayload);
 
     // Dual-write Step 1: mirror into Supabase (fire-and-forget, never blocks).
     mirrorToSupabase('glow_drops', {
@@ -155,6 +156,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ success: true, drop_id: drop.id, posted_as_leader: !!postAsLeader });
   } catch (error) {
-    return Response.json({ error: 'Unable to create drop' }, { status: 500 });
+    console.error('createGlowDrop failed:', error?.message, error?.stack);
+    return Response.json({ error: error?.message || 'Unable to create drop' }, { status: 500 });
   }
 });
