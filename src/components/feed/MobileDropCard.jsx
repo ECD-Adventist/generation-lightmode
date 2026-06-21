@@ -1,14 +1,13 @@
 import React, { memo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Pin, PinOff } from "lucide-react";
+import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getDisplayName } from "@/lib/displayName";
-import { canPinEcdOfficerPost } from "@/lib/leaderPermissions";
 import { feedThumb, avatarThumb } from "@/lib/imageProxy";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
@@ -28,7 +27,6 @@ function MobileDropCard({
   userLikes = [],
   savedDropRecords = [],
   leaderAccounts = [],
-  managedLeaderAccounts = [],
 }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -36,8 +34,6 @@ function MobileDropCard({
   const userHasLiked = userLikes.some(like => like.drop_id === drop.id);
 
   const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
-  const managedLeaderForDrop = managedLeaderAccounts.find(a => a.leader_email === drop.user_email);
-  const canPinPost = canPinEcdOfficerPost(managedLeaderForDrop || leaderForDrop, user);
   const isLeaderPost = !!leaderForDrop;
   const isKeepIt100 = !drop.media_url && (drop.category === "Keep It 100" || /keepit100/i.test(drop.hashtags || ""));
   const isCodeOfTruth = !drop.media_url && drop.category === "Code of Truth";
@@ -62,21 +58,6 @@ function MobileDropCard({
       queryClient.invalidateQueries({ queryKey: ["savedDrops", user?.email] });
       toast.success(isSaved ? "Removed from Saved" : "Saved");
     },
-  });
-
-  const pinMutation = useMutation({
-    mutationFn: async () => {
-      const res = await base44.functions.invoke("toggleGlowDropPin", { drop_id: drop.id, pinned: !drop.pinned });
-      if (!res?.data?.success) throw new Error(res?.data?.error || "Could not update pinned status");
-      return res.data;
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
-      queryClient.invalidateQueries({ queryKey: ["pinnedLeaderDrops"] });
-      queryClient.invalidateQueries({ queryKey: ["postDrop", drop.id] });
-      toast.success(data.pinned ? "Pinned to announcements" : "Unpinned from announcements");
-    },
-    onError: (err) => toast.error(err?.response?.data?.error || err?.message || "Could not update pinned status"),
   });
 
   const deleteDropMutation = useMutation({
@@ -116,7 +97,7 @@ function MobileDropCard({
     }, 240);
   };
 
-  const isManagerOfLeader = !!managedLeaderForDrop && Array.isArray(managedLeaderForDrop.manager_emails) && managedLeaderForDrop.manager_emails.includes(user?.email);
+  const isManagerOfLeader = !!leaderForDrop && Array.isArray(leaderForDrop.manager_emails) && leaderForDrop.manager_emails.includes(user?.email);
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
   const canDelete = user?.email === drop.user_email || isManagerOfLeader || isAdmin;
 
@@ -218,13 +199,7 @@ function MobileDropCard({
                 <MoreHorizontal className="w-5 h-5" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {canPinPost && (
-                <DropdownMenuItem className="cursor-pointer" onClick={() => pinMutation.mutate()}>
-                  {drop.pinned ? <PinOff className="w-4 h-4 mr-2" /> : <Pin className="w-4 h-4 mr-2" />}
-                  {drop.pinned ? "Unpin Announcement" : "Pin Announcement"}
-                </DropdownMenuItem>
-              )}
+            <DropdownMenuContent align="end" className="w-40">
               {canDelete ? (
                 <DropdownMenuItem
                   className="text-red-500 cursor-pointer"

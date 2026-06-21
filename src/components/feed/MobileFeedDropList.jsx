@@ -18,7 +18,6 @@ function MobileFeedDropList({
   userLikes,
   savedDropRecords,
   leaderAccounts,
-  managedLeaderAccounts,
   onLoadMore,
   hasMore,
   isLoadingMore,
@@ -57,7 +56,6 @@ function MobileFeedDropList({
           userLikes={userLikes}
           savedDropRecords={savedDropRecords}
           leaderAccounts={leaderAccounts}
-          managedLeaderAccounts={managedLeaderAccounts}
         />
       ))}
       {isLoadingMore && (

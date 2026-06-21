@@ -5,7 +5,6 @@ import { Pin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { formatDistanceToNow } from "date-fns";
-import { isPinnedEcdOfficerDrop } from "@/lib/leaderPermissions";
 
 /**
  * Desktop-only ribbon of pinned leader announcements that always sit at the
@@ -21,9 +20,7 @@ export default function PinnedLeaderPosts({ leaderAccounts = [] }) {
     refetchOnWindowFocus: false,
   });
 
-  const visiblePinnedDrops = pinnedDrops.filter(drop => isPinnedEcdOfficerDrop(drop, leaderAccounts));
-
-  if (isLoading || visiblePinnedDrops.length === 0) return null;
+  if (isLoading || pinnedDrops.length === 0) return null;
 
   const resolveLeader = (email) => leaderAccounts.find(a => a.leader_email === email);
 
@@ -37,12 +34,12 @@ export default function PinnedLeaderPosts({ leaderAccounts = [] }) {
           Pinned Announcements
         </h3>
         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255, 208, 0, 0.18)", color: "#CC7A00" }}>
-          {visiblePinnedDrops.length}
+          {pinnedDrops.length}
         </span>
       </div>
 
       <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
-        {visiblePinnedDrops.map(drop => {
+        {pinnedDrops.map(drop => {
           const leader = resolveLeader(drop.user_email);
           const leaderName = leader?.leader_name || drop.user_email?.split("@")[0] || "Leader";
           const leaderTitle = leader?.leader_title || "Official Leader";

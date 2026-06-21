@@ -33,7 +33,6 @@ export default function MobileFeed({
   isError,
   onRefetch,
   leaderAccounts = [],
-  managedLeaderAccounts = [],
   following = [],
   followMutation,
   hasMore,
@@ -228,7 +227,6 @@ export default function MobileFeed({
             userLikes={userLikes}
             savedDropRecords={savedDropRecords}
             leaderAccounts={leaderAccounts}
-            managedLeaderAccounts={managedLeaderAccounts}
             hasMore={hasMore}
             isLoadingMore={isLoadingMore}
             onLoadMore={onLoadMore}

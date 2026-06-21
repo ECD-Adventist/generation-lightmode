@@ -10,7 +10,6 @@ import AdminGlowDropGridCard from "./drops/AdminGlowDropGridCard";
 import BulkActionsBar from "./drops/BulkActionsBar";
 import DropPreviewModal from "./drops/DropPreviewModal";
 import LightBoostersManager from "./drops/LightBoostersManager";
-import { canPinEcdOfficerPost } from "@/lib/leaderPermissions";
 
 export default function AdminGlowDropsTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
   const { theme } = useAdminTheme();
@@ -33,15 +32,6 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
       const response = await base44.functions.invoke("adminListGlowDrops", {});
       return response.data?.drops || [];
     },
-  });
-
-  const { data: managedLeaderAccounts = [] } = useQuery({
-    queryKey: ["managedLeaderAccountsForPinning", user?.email],
-    queryFn: async () => {
-      const response = await base44.functions.invoke("listManagedLeaderAccounts", {});
-      return Array.isArray(response.data) ? response.data : [];
-    },
-    enabled: !!user?.email,
   });
 
   const allowedCountries = (territoryCountries || "").split(",").map(item => item.trim()).filter(Boolean);
@@ -117,7 +107,6 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
   }, [scopedDrops, filter, filterCategory, search]);
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin_drops_all"] });
-  const canPinDrop = (drop) => canPinEcdOfficerPost(managedLeaderAccounts.find(account => account.leader_email === drop.user_email), user);
 
   // Single-drop actions
   const updateDrop = async (id, updates, successMsg) => {
@@ -140,8 +129,8 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
     updateDrop(drop.id, { hidden: true, hidden_reason: reason.trim() || "No reason given" }, "Hidden from public feed");
   };
   const handleUnhide  = (drop) => updateDrop(drop.id, { hidden: false, hidden_reason: "" }, "Drop is visible again");
-  const handlePin     = (drop) => canPinDrop(drop) ? updateDrop(drop.id, { pinned: true }, "Pinned to top of feed") : toast.error("Only managers of ECD Officer accounts can pin announcements.");
-  const handleUnpin   = (drop) => canPinDrop(drop) ? updateDrop(drop.id, { pinned: false }, "Unpinned from top") : toast.error("Only managers of ECD Officer accounts can unpin announcements.");
+  const handlePin     = (drop) => updateDrop(drop.id, { pinned: true }, "Pinned to top of feed");
+  const handleUnpin   = (drop) => updateDrop(drop.id, { pinned: false }, "Unpinned from top");
   const handleDelete  = async (drop) => {
     if (!window.confirm(`Permanently delete this drop by ${drop.user_email}? This cannot be undone.`)) return;
     try {
@@ -259,7 +248,6 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
               key={drop.id}
               drop={drop}
               selected={selected.has(drop.id)}
-              canPinDrop={canPinDrop(drop)}
               onToggleSelect={() => toggleSelect(drop.id)}
               onPreview={() => setPreviewDrop(drop)}
               onApprove={() => handleApprove(drop)}

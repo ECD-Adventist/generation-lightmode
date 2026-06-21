@@ -22,7 +22,7 @@ function timeAgo(date) {
   }
 }
 
-export default function AdminGlowDropGridCard({ drop, selected, canPinDrop = false, onToggleSelect, onPreview, onApprove, onReject, onHide, onUnhide, onDelete, onPin, onUnpin, t, isDark }) {
+export default function AdminGlowDropGridCard({ drop, selected, onToggleSelect, onPreview, onApprove, onReject, onHide, onUnhide, onDelete, onPin, onUnpin, t, isDark }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const hasMedia = !!drop.media_url;
   const status = drop.status || "approved";
@@ -82,7 +82,7 @@ export default function AdminGlowDropGridCard({ drop, selected, canPinDrop = fal
             </button>
             {menuOpen && (
               <div onClick={(event) => event.stopPropagation()}>
-                <DropActionsMenu drop={drop} canPinDrop={canPinDrop} onClose={() => setMenuOpen(false)} onApprove={onApprove} onReject={onReject} onHide={onHide} onUnhide={onUnhide} onDelete={onDelete} onPin={onPin} onUnpin={onUnpin} t={t} isDark={isDark} />
+                <DropActionsMenu drop={drop} onClose={() => setMenuOpen(false)} onApprove={onApprove} onReject={onReject} onHide={onHide} onUnhide={onUnhide} onDelete={onDelete} onPin={onPin} onUnpin={onUnpin} t={t} isDark={isDark} />
               </div>
             )}
           </div>
