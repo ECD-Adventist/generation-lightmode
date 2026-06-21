@@ -17,10 +17,14 @@ export default function Discover() {
   const [search, setSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState(null);
 
+  const [authChecked, setAuthChecked] = useState(false);
+
   React.useEffect(() => {
+    // Discover is fully public — guests can browse read-only. Only load the
+    // current user when authenticated; never redirect guests away.
     base44.auth.isAuthenticated().then(isAuth => {
-      if (isAuth) base44.auth.me().then(setUser);
-      else base44.auth.redirectToLogin(window.location.pathname);
+      if (isAuth) base44.auth.me().then(setUser).finally(() => setAuthChecked(true));
+      else setAuthChecked(true);
     });
   }, []);
 
@@ -32,7 +36,6 @@ export default function Discover() {
       const res = await base44.functions.invoke("listPublicUsers", { include_email: true, limit: 1000 });
       return res.data;
     },
-    enabled: !!user,
   });
 
   const { data: userLikes = [] } = useQuery({
@@ -91,7 +94,7 @@ export default function Discover() {
   const noopLike = { mutate: () => {} };
   const noopShare = () => {};
 
-  if (!user) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Zap className="w-8 h-8 animate-pulse" style={{ color: "#1FB8FF" }} /></div>;
+  if (!authChecked) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Zap className="w-8 h-8 animate-pulse" style={{ color: "#1FB8FF" }} /></div>;
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>

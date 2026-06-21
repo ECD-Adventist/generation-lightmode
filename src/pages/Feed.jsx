@@ -35,8 +35,8 @@ import { queueOfflineAction } from "@/lib/offlineCache";
 import useGuestPreview from "@/hooks/useGuestPreview";
 import useDeferredMount from "@/hooks/useDeferredMount";
 import GuestPreviewBanner from "@/components/pledge/GuestPreviewBanner";
-import GuestPreviewWall from "@/components/pledge/GuestPreviewWall";
 import CountryFlag from "@/components/common/CountryFlag";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
@@ -80,9 +80,10 @@ export default function Feed() {
   // Defer non-critical queries (stories, suggestedUsers, leaderAccounts) until after first paint.
   const deferredReady = useDeferredMount(700);
 
-  // Guest preview: let unauthenticated visitors browse the feed for 3 minutes
-  // before showing the sign-in / pledge wall.
+  // Guest preview: unauthenticated visitors can browse the public feed freely.
+  // Any interaction (post, like, follow, comment, status) is gated by requireAuth.
   const guestPreview = useGuestPreview();
+  const requireAuth = useRequireAuth(user);
 
   // Reset paginated display when the search query changes so newly-fetched
   // matching drops are visible from the top of the list.
@@ -217,7 +218,7 @@ export default function Feed() {
 
   const followMutation = useMutation({
     mutationFn: async (targetEmail) => {
-      if (!user) { toast.error("Please log in to follow"); throw new Error("Not logged in"); }
+      if (!user) { requireAuth(); throw new Error("Not logged in"); }
       const isFollowing = following.some(f => f.following_email === targetEmail);
       if (isFollowing) {
         const followRecord = following.find(f => f.following_email === targetEmail);
@@ -273,7 +274,7 @@ export default function Feed() {
 
   const likeMutation = useMutation({
     mutationFn: async ({ id, likes, authorEmail, authorName, action = 'like' }) => {
-      if (!user) { toast.error("Please log in to like drops"); return; }
+      if (!user) { requireAuth(); return; }
       const payload = {
         drop_id: id,
         author_email: authorEmail,
@@ -489,12 +490,11 @@ export default function Feed() {
 
   return (
     <div className="h-[100dvh] relative overflow-hidden font-['Inter'] flex flex-col" style={{ background: "linear-gradient(135deg, #D4F5D4 0%, #F5F99A 100%)", color: "#0B1B3D" }}>
-      {guestPreview.isGuest && !guestPreview.expired && (
+      {guestPreview.isGuest && (
         <div className="shrink-0 relative z-[60]">
           <GuestPreviewBanner remainingMs={guestPreview.remainingMs} totalMs={guestPreview.totalMs} />
         </div>
       )}
-      {guestPreview.expired && <GuestPreviewWall destination="Feed" />}
       <OnboardingModal
         isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth || !user.city || !user.address || !user.postal_code)}
         onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
@@ -533,8 +533,8 @@ export default function Feed() {
           stories={activeStories}
           getUserInfo={getUserInfo}
           onOpenStatus={(s) => setSelectedStory(s)}
-          onOpenStatusComposer={() => user ? setIsStatusModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
-          onOpenDropModal={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
+          onOpenStatusComposer={() => requireAuth(() => setIsStatusModalOpen(true))}
+          onOpenDropModal={() => requireAuth(() => setIsDropModalOpen(true))}
           filteredDrops={filteredDrops}
           displayCount={displayCount}
           drops={drops}
@@ -654,7 +654,7 @@ export default function Feed() {
            </nav>
            
            <button
-              onClick={() => setIsDropModalOpen(true)}
+              onClick={() => requireAuth(() => setIsDropModalOpen(true))}
               className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-full w-full py-3.5 text-sm transition-all hover:opacity-90 hover:shadow-lg"
               style={{ background: "linear-gradient(90deg, #FFC107 0%, #FF9800 100%)", color: "#0D1B3D", boxShadow: "0 4px 14px rgba(255, 152, 0, 0.35)" }}
             >
@@ -747,7 +747,7 @@ export default function Feed() {
           {/* Stories / Status Row */}
           <div className="flex gap-3 sm:gap-4 px-3 sm:px-4 mb-6 sm:mb-5 overflow-x-auto hide-scrollbar pb-2 shrink-0 items-start">
             <button
-              onClick={() => user ? setIsStatusModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)}
+              onClick={() => requireAuth(() => setIsStatusModalOpen(true))}
               className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0"
             >
                <div className="relative w-16 h-16 rounded-full p-[2px]" style={{ background: "#1E5AFF" }}>
@@ -797,7 +797,7 @@ export default function Feed() {
           </div>
 
           <div className="flex gap-2 sm:gap-3 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">
-            <button onClick={() => user ? setIsDropModalOpen(true) : base44.auth.redirectToLogin(window.location.pathname)} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#2979FF", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(41, 121, 255, 0.3)" }}><Plus className="w-4 h-4" />Post</button>
+            <button onClick={() => requireAuth(() => setIsDropModalOpen(true))} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#2979FF", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(41, 121, 255, 0.3)" }}><Plus className="w-4 h-4" />Post</button>
             <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0E4EB", color: "#263238" }}>Messages</Link>
             <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0E4EB", color: "#263238" }}>Prayer Wall</Link>
             <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#E3F2FD", color: "#1565C0" }}>Live</Link>
@@ -843,7 +843,7 @@ export default function Feed() {
                 {activeFilter === 'Following' ? (
                   <button onClick={() => setActiveFilter('All')} className="inline-block mt-4 hover:underline font-semibold" style={{ color: "#0B3FD9" }}>Explore all posts</button>
                 ) : (
-                  <button onClick={() => setIsDropModalOpen(true)} className="inline-block mt-4 hover:underline font-semibold" style={{ color: "#0B3FD9" }}>Submit a Light</button>
+                  <button onClick={() => requireAuth(() => setIsDropModalOpen(true))} className="inline-block mt-4 hover:underline font-semibold" style={{ color: "#0B3FD9" }}>Submit a Light</button>
                 )}
               </div>
             ) : (
@@ -1042,7 +1042,7 @@ export default function Feed() {
                   </div>
                 )}
               </nav>
-              <button onClick={() => { setIsDropModalOpen(true); setIsMobileNavOpen(false); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-full w-full py-3.5 text-sm hover:opacity-90 transition-opacity" style={{ background: "linear-gradient(90deg, #FFC107 0%, #FF9800 100%)", color: "#0D1B3D", boxShadow: "0 4px 14px rgba(255, 152, 0, 0.35)" }}>
+              <button onClick={() => { setIsMobileNavOpen(false); requireAuth(() => setIsDropModalOpen(true)); }} className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-full w-full py-3.5 text-sm hover:opacity-90 transition-opacity" style={{ background: "linear-gradient(90deg, #FFC107 0%, #FF9800 100%)", color: "#0D1B3D", boxShadow: "0 4px 14px rgba(255, 152, 0, 0.35)" }}>
                 <Plus className="w-4 h-4" /> NEW DROP
               </button>
             </div>
@@ -1057,7 +1057,7 @@ export default function Feed() {
           <button onClick={() => setIsSearchOpen(true)} className="flex h-11 w-11 items-center justify-center rounded-full" title="Search">
             <SearchIcon className="w-5 h-5" style={{ color: "#0B1B3D" }} />
           </button>
-          <button onClick={() => setIsDropModalOpen(true)} className="flex h-11 w-11 items-center justify-center rounded-full" title="Create post">
+          <button onClick={() => requireAuth(() => setIsDropModalOpen(true))} className="flex h-11 w-11 items-center justify-center rounded-full" title="Create post">
             <SquarePlus className="w-5 h-5" style={{ color: "#0B1B3D" }} />
           </button>
           <Link to={createPageUrl("GlobalReach")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Global Reach">
