@@ -1009,13 +1009,17 @@ export default function Feed() {
                 <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
                 <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
                 <SidebarLink to={createPageUrl("Discover")} icon={<Compass className="w-[18px] h-[18px]" />} label="Discover" />
-                <SidebarLink to={createPageUrl("Notifications")} icon={<Bell className="w-[18px] h-[18px]" />} label="Notifications" badge={notifications.length > 0 ? notifications.length : null} />
-                <SidebarLink to={createPageUrl("Dashboard")} icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
-                <SidebarLink to={createPageUrl("Profile")} icon={
-                  <div className="w-[18px] h-[18px] rounded-full overflow-hidden shrink-0" style={{ border: "1px solid #D5E3F0" }}>
-                    <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-                  </div>
-                } label="Profile" />
+                {!isGuest && (
+                  <>
+                    <SidebarLink to={createPageUrl("Notifications")} icon={<Bell className="w-[18px] h-[18px]" />} label="Notifications" badge={notifications.length > 0 ? notifications.length : null} />
+                    <SidebarLink to={createPageUrl("Dashboard")} icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
+                    <SidebarLink to={createPageUrl("Profile")} icon={
+                      <div className="w-[18px] h-[18px] rounded-full overflow-hidden shrink-0" style={{ border: "1px solid #D5E3F0" }}>
+                        <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                      </div>
+                    } label="Profile" />
+                  </>
+                )}
 
                 <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mt-5 mb-2" style={{ color: "#90A4AE" }}>Tools</p>
                 <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />
