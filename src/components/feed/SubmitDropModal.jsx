@@ -32,6 +32,7 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [compressing, setCompressing] = useState(false);
   const [editorFile, setEditorFile] = useState(null); // file currently open in photo editor
   const [postAsLeaderId, setPostAsLeaderId] = useState(""); // empty = post as self
+  const [postSuccess, setPostSuccess] = useState(false); // shows green success banner before auto-close
 
   // Fetch only leader accounts this user is allowed to manage.
   const { data: leaderAccounts = [] } = useQuery({
@@ -207,6 +208,7 @@ RULES:
     setSizeInfo(null);
     setCompressing(false);
     setPostAsLeaderId("");
+    setPostSuccess(false);
     onClose();
   };
 
@@ -307,7 +309,11 @@ RULES:
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
       queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });
       queryClient.invalidateQueries({ queryKey: ["myGlowDropsProfile"] });
-      resetAndClose();
+      // Show success banner, then auto-close + reset after 1.5s.
+      setLoading(false);
+      setPostSuccess(true);
+      setTimeout(() => { resetAndClose(); }, 1500);
+      return;
     } catch (error) {
       console.error("Glow Drop upload failed:", error);
       // Backend rate-limit responses come back via axios with response.data
@@ -346,7 +352,7 @@ RULES:
         />
       )}
       <Dialog open={isOpen} onOpenChange={resetAndClose}>
-        <DialogContent className="sm:max-w-lg max-h-[92vh] overflow-y-auto z-[2000] p-0 rounded-3xl [&>button]:text-[#4A5878] [&>button]:hover:text-[#0B3FD9]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D", boxShadow: "0 16px 48px rgba(11, 63, 217, 0.18)" }}>
+        <DialogContent className="w-full max-w-2xl max-h-[92vh] overflow-y-auto z-[2000] p-0 rounded-3xl [&>button]:text-[#4A5878] [&>button]:hover:text-[#0B3FD9]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D", boxShadow: "0 16px 48px rgba(11, 63, 217, 0.18)" }}>
           <div className="relative px-6 pt-6 pb-4">
             <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9, #FFD000)" }} />
             <h2 className="text-2xl font-black font-['Space_Grotesk'] flex items-center gap-2" style={{ color: "#0B1B3D" }}>
@@ -354,6 +360,12 @@ RULES:
             </h2>
             <p className="text-sm mt-1" style={{ color: "#6B7FA0" }}>Inspire others and earn XP</p>
           </div>
+
+          {postSuccess && (
+            <div className="mx-6 mb-4 rounded-2xl px-4 py-3 flex items-center gap-2 font-bold text-sm" style={{ background: "rgba(34,197,94,0.1)", border: "1px solid #86EFAC", color: "#16A34A" }}>
+              ✅ Glow Drop posted successfully!
+            </div>
+          )}
 
           {dailyCode && showSuggestion && (
             <div className="mx-6 mb-4">
@@ -521,9 +533,9 @@ RULES:
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
 
               {preview ? (
-                <div className="relative rounded-2xl overflow-hidden flex items-center justify-center" style={{ border: "1px solid #E6ECF5", background: "#0B1B3D", minHeight: "12rem", maxHeight: "32rem" }}>
-                  <img src={preview} alt="Preview" className="max-w-full max-h-[32rem] w-auto h-auto object-contain" />
-                  <div className="absolute top-3 right-3 flex items-center gap-2">
+                <div className="relative rounded-2xl overflow-hidden flex items-center justify-center" style={{ border: "1px solid #E6ECF5", background: "#F6F8FC", minHeight: "12rem", maxHeight: "32rem" }}>
+                  <img src={preview} alt="Preview" className="relative z-10 max-w-full max-h-[32rem] w-auto h-auto object-contain" />
+                  <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
                     <button
                       type="button"
                       onClick={handleEditCurrentPhoto}
@@ -542,7 +554,7 @@ RULES:
                     </button>
                   </div>
                   {loading && file && (
-                    <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+                    <div className="absolute inset-x-0 bottom-0 z-20 p-3 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
                       <div className="flex items-center justify-between text-[11px] font-bold text-white mb-1.5">
                         <span>{uploadStage}</span>
                         <span>{Math.round(uploadProgress)}%</span>

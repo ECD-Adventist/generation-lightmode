@@ -206,16 +206,28 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     onSuccess: () => { toast.success("Comment reported to moderators"); }
   });
 
+  // Remove this drop from every cached feed list instantly so it disappears
+  // without waiting for a refetch or a page reload.
+  const removeDropFromCaches = () => {
+    queryClient.setQueryData(["allGlowDrops"], old => {
+      if (!old?.pages) return old;
+      return { ...old, pages: old.pages.map(page => page.filter(d => d.id !== drop.id)) };
+    });
+    queryClient.setQueryData(["glowFeed"], old => Array.isArray(old) ? old.filter(d => d.id !== drop.id) : old);
+    queryClient.setQueryData(["myGlowDropsProfile"], old => Array.isArray(old) ? old.filter(d => d.id !== drop.id) : old);
+  };
+
   const deleteDropMutation = useMutation({
     mutationFn: async () => {
       const res = await base44.functions.invoke("deleteGlowDrop", { drop_id: drop.id });
       if (!res?.data?.success) throw new Error(res?.data?.error || "Failed to delete post");
     },
     onSuccess: () => {
+      removeDropFromCaches();
+      toast.success("Post deleted", { duration: 2000 });
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
       queryClient.invalidateQueries({ queryKey: ["glowFeed"] });
       queryClient.invalidateQueries({ queryKey: ["myGlowDropsProfile"] });
-      toast.success("Post deleted");
     },
     onError: (err) => {
       toast.error(err?.response?.data?.error || err?.message || "Could not delete post");
