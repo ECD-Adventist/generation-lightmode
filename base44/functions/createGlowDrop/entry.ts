@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
 
 // Fire-and-forget mirror of a Base44 record into Supabase. Never awaited by the
 // caller, never throws — the Base44 write stays the primary source of truth.
