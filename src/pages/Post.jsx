@@ -213,7 +213,7 @@ export default function Post() {
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       {/* Sticky header */}
       <div className="sticky top-0 z-40 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.85)", borderColor: "#E6ECF5" }}>
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center gap-3">
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
           <button
             onClick={handleBack}
             className="inline-flex items-center justify-center w-9 h-9 rounded-full transition active:scale-90"
@@ -226,7 +226,7 @@ export default function Post() {
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-5 md:py-7">
+      <div className="max-w-2xl mx-auto px-4 py-5 md:py-7">
         <DropCard
           drop={drop}
           user={currentUser}
