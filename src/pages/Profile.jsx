@@ -587,7 +587,7 @@ export default function Profile() {
             <button key={drop.id} onClick={() => setViewingDropId(drop.id)} className="aspect-[4/5] relative rounded-2xl overflow-hidden active:scale-95 transition"
               style={{ background: drop.media_url ? "#FFFFFF" : "linear-gradient(135deg, #EEF3FF, #DDE7FB)", border: "1px solid #E6ECF5" }}
             >
-              {drop.media_url ? <img src={drop.media_url} className="w-full h-full object-cover" /> : (
+              {drop.media_url ? <img src={drop.media_url} loading="lazy" className="w-full h-full object-cover" /> : (
                 <div className="w-full h-full flex items-center justify-center p-3 text-center">
                   <span className="text-xs font-black font-['Space_Grotesk'] line-clamp-5" style={{ color: "#0B3FD9" }}>{drop.verse}</span>
                 </div>
@@ -1177,7 +1177,7 @@ export default function Profile() {
                   >
                     {drop.media_url ? (
                       <>
-                        <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="absolute inset-0 w-full h-full object-cover" />
+                        <img src={drop.media_url} alt={drop.verse || "Glow Drop"} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10" />
                       </>
                     ) : (

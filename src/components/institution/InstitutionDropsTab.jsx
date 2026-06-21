@@ -68,7 +68,7 @@ export default function InstitutionDropsTab({ ownerEmail }) {
               <div key={drop.id} className="bg-[#121826] border border-white/5 rounded-2xl overflow-hidden flex flex-col h-[280px]">
                 {drop.media_url ? (
                   <div className="h-32 w-full bg-black shrink-0">
-                    <img src={drop.media_url} className="w-full h-full object-cover opacity-80" />
+                    <img src={drop.media_url} loading="lazy" className="w-full h-full object-cover opacity-80" />
                   </div>
                 ) : (
                   <div className="h-32 w-full bg-gradient-to-br from-[#00CFFF]/10 to-[#8A5CFF]/10 shrink-0 flex items-center justify-center p-4">

@@ -124,7 +124,7 @@ export default function GlowDropCard({ drop, selected, onToggleSelect, onPreview
         <div onClick={onPreview} className="relative overflow-hidden rounded-[1.5rem] cursor-pointer group border" style={{ borderColor: t.border, background: hasMedia ? "#000000" : "linear-gradient(160deg, #071126 0%, #102A5C 48%, #08101F 100%)" }}>
           {hasMedia ? (
             <>
-              <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="w-full aspect-[4/5] object-cover transition-transform duration-700 group-hover:scale-105" />
+              <img src={drop.media_url} alt={drop.verse || "Glow Drop"} loading="lazy" className="w-full aspect-[4/5] object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/25" />
             </>
           ) : (

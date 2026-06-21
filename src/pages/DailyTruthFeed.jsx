@@ -191,7 +191,7 @@ function TruthCard({ drop, onShare, user, featured }) {
       ) : isCodeOfTruth ? (
         <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="w-full aspect-[4/5]" />
       ) : drop.media_url && (
-        <img src={drop.media_url} alt="" className="w-full max-h-80 object-contain bg-black" />
+        <img src={drop.media_url} alt="" loading="lazy" className="w-full max-h-80 object-contain bg-black" />
       )}
       <div className="p-5">
          {isSystemPost ? (

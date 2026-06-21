@@ -27,7 +27,8 @@ const typeBg = {
 export default function MobileNotifications({
   isLoading, filteredNotifications, unreadCount, activeCategory, setActiveCategory,
   categoryCounts, markReadMutation, markAllReadMutation, deleteMutation,
-  following, followBackMutation, user, getNotificationUserEmail
+  following, followBackMutation, user, getNotificationUserEmail,
+  hasMore, onLoadMore
 }) {
   return (
     <div className="min-h-screen pb-24 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
@@ -124,6 +125,11 @@ export default function MobileNotifications({
                 </div>
               );
             })}
+            {hasMore && (
+              <button onClick={onLoadMore} className="w-full py-3 rounded-2xl font-bold text-sm" style={{ background: "#FFFFFF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>
+                Load More
+              </button>
+            )}
           </div>
         )}
       </div>

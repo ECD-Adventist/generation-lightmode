@@ -15,6 +15,7 @@ export default function PrayerWall() {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Other");
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(10);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -100,6 +101,9 @@ export default function PrayerWall() {
 
   const getName = (email) => getDisplayName(allUsers.find((entry) => entry.email === email) || { email });
 
+  const visibleRequests = requests.slice(0, visibleCount);
+  const hasMoreRequests = visibleCount < requests.length;
+
   if (!user) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><span style={{ color: "#1FB8FF" }}>Loading prayer wall...</span></div>;
 
   if (isMobile) {
@@ -109,9 +113,11 @@ export default function PrayerWall() {
         category={category} setCategory={setCategory}
         isAnonymous={isAnonymous} setIsAnonymous={setIsAnonymous}
         postMutation={postMutation}
-        requests={requests} supports={supports} comments={comments}
+        requests={visibleRequests} supports={supports} comments={comments}
         prayMutation={prayMutation} commentMutation={commentMutation}
         getName={getName}
+        hasMore={hasMoreRequests}
+        onLoadMore={() => setVisibleCount(c => c + 10)}
       />
     );
   }
@@ -174,7 +180,7 @@ export default function PrayerWall() {
         </div>
 
         <div className="space-y-4">
-          {requests.map((request) => {
+          {visibleRequests.map((request) => {
             const requestSupports = supports.filter((support) => support.request_id === request.id);
             const requestComments = comments
               .filter((comment) => comment.request_id === request.id)
@@ -194,6 +200,17 @@ export default function PrayerWall() {
               />
             );
           })}
+          {hasMoreRequests && (
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={() => setVisibleCount(c => c + 10)}
+                className="px-6 py-3 rounded-2xl font-semibold transition"
+                style={{ background: "#FFFFFF", border: "1px solid #D6E4FF", color: "#0B3FD9", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.06)" }}
+              >
+                Load More ({requests.length - visibleCount} left)
+              </button>
+            </div>
+          )}
         </div>
         </div>
         </div>

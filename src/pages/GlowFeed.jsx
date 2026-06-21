@@ -23,6 +23,7 @@ export default function GlowFeed() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTerritory, setSelectedTerritory] = useState("All");
+  const [visibleCount, setVisibleCount] = useState(12);
   const queryClient = useQueryClient();
   const scrollRef = useRef(null);
 
@@ -42,6 +43,9 @@ export default function GlowFeed() {
     queryFn: () => base44.entities.GlowDrop.filter({ status: "approved" }, "-created_date", 200),
     staleTime: 1000 * 60 * 2,
   });
+
+  // Reset the visible window whenever filters/search change so "Load More" starts fresh.
+  useEffect(() => { setVisibleCount(12); }, [searchQuery, activeCategory, activeFilter, selectedTerritory]);
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ["glowFeedUsers"],
@@ -250,18 +254,30 @@ export default function GlowFeed() {
             <p className="text-sm mt-1">Try adjusting your filters or check back soon.</p>
           </div>
         ) : (
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 space-y-0">
-            {filtered.map(drop => (
-              <div key={drop.id} className="break-inside-avoid mb-5">
-                <GlowFeedCard
-                  drop={drop}
-                  currentUser={currentUser}
-                  dropUser={getUserInfo(drop.user_email)}
-                  userLikes={userLikes}
-                />
+          <>
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 space-y-0">
+              {filtered.slice(0, visibleCount).map(drop => (
+                <div key={drop.id} className="break-inside-avoid mb-5">
+                  <GlowFeedCard
+                    drop={drop}
+                    currentUser={currentUser}
+                    dropUser={getUserInfo(drop.user_email)}
+                    userLikes={userLikes}
+                  />
+                </div>
+              ))}
+            </div>
+            {visibleCount < filtered.length && (
+              <div className="flex justify-center pt-8">
+                <button
+                  onClick={() => setVisibleCount(c => c + 12)}
+                  className="px-6 py-3 rounded-full bg-[#00CFFF]/15 border border-[#00CFFF]/40 text-[#00CFFF] text-sm font-bold hover:bg-[#00CFFF]/25 transition"
+                >
+                  Load More ({filtered.length - visibleCount} left)
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>

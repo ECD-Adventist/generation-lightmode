@@ -35,6 +35,7 @@ export default function Notifications() {
   const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
   const [activeCategory, setActiveCategory] = useState("all");
+  const [visibleCount, setVisibleCount] = useState(20);
   const queryClient = useQueryClient();
   const scrollRef = useRef(null);
 
@@ -52,10 +53,13 @@ export default function Notifications() {
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ["allNotifications", user?.id],
-    queryFn: () => base44.entities.Notification.filter({ user_id: user.id }),
+    queryFn: () => base44.entities.Notification.filter({ user_id: user.id }, "-created_date", 100),
     enabled: !!user?.id,
     refetchInterval: 15000,
   });
+
+  // Reset the visible window when the category filter changes.
+  useEffect(() => { setVisibleCount(20); }, [activeCategory]);
 
   const { data: following = [] } = useQuery({
     queryKey: ["following", user?.email],
@@ -160,9 +164,11 @@ export default function Notifications() {
 
   const unreadCount = notifications.filter(n => !n.read).length;
   const sorted = [...notifications].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
-  const filteredNotifications = activeCategory === "all"
+  const allFilteredNotifications = activeCategory === "all"
     ? sorted
     : sorted.filter((notification) => getNotificationCategory(notification.type) === activeCategory);
+  const filteredNotifications = allFilteredNotifications.slice(0, visibleCount);
+  const hasMoreNotifications = visibleCount < allFilteredNotifications.length;
 
   const categoryCounts = useMemo(() => ({
     all: sorted.length,
@@ -207,6 +213,8 @@ export default function Notifications() {
         followBackMutation={followBackMutation}
         user={user}
         getNotificationUserEmail={getNotificationUserEmail}
+        hasMore={hasMoreNotifications}
+        onLoadMore={() => setVisibleCount(c => c + 20)}
       />
     );
   }
@@ -414,6 +422,17 @@ export default function Notifications() {
                     </div>
                   );
                 })}
+                {hasMoreNotifications && (
+                  <div className="flex justify-center pt-2">
+                    <button
+                      onClick={() => setVisibleCount(c => c + 20)}
+                      className="px-6 py-3 rounded-full text-sm font-bold transition"
+                      style={{ background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF", color: "#0B3FD9" }}
+                    >
+                      Load More
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
