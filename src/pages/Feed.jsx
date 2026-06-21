@@ -35,7 +35,6 @@ import { queueOfflineAction } from "@/lib/offlineCache";
 import useGuestPreview from "@/hooks/useGuestPreview";
 import useDeferredMount from "@/hooks/useDeferredMount";
 import GuestStickyBar from "@/components/pledge/GuestStickyBar";
-import GuestPreviewTimer from "@/components/pledge/GuestPreviewTimer";
 import CountryFlag from "@/components/common/CountryFlag";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
@@ -493,13 +492,6 @@ export default function Feed() {
 
   return (
     <div className="h-[100dvh] relative overflow-hidden font-['Inter'] flex flex-col" style={{ background: "linear-gradient(135deg, #D4F5D4 0%, #F5F99A 100%)", color: "#0B1B3D" }}>
-      {!user && (
-        <GuestPreviewTimer
-          remainingMs={guestPreview.remainingMs}
-          totalMs={guestPreview.totalMs}
-          expired={guestPreview.expired}
-        />
-      )}
       {isGuest && <GuestStickyBar />}
       <OnboardingModal
         isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth || !user.city || !user.address || !user.postal_code)}
