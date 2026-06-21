@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Heart, MessageCircle, Loader2, Flame, MapPin, Calendar } from "lucide-react";
 import { toast } from "sonner";
@@ -35,8 +36,9 @@ export default function PrayerMatcher({ currentUser }) {
         const existing = await base44.entities.DirectConversation.filter({ participant_a: currentUser.email, participant_b: recipientEmail });
         let convId = existing[0]?.id;
         if (!convId) { const c = await base44.entities.DirectConversation.create({ participant_a: currentUser.email, participant_b: recipientEmail }); convId = c.id; }
-        await base44.entities.DirectMessage.create({ conversation_id: convId, sender_email: currentUser.email, recipient_email: recipientEmail, content: `Hi! I saw your prayer request and wanted to reach out. I'm here to pray with you. 🙏` });
-        await base44.entities.Notification.create({ user_email: recipientEmail, type: "message", message: `${currentUser.full_name || 'Someone'} sent you a prayer support message.`, link: createPageUrl("Messages") + `?user=${encodeURIComponent(currentUser.email)}` }).catch(() => {});
+        const dmRec = await base44.entities.DirectMessage.create({ conversation_id: convId, sender_email: currentUser.email, recipient_email: recipientEmail, content: `Hi! I saw your prayer request and wanted to reach out. I'm here to pray with you. 🙏` });
+        dualWriteSupabase("direct_messages", dmRec);
+        base44.entities.Notification.create({ user_email: recipientEmail, type: "message", message: `${currentUser.full_name || 'Someone'} sent you a prayer support message.`, link: createPageUrl("Messages") + `?user=${encodeURIComponent(currentUser.email)}` }).then(n => dualWriteSupabase("notifications", n)).catch(() => {});
         toast.success("Message sent! Check Messages.");
       } finally { setInitiatingDM(false); }
     },

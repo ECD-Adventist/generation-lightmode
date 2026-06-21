@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
+import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bell, Heart, MessageCircle, Zap, Info, CheckCheck, Trash2, Loader2, Home, Users, User, Globe, UserPlus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -144,7 +145,8 @@ export default function Notifications() {
     mutationFn: async (targetEmail) => {
       const existingFollow = following.find(f => f.following_email === targetEmail);
       if (existingFollow) return "already_following";
-      await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+      const followRec = await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+      dualWriteSupabase("follows", followRec);
       const targetUser = allUsers.find(entry => entry.email === targetEmail);
       if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
         await base44.functions.invoke("createNotification", {

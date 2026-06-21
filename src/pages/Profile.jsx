@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
+import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Zap, Home, Users, Bell, Globe, Bookmark, Building2, Sparkles, BarChart3 } from "lucide-react";
 import { createPageUrl } from "@/utils";
@@ -354,7 +355,8 @@ export default function Profile() {
         await base44.entities.Follow.delete(existingFollow.id);
         return { targetEmail, action: "unfollow" };
       }
-      await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: targetEmail });
+      const followRec = await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: targetEmail });
+      dualWriteSupabase("follows", followRec);
       const targetUser = allUsersForProfile.find(u => u.email === targetEmail);
       if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
         await base44.functions.invoke("createNotification", {

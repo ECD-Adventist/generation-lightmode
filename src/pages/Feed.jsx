@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
+import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, SquarePlus, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera, X, Flame } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
@@ -223,7 +224,8 @@ export default function Feed() {
         await base44.entities.Follow.delete(followRecord.id);
         return true;
       } else {
-        await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+        const followRec = await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+        dualWriteSupabase("follows", followRec);
         const targetUser = users.find(u => u.email === targetEmail);
         if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
           await base44.functions.invoke("createNotification", {

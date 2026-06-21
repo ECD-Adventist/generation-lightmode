@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { Link } from "react-router-dom";
 import { ArrowLeft, MessageCircle, Users, Home, Zap, Bell, User, Globe } from "lucide-react";
 import { createPageUrl } from "@/utils";
@@ -153,6 +154,7 @@ export default function Messages() {
         file_url: file_url || undefined,
         status: "sent",
       });
+      dualWriteSupabase("direct_messages", message);
 
       await base44.entities.DirectConversation.update(selectedConversation.id, {
         last_message: content?.trim() || `Shared a file`,

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Heart, Send, Eye } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
 import StoryViewersModal from "./StoryViewersModal";
@@ -133,12 +134,13 @@ export default function StoryReactionBar({ story, currentUser, storyAuthor, onPa
     }
 
     const replyContent = `📸 Reply to story: ${replyText.trim()}`;
-    await base44.entities.DirectMessage.create({
+    const dmRec = await base44.entities.DirectMessage.create({
       conversation_id: conversation.id,
       sender_email: currentUser.email,
       recipient_email: story.user_email,
       content: replyContent,
     });
+    dualWriteSupabase("direct_messages", dmRec);
 
     await base44.entities.DirectConversation.update(conversation.id, {
       last_message: replyContent,
@@ -146,12 +148,13 @@ export default function StoryReactionBar({ story, currentUser, storyAuthor, onPa
     });
 
     if (!isOwnStory) {
-      await base44.entities.Notification.create({
+      const notifRec = await base44.entities.Notification.create({
         user_email: story.user_email,
         type: "message",
         message: `${currentUser.full_name || "Someone"} replied to your story`,
         link: createPageUrl("Messages") + `?user=${encodeURIComponent(currentUser.email)}`,
       });
+      dualWriteSupabase("notifications", notifRec);
     }
 
     setReplyText("");

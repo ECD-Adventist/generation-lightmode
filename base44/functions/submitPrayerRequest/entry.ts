@@ -1,5 +1,23 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
+// Fire-and-forget mirror of a Base44 record into Supabase. Never awaited by the
+// caller, never throws — the Base44 write stays the primary source of truth.
+const SUPABASE_URL = 'https://asnsthgubpeptoiexajf.supabase.co';
+function mirrorToSupabase(table, row) {
+  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!key || !row?.id) return;
+  fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates,return=minimal',
+    },
+    body: JSON.stringify(row),
+  }).catch((e) => console.error(`Supabase mirror ${table} failed:`, e?.message));
+}
+
 // Owns PrayerRequest create/update so anonymity is enforced server-side:
 // when is_anonymous is true, user_email is NEVER persisted (privacy / GDPR).
 Deno.serve(async (req) => {
@@ -49,6 +67,17 @@ Deno.serve(async (req) => {
       category: category || 'Other',
       is_anonymous: anonymous,
       answered: false,
+    });
+
+    // Dual-write Step 1: mirror into Supabase (fire-and-forget, never blocks).
+    mirrorToSupabase('prayer_requests', {
+      id: created.id,
+      user_email: created.user_email,
+      content: created.content,
+      category: created.category,
+      is_anonymous: created.is_anonymous,
+      answered: created.answered,
+      created_date: created.created_date,
     });
 
     return Response.json({ success: true, id: created.id });

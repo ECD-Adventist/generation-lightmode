@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { createPageUrl } from "@/utils";
 import { Globe } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -37,7 +38,9 @@ export default function GenerationLightMode() {
     mutationFn: async () => {
       const existing = myFollowing.find((f) => f.following_email === ACCOUNT_EMAIL);
       if (existing) return base44.entities.Follow.delete(existing.id);
-      return base44.entities.Follow.create({ follower_email: me.email, following_email: ACCOUNT_EMAIL });
+      const rec = await base44.entities.Follow.create({ follower_email: me.email, following_email: ACCOUNT_EMAIL });
+      dualWriteSupabase("follows", rec);
+      return rec;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["glmFollowers"] });

@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Loader2, Send, Lock, Heart } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 
@@ -42,9 +43,10 @@ export default function PrayerRoomModal({ isOpen, onClose, currentUser, partnerE
     setSending(true);
     const text = message.trim();
     setMessage("");
-    await base44.entities.DirectMessage.create({ conversation_id: conversationId, sender_email: currentUser.email, recipient_email: partnerEmail, content: text, read: false });
+    const dmRec = await base44.entities.DirectMessage.create({ conversation_id: conversationId, sender_email: currentUser.email, recipient_email: partnerEmail, content: text, read: false });
+    dualWriteSupabase("direct_messages", dmRec);
     await base44.entities.DirectConversation.update(conversationId, { last_message: text.slice(0, 80), last_message_at: new Date().toISOString() });
-    base44.entities.Notification.create({ user_email: partnerEmail, type: "message", message: `${currentUser.full_name || "Someone"} sent you a message in your prayer room.`, link: `/Messages?user=${encodeURIComponent(currentUser.email)}` }).catch(() => {});
+    base44.entities.Notification.create({ user_email: partnerEmail, type: "message", message: `${currentUser.full_name || "Someone"} sent you a message in your prayer room.`, link: `/Messages?user=${encodeURIComponent(currentUser.email)}` }).then(n => dualWriteSupabase("notifications", n)).catch(() => {});
     queryClient.invalidateQueries({ queryKey: ["prayerRoomMessages", conversationId] });
     setSending(false);
   };

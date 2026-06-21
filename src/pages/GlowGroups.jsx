@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { Link } from "react-router-dom";
 import { isNotificationEnabled } from "@/lib/notifications";
 import AppFooter from "@/components/AppFooter";
@@ -142,15 +143,17 @@ export default function GlowGroups() {
         const rec = following.find(f => f.following_email === targetEmail);
         await base44.entities.Follow.delete(rec.id);
       } else {
-        await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+        const followRec = await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+        dualWriteSupabase("follows", followRec);
         const targetUser = users.find(u => u.email === targetEmail);
         if (isNotificationEnabled(targetUser, "follows")) {
-          await base44.entities.Notification.create({
+          const notifRec = await base44.entities.Notification.create({
             user_email: targetEmail,
             type: "follow",
             message: `${user.full_name || 'Someone'} started following you.`,
             link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
           });
+          dualWriteSupabase("notifications", notifRec);
         }
         await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
       }
@@ -187,12 +190,12 @@ export default function GlowGroups() {
         status: "pending",
       });
       // Notify leader
-      await base44.entities.Notification.create({
+      base44.entities.Notification.create({
         user_email: group.leader_email,
         type: "system",
         message: `${user.full_name || "Someone"} requested to join your group "${group.name}".`,
         link: `/GroupChat?id=${group.id}`,
-      }).catch(() => {});
+      }).then(n => dualWriteSupabase("notifications", n)).catch(() => {});
       return { action: "requested" };
     },
     onSuccess: ({ action }) => {

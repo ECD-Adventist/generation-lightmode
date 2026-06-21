@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { isNotificationEnabled } from "@/lib/notifications";
@@ -151,15 +152,17 @@ export default function Post() {
         await base44.entities.Follow.delete(existing.id);
         return "unfollow";
       }
-      await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: targetEmail });
+      const followRec = await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: targetEmail });
+      dualWriteSupabase("follows", followRec);
       const targetUser = getUserInfo(targetEmail);
       if (isNotificationEnabled(targetUser, "follows")) {
-        await base44.entities.Notification.create({
+        const notifRec = await base44.entities.Notification.create({
           user_email: targetEmail,
           type: "follow",
           message: `${currentUser.full_name || "Someone"} started following you.`,
           link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`
         });
+        dualWriteSupabase("notifications", notifRec);
       }
       return "follow";
     },
