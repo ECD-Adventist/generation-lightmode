@@ -35,6 +35,7 @@ import { queueOfflineAction } from "@/lib/offlineCache";
 import useGuestPreview from "@/hooks/useGuestPreview";
 import useDeferredMount from "@/hooks/useDeferredMount";
 import GuestStickyBar from "@/components/pledge/GuestStickyBar";
+import GuestPreviewTimer from "@/components/pledge/GuestPreviewTimer";
 import CountryFlag from "@/components/common/CountryFlag";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
@@ -518,6 +519,14 @@ export default function Feed() {
         ref={mobileScrollRef}
         className="lg:hidden flex-1 min-h-0 overflow-y-auto overscroll-y-contain"
       >
+        {isGuest && (
+          <GuestPreviewTimer
+            inline
+            remainingMs={guestPreview.remainingMs}
+            totalMs={guestPreview.totalMs}
+            expired={guestPreview.expired}
+          />
+        )}
         <MobileFeed
           pullDistance={mobilePull.pullDistance}
           isRefreshing={mobilePull.isRefreshing}
@@ -673,7 +682,19 @@ export default function Feed() {
         className="h-[100dvh] flex flex-col overflow-y-auto min-h-0 pt-0 lg:pt-8 overscroll-y-none"
         style={{ background: "#F8FAFC" }}
         >
-          
+          {isGuest && (
+            <div className="px-4 mb-4 shrink-0">
+              <div className="rounded-2xl overflow-hidden">
+                <GuestPreviewTimer
+                  inline
+                  remainingMs={guestPreview.remainingMs}
+                  totalMs={guestPreview.totalMs}
+                  expired={guestPreview.expired}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Top Header Mobile */}
           <div className="flex justify-between items-center px-3 sm:px-4 py-3 sticky top-0 z-50 backdrop-blur-xl border-b lg:hidden gap-3" style={{ background: "rgba(246, 248, 252, 0.92)", borderColor: "#E2E8F0" }}>
             <div className="flex items-center gap-2 min-w-0 flex-1">

@@ -13,8 +13,9 @@ import { base44 } from "@/api/base44Client";
  *   remainingMs — milliseconds left in the preview
  *   totalMs     — full preview duration (for the progress percentage)
  *   expired     — true once the window is up
+ *   inline      — when true, renders as a normal in-flow banner (not a fixed overlay)
  */
-export default function GuestPreviewTimer({ remainingMs = 0, totalMs = 1, expired = false }) {
+export default function GuestPreviewTimer({ remainingMs = 0, totalMs = 1, expired = false, inline = false }) {
   // When the preview window ends, send the guest to sign in.
   useEffect(() => {
     if (expired) {
@@ -35,8 +36,10 @@ export default function GuestPreviewTimer({ remainingMs = 0, totalMs = 1, expire
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-[80]"
-      style={{ paddingTop: "env(safe-area-inset-top)", background: "#0B1B3D", boxShadow: "0 4px 18px rgba(11,27,61,0.4)" }}
+      className={inline ? "relative w-full" : "fixed top-0 left-0 right-0 z-[80]"}
+      style={inline
+        ? { background: "#0B1B3D" }
+        : { paddingTop: "env(safe-area-inset-top)", background: "#0B1B3D", boxShadow: "0 4px 18px rgba(11,27,61,0.4)" }}
     >
       <div className="px-3 sm:px-5 py-2 flex items-center justify-between gap-3">
         {/* Left: icon + PREVIEW MODE + subtitle */}
