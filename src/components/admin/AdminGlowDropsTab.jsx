@@ -10,7 +10,7 @@ import AdminGlowDropGridCard from "./drops/AdminGlowDropGridCard";
 import BulkActionsBar from "./drops/BulkActionsBar";
 import DropPreviewModal from "./drops/DropPreviewModal";
 import LightBoostersManager from "./drops/LightBoostersManager";
-import { canManageEcdOfficer } from "@/lib/leaderPermissions";
+import { canPinEcdOfficerPost } from "@/lib/leaderPermissions";
 
 export default function AdminGlowDropsTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
   const { theme } = useAdminTheme();
@@ -117,7 +117,7 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
   }, [scopedDrops, filter, filterCategory, search]);
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin_drops_all"] });
-  const canPinDrop = (drop) => canManageEcdOfficer(managedLeaderAccounts.find(account => account.leader_email === drop.user_email), user);
+  const canPinDrop = (drop) => canPinEcdOfficerPost(managedLeaderAccounts.find(account => account.leader_email === drop.user_email), user);
 
   // Single-drop actions
   const updateDrop = async (id, updates, successMsg) => {

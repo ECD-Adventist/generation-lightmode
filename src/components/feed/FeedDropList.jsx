@@ -12,6 +12,7 @@ function FeedDropList({
   allUsers,
   savedDropRecords,
   leaderAccounts,
+  managedLeaderAccounts,
   following,
   followMutation,
   onLoadMore,
@@ -53,6 +54,7 @@ function FeedDropList({
           allUsers={allUsers}
           savedDropRecords={savedDropRecords}
           leaderAccounts={leaderAccounts}
+          managedLeaderAccounts={managedLeaderAccounts}
           following={following}
           followMutation={followMutation}
         />

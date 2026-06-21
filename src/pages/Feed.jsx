@@ -202,6 +202,16 @@ export default function Feed() {
     staleTime: 1000 * 60 * 5,
   });
 
+  const { data: managedLeaderAccounts = [] } = useQuery({
+    queryKey: ["managedLeaderAccountsForFeed", user?.email],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listManagedLeaderAccounts", {});
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled: !!user?.email && deferredReady,
+    staleTime: 1000 * 60 * 5,
+  });
+
   const { data: following = [] } = useQuery({
     queryKey: ["following", user?.email],
     queryFn: () => base44.entities.Follow.filter({ follower_email: user?.email }),
@@ -545,6 +555,7 @@ export default function Feed() {
           isError={dropsError}
           onRefetch={() => refetchDrops()}
           leaderAccounts={leaderAccounts}
+          managedLeaderAccounts={managedLeaderAccounts}
           following={following}
           followMutation={followMutation}
           hasMore={displayCount < filteredDrops.length || hasNextPage}
@@ -857,6 +868,7 @@ export default function Feed() {
                   allUsers={usersWithSearch}
                   savedDropRecords={savedDropRecords}
                   leaderAccounts={leaderAccounts}
+                  managedLeaderAccounts={managedLeaderAccounts}
                   following={following}
                   followMutation={followMutation}
                   hasMore={displayCount < filteredDrops.length || hasNextPage}

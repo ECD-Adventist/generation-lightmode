@@ -53,6 +53,16 @@ export default function Post() {
     staleTime: 1000 * 60 * 5,
   });
 
+  const { data: managedLeaderAccounts = [] } = useQuery({
+    queryKey: ["managedLeaderAccountsForPost", currentUser?.email],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listManagedLeaderAccounts", {});
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled: !!currentUser?.email,
+    staleTime: 1000 * 60 * 5,
+  });
+
   const { data: userLikes = [] } = useQuery({
     queryKey: ["userLikes", currentUser?.email],
     queryFn: () => base44.entities.GlowDropLike.filter({ user_email: currentUser?.email }),
@@ -210,10 +220,10 @@ export default function Post() {
   }
 
   return (
-    <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+    <div className="min-h-screen font-['Inter']" style={{ background: "linear-gradient(90deg, #F6F8FC 0%, #EEF3FF 18%, #F8FAFC 50%, #EEF3FF 82%, #F6F8FC 100%)", color: "#0B1B3D" }}>
       {/* Sticky header */}
       <div className="sticky top-0 z-40 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.85)", borderColor: "#E6ECF5" }}>
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
+        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
           <button
             onClick={handleBack}
             className="inline-flex items-center justify-center w-9 h-9 rounded-full transition active:scale-90"
@@ -226,7 +236,7 @@ export default function Post() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-5 md:py-7">
+      <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 py-5 md:py-7">
         <DropCard
           drop={drop}
           user={currentUser}
@@ -237,6 +247,7 @@ export default function Post() {
           allUsers={allUsers}
           savedDropRecords={savedDropRecords}
           leaderAccounts={leaderAccounts}
+          managedLeaderAccounts={managedLeaderAccounts}
           following={following}
           followMutation={followMutation}
           commentsCount={postComments.length}

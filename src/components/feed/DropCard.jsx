@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark } from "lucide-react";
+import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, Pin, PinOff } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -15,12 +15,13 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
 import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
 import { getDisplayName } from "@/lib/displayName";
+import { canPinEcdOfficerPost } from "@/lib/leaderPermissions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import CountryFlag from "@/components/common/CountryFlag";
 import KeepIt100Poster, { KEEP_IT_100_BACKGROUND_URL } from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 
-export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
+export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], managedLeaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const clickTimerRef = useRef(null);
@@ -53,6 +54,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   // Leader posts (created via "Post as leader") get a distinct premium treatment.
   const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
+  const managedLeaderForDrop = managedLeaderAccounts.find(a => a.leader_email === drop.user_email);
+  const canPinPost = canPinEcdOfficerPost(managedLeaderForDrop || leaderForDrop, user);
   const isFollowingAuthor = following.some(f => f.following_email === drop.user_email);
   const canFollowAuthor = !!user && user.email !== drop.user_email && typeof followMutation?.mutate === "function";
 
@@ -220,6 +223,21 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     onError: (err) => {
       toast.error(err?.response?.data?.error || err?.message || "Could not delete post");
     }
+  });
+
+  const pinMutation = useMutation({
+    mutationFn: async () => {
+      const res = await base44.functions.invoke("toggleGlowDropPin", { drop_id: drop.id, pinned: !drop.pinned });
+      if (!res?.data?.success) throw new Error(res?.data?.error || "Could not update pinned status");
+      return res.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+      queryClient.invalidateQueries({ queryKey: ["pinnedLeaderDrops"] });
+      queryClient.invalidateQueries({ queryKey: ["postDrop", drop.id] });
+      toast.success(data.pinned ? "Pinned to announcements" : "Unpinned from announcements");
+    },
+    onError: (err) => toast.error(err?.response?.data?.error || err?.message || "Could not update pinned status")
   });
 
   const repostMutation = useMutation({
@@ -735,9 +753,15 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-card border border-border text-foreground w-40 z-50">
+                {canPinPost && (
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); pinMutation.mutate(); }} className="hover:bg-muted cursor-pointer focus:bg-muted">
+                    {drop.pinned ? <PinOff className="w-4 h-4 mr-2" /> : <Pin className="w-4 h-4 mr-2" />}
+                    {drop.pinned ? "Unpin Announcement" : "Pin Announcement"}
+                  </DropdownMenuItem>
+                )}
                 {(() => {
                   // Managers of the leader account whose email matches the drop owner can also delete.
-                  const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
+                  const leaderForDrop = managedLeaderForDrop || leaderAccounts.find(a => a.leader_email === drop.user_email);
                   const isManagerOfLeader = !!leaderForDrop && Array.isArray(leaderForDrop.manager_emails) && leaderForDrop.manager_emails.includes(user?.email);
                   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
                   const canDelete = user?.email === drop.user_email || isManagerOfLeader || isAdmin;
