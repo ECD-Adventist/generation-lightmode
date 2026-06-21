@@ -34,7 +34,7 @@ import PinnedLeaderPosts from "@/components/feed/PinnedLeaderPosts";
 import { queueOfflineAction } from "@/lib/offlineCache";
 import useGuestPreview from "@/hooks/useGuestPreview";
 import useDeferredMount from "@/hooks/useDeferredMount";
-import GuestPreviewBanner from "@/components/pledge/GuestPreviewBanner";
+import GuestStickyBar from "@/components/pledge/GuestStickyBar";
 import CountryFlag from "@/components/common/CountryFlag";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
@@ -84,6 +84,8 @@ export default function Feed() {
   // Any interaction (post, like, follow, comment, status) is gated by requireAuth.
   const guestPreview = useGuestPreview();
   const requireAuth = useRequireAuth(user);
+  // Guest = browsing without being logged in. They get a read-only teaser feed.
+  const isGuest = !user && guestPreview.isGuest;
 
   // Reset paginated display when the search query changes so newly-fetched
   // matching drops are visible from the top of the list.
@@ -490,11 +492,7 @@ export default function Feed() {
 
   return (
     <div className="h-[100dvh] relative overflow-hidden font-['Inter'] flex flex-col" style={{ background: "linear-gradient(135deg, #D4F5D4 0%, #F5F99A 100%)", color: "#0B1B3D" }}>
-      {guestPreview.isGuest && (
-        <div className="shrink-0 relative z-[60]">
-          <GuestPreviewBanner remainingMs={guestPreview.remainingMs} totalMs={guestPreview.totalMs} />
-        </div>
-      )}
+      {isGuest && <GuestStickyBar />}
       <OnboardingModal
         isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth || !user.city || !user.address || !user.postal_code)}
         onCompleted={(updates) => setUser(prev => ({ ...prev, ...updates, privacy_consent_given: true }))}
@@ -525,6 +523,7 @@ export default function Feed() {
           isRefreshing={mobilePull.isRefreshing}
           pullThreshold={mobilePull.threshold}
           user={user}
+          isGuest={isGuest}
           notifications={notifications}
           searchQuery={searchQuery}
           onSearch={setSearchQuery}
@@ -590,13 +589,17 @@ export default function Feed() {
              <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
              <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
              <SidebarLink to={createPageUrl("Discover")} icon={<Compass className="w-[18px] h-[18px]" />} label="Discover" />
-             <SidebarLink to={createPageUrl("Notifications")} icon={<Bell className="w-[18px] h-[18px]" />} label="Notifications" badge={notifications.length > 0 ? notifications.length : null} />
-             <SidebarLink to={createPageUrl("Dashboard")} icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
-             <SidebarLink to={createPageUrl("Profile")} icon={
-               <div className="w-[18px] h-[18px] rounded-full overflow-hidden shrink-0" style={{ border: "1px solid #D5E3F0" }}>
-                 <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-               </div>
-             } label="Profile" />
+             {!isGuest && (
+               <>
+                 <SidebarLink to={createPageUrl("Notifications")} icon={<Bell className="w-[18px] h-[18px]" />} label="Notifications" badge={notifications.length > 0 ? notifications.length : null} />
+                 <SidebarLink to={createPageUrl("Dashboard")} icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
+                 <SidebarLink to={createPageUrl("Profile")} icon={
+                   <div className="w-[18px] h-[18px] rounded-full overflow-hidden shrink-0" style={{ border: "1px solid #D5E3F0" }}>
+                     <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                   </div>
+                 } label="Profile" />
+               </>
+             )}
 
              <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mt-5 mb-2" style={{ color: "#90A4AE" }}>Tools</p>
 
@@ -653,13 +656,15 @@ export default function Feed() {
              )}
            </nav>
            
-           <button
-              onClick={() => requireAuth(() => setIsDropModalOpen(true))}
-              className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-full w-full py-3.5 text-sm transition-all hover:opacity-90 hover:shadow-lg"
-              style={{ background: "linear-gradient(90deg, #FFC107 0%, #FF9800 100%)", color: "#0D1B3D", boxShadow: "0 4px 14px rgba(255, 152, 0, 0.35)" }}
-            >
-              <Plus className="w-4 h-4" /> NEW DROP
-            </button>
+           {!isGuest && (
+             <button
+                onClick={() => requireAuth(() => setIsDropModalOpen(true))}
+                className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-full w-full py-3.5 text-sm transition-all hover:opacity-90 hover:shadow-lg"
+                style={{ background: "linear-gradient(90deg, #FFC107 0%, #FF9800 100%)", color: "#0D1B3D", boxShadow: "0 4px 14px rgba(255, 152, 0, 0.35)" }}
+              >
+                <Plus className="w-4 h-4" /> NEW DROP
+              </button>
+           )}
         </div>
 
         {/* Center Feed */}
@@ -679,15 +684,19 @@ export default function Feed() {
               />
             </div>
             <div className="flex gap-3 items-center shrink-0">
-              <Link to={createPageUrl("Notifications")} className="relative shrink-0" style={{ color: "#0B1B3D" }}>
-                <Heart className="w-5 h-5 sm:w-6 sm:h-6" />
-                {notifications.length > 0 && (
-                  <span className="absolute top-0 right-0 w-2 h-2 rounded-full" style={{ background: "#FF9F1A" }}></span>
-                )}
-              </Link>
-              <Link to={createPageUrl("Messages")} className="shrink-0" style={{ color: "#0B1B3D" }}>
-                <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
-              </Link>
+              {!isGuest && (
+                <>
+                  <Link to={createPageUrl("Notifications")} className="relative shrink-0" style={{ color: "#0B1B3D" }}>
+                    <Heart className="w-5 h-5 sm:w-6 sm:h-6" />
+                    {notifications.length > 0 && (
+                      <span className="absolute top-0 right-0 w-2 h-2 rounded-full" style={{ background: "#FF9F1A" }}></span>
+                    )}
+                  </Link>
+                  <Link to={createPageUrl("Messages")} className="shrink-0" style={{ color: "#0B1B3D" }}>
+                    <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </Link>
+                </>
+              )}
               <button onClick={() => setIsMobileNavOpen(true)} className="transition shrink-0" style={{ color: "#4A5878" }}>
                 <Menu className="w-6 h-6" />
               </button>
@@ -746,6 +755,7 @@ export default function Feed() {
 
           {/* Stories / Status Row */}
           <div className="flex gap-3 sm:gap-4 px-3 sm:px-4 mb-6 sm:mb-5 overflow-x-auto hide-scrollbar pb-2 shrink-0 items-start">
+            {!isGuest && (
             <button
               onClick={() => requireAuth(() => setIsStatusModalOpen(true))}
               className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0"
@@ -758,6 +768,7 @@ export default function Feed() {
                </div>
                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#1E5AFF" }}>ADD STATUS</span>
             </button>
+            )}
 
             {activeStories.map((story) => {
               const storyUser = getUserInfo(story.user_email);
@@ -797,8 +808,8 @@ export default function Feed() {
           </div>
 
           <div className="flex gap-2 sm:gap-3 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">
-            <button onClick={() => requireAuth(() => setIsDropModalOpen(true))} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#2979FF", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(41, 121, 255, 0.3)" }}><Plus className="w-4 h-4" />Post</button>
-            <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0E4EB", color: "#263238" }}>Messages</Link>
+            {!isGuest && <button onClick={() => requireAuth(() => setIsDropModalOpen(true))} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#2979FF", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(41, 121, 255, 0.3)" }}><Plus className="w-4 h-4" />Post</button>}
+            {!isGuest && <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0E4EB", color: "#263238" }}>Messages</Link>}
             <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0E4EB", color: "#263238" }}>Prayer Wall</Link>
             <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#E3F2FD", color: "#1565C0" }}>Live</Link>
             <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#FFC107", color: "#0D1B3D", boxShadow: "0 4px 12px rgba(255, 193, 7, 0.3)" }}>⚡ Daily Drops</Link>
@@ -853,6 +864,7 @@ export default function Feed() {
                   displayCount={displayCount}
                   getUserInfo={getUserInfo}
                   user={user}
+                  isGuest={isGuest}
                   likeMutation={likeMutation}
                   handleShare={handleShare}
                   userLikes={userLikes}
@@ -1049,28 +1061,32 @@ export default function Feed() {
           </div>
         )}
 
-        {/* Bottom Mobile Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t flex justify-around items-center py-2.5 px-3 sm:px-6 z-50 pb-4 sm:pb-5 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden" style={{ background: "rgba(246, 248, 252, 0.98)", borderColor: "#E2E8F0", boxShadow: "0 -8px 24px rgba(15, 23, 42, 0.08)" }}>
+        {/* Bottom Mobile Navigation — hidden for guests (sticky sign-in bar replaces it) */}
+        <div className={`fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t justify-around items-center py-2.5 px-3 sm:px-6 z-50 pb-4 sm:pb-5 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden ${isGuest ? "hidden" : "flex"}`} style={{ background: "rgba(246, 248, 252, 0.98)", borderColor: "#E2E8F0", boxShadow: "0 -8px 24px rgba(15, 23, 42, 0.08)" }}>
           <Link to={createPageUrl("Feed")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Home">
             <Home className="w-5 h-5" fill="#0B3FD9" style={{ color: "#0B3FD9" }} />
           </Link>
           <button onClick={() => setIsSearchOpen(true)} className="flex h-11 w-11 items-center justify-center rounded-full" title="Search">
             <SearchIcon className="w-5 h-5" style={{ color: "#0B1B3D" }} />
           </button>
-          <button onClick={() => requireAuth(() => setIsDropModalOpen(true))} className="flex h-11 w-11 items-center justify-center rounded-full" title="Create post">
-            <SquarePlus className="w-5 h-5" style={{ color: "#0B1B3D" }} />
-          </button>
+          {!isGuest && (
+            <button onClick={() => requireAuth(() => setIsDropModalOpen(true))} className="flex h-11 w-11 items-center justify-center rounded-full" title="Create post">
+              <SquarePlus className="w-5 h-5" style={{ color: "#0B1B3D" }} />
+            </button>
+          )}
           <Link to={createPageUrl("GlobalReach")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Global Reach">
             <Globe className="w-5 h-5" style={{ color: "#0B1B3D" }} />
           </Link>
           <Link to={createPageUrl("DailyTruthFeed")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Daily Drops">
             <PlaySquare className="w-5 h-5" style={{ color: "#0B1B3D" }} />
           </Link>
-          <Link to={createPageUrl("Profile")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Profile">
-            <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] uppercase font-bold overflow-hidden" style={{ border: "2px solid #1FB8FF" }}>
-              <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-            </div>
-          </Link>
+          {!isGuest && (
+            <Link to={createPageUrl("Profile")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Profile">
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] uppercase font-bold overflow-hidden" style={{ border: "2px solid #1FB8FF" }}>
+                <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+              </div>
+            </Link>
+          )}
         </div>
       </div>
     </div>

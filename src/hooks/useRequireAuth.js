@@ -9,9 +9,10 @@ import { toast } from "sonner";
  *   const requireAuth = useRequireAuth(user);
  *   <button onClick={() => requireAuth(() => doThing())} />
  *
- * If `user` is falsy, shows the join message and redirects to the login page,
- * returning false (the wrapped action is NOT run). If authenticated, the action
- * runs and true is returned.
+ * If `user` is truthy, runs the action and returns true.
+ * If `user` is falsy, shows a gentle inline "Sign in to join the movement"
+ * nudge (with a Sign In action) and returns false — the wrapped action is
+ * NOT run and the guest is NOT auto-redirected. They stay on the page.
  */
 export default function useRequireAuth(user) {
   return useCallback(
@@ -20,16 +21,14 @@ export default function useRequireAuth(user) {
         if (typeof action === "function") action();
         return true;
       }
-      toast("Join Generation LightMode to interact", {
-        description: "Sign in or create your account",
+      toast("Sign in to join the movement →", {
+        description: "Create your free account to post, like & connect.",
         action: {
           label: "Sign In",
           onClick: () => base44.auth.redirectToLogin(window.location.pathname),
         },
-        duration: 6000,
+        duration: 5000,
       });
-      // Give the toast a beat to register before redirecting.
-      setTimeout(() => base44.auth.redirectToLogin(window.location.pathname), 1200);
       return false;
     },
     [user]

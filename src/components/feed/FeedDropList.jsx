@@ -6,6 +6,7 @@ function FeedDropList({
   displayCount,
   getUserInfo,
   user,
+  isGuest,
   likeMutation,
   handleShare,
   userLikes,
@@ -46,6 +47,7 @@ function FeedDropList({
           key={drop.id}
           drop={drop}
           user={user}
+          isGuest={isGuest}
           dropUser={getUserInfo(drop.user_email)}
           likeMutation={likeMutation}
           handleShare={handleShare}

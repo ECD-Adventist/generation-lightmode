@@ -19,10 +19,12 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import CountryFlag from "@/components/common/CountryFlag";
 import KeepIt100Poster, { KEEP_IT_100_BACKGROUND_URL } from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
-export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
+export default function DropCard({ drop, user, isGuest = false, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const requireAuth = useRequireAuth(user);
   const clickTimerRef = useRef(null);
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
@@ -167,7 +169,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   const submitComment = (e) => {
     e.preventDefault();
-    if (!newComment.trim() || !user) return;
+    if (!user) { requireAuth(); return; }
+    if (!newComment.trim()) return;
     commentMutation.mutate(newComment);
   };
 
@@ -253,12 +256,15 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   });
 
   const triggerLike = () => {
+    if (!user) { requireAuth(); return; }
     setLikeBurst(true);
     setTimeout(() => setLikeBurst(false), 600);
     likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: getDisplayName(authorProfile) });
   };
 
   const handlePostSurfaceClick = () => {
+    // Guests: a tap just opens the read-only post page (no double-tap-to-like).
+    if (!user) { navigate(postLink); return; }
     if (clickTimerRef.current) {
       clearTimeout(clickTimerRef.current);
       clickTimerRef.current = null;
@@ -691,7 +697,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
           </div>
         )}
 
-        {(() => {
+        {!isGuest && (() => {
           // Leader text posts share the dark glass treatment with media posts.
           const useGlass = drop.media_url || isLeaderContent || isKeepIt100 || isCodeOfTruth;
           return (
