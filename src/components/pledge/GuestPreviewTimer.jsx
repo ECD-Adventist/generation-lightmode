@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
-import { Clock } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 /**
- * Thin top progress bar + MM:SS countdown shown to guests during the
- * 3-minute preview window. The bar drains as time runs out, and when the
- * countdown reaches 0:00 the guest is redirected to the sign-in page.
+ * Top "PREVIEW MODE" banner shown to guests during the 3-minute preview window.
+ * Layout: circle icon + "PREVIEW MODE" + subtitle on the left, a live MM:SS
+ * countdown in the middle/right, and a gold "Sign In" button on the far right.
+ * A thin colored bar below drains from full to empty as time runs out, and when
+ * the countdown reaches 0:00 the guest is redirected to the sign-in page.
  *
  * Props:
  *   remainingMs — milliseconds left in the preview
@@ -34,34 +36,47 @@ export default function GuestPreviewTimer({ remainingMs = 0, totalMs = 1, expire
   return (
     <div
       className="fixed top-0 left-0 right-0 z-[80]"
-      style={{ paddingTop: "env(safe-area-inset-top)" }}
+      style={{ paddingTop: "env(safe-area-inset-top)", background: "#0B1B3D", boxShadow: "0 4px 18px rgba(11,27,61,0.4)" }}
     >
+      <div className="px-3 sm:px-5 py-2 flex items-center justify-between gap-3">
+        {/* Left: icon + PREVIEW MODE + subtitle */}
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span
+            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: "rgba(255,208,0,0.15)", border: "1px solid rgba(255,208,0,0.4)" }}
+          >
+            <Sparkles className="w-3.5 h-3.5" style={{ color: "#FFD000" }} />
+          </span>
+          <div className="min-w-0 leading-tight">
+            <p className="text-[12px] sm:text-[13px] font-black text-white tracking-wide">PREVIEW MODE</p>
+            <p className="text-[10px] sm:text-[11px] truncate" style={{ color: "#9FB3D9" }}>Sign in to stay in the movement</p>
+          </div>
+        </div>
+
+        {/* Center/right: countdown */}
+        <div
+          className="shrink-0 font-black tabular-nums text-[15px] sm:text-[17px] px-2.5 py-0.5 rounded-lg"
+          style={{ color: barColor, background: "rgba(255,255,255,0.06)" }}
+        >
+          {timeLabel}
+        </div>
+
+        {/* Far right: Sign In */}
+        <button
+          onClick={signIn}
+          className="shrink-0 rounded-full px-4 sm:px-5 py-1.5 text-[12px] sm:text-[13px] font-black transition active:scale-95 hover:opacity-90 whitespace-nowrap"
+          style={{ background: "linear-gradient(135deg, #FFD000, #FF9800)", color: "#0B1B3D", boxShadow: "0 3px 12px rgba(255,152,0,0.4)" }}
+        >
+          Sign In
+        </button>
+      </div>
+
       {/* Draining progress bar */}
-      <div className="w-full h-1" style={{ background: "rgba(11,27,61,0.15)" }}>
+      <div className="w-full h-1" style={{ background: "rgba(255,255,255,0.08)" }}>
         <div
           className="h-full transition-all duration-1000 ease-linear"
           style={{ width: `${pct}%`, background: barColor, boxShadow: `0 0 10px ${barColor}` }}
         />
-      </div>
-
-      {/* Countdown row */}
-      <div
-        className="px-3 sm:px-5 py-1.5 flex items-center justify-between gap-3"
-        style={{ background: "rgba(11,27,61,0.96)", backdropFilter: "blur(8px)" }}
-      >
-        <div className="flex items-center gap-2 min-w-0 text-white">
-          <Clock className="w-3.5 h-3.5 shrink-0" style={{ color: barColor }} />
-          <span className="text-[12px] sm:text-[13px] font-semibold truncate">
-            Preview mode · <span style={{ color: barColor }}>{timeLabel}</span> left
-          </span>
-        </div>
-        <button
-          onClick={signIn}
-          className="shrink-0 rounded-full px-4 py-1.5 text-[12px] sm:text-[13px] font-black transition active:scale-95 hover:opacity-90 whitespace-nowrap"
-          style={{ background: "linear-gradient(135deg, #FFD000, #FF9800)", color: "#0B1B3D" }}
-        >
-          Sign In
-        </button>
       </div>
     </div>
   );
