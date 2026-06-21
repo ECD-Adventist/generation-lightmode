@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
 
     if (Object.keys(customUpdate).length > 0) await base44.auth.updateMe(customUpdate);
 
-    return Response.json({ success: true, updated_fields: Object.keys(customUpdate) });
+    return Response.json({ success: true });
   } catch (error) {
     return Response.json({ error: 'Unable to update profile' }, { status: 500 });
   }

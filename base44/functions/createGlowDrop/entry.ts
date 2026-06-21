@@ -154,7 +154,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    return Response.json({ success: true, drop_id: drop.id, posted_as_leader: !!postAsLeader });
+    return Response.json({ success: true, id: drop.id });
   } catch (error) {
     console.error('createGlowDrop failed:', error?.message, error?.stack);
     return Response.json({ error: error?.message || 'Unable to create drop' }, { status: 500 });
