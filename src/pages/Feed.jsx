@@ -809,7 +809,11 @@ export default function Feed() {
 
           <div className="flex gap-2 sm:gap-3 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">
             {!isGuest && <button onClick={() => requireAuth(() => setIsDropModalOpen(true))} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#2979FF", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(41, 121, 255, 0.3)" }}><Plus className="w-4 h-4" />Post</button>}
-            {!isGuest && <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0E4EB", color: "#263238" }}>Messages</Link>}
+            {isGuest ? (
+              <button onClick={() => requireAuth()} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0E4EB", color: "#263238" }}>Messages</button>
+            ) : (
+              <Link to={createPageUrl("Messages")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0E4EB", color: "#263238" }}>Messages</Link>
+            )}
             <Link to={createPageUrl("PrayerWall")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0E4EB", color: "#263238" }}>Prayer Wall</Link>
             <Link to={createPageUrl("Live")} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#E3F2FD", color: "#1565C0" }}>Live</Link>
             <Link to="/DailyTruthFeed" className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#FFC107", color: "#0D1B3D", boxShadow: "0 4px 12px rgba(255, 193, 7, 0.3)" }}>⚡ Daily Drops</Link>
