@@ -32,7 +32,6 @@ import MobileFeed from "@/components/feed/MobileFeed";
 import FeedDropList from "@/components/feed/FeedDropList";
 import PinnedLeaderPosts from "@/components/feed/PinnedLeaderPosts";
 import { queueOfflineAction } from "@/lib/offlineCache";
-import useGuestPreview from "@/hooks/useGuestPreview";
 import useDeferredMount from "@/hooks/useDeferredMount";
 import GuestStickyBar from "@/components/pledge/GuestStickyBar";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -80,12 +79,10 @@ export default function Feed() {
   // Defer non-critical queries (stories, suggestedUsers, leaderAccounts) until after first paint.
   const deferredReady = useDeferredMount(700);
 
-  // Guest preview: unauthenticated visitors can browse the public feed freely.
-  // Any interaction (post, like, follow, comment, status) is gated by requireAuth.
-  const guestPreview = useGuestPreview();
+  const [authChecked, setAuthChecked] = useState(false);
   const requireAuth = useRequireAuth(user);
-  // Guest = browsing without being logged in. They get a read-only teaser feed.
-  const isGuest = !user && guestPreview.isGuest;
+  // Guests can browse the public feed freely; interactions are gated by requireAuth.
+  const isGuest = !user && authChecked;
 
   // Reset paginated display when the search query changes so newly-fetched
   // matching drops are visible from the top of the list.
@@ -103,9 +100,10 @@ export default function Feed() {
             console.error("Failed to fetch user:", e);
           }
         }
-        // Guests: do NOT redirect — let useGuestPreview handle the 3-min window.
       } catch (err) {
         console.error("Auth check failed:", err);
+      } finally {
+        setAuthChecked(true);
       }
     }
     checkAuth();
@@ -481,8 +479,8 @@ export default function Feed() {
       .map(([tag, count]) => ({ tag, count }));
   }, [drops]);
 
-  // Show spinner while auth state resolves (or while fetching the authenticated user).
-  if (guestPreview.loading || (!user && !guestPreview.isGuest)) {
+  // Show spinner only while the lightweight auth check resolves.
+  if (!authChecked) {
     return (
       <div className="h-[100dvh] flex items-center justify-center" style={{ background: "linear-gradient(135deg, #C8F2D4 0%, #E8F5C8 100%)" }}>
         <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} />

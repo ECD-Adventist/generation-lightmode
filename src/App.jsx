@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -63,8 +63,23 @@ const RootRedirect = () => {
   return isAuthenticated ? <Navigate to="/Feed" replace /> : <Navigate to="/Home" replace />;
 };
 
+const protectedPageNames = new Set(["Dashboard", "Messages", "Profile", "Notifications", "Settings"]);
+
+const RequireAuth = ({ children }) => {
+  const { isLoadingAuth, isAuthenticated, navigateToLogin } = useAuth();
+
+  useEffect(() => {
+    if (!isLoadingAuth && !isAuthenticated) navigateToLogin();
+  }, [isLoadingAuth, isAuthenticated, navigateToLogin]);
+
+  if (isLoadingAuth) return <RouteFallback />;
+  if (!isAuthenticated) return null;
+
+  return children;
+};
+
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user, isAuthenticated } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, user, isAuthenticated } = useAuth();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -75,15 +90,10 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Handle authentication errors
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
-    }
+  // Only block for users whose account is not registered. Missing auth is handled per-route,
+  // so public pages like Home, Feed, About, Impact, and Resources can render for guests.
+  if (authError?.type === 'user_not_registered') {
+    return <UserNotRegisteredError />;
   }
 
   // Render the main app
@@ -92,17 +102,20 @@ const AuthenticatedApp = () => {
       <Suspense fallback={<RouteFallback />}>
       <Routes>
       <Route path="/" element={<RootRedirect />} />
-      {Object.entries(Pages).map(([path, Page]) => (
-        <Route
-          key={path}
-          path={`/${path}`}
-          element={
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
-          }
-        />
-      ))}
+      {Object.entries(Pages).map(([path, Page]) => {
+        const pageElement = (
+          <LayoutWrapper currentPageName={path}>
+            <Page />
+          </LayoutWrapper>
+        );
+        return (
+          <Route
+            key={path}
+            path={`/${path}`}
+            element={protectedPageNames.has(path) ? <RequireAuth>{pageElement}</RequireAuth> : pageElement}
+          />
+        );
+      })}
       <Route path="/LightReflections" element={<LayoutWrapper currentPageName="LightReflections"><LightReflections /></LayoutWrapper>} />
       <Route path="/Leaderboard" element={<LayoutWrapper currentPageName="Leaderboard"><Leaderboard /></LayoutWrapper>} />
       <Route path="/Discover" element={<LayoutWrapper currentPageName="Discover"><Discover /></LayoutWrapper>} />
