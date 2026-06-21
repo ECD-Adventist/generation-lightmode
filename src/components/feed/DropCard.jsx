@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark } from "lucide-react";
+import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, Pin, PinOff } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { isNotificationEnabled } from "@/lib/notifications";
 import ReadMoreText from "@/components/feed/ReadMoreText";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
+import { canManageEcdOfficer } from "@/lib/leaderPermissions";
 import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
 import { getDisplayName } from "@/lib/displayName";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -220,6 +221,19 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     onError: (err) => {
       toast.error(err?.response?.data?.error || err?.message || "Could not delete post");
     }
+  });
+
+  const pinMutation = useMutation({
+    mutationFn: async (nextPinned) => {
+      await base44.entities.GlowDrop.update(drop.id, { pinned: nextPinned });
+    },
+    onSuccess: (_data, nextPinned) => {
+      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+      queryClient.invalidateQueries({ queryKey: ["postDrop", drop.id] });
+      queryClient.invalidateQueries({ queryKey: ["pinnedLeaderDrops"] });
+      toast.success(nextPinned ? "Pinned to announcements" : "Unpinned from announcements");
+    },
+    onError: () => toast.error("Could not update pin status"),
   });
 
   const repostMutation = useMutation({
@@ -756,6 +770,16 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                       }
                     }} className="hover:bg-muted cursor-pointer focus:bg-muted">
                       Report Post
+                    </DropdownMenuItem>
+                  );
+                })()}
+                {(() => {
+                  const isSuperAdmin = user?.role === "super_admin";
+                  const canPin = isSuperAdmin || canManageEcdOfficer(leaderForDrop, user);
+                  if (!canPin) return null;
+                  return (
+                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); pinMutation.mutate(!drop.pinned); }} className="hover:bg-muted cursor-pointer focus:bg-muted">
+                      {drop.pinned ? <><PinOff className="w-3.5 h-3.5 mr-2" /> Unpin Post</> : <><Pin className="w-3.5 h-3.5 mr-2" /> Pin Post</>}
                     </DropdownMenuItem>
                   );
                 })()}

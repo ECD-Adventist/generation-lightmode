@@ -10,6 +10,7 @@ function safeLeader(account) {
     leader_bio: account.leader_bio || '',
     leader_profile_picture_url: account.leader_profile_picture_url || '',
     leader_cover_picture_url: account.leader_cover_picture_url || '',
+    manager_emails: Array.isArray(account.manager_emails) ? account.manager_emails : [],
     active: account.active !== false,
   };
 }
