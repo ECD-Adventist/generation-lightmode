@@ -10,6 +10,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import useGuestPreview from "@/hooks/useGuestPreview";
+import GuestPreviewTimer from "@/components/pledge/GuestPreviewTimer";
 
 const navLinks = [
   { key: "about", page: "About" },
@@ -41,6 +43,7 @@ export default function Layout({ children, currentPageName }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   const { t, isRTL } = useAppLanguage("layout");
+  const guestPreview = useGuestPreview();
   const { trigger: triggerSwitchOn } = useSwitchItOn();
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -103,6 +106,14 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div dir={isRTL ? "rtl" : "ltr"} className="bg-background min-h-screen text-foreground" style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
+      {/* Guest preview countdown bar — fixed at the very top, app-wide, for unauthenticated visitors only */}
+      {guestPreview.isGuest && (
+        <GuestPreviewTimer
+          remainingMs={guestPreview.remainingMs}
+          totalMs={guestPreview.totalMs}
+          expired={guestPreview.expired}
+        />
+      )}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
@@ -636,7 +647,10 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Page Content */}
-      <main className={`${isAppShellPage || currentPageName === "Home" || hideDesktopChrome ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"} ${isAppShellPage ? "has-mobile-bottom-nav" : ""}`}>
+      <main
+        className={`${isAppShellPage || currentPageName === "Home" || hideDesktopChrome ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"} ${isAppShellPage ? "has-mobile-bottom-nav" : ""}`}
+        style={{ paddingTop: guestPreview.isGuest ? "52px" : undefined }}
+      >
         {children}
       </main>
 
