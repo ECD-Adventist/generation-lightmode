@@ -36,6 +36,7 @@ import useDeferredMount from "@/hooks/useDeferredMount";
 import GuestPreviewBanner from "@/components/pledge/GuestPreviewBanner";
 import GuestPreviewWall from "@/components/pledge/GuestPreviewWall";
 import CountryFlag from "@/components/common/CountryFlag";
+import { isPinnedEcdOfficerDrop } from "@/lib/leaderPermissions";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
@@ -429,10 +430,9 @@ export default function Feed() {
         // Flagged/hidden content is removed from public feeds — only moderators/admins can see it.
         if ((drop.is_flagged || drop.hidden) && !isAdminViewer) return false;
 
-        // Pinned drops are already rendered in the PinnedLeaderPosts ribbon — exclude them here
-        // so they don't appear twice. Only excluded on "All" filter so users can still find
-        // pinned posts via Following / Most Liked / category filters.
-        if (drop.pinned && activeFilter === "All" && !searchQuery) return false;
+        // ECD Officer pinned drops are already rendered in the PinnedLeaderPosts ribbon — exclude those here
+        // so they don't appear twice. Other pinned drops stay in the normal feed.
+        if (isPinnedEcdOfficerDrop(drop, leaderAccounts) && activeFilter === "All" && !searchQuery) return false;
 
         const matchesFilter = activeFilter === 'All' ||
           (activeFilter === 'Following' && followingEmails.has(drop.user_email)) ||
