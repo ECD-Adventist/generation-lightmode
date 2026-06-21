@@ -4,7 +4,6 @@ function safeLeader(account) {
   return {
     id: account.id,
     leader_name: account.leader_name || '',
-    leader_email: account.leader_email || '',
     leader_title: account.leader_title || '',
     leader_country: account.leader_country || '',
     leader_bio: account.leader_bio || '',

@@ -28,6 +28,7 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!ADMIN_ROLES.has(user.role)) return Response.json({ error: 'Admin access required' }, { status: 403 });
 
     const body = await req.json().catch(() => ({}));
     const accountId = String(body.account_id || '').trim();
@@ -38,11 +39,7 @@ Deno.serve(async (req) => {
     const account = accounts.find((item) => item.id === accountId);
     if (!account) return Response.json({ error: 'Leader account not found' }, { status: 404 });
 
-    const isAdmin = ADMIN_ROLES.has(user.role);
-    const isManager = Array.isArray(account.manager_emails) && account.manager_emails.includes(user.email);
-    if (!isAdmin && !isManager) return Response.json({ error: 'Forbidden' }, { status: 403 });
-
-    const allowed = isAdmin ? ADMIN_FIELDS : MANAGER_FIELDS;
+    const allowed = ADMIN_FIELDS;
     const payload = {};
     for (const [key, value] of Object.entries(updates)) {
       if (!allowed.has(key)) continue;
