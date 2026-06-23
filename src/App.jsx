@@ -14,6 +14,7 @@ import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import PageTransition from '@/components/transitions/PageTransition';
 import AutoTranslator from '@/components/i18n/AutoTranslator';
 import NotificationOnboardingModal from '@/components/notifications/NotificationOnboardingModal';
+import ReportProblemButton from '@/components/ReportProblemButton';
 
 // Code-split route pages — loaded on demand to reduce initial bundle.
 const LightReflections = lazy(() => import('./pages/LightReflections'));
@@ -153,6 +154,7 @@ function App() {
               <AutoTranslator />
               <NotificationOnboardingModal />
               <AuthenticatedApp />
+              <ReportProblemButton />
             </SwitchItOnProvider>
           </Router>
           <Toaster />

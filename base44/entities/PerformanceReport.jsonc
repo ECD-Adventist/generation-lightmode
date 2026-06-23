@@ -1,0 +1,70 @@
+{
+  "name": "PerformanceReport",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "page": {
+      "type": "string"
+    },
+    "issue_type": {
+      "type": "string",
+      "enum": [
+        "App is slow",
+        "Page froze",
+        "Can't post",
+        "Feed not loading",
+        "Images not loading",
+        "Other"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "device_info": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "page",
+    "issue_type",
+    "device_info"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "update": false,
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
+}
