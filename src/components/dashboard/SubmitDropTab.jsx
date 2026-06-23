@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Loader2, Sparkles } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
+import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 
 export default function SubmitDropTab({ user }) {
   const [loading, setLoading] = useState(false);
@@ -74,7 +75,8 @@ export default function SubmitDropTab({ user }) {
         setAnalyzing(false);
       }
 
-      await base44.entities.GlowDrop.create({ user_email: user.email, media_url: uploadedMediaUrl, ...formData });
+      const newDrop = await base44.entities.GlowDrop.create({ user_email: user.email, media_url: uploadedMediaUrl, ...formData });
+      mirrorGlowDropToSupabase(newDrop, user);
       const today = new Date().toISOString().split('T')[0];
       const challenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: today });
       let challengeBonus = 0;

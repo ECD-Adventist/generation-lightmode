@@ -11,6 +11,7 @@ import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
 import { compressImageUnder2MB } from "@/lib/imageUtils";
 import PhotoEditorModal from "@/components/feed/PhotoEditorModal";
 import { queueDropForSync } from "@/lib/offlineCache";
+import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
@@ -287,7 +288,7 @@ RULES:
         const offline = !navigator.onLine || /network|timeout|fetch/i.test(invokeErr?.message || "");
         if (limited || offline) throw invokeErr;
         // Fallback: create the drop directly so the post always saves.
-        await base44.entities.GlowDrop.create({
+        const newDrop = await base44.entities.GlowDrop.create({
           user_email: user.email,
           verse: formData.verse || "",
           reflection: formData.reflection || "",
@@ -296,6 +297,7 @@ RULES:
           media_url: uploadedMediaUrl || null,
           status: "approved",
         });
+        mirrorGlowDropToSupabase(newDrop, user);
       }
 
       const today = new Date().toISOString().split('T')[0];

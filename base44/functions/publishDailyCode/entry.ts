@@ -1,5 +1,16 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
 
+const SUPABASE_URL = "https://asnsthgubpeptoiexajf.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzbnN0aGd1YnBlcHRvaWV4YWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc4MzM5NDgsImV4cCI6MjA2MzQwOTk0OH0.r3WDFbJQgPuVnakMUJQa_cEWBUBbnT3hbDbT5GiZoNA";
+function mirrorGlowDropToSupabase(newDrop, createdBy) {
+    if (!newDrop?.id) return;
+    fetch(`${SUPABASE_URL}/rest/v1/glow_drops`, {
+        method: "POST",
+        headers: { "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}`, "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify([{ id: newDrop.id, reflection: newDrop.reflection || "", verse: newDrop.verse || "", category: newDrop.category || "", description: newDrop.description || null, media_url: newDrop.media_url || null, hashtags: newDrop.hashtags || "", status: newDrop.status || "approved", likes_count: newDrop.likes_count || 0, bonus_likes_count: newDrop.bonus_likes_count || 0, pinned: newDrop.pinned || false, hidden: newDrop.hidden || false, hidden_reason: newDrop.hidden_reason || null, is_flagged: newDrop.is_flagged || false, moderation_note: newDrop.moderation_note || null, created_by: createdBy || "", created_date: newDrop.created_date || new Date().toISOString(), updated_date: newDrop.updated_date || newDrop.created_date || new Date().toISOString() }])
+    }).catch(err => console.warn("Supabase dual-write failed silently:", err));
+}
+
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
@@ -30,7 +41,7 @@ Deno.serve(async (req) => {
             date_published: today
         });
 
-        await base44.asServiceRole.entities.GlowDrop.create({
+        const drop = await base44.asServiceRole.entities.GlowDrop.create({
             user_email: "system@lightmode.com",
             verse: selectedCode.bible_reference || "🔐 Code of Truth",
             reflection: `📌 Daily Code of Truth\n\n"${selectedCode.slogan_text}"`,
@@ -39,6 +50,7 @@ Deno.serve(async (req) => {
             category: "Code of Truth",
             hashtags: "#CodeOfTruth #DailyDrops #GenerationLightMode"
         });
+        mirrorGlowDropToSupabase(drop, "system@lightmode.com");
 
         return Response.json({ success: true, type: "codes_of_truth", code_id: selectedCode.id });
     } catch (error) {

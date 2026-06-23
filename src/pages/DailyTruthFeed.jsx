@@ -12,6 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileDailyTruthFeed from "@/components/daily-drops/MobileDailyTruthFeed";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
+import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 
 export default function DailyDropsPage() {
   const isMobile = useIsMobile();
@@ -166,7 +167,7 @@ function TruthCard({ drop, onShare, user, featured }) {
   const repostMutation = useMutation({
     mutationFn: async () => {
       if (!user) { toast.error("Please log in to repost"); return; }
-      await base44.entities.GlowDrop.create({
+      const newDrop = await base44.entities.GlowDrop.create({
         user_email: user.email,
         verse: drop.verse,
         reflection: drop.reflection || "",
@@ -174,6 +175,7 @@ function TruthCard({ drop, onShare, user, featured }) {
         hashtags: drop.hashtags || "",
         status: "approved"
       });
+      mirrorGlowDropToSupabase(newDrop, user);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });

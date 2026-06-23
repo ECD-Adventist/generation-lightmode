@@ -9,6 +9,7 @@ import { Loader2, X, Send, Image as ImageIcon, Calendar as CalendarIcon, Sparkle
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
+import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 
 const CATEGORIES = ["Devotional", "Testimony", "Scripture", "Prayer", "Encouragement", "Teaching", "Announcement"];
 const BRAND_EMAIL = "system@lightmode.com";
@@ -103,12 +104,14 @@ export default function CustomPostComposer() {
         });
       }
 
-      return await base44.entities.GlowDrop.create({
+      const newDrop = await base44.entities.GlowDrop.create({
         ...basePayload,
         user_email: BRAND_EMAIL,
         status: "approved",
         likes_count: 0,
       });
+      mirrorGlowDropToSupabase(newDrop, { email: BRAND_EMAIL });
+      return newDrop;
     },
     onSuccess: () => {
       toast.success(scheduleMode === "later" ? "📅 Post scheduled" : "✨ Published as Generation LightMode");

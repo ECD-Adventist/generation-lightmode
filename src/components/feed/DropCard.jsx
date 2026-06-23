@@ -20,6 +20,7 @@ import CountryFlag from "@/components/common/CountryFlag";
 import KeepIt100Poster, { KEEP_IT_100_BACKGROUND_URL } from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 
 export default function DropCard({ drop, user, isGuest = false, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
@@ -239,7 +240,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
 
   const repostMutation = useMutation({
     mutationFn: async () => {
-      await base44.entities.GlowDrop.create({
+      const newDrop = await base44.entities.GlowDrop.create({
         user_email: user.email,
         verse: drop.verse,
         reflection: `[Reposted from ${getDisplayName(authorProfile)}]\n\n${drop.reflection || ""}`,
@@ -248,6 +249,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
         hashtags: drop.hashtags,
         status: "approved"
       });
+      mirrorGlowDropToSupabase(newDrop, user);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });

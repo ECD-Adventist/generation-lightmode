@@ -1,21 +1,39 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
 
-// Fire-and-forget mirror of a Base44 record into Supabase. Never awaited by the
-// caller, never throws — the Base44 write stays the primary source of truth.
-const SUPABASE_URL = 'https://asnsthgubpeptoiexajf.supabase.co';
-function mirrorToSupabase(table, row) {
-  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  if (!key || !row?.id) return;
-  fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-    method: 'POST',
+const SUPABASE_URL = "https://asnsthgubpeptoiexajf.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzbnN0aGd1YnBlcHRvaWV4YWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc4MzM5NDgsImV4cCI6MjA2MzQwOTk0OH0.r3WDFbJQgPuVnakMUJQa_cEWBUBbnT3hbDbT5GiZoNA";
+
+function mirrorGlowDropToSupabase(newDrop, createdBy) {
+  if (!newDrop?.id) return;
+  fetch(`${SUPABASE_URL}/rest/v1/glow_drops`, {
+    method: "POST",
     headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      'Content-Type': 'application/json',
-      Prefer: 'resolution=merge-duplicates,return=minimal',
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type": "application/json",
+      "Prefer": "resolution=merge-duplicates,return=minimal"
     },
-    body: JSON.stringify(row),
-  }).catch((e) => console.error(`Supabase mirror ${table} failed:`, e?.message));
+    body: JSON.stringify([{
+      id: newDrop.id,
+      reflection: newDrop.reflection || "",
+      verse: newDrop.verse || "",
+      category: newDrop.category || "",
+      description: newDrop.description || null,
+      media_url: newDrop.media_url || null,
+      hashtags: newDrop.hashtags || "",
+      status: newDrop.status || "approved",
+      likes_count: newDrop.likes_count || 0,
+      bonus_likes_count: newDrop.bonus_likes_count || 0,
+      pinned: newDrop.pinned || false,
+      hidden: newDrop.hidden || false,
+      hidden_reason: newDrop.hidden_reason || null,
+      is_flagged: newDrop.is_flagged || false,
+      moderation_note: newDrop.moderation_note || null,
+      created_by: createdBy || "",
+      created_date: newDrop.created_date || new Date().toISOString(),
+      updated_date: newDrop.updated_date || newDrop.created_date || new Date().toISOString()
+    }])
+  }).catch(err => console.warn("Supabase dual-write failed silently:", err));
 }
 
 Deno.serve(async (req) => {
@@ -124,20 +142,7 @@ Deno.serve(async (req) => {
     // post to silently fail.
     const drop = await base44.asServiceRole.entities.GlowDrop.create(dropPayload);
 
-    // Dual-write Step 1: mirror into Supabase (fire-and-forget, never blocks).
-    mirrorToSupabase('glow_drops', {
-      id: drop.id,
-      user_email: drop.user_email,
-      verse: drop.verse,
-      reflection: drop.reflection,
-      media_url: drop.media_url,
-      category: drop.category,
-      hashtags: drop.hashtags,
-      status: drop.status,
-      hidden: drop.hidden,
-      likes_count: drop.likes_count,
-      created_date: drop.created_date,
-    });
+    mirrorGlowDropToSupabase(drop, effectiveEmail);
 
     if (postAsLeader) {
       try {

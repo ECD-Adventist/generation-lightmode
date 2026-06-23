@@ -5,6 +5,7 @@ import { Download, Share2, Repeat2, Loader2, MessageCircle } from "lucide-react"
 import { toast } from "sonner";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
+import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 
 export default function CodeCard({ code, user }) {
   const queryClient = useQueryClient();
@@ -103,7 +104,7 @@ export default function CodeCard({ code, user }) {
     }
     setIsSharing(true);
     try {
-      await base44.entities.GlowDrop.create({
+      const newDrop = await base44.entities.GlowDrop.create({
         user_email: user.email,
         verse: code.bible_reference || "Code of Truth",
         reflection: code.slogan_text,
@@ -111,6 +112,7 @@ export default function CodeCard({ code, user }) {
         category: "Code of Truth",
         status: "approved"
       });
+      mirrorGlowDropToSupabase(newDrop, user);
       await updateEngagement('reposts_count');
       toast.success("Reposted to your Glow Drops! ⚡");
     } catch (err) {
