@@ -3,6 +3,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 function safeLeader(account) {
   return {
     id: account.id,
+    leader_email: account.leader_email || '',
     leader_name: account.leader_name || '',
     leader_title: account.leader_title || '',
     leader_country: account.leader_country || '',

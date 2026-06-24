@@ -204,9 +204,9 @@ export default function Feed() {
   });
 
   const { data: following = [] } = useQuery({
-    queryKey: ["following", user?.email],
-    queryFn: () => base44.entities.Follow.filter({ follower_email: user?.email }),
-    enabled: !!user
+    queryKey: ["following", user?.id],
+    queryFn: () => base44.entities.Follow.filter({ follower_id: user.id }),
+    enabled: !!user?.id
   });
 
   // Deferred — stories are a secondary section above the feed.
@@ -219,15 +219,16 @@ export default function Feed() {
   const followMutation = useMutation({
     mutationFn: async (targetEmail) => {
       if (!user) { requireAuth(); throw new Error("Not logged in"); }
-      const isFollowing = following.some(f => f.following_email === targetEmail);
+      const targetUser = [...users, ...suggestedUsers].find(u => u.email === targetEmail);
+      if (!targetUser?.id) throw new Error("Could not find that member.");
+      const isFollowing = following.some(f => f.following_id === targetUser.id || f.following_email === targetEmail);
       if (isFollowing) {
-        const followRecord = following.find(f => f.following_email === targetEmail);
+        const followRecord = following.find(f => f.following_id === targetUser.id || f.following_email === targetEmail);
         await base44.entities.Follow.delete(followRecord.id);
         return true;
       } else {
-        const followRec = await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
+        const followRec = await base44.entities.Follow.create({ follower_id: user.id, following_id: targetUser.id });
         dualWriteSupabase("follows", followRec);
-        const targetUser = users.find(u => u.email === targetEmail);
         if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
           await base44.functions.invoke("createNotification", {
             user_id: targetUser.id,
@@ -404,7 +405,10 @@ export default function Feed() {
     return Array.from(latestByUser.values());
   }, [stories]);
 
-  const followingEmails = useMemo(() => new Set(following.map(f => f.following_email)), [following]);
+  const followingTargets = useMemo(() => ({
+    ids: new Set(following.map(f => f.following_id).filter(Boolean)),
+    emails: new Set(following.map(f => f.following_email).filter(Boolean)),
+  }), [following]);
 
   // When the user is searching, merge in any drops fetched from global user search
   // (de-duplicated by id). This lets searches find creators whose posts aren't
@@ -438,7 +442,7 @@ export default function Feed() {
         if (drop.pinned && activeFilter === "All" && !searchQuery) return false;
 
         const matchesFilter = activeFilter === 'All' ||
-          (activeFilter === 'Following' && followingEmails.has(drop.user_email)) ||
+          (activeFilter === 'Following' && (followingTargets.emails.has(drop.user_email) || followingTargets.ids.has(getUserInfo(drop.user_email)?.id))) ||
           (activeFilter === 'Most Liked' && (drop.likes_count || 0) >= 1) ||
           (activeFilter === 'Devotional' && drop.category === 'Devotional') ||
           (activeFilter === 'Testimony' && drop.category === 'Testimony');
@@ -460,7 +464,7 @@ export default function Feed() {
         if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
         return new Date(b.created_date || 0) - new Date(a.created_date || 0);
       });
-  }, [dropsWithSearch, activeFilter, searchQuery, followingEmails, usersWithSearch, leaderAccounts, user?.email, isAdminViewer]);
+  }, [dropsWithSearch, activeFilter, searchQuery, followingTargets, usersWithSearch, leaderAccounts, user?.email, isAdminViewer]);
 
   const trendingTopics = useMemo(() => {
     const counts = new Map();
@@ -938,7 +942,7 @@ export default function Feed() {
             <h3 className="font-black text-xs mb-4 tracking-widest uppercase" style={{ color: "#FF9F1A" }}>People to Connect</h3>
             
             <div className="space-y-4">
-              {suggestedUsers.filter(u => u.email && u.email !== user?.email && !following.some(f => f.following_email === u.email)).map((u, i) => {
+              {suggestedUsers.filter(u => u.email && u.email !== user?.email && !following.some(f => f.following_email === u.email || f.following_id === u.id)).map((u, i) => {
                 return (
                 <div key={u.id} className="flex items-center gap-2">
                   <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-2 flex-1 min-w-0 no-underline hover:opacity-80 transition">

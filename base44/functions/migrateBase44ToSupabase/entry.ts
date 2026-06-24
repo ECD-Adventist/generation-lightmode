@@ -174,8 +174,25 @@ Deno.serve(async (req) => {
       return Response.json({ host: safeUrl.hostname, port: safeUrl.port, username: safeUrl.username, database: safeUrl.pathname });
     }
 
-    sql = postgres(databaseUrl, { ssl: 'require', max: 1, prepare: false, idle_timeout: 20 });
-    await sql`select 1 as ok`;
+    const connectionUrls = [databaseUrl];
+    if (databaseUrl.includes('.pooler.supabase.com:5432')) {
+      connectionUrls.push(databaseUrl.replace(':5432', ':6543'));
+    }
+
+    let connectionError = null;
+    for (const url of connectionUrls) {
+      try {
+        sql = postgres(url, { ssl: 'require', max: 1, prepare: false, idle_timeout: 20, connect_timeout: 30 });
+        await sql`select 1 as ok`;
+        connectionError = null;
+        break;
+      } catch (error) {
+        connectionError = error;
+        if (sql) await sql.end({ timeout: 5 });
+        sql = null;
+      }
+    }
+    if (!sql) throw connectionError;
 
     const results = [];
     for (const entityName of requestedEntities) {
