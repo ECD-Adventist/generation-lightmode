@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Copy, Eye, EyeOff, CheckCircle2, XCircle, Trash2, RotateCcw, Pin, PinOff } from "lucide-react";
 import { toast } from "sonner";
 
-export default function DropActionsMenu({ drop, onClose, onApprove, onReject, onHide, onUnhide, onDelete, onPin, onUnpin, t, isDark }) {
+export default function DropActionsMenu({ drop, onClose, onApprove, onReject, onHide, onUnhide, onDelete, onPin, onUnpin, canManagePinnedAnnouncements = false, t, isDark }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -27,8 +27,10 @@ export default function DropActionsMenu({ drop, onClose, onApprove, onReject, on
   if (drop.hidden) items.push({ icon: <Eye size={14} />,    label: "Unhide",    onClick: () => { onUnhide?.(); onClose(); }, color: "#22c55e" });
   else             items.push({ icon: <EyeOff size={14} />, label: "Hide",      onClick: () => { onHide?.(); onClose(); }, color: "#8A5CFF" });
 
-  if (drop.pinned) items.push({ icon: <PinOff size={14} />, label: "Unpin from top", onClick: () => { onUnpin?.(); onClose(); }, color: "#6B7280" });
-  else             items.push({ icon: <Pin size={14} />,    label: "Pin to top",     onClick: () => { onPin?.(); onClose(); }, color: "#FFD000" });
+  if (canManagePinnedAnnouncements) {
+    if (drop.pinned) items.push({ icon: <PinOff size={14} />, label: "Unpin from top", onClick: () => { onUnpin?.(); onClose(); }, color: "#6B7280" });
+    else             items.push({ icon: <Pin size={14} />,    label: "Pin to top",     onClick: () => { onPin?.(); onClose(); }, color: "#FFD000" });
+  }
 
   items.push({ icon: <Copy size={14} />, label: "Copy content", onClick: copyContent });
   items.push({ divider: true });

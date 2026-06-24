@@ -38,7 +38,6 @@ Deno.serve(async (req) => {
 
     const selected = unposted[0];
     const updateData = {
-      pinned: true,
       bonus_likes_enabled: true,
       bonus_likes_count: Math.max(Number(selected.bonus_likes_count || 0), 24),
       description: `${BOOST_MARKER}:${today}`,

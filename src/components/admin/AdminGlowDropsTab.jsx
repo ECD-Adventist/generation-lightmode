@@ -16,6 +16,7 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
   const queryClient = useQueryClient();
+  const canManagePinnedAnnouncements = ["ecd_admin", "super_admin"].includes(user?.role);
 
   // Default to "approved" since that's the new auto-status for new drops
   const [filter, setFilter] = useState("approved");
@@ -129,8 +130,28 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
     updateDrop(drop.id, { hidden: true, hidden_reason: reason.trim() || "No reason given" }, "Hidden from public feed");
   };
   const handleUnhide  = (drop) => updateDrop(drop.id, { hidden: false, hidden_reason: "" }, "Drop is visible again");
-  const handlePin     = (drop) => updateDrop(drop.id, { pinned: true }, "Pinned to top of feed");
-  const handleUnpin   = (drop) => updateDrop(drop.id, { pinned: false }, "Unpinned from top");
+  const handlePin = async (drop) => {
+    if (!canManagePinnedAnnouncements) return toast.error("Only ECD Admins and super admins can pin feed posts.");
+    try {
+      await base44.functions.invoke("manageGlowDropPin", { drop_id: drop.id, pinned: true });
+      toast.success("Pinned to top of feed");
+      setPreviewDrop(prev => (prev && prev.id === drop.id) ? { ...prev, pinned: true } : prev);
+      refresh();
+    } catch (err) {
+      toast.error(err?.response?.data?.error || err?.message || "Pin failed");
+    }
+  };
+  const handleUnpin = async (drop) => {
+    if (!canManagePinnedAnnouncements) return toast.error("Only ECD Admins and super admins can unpin feed posts.");
+    try {
+      await base44.functions.invoke("manageGlowDropPin", { drop_id: drop.id, pinned: false });
+      toast.success("Unpinned from top");
+      setPreviewDrop(prev => (prev && prev.id === drop.id) ? { ...prev, pinned: false } : prev);
+      refresh();
+    } catch (err) {
+      toast.error(err?.response?.data?.error || err?.message || "Unpin failed");
+    }
+  };
   const handleDelete  = async (drop) => {
     if (!window.confirm(`Permanently delete this drop by ${drop.user_email}? This cannot be undone.`)) return;
     try {
@@ -257,6 +278,7 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
               onDelete={() => handleDelete(drop)}
               onPin={() => handlePin(drop)}
               onUnpin={() => handleUnpin(drop)}
+              canManagePinnedAnnouncements={canManagePinnedAnnouncements}
               t={t} isDark={isDark}
             />
           ))}

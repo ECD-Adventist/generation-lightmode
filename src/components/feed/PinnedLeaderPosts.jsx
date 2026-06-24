@@ -9,8 +9,8 @@ import { formatDistanceToNow } from "date-fns";
 /**
  * Desktop-only ribbon of pinned leader announcements that always sit at the
  * top of the feed (just under the Daily Drops button row). Posts marked
- * `pinned: true` on the GlowDrop entity show up here. Admins can toggle the
- * pin state from the moderation panel.
+ * `pinned: true` on the GlowDrop entity show up here. Only ECD Admins and
+ * super admins can toggle the pin state from the moderation panel.
  */
 export default function PinnedLeaderPosts({ leaderAccounts = [] }) {
   const { data: pinnedDrops = [], isLoading } = useQuery({
