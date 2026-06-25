@@ -14,6 +14,19 @@ import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 
+const fetchAll = async (entity, query = {}, sort = null) => {
+  let allRecords = [];
+  let skip = 0;
+  const limit = 100;
+  while (true) {
+    const result = await entity.filter(query, sort, limit, skip);
+    allRecords = [...allRecords, ...result];
+    if (result.length < limit) break;
+    skip += limit;
+  }
+  return allRecords;
+};
+
 export default function DailyDropsPage() {
   const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
@@ -31,7 +44,7 @@ export default function DailyDropsPage() {
   // Fetch ONLY system-published daily drops
   const { data: drops = [], isLoading } = useQuery({
     queryKey: ["dailySystemDrops"],
-    queryFn: () => base44.entities.GlowDrop.filter({ user_email: "system@lightmode.com", status: "approved" }, '-created_date', 100),
+    queryFn: () => fetchAll(base44.entities.GlowDrop, { user_email: "system@lightmode.com", status: "approved" }, '-created_date'),
   });
 
   // Filter by category (reliable) — hashtags may be null on older drops

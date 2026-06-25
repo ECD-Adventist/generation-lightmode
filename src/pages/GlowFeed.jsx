@@ -9,6 +9,19 @@ import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 import usePullToRefresh from "@/hooks/usePullToRefresh";
 import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 
+const fetchAll = async (entity, query = {}, sort = null) => {
+  let allRecords = [];
+  let skip = 0;
+  const limit = 100;
+  while (true) {
+    const result = await entity.filter(query, sort, limit, skip);
+    allRecords = [...allRecords, ...result];
+    if (result.length < limit) break;
+    skip += limit;
+  }
+  return allRecords;
+};
+
 const FILTERS = [
   { id: "latest", label: "Latest", icon: Clock },
   { id: "top", label: "Top Liked", icon: Flame },
@@ -40,7 +53,7 @@ export default function GlowFeed() {
 
   const { data: drops = [], isLoading } = useQuery({
     queryKey: ["glowFeed"],
-    queryFn: () => base44.entities.GlowDrop.filter({ status: "approved" }, "-created_date", 200),
+    queryFn: () => fetchAll(base44.entities.GlowDrop, { status: "approved" }, "-created_date"),
     staleTime: 1000 * 60 * 2,
   });
 
@@ -59,7 +72,7 @@ export default function GlowFeed() {
 
   const { data: userLikes = [] } = useQuery({
     queryKey: ["glowFeedLikes"],
-    queryFn: () => base44.entities.GlowDropLike.filter({ user_email: currentUser.email }),
+    queryFn: () => fetchAll(base44.entities.GlowDropLike, { user_email: currentUser?.email }),
     enabled: !!currentUser,
     staleTime: 1000 * 60 * 2,
   });

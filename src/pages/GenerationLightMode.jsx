@@ -9,6 +9,19 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import MobileGenerationLightMode from "@/components/profile/MobileGenerationLightMode";
 import GenerationLightModeDesktop from "@/components/profile/GenerationLightModeDesktop";
 
+const fetchAll = async (entity, query = {}, sort = null) => {
+  let allRecords = [];
+  let skip = 0;
+  const limit = 100;
+  while (true) {
+    const result = await entity.filter(query, sort, limit, skip);
+    allRecords = [...allRecords, ...result];
+    if (result.length < limit) break;
+    skip += limit;
+  }
+  return allRecords;
+};
+
 const ACCOUNT_EMAIL = "system@lightmode.com";
 const ACCOUNT_NAME = "Generation LightMode";
 const ACCOUNT_IMAGE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg";
@@ -20,16 +33,16 @@ export default function GenerationLightMode() {
   const { data: me } = useQuery({ queryKey: ["glmMe"], queryFn: () => base44.auth.me() });
   const { data: follows = [] } = useQuery({
     queryKey: ["glmFollowers"],
-    queryFn: () => base44.entities.Follow.filter({ following_email: ACCOUNT_EMAIL })
+    queryFn: () => fetchAll(base44.entities.Follow, { following_email: ACCOUNT_EMAIL })
   });
   const { data: myFollowing = [] } = useQuery({
     queryKey: ["glmMyFollowing", me?.email],
-    queryFn: () => base44.entities.Follow.filter({ follower_email: me?.email }),
+    queryFn: () => fetchAll(base44.entities.Follow, { follower_email: me?.email }),
     enabled: !!me?.email
   });
   const { data: posts = [] } = useQuery({
     queryKey: ["glmPosts"],
-    queryFn: () => base44.entities.GlowDrop.filter({ user_email: ACCOUNT_EMAIL }, "-created_date", 50)
+    queryFn: () => fetchAll(base44.entities.GlowDrop, { user_email: ACCOUNT_EMAIL }, "-created_date")
   });
 
   const isFollowing = myFollowing.some((f) => f.following_email === ACCOUNT_EMAIL);

@@ -37,6 +37,19 @@ import GuestStickyBar from "@/components/pledge/GuestStickyBar";
 import CountryFlag from "@/components/common/CountryFlag";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
+const fetchAll = async (entity, query = {}, sort = null) => {
+  let allRecords = [];
+  let skip = 0;
+  const limit = 100;
+  while (true) {
+    const result = await entity.filter(query, sort, limit, skip);
+    allRecords = [...allRecords, ...result];
+    if (result.length < limit) break;
+    skip += limit;
+  }
+  return allRecords;
+};
+
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
     <Link
@@ -205,14 +218,14 @@ export default function Feed() {
 
   const { data: following = [] } = useQuery({
     queryKey: ["following", user?.id],
-    queryFn: () => base44.entities.Follow.filter({ follower_id: user.id }),
+    queryFn: () => fetchAll(base44.entities.Follow, { follower_id: user.id }),
     enabled: !!user?.id
   });
 
   // Deferred — stories are a secondary section above the feed.
   const { data: stories = [] } = useQuery({
     queryKey: ["activeStories"],
-    queryFn: () => base44.entities.Story.list("-created_date", 50),
+    queryFn: () => fetchAll(base44.entities.Story, {}, "-created_date"),
     enabled: !!user && deferredReady
   });
 
@@ -251,14 +264,14 @@ export default function Feed() {
 
   const { data: userLikes = [] } = useQuery({
     queryKey: ["userLikes", user?.email],
-    queryFn: () => base44.entities.GlowDropLike.filter({ user_email: user?.email }),
+    queryFn: () => fetchAll(base44.entities.GlowDropLike, { user_email: user?.email }),
     enabled: !!user,
     staleTime: 1000 * 60 * 2,
   });
 
   const { data: savedDropRecords = [] } = useQuery({
     queryKey: ["savedDrops", user?.email],
-    queryFn: () => base44.entities.SavedDrop.filter({ user_email: user?.email }),
+    queryFn: () => fetchAll(base44.entities.SavedDrop, { user_email: user?.email }),
     enabled: !!user,
     staleTime: 1000 * 60 * 2,
   });

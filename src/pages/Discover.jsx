@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
@@ -10,6 +10,19 @@ import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
 import AppFooter from "@/components/AppFooter";
 import { getDisplayName } from "@/lib/displayName";
 import MobileDiscover from "@/components/discover/MobileDiscover";
+
+const fetchAll = async (entity, query = {}, sort = null) => {
+  let allRecords = [];
+  let skip = 0;
+  const limit = 100;
+  while (true) {
+    const result = await entity.filter(query, sort, limit, skip);
+    allRecords = [...allRecords, ...result];
+    if (result.length < limit) break;
+    skip += limit;
+  }
+  return allRecords;
+};
 
 export default function Discover() {
   const navigate = useNavigate();
@@ -40,7 +53,7 @@ export default function Discover() {
 
   const { data: userLikes = [] } = useQuery({
     queryKey: ["userLikes", user?.email],
-    queryFn: () => base44.entities.GlowDropLike.filter({ user_email: user?.email }),
+    queryFn: () => fetchAll(base44.entities.GlowDropLike, { user_email: user?.email }),
     enabled: !!user,
   });
 

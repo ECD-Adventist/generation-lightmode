@@ -28,6 +28,19 @@ import MobileInstitutionProfile from "@/components/institution/MobileInstitution
 import CountryFlag from "@/components/common/CountryFlag";
 import DropGridTile from "@/components/profile/DropGridTile";
 
+const fetchAll = async (entity, query = {}, sort = null) => {
+  let allRecords = [];
+  let skip = 0;
+  const limit = 100;
+  while (true) {
+    const result = await entity.filter(query, sort, limit, skip);
+    allRecords = [...allRecords, ...result];
+    if (result.length < limit) break;
+    skip += limit;
+  }
+  return allRecords;
+};
+
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
   const [user, setUser] = useState(null); // profile being viewed
@@ -194,49 +207,49 @@ export default function Profile() {
 
   const { data: myDrops = [] } = useQuery({
     queryKey: ["myGlowDropsProfile", profileEmail],
-    queryFn: () => base44.entities.GlowDrop.filter({ user_email: profileEmail }, '-created_date'),
+    queryFn: () => fetchAll(base44.entities.GlowDrop, { user_email: profileEmail }, '-created_date'),
     enabled: !!profileEmail
   });
 
   const { data: mySupports = [] } = useQuery({
     queryKey: ["mySupports", profileEmail],
-    queryFn: () => base44.entities.PrayerSupport.filter({ user_email: profileEmail }),
+    queryFn: () => fetchAll(base44.entities.PrayerSupport, { user_email: profileEmail }),
     enabled: !!profileEmail
   });
 
   const { data: myFollowing = [] } = useQuery({
     queryKey: ["myFollowing", profileEmail],
-    queryFn: () => base44.entities.Follow.filter({ follower_email: profileEmail }),
+    queryFn: () => fetchAll(base44.entities.Follow, { follower_email: profileEmail }),
     enabled: !!profileEmail
   });
 
   const { data: myFollowers = [] } = useQuery({
     queryKey: ["myFollowers", profileEmail],
-    queryFn: () => base44.entities.Follow.filter({ following_email: profileEmail }),
+    queryFn: () => fetchAll(base44.entities.Follow, { following_email: profileEmail }),
     enabled: !!profileEmail
   });
 
   const { data: myMemberships = [] } = useQuery({
     queryKey: ["myMemberships", profileEmail],
-    queryFn: () => base44.entities.GlowGroupMember.filter({ user_email: profileEmail }),
+    queryFn: () => fetchAll(base44.entities.GlowGroupMember, { user_email: profileEmail }),
     enabled: !!profileEmail
   });
 
   const { data: certificates = [] } = useQuery({
     queryKey: ["myCerts", profileEmail],
-    queryFn: () => base44.entities.Certificate.filter({ user_email: profileEmail }),
+    queryFn: () => fetchAll(base44.entities.Certificate, { user_email: profileEmail }),
     enabled: !!profileEmail
   });
 
   const { data: savedRecords = [] } = useQuery({
     queryKey: ["mySavedDropsProfile", profileEmail],
-    queryFn: () => base44.entities.SavedDrop.filter({ user_email: profileEmail }),
+    queryFn: () => fetchAll(base44.entities.SavedDrop, { user_email: profileEmail }),
     enabled: Boolean(profileEmail && isOwnProfile)
   });
 
   const { data: allDrops = [] } = useQuery({
     queryKey: ["profileAllGlowDrops"],
-    queryFn: () => base44.entities.GlowDrop.list('-created_date', 500),
+    queryFn: () => fetchAll(base44.entities.GlowDrop, {}, '-created_date'),
   });
 
   const savedDrops = useMemo(() => {
@@ -246,19 +259,19 @@ export default function Profile() {
 
   const { data: challengeSubmissions = [] } = useQuery({
     queryKey: ["myChallengeSubmissions", profileEmail],
-    queryFn: () => base44.entities.ChallengeSubmission.filter({ user_email: profileEmail }, '-created_date'),
+    queryFn: () => fetchAll(base44.entities.ChallengeSubmission, { user_email: profileEmail }, '-created_date'),
     enabled: !!profileEmail
   });
 
   const { data: userInstitutionApps = [] } = useQuery({
     queryKey: ["profileInstitutionApps", profileEmail],
-    queryFn: () => base44.entities.InstitutionApplication.filter({ user_email: profileEmail, status: "approved" }),
+    queryFn: () => fetchAll(base44.entities.InstitutionApplication, { user_email: profileEmail, status: "approved" }),
     enabled: !!profileEmail,
   });
 
   const { data: publicInstitutionPages = [] } = useQuery({
     queryKey: ["publicInstitutionPagesForProfile", profileEmail],
-    queryFn: () => base44.entities.InstitutionPage.filter({ owner_email: profileEmail }),
+    queryFn: () => fetchAll(base44.entities.InstitutionPage, { owner_email: profileEmail }),
     enabled: !!profileEmail,
   });
 
@@ -282,13 +295,13 @@ export default function Profile() {
 
   const { data: profileUserLikes = [] } = useQuery({
     queryKey: ["profileUserLikes", currentUser?.email],
-    queryFn: () => base44.entities.GlowDropLike.filter({ user_email: currentUser?.email }),
+    queryFn: () => fetchAll(base44.entities.GlowDropLike, { user_email: currentUser?.email }),
     enabled: !!currentUser,
   });
 
   const { data: profileSavedDrops = [] } = useQuery({
     queryKey: ["profileSavedDrops", currentUser?.email],
-    queryFn: () => base44.entities.SavedDrop.filter({ user_email: currentUser?.email }),
+    queryFn: () => fetchAll(base44.entities.SavedDrop, { user_email: currentUser?.email }),
     enabled: !!currentUser,
   });
 
@@ -342,7 +355,7 @@ export default function Profile() {
 
   const { data: currentUserFollowing = [] } = useQuery({
     queryKey: ["currentUserFollowing", currentUser?.email],
-    queryFn: () => base44.entities.Follow.filter({ follower_email: currentUser?.email }),
+    queryFn: () => fetchAll(base44.entities.Follow, { follower_email: currentUser?.email }),
     enabled: !!currentUser
   });
 
@@ -378,7 +391,7 @@ export default function Profile() {
 
   const { data: allChallenges = [] } = useQuery({
     queryKey: ["allChallenges"],
-    queryFn: () => base44.entities.Challenge.list(),
+    queryFn: () => fetchAll(base44.entities.Challenge, {}),
     enabled: !!user
   });
 
