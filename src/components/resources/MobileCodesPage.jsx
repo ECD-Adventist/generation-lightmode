@@ -91,11 +91,15 @@ export default function MobileCodesPage({
           {/* Stats row */}
           <div className="grid grid-cols-2 gap-2.5">
             <div className="rounded-2xl p-3.5" style={{ background: "rgba(18,24,38,0.7)", border: `1px solid ${T.accent}25` }}>
-              <div className="font-['Space_Grotesk'] font-black text-[22px] leading-none mb-1" style={{ color: T.accent }}>{codes.length}</div>
+              <div className="font-['Space_Grotesk'] font-black text-[22px] leading-none mb-1" style={{ color: T.accent }}>
+                {isLoading ? <span className="animate-pulse opacity-50">-</span> : codes.length}
+              </div>
               <div className="text-[9.5px] font-black uppercase tracking-[0.1em]" style={{ color: "#8A9BB0" }}>{theme === "gold" ? "Truth Slogans" : "Truth Codes"}</div>
             </div>
             <div className="rounded-2xl p-3.5" style={{ background: "rgba(18,24,38,0.7)", border: `1px solid ${T.statB}25` }}>
-              <div className="font-['Space_Grotesk'] font-black text-[22px] leading-none mb-1" style={{ color: T.statB }}>{categories.length}</div>
+              <div className="font-['Space_Grotesk'] font-black text-[22px] leading-none mb-1" style={{ color: T.statB }}>
+                {isLoading ? <span className="animate-pulse opacity-50">-</span> : categories.length}
+              </div>
               <div className="text-[9.5px] font-black uppercase tracking-[0.1em]" style={{ color: "#8A9BB0" }}>{theme === "gold" ? "Life Topics" : "Categories"}</div>
             </div>
           </div>
@@ -153,8 +157,10 @@ export default function MobileCodesPage({
       {/* CONTENT */}
       <div className="px-4 pt-4 pb-6">
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin" style={{ color: T.accent }} />
+          <div className="grid grid-cols-1 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-64 rounded-[28px] animate-pulse" style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${T.accent}15` }} />
+            ))}
           </div>
         ) : filteredCodes.length === 0 ? (
           <div className="text-center py-16 px-5 rounded-3xl" style={{ background: "rgba(18,24,38,0.6)", border: `1px dashed ${T.accent}25` }}>

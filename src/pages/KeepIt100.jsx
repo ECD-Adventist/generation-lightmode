@@ -84,12 +84,16 @@ export default function KeepIt100() {
             Real truth slogans for real life. No cap—stand bold in Christ across every area of life. Share these in your group chats and flood socials with truth.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 20px", textAlign: "center" }}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: "#FFD000", fontFamily: "Space Grotesk, sans-serif" }}>{codes.length}</div>
+            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 20px", textAlign: "center", minWidth: 140 }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: "#FFD000", fontFamily: "Space Grotesk, sans-serif" }}>
+                {isLoading ? <span className="animate-pulse opacity-50">-</span> : codes.length}
+              </div>
               <div style={{ fontSize: 11, color: "#8A9BB0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>Truth Slogans</div>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 20px", textAlign: "center" }}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: "#00CFFF", fontFamily: "Space Grotesk, sans-serif" }}>{CATEGORIES.length}</div>
+            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 20px", textAlign: "center", minWidth: 140 }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: "#00CFFF", fontFamily: "Space Grotesk, sans-serif" }}>
+                {isLoading ? <span className="animate-pulse opacity-50">-</span> : CATEGORIES.length}
+              </div>
               <div style={{ fontSize: 11, color: "#8A9BB0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>Life Topics</div>
             </div>
           </div>
@@ -130,8 +134,10 @@ export default function KeepIt100() {
         </div>
 
         {isLoading ? (
-          <div style={{ display: "flex", justifyContent: "center", padding: "80px 0" }}>
-            <Loader2 className="animate-spin text-[#00CFFF]" size={36} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-64 rounded-2xl bg-white/5 border border-white/10 animate-pulse" />
+            ))}
           </div>
         ) : filteredCodes.length === 0 ? (
           <div style={{ textAlign: "center", padding: "80px 24px", background: "#121826", borderRadius: 24, border: "1px solid rgba(255,255,255,0.05)" }}>

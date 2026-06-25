@@ -70,6 +70,31 @@ Deno.serve(async (req) => {
       } catch { /* non-fatal */ }
     }
 
+    // If it's a repost of a GlowDrop, decrement the original GlowDrop's repost count
+    try {
+      if (drop.original_drop_id) {
+        const originalDrop = await service.entities.GlowDrop.get(drop.original_drop_id);
+        if (originalDrop) {
+          await service.entities.GlowDrop.update(originalDrop.id, {
+            reposts_count: Math.max(0, (originalDrop.reposts_count || 1) - 1)
+          });
+        }
+      } else if (drop.reflection && drop.reflection.match(/^\[Reposted from .+?\]/i)) {
+        // Fallback for legacy reposts
+        const cleanReflection = drop.reflection.replace(/^(\[Reposted from .+?\]\s*)+/i, "").trim();
+        if (cleanReflection) {
+          // Find the original drop that has this exact reflection
+          const originalDrops = await service.entities.GlowDrop.filter({ reflection: cleanReflection }, '-created_date', 1);
+          if (originalDrops.length > 0) {
+            const originalDrop = originalDrops[0];
+            await service.entities.GlowDrop.update(originalDrop.id, {
+              reposts_count: Math.max(0, (originalDrop.reposts_count || 1) - 1)
+            });
+          }
+        }
+      }
+    } catch { /* non-fatal */ }
+
     await service.entities.GlowDrop.delete(drop_id);
 
     return Response.json({ success: true });
