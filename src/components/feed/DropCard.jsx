@@ -65,10 +65,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
     (drop.hashtags && /keepit100/i.test(drop.hashtags))
   );
   const KEEP_IT_100_BG = KEEP_IT_100_BACKGROUND_URL;
-  const isCodeOfTruth = !drop.media_url && (
-    drop.category === "Code of Truth" ||
-    /codes?\s*of\s*truth|codes?oftruth/i.test(drop.hashtags || "")
-  );
+  const isCodeOfTruth = !drop.media_url && drop.category === "Code of Truth";
 
   const getRepostOwner = (reflection) => {
     const matches = Array.from(reflection?.matchAll(/\[Reposted from (.+?)\]\s*/gi) || []);

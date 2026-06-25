@@ -171,7 +171,6 @@ function TruthCard({ drop, onShare, user, featured }) {
         user_email: user.email,
         verse: drop.verse,
         reflection: drop.reflection || "",
-        media_url: drop.media_url || null,
         category: drop.category,
         hashtags: drop.hashtags || "",
         status: "approved"
