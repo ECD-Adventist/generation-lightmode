@@ -109,7 +109,9 @@ export default function CodeCard({ code, user }) {
         user_email: user.email,
         verse: code.bible_reference || category,
         reflection: code.slogan_text,
-        media_url: code.poster_image_url || null,
+        // Keep It 100 & Code of Truth render their own branded backgrounds in the feed
+        // from the slogan text — never attach the poster image, or the feed shows the raw poster instead.
+        media_url: null,
         category,
         hashtags: isKeepIt100 ? "#KeepIt100 #FaithAlwaysOn" : "#CodeOfTruth #FaithAlwaysOn",
         status: "approved"
