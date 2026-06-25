@@ -54,6 +54,22 @@ Deno.serve(async (req) => {
       await Promise.all(comments.map((c) => service.entities.GlowDropComment.delete(c.id).catch(() => {})));
     } catch { /* non-fatal */ }
 
+    if (drop.category === "Code of Truth" || drop.category === "Keep It 100") {
+      try {
+        const codes = await service.entities.CodeOfTruth.filter({ slogan_text: drop.reflection });
+        if (codes.length > 0) {
+          const code_id = codes[0].id;
+          const engagements = await service.entities.CodeEngagement.filter({ code_id });
+          if (engagements.length > 0) {
+            const eng = engagements[0];
+            await service.entities.CodeEngagement.update(eng.id, {
+              reposts_count: Math.max(0, (eng.reposts_count || 1) - 1)
+            });
+          }
+        }
+      } catch { /* non-fatal */ }
+    }
+
     await service.entities.GlowDrop.delete(drop_id);
 
     return Response.json({ success: true });

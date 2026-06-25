@@ -250,8 +250,15 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
         media_url: drop.media_url,
         category: drop.category,
         hashtags: drop.hashtags,
+        original_drop_id: drop.id,
         status: "approved"
       });
+      
+      // Increment the reposts_count on the original drop
+      await base44.entities.GlowDrop.update(drop.id, {
+        reposts_count: (drop.reposts_count || 0) + 1
+      }).catch(console.error);
+
       mirrorGlowDropToSupabase(newDrop, user);
     },
     onSuccess: () => {

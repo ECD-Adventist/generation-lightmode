@@ -75,6 +75,13 @@
     },
     "hashtags": {
       "type": "string"
+    },
+    "reposts_count": {
+      "type": "number",
+      "default": 0
+    },
+    "original_drop_id": {
+      "type": "string"
     }
   },
   "required": [],
