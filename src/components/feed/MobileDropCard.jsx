@@ -36,7 +36,10 @@ function MobileDropCard({
   const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
   const isLeaderPost = !!leaderForDrop;
   const isKeepIt100 = !drop.media_url && (drop.category === "Keep It 100" || /keepit100/i.test(drop.hashtags || ""));
-  const isCodeOfTruth = !drop.media_url && drop.category === "Code of Truth";
+  const isCodeOfTruth = !drop.media_url && (
+    drop.category === "Code of Truth" ||
+    /codes?\s*of\s*truth|codes?oftruth/i.test(drop.hashtags || "")
+  );
   const usesDesignedPoster = isKeepIt100 || isCodeOfTruth;
 
   const savedForThisDrop = savedDropRecords.filter(s => s.drop_id === drop.id);

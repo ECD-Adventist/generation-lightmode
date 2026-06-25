@@ -104,17 +104,12 @@ export default function CodeCard({ code, user }) {
     }
     setIsSharing(true);
     try {
-      const category = isKeepIt100 ? "Keep It 100" : "Code of Truth";
       const newDrop = await base44.entities.GlowDrop.create({
         user_email: user.email,
-        verse: code.bible_reference || category,
+        verse: code.bible_reference || "Code of Truth",
         reflection: code.slogan_text,
-        // Keep It 100 & Code of Truth render their own branded backgrounds in the feed
-        // from the slogan text — never attach the poster image, or the feed shows the raw poster instead.
-        media_url: null,
-        category,
-        source_code_id: code.id,
-        hashtags: isKeepIt100 ? "#KeepIt100 #FaithAlwaysOn" : "#CodeOfTruth #FaithAlwaysOn",
+        media_url: code.poster_image_url,
+        category: "Code of Truth",
         status: "approved"
       });
       mirrorGlowDropToSupabase(newDrop, user);

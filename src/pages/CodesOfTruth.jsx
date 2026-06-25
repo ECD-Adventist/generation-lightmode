@@ -22,12 +22,6 @@ export default function CodesOfTruth() {
     queryKey: ["codesOfTruthPage"],
     // Explicit high limit — without it, .filter() returns only a default page and truncates the library.
     queryFn: () => base44.entities.CodeOfTruth.filter({ source_document: "codes_of_truth", status: "approved" }, '-created_date', 1000),
-    // Codes never disappear server-side; a blank "0 codes" only happens on a transient fetch
-    // failure. Retry a few times and keep cached data so a network blip never empties the page.
-    retry: 3,
-    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
-    staleTime: 1000 * 60 * 5,
-    placeholderData: (prev) => prev,
   });
 
   const categories = useMemo(() => {
