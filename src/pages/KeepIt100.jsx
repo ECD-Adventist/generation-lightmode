@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
 import { Loader2, Search } from "lucide-react";
 import CodeCard from "@/components/resources/CodeCard";
 import MobileCodesPage from "@/components/resources/MobileCodesPage";
@@ -25,11 +24,22 @@ export default function KeepIt100() {
     });
   }, []);
 
-  const { data: codes = [], isLoading } = useQuery({
-    queryKey: ["keepIt100Approved"],
-    // Explicit high limit — without it, .filter() returns only a default page and truncates the library.
-    queryFn: () => base44.entities.CodeOfTruth.filter({ source_document: "keeping_it_100", status: "approved" }, '-created_date', 1000),
-  });
+  const [codes, setCodes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoading(true);
+    base44.entities.CodeOfTruth.filter({ source_document: "keeping_it_100", status: "approved" }, '-created_date', 1000)
+      .then(res => {
+        if (isMounted) setCodes(res || []);
+      })
+      .catch(err => console.error("Failed to fetch codes:", err))
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+    return () => { isMounted = false; };
+  }, []);
 
   const filteredCodes = useMemo(() => {
     return codes.filter(code => {
@@ -84,16 +94,14 @@ export default function KeepIt100() {
             Real truth slogans for real life. No cap—stand bold in Christ across every area of life. Share these in your group chats and flood socials with truth.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 20px", textAlign: "center", minWidth: 140 }}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: "#FFD000", fontFamily: "Space Grotesk, sans-serif" }}>
-                {isLoading ? <span className="animate-pulse opacity-50">-</span> : codes.length}
+            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 20px", textAlign: "center" }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: "#FFD000", fontFamily: "Space Grotesk, sans-serif", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "26px" }}>
+                {isLoading ? <Loader2 className="animate-spin" size={20} /> : codes.length}
               </div>
               <div style={{ fontSize: 11, color: "#8A9BB0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>Truth Slogans</div>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 20px", textAlign: "center", minWidth: 140 }}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: "#00CFFF", fontFamily: "Space Grotesk, sans-serif" }}>
-                {isLoading ? <span className="animate-pulse opacity-50">-</span> : CATEGORIES.length}
-              </div>
+            <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 20px", textAlign: "center" }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: "#00CFFF", fontFamily: "Space Grotesk, sans-serif" }}>{CATEGORIES.length}</div>
               <div style={{ fontSize: 11, color: "#8A9BB0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>Life Topics</div>
             </div>
           </div>
@@ -135,8 +143,8 @@ export default function KeepIt100() {
 
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-64 rounded-2xl bg-white/5 border border-white/10 animate-pulse" />
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="animate-pulse" style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, height: 260, border: "1px solid rgba(255,255,255,0.05)" }}></div>
             ))}
           </div>
         ) : filteredCodes.length === 0 ? (

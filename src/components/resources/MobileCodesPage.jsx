@@ -91,15 +91,13 @@ export default function MobileCodesPage({
           {/* Stats row */}
           <div className="grid grid-cols-2 gap-2.5">
             <div className="rounded-2xl p-3.5" style={{ background: "rgba(18,24,38,0.7)", border: `1px solid ${T.accent}25` }}>
-              <div className="font-['Space_Grotesk'] font-black text-[22px] leading-none mb-1" style={{ color: T.accent }}>
-                {isLoading ? <span className="animate-pulse opacity-50">-</span> : codes.length}
+              <div className="font-['Space_Grotesk'] font-black text-[22px] leading-none mb-1 h-[22px] flex items-center" style={{ color: T.accent }}>
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : codes.length}
               </div>
               <div className="text-[9.5px] font-black uppercase tracking-[0.1em]" style={{ color: "#8A9BB0" }}>{theme === "gold" ? "Truth Slogans" : "Truth Codes"}</div>
             </div>
             <div className="rounded-2xl p-3.5" style={{ background: "rgba(18,24,38,0.7)", border: `1px solid ${T.statB}25` }}>
-              <div className="font-['Space_Grotesk'] font-black text-[22px] leading-none mb-1" style={{ color: T.statB }}>
-                {isLoading ? <span className="animate-pulse opacity-50">-</span> : categories.length}
-              </div>
+              <div className="font-['Space_Grotesk'] font-black text-[22px] leading-none mb-1" style={{ color: T.statB }}>{categories.length}</div>
               <div className="text-[9.5px] font-black uppercase tracking-[0.1em]" style={{ color: "#8A9BB0" }}>{theme === "gold" ? "Life Topics" : "Categories"}</div>
             </div>
           </div>
@@ -158,8 +156,8 @@ export default function MobileCodesPage({
       <div className="px-4 pt-4 pb-6">
         {isLoading ? (
           <div className="grid grid-cols-1 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-64 rounded-[28px] animate-pulse" style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${T.accent}15` }} />
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="animate-pulse rounded-3xl" style={{ background: "rgba(255,255,255,0.05)", height: 220, border: "1px solid rgba(255,255,255,0.05)" }}></div>
             ))}
           </div>
         ) : filteredCodes.length === 0 ? (
