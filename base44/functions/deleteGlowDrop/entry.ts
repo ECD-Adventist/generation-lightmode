@@ -56,6 +56,20 @@ Deno.serve(async (req) => {
 
     await service.entities.GlowDrop.delete(drop_id);
 
+    // If this drop was a repost of a Code/Slogan, decrement that code's reposts_count
+    // so the counter stays accurate. Floored at 0. Each repost is tracked independently,
+    // so deleting one only removes one — multiple reposts by the same person still count.
+    if (drop.source_code_id) {
+      try {
+        const engagementList = await service.entities.CodeEngagement.filter({ code_id: drop.source_code_id });
+        const engagement = engagementList[0];
+        if (engagement) {
+          const next = Math.max(0, (engagement.reposts_count || 0) - 1);
+          await service.entities.CodeEngagement.update(engagement.id, { reposts_count: next });
+        }
+      } catch { /* non-fatal */ }
+    }
+
     return Response.json({ success: true });
   } catch (error) {
     return Response.json({ error: error.message || 'Failed to delete post' }, { status: 500 });

@@ -113,6 +113,7 @@ export default function CodeCard({ code, user }) {
         // from the slogan text — never attach the poster image, or the feed shows the raw poster instead.
         media_url: null,
         category,
+        source_code_id: code.id,
         hashtags: isKeepIt100 ? "#KeepIt100 #FaithAlwaysOn" : "#CodeOfTruth #FaithAlwaysOn",
         status: "approved"
       });

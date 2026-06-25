@@ -19,6 +19,10 @@
     "media_url": {
       "type": "string"
     },
+    "source_code_id": {
+      "type": "string",
+      "description": "If this drop was reposted from a CodeOfTruth slogan (Keep It 100 / Code of Truth), the source CodeOfTruth record id. Used to keep that code's reposts_count accurate when the repost is deleted."
+    },
     "status": {
       "type": "string",
       "enum": [
