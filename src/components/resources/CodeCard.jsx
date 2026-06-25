@@ -106,10 +106,11 @@ export default function CodeCard({ code, user }) {
     try {
       const newDrop = await base44.entities.GlowDrop.create({
         user_email: user.email,
-        verse: code.bible_reference || "Code of Truth",
+        verse: code.bible_reference || (isKeepIt100 ? "Keep It 100" : "Code of Truth"),
         reflection: code.slogan_text,
         media_url: code.poster_image_url,
-        category: "Code of Truth",
+        category: isKeepIt100 ? "Keep It 100" : "Code of Truth",
+        hashtags: isKeepIt100 ? "#KeepIt100" : "#CodeOfTruth",
         status: "approved"
       });
       mirrorGlowDropToSupabase(newDrop, user);
