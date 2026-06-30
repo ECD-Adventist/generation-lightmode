@@ -9,12 +9,13 @@ import { countryCoordinates } from "@/lib/countryCoordinates";
 export default function DashboardMapHero({ userCountry }) {
   const [activePanel, setActivePanel] = useState(null);
   const { data: usersPayload = { users: [], totalUsers: 0 }, isLoading } = useQuery({
-    queryKey: ["dashboardMapUsers"],
+    queryKey: ["dashboardMapUsersRealDataV2"],
     queryFn: async () => {
       const res = await base44.functions.invoke("listPublicUsers", { include_count: true, include_email: true, limit: 2000 });
       return Array.isArray(res.data) ? { users: res.data, totalUsers: res.data.length } : res.data;
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
+    refetchOnMount: "always",
   });
 
   const users = Array.isArray(usersPayload) ? usersPayload : (usersPayload.users || []);
