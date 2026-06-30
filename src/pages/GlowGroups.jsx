@@ -50,7 +50,7 @@ export default function GlowGroups() {
   const { data: usersPayload = { users: [], totalUsers: 0 }, isError: usersError } = useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
-      const res = await base44.functions.invoke('listPublicUsers', { include_count: true, include_email: true, limit: 1000 });
+      const res = await base44.functions.invoke('listPublicUsers', { include_count: true, include_email: true, limit: 2000 });
       return res.data;
     },
     retry: 2,
@@ -143,9 +143,14 @@ export default function GlowGroups() {
         const rec = following.find(f => f.following_email === targetEmail);
         await base44.entities.Follow.delete(rec.id);
       } else {
-        const followRec = await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
-        dualWriteSupabase("follows", followRec);
         const targetUser = users.find(u => u.email === targetEmail);
+        const followRec = await base44.entities.Follow.create({
+          follower_id: user.id,
+          following_id: targetUser?.id?.replace(/^leader_/, ""),
+          follower_email: user.email,
+          following_email: targetEmail
+        });
+        dualWriteSupabase("follows", followRec);
         if (isNotificationEnabled(targetUser, "follows")) {
           const notifRec = await base44.entities.Notification.create({
             user_email: targetEmail,

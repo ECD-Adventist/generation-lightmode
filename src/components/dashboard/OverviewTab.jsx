@@ -18,17 +18,19 @@ export default function OverviewTab({ user }) {
 
   const { data: glowDrops = [] } = useQuery({ queryKey: ["myGlowDrops", user.email], queryFn: () => base44.entities.GlowDrop.filter({ user_email: user.email }) });
   const { data: myMemberships = [] } = useQuery({ queryKey: ["myMemberships", user.email], queryFn: () => base44.entities.GlowGroupMember.filter({ user_email: user.email }) });
+  const { data: communityFeed = [] } = useQuery({ queryKey: ["communityFeedOverview"], queryFn: () => base44.entities.GlowDrop.filter({ status: 'approved' }, '-created_date', 5) });
+  const communityAuthorEmails = useMemo(() => Array.from(new Set(communityFeed.map(drop => drop.user_email).filter(email => email && email !== "system@lightmode.com"))), [communityFeed]);
   const { data: publicUsers = [] } = useQuery({
-    queryKey: ["overviewPublicUsers"],
+    queryKey: ["overviewPublicUsers", communityAuthorEmails.join("|")],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
-      return res.data;
-    }
+      const res = await base44.functions.invoke("listPublicUsers", { emails: communityAuthorEmails, limit: communityAuthorEmails.length || 1 });
+      return Array.isArray(res.data) ? res.data : (res.data?.users || []);
+    },
+    enabled: communityAuthorEmails.length > 0,
   });
   const { data: allGroups = [] } = useQuery({ queryKey: ["allGroups"], queryFn: () => base44.entities.GlowGroup.list(), enabled: myMemberships.length > 0 });
   const { data: challenges = [] } = useQuery({ queryKey: ["activeChallenges"], queryFn: () => base44.entities.Challenge.filter({ active: true }, '-created_date', 3) });
   const { data: certificates = [] } = useQuery({ queryKey: ["myCertificates", user.email], queryFn: () => base44.entities.Certificate.filter({ user_email: user.email }) });
-  const { data: communityFeed = [] } = useQuery({ queryKey: ["communityFeedOverview"], queryFn: () => base44.entities.GlowDrop.filter({ status: 'approved' }, '-created_date', 5) });
   const { data: unreadNotifications = [] } = useQuery({ queryKey: ["unreadNotifications", user.email], queryFn: () => base44.entities.Notification.filter({ user_email: user.email, read: false }, '-created_date', 5) });
   const { data: dailyCodes = [] } = useQuery({ queryKey: ["overviewDailyCodesLatest"], queryFn: () => base44.entities.DailyCode.list('-date_published', 1) });
   const { data: dailyCodeEntries = [] } = useQuery({ queryKey: ["overviewCodeOfTruth", dailyCodes[0]?.code_id], queryFn: () => base44.entities.CodeOfTruth.filter({ id: dailyCodes[0]?.code_id }), enabled: !!dailyCodes[0]?.code_id });
@@ -43,9 +45,9 @@ export default function OverviewTab({ user }) {
     return map;
   }, [publicUsers]);
 
-  const getDisplayName = (email) => userMap.get(email)?.full_name || email?.split('@')[0] || "Community Member";
-  const getProfilePicture = (email) => userMap.get(email)?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
-  const getProfileSummary = (email) => userMap.get(email)?.bio || userMap.get(email)?.country || "LightMode member";
+  const getDisplayName = (email) => email === "system@lightmode.com" ? "Generation LightMode" : (userMap.get(email)?.full_name || email?.split('@')[0] || "Community Member");
+  const getProfilePicture = (email) => email === "system@lightmode.com" ? "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg" : (userMap.get(email)?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png");
+  const getProfileSummary = (email) => email === "system@lightmode.com" ? "Official Generation LightMode account" : (userMap.get(email)?.bio || userMap.get(email)?.country || "LightMode member");
 
   const getRepostOwner = (reflection) => {
     const matches = Array.from(reflection?.matchAll(/\[Reposted from (.+?)\]\s*/gi) || []);

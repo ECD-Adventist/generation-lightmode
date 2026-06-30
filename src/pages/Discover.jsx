@@ -46,7 +46,7 @@ export default function Discover() {
   const { data: allUsers = [] } = useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", { include_email: true, limit: 1000 });
+      const res = await base44.functions.invoke("listPublicUsers", { include_email: true, limit: 2000 });
       return res.data;
     },
   });

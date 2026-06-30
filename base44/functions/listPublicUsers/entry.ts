@@ -11,8 +11,8 @@ const ADMIN_ROLES = new Set([
   'moderator',
 ]);
 
-const DEFAULT_LIMIT = 20;
-const MAX_LIMIT = 50;
+const DEFAULT_LIMIT = 50;
+const MAX_LIMIT = 2000;
 
 function cleanString(value, max = 500) {
   // Strip anything that isn't a plain string and trim — blocks objects carrying
@@ -62,22 +62,28 @@ Deno.serve(async (req) => {
     const includeCount = payload.include_count === true;
 
     let users = [];
+    let totalUsers = null;
 
     if (requestedEmails.length > 0) {
       const batches = await Promise.all(
         requestedEmails.map((email) => base44.asServiceRole.entities.User.filter({ email }).catch(() => []))
       );
       users = batches.flat().slice(0, limit);
+      totalUsers = users.length;
     } else if (search.length >= 2) {
       const candidates = await base44.asServiceRole.entities.User.list('-created_date', 5000);
-      users = candidates
-        .filter((item) => {
-          const name = `${item.full_name || ''} ${item.display_name || ''}`.toLowerCase();
-          const place = `${item.country || ''} ${item.city || ''}`.toLowerCase();
-          const bio = String(item.bio || '').toLowerCase();
-          return name.includes(search) || place.includes(search) || bio.includes(search);
-        })
-        .slice(skip, skip + limit);
+      const filtered = candidates.filter((item) => {
+        const name = `${item.full_name || ''} ${item.display_name || ''}`.toLowerCase();
+        const place = `${item.country || ''} ${item.city || ''}`.toLowerCase();
+        const bio = String(item.bio || '').toLowerCase();
+        return name.includes(search) || place.includes(search) || bio.includes(search);
+      });
+      totalUsers = filtered.length;
+      users = filtered.slice(skip, skip + limit);
+    } else if (includeCount) {
+      const candidates = await base44.asServiceRole.entities.User.list('-created_date', 5000);
+      totalUsers = candidates.length;
+      users = candidates.slice(skip, skip + limit);
     } else {
       users = await base44.asServiceRole.entities.User.list('-created_date', limit, skip);
     }
@@ -85,7 +91,7 @@ Deno.serve(async (req) => {
     const publicUsers = users.map(publicUserShape);
 
     if (includeCount) {
-      return Response.json({ users: publicUsers, visibleUsers: publicUsers.length });
+      return Response.json({ users: publicUsers, totalUsers: totalUsers ?? publicUsers.length, visibleUsers: publicUsers.length });
     }
 
     return Response.json(publicUsers);
