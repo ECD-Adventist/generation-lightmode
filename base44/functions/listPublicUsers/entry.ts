@@ -11,7 +11,7 @@ const ADMIN_ROLES = new Set([
   'moderator',
 ]);
 
-const DEFAULT_LIMIT = 2000;
+const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 2000;
 
 function cleanString(value, max = 500) {

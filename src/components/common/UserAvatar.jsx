@@ -10,14 +10,10 @@ export const getInitials = (user) => {
 export default function UserAvatar({ user, className = "w-10 h-10", imgClassName = "w-full h-full object-cover", style = {}, alt = "Profile" }) {
   const avatarUrl = getAvatarUrl(user);
   if (avatarUrl) {
-    return (
-      <div className={`${className} rounded-full overflow-hidden shrink-0 flex-shrink-0 flex items-center justify-center`} style={style}>
-        <img src={avatarUrl} alt={alt} className={imgClassName} />
-      </div>
-    );
+    return <img src={avatarUrl} alt={alt} className={`${className} rounded-full ${imgClassName}`} style={style} />;
   }
   return (
-    <div className={`${className} rounded-full bg-purple-600 flex items-center justify-center text-white font-bold shrink-0 flex-shrink-0 overflow-hidden`} style={style} aria-label={alt}>
+    <div className={`${className} rounded-full bg-purple-600 flex items-center justify-center text-white font-bold`} style={style} aria-label={alt}>
       {getInitials(user)}
     </div>
   );
