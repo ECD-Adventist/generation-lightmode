@@ -32,7 +32,7 @@ export default function Messages() {
   const { data: allUsers = [] } = useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
+      const res = await base44.functions.invoke("listPublicUsers", { limit: 2000 });
       const data = res.data;
       if (Array.isArray(data)) return data;
       if (Array.isArray(data?.users)) return data.users;
@@ -41,6 +41,7 @@ export default function Messages() {
     },
     enabled: !!user,
   });
+
 
   const { data: following = [] } = useQuery({
     queryKey: ["following", user?.email],
@@ -53,6 +54,32 @@ export default function Messages() {
     queryFn: () => base44.entities.DirectConversation.list("-updated_date", 200),
     enabled: !!user,
   });
+
+  const conversationPartnerEmails = useMemo(() => {
+    if (!user?.email) return [];
+    return [...new Set(allConversations
+      .flatMap(c => [c.participant_a_email, c.participant_b_email])
+      .filter(email => email && email !== user.email))];
+  }, [allConversations, user?.email]);
+
+  const { data: conversationUsers = [] } = useQuery({
+    queryKey: ["messageConversationUsers", conversationPartnerEmails.join("|")],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicUsers", { emails: conversationPartnerEmails, limit: conversationPartnerEmails.length });
+      const data = res.data;
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.users)) return data.users;
+      if (Array.isArray(data?.data)) return data.data;
+      return [];
+    },
+    enabled: conversationPartnerEmails.length > 0,
+  });
+
+  const knownUsers = useMemo(() => {
+    const byEmail = new Map();
+    [...allUsers, ...conversationUsers].forEach(u => { if (u?.email) byEmail.set(u.email, u); });
+    return Array.from(byEmail.values());
+  }, [allUsers, conversationUsers]);
 
   // GlowGroup memberships for group chat
   const { data: myMemberships = [] } = useQuery({
@@ -116,7 +143,7 @@ export default function Messages() {
   const otherEmail = selectedConversation
     ? (selectedConversation.participant_a_email === user?.email ? selectedConversation.participant_b_email : selectedConversation.participant_a_email)
     : null;
-  const otherUser = allUsers.find(u => u.email === otherEmail) || null;
+  const otherUser = knownUsers.find(u => u.email === otherEmail) || (otherEmail ? { email: otherEmail, full_name: otherEmail.split("@")[0] } : null);
 
   const { data: messages = [] } = useQuery({
     queryKey: ["directMessages", selectedConversationId],
@@ -150,10 +177,15 @@ export default function Messages() {
       if (!user) { toast.error("Please log in to send messages"); return; }
       if (!content?.trim() && !file_url) return;
 
+      if (!otherUser?.id) {
+        toast.error("This conversation is missing the recipient profile. Please try again in a moment.");
+        return;
+      }
+
       const message = await base44.entities.DirectMessage.create({
         conversation_id: selectedConversation.id,
-        sender_email: user.email,
-        recipient_email: otherEmail,
+        sender_id: user.id,
+        recipient_id: otherUser.id,
         content: content?.trim() || `Shared a file`,
         file_url: file_url || undefined,
         status: "sent",
@@ -200,7 +232,7 @@ export default function Messages() {
   useEffect(() => {
     if (!user?.email) return;
     const unsubMsgs = base44.entities.DirectMessage.subscribe((event) => {
-      if (event.data?.recipient_email === user.email || event.data?.sender_email === user.email) {
+      if (event.data?.recipient_id === user.id || event.data?.sender_id === user.id || event.data?.recipient_email === user.email || event.data?.sender_email === user.email) {
         queryClient.invalidateQueries({ queryKey: ["directMessages", selectedConversationId] });
         queryClient.invalidateQueries({ queryKey: ["directConversations", user.email] });
       }
@@ -213,7 +245,7 @@ export default function Messages() {
 
   useEffect(() => {
     if (!user?.email || !selectedConversationId || messages.length === 0) return;
-    const unread = messages.filter(m => m.recipient_email === user.email && !m.read);
+    const unread = messages.filter(m => (m.recipient_id === user.id || m.recipient_email === user.email) && !m.read);
     if (unread.length > 0) {
       Promise.all(unread.map(m => base44.entities.DirectMessage.update(m.id, { read: true, status: "read" })));
     }
@@ -259,7 +291,7 @@ export default function Messages() {
             conversations={conversations}
             selectedConversationId={selectedConversationId}
             currentUserEmail={user.email}
-            allUsers={allUsers}
+            allUsers={knownUsers}
             followingUsers={following.map(f => f.following_email)}
             onSelectConversation={setSelectedConversationId}
             onStartConversation={(email) => ensureConversationMutation.mutate(email)}
@@ -290,7 +322,7 @@ export default function Messages() {
             <GroupChatWindow
               group={selectedGroup}
               currentUser={user}
-              allUsers={allUsers}
+              allUsers={knownUsers}
               onBack={() => setSelectedGroupId(null)}
             />
           )}
@@ -363,7 +395,7 @@ export default function Messages() {
                 conversations={conversations}
                 selectedConversationId={selectedConversationId}
                 currentUserEmail={user.email}
-                allUsers={allUsers}
+                allUsers={knownUsers}
                 followingUsers={following.map(f => f.following_email)}
                 onSelectConversation={setSelectedConversationId}
                 onStartConversation={(email) => ensureConversationMutation.mutate(email)}
@@ -432,7 +464,7 @@ export default function Messages() {
               <GroupChatWindow
                 group={selectedGroup}
                 currentUser={user}
-                allUsers={allUsers}
+                allUsers={knownUsers}
                 onBack={() => setSelectedGroupId(null)}
               />
             </div>

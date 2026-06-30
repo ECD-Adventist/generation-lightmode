@@ -1,21 +1,56 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Trophy, TrendingUp, Users, Zap, Target, Heart } from "lucide-react";
-import { Loader2 } from "lucide-react";
+import { Trophy, Users, Zap, Target, Heart, Loader2 } from "lucide-react";
+
+function parseList(data) {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.users)) return data.users;
+  if (Array.isArray(data?.data)) return data.data;
+  return [];
+}
+
+function cleanTerritory(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "Global";
+  const parts = raw.split(",").map(p => p.trim()).filter(Boolean);
+  return parts[parts.length - 1] || raw;
+}
+
+function keyForTerritory(value) {
+  return cleanTerritory(value).toLowerCase();
+}
+
+function makeEmptyTerritory(name) {
+  return {
+    territory_name: cleanTerritory(name),
+    total_glow_score: 0,
+    total_users: 0,
+    total_drops: 0,
+    total_challenges_completed: 0,
+    total_prayer_supports: 0,
+    active_groups: 0,
+  };
+}
+
+const statCards = [
+  { key: "territories", label: "Active Territories", helper: "Regions lighting up", icon: Users, color: "#0B3FD9", bg: "rgba(31,184,255,0.1)" },
+  { key: "xp", label: "Total XP", helper: "Global Glow Score", icon: Zap, color: "#CC7A00", bg: "rgba(255,208,0,0.16)" },
+  { key: "drops", label: "Total Drops", helper: "Lights shared", icon: Target, color: "#0B3FD9", bg: "rgba(11,63,217,0.08)" },
+  { key: "prayers", label: "Prayer Supports", helper: "Intercessions", icon: Heart, color: "#16A34A", bg: "rgba(34,197,94,0.1)" },
+];
 
 export default function TerritoryLeaderboard({ userTerritory = null }) {
   const [sortBy, setSortBy] = useState("glow_score");
 
-  // Fetch all users and aggregate by territory
-  const { data: allUsers = [] } = useQuery({
+  const { data: allUsers = [], isLoading: isLoadingUsers } = useQuery({
     queryKey: ["leaderboardUsers"],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
-      return res.data;
+      const res = await base44.functions.invoke("listPublicUsers", { limit: 2000, include_count: true });
+      return parseList(res.data);
     },
     staleTime: 1000 * 60 * 5,
-    refetchInterval: 30000, // Refresh every 30s for real-time feel
+    refetchInterval: 30000,
   });
 
   const { data: allDrops = [] } = useQuery({
@@ -46,220 +81,127 @@ export default function TerritoryLeaderboard({ userTerritory = null }) {
     refetchInterval: 30000,
   });
 
-  // Compute territory stats
-  const territoryStats = useMemo(() => {
-    const stats = {};
+  const { sortedTerritories, totals } = useMemo(() => {
+    const stats = new Map();
+    const userTerritoryByEmail = new Map();
 
-    // Group users by territory
-    allUsers.forEach((user) => {
-      const territory = user.country || "Global";
-      if (!stats[territory]) {
-        stats[territory] = {
-          territory_name: territory,
-          total_glow_score: 0,
-          total_users: 0,
-          total_drops: 0,
-          total_challenges_completed: 0,
-          total_prayer_supports: 0,
-          active_groups: 0,
-        };
+    const ensure = (territory) => {
+      const key = keyForTerritory(territory);
+      if (!stats.has(key)) stats.set(key, makeEmptyTerritory(territory));
+      return stats.get(key);
+    };
+
+    allUsers.forEach(user => {
+      const territory = cleanTerritory(user.territory_name || user.country);
+      const record = ensure(territory);
+      record.total_users += 1;
+      record.total_glow_score += user.glow_score || user.xp_points || 0;
+      if (user.email) userTerritoryByEmail.set(user.email, territory);
+    });
+
+    allDrops.forEach(drop => {
+      const territory = userTerritoryByEmail.get(drop.user_email) || "Global";
+      ensure(territory).total_drops += 1;
+    });
+
+    allChallenges.forEach(sub => {
+      const territory = userTerritoryByEmail.get(sub.user_email) || "Global";
+      ensure(territory).total_challenges_completed += 1;
+    });
+
+    allPrayerSupports.forEach(support => {
+      const territory = userTerritoryByEmail.get(support.user_email) || "Global";
+      ensure(territory).total_prayer_supports += 1;
+    });
+
+    allGroups.forEach(group => {
+      ensure(group.country).active_groups += 1;
+    });
+
+    const list = Array.from(stats.values());
+    const sorted = [...list].sort((a, b) => {
+      if (sortBy === "users") return b.total_users - a.total_users;
+      if (sortBy === "drops") return b.total_drops - a.total_drops;
+      if (sortBy === "challenges") return b.total_challenges_completed - a.total_challenges_completed;
+      return b.total_glow_score - a.total_glow_score;
+    });
+
+    return {
+      sortedTerritories: sorted,
+      totals: {
+        territories: sorted.length,
+        xp: sorted.reduce((sum, t) => sum + t.total_glow_score, 0),
+        drops: sorted.reduce((sum, t) => sum + t.total_drops, 0),
+        prayers: sorted.reduce((sum, t) => sum + t.total_prayer_supports, 0),
       }
-      stats[territory].total_users += 1;
-      stats[territory].total_glow_score += user.glow_score || 0;
-    });
-
-    // Count drops per territory
-    allDrops.forEach((drop) => {
-      const user = allUsers.find((u) => u.email === drop.user_email);
-      const territory = user?.country || "Global";
-      if (stats[territory]) stats[territory].total_drops += 1;
-    });
-
-    // Count challenge submissions
-    allChallenges.forEach((sub) => {
-      const user = allUsers.find((u) => u.email === sub.user_email);
-      const territory = user?.country || "Global";
-      if (stats[territory]) stats[territory].total_challenges_completed += 1;
-    });
-
-    // Count prayer supports
-    allPrayerSupports.forEach((support) => {
-      const user = allUsers.find((u) => u.email === support.user_email);
-      const territory = user?.country || "Global";
-      if (stats[territory]) stats[territory].total_prayer_supports += 1;
-    });
-
-    // Count active groups per territory
-    allGroups.forEach((group) => {
-      const territory = group.country || "Global";
-      if (!stats[territory]) {
-        stats[territory] = {
-          territory_name: territory,
-          total_glow_score: 0,
-          total_users: 0,
-          total_drops: 0,
-          total_challenges_completed: 0,
-          total_prayer_supports: 0,
-          active_groups: 0,
-        };
-      }
-      stats[territory].active_groups += 1;
-    });
-
-    return Object.values(stats);
-  }, [allUsers, allDrops, allChallenges, allGroups, allPrayerSupports]);
-
-  // Sort territories
-  const sortedTerritories = useMemo(() => {
-    const sorted = [...territoryStats];
-    switch (sortBy) {
-      case "glow_score":
-        return sorted.sort((a, b) => b.total_glow_score - a.total_glow_score);
-      case "users":
-        return sorted.sort((a, b) => b.total_users - a.total_users);
-      case "drops":
-        return sorted.sort((a, b) => b.total_drops - a.total_drops);
-      case "challenges":
-        return sorted.sort((a, b) => b.total_challenges_completed - a.total_challenges_completed);
-      default:
-        return sorted;
-    }
-  }, [territoryStats, sortBy]);
+    };
+  }, [allUsers, allDrops, allChallenges, allGroups, allPrayerSupports, sortBy]);
 
   const podiumTop3 = sortedTerritories.slice(0, 3);
-  const topTerritory = podiumTop3[0];
+  const normalizedUserTerritory = keyForTerritory(userTerritory);
 
-  if (allUsers.length === 0) {
+  if (isLoadingUsers) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" />
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Hero Stat Cards */}
+    <div className="space-y-8 font-['Inter']">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#121826] border border-white/10 rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-[#00CFFF]/10 flex items-center justify-center">
-              <Users className="w-4 h-4 text-[#00CFFF]" />
+        {statCards.map(card => {
+          const Icon = card.icon;
+          return (
+            <div key={card.key} className="rounded-2xl p-5" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11,63,217,0.06)" }}>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: card.bg }}>
+                  <Icon className="w-4 h-4" style={{ color: card.color }} />
+                </div>
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#6B7FA0" }}>{card.label}</span>
+              </div>
+              <div className="text-3xl font-bold font-['Space_Grotesk']" style={{ color: card.color }}>{totals[card.key].toLocaleString()}</div>
+              <p className="text-xs mt-1" style={{ color: "#8A97B5" }}>{card.helper}</p>
             </div>
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Active Territories</span>
-          </div>
-          <div className="text-3xl font-bold text-white font-['Space_Grotesk']">{sortedTerritories.length}</div>
-          <p className="text-xs text-gray-500 mt-1">Regions lighting up</p>
-        </div>
-
-        <div className="bg-[#121826] border border-white/10 rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-[#FFD000]/10 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-[#FFD000]" />
-            </div>
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Total XP</span>
-          </div>
-          <div className="text-3xl font-bold text-[#FFD000] font-['Space_Grotesk']">
-            {sortedTerritories.reduce((sum, t) => sum + t.total_glow_score, 0).toLocaleString()}
-          </div>
-          <p className="text-xs text-gray-500 mt-1">Global Glow Score</p>
-        </div>
-
-        <div className="bg-[#121826] border border-white/10 rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-[#8A5CFF]/10 flex items-center justify-center">
-              <Target className="w-4 h-4 text-[#8A5CFF]" />
-            </div>
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Total Drops</span>
-          </div>
-          <div className="text-3xl font-bold text-[#8A5CFF] font-['Space_Grotesk']">
-            {sortedTerritories.reduce((sum, t) => sum + t.total_drops, 0).toLocaleString()}
-          </div>
-          <p className="text-xs text-gray-500 mt-1">Lights shared</p>
-        </div>
-
-        <div className="bg-[#121826] border border-white/10 rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
-              <Heart className="w-4 h-4 text-green-400" />
-            </div>
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Prayer Supports</span>
-          </div>
-          <div className="text-3xl font-bold text-green-400 font-['Space_Grotesk']">
-            {sortedTerritories.reduce((sum, t) => sum + t.total_prayer_supports, 0).toLocaleString()}
-          </div>
-          <p className="text-xs text-gray-500 mt-1">Intercessions</p>
-        </div>
+          );
+        })}
       </div>
 
-      {/* Podium */}
       {podiumTop3.length > 0 && (
-        <div className="bg-gradient-to-r from-[#121826] to-[#0B0F1A] border border-white/5 rounded-3xl p-8 shadow-[0_0_40px_rgba(255,208,0,0.1)]">
-          <h3 className="text-lg font-bold font-['Space_Grotesk'] text-[#FFD000] mb-8 flex items-center gap-2">
+        <div className="rounded-3xl p-8" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 8px 32px rgba(11,63,217,0.08)" }}>
+          <h3 className="text-lg font-bold font-['Space_Grotesk'] mb-8 flex items-center gap-2" style={{ color: "#CC7A00" }}>
             <Trophy className="w-5 h-5" /> Top 3 Territories
           </h3>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* 2nd Place */}
-            {podiumTop3[1] && (
-              <div className="relative">
-                <div className="bg-[#0B0F1A] border-2 border-[#C7CEDB] rounded-2xl p-6 text-center h-full flex flex-col">
-                  <div className="text-4xl mb-3">🥈</div>
-                  <h4 className="text-xl font-bold text-[#C7CEDB] font-['Space_Grotesk'] mb-1">{podiumTop3[1].territory_name}</h4>
-                  <div className="text-3xl font-bold text-white font-['Space_Grotesk'] mb-4">{podiumTop3[1].total_glow_score.toLocaleString()} XP</div>
-                  <div className="grid grid-cols-2 gap-2 text-[10px] mt-auto pt-4 border-t border-white/10">
-                    <div><div className="text-[#C7CEDB] font-bold">{podiumTop3[1].total_users}</div><div className="text-gray-500">Users</div></div>
-                    <div><div className="text-[#C7CEDB] font-bold">{podiumTop3[1].total_drops}</div><div className="text-gray-500">Drops</div></div>
+            {podiumTop3.map((territory, index) => {
+              const colors = index === 0
+                ? { border: "#FFD000", text: "#CC7A00", bg: "linear-gradient(135deg, #FFF8E6 0%, #FFFFFF 100%)", medal: "👑" }
+                : index === 1
+                ? { border: "#C7CEDB", text: "#4A5878", bg: "#FFFFFF", medal: "🥈" }
+                : { border: "#E8C896", text: "#A16207", bg: "#FFFFFF", medal: "🥉" };
+              return (
+                <div key={territory.territory_name} className="rounded-2xl p-6 text-center h-full flex flex-col" style={{ background: colors.bg, border: `2px solid ${colors.border}`, boxShadow: index === 0 ? "0 0 28px rgba(255,208,0,0.18)" : "none" }}>
+                  <div className="text-5xl mb-3">{colors.medal}</div>
+                  <h4 className="text-xl font-bold font-['Space_Grotesk'] mb-1" style={{ color: colors.text }}>{territory.territory_name}</h4>
+                  <div className="text-4xl font-bold font-['Space_Grotesk'] mb-4" style={{ color: colors.text }}>{territory.total_glow_score.toLocaleString()} XP</div>
+                  <div className="grid grid-cols-2 gap-2 text-[10px] mt-auto pt-4 border-t" style={{ borderColor: "#E0EAF5" }}>
+                    <div><div className="font-bold" style={{ color: colors.text }}>{territory.total_users}</div><div style={{ color: "#8A97B5" }}>Users</div></div>
+                    <div><div className="font-bold" style={{ color: colors.text }}>{territory.total_drops}</div><div style={{ color: "#8A97B5" }}>Drops</div></div>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* 1st Place */}
-            {podiumTop3[0] && (
-              <div className="relative md:scale-105">
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-6xl">👑</div>
-                <div className="bg-gradient-to-br from-[#FFD000]/20 to-[#0B0F1A] border-2 border-[#FFD000] rounded-2xl p-6 text-center h-full flex flex-col shadow-[0_0_30px_rgba(255,208,0,0.2)]">
-                  <div className="text-4xl mb-3 mt-4">🥇</div>
-                  <h4 className="text-xl font-bold text-[#FFD000] font-['Space_Grotesk'] mb-1">{podiumTop3[0].territory_name}</h4>
-                  <div className="text-4xl font-bold text-[#FFD000] font-['Space_Grotesk'] mb-4">{podiumTop3[0].total_glow_score.toLocaleString()} XP</div>
-                  <div className="grid grid-cols-2 gap-2 text-[10px] mt-auto pt-4 border-t border-[#FFD000]/30">
-                    <div><div className="text-[#FFD000] font-bold">{podiumTop3[0].total_users}</div><div className="text-gray-500">Users</div></div>
-                    <div><div className="text-[#FFD000] font-bold">{podiumTop3[0].total_drops}</div><div className="text-gray-500">Drops</div></div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 3rd Place */}
-            {podiumTop3[2] && (
-              <div className="relative">
-                <div className="bg-[#0B0F1A] border-2 border-[#C77A2B] rounded-2xl p-6 text-center h-full flex flex-col">
-                  <div className="text-4xl mb-3">🥉</div>
-                  <h4 className="text-xl font-bold text-[#C77A2B] font-['Space_Grotesk'] mb-1">{podiumTop3[2].territory_name}</h4>
-                  <div className="text-3xl font-bold text-white font-['Space_Grotesk'] mb-4">{podiumTop3[2].total_glow_score.toLocaleString()} XP</div>
-                  <div className="grid grid-cols-2 gap-2 text-[10px] mt-auto pt-4 border-t border-white/10">
-                    <div><div className="text-[#C77A2B] font-bold">{podiumTop3[2].total_users}</div><div className="text-gray-500">Users</div></div>
-                    <div><div className="text-[#C77A2B] font-bold">{podiumTop3[2].total_drops}</div><div className="text-gray-500">Drops</div></div>
-                  </div>
-                </div>
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Full Rankings Table */}
-      <div className="bg-[#121826] border border-white/10 rounded-2xl overflow-hidden">
-        <div className="p-6 border-b border-white/10 flex items-center justify-between flex-wrap gap-4">
-          <h3 className="text-lg font-bold font-['Space_Grotesk']">Full Rankings</h3>
+      <div className="rounded-2xl overflow-hidden" style={{ background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11,63,217,0.06)" }}>
+        <div className="p-6 border-b flex items-center justify-between flex-wrap gap-4" style={{ borderColor: "#E0EAF5" }}>
+          <h3 className="text-lg font-bold font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>Full Rankings</h3>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400 uppercase tracking-wider">Sort by:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="bg-[#0B0F1A] border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white hover:border-[#00CFFF]/30 transition"
-            >
+            <span className="text-xs uppercase tracking-wider" style={{ color: "#6B7FA0" }}>Sort by:</span>
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="rounded-lg px-3 py-1.5 text-sm outline-none" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}>
               <option value="glow_score">Glow Score</option>
               <option value="users">Active Users</option>
               <option value="drops">Total Drops</option>
@@ -267,39 +209,30 @@ export default function TerritoryLeaderboard({ userTerritory = null }) {
             </select>
           </div>
         </div>
-
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-[#0B0F1A]/50 border-b border-white/5">
+            <thead style={{ background: "#F6F8FC", borderBottom: "1px solid #E0EAF5" }}>
               <tr>
-                <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Rank</th>
-                <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Territory</th>
-                <th className="text-right px-6 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Glow Score</th>
-                <th className="text-right px-6 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Users</th>
-                <th className="text-right px-6 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Drops</th>
-                <th className="text-right px-6 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Challenges</th>
-                <th className="text-right px-6 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Groups</th>
+                {["Rank", "Territory", "Glow Score", "Users", "Drops", "Challenges", "Groups"].map((heading, index) => (
+                  <th key={heading} className={`px-6 py-3 text-xs font-bold uppercase tracking-wider ${index < 2 ? "text-left" : "text-right"}`} style={{ color: "#6B7FA0" }}>{heading}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
-              {sortedTerritories.map((territory, idx) => (
-                <tr
-                  key={territory.territory_name}
-                  className={`hover:bg-[#0B0F1A]/50 transition ${
-                    userTerritory === territory.territory_name ? "bg-[#00CFFF]/5" : ""
-                  }`}
-                >
-                  <td className="px-6 py-4 text-left">
-                    <span className="font-bold text-white font-['Space_Grotesk'] text-lg">{idx + 1}</span>
-                  </td>
-                  <td className="px-6 py-4 text-left font-semibold text-white">{territory.territory_name}</td>
-                  <td className="px-6 py-4 text-right font-bold text-[#FFD000]">{territory.total_glow_score.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-right text-gray-400">{territory.total_users}</td>
-                  <td className="px-6 py-4 text-right text-gray-400">{territory.total_drops}</td>
-                  <td className="px-6 py-4 text-right text-gray-400">{territory.total_challenges_completed}</td>
-                  <td className="px-6 py-4 text-right text-gray-400">{territory.active_groups}</td>
-                </tr>
-              ))}
+            <tbody>
+              {sortedTerritories.map((territory, idx) => {
+                const isMine = normalizedUserTerritory === keyForTerritory(territory.territory_name);
+                return (
+                  <tr key={territory.territory_name} className="transition" style={{ borderBottom: "1px solid #F0F4FA", background: isMine ? "#EEF3FF" : "transparent" }}>
+                    <td className="px-6 py-4 text-left"><span className="font-bold font-['Space_Grotesk'] text-lg" style={{ color: "#0B1B3D" }}>{idx + 1}</span></td>
+                    <td className="px-6 py-4 text-left font-semibold" style={{ color: "#0B1B3D" }}>{territory.territory_name}</td>
+                    <td className="px-6 py-4 text-right font-bold" style={{ color: "#CC7A00" }}>{territory.total_glow_score.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-right" style={{ color: "#4A5878" }}>{territory.total_users}</td>
+                    <td className="px-6 py-4 text-right" style={{ color: "#4A5878" }}>{territory.total_drops}</td>
+                    <td className="px-6 py-4 text-right" style={{ color: "#4A5878" }}>{territory.total_challenges_completed}</td>
+                    <td className="px-6 py-4 text-right" style={{ color: "#4A5878" }}>{territory.active_groups}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
