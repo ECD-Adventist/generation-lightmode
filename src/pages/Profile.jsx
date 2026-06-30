@@ -383,7 +383,9 @@ export default function Profile() {
   const isFollowingThisUser = currentUserFollowing.some(f => f.following_email === profileEmail || (displayUser?.id && f.following_id === displayUser.id));
 
   const followMutation = useMutation({
-    mutationFn: async (targetEmail) => {
+    mutationFn: async (input) => {
+      const targetEmail = typeof input === "string" ? input : input.targetEmail;
+      const shouldFollow = typeof input === "object" ? input.shouldFollow : undefined;
       const targetUser = allUsersForProfile.find(u => u.email === targetEmail);
       const targetUserId = targetUser?.id || (targetEmail === profileEmail ? displayUser?.id : null);
       
@@ -393,6 +395,10 @@ export default function Profile() {
         : [];
       const existingFollows = [...existingByEmail, ...existingById].filter((item, index, arr) => arr.findIndex(f => f.id === item.id) === index);
       if (existingFollows.length > 0) {
+        if (shouldFollow === true) {
+          await Promise.all(existingFollows.slice(1).map(f => base44.entities.Follow.delete(f.id)));
+          return { targetEmail, action: "follow" };
+        }
         await Promise.all(existingFollows.map(f => base44.entities.Follow.delete(f.id)));
         return { targetEmail, action: "unfollow" };
       }
@@ -686,7 +692,7 @@ export default function Profile() {
           institutionApps={visibleInstitutionApps}
           onEditProfile={() => setIsEditing(true)}
           onShareProfile={handleShareProfile}
-          onFollowToggle={() => followMutation.mutate(profileEmail)}
+          onFollowToggle={() => followMutation.mutate({ targetEmail: profileEmail, shouldFollow: !isFollowingThisUser })}
           isFollowingThisUser={isFollowingThisUser}
           onProfileImageSelect={(e) => handleImageSelect(e, "profile")}
           onCoverImageSelect={(e) => handleImageSelect(e, "cover")}
@@ -713,7 +719,7 @@ export default function Profile() {
           onEditProfile={() => setIsEditing(true)}
           onEditLeader={() => setIsEditingLeader(true)}
           onShareProfile={handleShareProfile}
-          onFollowToggle={() => followMutation.mutate(profileEmail)}
+          onFollowToggle={() => followMutation.mutate({ targetEmail: profileEmail, shouldFollow: !isFollowingThisUser })}
           isFollowingThisUser={isFollowingThisUser}
           onProfileImageSelect={(e) => handleImageSelect(e, "profile")}
           onCoverImageSelect={(e) => handleImageSelect(e, "cover")}
@@ -886,7 +892,7 @@ export default function Profile() {
             isFollowingThisUser={isFollowingThisUser}
             profileEmail={profileEmail}
             onEditLeader={() => setIsEditingLeader(true)}
-            onFollowToggle={() => followMutation.mutate(profileEmail)}
+            onFollowToggle={() => followMutation.mutate({ targetEmail: profileEmail, shouldFollow: !isFollowingThisUser })}
             onShareProfile={handleShareProfile}
             onProfileImageSelect={e => handleImageSelect(e, "profile")}
             onCoverImageSelect={e => handleImageSelect(e, "cover")}
@@ -898,7 +904,7 @@ export default function Profile() {
               user={user} isOwnProfile={isOwnProfile} profileEmail={profileEmail}
               myDrops={myDrops} myFollowers={myFollowers} myFollowing={myFollowing}
               onSetConnectionsView={setConnectionsView} onEditProfile={() => setIsEditing(true)}
-              onFollowToggle={() => followMutation.mutate(profileEmail)} isFollowingThisUser={isFollowingThisUser}
+              onFollowToggle={() => followMutation.mutate({ targetEmail: profileEmail, shouldFollow: !isFollowingThisUser })} isFollowingThisUser={isFollowingThisUser}
               currentUser={currentUser} onProfileImageSelect={e => handleImageSelect(e, "profile")}
               onCoverImageSelect={e => handleImageSelect(e, "cover")} uploadingImage={uploadingImage}
               institutionApps={visibleInstitutionApps}
@@ -1014,7 +1020,7 @@ export default function Profile() {
                   {!isOwnProfile && currentUser && (
                     <div className="flex flex-wrap gap-3">
                       <button
-                        onClick={() => followMutation.mutate(profileEmail)}
+                        onClick={() => followMutation.mutate({ targetEmail: profileEmail, shouldFollow: !isFollowingThisUser })}
                         className="px-6 py-2 rounded-full text-sm font-bold transition"
                         style={isFollowingThisUser
                           ? { background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#4A5878" }
