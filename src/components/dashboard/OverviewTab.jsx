@@ -31,7 +31,7 @@ export default function OverviewTab({ user }) {
   const { data: allGroups = [] } = useQuery({ queryKey: ["allGroups"], queryFn: () => base44.entities.GlowGroup.list(), enabled: myMemberships.length > 0 });
   const { data: challenges = [] } = useQuery({ queryKey: ["activeChallenges"], queryFn: () => base44.entities.Challenge.filter({ active: true }, '-created_date', 3) });
   const { data: certificates = [] } = useQuery({ queryKey: ["myCertificates", user.email], queryFn: () => base44.entities.Certificate.filter({ user_email: user.email }) });
-  const { data: unreadNotifications = [] } = useQuery({ queryKey: ["unreadNotifications", user.email], queryFn: () => base44.entities.Notification.filter({ user_email: user.email, read: false }, '-created_date', 5) });
+  const { data: unreadNotifications = [] } = useQuery({ queryKey: ["unreadNotifications", user.id], queryFn: () => base44.entities.Notification.filter({ user_id: user.id, read: false }, '-created_date', 5), enabled: !!user.id });
   const { data: dailyCodes = [] } = useQuery({ queryKey: ["overviewDailyCodesLatest"], queryFn: () => base44.entities.DailyCode.list('-date_published', 1) });
   const { data: dailyCodeEntries = [] } = useQuery({ queryKey: ["overviewCodeOfTruth", dailyCodes[0]?.code_id], queryFn: () => base44.entities.CodeOfTruth.filter({ id: dailyCodes[0]?.code_id }), enabled: !!dailyCodes[0]?.code_id });
 
@@ -94,7 +94,7 @@ export default function OverviewTab({ user }) {
               {[
                 { val: score, label: "XP", color: "#CC7A00" },
                 { val: glowDrops.length, label: "Drops", color: "#0B3FD9" },
-                { val: myMemberships.length > 0 ? "1" : "0", label: "Group", color: "#1FB8FF" },
+                { val: myMemberships.length, label: myMemberships.length === 1 ? "Group" : "Groups", color: "#1FB8FF" },
               ].map((s, i) => (
                 <div key={i} className={statBoxClass} style={statBoxStyle}>
                   <div className="text-xl font-bold" style={{ color: s.color }}>{s.val}</div>

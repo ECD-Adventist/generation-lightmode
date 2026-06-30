@@ -111,7 +111,7 @@ export default function Dashboard() {
             <span className="text-xs font-bold tracking-wider font-['Inter']" style={{ color: "#0B3FD9" }}>GLOBAL WARRIOR MAP</span>
           </div>
           <h2 className="text-2xl font-bold font-['Space_Grotesk'] mb-6" style={{ color: "#0B1B3D" }}>Light Warriors Around the World</h2>
-          <DashboardMapHero userCountry={user?.country} />
+          <DashboardMapHero userCountry={user?.country} currentUser={user} />
         </div>
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b pb-8" style={{ borderColor: "#E0EAF5" }}>

@@ -1,21 +1,40 @@
 import React, { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { base44 } from "@/api/base44Client";
 import { Globe, X } from "lucide-react";
 import { countryCoordinates } from "@/lib/countryCoordinates";
 
-export default function DashboardMapHero({ userCountry }) {
+const fetchAll = async (entity, query = {}) => {
+  let records = [];
+  let skip = 0;
+  const limit = 100;
+  while (true) {
+    const page = await entity.filter(query, null, limit, skip);
+    records = [...records, ...page];
+    if (page.length < limit) break;
+    skip += limit;
+  }
+  return records;
+};
+
+export default function DashboardMapHero({ userCountry, currentUser }) {
   const [activePanel, setActivePanel] = useState(null);
+  const queryClient = useQueryClient();
   const { data: usersPayload = { users: [], totalUsers: 0 }, isLoading } = useQuery({
-    queryKey: ["dashboardMapUsersRealDataV2"],
+    queryKey: ["dashboardMapUsersRealDataV3"],
     queryFn: async () => {
       const res = await base44.functions.invoke("listPublicUsers", { include_count: true, include_email: true, limit: 2000 });
       return Array.isArray(res.data) ? { users: res.data, totalUsers: res.data.length } : res.data;
     },
-    staleTime: 30 * 1000,
-    refetchOnMount: "always",
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: currentUserFollowing = [] } = useQuery({
+    queryKey: ["dashboardMapFollowing", currentUser?.id, currentUser?.email],
+    queryFn: () => fetchAll(base44.entities.Follow, { follower_id: currentUser.id }),
+    enabled: !!currentUser?.id,
   });
 
   const users = Array.isArray(usersPayload) ? usersPayload : (usersPayload.users || []);
@@ -42,6 +61,32 @@ export default function DashboardMapHero({ userCountry }) {
   const topCountry = countryClusters[0];
   const panelUsers = activePanel === "registered" ? users : activePanel === "mapped" ? mappedUsers : activePanel === "topRegion" ? mappedUsers.filter(u => (u.country || "").trim() === topCountry?.country) : [];
   const panelTitle = activePanel === "registered" ? "Total registered users" : activePanel === "mapped" ? "Warriors with country data" : activePanel === "nations" ? "Active nations" : `${topCountry?.country || "Top region"} users`;
+
+  const followingByEmail = useMemo(() => {
+    const map = new Map();
+    currentUserFollowing.forEach(follow => {
+      if (follow.following_email) map.set(follow.following_email, follow);
+    });
+    return map;
+  }, [currentUserFollowing]);
+
+  const followMutation = useMutation({
+    mutationFn: async (person) => {
+      if (!currentUser || !person?.email || person.email === currentUser.email) return;
+      const existing = currentUserFollowing.find(follow => follow.following_email === person.email || (person.id && follow.following_id === person.id));
+      if (existing) {
+        await base44.entities.Follow.delete(existing.id);
+        return;
+      }
+      await base44.entities.Follow.create({
+        follower_id: currentUser.id,
+        following_id: person.id,
+        follower_email: currentUser.email,
+        following_email: person.email,
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["dashboardMapFollowing", currentUser?.id, currentUser?.email] }),
+  });
 
   return (
     <div className="space-y-4 font-['Inter']">
@@ -128,15 +173,32 @@ export default function DashboardMapHero({ userCountry }) {
                   <span className="font-bold" style={{ color: "#0B1B3D" }}>{cluster.country}</span>
                   <span className="text-sm font-black" style={{ color: "#0B3FD9" }}>{cluster.count}</span>
                 </div>
-              )) : panelUsers.map(person => (
-                <div key={person.email} className="flex items-center gap-3 rounded-2xl px-4 py-3" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
-                  <img src={person.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-10 h-10 rounded-full object-cover" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold truncate" style={{ color: "#0B1B3D" }}>{person.display_name || person.full_name || person.email?.split("@")[0]}</div>
-                    <div className="text-xs truncate" style={{ color: "#6B7FA0" }}>{person.country || "No country set"} · {person.glow_score || 0} XP</div>
+              )) : panelUsers.map(person => {
+                const isSelf = currentUser?.email === person.email;
+                const isFollowing = followingByEmail.has(person.email) || currentUserFollowing.some(follow => person.id && follow.following_id === person.id);
+                return (
+                  <div key={person.email} className="flex items-center gap-3 rounded-2xl px-4 py-3" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                    <img src={person.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-10 h-10 rounded-full object-cover" />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold truncate" style={{ color: "#0B1B3D" }}>{person.display_name || person.full_name || person.email?.split("@")[0]}</div>
+                      <div className="text-xs truncate" style={{ color: "#6B7FA0" }}>{person.country || "No country set"} · {person.glow_score || 0} XP</div>
+                    </div>
+                    {!isSelf && person.email && (
+                      <button
+                        type="button"
+                        disabled={followMutation.isPending}
+                        onClick={() => followMutation.mutate(person)}
+                        className="shrink-0 rounded-full px-4 py-2 text-xs font-black transition hover:-translate-y-0.5 disabled:opacity-60"
+                        style={isFollowing
+                          ? { background: "#FFFFFF", border: "1px solid #D6E4FF", color: "#0B3FD9" }
+                          : { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", border: "1px solid transparent", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.22)" }}
+                      >
+                        {isFollowing ? "Following" : "Connect"}
+                      </button>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
