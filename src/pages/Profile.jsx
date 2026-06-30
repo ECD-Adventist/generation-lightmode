@@ -206,6 +206,20 @@ export default function Profile() {
   const profileEmail = activeLeaderEmail || baseProfileEmail;
   const isViewingLeader = !!activeLeaderAccount;
 
+  // When viewing a leader account, override the displayed user identity (name, photo, bio, etc.)
+  const displayUser = user ? (isViewingLeader ? {
+    ...user,
+    email: activeLeaderAccount.leader_email,
+    full_name: activeLeaderAccount.leader_name,
+    profile_picture_url: activeLeaderAccount.leader_profile_picture_url,
+    cover_picture_url: activeLeaderAccount.leader_cover_picture_url,
+    bio: activeLeaderAccount.leader_bio,
+    country: activeLeaderAccount.leader_country,
+    website_url: undefined,
+    glow_score: 0,
+    pledge_signed: false,
+  } : user) : null;
+
   const { data: myDrops = [] } = useQuery({
     queryKey: ["myGlowDropsProfile", profileEmail],
     queryFn: () => fetchAll(base44.entities.GlowDrop, { user_email: profileEmail }, '-created_date'),
@@ -539,19 +553,6 @@ export default function Profile() {
     );
   }
 
-  // When viewing a leader account, override the displayed user identity (name, photo, bio, etc.)
-  const displayUser = isViewingLeader ? {
-    ...user,
-    email: activeLeaderAccount.leader_email,
-    full_name: activeLeaderAccount.leader_name,
-    profile_picture_url: activeLeaderAccount.leader_profile_picture_url,
-    cover_picture_url: activeLeaderAccount.leader_cover_picture_url,
-    bio: activeLeaderAccount.leader_bio,
-    country: activeLeaderAccount.leader_country,
-    website_url: undefined,
-    glow_score: 0,
-    pledge_signed: false,
-  } : user;
   // While viewing a leader, owner-only edit affordances should be disabled.
   const canEditProfile = isOwnProfile && !isViewingLeader;
   // But managers DO have full authority to edit the leader's identity & photos.
