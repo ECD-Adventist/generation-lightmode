@@ -28,7 +28,13 @@ export const fetchAllFollowers = async (userId, userEmail) => {
     allFollowers = [...allFollowers, ...newOnes];
   }
   
-  return allFollowers;
+  const seen = new Set();
+  return allFollowers.filter(f => {
+    const key = f.follower_email || f.follower_id || f.id;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 };
 
 export const fetchAllFollowing = async (userId, userEmail) => {
@@ -46,5 +52,11 @@ export const fetchAllFollowing = async (userId, userEmail) => {
     allFollowing = [...allFollowing, ...newOnes];
   }
   
-  return allFollowing;
+  const seen = new Set();
+  return allFollowing.filter(f => {
+    const key = f.following_email || f.following_id || f.id;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 };

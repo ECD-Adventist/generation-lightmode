@@ -223,7 +223,9 @@ export default function Profile() {
   const { data: myDrops = [] } = useQuery({
     queryKey: ["myGlowDropsProfile", profileEmail],
     queryFn: () => fetchAll(base44.entities.GlowDrop, { user_email: profileEmail }, '-created_date'),
-    enabled: !!profileEmail
+    enabled: !!profileEmail,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const { data: mySupports = [] } = useQuery({
@@ -235,13 +237,17 @@ export default function Profile() {
   const { data: myFollowing = [] } = useQuery({
     queryKey: ["myFollowing", displayUser?.id, profileEmail],
     queryFn: () => fetchAllFollowing(displayUser?.id, profileEmail),
-    enabled: !!displayUser?.id || !!profileEmail
+    enabled: !!displayUser?.id || !!profileEmail,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const { data: myFollowers = [] } = useQuery({
     queryKey: ["myFollowers", displayUser?.id, profileEmail],
     queryFn: () => fetchAllFollowers(displayUser?.id, profileEmail),
-    enabled: !!displayUser?.id || !!profileEmail
+    enabled: !!displayUser?.id || !!profileEmail,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const { data: myMemberships = [] } = useQuery({
@@ -381,9 +387,13 @@ export default function Profile() {
       const targetUser = allUsersForProfile.find(u => u.email === targetEmail);
       const targetUserId = targetUser?.id || (targetEmail === profileEmail ? displayUser?.id : null);
       
-      const existingFollow = currentUserFollowing.find(f => f.following_email === targetEmail || (targetUserId && f.following_id === targetUserId));
-      if (existingFollow) {
-        await base44.entities.Follow.delete(existingFollow.id);
+      const existingByEmail = await base44.entities.Follow.filter({ follower_email: currentUser.email, following_email: targetEmail });
+      const existingById = targetUserId
+        ? await base44.entities.Follow.filter({ follower_id: currentUser.id, following_id: targetUserId })
+        : [];
+      const existingFollows = [...existingByEmail, ...existingById].filter((item, index, arr) => arr.findIndex(f => f.id === item.id) === index);
+      if (existingFollows.length > 0) {
+        await Promise.all(existingFollows.map(f => base44.entities.Follow.delete(f.id)));
         return { targetEmail, action: "unfollow" };
       }
       
@@ -405,9 +415,9 @@ export default function Profile() {
       return { targetEmail, action: "follow" };
     },
     onSuccess: ({ targetEmail, action }) => {
-      queryClient.invalidateQueries({ queryKey: ["currentUserFollowing", currentUser?.email] });
-      queryClient.invalidateQueries({ queryKey: ["myFollowing", currentUser?.email] });
-      queryClient.invalidateQueries({ queryKey: ["myFollowers", targetEmail] });
+      queryClient.invalidateQueries({ queryKey: ["currentUserFollowing"] });
+      queryClient.invalidateQueries({ queryKey: ["myFollowing"] });
+      queryClient.invalidateQueries({ queryKey: ["myFollowers"] });
       toast.success(action === "unfollow" ? "Unfollowed" : "Following! ⚡");
     }
   });
