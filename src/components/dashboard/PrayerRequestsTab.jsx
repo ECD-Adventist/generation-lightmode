@@ -16,17 +16,7 @@ export default function PrayerRequestsTab({ user }) {
 
   const { data: requests = [] } = useQuery({ queryKey: ["prayerRequests"], queryFn: () => base44.entities.PrayerRequest.list('-created_date') });
   const { data: supports = [] } = useQuery({ queryKey: ["prayerSupports"], queryFn: () => base44.entities.PrayerSupport.list() });
-  const { data: users = [] } = useQuery({
-    queryKey: ["prayerRequestUsers"],
-    queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", { limit: 2000 });
-      const data = res.data;
-      if (Array.isArray(data)) return data;
-      if (Array.isArray(data?.users)) return data.users;
-      if (Array.isArray(data?.data)) return data.data;
-      return [];
-    }
-  });
+  const { data: users = [] } = useQuery({ queryKey: ["allUsers"], queryFn: () => base44.entities.User.list() });
 
   const handlePost = async (e) => {
     e.preventDefault();
@@ -47,10 +37,7 @@ export default function PrayerRequestsTab({ user }) {
       } else {
         await base44.entities.PrayerSupport.create({ request_id: request.id, user_email: user.email });
         if (request.user_email !== user.email && !request.is_anonymous) {
-          const recipient = users.find(u => u.email === request.user_email);
-          if (recipient?.id) {
-            await base44.functions.invoke("createNotification", { user_id: recipient.id, type: "system", message: `${user.full_name || "Someone"} is praying for your request!`, link: "/Dashboard" });
-          }
+          await base44.entities.Notification.create({ user_email: request.user_email, type: "system", message: `${user.full_name} is praying for your request!`, link: "/Dashboard" });
         }
       }
       queryClient.invalidateQueries({ queryKey: ["prayerSupports"] });
@@ -65,7 +52,7 @@ export default function PrayerRequestsTab({ user }) {
     } catch (err) { toast.error("Failed to update"); }
   };
 
-  const getUserInfo = (email) => users.find(u => u.email === email) || (email ? { email, full_name: email.split("@")[0] } : null);
+  const getUserInfo = (email) => users.find(u => u.email === email);
   const inputStyle = { background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" };
 
   return (
@@ -106,7 +93,7 @@ export default function PrayerRequestsTab({ user }) {
           const reqSupports = supports.filter(s => s.request_id === req.id);
           const isSupporting = reqSupports.some(s => s.user_email === user.email);
           const isMine = req.user_email === user.email;
-          const isLeader = ["glowgroup leader", "admin", "super_admin", "moderator"].includes(String(user.role || "").toLowerCase());
+          const isLeader = user.role === 'GlowGroup Leader' || user.role === 'Admin' || user.role === 'Super Admin';
 
           return (
             <div key={req.id} className="p-6 rounded-[1.5rem] transition-all" style={req.answered ? { background: "rgba(34, 197, 94, 0.05)", border: "1px solid rgba(34, 197, 94, 0.3)" } : { background: "#FFFFFF", border: "1px solid #E0EAF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
@@ -117,7 +104,7 @@ export default function PrayerRequestsTab({ user }) {
                   </div>
                   <div>
                     <div className="font-bold flex items-center gap-2 text-lg" style={{ color: "#0B1B3D" }}>
-                      {req.is_anonymous ? 'Anonymous Believer' : (reqUser?.full_name || reqUser?.email || 'Unknown believer')}
+                      {req.is_anonymous ? 'Anonymous Believer' : reqUser?.full_name}
                       {req.answered && <span className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1 font-medium" style={{ background: "rgba(34, 197, 94, 0.15)", color: "#16A34A" }}><CheckCircle2 className="w-3 h-3" /> Answered</span>}
                     </div>
                     <div className="text-sm flex items-center gap-2" style={{ color: "#8A97B5" }}>

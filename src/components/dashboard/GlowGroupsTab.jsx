@@ -16,24 +16,10 @@ export default function GlowGroupsTab({ user }) {
   const [activeGroup, setActiveGroup] = useState(null);
   const [groupTab, setGroupTab] = useState("feed");
 
-  const { data: memberships = [] } = useQuery({
-    queryKey: ["myGlowGroupMemberships", user.email],
-    queryFn: () => base44.entities.GlowGroupMember.filter({ user_email: user.email })
-  });
-
-  const { data: ledGroups = [], refetch: refetchLedGroups } = useQuery({
-    queryKey: ["myLedGlowGroups", user.email],
+  const { data: myGroups = [], refetch } = useQuery({
+    queryKey: ["myGroups", user.email],
     queryFn: () => base44.entities.GlowGroup.filter({ leader_email: user.email })
   });
-
-  const { data: visibleGroups = [], refetch: refetchVisibleGroups } = useQuery({
-    queryKey: ["visibleGlowGroupsForDashboard", user.email],
-    queryFn: () => base44.entities.GlowGroup.list()
-  });
-
-  const memberGroupIds = new Set(memberships.map(m => m.group_id));
-  const ledGroupIds = new Set(ledGroups.map(g => g.id));
-  const myGroups = visibleGroups.filter(g => memberGroupIds.has(g.id) || ledGroupIds.has(g.id));
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -42,8 +28,7 @@ export default function GlowGroupsTab({ user }) {
       toast.success("GlowGroup created!");
       setGroupData({ name: "", country: "", description: "" });
       setCreating(false);
-      refetchLedGroups();
-      refetchVisibleGroups();
+      refetch();
     } catch (err) {
       toast.error("Failed to create group");
     }
@@ -124,9 +109,7 @@ export default function GlowGroupsTab({ user }) {
               <span className="inline-block font-bold pb-1 border-b" style={{ color: "#0B3FD9", borderColor: "#D6E4FF" }}>Click to create your first group →</span>
             </div>
           ) : (
-            myGroups.map(g => {
-              const isLeader = g.leader_email === user.email;
-              return (
+            myGroups.map(g => (
               <div key={g.id} onClick={() => setActiveGroup(g)} className="cursor-pointer rounded-[1.5rem] p-6 relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg" style={cardStyle}>
                 <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl transition-opacity">✨</div>
                 <div className="mb-4">
@@ -144,12 +127,12 @@ export default function GlowGroupsTab({ user }) {
                       <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs" style={{ background: "#F6F8FC", border: "2px dashed #D6E4FF", color: "#8A97B5" }}>+</div>
                     </div>
                   </div>
-                  <div className="text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-lg" style={isLeader ? { background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" } : { background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF", color: "#0B3FD9" }}>
-                    {isLeader ? "Leader" : "Member"}
+                  <div className="text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-lg" style={{ background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0", color: "#CC7A00" }}>
+                    Leader
                   </div>
                 </div>
               </div>
-            );})
+            ))
           )}
         </div>
       ) : (

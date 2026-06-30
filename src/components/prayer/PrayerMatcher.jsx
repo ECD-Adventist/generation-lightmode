@@ -16,20 +16,7 @@ export default function PrayerMatcher({ currentUser }) {
   const [initiatingDM, setInitiatingDM] = useState(false);
 
   const { data: matches = [], isLoading: matchesLoading } = useQuery({ queryKey: ["prayerMatches", currentUser?.email], queryFn: async () => { const res = await base44.functions.invoke("matchPrayerRequests", {}); return res.data.matches || []; }, enabled: !!currentUser, staleTime: 300000, refetchInterval: 60000 });
-  const matchedEmails = [...new Set(matches.map(m => m.user_email).filter(Boolean))];
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ["prayerMatchUsers", matchedEmails.join("|")],
-    queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", { emails: matchedEmails, limit: matchedEmails.length });
-      const data = res.data;
-      if (Array.isArray(data)) return data;
-      if (Array.isArray(data?.users)) return data.users;
-      if (Array.isArray(data?.data)) return data.data;
-      return [];
-    },
-    enabled: matchedEmails.length > 0,
-    staleTime: 300000
-  });
+  const { data: allUsers = [] } = useQuery({ queryKey: ["prayerMatchUsers"], queryFn: async () => { const res = await base44.functions.invoke("listPublicUsers", {}); return res.data; }, enabled: !!currentUser, staleTime: 300000 });
   const { data: prayerSupports = [] } = useQuery({ queryKey: ["myPrayerSupports", currentUser?.email], queryFn: () => base44.entities.PrayerSupport.filter({ user_email: currentUser?.email }), enabled: !!currentUser });
 
   const supportMutation = useMutation({
@@ -37,8 +24,7 @@ export default function PrayerMatcher({ currentUser }) {
       if (prayerSupports.some(ps => ps.request_id === requestId)) { toast.error("Already supporting"); return; }
       await base44.entities.PrayerSupport.create({ request_id: requestId, user_email: currentUser.email });
       const req = matches.find(m => m.id === requestId);
-      const recipient = allUsers.find(u => u.email === req?.user_email);
-      if (recipient?.id) await base44.functions.invoke("createNotification", { user_id: recipient.id, type: "reply", message: `${currentUser.full_name || 'Someone'} is praying for your request.`, link: createPageUrl("PrayerWall") + `?request=${encodeURIComponent(requestId)}` }).catch(() => {});
+      if (req) await base44.entities.Notification.create({ user_email: req.user_email, type: "reply", message: `${currentUser.full_name || 'Someone'} is praying for your request.`, link: createPageUrl("PrayerWall") + `?request=${encodeURIComponent(requestId)}` }).catch(() => {});
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["myPrayerSupports"] }); toast.success("Prayer support added! 🙏"); }
   });
@@ -47,18 +33,12 @@ export default function PrayerMatcher({ currentUser }) {
     mutationFn: async (recipientEmail) => {
       setInitiatingDM(true);
       try {
-        const recipient = allUsers.find(u => u.email === recipientEmail);
-        if (!recipient?.id) {
-          toast.error("This prayer request profile is still loading. Please try again in a moment.");
-          return;
-        }
-        const pair = [currentUser.email, recipientEmail].sort();
-        const existing = await base44.entities.DirectConversation.filter({ participant_a_email: pair[0], participant_b_email: pair[1] });
+        const existing = await base44.entities.DirectConversation.filter({ participant_a: currentUser.email, participant_b: recipientEmail });
         let convId = existing[0]?.id;
-        if (!convId) { const c = await base44.entities.DirectConversation.create({ participant_a_email: pair[0], participant_b_email: pair[1] }); convId = c.id; }
-        const dmRec = await base44.entities.DirectMessage.create({ conversation_id: convId, sender_id: currentUser.id, recipient_id: recipient.id, content: `Hi! I saw your prayer request and wanted to reach out. I'm here to pray with you. 🙏` });
+        if (!convId) { const c = await base44.entities.DirectConversation.create({ participant_a: currentUser.email, participant_b: recipientEmail }); convId = c.id; }
+        const dmRec = await base44.entities.DirectMessage.create({ conversation_id: convId, sender_email: currentUser.email, recipient_email: recipientEmail, content: `Hi! I saw your prayer request and wanted to reach out. I'm here to pray with you. 🙏` });
         dualWriteSupabase("direct_messages", dmRec);
-        base44.functions.invoke("createNotification", { user_id: recipient.id, type: "message", message: `${currentUser.full_name || 'Someone'} sent you a prayer support message.`, link: createPageUrl("Messages") + `?user=${encodeURIComponent(currentUser.email)}` }).catch(() => {});
+        base44.entities.Notification.create({ user_email: recipientEmail, type: "message", message: `${currentUser.full_name || 'Someone'} sent you a prayer support message.`, link: createPageUrl("Messages") + `?user=${encodeURIComponent(currentUser.email)}` }).then(n => dualWriteSupabase("notifications", n)).catch(() => {});
         toast.success("Message sent! Check Messages.");
       } finally { setInitiatingDM(false); }
     },

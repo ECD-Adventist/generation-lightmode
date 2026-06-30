@@ -113,7 +113,7 @@ export default function ChatWindow({ conversation, currentUser, otherUser, messa
           </div>
         )}
         {messages.map((message) => {
-          const isMine = message.sender_id === currentUser?.id || message.sender_email === currentUser?.email;
+          const isMine = message.sender_email === currentUser?.email;
           const msgDay = message.created_date ? formatDayDivider(message.created_date) : "";
           const showDayDivider = msgDay && msgDay !== lastDay;
           lastDay = msgDay;
