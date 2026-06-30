@@ -23,12 +23,16 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   };
 
   const [editData, setEditData] = useState({
+    username: user?.username || "",
     display_name: user?.display_name || user?.full_name || "",
     country: user?.country || "",
+    location: user?.location || "",
     bio: user?.bio || "",
     website_url: user?.website_url || "",
-    profile_picture_url: user?.profile_picture_url || "",
-    cover_picture_url: user?.cover_picture_url || "",
+    profile_picture: user?.profile_picture || user?.profile_picture_url || "",
+    profile_picture_url: user?.profile_picture || user?.profile_picture_url || "",
+    cover_image: user?.cover_image || user?.cover_picture_url || "",
+    cover_picture_url: user?.cover_image || user?.cover_picture_url || "",
     gender: user?.gender || "",
     date_of_birth: user?.date_of_birth || "",
     phone: user?.phone || "",
@@ -42,12 +46,16 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   React.useEffect(() => {
     if (user) {
       setEditData({
+        username: user.username || "",
         display_name: user.display_name || user.full_name || "",
         country: user.country || "",
+        location: user.location || "",
         bio: user.bio || "",
         website_url: user.website_url || "",
-        profile_picture_url: user.profile_picture_url || "",
-        cover_picture_url: user.cover_picture_url || "",
+        profile_picture: user.profile_picture || user.profile_picture_url || "",
+        profile_picture_url: user.profile_picture || user.profile_picture_url || "",
+        cover_image: user.cover_image || user.cover_picture_url || "",
+        cover_picture_url: user.cover_image || user.cover_picture_url || "",
         gender: user.gender || "",
         date_of_birth: user.date_of_birth || "",
         phone: user.phone || "",
@@ -76,10 +84,12 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
     const toastId = toast.loading(`Uploading ${type} photo…`);
     try {
       const res = await base44.integrations.Core.UploadFile({ file: croppedFile });
-      const urlField = type === "profile" ? "profile_picture_url" : "cover_picture_url";
-      set(urlField, res.file_url);
+      const updates = type === "profile"
+        ? { profile_picture: res.file_url, profile_picture_url: res.file_url }
+        : { cover_image: res.file_url, cover_picture_url: res.file_url };
+      setEditData(prev => ({ ...prev, ...updates }));
       // Save immediately to user record so it persists even if modal closed
-      await base44.auth.updateMe({ [urlField]: res.file_url });
+      await base44.auth.updateMe(updates);
       toast.success(`${type === "profile" ? "Profile" : "Cover"} photo updated!`, { id: toastId });
     } catch {
       toast.error(`Failed to upload photo`, { id: toastId });
@@ -90,8 +100,8 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!editData.display_name.trim()) {
-      toast.error("Display name is required");
+    if (!editData.username.trim()) {
+      toast.error("Username is required");
       return;
     }
     if (editData.date_of_birth && !isAtLeastAge(editData.date_of_birth)) {
@@ -100,7 +110,14 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
     }
     setSaving(true);
     try {
-      const payload = { ...editData, social_links: JSON.stringify(editData.social_links || {}) };
+      const payload = {
+        ...editData,
+        username: editData.username.replace(/^@+/, "").trim(),
+        profile_picture: editData.profile_picture || editData.profile_picture_url,
+        cover_image: editData.cover_image || editData.cover_picture_url,
+        location: editData.location || editData.city || editData.country,
+        social_links: JSON.stringify(editData.social_links || {})
+      };
       const res = await base44.functions.invoke("updateProfile", payload);
       if (!res.data?.success) throw new Error(res.data?.error || "Save failed");
 
@@ -168,7 +185,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                   style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}
                 >
                   <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF" }}>
-                    <img src={editData.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                    {editData.profile_picture ? <img src={editData.profile_picture} className="w-full h-full object-cover" /> : <div className="w-full h-full rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">{(editData.username || editData.display_name || user?.email || '?').charAt(0).toUpperCase()}</div>}
                   </div>
                   <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                     <Camera className="w-4 h-4 text-white" />
@@ -182,15 +199,14 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                   onClick={() => coverInputRef.current?.click()}
                   disabled={uploadingImage}
                   className="relative flex-1 h-16 rounded-xl overflow-hidden group"
-                  style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}
-                  style={editData.cover_picture_url ? { backgroundImage: `url(${editData.cover_picture_url})`, backgroundSize: "cover", backgroundPosition: "center" } : {}}
+                  style={editData.cover_image ? { backgroundImage: `url(${editData.cover_image})`, backgroundSize: "cover", backgroundPosition: "center", border: "1px solid #E6ECF5" } : { background: "#F6F8FC", border: "1px solid #E6ECF5" }}
                 >
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                     <div className="flex items-center gap-1.5 text-white text-xs font-bold">
                       <Camera className="w-4 h-4" /> Cover Photo
                     </div>
                   </div>
-                  {!editData.cover_picture_url && (
+                  {!editData.cover_image && (
                     <span className="text-xs absolute inset-0 flex items-center justify-center" style={{ color: "#8A97B5" }}>
                       + Cover Photo
                     </span>
@@ -203,11 +219,17 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
               )}
             </div>
 
+            {/* Username */}
+            <div>
+              <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Username <span className="text-red-400">*</span></Label>
+              <Input required value={editData.username} onChange={e => set("username", e.target.value.replace(/\s+/g, "").replace(/^@+/, ""))} placeholder="abbeywambua" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
+              <p className="text-[11px] mt-1.5" style={{ color: "#8A97B5" }}>This handle is shown instead of your email.</p>
+            </div>
+
             {/* Display Name */}
             <div>
-              <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Display Name <span className="text-red-400">*</span></Label>
-              <Input required value={editData.display_name} onChange={e => set("display_name", e.target.value)} placeholder="How your name appears in the app" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
-              <p className="text-[11px] mt-1.5" style={{ color: "#8A97B5" }}>This is the name shown throughout the app. You can change it anytime.</p>
+              <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Display Name</Label>
+              <Input value={editData.display_name} onChange={e => set("display_name", e.target.value)} placeholder="Your full display name" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
             </div>
 
             {/* Bio */}

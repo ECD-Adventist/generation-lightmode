@@ -33,7 +33,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
       await base44.functions.invoke("handleLikeDrop", {
         drop_id: drop.id,
         author_email: drop.user_email,
-        author_name: dropUser?.full_name,
+        author_name: authorProfile.full_name,
         action: "toggle",
       });
     },
@@ -90,7 +90,15 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
     }
   };
 
-  const territory = dropUser?.territory_name || dropUser?.country || null;
+  const authorProfile = {
+    ...(dropUser || {}),
+    email: drop.user_email,
+    username: drop.author_username || dropUser?.username || "",
+    full_name: drop.author_name || dropUser?.full_name || drop.user_email?.split("@")[0] || "Glow Believer",
+    profile_picture: drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
+    profile_picture_url: drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
+  };
+  const territory = authorProfile?.territory_name || authorProfile?.country || null;
   const isKeepIt100 = !drop.media_url && (drop.category === "Keep It 100" || /keepit100/i.test(drop.hashtags || ""));
   const isCodeOfTruth = !drop.media_url && drop.category === "Code of Truth";
 
@@ -141,13 +149,13 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px] shrink-0">
               <div className="w-full h-full rounded-full bg-[#0B0F1A] overflow-hidden">
                 <img
-                  src={dropUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
+                  src={authorProfile.profile_picture || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
                   className="w-full h-full object-cover"
                 />
               </div>
             </div>
             <div className="min-w-0">
-              <p className="text-white font-bold text-xs truncate">{dropUser?.full_name || drop.user_email?.split("@")[0]}</p>
+              <p className="text-white font-bold text-xs truncate">{authorProfile.username || authorProfile.full_name}</p>
               <p className="text-gray-500 text-[10px]">
                 {drop.created_date
                   ? formatDistanceToNow(new Date(drop.created_date.endsWith("Z") ? drop.created_date : drop.created_date + "Z"), { addSuffix: true })

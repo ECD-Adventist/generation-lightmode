@@ -36,6 +36,8 @@ import { queueOfflineAction } from "@/lib/offlineCache";
 import useDeferredMount from "@/hooks/useDeferredMount";
 import GuestStickyBar from "@/components/pledge/GuestStickyBar";
 import CountryFlag from "@/components/common/CountryFlag";
+import UserAvatar from "@/components/common/UserAvatar";
+import { getDisplayName } from "@/lib/displayName";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
 const fetchAll = async (entity, query = {}, sort = null) => {
@@ -247,7 +249,7 @@ export default function Feed() {
           await base44.functions.invoke("createNotification", {
             user_id: targetUser.id,
             type: "follow",
-            message: `${user.full_name || 'Someone'} started following you.`,
+            message: `${getDisplayName(user)} started following you.`,
             link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
           });
         }
@@ -349,7 +351,7 @@ export default function Feed() {
     });
     const unsubDMs = base44.entities.DirectMessage.subscribe((event) => {
       if (event.type === 'create' && event.data.recipient_email === user.email) {
-        const senderName = users.find(u => u.email === event.data.sender_email)?.full_name || event.data.sender_email?.split('@')[0];
+        const senderName = getDisplayName(users.find(u => u.email === event.data.sender_email) || { email: event.data.sender_email });
         toast(`New message from ${senderName}`, { icon: '💬' });
       }
     });
@@ -384,6 +386,7 @@ export default function Feed() {
         email: "system@lightmode.com",
         full_name: "Generation LightMode",
         bio: "Official Generation LightMode account sharing daily drops, updates, and movement highlights.",
+        profile_picture: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg",
         profile_picture_url: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg",
         country: "Global",
       };
@@ -398,12 +401,13 @@ export default function Feed() {
         email: leader.leader_email,
         full_name: leader.leader_name,
         bio: leader.leader_bio,
+        profile_picture: leader.leader_profile_picture_url,
         profile_picture_url: leader.leader_profile_picture_url,
         country: leader.leader_country,
         is_managed_leader: true,
       };
     }
-    return { full_name: email?.split('@')[0] || "Glow Believer", email };
+    return { username: email?.split('@')[0] || "Glow Believer", email };
   };
 
   const activeStories = useMemo(() => {
@@ -469,8 +473,7 @@ export default function Feed() {
           drop.reflection?.toLowerCase().includes(q) ||
           drop.hashtags?.toLowerCase().includes(q) ||
           drop.category?.toLowerCase().includes(q) ||
-          dropAuthor?.full_name?.toLowerCase().includes(q) ||
-          dropAuthorEmail.includes(q);
+          getDisplayName(dropAuthor).toLowerCase().includes(q);
 
         return matchesFilter && matchesSearch;
       })
@@ -812,7 +815,7 @@ export default function Feed() {
                       )}
                     </div>
                   </div>
-                  <span className="text-[11px] font-semibold truncate w-16 text-center" style={{ color: "#0B1B3D" }}>{storyUser?.email === user?.email ? "You" : storyUser?.full_name?.split(' ')[0] || "Status"}</span>
+                  <span className="text-[11px] font-semibold truncate w-16 text-center" style={{ color: "#0B1B3D" }}>{storyUser?.email === user?.email ? "You" : getDisplayName(storyUser).split(' ')[0]}</span>
                 </button>
               );
             })}
@@ -961,11 +964,11 @@ export default function Feed() {
                 <div key={u.id} className="flex items-center gap-2">
                   <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-2 flex-1 min-w-0 no-underline hover:opacity-80 transition">
                     <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-xs shrink-0" style={{ background: "#E0EAF5", border: "1px solid #E0EAF5" }}>
-                       <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                       <UserAvatar user={u} className="w-full h-full" />
                     </div>
                     <div className="flex flex-col min-w-0 flex-1">
                       <span className="font-bold text-xs truncate flex items-center gap-1" style={{ color: "#0B1B3D" }}>
-                        <span className="truncate">{u.full_name}</span>
+                        <span className="truncate">{getDisplayName(u)}</span>
                         <CountryFlag country={u.country} size="xs" />
                       </span>
                       <span className="text-[9px] truncate" style={{ color: "#8A97B5" }}>{u.country || "Global Believer"}</span>
@@ -1030,7 +1033,7 @@ export default function Feed() {
                     <SidebarLink to={createPageUrl("Dashboard")} icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
                     <SidebarLink to={createPageUrl("Profile")} icon={
                       <div className="w-[18px] h-[18px] rounded-full overflow-hidden shrink-0" style={{ border: "1px solid #D5E3F0" }}>
-                        <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                        <UserAvatar user={user} className="w-full h-full" />
                       </div>
                     } label="Profile" />
                   </>

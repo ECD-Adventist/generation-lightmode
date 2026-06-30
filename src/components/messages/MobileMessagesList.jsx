@@ -4,8 +4,7 @@ import { createPageUrl } from "@/utils";
 import { Search, X, PenSquare, MessageCircle, Users, ArrowLeft, Crown, Sparkles, UserPlus, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { getDisplayName } from "@/lib/displayName";
-
-const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
+import UserAvatar from "@/components/common/UserAvatar";
 
 /**
  * Mobile-only Messages list — LightMode branded.
@@ -38,7 +37,7 @@ export default function MobileMessagesList({
   const [groupFilter, setGroupFilter] = useState("all");
 
   const getUser = (email) =>
-    allUsers.find((u) => u.email === email) || { full_name: email?.split("@")[0] || "User", email };
+    allUsers.find((u) => u.email === email) || { username: email?.split("@")[0] || "User", email };
 
   const existingEmails = useMemo(
     () => new Set(
@@ -239,7 +238,7 @@ export default function MobileMessagesList({
                 >
                   <div className="w-12 h-12 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
                     <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "2px solid #FFFFFF" }}>
-                      <img src={otherUser.profile_picture_url || defaultAvatar} alt="" className="w-full h-full object-cover" />
+                      <UserAvatar user={otherUser} className="w-full h-full" />
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -416,12 +415,12 @@ export default function MobileMessagesList({
                   >
                     <div className="w-11 h-11 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
                       <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "2px solid #FFFFFF" }}>
-                        <img src={person.profile_picture_url || defaultAvatar} className="w-full h-full object-cover" />
+                        <UserAvatar user={person} className="w-full h-full" />
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-black text-sm truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(person)}</div>
-                      <div className="text-[11px] truncate" style={{ color: "#8A97B5" }}>{person.email}</div>
+                      <div className="text-[11px] truncate" style={{ color: "#8A97B5" }}>{person.location || person.country || "LightMode member"}</div>
                     </div>
                     <div className="text-[10px] font-black px-2.5 py-1 rounded-full shrink-0" style={{ background: "#EEF3FF", color: "#0B3FD9" }}>Chat</div>
                   </button>

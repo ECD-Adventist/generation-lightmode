@@ -33,6 +33,14 @@ function MobileDropCard({
   const clickTimerRef = useRef(null);
   const userHasLiked = userLikes.some(like => like.drop_id === drop.id);
 
+  const authorProfile = {
+    ...(dropUser || {}),
+    email: drop.user_email,
+    username: drop.author_username || dropUser?.username || "",
+    full_name: drop.author_name || dropUser?.full_name || drop.user_email?.split("@")[0] || "Glow Believer",
+    profile_picture: drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
+    profile_picture_url: drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
+  };
   const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
   const isLeaderPost = !!leaderForDrop;
   const isKeepIt100 = !drop.media_url && (drop.category === "Keep It 100" || /keepit100/i.test(drop.hashtags || ""));
@@ -83,7 +91,7 @@ function MobileDropCard({
     likeMutation.mutate({
       id: drop.id,
       authorEmail: drop.user_email,
-      authorName: getDisplayName(dropUser),
+      authorName: getDisplayName(authorProfile),
     });
   };
 
@@ -159,7 +167,7 @@ function MobileDropCard({
         <Link to={profileLink} className="absolute top-3 left-3 z-20 flex items-center rounded-full pr-4 py-1 pl-1 no-underline" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #E6ECF5", boxShadow: "0 4px 14px rgba(11, 27, 61, 0.12)" }}>
           <div className="shrink-0 w-9 h-9 rounded-full p-[2px] mr-2" style={{ background: isLeaderPost ? "linear-gradient(135deg, #FFD000, #FF9F1A)" : "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
             <img
-              src={avatarThumb(dropUser?.profile_picture_url) || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
+              src={avatarThumb(authorProfile.profile_picture) || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
               alt=""
               loading="lazy"
               decoding="async"
@@ -167,7 +175,7 @@ function MobileDropCard({
             />
           </div>
           <div className="min-w-0 max-w-[150px]">
-            <div className="text-[12px] font-black truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(dropUser)}</div>
+            <div className="text-[12px] font-black truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(authorProfile)}</div>
             <div className="text-[10px] truncate" style={{ color: "#4A5878" }}>
               {drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}
             </div>

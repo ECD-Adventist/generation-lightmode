@@ -5,8 +5,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, Users, BookOpen, Award, Sparkles } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
-
-const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
+import UserAvatar from "@/components/common/UserAvatar";
 
 const GLOW_RANKS = [
   { min: 0, name: "Spark", color: "#6B7FA0" },
@@ -71,7 +70,7 @@ export default function ProfileHoverSummary({ dropUser }) {
         {/* Avatar */}
         <div className="w-16 h-16 rounded-full p-[2px] bg-white mb-2 relative z-10" style={{ boxShadow: "0 4px 14px rgba(11, 63, 217, 0.2)" }}>
           <div className="w-full h-full rounded-full overflow-hidden border-2 border-white">
-            <img src={dropUser?.profile_picture_url || defaultAvatar} className="w-full h-full object-cover" alt="" />
+            <UserAvatar user={dropUser} className="w-full h-full" alt={getDisplayName(dropUser)} />
           </div>
         </div>
 

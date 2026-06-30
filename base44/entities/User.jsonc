@@ -29,40 +29,138 @@
       "description": "Account status \u2014 suspended users cannot post, like, or comment."
     },
     "suspended_reason": {
-      "type": "string",
-      "description": "Reason logged when a user was suspended."
+      "type": "string"
     },
     "suspended_at": {
       "type": "string",
-      "format": "date-time",
-      "description": "Timestamp when a user was suspended."
+      "format": "date-time"
     },
     "suspended_by": {
+      "type": "string"
+    },
+    "username": {
       "type": "string",
-      "description": "Email of the admin who suspended the user."
+      "description": "Display handle, e.g. abbeywambua"
+    },
+    "profile_picture": {
+      "type": "string",
+      "description": "URL of uploaded profile photo"
+    },
+    "bio": {
+      "type": "string",
+      "description": "Short bio text"
+    },
+    "cover_image": {
+      "type": "string",
+      "description": "URL for profile cover/banner image"
+    },
+    "location": {
+      "type": "string",
+      "description": "Optional location text"
+    },
+    "xp_points": {
+      "type": "number",
+      "default": 0
+    },
+    "badge": {
+      "type": "string",
+      "description": "Earned badge label"
     },
     "display_name": {
       "type": "string",
-      "description": "User-editable display name shown throughout the app. Falls back to full_name when empty."
+      "description": "Legacy display name shown throughout the app. Prefer username when set."
+    },
+    "profile_picture_url": {
+      "type": "string",
+      "description": "Legacy profile photo URL. Kept for backwards compatibility."
+    },
+    "cover_picture_url": {
+      "type": "string",
+      "description": "Legacy cover photo URL. Kept for backwards compatibility."
+    },
+    "country": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "website_url": {
+      "type": "string"
+    },
+    "gender": {
+      "type": "string"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "postal_code": {
+      "type": "string"
     },
     "social_links": {
+      "type": "string"
+    },
+    "territory_name": {
+      "type": "string"
+    },
+    "glow_score": {
+      "type": "number",
+      "default": 0
+    },
+    "faith_streak_count": {
+      "type": "number",
+      "default": 0
+    },
+    "daily_checkin_streak": {
+      "type": "number",
+      "default": 0
+    },
+    "streak_count": {
+      "type": "number",
+      "default": 0
+    },
+    "pledge_signed": {
+      "type": "boolean",
+      "default": false
+    },
+    "pledge_signed_at": {
       "type": "string",
-      "description": "JSON string of social media profile links such as Facebook, Instagram, YouTube, TikTok, LinkedIn, X, WhatsApp."
+      "format": "date-time"
+    },
+    "privacy_consent_given": {
+      "type": "boolean",
+      "default": false
+    },
+    "notify_likes": {
+      "type": "boolean",
+      "default": true
+    },
+    "notify_follows": {
+      "type": "boolean",
+      "default": true
+    },
+    "notify_comments": {
+      "type": "boolean",
+      "default": true
+    },
+    "notify_messages": {
+      "type": "boolean",
+      "default": true
     },
     "light_booster_opt_in": {
       "type": "boolean",
-      "default": false,
-      "description": "If true, the user has consented to be part of the Light Boosters pool for automatic community encouragement likes."
+      "default": false
     },
     "light_booster_approved": {
       "type": "boolean",
-      "default": false,
-      "description": "Admin approval flag allowing this opted-in user to be used for Light Booster bonus likes."
+      "default": false
     }
   },
-  "required": [
-    "suspended_reason",
-    "suspended_at",
-    "suspended_by"
-  ]
+  "required": []
 }

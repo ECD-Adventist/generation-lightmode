@@ -100,6 +100,16 @@ Deno.serve(async (req) => {
     }
 
     const effectiveEmail = postAsLeader ? postAsLeader.leader_email : user.email;
+    const fallbackHandle = (effectiveEmail || '').split('@')[0] || 'Glow Believer';
+    const authorName = postAsLeader
+      ? (postAsLeader.leader_name || fallbackHandle)
+      : (user.full_name || user.username || fallbackHandle);
+    const authorUsername = postAsLeader
+      ? (postAsLeader.leader_name || fallbackHandle)
+      : (user.username || fallbackHandle);
+    const authorAvatar = postAsLeader
+      ? (postAsLeader.leader_profile_picture_url || null)
+      : (user.profile_picture || user.profile_picture_url || null);
     const RATE_LIMIT = 30;
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const recentDrops = await base44.asServiceRole.entities.GlowDrop.filter({ user_email: effectiveEmail });
@@ -125,6 +135,9 @@ Deno.serve(async (req) => {
 
     const dropPayload = {
       user_email: effectiveEmail,
+      author_name: authorName,
+      author_username: authorUsername,
+      author_avatar: authorAvatar,
       verse: (verse || '').slice(0, 500),
       reflection: (reflection || '').slice(0, 2000),
       hashtags: (hashtags || '').slice(0, 200),

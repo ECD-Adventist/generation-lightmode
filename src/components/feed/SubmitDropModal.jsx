@@ -13,6 +13,7 @@ import PhotoEditorModal from "@/components/feed/PhotoEditorModal";
 import { queueDropForSync } from "@/lib/offlineCache";
 import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
+import { getDisplayName } from "@/lib/displayName";
 
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
 
@@ -253,6 +254,10 @@ RULES:
         setUploadProgress(90);
       }
 
+      const authorUsername = user.username || user.email?.split("@")[0] || "Glow Believer";
+      const authorName = user.full_name || user.username || authorUsername;
+      const authorAvatar = user.profile_picture || user.profile_picture_url || null;
+
       // Optimistic update
       const tempDrop = {
         id: `temp-${Date.now()}`,
@@ -262,6 +267,9 @@ RULES:
         hashtags: formData.hashtags,
         media_url: uploadedMediaUrl,
         user_email: user.email,
+        author_name: authorName,
+        author_username: authorUsername,
+        author_avatar: authorAvatar,
         created_date: new Date().toISOString(),
         likes_count: 0,
         shares_count: 0,
@@ -290,6 +298,9 @@ RULES:
         // Fallback: create the drop directly so the post always saves.
         const newDrop = await base44.entities.GlowDrop.create({
           user_email: user.email,
+          author_name: authorName,
+          author_username: authorUsername,
+          author_avatar: authorAvatar,
           verse: formData.verse || "",
           reflection: formData.reflection || "",
           hashtags: formData.hashtags || "",
@@ -317,7 +328,7 @@ RULES:
           base44.entities.Notification.create({
             user_email: f.follower_email,
             type: "system",
-            message: `${user.full_name || "Someone you follow"} just posted a new Glow Drop!`,
+            message: `${getDisplayName(user)} just posted a new Glow Drop!`,
             link: `/Feed`
           }).catch(() => {});
         });
@@ -424,11 +435,11 @@ RULES:
                 <BottomSheetSelect
                   value={postAsLeaderId}
                   onChange={setPostAsLeaderId}
-                  placeholder={`Myself (${user?.full_name || user?.email})`}
+                  placeholder={`Myself (${getDisplayName(user)})`}
                   triggerClassName="w-full h-11 rounded-xl px-3 text-sm font-semibold focus:outline-none"
                   triggerStyle={{ background: "#FFFFFF", border: "1px solid #FFE4A0", color: "#0B1B3D" }}
                   options={[
-                    { value: "", label: `Myself (${user?.full_name || user?.email})` },
+                    { value: "", label: `Myself (${getDisplayName(user)})` },
                     ...leaderAccounts.map(account => ({
                       value: account.id,
                       label: `${account.leader_name}${account.leader_title ? ` — ${account.leader_title}` : ""}`

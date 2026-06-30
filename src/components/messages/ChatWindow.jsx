@@ -5,8 +5,8 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { format, isToday, isYesterday } from "date-fns";
-
-const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
+import { getDisplayName } from "@/lib/displayName";
+import UserAvatar from "@/components/common/UserAvatar";
 
 function parseDate(dateStr) {
   if (!dateStr) return null;
@@ -84,16 +84,16 @@ export default function ChatWindow({ conversation, currentUser, otherUser, messa
         )}
         <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(otherUser.email)}`} className="flex items-center gap-3 flex-1 min-w-0">
           <div className="relative w-10 h-10 shrink-0">
-            <img
-              src={otherUser.profile_picture_url || defaultAvatar}
-              alt={otherUser.full_name}
-              className="w-10 h-10 rounded-full object-cover"
+            <UserAvatar
+              user={otherUser}
+              alt={getDisplayName(otherUser)}
+              className="w-10 h-10"
               style={{ border: "1px solid #E6ECF5" }}
             />
           </div>
           <div className="min-w-0">
             <div className="font-semibold text-sm truncate" style={{ color: "#0B1B3D" }}>
-              {otherUser.full_name}
+              {getDisplayName(otherUser)}
             </div>
             <div className="text-xs truncate" style={{ color: "#6B7FA0" }}>
               View profile

@@ -6,8 +6,7 @@ import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import CountryFlag from "@/components/common/CountryFlag";
 import { getDisplayName } from "@/lib/displayName";
-
-const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
+import UserAvatar from "@/components/common/UserAvatar";
 
 export default function ProfileConnectionsModal({ title, items, allUsers, currentUserEmail, currentUserFollowing, onClose, onToggleFollow }) {
   const uniqueItems = React.useMemo(() => Array.from(new Map(items.filter(i => i.email).map(i => [i.email, i])).values()), [items]);
@@ -51,13 +50,13 @@ export default function ProfileConnectionsModal({ title, items, allUsers, curren
               return (
                 <div key={email} className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[#F0F4FA]">
                   <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(email)}`} onClick={onClose} className="flex items-center gap-3 min-w-0">
-                    <img src={person?.profile_picture_url || defaultAvatar} alt={getDisplayName(person || { email })} className="w-11 h-11 rounded-full object-cover border border-[#E6ECF5]" />
+                    <UserAvatar user={person || { email }} className="w-11 h-11 border border-[#E6ECF5] shrink-0" alt={getDisplayName(person || { email })} />
                     <div className="min-w-0">
                       <div className="font-bold text-sm text-[#0B1B3D] truncate flex items-center gap-1.5">
                         <span className="truncate">{getDisplayName(person || { email })}</span>
                         <CountryFlag country={person?.country} size="xs" />
                       </div>
-                      <div className="text-xs text-[#6B7FA0] truncate">{email}</div>
+                      <div className="text-xs text-[#6B7FA0] truncate">{person?.location || person?.country || "LightMode member"}</div>
                     </div>
                   </Link>
 

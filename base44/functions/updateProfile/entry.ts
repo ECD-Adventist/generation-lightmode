@@ -19,8 +19,9 @@ Deno.serve(async (req) => {
     };
 
     const display_name = has('display_name') ? clean(body.display_name) : null;
-    if (display_name !== null && !display_name) {
-      return Response.json({ error: 'Display name is required' }, { status: 400 });
+    const username = has('username') ? clean(body.username) : null;
+    if (display_name !== null && !display_name && !username) {
+      return Response.json({ error: 'Display name or username is required' }, { status: 400 });
     }
 
     let website_url = null;
@@ -39,12 +40,22 @@ Deno.serve(async (req) => {
     }
 
     const customUpdate = {};
+    if (username !== null) customUpdate.username = username.replace(/^@+/, '').slice(0, 40);
     if (display_name !== null) customUpdate.display_name = display_name.slice(0, 120);
     if (has('country')) customUpdate.country = clean(body.country) || '';
+    if (has('location')) customUpdate.location = clean(body.location) || '';
     if (has('bio')) customUpdate.bio = (clean(body.bio) || '').slice(0, 1200);
     if (website_url !== null) customUpdate.website_url = website_url;
-    if (has('profile_picture_url')) customUpdate.profile_picture_url = clean(body.profile_picture_url) || '';
-    if (has('cover_picture_url')) customUpdate.cover_picture_url = clean(body.cover_picture_url) || '';
+    if (has('profile_picture') || has('profile_picture_url')) {
+      const profilePicture = clean(body.profile_picture || body.profile_picture_url) || '';
+      customUpdate.profile_picture = profilePicture;
+      customUpdate.profile_picture_url = profilePicture;
+    }
+    if (has('cover_image') || has('cover_picture_url')) {
+      const coverImage = clean(body.cover_image || body.cover_picture_url) || '';
+      customUpdate.cover_image = coverImage;
+      customUpdate.cover_picture_url = coverImage;
+    }
     if (has('gender')) customUpdate.gender = clean(body.gender) || '';
     if (has('date_of_birth')) {
       const dateOfBirth = clean(body.date_of_birth) || '';

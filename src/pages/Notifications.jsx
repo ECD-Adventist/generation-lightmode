@@ -13,6 +13,7 @@ import usePullToRefresh from "@/hooks/usePullToRefresh";
 import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNotifications from "@/components/notifications/MobileNotifications";
+import UserAvatar from "@/components/common/UserAvatar";
 
 const typeIcon = {
   like: <Heart className="w-4 h-4" style={{ color: "#EF4444" }} />,
@@ -215,6 +216,7 @@ export default function Notifications() {
         followBackMutation={followBackMutation}
         user={user}
         getNotificationUserEmail={getNotificationUserEmail}
+        allUsers={allUsers}
         hasMore={hasMoreNotifications}
         onLoadMore={() => setVisibleCount(c => c + 20)}
       />
@@ -343,6 +345,7 @@ export default function Notifications() {
                 {filteredNotifications.map((n) => {
                   const category = getNotificationCategory(n.type);
                   const targetEmail = getNotificationUserEmail(n);
+                  const targetUser = allUsers.find(entry => entry.email === targetEmail);
                   return (
                     <div
                       key={n.id}
@@ -351,9 +354,13 @@ export default function Notifications() {
                         ? { background: "#FFFFFF", border: "1px solid #E6ECF5", opacity: 0.75 }
                         : { background: "#FFFFFF", border: "1px solid #D6E4FF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.06)" }}
                     >
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={typeBgStyle[n.type] || { background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
-                        {typeIcon[n.type] || <Bell className="w-4 h-4" style={{ color: "#8A97B5" }} />}
-                      </div>
+                      {targetUser ? (
+                        <UserAvatar user={targetUser} className="w-10 h-10 shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={typeBgStyle[n.type] || { background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                          {typeIcon[n.type] || <Bell className="w-4 h-4" style={{ color: "#8A97B5" }} />}
+                        </div>
+                      )}
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">

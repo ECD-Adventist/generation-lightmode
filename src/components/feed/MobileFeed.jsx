@@ -5,6 +5,8 @@ import { Bell, Plus, Sparkles, Flame, Zap } from "lucide-react";
 import MobileFeedDropList from "@/components/feed/MobileFeedDropList";
 import MobileDropCardSkeleton from "@/components/feed/MobileDropCardSkeleton";
 import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
+import UserAvatar from "@/components/common/UserAvatar";
+import { getDisplayName } from "@/lib/displayName";
 
 /**
  * Mobile-only Feed shell — LightMode branded (premium redesign).
@@ -44,7 +46,7 @@ export default function MobileFeed({
 }) {
   const filters = ["All", "Following", "Most Liked", "Devotional", "Testimony"];
   const greeting = new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening";
-  const firstName = (user?.display_name || user?.full_name || "Friend").split(" ")[0] || "Friend";
+  const firstName = getDisplayName(user).split(" ")[0] || "Friend";
 
   return (
     <div className="min-h-full font-['Inter']" style={{ background: "linear-gradient(180deg, #F6F8FC 0%, #EEF3FF 40%, #E2EBFF 100%)", color: "#0B1B3D" }}>
@@ -128,7 +130,7 @@ export default function MobileFeed({
           <button onClick={onOpenStatusComposer} className="flex flex-col items-center gap-1.5 shrink-0 active:scale-95 transition">
             <div className="relative w-[68px] h-[68px] rounded-full p-[2.5px]" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9, #FFD000)" }}>
               <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center" style={{ background: "#FFFFFF", border: "2.5px solid #FFFFFF" }}>
-                <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                <UserAvatar user={user} className="w-full h-full" />
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "#FFD000", border: "2.5px solid #F6F8FC", boxShadow: "0 2px 6px rgba(255, 159, 26, 0.5)" }}>
                 <Plus className="w-3.5 h-3.5" style={{ color: "#0B1B3D" }} strokeWidth={3} />
@@ -155,11 +157,11 @@ export default function MobileFeed({
                   </div>
                   {/* mini avatar badge for author */}
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full overflow-hidden" style={{ border: "2.5px solid #F6F8FC", background: "#FFFFFF" }}>
-                    <img src={storyUser?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" loading="lazy" />
+                    <UserAvatar user={storyUser} className="w-full h-full" />
                   </div>
                 </div>
                 <span className="text-[10px] font-bold truncate w-[68px] text-center" style={{ color: "#0B1B3D" }}>
-                  {storyUser?.email === user?.email ? "You" : (storyUser?.display_name || storyUser?.full_name || "User").split(" ")[0] || "User"}
+                  {storyUser?.email === user?.email ? "You" : getDisplayName(storyUser).split(" ")[0] || "User"}
                 </span>
               </button>
             );

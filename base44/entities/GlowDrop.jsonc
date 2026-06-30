@@ -4,7 +4,19 @@
   "properties": {
     "user_email": {
       "type": "string",
-      "description": "Email of the account that authored this drop. Used to resolve the author identity (e.g. system@lightmode.com for official posts)."
+      "description": "Email of the account that authored this drop."
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Snapshot display name captured when the drop was created."
+    },
+    "author_username": {
+      "type": "string",
+      "description": "Snapshot username/handle captured when the drop was created."
+    },
+    "author_avatar": {
+      "type": "string",
+      "description": "Snapshot profile picture URL captured when the drop was created."
     },
     "verse": {
       "type": "string"
@@ -30,26 +42,21 @@
     },
     "hidden": {
       "type": "boolean",
-      "default": false,
-      "description": "If true, the drop is hidden from public feeds but not deleted. Admins can unhide."
+      "default": false
     },
     "hidden_reason": {
-      "type": "string",
-      "description": "Reason recorded by admin when hiding a drop"
+      "type": "string"
     },
     "is_flagged": {
       "type": "boolean",
-      "default": false,
-      "description": "If true, the drop is flagged for moderation and hidden from public feeds. Only visible to admins until reviewed."
+      "default": false
     },
     "moderation_note": {
-      "type": "string",
-      "description": "Internal admin note about moderation decisions"
+      "type": "string"
     },
     "pinned": {
       "type": "boolean",
-      "default": false,
-      "description": "If true, this drop is pinned to the top of the public feed (for leader announcements). Only admins/super_admins can pin."
+      "default": false
     },
     "likes_count": {
       "type": "number",
@@ -57,18 +64,15 @@
     },
     "bonus_likes_count": {
       "type": "number",
-      "default": 0,
-      "description": "Temporary launch boost: number of automatic hourly bonus likes added to this drop. Stops at 24."
+      "default": 0
     },
     "bonus_likes_enabled": {
       "type": "boolean",
-      "default": false,
-      "description": "Temporary launch boost flag. New user-created drops can receive 1 automatic bonus like per hour until 24."
+      "default": false
     },
     "bonus_likes_last_applied_at": {
       "type": "string",
-      "format": "date-time",
-      "description": "When the last automatic bonus like was applied."
+      "format": "date-time"
     },
     "category": {
       "type": "string"

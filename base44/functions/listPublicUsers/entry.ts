@@ -25,17 +25,26 @@ function cleanString(value, max = 500) {
 // Public, PII-free user shape. Never includes email, gender, date_of_birth,
 // status, phone, address, or any other personal data.
 function publicUserShape(user) {
+  const profilePicture = user.profile_picture || user.profile_picture_url || '';
+  const coverImage = user.cover_image || user.cover_picture_url || '';
+  const xpPoints = user.xp_points ?? user.glow_score ?? 0;
   return {
     id: user.id,
     email: user.email || '',
+    username: user.username || '',
     display_name: user.display_name || '',
     full_name: user.full_name || '',
-    profile_picture_url: user.profile_picture_url || '',
-    cover_picture_url: user.cover_picture_url || '',
+    profile_picture: profilePicture,
+    profile_picture_url: profilePicture,
+    cover_image: coverImage,
+    cover_picture_url: coverImage,
+    location: user.location || user.city || user.country || '',
     country: user.country || '',
     city: user.city || '',
     bio: user.bio || '',
-    glow_score: user.glow_score || 0,
+    xp_points: xpPoints,
+    glow_score: xpPoints,
+    badge: user.badge || '',
     faith_streak_count: user.faith_streak_count || 0,
     created_date: user.created_date || null,
     territory_name: user.territory_name || '',

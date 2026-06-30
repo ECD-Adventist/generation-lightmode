@@ -5,6 +5,7 @@ import { Bell, Heart, MessageCircle, Zap, Info, CheckCheck, Trash2, Loader2, Use
 import { formatDistanceToNow } from "date-fns";
 import { notificationCategoryLabels, getNotificationCategory } from "@/lib/notifications";
 import MobilePageHeader from "@/components/mobile/MobilePageHeader";
+import UserAvatar from "@/components/common/UserAvatar";
 
 const typeIcon = {
   like: <Heart className="w-4 h-4" style={{ color: "#EF4444" }} />,
@@ -27,7 +28,7 @@ const typeBg = {
 export default function MobileNotifications({
   isLoading, filteredNotifications, unreadCount, activeCategory, setActiveCategory,
   categoryCounts, markReadMutation, markAllReadMutation, deleteMutation,
-  following, followBackMutation, user, getNotificationUserEmail,
+  following, followBackMutation, user, getNotificationUserEmail, allUsers = [],
   hasMore, onLoadMore
 }) {
   return (
@@ -78,6 +79,7 @@ export default function MobileNotifications({
           <div className="space-y-2">
             {filteredNotifications.map((n) => {
               const targetEmail = getNotificationUserEmail(n);
+              const targetUser = allUsers.find(entry => entry.email === targetEmail);
               const category = getNotificationCategory(n.type);
               const isFollowing = following.some((f) => f.following_email === targetEmail);
               return (
@@ -88,9 +90,13 @@ export default function MobileNotifications({
                     ? { background: "#FFFFFF", border: "1px solid #E6ECF5", opacity: 0.75 }
                     : { background: "#FFFFFF", border: "1px solid #D6E4FF", boxShadow: "0 2px 8px rgba(11,63,217,0.05)" }}
                 >
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={typeBg[n.type] || { background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
-                    {typeIcon[n.type] || <Bell className="w-4 h-4" style={{ color: "#8A97B5" }} />}
-                  </div>
+                  {targetUser ? (
+                    <UserAvatar user={targetUser} className="w-9 h-9 shrink-0" />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={typeBg[n.type] || { background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
+                      {typeIcon[n.type] || <Bell className="w-4 h-4" style={{ color: "#8A97B5" }} />}
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] leading-snug" style={n.read ? { color: "#6B7FA0" } : { color: "#0B1B3D", fontWeight: 500 }}>{n.message}</p>
                     <div className="flex items-center gap-2 mt-1.5 flex-wrap">

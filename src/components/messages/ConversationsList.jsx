@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { Search, Archive, MoreVertical, PenSquare, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-
-const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
+import { getDisplayName } from "@/lib/displayName";
+import UserAvatar from "@/components/common/UserAvatar";
 
 export default function ConversationsList({
   conversations,
@@ -22,7 +22,7 @@ export default function ConversationsList({
   const [newChatQuery, setNewChatQuery] = useState("");
 
   const getUser = (email) =>
-    allUsers.find((u) => u.email === email) || { full_name: email?.split("@")[0] || "User", email };
+    allUsers.find((u) => u.email === email) || { username: email?.split("@")[0] || "User", email };
 
   const existingEmails = useMemo(
     () =>
@@ -54,7 +54,7 @@ export default function ConversationsList({
       const q = searchQuery.toLowerCase();
       const matchesSearch =
         !q ||
-        otherUser.full_name.toLowerCase().includes(q) ||
+        getDisplayName(otherUser).toLowerCase().includes(q) ||
         (c.last_message || "").toLowerCase().includes(q);
       const isArchived = archivedIds.has(c.id);
       return matchesSearch && (showArchived ? isArchived : !isArchived);
@@ -68,7 +68,7 @@ export default function ConversationsList({
           (u) =>
             u.email !== currentUserEmail &&
             !existingEmails.has(u.email) &&
-            ((u.full_name || "").toLowerCase().includes(q) || (u.email || "").toLowerCase().includes(q))
+            ((getDisplayName(u) || "").toLowerCase().includes(q) || (u.username || "").toLowerCase().includes(q))
         )
       : allUsers.filter((u) => followingUsers.includes(u.email) && !existingEmails.has(u.email));
     return pool.slice(0, 20);
@@ -184,10 +184,10 @@ export default function ConversationsList({
                 }}
               >
                 <div className="relative w-11 h-11 flex-shrink-0">
-                  <img
-                    src={otherUser.profile_picture_url || defaultAvatar}
-                    alt={otherUser.full_name}
-                    className="w-11 h-11 rounded-full object-cover"
+                  <UserAvatar
+                    user={otherUser}
+                    alt={getDisplayName(otherUser)}
+                    className="w-11 h-11"
                     style={{ border: isSelected ? "2px solid #1FB8FF" : "1px solid #E6ECF5" }}
                   />
                   {/* Unread indicator — shown when this conversation has an unread last message not from me */}
@@ -199,7 +199,7 @@ export default function ConversationsList({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <div className="font-semibold truncate" style={{ color: "#0B1B3D" }}>
-                      {otherUser.full_name}
+                      {getDisplayName(otherUser)}
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       {lastAt && (
@@ -311,18 +311,18 @@ export default function ConversationsList({
                 onMouseOver={(e) => (e.currentTarget.style.background = "#F6F8FC")}
                 onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
               >
-                <img
-                  src={person.profile_picture_url || defaultAvatar}
-                  alt={person.full_name}
-                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                <UserAvatar
+                  user={person}
+                  alt={getDisplayName(person)}
+                  className="w-10 h-10 flex-shrink-0"
                   style={{ border: "1px solid #E6ECF5" }}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="font-medium truncate" style={{ color: "#0B1B3D" }}>
-                    {person.full_name}
+                    {getDisplayName(person)}
                   </div>
                   <div className="text-xs truncate" style={{ color: "#8A97B5" }}>
-                    {person.email}
+                    {person.location || person.country || "LightMode member"}
                   </div>
                 </div>
               </button>

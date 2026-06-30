@@ -106,8 +106,10 @@ export default function Profile() {
               country: me.country || "",
               bio: me.bio || "",
               website_url: me.website_url || "",
-              profile_picture_url: me.profile_picture_url || "",
-              cover_picture_url: me.cover_picture_url || "",
+              profile_picture: me.profile_picture || me.profile_picture_url || "",
+              profile_picture_url: me.profile_picture || me.profile_picture_url || "",
+              cover_image: me.cover_image || me.cover_picture_url || "",
+              cover_picture_url: me.cover_image || me.cover_picture_url || "",
               gender: me.gender || "",
               date_of_birth: me.date_of_birth || "",
               phone: me.phone || "",
@@ -142,8 +144,10 @@ export default function Profile() {
         country: currentUser.country || "",
         bio: currentUser.bio || "",
         website_url: currentUser.website_url || "",
-        profile_picture_url: currentUser.profile_picture_url || "",
-        cover_picture_url: currentUser.cover_picture_url || "",
+        profile_picture: currentUser.profile_picture || currentUser.profile_picture_url || "",
+        profile_picture_url: currentUser.profile_picture || currentUser.profile_picture_url || "",
+        cover_image: currentUser.cover_image || currentUser.cover_picture_url || "",
+        cover_picture_url: currentUser.cover_image || currentUser.cover_picture_url || "",
         gender: currentUser.gender || "",
         date_of_birth: currentUser.date_of_birth || "",
         phone: currentUser.phone || "",
@@ -165,8 +169,10 @@ export default function Profile() {
       setUser({
         email: leader.leader_email,
         full_name: leader.leader_name,
-        profile_picture_url: leader.leader_profile_picture_url,
-        cover_picture_url: leader.leader_cover_picture_url,
+        profile_picture: leader.leader_profile_picture_url,
+    profile_picture_url: leader.leader_profile_picture_url,
+        cover_image: leader.leader_cover_picture_url,
+    cover_picture_url: leader.leader_cover_picture_url,
         bio: leader.leader_bio,
         country: leader.leader_country,
         glow_score: 0,
@@ -211,7 +217,9 @@ export default function Profile() {
     ...user,
     email: activeLeaderAccount.leader_email,
     full_name: activeLeaderAccount.leader_name,
+    profile_picture: activeLeaderAccount.leader_profile_picture_url,
     profile_picture_url: activeLeaderAccount.leader_profile_picture_url,
+    cover_image: activeLeaderAccount.leader_cover_picture_url,
     cover_picture_url: activeLeaderAccount.leader_cover_picture_url,
     bio: activeLeaderAccount.leader_bio,
     country: activeLeaderAccount.leader_country,
@@ -546,8 +554,13 @@ export default function Profile() {
         toast.success(`Leader ${type} photo updated!`, { id: toastId });
       } else {
         const updates = {};
-        if (type === "profile") updates.profile_picture_url = res.file_url;
-        else updates.cover_picture_url = res.file_url;
+        if (type === "profile") {
+          updates.profile_picture = res.file_url;
+          updates.profile_picture_url = res.file_url;
+        } else {
+          updates.cover_image = res.file_url;
+          updates.cover_picture_url = res.file_url;
+        }
         await base44.auth.updateMe(updates);
         const updated = await base44.auth.me();
         setUser(updated);
@@ -944,7 +957,7 @@ export default function Profile() {
               {/* Inner cover content */}
               <div
                 className="w-full h-full rounded-[1.6rem] overflow-hidden relative z-10"
-                style={{ background: displayUser.cover_picture_url ? "transparent" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", ...(displayUser.cover_picture_url ? { backgroundImage: `url(${displayUser.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}) }}
+                style={{ background: (displayUser.cover_image || displayUser.cover_picture_url) ? "transparent" : "linear-gradient(135deg, #EEF3FF 0%, #DDE7FB 100%)", ...((displayUser.cover_image || displayUser.cover_picture_url) ? { backgroundImage: `url(${displayUser.cover_image || displayUser.cover_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}) }}
               >
                 {/* Sweeping Light */}
                 <div style={{
@@ -961,7 +974,7 @@ export default function Profile() {
                     </div>
                   </div>
                 )}
-                {!displayUser.cover_picture_url && (
+                {!(displayUser.cover_image || displayUser.cover_picture_url) && (
                   <div className="absolute inset-0 flex items-center justify-center" style={{ color: "#8A97B5" }}>
                     <div className="text-center">
                       <Camera className="w-10 h-10 mx-auto mb-2 opacity-40" />
@@ -981,7 +994,7 @@ export default function Profile() {
                 onClick={() => canEditAny && profileInputRef.current?.click()}
               >
                 <div className="w-full h-full rounded-full flex items-center justify-center overflow-hidden" style={{ background: "#FFFFFF", border: "4px solid #FFFFFF" }}>
-                  <img src={displayUser.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="Profile" className="w-full h-full object-cover" />
+                  <img src={displayUser.profile_picture || displayUser.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="Profile" className="w-full h-full object-cover" />
                   {canEditAny && (
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10" style={{ background: "rgba(11, 27, 61, 0.5)" }}>
                       <Camera className="w-6 h-6 text-white mb-1" />

@@ -97,12 +97,13 @@ export default function Post() {
         email: leader.leader_email,
         full_name: leader.leader_name,
         bio: leader.leader_bio,
+        profile_picture: leader.leader_profile_picture_url,
         profile_picture_url: leader.leader_profile_picture_url,
         country: leader.leader_country,
         is_managed_leader: true,
       };
     }
-    return { full_name: email?.split("@")[0] || "Glow Believer", email };
+    return { username: email?.split("@")[0] || "Glow Believer", email };
   };
 
   const likeMutation = useMutation({
@@ -152,14 +153,14 @@ export default function Post() {
         await base44.entities.Follow.delete(existing.id);
         return "unfollow";
       }
-      const followRec = await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: targetEmail });
-      dualWriteSupabase("follows", followRec);
       const targetUser = getUserInfo(targetEmail);
+      const followRec = await base44.entities.Follow.create({ follower_id: currentUser.id, following_id: targetUser?.id, follower_email: currentUser.email, following_email: targetEmail });
+      dualWriteSupabase("follows", followRec);
       if (isNotificationEnabled(targetUser, "follows")) {
         const notifRec = await base44.entities.Notification.create({
-          user_email: targetEmail,
+          user_id: targetUser.id,
           type: "follow",
-          message: `${currentUser.full_name || "Someone"} started following you.`,
+          message: `${currentUser.username || currentUser.full_name || "Someone"} started following you.`,
           link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`
         });
         dualWriteSupabase("notifications", notifRec);
