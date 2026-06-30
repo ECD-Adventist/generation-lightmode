@@ -220,7 +220,7 @@ export default function Profile() {
     pledge_signed: false,
   } : user) : null;
 
-  const { data: myDrops = [] } = useQuery({
+  const { data: myDrops = [], isLoading: isMyDropsLoading } = useQuery({
     queryKey: ["myGlowDropsProfile", profileEmail],
     queryFn: () => fetchAll(base44.entities.GlowDrop, { user_email: profileEmail }, '-created_date'),
     enabled: !!profileEmail,
@@ -234,7 +234,7 @@ export default function Profile() {
     enabled: !!profileEmail
   });
 
-  const { data: myFollowing = [] } = useQuery({
+  const { data: myFollowing = [], isLoading: isMyFollowingLoading } = useQuery({
     queryKey: ["myFollowing", displayUser?.id, profileEmail],
     queryFn: () => fetchAllFollowing(displayUser?.id, profileEmail),
     enabled: !!displayUser?.id || !!profileEmail,
@@ -242,7 +242,7 @@ export default function Profile() {
     refetchOnWindowFocus: true,
   });
 
-  const { data: myFollowers = [] } = useQuery({
+  const { data: myFollowers = [], isLoading: isMyFollowersLoading } = useQuery({
     queryKey: ["myFollowers", displayUser?.id, profileEmail],
     queryFn: () => fetchAllFollowers(displayUser?.id, profileEmail),
     enabled: !!displayUser?.id || !!profileEmail,
@@ -498,12 +498,16 @@ export default function Profile() {
   const nextLevelXp = 50 - ((user?.glow_score || 0) % 50);
   const glowRank = getGlowRank(user?.glow_score || 0);
 
+  const postsCountText = isMyDropsLoading ? "…" : myDrops.length;
+  const followersCountText = isMyFollowersLoading ? "…" : myFollowers.length;
+  const followingCountText = isMyFollowingLoading ? "…" : myFollowing.length;
+
   const recentActivity = useMemo(() => ([
-    { icon: "✨", label: "Glow Drops", value: `${myDrops.length} shared so far` },
+    { icon: "✨", label: "Glow Drops", value: isMyDropsLoading ? "Loading..." : `${myDrops.length} shared so far` },
     { icon: "🎯", label: "Challenges", value: `${challengeSubmissions.length} completed missions` },
     { icon: "👥", label: "Groups", value: `${myMemberships.length} group memberships` },
     { icon: "🏆", label: "Achievements", value: `${certificates.length} certificates unlocked` },
-  ]), [myDrops.length, challengeSubmissions.length, myMemberships.length, certificates.length]);
+  ]), [isMyDropsLoading, myDrops.length, challengeSubmissions.length, myMemberships.length, certificates.length]);
 
   const handleShareProfile = async () => {
     const shareUrl = window.location.href;
@@ -883,9 +887,9 @@ export default function Profile() {
           <LeaderProfileHeader
             leaderUser={displayUser}
             leaderTitle={leaderTitle}
-            postsCount={myDrops.length}
-            followersCount={myFollowers.length}
-            followingCount={isViewingLeader ? undefined : myFollowing.length}
+            postsCount={postsCountText}
+            followersCount={followersCountText}
+            followingCount={isViewingLeader ? undefined : followingCountText}
             isOwnProfile={isOwnProfile}
             canEditLeader={canEditLeader}
             canFollow={!isOwnProfile && !!currentUser}
@@ -1037,15 +1041,15 @@ export default function Profile() {
 
                 <div className="flex flex-wrap gap-6 justify-center md:justify-start mb-5">
                   <div className="text-center md:text-left">
-                    <span className="font-bold text-2xl" style={{ color: "#0B1B3D" }}>{myDrops.length}</span>
+                    <span className="font-bold text-2xl" style={{ color: "#0B1B3D" }}>{postsCountText}</span>
                     <span className="text-sm block md:inline ml-1" style={{ color: "#6B7FA0" }}>posts</span>
                   </div>
                   <button type="button" onClick={() => setConnectionsView("Followers")} className="text-center md:text-left transition hover:opacity-80">
-                    <span className="font-bold text-2xl" style={{ color: "#0B1B3D" }}>{myFollowers.length}</span>
+                    <span className="font-bold text-2xl" style={{ color: "#0B1B3D" }}>{followersCountText}</span>
                     <span className="text-sm block md:inline ml-1" style={{ color: "#6B7FA0" }}>followers</span>
                   </button>
                   <button type="button" onClick={() => setConnectionsView("Following")} className="text-center md:text-left transition hover:opacity-80">
-                    <span className="font-bold text-2xl" style={{ color: "#0B1B3D" }}>{myFollowing.length}</span>
+                    <span className="font-bold text-2xl" style={{ color: "#0B1B3D" }}>{followingCountText}</span>
                     <span className="text-sm block md:inline ml-1" style={{ color: "#6B7FA0" }}>following</span>
                   </button>
                 </div>
