@@ -127,7 +127,7 @@ export default function GroupChat() {
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ["allUsers"],
-    queryFn: async () => { const res = await base44.functions.invoke("listPublicUsers", {}); return res.data; },
+    queryFn: async () => { const res = await base44.functions.invoke("listPublicUsers", { limit: 2000 }); return res.data; },
   });
 
   const { data: events = [] } = useQuery({

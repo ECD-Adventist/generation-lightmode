@@ -32,7 +32,7 @@ export default function Messages() {
   const { data: allUsers = [] } = useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
+      const res = await base44.functions.invoke("listPublicUsers", { limit: 2000 });
       const data = res.data;
       if (Array.isArray(data)) return data;
       if (Array.isArray(data?.users)) return data.users;
@@ -116,7 +116,7 @@ export default function Messages() {
   const otherEmail = selectedConversation
     ? (selectedConversation.participant_a_email === user?.email ? selectedConversation.participant_b_email : selectedConversation.participant_a_email)
     : null;
-  const otherUser = allUsers.find(u => u.email === otherEmail) || null;
+  const otherUser = allUsers.find(u => u.email === otherEmail) || (otherEmail ? { username: otherEmail.split("@")[0], email: otherEmail } : null);
 
   const { data: messages = [] } = useQuery({
     queryKey: ["directMessages", selectedConversationId],

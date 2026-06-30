@@ -9,7 +9,7 @@ export default function LeaderboardTab({ user }) {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
-      const res = await base44.functions.invoke('listPublicUsers', {});
+      const res = await base44.functions.invoke('listPublicUsers', { limit: 2000 });
       return res.data;
     }
   });

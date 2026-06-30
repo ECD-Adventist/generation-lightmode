@@ -11,7 +11,7 @@ export default function TerritoryLeaderboard({ userTerritory = null }) {
   const { data: allUsers = [] } = useQuery({
     queryKey: ["leaderboardUsers"],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
+      const res = await base44.functions.invoke("listPublicUsers", { limit: 2000 });
       return res.data;
     },
     staleTime: 1000 * 60 * 5,

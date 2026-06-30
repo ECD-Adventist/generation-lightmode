@@ -16,7 +16,7 @@ export default function PrayerMatcher({ currentUser }) {
   const [initiatingDM, setInitiatingDM] = useState(false);
 
   const { data: matches = [], isLoading: matchesLoading } = useQuery({ queryKey: ["prayerMatches", currentUser?.email], queryFn: async () => { const res = await base44.functions.invoke("matchPrayerRequests", {}); return res.data.matches || []; }, enabled: !!currentUser, staleTime: 300000, refetchInterval: 60000 });
-  const { data: allUsers = [] } = useQuery({ queryKey: ["prayerMatchUsers"], queryFn: async () => { const res = await base44.functions.invoke("listPublicUsers", {}); return res.data; }, enabled: !!currentUser, staleTime: 300000 });
+  const { data: allUsers = [] } = useQuery({ queryKey: ["prayerMatchUsers"], queryFn: async () => { const res = await base44.functions.invoke("listPublicUsers", { limit: 2000 }); return res.data; }, enabled: !!currentUser, staleTime: 300000 });
   const { data: prayerSupports = [] } = useQuery({ queryKey: ["myPrayerSupports", currentUser?.email], queryFn: () => base44.entities.PrayerSupport.filter({ user_email: currentUser?.email }), enabled: !!currentUser });
 
   const supportMutation = useMutation({
