@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchAllFollowers, fetchAllFollowing } from "@/lib/follows";
 import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, SquarePlus, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera, X, Flame } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { formatDistanceToNow } from "date-fns";
@@ -217,9 +218,9 @@ export default function Feed() {
   });
 
   const { data: following = [] } = useQuery({
-    queryKey: ["following", user?.id],
-    queryFn: () => fetchAll(base44.entities.Follow, { follower_id: user.id }),
-    enabled: !!user?.id
+    queryKey: ["following", user?.id, user?.email],
+    queryFn: () => fetchAllFollowing(user?.id, user?.email),
+    enabled: !!user?.id || !!user?.email
   });
 
   // Deferred — stories are a secondary section above the feed.
@@ -240,7 +241,7 @@ export default function Feed() {
         await base44.entities.Follow.delete(followRecord.id);
         return true;
       } else {
-        const followRec = await base44.entities.Follow.create({ follower_id: user.id, following_id: targetUser.id });
+        const followRec = await base44.entities.Follow.create({ follower_id: user.id, following_id: targetUser.id, follower_email: user.email, following_email: targetEmail });
         dualWriteSupabase("follows", followRec);
         if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
           await base44.functions.invoke("createNotification", {
@@ -255,7 +256,7 @@ export default function Feed() {
       }
     },
     onSuccess: (wasFollowing) => {
-      queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["following", user?.id, user?.email] });
       if (!wasFollowing) {
         toast.success("Followed! +5 XP ⚡");
       }

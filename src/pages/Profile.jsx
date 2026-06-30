@@ -23,6 +23,7 @@ import PostViewerModal from "@/components/profile/PostViewerModal";
 import StoryAnalyticsDashboard from "@/components/profile/StoryAnalyticsDashboard";
 import AppFooter from "@/components/AppFooter";
 import { getDisplayName } from "@/lib/displayName";
+import { fetchAllFollowers, fetchAllFollowing } from "@/lib/follows";
 import MobileProfile from "@/components/profile/MobileProfile";
 import MobileInstitutionProfile from "@/components/institution/MobileInstitutionProfile";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -218,15 +219,15 @@ export default function Profile() {
   });
 
   const { data: myFollowing = [] } = useQuery({
-    queryKey: ["myFollowing", profileEmail],
-    queryFn: () => fetchAll(base44.entities.Follow, { follower_email: profileEmail }),
-    enabled: !!profileEmail
+    queryKey: ["myFollowing", displayUser?.id, profileEmail],
+    queryFn: () => fetchAllFollowing(displayUser?.id, profileEmail),
+    enabled: !!displayUser?.id || !!profileEmail
   });
 
   const { data: myFollowers = [] } = useQuery({
-    queryKey: ["myFollowers", profileEmail],
-    queryFn: () => fetchAll(base44.entities.Follow, { following_email: profileEmail }),
-    enabled: !!profileEmail
+    queryKey: ["myFollowers", displayUser?.id, profileEmail],
+    queryFn: () => fetchAllFollowers(displayUser?.id, profileEmail),
+    enabled: !!displayUser?.id || !!profileEmail
   });
 
   const { data: myMemberships = [] } = useQuery({
@@ -354,23 +355,31 @@ export default function Profile() {
   };
 
   const { data: currentUserFollowing = [] } = useQuery({
-    queryKey: ["currentUserFollowing", currentUser?.email],
-    queryFn: () => fetchAll(base44.entities.Follow, { follower_email: currentUser?.email }),
+    queryKey: ["currentUserFollowing", currentUser?.id, currentUser?.email],
+    queryFn: () => fetchAllFollowing(currentUser?.id, currentUser?.email),
     enabled: !!currentUser
   });
 
-  const isFollowingThisUser = currentUserFollowing.some(f => f.following_email === profileEmail);
+  const isFollowingThisUser = currentUserFollowing.some(f => f.following_email === profileEmail || (displayUser?.id && f.following_id === displayUser.id));
 
   const followMutation = useMutation({
     mutationFn: async (targetEmail) => {
-      const existingFollow = currentUserFollowing.find(f => f.following_email === targetEmail);
+      const targetUser = allUsersForProfile.find(u => u.email === targetEmail);
+      const targetUserId = targetUser?.id || (targetEmail === profileEmail ? displayUser?.id : null);
+      
+      const existingFollow = currentUserFollowing.find(f => f.following_email === targetEmail || (targetUserId && f.following_id === targetUserId));
       if (existingFollow) {
         await base44.entities.Follow.delete(existingFollow.id);
         return { targetEmail, action: "unfollow" };
       }
-      const followRec = await base44.entities.Follow.create({ follower_email: currentUser.email, following_email: targetEmail });
+      
+      const followRec = await base44.entities.Follow.create({ 
+        follower_id: currentUser.id, 
+        following_id: targetUserId,
+        follower_email: currentUser.email, 
+        following_email: targetEmail 
+      });
       dualWriteSupabase("follows", followRec);
-      const targetUser = allUsersForProfile.find(u => u.email === targetEmail);
       if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
         await base44.functions.invoke("createNotification", {
           user_id: targetUser.id,
@@ -720,7 +729,9 @@ export default function Profile() {
       <PledgeModal isOpen={viewPledgeOpen} onClose={() => setViewPledgeOpen(false)} readOnly signedAt={user?.pledge_signed_at} />
       <ProfileConnectionsModal
         title={connectionsView}
-        items={connectionsView === "Followers" ? myFollowers.map((item) => ({ email: item.follower_email })) : myFollowing.map((item) => ({ email: item.following_email }))}
+        items={connectionsView === "Followers" 
+          ? myFollowers.map((item) => ({ email: item.follower_email || allUsersForProfile.find(u => u.id === item.follower_id)?.email }))
+          : myFollowing.map((item) => ({ email: item.following_email || allUsersForProfile.find(u => u.id === item.following_id)?.email }))}
         allUsers={allUsersForProfile}
         currentUserEmail={currentUser?.email}
         currentUserFollowing={currentUserFollowing}
@@ -814,7 +825,9 @@ export default function Profile() {
       <PledgeModal isOpen={viewPledgeOpen} onClose={() => setViewPledgeOpen(false)} readOnly signedAt={user?.pledge_signed_at} />
       <ProfileConnectionsModal
         title={connectionsView}
-        items={connectionsView === "Followers" ? myFollowers.map((item) => ({ email: item.follower_email })) : myFollowing.map((item) => ({ email: item.following_email }))}
+        items={connectionsView === "Followers" 
+          ? myFollowers.map((item) => ({ email: item.follower_email || allUsersForProfile.find(u => u.id === item.follower_id)?.email }))
+          : myFollowing.map((item) => ({ email: item.following_email || allUsersForProfile.find(u => u.id === item.following_id)?.email }))}
         allUsers={allUsersForProfile}
         currentUserEmail={currentUser?.email}
         currentUserFollowing={currentUserFollowing}
