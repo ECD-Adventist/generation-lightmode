@@ -75,11 +75,31 @@ export default function Messages() {
     enabled: conversationPartnerEmails.length > 0,
   });
 
+  const { data: conversationLeaderAccounts = [] } = useQuery({
+    queryKey: ["messageConversationLeaders", conversationPartnerEmails.join("|")],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPublicLeaderAccounts", { emails: conversationPartnerEmails, limit: conversationPartnerEmails.length });
+      const data = res.data;
+      return Array.isArray(data) ? data : [];
+    },
+    enabled: conversationPartnerEmails.length > 0,
+  });
+
   const knownUsers = useMemo(() => {
+    const leaderUsers = conversationLeaderAccounts.map(leader => ({
+      email: leader.leader_email,
+      full_name: leader.leader_name,
+      username: leader.leader_name,
+      profile_picture_url: leader.leader_profile_picture_url,
+      profile_picture: leader.leader_profile_picture_url,
+      country: leader.leader_country,
+      bio: leader.leader_bio,
+      is_managed_leader: true,
+    }));
     const byEmail = new Map();
-    [...allUsers, ...conversationUsers].forEach(u => { if (u?.email) byEmail.set(u.email, u); });
+    [...allUsers, ...conversationUsers, ...leaderUsers].forEach(u => { if (u?.email) byEmail.set(u.email, u); });
     return Array.from(byEmail.values());
-  }, [allUsers, conversationUsers]);
+  }, [allUsers, conversationUsers, conversationLeaderAccounts]);
 
   // GlowGroup memberships for group chat
   const { data: myMemberships = [] } = useQuery({
@@ -144,6 +164,11 @@ export default function Messages() {
     ? (selectedConversation.participant_a_email === user?.email ? selectedConversation.participant_b_email : selectedConversation.participant_a_email)
     : null;
   const otherUser = knownUsers.find(u => u.email === otherEmail) || (otherEmail ? { email: otherEmail, full_name: otherEmail.split("@")[0] } : null);
+
+  useEffect(() => {
+    if (targetEmail || selectedConversationId || conversations.length === 0) return;
+    if (window.innerWidth >= 768) setSelectedConversationId(conversations[0].id);
+  }, [targetEmail, selectedConversationId, conversations]);
 
   const { data: messages = [] } = useQuery({
     queryKey: ["directMessages", selectedConversationId],
