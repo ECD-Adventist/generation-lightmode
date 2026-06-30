@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import CountryFlag from "@/components/common/CountryFlag";
 import { getDisplayName } from "@/lib/displayName";
@@ -8,6 +10,28 @@ import { getDisplayName } from "@/lib/displayName";
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
 export default function ProfileConnectionsModal({ title, items, allUsers, currentUserEmail, currentUserFollowing, onClose, onToggleFollow }) {
+  const uniqueEmails = useMemo(() => Array.from(new Set(items.map(i => i.email).filter(Boolean))), [items]);
+
+  const { data: fetchedUsers = [] } = useQuery({
+    queryKey: ["connectionProfiles", uniqueEmails],
+    queryFn: async () => {
+      const chunks = [];
+      for (let i = 0; i < uniqueEmails.length; i += 50) chunks.push(uniqueEmails.slice(i, i + 50));
+      const responses = await Promise.all(chunks.map(emails => base44.functions.invoke("listPublicUsers", { emails, limit: 50 })));
+      return responses.flatMap(res => Array.isArray(res.data) ? res.data : (res.data?.users || []));
+    },
+    enabled: !!title && uniqueEmails.length > 0,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const peopleByEmail = useMemo(() => {
+    const map = new Map();
+    [...(allUsers || []), ...fetchedUsers].forEach(person => {
+      if (person?.email) map.set(person.email, person);
+    });
+    return map;
+  }, [allUsers, fetchedUsers]);
+
   if (!title) return null;
 
   return (
@@ -24,8 +48,8 @@ export default function ProfileConnectionsModal({ title, items, allUsers, curren
           {items.length === 0 ? (
             <div className="px-5 py-10 text-center text-[#6B7FA0]">No {title.toLowerCase()} yet.</div>
           ) : (
-            Array.from(new Map(items.filter(i => i.email).map(i => [i.email, i])).values()).map(({ email }) => {
-              const person = allUsers.find((u) => u.email === email);
+            uniqueEmails.map((email) => {
+              const person = peopleByEmail.get(email);
               const isCurrentUser = email === currentUserEmail;
               const isFollowing = currentUserFollowing.some((f) => f.following_email === email);
 
