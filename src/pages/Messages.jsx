@@ -33,7 +33,11 @@ export default function Messages() {
     queryKey: ["allUsers"],
     queryFn: async () => {
       const res = await base44.functions.invoke("listPublicUsers", {});
-      return res.data;
+      const data = res.data;
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.users)) return data.users;
+      if (Array.isArray(data?.data)) return data.data;
+      return [];
     },
     enabled: !!user,
   });
