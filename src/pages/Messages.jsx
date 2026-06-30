@@ -42,6 +42,32 @@ export default function Messages() {
     enabled: !!user,
   });
 
+  const uniqueParticipantEmails = useMemo(() => {
+    const emails = new Set();
+    allConversations.forEach(c => {
+      if (c.participant_a_email && c.participant_a_email !== user?.email) emails.add(c.participant_a_email);
+      if (c.participant_b_email && c.participant_b_email !== user?.email) emails.add(c.participant_b_email);
+    });
+    return Array.from(emails);
+  }, [allConversations, user?.email]);
+
+  const { data: conversationUsers = [] } = useQuery({
+    queryKey: ["conversationUsers", uniqueParticipantEmails],
+    queryFn: async () => {
+      if (uniqueParticipantEmails.length === 0) return [];
+      const res = await base44.functions.invoke("listPublicUsers", { emails: uniqueParticipantEmails, limit: 200 });
+      return res.data || [];
+    },
+    enabled: uniqueParticipantEmails.length > 0,
+  });
+
+  const mergedUsers = useMemo(() => {
+    const map = new Map();
+    allUsers.forEach(u => map.set(u.email, u));
+    conversationUsers.forEach(u => map.set(u.email, u));
+    return Array.from(map.values());
+  }, [allUsers, conversationUsers]);
+
   const { data: following = [] } = useQuery({
     queryKey: ["following", user?.email],
     queryFn: () => base44.entities.Follow.filter({ follower_email: user?.email }),
@@ -116,7 +142,8 @@ export default function Messages() {
   const otherEmail = selectedConversation
     ? (selectedConversation.participant_a_email === user?.email ? selectedConversation.participant_b_email : selectedConversation.participant_a_email)
     : null;
-  const otherUser = allUsers.find(u => u.email === otherEmail) || null;
+  // Bug 1 & 4: Use mergedUsers to find the user, fallback to prevent ChatWindow from rejecting it
+  const otherUser = mergedUsers.find(u => u.email === otherEmail) || (otherEmail ? { email: otherEmail, full_name: "Unknown User", id: "" } : null);
 
   const { data: messages = [] } = useQuery({
     queryKey: ["directMessages", selectedConversationId],
@@ -152,8 +179,8 @@ export default function Messages() {
 
       const message = await base44.entities.DirectMessage.create({
         conversation_id: selectedConversation.id,
-        sender_email: user.email,
-        recipient_email: otherEmail,
+        sender_id: user.id,
+        recipient_id: otherUser.id,
         content: content?.trim() || `Shared a file`,
         file_url: file_url || undefined,
         status: "sent",
@@ -200,7 +227,7 @@ export default function Messages() {
   useEffect(() => {
     if (!user?.email) return;
     const unsubMsgs = base44.entities.DirectMessage.subscribe((event) => {
-      if (event.data?.recipient_email === user.email || event.data?.sender_email === user.email) {
+      if (event.data?.recipient_id === user.id || event.data?.sender_id === user.id) {
         queryClient.invalidateQueries({ queryKey: ["directMessages", selectedConversationId] });
         queryClient.invalidateQueries({ queryKey: ["directConversations", user.email] });
       }
@@ -212,12 +239,12 @@ export default function Messages() {
   }, [user?.email, selectedConversationId, queryClient]);
 
   useEffect(() => {
-    if (!user?.email || !selectedConversationId || messages.length === 0) return;
-    const unread = messages.filter(m => m.recipient_email === user.email && !m.read);
+    if (!user?.id || !selectedConversationId || messages.length === 0) return;
+    const unread = messages.filter(m => m.recipient_id === user.id && !m.read);
     if (unread.length > 0) {
       Promise.all(unread.map(m => base44.entities.DirectMessage.update(m.id, { read: true, status: "read" })));
     }
-  }, [messages, selectedConversationId, user?.email]);
+  }, [messages, selectedConversationId, user?.id]);
 
   useEffect(() => {
     if (!user?.email || !targetEmail) return;
@@ -259,7 +286,7 @@ export default function Messages() {
             conversations={conversations}
             selectedConversationId={selectedConversationId}
             currentUserEmail={user.email}
-            allUsers={allUsers}
+            allUsers={mergedUsers}
             followingUsers={following.map(f => f.following_email)}
             onSelectConversation={setSelectedConversationId}
             onStartConversation={(email) => ensureConversationMutation.mutate(email)}
@@ -363,7 +390,7 @@ export default function Messages() {
                 conversations={conversations}
                 selectedConversationId={selectedConversationId}
                 currentUserEmail={user.email}
-                allUsers={allUsers}
+                allUsers={mergedUsers}
                 followingUsers={following.map(f => f.following_email)}
                 onSelectConversation={setSelectedConversationId}
                 onStartConversation={(email) => ensureConversationMutation.mutate(email)}

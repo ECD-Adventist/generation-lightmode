@@ -3,6 +3,22 @@ import { Search, Archive, MoreVertical, PenSquare, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { getDisplayName } from "@/lib/displayName";
 import UserAvatar from "@/components/common/UserAvatar";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+
+function ConversationPreviewMessage({ conversationId, defaultMessage, isSelected }) {
+  const { data: messages } = useQuery({
+    queryKey: ["lastMessage", conversationId],
+    queryFn: () => base44.entities.DirectMessage.filter({ conversation_id: conversationId }, "-created_date", 1),
+  });
+  const text = messages?.[0]?.content || defaultMessage || "Start chatting";
+  const truncated = text.length > 40 ? text.substring(0, 40) + "..." : text;
+  return (
+    <div className="text-sm truncate mt-0.5" style={{ color: isSelected ? "#4A5878" : "#6B7FA0" }}>
+      {truncated}
+    </div>
+  );
+}
 
 export default function ConversationsList({
   conversations,
@@ -183,18 +199,13 @@ export default function ConversationsList({
                   if (!isSelected) e.currentTarget.style.background = "transparent";
                 }}
               >
-                <div className="relative w-11 h-11 flex-shrink-0">
+                <div className="relative flex-shrink-0">
                   <UserAvatar
                     user={otherUser}
                     alt={getDisplayName(otherUser)}
-                    className="w-11 h-11"
-                    style={{ border: isSelected ? "2px solid #1FB8FF" : "1px solid #E6ECF5" }}
+                    className="flex-shrink-0"
+                    style={{ width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", overflow: "hidden", border: isSelected ? "2px solid #1FB8FF" : "1px solid #E6ECF5" }}
                   />
-                  {/* Unread indicator — shown when this conversation has an unread last message not from me */}
-                  {!isSelected && conversation.last_message && conversation.participant_a_email !== currentUserEmail
-                    ? null
-                    : null
-                  }
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
@@ -209,9 +220,7 @@ export default function ConversationsList({
                       )}
                     </div>
                   </div>
-                  <div className="text-sm truncate mt-0.5" style={{ color: isSelected ? "#4A5878" : "#6B7FA0" }}>
-                    {conversation.last_message || "Start chatting"}
-                  </div>
+                  <ConversationPreviewMessage conversationId={conversation.id} defaultMessage={conversation.last_message} isSelected={isSelected} />
                 </div>
               </button>
 
@@ -314,8 +323,8 @@ export default function ConversationsList({
                 <UserAvatar
                   user={person}
                   alt={getDisplayName(person)}
-                  className="w-10 h-10 flex-shrink-0"
-                  style={{ border: "1px solid #E6ECF5" }}
+                  className="flex-shrink-0"
+                  style={{ width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", overflow: "hidden", border: "1px solid #E6ECF5" }}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="font-medium truncate" style={{ color: "#0B1B3D" }}>

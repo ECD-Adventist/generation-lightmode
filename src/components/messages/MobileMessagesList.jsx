@@ -5,6 +5,22 @@ import { Search, X, PenSquare, MessageCircle, Users, ArrowLeft, Crown, Sparkles,
 import { formatDistanceToNow } from "date-fns";
 import { getDisplayName } from "@/lib/displayName";
 import UserAvatar from "@/components/common/UserAvatar";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+
+function ConversationPreviewMessage({ conversationId, defaultMessage }) {
+  const { data: messages } = useQuery({
+    queryKey: ["lastMessage", conversationId],
+    queryFn: () => base44.entities.DirectMessage.filter({ conversation_id: conversationId }, "-created_date", 1),
+  });
+  const text = messages?.[0]?.content || defaultMessage || "Start chatting";
+  const truncated = text.length > 40 ? text.substring(0, 40) + "..." : text;
+  return (
+    <div className="text-[12px] truncate flex-1" style={{ color: "#6B7FA0" }}>
+      {truncated}
+    </div>
+  );
+}
 
 /**
  * Mobile-only Messages list — LightMode branded.
@@ -236,9 +252,9 @@ export default function MobileMessagesList({
                   className="w-full flex items-center gap-3 rounded-2xl p-3 text-left transition active:scale-[0.98]"
                   style={{ background: "#FFFFFF", border: isSelected ? "1px solid #1FB8FF" : "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}
                 >
-                  <div className="w-12 h-12 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
-                    <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "2px solid #FFFFFF" }}>
-                      <UserAvatar user={otherUser} className="w-full h-full" />
+                  <div className="w-10 h-10 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
+                    <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center" style={{ background: "#FFFFFF", border: "2px solid #FFFFFF" }}>
+                      <UserAvatar user={otherUser} className="flex-shrink-0" style={{ width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", overflow: "hidden" }} />
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -251,9 +267,7 @@ export default function MobileMessagesList({
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <div className="text-[12px] truncate flex-1" style={{ color: "#6B7FA0" }}>
-                        {conversation.last_message || "Start chatting"}
-                      </div>
+                      <ConversationPreviewMessage conversationId={conversation.id} defaultMessage={conversation.last_message} />
                       {hasUnread && (
                         <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#0B3FD9" }} />
                       )}
@@ -413,9 +427,9 @@ export default function MobileMessagesList({
                     className="w-full flex items-center gap-3 rounded-2xl p-3 text-left transition active:scale-[0.98]"
                     style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}
                   >
-                    <div className="w-11 h-11 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
-                      <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "2px solid #FFFFFF" }}>
-                        <UserAvatar user={person} className="w-full h-full" />
+                    <div className="w-10 h-10 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
+                      <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center" style={{ background: "#FFFFFF", border: "2px solid #FFFFFF" }}>
+                        <UserAvatar user={person} className="flex-shrink-0" style={{ width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", overflow: "hidden" }} />
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">

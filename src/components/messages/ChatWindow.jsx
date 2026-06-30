@@ -83,12 +83,12 @@ export default function ChatWindow({ conversation, currentUser, otherUser, messa
           </button>
         )}
         <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(otherUser.email)}`} className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="relative w-10 h-10 shrink-0">
+          <div className="relative shrink-0">
             <UserAvatar
               user={otherUser}
               alt={getDisplayName(otherUser)}
-              className="w-10 h-10"
-              style={{ border: "1px solid #E6ECF5" }}
+              className="flex-shrink-0"
+              style={{ width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover", overflow: "hidden", border: "1px solid #E6ECF5" }}
             />
           </div>
           <div className="min-w-0">
@@ -113,7 +113,7 @@ export default function ChatWindow({ conversation, currentUser, otherUser, messa
           </div>
         )}
         {messages.map((message) => {
-          const isMine = message.sender_email === currentUser?.email;
+          const isMine = message.sender_id === currentUser?.id;
           const msgDay = message.created_date ? formatDayDivider(message.created_date) : "";
           const showDayDivider = msgDay && msgDay !== lastDay;
           lastDay = msgDay;
