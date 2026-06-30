@@ -26,9 +26,48 @@ export default function KeepIt100() {
 
   const [codes, setCodes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [sloganCount, setSloganCount] = useState(0);
+  const [isCountLoading, setIsCountLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
+
+    // Fetch total count of all approved Keep It 100 slogans
+    const fetchTotalCount = async () => {
+      let total = 0;
+      let offset = 0;
+      const pageSize = 100;
+      let keepFetching = true;
+      
+      try {
+        while (keepFetching) {
+          const results = await base44.entities.GlowDrop.filter(
+            { category: "Keep It 100", status: "approved" },
+            null,
+            pageSize,
+            offset
+          );
+          
+          total += results.length;
+          
+          if (results.length < pageSize) {
+            keepFetching = false;
+          } else {
+            offset += pageSize;
+          }
+        }
+        if (isMounted) {
+          setSloganCount(total);
+          setIsCountLoading(false);
+        }
+      } catch (err) {
+        console.error("Failed to fetch slogan count", err);
+        if (isMounted) setIsCountLoading(false);
+      }
+    };
+
+    fetchTotalCount();
+
     setIsLoading(true);
     base44.entities.CodeOfTruth.filter({ source_document: "keeping_it_100", status: "approved" }, '-created_date', 1000)
       .then(res => {
@@ -68,6 +107,8 @@ export default function KeepIt100() {
         setActiveCategory={setActiveCategory}
         search={search}
         setSearch={setSearch}
+        sloganCount={sloganCount}
+        isCountLoading={isCountLoading}
       />
     );
   }
@@ -96,7 +137,7 @@ export default function KeepIt100() {
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 20px", textAlign: "center" }}>
               <div style={{ fontSize: 22, fontWeight: 900, color: "#FFD000", fontFamily: "Space Grotesk, sans-serif", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "26px" }}>
-                {isLoading ? <Loader2 className="animate-spin" size={20} /> : codes.length}
+                {isCountLoading ? <Loader2 className="animate-spin" size={20} /> : sloganCount}
               </div>
               <div style={{ fontSize: 11, color: "#8A9BB0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>Truth Slogans</div>
             </div>
