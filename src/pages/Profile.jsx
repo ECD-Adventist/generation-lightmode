@@ -66,7 +66,7 @@ export default function Profile() {
   const coverInputRef = useRef(null);
 
   const urlParams = new URLSearchParams(window.location.search);
-  const viewUserEmail = urlParams.get("user");
+  const viewUserEmail = urlParams.get("user")?.toLowerCase()?.trim() || null;
 
   const { data: allUsersForProfile = [] } = useQuery({
     queryKey: ["allUsersForProfile", viewUserEmail || "self"],
@@ -229,9 +229,23 @@ export default function Profile() {
   } : user) : null;
 
   const { data: myDrops = [], isLoading: isMyDropsLoading } = useQuery({
-    queryKey: ["myGlowDropsProfile", profileEmail],
-    queryFn: () => fetchAll(base44.entities.GlowDrop, { user_email: profileEmail }, '-created_date'),
-    enabled: !!profileEmail,
+    queryKey: ["myGlowDropsProfile", displayUser?.id, profileEmail],
+    queryFn: async () => {
+      if (!displayUser?.id && !profileEmail) return [];
+      
+      const emailDrops = profileEmail ? await fetchAll(base44.entities.GlowDrop, { user_email: profileEmail }, '-created_date') : [];
+      const idDrops = displayUser?.id ? await fetchAll(base44.entities.GlowDrop, { created_by_id: displayUser.id }, '-created_date') : [];
+      
+      const allDrops = [...emailDrops, ...idDrops];
+      const seen = new Set();
+      
+      return allDrops.filter(d => {
+        if (seen.has(d.id)) return false;
+        seen.add(d.id);
+        return true;
+      }).sort((a, b) => new Date(b.created_date || 0) - new Date(a.created_date || 0));
+    },
+    enabled: !!displayUser?.id || !!profileEmail,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
   });
