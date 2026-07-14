@@ -228,15 +228,27 @@ export default function Profile() {
     pledge_signed: false,
   } : user) : null;
 
+  // Is the displayed profile a leader account? (either switched into leader view,
+  // or viewing a profile that resolves to a managed leader)
+  const isLeaderAccountProfile = isViewingLeader || !!displayUser?.is_managed_leader;
+
   const { data: myDrops = [], isLoading: isMyDropsLoading } = useQuery({
-    queryKey: ["myGlowDropsProfile", displayUser?.id, profileEmail],
+    queryKey: ["myGlowDropsProfile", displayUser?.id, profileEmail, isLeaderAccountProfile],
     queryFn: async () => {
       if (!displayUser?.id && !profileEmail) return [];
-      
+
       const emailDrops = profileEmail ? await fetchAll(base44.entities.GlowDrop, { user_email: profileEmail }, '-created_date') : [];
-      const idDrops = displayUser?.id ? await fetchAll(base44.entities.GlowDrop, { created_by_id: displayUser.id }, '-created_date') : [];
-      
-      const allDrops = [...emailDrops, ...idDrops];
+      // Leader profiles: only posts published AS the leader (matched by leader email).
+      // Never mix in the manager's personal posts (which share created_by_id).
+      const idDrops = (!isLeaderAccountProfile && displayUser?.id)
+        ? await fetchAll(base44.entities.GlowDrop, { created_by_id: displayUser.id }, '-created_date')
+        : [];
+
+      // Personal profiles: exclude posts made on behalf of another account
+      // (e.g. leader posts created by this user as a manager).
+      const ownIdDrops = idDrops.filter(d => !d.user_email || d.user_email === profileEmail);
+
+      const allDrops = [...emailDrops, ...ownIdDrops];
       const seen = new Set();
       
       return allDrops.filter(d => {
