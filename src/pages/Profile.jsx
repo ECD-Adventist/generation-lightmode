@@ -168,6 +168,8 @@ export default function Profile() {
     if (leader) {
       setUser({
         email: leader.leader_email,
+        username: leader.leader_name,
+        display_name: leader.leader_name,
         full_name: leader.leader_name,
         profile_picture: leader.leader_profile_picture_url,
     profile_picture_url: leader.leader_profile_picture_url,
@@ -216,6 +218,8 @@ export default function Profile() {
   const displayUser = user ? (isViewingLeader ? {
     ...user,
     email: activeLeaderAccount.leader_email,
+    username: activeLeaderAccount.leader_name,
+    display_name: activeLeaderAccount.leader_name,
     full_name: activeLeaderAccount.leader_name,
     profile_picture: activeLeaderAccount.leader_profile_picture_url,
     profile_picture_url: activeLeaderAccount.leader_profile_picture_url,
