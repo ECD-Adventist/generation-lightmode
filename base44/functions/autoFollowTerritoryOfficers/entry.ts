@@ -21,7 +21,9 @@ const isOfficerAccount = (account) => {
 
 const territoryMatches = (account, userTerritories) => {
   const accountTerritories = splitTerritories(account.leader_country);
-  if (accountTerritories.length === 0 || userTerritories.length === 0) return false;
+  // Officers with no territory set are division-wide (e.g. ECD President) — match everyone.
+  if (accountTerritories.length === 0) return true;
+  if (userTerritories.length === 0) return false;
   return accountTerritories.some((territory) => userTerritories.includes(territory));
 };
 
@@ -59,7 +61,14 @@ Deno.serve(async (req) => {
 
     const followsToCreate = officers
       .filter((officer) => !alreadyFollowing.has(officer.leader_email))
-      .map((officer) => ({ follower_email: user.email, following_email: officer.leader_email }));
+      .map((officer) => ({
+        // Follow entity requires both IDs. Leaders have no User record, so we use
+        // the ManagedLeaderAccount record id as a stable synthetic following_id.
+        follower_id: user.id,
+        following_id: officer.id,
+        follower_email: user.email,
+        following_email: officer.leader_email
+      }));
 
     if (followsToCreate.length > 0) {
       // Create follows one-by-one with the service role; bulkCreate is rejected

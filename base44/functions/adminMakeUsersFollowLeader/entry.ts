@@ -41,17 +41,26 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Leader account not found' }, { status: 404 });
     }
 
+    // Leaders have no User record — use the ManagedLeaderAccount id as following_id
+    // (Follow entity requires both follower_id and following_id).
+    const leaderAccountId = leaderAccounts[0].id;
+
     const users = await base44.asServiceRole.entities.User.list('-created_date', 10000);
-    const activeUserEmails = users
-      .map(user => normalizeEmail(user.email))
-      .filter(email => email && email !== leaderEmail);
+    const activeUsers = users
+      .map(user => ({ id: user.id, email: normalizeEmail(user.email) }))
+      .filter(user => user.id && user.email && user.email !== leaderEmail);
 
     const existingFollows = await base44.asServiceRole.entities.Follow.filter({ following_email: leaderEmail }, '-created_date', 10000);
     const existingFollowerEmails = new Set(existingFollows.map(follow => normalizeEmail(follow.follower_email)));
 
-    const newFollows = activeUserEmails
-      .filter(email => !existingFollowerEmails.has(email))
-      .map(email => ({ follower_email: email, following_email: leaderEmail }));
+    const newFollows = activeUsers
+      .filter(user => !existingFollowerEmails.has(user.email))
+      .map(user => ({
+        follower_id: user.id,
+        following_id: leaderAccountId,
+        follower_email: user.email,
+        following_email: leaderEmail
+      }));
 
     if (!dryRun && newFollows.length > 0) {
       for (let i = 0; i < newFollows.length; i += 100) {
@@ -62,8 +71,8 @@ Deno.serve(async (req) => {
     return Response.json({
       leader_email: leaderEmail,
       dry_run: dryRun,
-      total_users_checked: activeUserEmails.length,
-      already_following: activeUserEmails.length - newFollows.length,
+      total_users_checked: activeUsers.length,
+      already_following: activeUsers.length - newFollows.length,
       created: dryRun ? 0 : newFollows.length,
       would_create: newFollows.length
     });
