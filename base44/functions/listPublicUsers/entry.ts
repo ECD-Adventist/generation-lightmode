@@ -77,7 +77,34 @@ Deno.serve(async (req) => {
       const batches = await Promise.all(
         requestedEmails.map((email) => base44.asServiceRole.entities.User.filter({ email }).catch(() => []))
       );
-      users = batches.flat().slice(0, limit);
+      users = batches.flat();
+
+      // Managed leader accounts have no User record — resolve any still-missing
+      // emails from ManagedLeaderAccount so their names and photos display.
+      const foundEmails = new Set(users.map((u) => String(u.email || '').toLowerCase()));
+      const missing = requestedEmails.filter((email) => !foundEmails.has(email));
+      if (missing.length > 0) {
+        const leaderAccounts = await base44.asServiceRole.entities.ManagedLeaderAccount.filter({ active: true }).catch(() => []);
+        const missingSet = new Set(missing);
+        leaderAccounts
+          .filter((a) => missingSet.has(String(a.leader_email || '').toLowerCase()))
+          .forEach((a) => {
+            users.push({
+              id: a.id,
+              email: String(a.leader_email || '').toLowerCase(),
+              full_name: a.leader_name || '',
+              display_name: a.leader_name || '',
+              profile_picture: a.leader_profile_picture_url || '',
+              profile_picture_url: a.leader_profile_picture_url || '',
+              cover_image: a.leader_cover_picture_url || '',
+              country: a.leader_country || '',
+              bio: a.leader_bio || '',
+              badge: a.leader_title || '',
+            });
+          });
+      }
+
+      users = users.slice(0, limit);
       totalUsers = users.length;
     } else if (search.length >= 2) {
       const candidates = await base44.asServiceRole.entities.User.list('-created_date', 5000);
