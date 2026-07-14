@@ -8,7 +8,7 @@ const ENTITY_NAMES = [
   "GroupStudyPlan", "UserStudyProgress", "Certificate", "Badge", "CodeOfTruth", "CodeEngagement", "DailyCode", "DevotionEntry", "DirectConversation",
   "DirectMessage", "LiveSession", "LiveSignal", "LiveComment", "LiveReaction", "Institution", "InstitutionPage", "InstitutionApplication", "ComplianceAudit",
   "TerritoryMemberClaim", "TerritoryPhoto", "TerritoryPhotoReaction", "TerritoryLeaderboard", "TerritoryAlert", "CountryStats", "AdminLog", "AdminPermission",
-  "AssistantKnowledge", "CommunityMoment", "ScheduledPost", "Kit100Settings", "LeaderboardSeason", "ManagedLeaderAccount", "BlockedUser", "PerformanceReport"
+  "AssistantKnowledge", "CommunityMoment", "ScheduledPost", "Kit100Settings", "LeaderboardSeason", "ManagedLeaderAccount", "BlockedUser", "PerformanceReport", "UserMilestone"
 ];
 
 const toSnakeCase = (value) => value
