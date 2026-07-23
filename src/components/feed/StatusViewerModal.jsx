@@ -6,6 +6,7 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import StoryReactionBar from "./StoryReactionBar";
+import { getDisplayName } from "@/lib/displayName";
 
 const themeClasses = {
   ocean: "from-[#00CFFF] to-[#1DA1FF]",
@@ -272,7 +273,7 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
               </div>
             </div>
             <div>
-              <span className="text-white font-bold text-sm block leading-tight">{currentStoryUser?.full_name || "User"}</span>
+              <span className="text-white font-bold text-sm block leading-tight">{getDisplayName(currentStoryUser)}</span>
               <span className="text-white/60 text-[10px] leading-tight">
                 {postedDate ? formatDistanceToNow(postedDate, { addSuffix: true }) : ""}
               </span>
