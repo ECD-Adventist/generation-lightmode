@@ -452,6 +452,7 @@ export default function Profile() {
         await base44.functions.invoke("createNotification", {
           user_id: targetUser.id,
           type: "follow",
+          reference_id: `follow_${currentUser.id}`,
           message: `${currentUser.full_name || "Someone"} started following you.`,
           link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`
         });

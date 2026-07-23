@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createNotificationIdempotent } from '../../shared/notifications.ts';
 
 // Send an admin notification (and optional email) to a specific user
 Deno.serve(async (req) => {
@@ -20,12 +21,13 @@ Deno.serve(async (req) => {
     const target = await base44.asServiceRole.entities.User.get(targetUserId).catch(() => null);
     if (!target) return Response.json({ error: 'User not found' }, { status: 404 });
 
-    await base44.asServiceRole.entities.Notification.create({
+    // Idempotent: dedup on admin + target + message hash
+    await createNotificationIdempotent(base44, {
       user_id: target.id,
       actor_user_id: caller.id,
       type: 'system',
+      reference_id: `admin_${target.id}_${String(message).slice(0, 50)}`,
       message: message.slice(0, 500),
-      read: false,
     });
 
     let emailSent = false;

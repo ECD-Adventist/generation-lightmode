@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createNotificationIdempotent } from '../../shared/notifications.ts';
 
 async function sendInboxMessage(base44, senderEmail, recipientEmail, content) {
   if (senderEmail === recipientEmail) return;
@@ -83,15 +84,22 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 1. Notification (bell)
-    await base44.asServiceRole.entities.Notification.create({
-      user_email: request.user_email,
-      type: 'system',
-      message: action === 'approve'
-        ? `Your request to join "${group.name}" was approved! ⚡`
-        : `Your request to join "${group.name}" was declined.`,
-      link: action === 'approve' ? `/GroupChat?id=${group.id}` : `/GlowGroups`,
-    });
+    // Resolve recipient user_id from email
+    const recipientUsers = await base44.asServiceRole.entities.User.filter({ email: request.user_email });
+    const recipientId = recipientUsers[0]?.id;
+
+    // 1. Notification (bell) — idempotent: dedup on join request id
+    if (recipientId) {
+      await createNotificationIdempotent(base44, {
+        user_id: recipientId,
+        type: 'system',
+        reference_id: `join_request_${request_id}`,
+        message: action === 'approve'
+          ? `Your request to join "${group.name}" was approved! ⚡`
+          : `Your request to join "${group.name}" was declined.`,
+        link: action === 'approve' ? `/GroupChat?id=${group.id}` : `/GlowGroups`,
+      }).catch(() => {});
+    }
 
     // 2. Inbox message from the leader
     const inboxContent = action === 'approve'

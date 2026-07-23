@@ -197,6 +197,7 @@ export default function Messages() {
         base44.functions.invoke("createNotification", {
           user_id: otherUser.id,
           type: "message",
+          reference_id: `dm_${message.id}`,
           message: `${getDisplayName(user)} sent you a message: "${(content?.trim() || 'shared a file').slice(0, 60)}${(content?.trim() || 'shared a file').length > 60 ? '...' : ''}"`,
           link: `/Messages?user=${encodeURIComponent(user.email)}`,
         }).catch(() => {});

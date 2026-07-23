@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createNotificationIdempotent } from '../../shared/notifications.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -42,7 +43,6 @@ Deno.serve(async (req) => {
     const displayName = newUser?.full_name || user_email.split("@")[0];
 
     let notified = 0;
-    const notifications = [];
 
     for (const admin of admins) {
       let shouldNotify = false;
@@ -69,18 +69,15 @@ Deno.serve(async (req) => {
         message = `Member "${displayName}" updated their location to ${[safeCity, safeCountry].filter(Boolean).join(", ")}.`;
       }
 
-      notifications.push({
-        user_email: admin.email,
+      // Idempotent: dedup on event_type + caller email (one notification per admin per event)
+      await createNotificationIdempotent(base44, {
+        user_id: admin.id,
         type: "system",
+        reference_id: `territory_${event_type}_${user_email}`,
         message,
-        read: false,
         link: `/AdminCenter?tab=users`,
-      });
+      }).catch(() => {});
       notified++;
-    }
-
-    if (notifications.length > 0) {
-      await Promise.all(notifications.map(n => base44.asServiceRole.entities.Notification.create(n)));
     }
 
     return Response.json({ success: true, notified });

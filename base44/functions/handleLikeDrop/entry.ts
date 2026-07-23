@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createNotificationIdempotent } from '../../shared/notifications.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -52,17 +53,17 @@ Deno.serve(async (req) => {
         await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
       }
 
-      // Notify real drop author using user_id only — no email stored on Notification
+      // Notify real drop author — idempotent (deduped on drop_id)
       if (authorEmail && authorEmail !== user.email) {
         const author = (await base44.asServiceRole.entities.User.filter({ email: authorEmail }))[0];
         if (author?.id) {
-          base44.asServiceRole.entities.Notification.create({
+          createNotificationIdempotent(base44, {
             user_id: author.id,
             actor_user_id: user.id,
             type: 'like',
+            reference_id: `like_${drop_id}`,
             message: `${user.full_name || 'Someone'} liked your Glow Drop.`,
             link: `/Post?id=${encodeURIComponent(drop_id)}&user=${encodeURIComponent(authorEmail)}`,
-            read: false,
           }).catch(() => {});
         }
       }

@@ -1,14 +1,13 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createNotificationIdempotent } from '../../shared/notifications.ts';
 
 async function sendInboxMessage(base44, senderEmail, recipientEmail, content) {
-  console.log('sendInboxMessage called:', { senderEmail, recipientEmail });
-  if (senderEmail === recipientEmail) { console.log('Skipped: same sender/recipient'); return; }
+  if (senderEmail === recipientEmail) return;
   const [a, b] = [senderEmail, recipientEmail].sort();
   let convs = await base44.asServiceRole.entities.DirectConversation.filter({
     participant_a_email: a,
     participant_b_email: b,
   });
-  console.log('Found convs:', convs.length);
   let conv = convs[0];
   if (!conv) {
     conv = await base44.asServiceRole.entities.DirectConversation.create({
@@ -17,15 +16,13 @@ async function sendInboxMessage(base44, senderEmail, recipientEmail, content) {
       last_message_at: new Date().toISOString(),
       last_message: content,
     });
-    console.log('Created conv id:', conv?.id);
   } else {
     await base44.asServiceRole.entities.DirectConversation.update(conv.id, {
       last_message_at: new Date().toISOString(),
       last_message: content,
     });
-    console.log('Updated conv id:', conv.id);
   }
-  const msg = await base44.asServiceRole.entities.DirectMessage.create({
+  await base44.asServiceRole.entities.DirectMessage.create({
     conversation_id: conv.id,
     sender_email: senderEmail,
     recipient_email: recipientEmail,
@@ -33,7 +30,6 @@ async function sendInboxMessage(base44, senderEmail, recipientEmail, content) {
     status: 'delivered',
     read: false,
   });
-  console.log('Created message id:', msg?.id);
 }
 
 Deno.serve(async (req) => {
@@ -79,13 +75,14 @@ Deno.serve(async (req) => {
     for (const email of validMentions) {
       const recipientId = userIdByEmail.get(email);
       if (recipientId) {
-        await base44.asServiceRole.entities.Notification.create({
+        // Idempotent: dedup on group + recipient
+        createNotificationIdempotent(base44, {
           user_id: recipientId,
           actor_user_id: user.id,
           type: 'message',
+          reference_id: `mention_${group_id}_${recipientId}`,
           message: `${actualSenderName} mentioned you in "${group.name}": "${preview}${preview.length >= 120 ? '...' : ''}"`,
           link: `/GroupChat?id=${group_id}`,
-          read: false,
         }).catch(() => {});
       }
 
