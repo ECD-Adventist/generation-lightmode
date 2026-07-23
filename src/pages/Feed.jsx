@@ -243,7 +243,7 @@ export default function Feed() {
         await base44.entities.Follow.delete(followRecord.id);
         return true;
       } else {
-        const followRec = await base44.entities.Follow.create({ follower_id: user.id, following_id: targetUser.id, follower_email: user.email, following_email: targetEmail });
+        const followRec = await base44.entities.Follow.create({ follower_id: user.id, following_id: targetUser.id });
         dualWriteSupabase("follows", followRec);
         if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
           await base44.functions.invoke("createNotification", {
@@ -351,8 +351,8 @@ export default function Feed() {
       }
     });
     const unsubDMs = base44.entities.DirectMessage.subscribe((event) => {
-      if (event.type === 'create' && event.data.recipient_email === user.email) {
-        const senderName = getDisplayName(users.find(u => u.email === event.data.sender_email) || { email: event.data.sender_email });
+      if (event.type === 'create' && event.data.recipient_id === user.id) {
+        const senderName = getDisplayName(users.find(u => u.id === event.data.sender_id) || {});
         toast(`New message from ${senderName}`, { icon: '💬' });
       }
     });
@@ -399,6 +399,7 @@ export default function Feed() {
     const leader = leaderAccounts.find(a => a.leader_email === email);
     if (leader) {
       return {
+        id: leader.id,
         email: leader.leader_email,
         full_name: leader.leader_name,
         bio: leader.leader_bio,
@@ -424,10 +425,20 @@ export default function Feed() {
     return Array.from(latestByUser.values());
   }, [stories]);
 
+  // Follow records store user IDs only (no emails). Resolve emails client-side
+  // for components that match follows by email.
+  const followingWithEmails = useMemo(() => {
+    const emailById = new Map();
+    users.forEach(u => { if (u.id) emailById.set(u.id, u.email); });
+    suggestedUsers.forEach(u => { if (u.id) emailById.set(u.id, u.email); });
+    leaderAccounts.forEach(a => { if (a.id) emailById.set(a.id, a.leader_email); });
+    return following.map(f => f.following_email ? f : { ...f, following_email: emailById.get(f.following_id) });
+  }, [following, users, suggestedUsers, leaderAccounts]);
+
   const followingTargets = useMemo(() => ({
-    ids: new Set(following.map(f => f.following_id).filter(Boolean)),
-    emails: new Set(following.map(f => f.following_email).filter(Boolean)),
-  }), [following]);
+    ids: new Set(followingWithEmails.map(f => f.following_id).filter(Boolean)),
+    emails: new Set(followingWithEmails.map(f => f.following_email).filter(Boolean)),
+  }), [followingWithEmails]);
 
   // When the user is searching, merge in any drops fetched from global user search
   // (de-duplicated by id). This lets searches find creators whose posts aren't
@@ -566,7 +577,7 @@ export default function Feed() {
           isError={dropsError}
           onRefetch={() => refetchDrops()}
           leaderAccounts={leaderAccounts}
-          following={following}
+          following={followingWithEmails}
           followMutation={followMutation}
           hasMore={displayCount < filteredDrops.length || hasNextPage}
           isLoadingMore={isFetchingNextPage}
@@ -894,7 +905,7 @@ export default function Feed() {
                   allUsers={usersWithSearch}
                   savedDropRecords={savedDropRecords}
                   leaderAccounts={leaderAccounts}
-                  following={following}
+                  following={followingWithEmails}
                   followMutation={followMutation}
                   hasMore={displayCount < filteredDrops.length || hasNextPage}
                   isLoadingMore={isFetchingNextPage}
@@ -917,7 +928,7 @@ export default function Feed() {
           <AIContentSuggestions
             user={user}
             drops={drops}
-            following={following}
+            following={followingWithEmails}
             userLikes={userLikes}
             savedDropRecords={savedDropRecords}
             onSearchTag={(topic) => { setSearchQuery(topic); setActiveFilter("All"); }}

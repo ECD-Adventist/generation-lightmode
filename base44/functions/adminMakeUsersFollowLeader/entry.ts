@@ -50,16 +50,14 @@ Deno.serve(async (req) => {
       .map(user => ({ id: user.id, email: normalizeEmail(user.email) }))
       .filter(user => user.id && user.email && user.email !== leaderEmail);
 
-    const existingFollows = await base44.asServiceRole.entities.Follow.filter({ following_email: leaderEmail }, '-created_date', 10000);
-    const existingFollowerEmails = new Set(existingFollows.map(follow => normalizeEmail(follow.follower_email)));
+    const existingFollows = await base44.asServiceRole.entities.Follow.filter({ following_id: leaderAccountId }, '-created_date', 10000);
+    const existingFollowerIds = new Set(existingFollows.map(follow => follow.follower_id));
 
     const newFollows = activeUsers
-      .filter(user => !existingFollowerEmails.has(user.email))
+      .filter(user => !existingFollowerIds.has(user.id))
       .map(user => ({
         follower_id: user.id,
-        following_id: leaderAccountId,
-        follower_email: user.email,
-        following_email: leaderEmail
+        following_id: leaderAccountId
       }));
 
     if (!dryRun && newFollows.length > 0) {

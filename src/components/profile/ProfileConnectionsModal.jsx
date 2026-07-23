@@ -45,7 +45,7 @@ export default function ProfileConnectionsModal({ title, items, allUsers, curren
             uniqueItems.map(({ email }) => {
               const person = peopleByEmail.get(email);
               const isCurrentUser = email === currentUserEmail;
-              const isFollowing = currentUserFollowing.some((f) => f.following_email === email);
+              const isFollowing = currentUserFollowing.some((f) => f.following_email === email || (person?.id && f.following_id === person.id));
 
               return (
                 <div key={email} className="flex items-center justify-between gap-3 px-5 py-4 border-b border-[#F0F4FA]">

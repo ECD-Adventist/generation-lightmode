@@ -112,11 +112,19 @@ export default function GlowGroups() {
     queryFn: () => base44.entities.GlowDrop.list('-created_date', 50),
   });
 
-  const { data: following = [] } = useQuery({
-    queryKey: ["following", user?.email],
-    queryFn: () => base44.entities.Follow.filter({ follower_email: user?.email }),
-    enabled: !!user
+  const { data: followingRaw = [] } = useQuery({
+    queryKey: ["following", user?.id],
+    queryFn: () => base44.entities.Follow.filter({ follower_id: user?.id }),
+    enabled: !!user?.id
   });
+
+  // Follow records store user IDs only — resolve emails from the users list
+  // (leader ids are prefixed with "leader_" in that list).
+  const following = useMemo(() => {
+    const emailById = new Map();
+    users.forEach(u => { if (u.id) emailById.set(String(u.id).replace(/^leader_/, ""), u.email); });
+    return followingRaw.map(f => f.following_email ? f : { ...f, following_email: emailById.get(f.following_id) });
+  }, [followingRaw, users]);
 
   const { data: realGroups = [] } = useQuery({
     queryKey: ["allGroups"],
@@ -144,11 +152,11 @@ export default function GlowGroups() {
         await base44.entities.Follow.delete(rec.id);
       } else {
         const targetUser = users.find(u => u.email === targetEmail);
+        const followingId = targetUser?.id ? String(targetUser.id).replace(/^leader_/, "") : null;
+        if (!followingId) { toast.error("Could not find that member."); throw new Error("Missing target user id"); }
         const followRec = await base44.entities.Follow.create({
           follower_id: user.id,
-          following_id: targetUser?.id?.replace(/^leader_/, ""),
-          follower_email: user.email,
-          following_email: targetEmail
+          following_id: followingId
         });
         dualWriteSupabase("follows", followRec);
         if (isNotificationEnabled(targetUser, "follows")) {
@@ -165,7 +173,7 @@ export default function GlowGroups() {
       return isFollowing;
     },
     onSuccess: (wasFollowing) => {
-      queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["following", user?.id] });
       if (!wasFollowing) toast.success("Connected! +5 XP ⚡");
     }
   });
@@ -266,7 +274,7 @@ export default function GlowGroups() {
             await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
             await queryClient.invalidateQueries({ queryKey: ["myMemberships", user?.email] });
             await queryClient.invalidateQueries({ queryKey: ["myJoinRequests", user?.email] });
-            await queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
+            await queryClient.invalidateQueries({ queryKey: ["following", user?.id] });
           }}
           onPeopleSearchChange={setMobilePeopleSearch}
         />

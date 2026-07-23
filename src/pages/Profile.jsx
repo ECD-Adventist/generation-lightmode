@@ -167,6 +167,7 @@ export default function Profile() {
     const leader = publicLeaderAccounts.find(a => a.leader_email === viewUserEmail);
     if (leader) {
       setUser({
+        id: leader.id,
         email: leader.leader_email,
         username: leader.leader_name,
         display_name: leader.leader_name,
@@ -418,20 +419,27 @@ export default function Profile() {
     enabled: !!currentUser
   });
 
-  const isFollowingThisUser = currentUserFollowing.some(f => f.following_email === profileEmail || (displayUser?.id && f.following_id === displayUser.id));
+  // Follow records store user IDs only — resolve emails for components that match by email.
+  const currentUserFollowingEnriched = useMemo(() => {
+    const emailById = new Map();
+    allUsersForProfile.forEach(u => { if (u.id) emailById.set(u.id, u.email); });
+    [...publicLeaderAccounts, ...managedLeaderAccounts].forEach(a => { if (a.id) emailById.set(a.id, a.leader_email); });
+    return currentUserFollowing.map(f => f.following_email ? f : { ...f, following_email: emailById.get(f.following_id) });
+  }, [currentUserFollowing, allUsersForProfile, publicLeaderAccounts, managedLeaderAccounts]);
+
+  const isFollowingThisUser = currentUserFollowingEnriched.some(f => f.following_email === profileEmail || (displayUser?.id && f.following_id === displayUser.id));
 
   const followMutation = useMutation({
     mutationFn: async (input) => {
       const targetEmail = typeof input === "string" ? input : input.targetEmail;
       const shouldFollow = typeof input === "object" ? input.shouldFollow : undefined;
       const targetUser = allUsersForProfile.find(u => u.email === targetEmail);
-      const targetUserId = targetUser?.id || (targetEmail === profileEmail ? displayUser?.id : null);
-      
-      const existingByEmail = await base44.entities.Follow.filter({ follower_email: currentUser.email, following_email: targetEmail });
-      const existingById = targetUserId
-        ? await base44.entities.Follow.filter({ follower_id: currentUser.id, following_id: targetUserId })
-        : [];
-      const existingFollows = [...existingByEmail, ...existingById].filter((item, index, arr) => arr.findIndex(f => f.id === item.id) === index);
+      const targetUserId = targetUser?.id
+        || (targetEmail === profileEmail ? displayUser?.id : null)
+        || [...publicLeaderAccounts, ...managedLeaderAccounts].find(a => a.leader_email === targetEmail)?.id;
+      if (!targetUserId) throw new Error("Could not find that member.");
+
+      const existingFollows = await base44.entities.Follow.filter({ follower_id: currentUser.id, following_id: targetUserId });
       if (existingFollows.length > 0) {
         if (shouldFollow === true) {
           await Promise.all(existingFollows.slice(1).map(f => base44.entities.Follow.delete(f.id)));
@@ -443,9 +451,7 @@ export default function Profile() {
       
       const followRec = await base44.entities.Follow.create({ 
         follower_id: currentUser.id, 
-        following_id: targetUserId,
-        follower_email: currentUser.email, 
-        following_email: targetEmail 
+        following_id: targetUserId
       });
       dualWriteSupabase("follows", followRec);
       if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
@@ -799,7 +805,7 @@ export default function Profile() {
           : myFollowing.map((item) => ({ email: item.following_email || allUsersForProfile.find(u => u.id === item.following_id)?.email }))}
         allUsers={allUsersForProfile}
         currentUserEmail={currentUser?.email}
-        currentUserFollowing={currentUserFollowing}
+        currentUserFollowing={currentUserFollowingEnriched}
         onClose={() => setConnectionsView(null)}
         onToggleFollow={(email) => followMutation.mutate(email)}
       />
@@ -831,7 +837,7 @@ export default function Profile() {
         userLikes={profileUserLikes}
         savedDropRecords={profileSavedDrops}
         leaderAccounts={[...publicLeaderAccounts, ...managedLeaderAccounts]}
-        following={currentUserFollowing}
+        following={currentUserFollowingEnriched}
         followMutation={followMutation}
         commentsByDropId={commentsByDropId}
       />
@@ -895,7 +901,7 @@ export default function Profile() {
           : myFollowing.map((item) => ({ email: item.following_email || allUsersForProfile.find(u => u.id === item.following_id)?.email }))}
         allUsers={allUsersForProfile}
         currentUserEmail={currentUser?.email}
-        currentUserFollowing={currentUserFollowing}
+        currentUserFollowing={currentUserFollowingEnriched}
         onClose={() => setConnectionsView(null)}
         onToggleFollow={(email) => followMutation.mutate(email)}
       />
@@ -1396,7 +1402,7 @@ export default function Profile() {
         userLikes={profileUserLikes}
         savedDropRecords={profileSavedDrops}
         leaderAccounts={[...publicLeaderAccounts, ...managedLeaderAccounts]}
-        following={currentUserFollowing}
+        following={currentUserFollowingEnriched}
         followMutation={followMutation}
         commentsByDropId={commentsByDropId}
       />

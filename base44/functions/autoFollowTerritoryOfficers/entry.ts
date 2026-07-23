@@ -56,18 +56,16 @@ Deno.serve(async (req) => {
 
     if (officers.length === 0) return Response.json({ success: true, followed: 0, matched_officers: 0 });
 
-    const existingFollows = await base44.asServiceRole.entities.Follow.filter({ follower_email: user.email });
-    const alreadyFollowing = new Set(existingFollows.map((follow) => follow.following_email));
+    const existingFollows = await base44.asServiceRole.entities.Follow.filter({ follower_id: user.id });
+    const alreadyFollowing = new Set(existingFollows.map((follow) => follow.following_id));
 
     const followsToCreate = officers
-      .filter((officer) => !alreadyFollowing.has(officer.leader_email))
+      .filter((officer) => !alreadyFollowing.has(officer.id))
       .map((officer) => ({
         // Follow entity requires both IDs. Leaders have no User record, so we use
         // the ManagedLeaderAccount record id as a stable synthetic following_id.
         follower_id: user.id,
-        following_id: officer.id,
-        follower_email: user.email,
-        following_email: officer.leader_email
+        following_id: officer.id
       }));
 
     if (followsToCreate.length > 0) {

@@ -13,48 +13,26 @@ const fetchAll = async (entity, query = {}) => {
   return allRecords;
 };
 
-export const fetchAllFollowers = async (userId, userEmail) => {
-  let allFollowers = [];
-  
-  if (userId) {
-    const byId = await fetchAll(base44.entities.Follow, { following_id: userId });
-    allFollowers = [...allFollowers, ...byId];
-  }
-  
-  if (userEmail) {
-    const byEmail = await fetchAll(base44.entities.Follow, { following_email: userEmail });
-    const existingIds = new Set(allFollowers.map(f => f.id));
-    const newOnes = byEmail.filter(f => !existingIds.has(f.id));
-    allFollowers = [...allFollowers, ...newOnes];
-  }
-  
+// Follow records are ID-based only (email fields were removed as PII).
+// The second (email) argument is accepted for backward compatibility but ignored.
+export const fetchAllFollowers = async (userId) => {
+  if (!userId) return [];
+  const rows = await fetchAll(base44.entities.Follow, { following_id: userId });
   const seen = new Set();
-  return allFollowers.filter(f => {
-    const key = f.follower_email || f.follower_id || f.id;
+  return rows.filter(f => {
+    const key = f.follower_id || f.id;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
 };
 
-export const fetchAllFollowing = async (userId, userEmail) => {
-  let allFollowing = [];
-  
-  if (userId) {
-    const byId = await fetchAll(base44.entities.Follow, { follower_id: userId });
-    allFollowing = [...allFollowing, ...byId];
-  }
-  
-  if (userEmail) {
-    const byEmail = await fetchAll(base44.entities.Follow, { follower_email: userEmail });
-    const existingIds = new Set(allFollowing.map(f => f.id));
-    const newOnes = byEmail.filter(f => !existingIds.has(f.id));
-    allFollowing = [...allFollowing, ...newOnes];
-  }
-  
+export const fetchAllFollowing = async (userId) => {
+  if (!userId) return [];
+  const rows = await fetchAll(base44.entities.Follow, { follower_id: userId });
   const seen = new Set();
-  return allFollowing.filter(f => {
-    const key = f.following_email || f.following_id || f.id;
+  return rows.filter(f => {
+    const key = f.following_id || f.id;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;

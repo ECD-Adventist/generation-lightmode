@@ -35,9 +35,9 @@ export default function ProfileHoverSummary({ dropUser }) {
   });
 
   const { data: followers = [] } = useQuery({
-    queryKey: ["hoverFollowers", email],
-    queryFn: () => base44.entities.Follow.filter({ following_email: email }),
-    enabled: !!email,
+    queryKey: ["hoverFollowers", dropUser?.id],
+    queryFn: () => base44.entities.Follow.filter({ following_id: dropUser?.id }),
+    enabled: !!dropUser?.id,
     staleTime: 60000,
   });
 

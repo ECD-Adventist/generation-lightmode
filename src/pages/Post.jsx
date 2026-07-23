@@ -67,9 +67,9 @@ export default function Post() {
   });
 
   const { data: following = [] } = useQuery({
-    queryKey: ["following", currentUser?.email],
-    queryFn: () => base44.entities.Follow.filter({ follower_email: currentUser?.email }),
-    enabled: !!currentUser,
+    queryKey: ["following", currentUser?.id],
+    queryFn: () => base44.entities.Follow.filter({ follower_id: currentUser?.id }),
+    enabled: !!currentUser?.id,
   });
 
   const { data: postComments = [] } = useQuery({
@@ -77,6 +77,14 @@ export default function Post() {
     queryFn: () => base44.entities.GlowDropComment.filter({ drop_id: dropId }),
     enabled: !!dropId,
   });
+
+  // Follow records store user IDs only — resolve emails for email-based checks.
+  const followingWithEmails = React.useMemo(() => {
+    const emailById = new Map();
+    allUsers.forEach(u => { if (u.id) emailById.set(u.id, u.email); });
+    leaderAccounts.forEach(a => { if (a.id) emailById.set(a.id, a.leader_email); });
+    return following.map(f => f.following_email ? f : { ...f, following_email: emailById.get(f.following_id) });
+  }, [following, allUsers, leaderAccounts]);
 
   const fallbackUrl = backUser ? `${createPageUrl("Profile")}?user=${encodeURIComponent(backUser)}` : createPageUrl("Feed");
 
@@ -94,6 +102,7 @@ export default function Post() {
     const leader = leaderAccounts.find(a => a.leader_email === email);
     if (leader) {
       return {
+        id: leader.id,
         email: leader.leader_email,
         full_name: leader.leader_name,
         bio: leader.leader_bio,
@@ -148,13 +157,14 @@ export default function Post() {
   const followMutation = useMutation({
     mutationFn: async (targetEmail) => {
       if (!currentUser) { toast.error("Please log in to follow"); return; }
-      const existing = following.find(f => f.following_email === targetEmail);
+      const targetUser = getUserInfo(targetEmail);
+      const existing = followingWithEmails.find(f => f.following_email === targetEmail || (targetUser?.id && f.following_id === targetUser.id));
       if (existing) {
         await base44.entities.Follow.delete(existing.id);
         return "unfollow";
       }
-      const targetUser = getUserInfo(targetEmail);
-      const followRec = await base44.entities.Follow.create({ follower_id: currentUser.id, following_id: targetUser?.id, follower_email: currentUser.email, following_email: targetEmail });
+      if (!targetUser?.id) { toast.error("Could not find that member."); return; }
+      const followRec = await base44.entities.Follow.create({ follower_id: currentUser.id, following_id: targetUser.id });
       dualWriteSupabase("follows", followRec);
       if (isNotificationEnabled(targetUser, "follows")) {
         const notifRec = await base44.entities.Notification.create({
@@ -168,7 +178,7 @@ export default function Post() {
       return "follow";
     },
     onSuccess: (action) => {
-      queryClient.invalidateQueries({ queryKey: ["following", currentUser?.email] });
+      queryClient.invalidateQueries({ queryKey: ["following", currentUser?.id] });
       toast.success(action === "unfollow" ? "Unfollowed" : "Following! ⚡");
     },
   });
@@ -241,7 +251,7 @@ export default function Post() {
           allUsers={allUsers}
           savedDropRecords={savedDropRecords}
           leaderAccounts={leaderAccounts}
-          following={following}
+          following={followingWithEmails}
           followMutation={followMutation}
           commentsCount={postComments.length}
         />

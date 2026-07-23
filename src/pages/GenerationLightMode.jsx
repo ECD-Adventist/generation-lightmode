@@ -23,6 +23,7 @@ const fetchAll = async (entity, query = {}, sort = null) => {
 };
 
 const ACCOUNT_EMAIL = "system@lightmode.com";
+const ACCOUNT_ID = "official-generation-lightmode";
 const ACCOUNT_NAME = "Generation LightMode";
 const ACCOUNT_IMAGE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg";
 
@@ -33,31 +34,31 @@ export default function GenerationLightMode() {
   const { data: me } = useQuery({ queryKey: ["glmMe"], queryFn: () => base44.auth.me() });
   const { data: follows = [] } = useQuery({
     queryKey: ["glmFollowers"],
-    queryFn: () => fetchAll(base44.entities.Follow, { following_email: ACCOUNT_EMAIL })
+    queryFn: () => fetchAll(base44.entities.Follow, { following_id: ACCOUNT_ID })
   });
   const { data: myFollowing = [] } = useQuery({
-    queryKey: ["glmMyFollowing", me?.email],
-    queryFn: () => fetchAll(base44.entities.Follow, { follower_email: me?.email }),
-    enabled: !!me?.email
+    queryKey: ["glmMyFollowing", me?.id],
+    queryFn: () => fetchAll(base44.entities.Follow, { follower_id: me?.id }),
+    enabled: !!me?.id
   });
   const { data: posts = [] } = useQuery({
     queryKey: ["glmPosts"],
     queryFn: () => fetchAll(base44.entities.GlowDrop, { user_email: ACCOUNT_EMAIL }, "-created_date")
   });
 
-  const isFollowing = myFollowing.some((f) => f.following_email === ACCOUNT_EMAIL);
+  const isFollowing = myFollowing.some((f) => f.following_id === ACCOUNT_ID);
 
   const followMutation = useMutation({
     mutationFn: async () => {
-      const existing = myFollowing.find((f) => f.following_email === ACCOUNT_EMAIL);
+      const existing = myFollowing.find((f) => f.following_id === ACCOUNT_ID);
       if (existing) return base44.entities.Follow.delete(existing.id);
-      const rec = await base44.entities.Follow.create({ follower_email: me.email, following_email: ACCOUNT_EMAIL });
+      const rec = await base44.entities.Follow.create({ follower_id: me.id, following_id: ACCOUNT_ID });
       dualWriteSupabase("follows", rec);
       return rec;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["glmFollowers"] });
-      queryClient.invalidateQueries({ queryKey: ["glmMyFollowing", me?.email] });
+      queryClient.invalidateQueries({ queryKey: ["glmMyFollowing", me?.id] });
     }
   });
 

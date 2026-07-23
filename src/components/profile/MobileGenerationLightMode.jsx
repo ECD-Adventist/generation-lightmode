@@ -10,6 +10,7 @@ import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 
 const ACCOUNT_EMAIL = "system@lightmode.com";
+const ACCOUNT_ID = "official-generation-lightmode";
 const ACCOUNT_NAME = "Generation LightMode";
 const ACCOUNT_IMAGE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg";
 const COVER_GRADIENT = "linear-gradient(120deg, #0B1B3D 0%, #0B2870 25%, #0B3FD9 50%, #1FB8FF 80%, #5AD8FF 100%)";
@@ -20,31 +21,31 @@ export default function MobileGenerationLightMode() {
   const { data: me } = useQuery({ queryKey: ["glmMe"], queryFn: () => base44.auth.me() });
   const { data: follows = [] } = useQuery({
     queryKey: ["glmFollowers"],
-    queryFn: () => base44.entities.Follow.filter({ following_email: ACCOUNT_EMAIL })
+    queryFn: () => base44.entities.Follow.filter({ following_id: ACCOUNT_ID })
   });
   const { data: myFollowing = [] } = useQuery({
-    queryKey: ["glmMyFollowing", me?.email],
-    queryFn: () => base44.entities.Follow.filter({ follower_email: me?.email }),
-    enabled: !!me?.email
+    queryKey: ["glmMyFollowing", me?.id],
+    queryFn: () => base44.entities.Follow.filter({ follower_id: me?.id }),
+    enabled: !!me?.id
   });
   const { data: posts = [] } = useQuery({
     queryKey: ["glmPosts"],
     queryFn: () => base44.entities.GlowDrop.filter({ user_email: ACCOUNT_EMAIL }, "-created_date", 50)
   });
 
-  const isFollowing = myFollowing.some((f) => f.following_email === ACCOUNT_EMAIL);
+  const isFollowing = myFollowing.some((f) => f.following_id === ACCOUNT_ID);
 
   const followMutation = useMutation({
     mutationFn: async () => {
-      const existing = myFollowing.find((f) => f.following_email === ACCOUNT_EMAIL);
+      const existing = myFollowing.find((f) => f.following_id === ACCOUNT_ID);
       if (existing) return base44.entities.Follow.delete(existing.id);
-      const rec = await base44.entities.Follow.create({ follower_email: me.email, following_email: ACCOUNT_EMAIL });
+      const rec = await base44.entities.Follow.create({ follower_id: me.id, following_id: ACCOUNT_ID });
       dualWriteSupabase("follows", rec);
       return rec;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["glmFollowers"] });
-      queryClient.invalidateQueries({ queryKey: ["glmMyFollowing", me?.email] });
+      queryClient.invalidateQueries({ queryKey: ["glmMyFollowing", me?.id] });
     }
   });
 

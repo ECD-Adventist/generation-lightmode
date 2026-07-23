@@ -69,10 +69,16 @@ export default function Messages() {
   }, [allUsers, conversationUsers]);
 
   const { data: following = [] } = useQuery({
-    queryKey: ["following", user?.email],
-    queryFn: () => base44.entities.Follow.filter({ follower_email: user?.email }),
-    enabled: !!user,
+    queryKey: ["following", user?.id],
+    queryFn: () => base44.entities.Follow.filter({ follower_id: user?.id }),
+    enabled: !!user?.id,
   });
+
+  // Follow records store user IDs only — resolve followed users' emails for the lists.
+  const followingEmails = useMemo(
+    () => following.map(f => f.following_email || mergedUsers.find(u => u.id === f.following_id)?.email).filter(Boolean),
+    [following, mergedUsers]
+  );
 
   const { data: allConversations = [] } = useQuery({
     queryKey: ["directConversations", user?.email],
@@ -288,7 +294,7 @@ export default function Messages() {
             selectedConversationId={selectedConversationId}
             currentUserEmail={user.email}
             allUsers={mergedUsers}
-            followingUsers={following.map(f => f.following_email)}
+            followingUsers={followingEmails}
             onSelectConversation={setSelectedConversationId}
             onStartConversation={(email) => ensureConversationMutation.mutate(email)}
             myGroups={myGroups}
@@ -392,7 +398,7 @@ export default function Messages() {
                 selectedConversationId={selectedConversationId}
                 currentUserEmail={user.email}
                 allUsers={mergedUsers}
-                followingUsers={following.map(f => f.following_email)}
+                followingUsers={followingEmails}
                 onSelectConversation={setSelectedConversationId}
                 onStartConversation={(email) => ensureConversationMutation.mutate(email)}
               />
