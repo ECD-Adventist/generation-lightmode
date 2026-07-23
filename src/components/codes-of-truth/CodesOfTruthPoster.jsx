@@ -40,13 +40,13 @@ function splitVerseLabel(verse = "") {
 
 export default function CodesOfTruthPoster({ text, verse, className = "" }) {
   const cleaned = cleanCodeText(text);
-  const cleanedText = truncateForPoster(cleaned, 180);
+  const cleanedText = truncateForPoster(cleaned, 340);
   // Auto-shrink type for longer copy so it never overflows into the bottom logo area
   const len = cleanedText?.length || 0;
-  const bodyFontSize = len > 120 ? "clamp(7px, 3cqw, 10px)"
-    : len > 90 ? "clamp(8px, 3.5cqw, 11px)"
-    : len > 60 ? "clamp(9px, 4cqw, 13px)"
-    : len > 35 ? "clamp(10px, 4.8cqw, 15px)"
+  const bodyFontSize = len > 260 ? "clamp(7px, 2.9cqw, 11px)"
+    : len > 180 ? "clamp(8px, 3.3cqw, 12px)"
+    : len > 120 ? "clamp(9px, 3.8cqw, 14px)"
+    : len > 60 ? "clamp(10px, 4.4cqw, 16px)"
     : "clamp(12px, 5.6cqw, 18px)";
   const verseParts = splitVerseLabel(verse);
 
@@ -61,9 +61,9 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
       }}
     >
       {/* Premium text block — fitted into the lower-left empty space and clear of the author chip/logo lockup */}
-      <div className="absolute z-10 top-[29%] bottom-[31%] left-[9%] right-[42%] flex flex-col items-start justify-center text-left overflow-hidden">
+      <div className="absolute z-10 top-[24%] bottom-[28%] left-[9%] right-[30%] flex flex-col items-start justify-center text-left overflow-hidden">
         {verse && (
-          <div className="mb-2 max-w-[18ch]">
+          <div className="mb-2 max-w-[26ch]">
             <div
               className="font-['Space_Grotesk'] font-black uppercase inline-flex rounded-full px-1.5 py-0.5 mb-1.5"
               style={{
@@ -95,7 +95,7 @@ export default function CodesOfTruthPoster({ text, verse, className = "" }) {
 
         {cleanedText && (
           <p
-            className="font-['Space_Grotesk'] font-semibold leading-[1.08] line-clamp-4 max-w-[15ch]"
+            className="font-['Space_Grotesk'] font-semibold leading-[1.15] line-clamp-[9] max-w-[26ch]"
             style={{
               color: "#FFFFFF",
               fontSize: bodyFontSize,

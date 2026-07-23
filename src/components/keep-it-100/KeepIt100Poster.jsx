@@ -34,7 +34,7 @@ export default function KeepIt100Poster({ text, verse, className = "" }) {
         <div className="w-full max-w-[86%] flex flex-col items-center justify-center text-center">
           {cleanedText && (
             <p
-              className="font-['Space_Grotesk'] font-semibold leading-[1.18] line-clamp-4"
+              className="font-['Space_Grotesk'] font-semibold leading-[1.18] line-clamp-[8]"
               style={{
                 color: "#FFFFFF",
                 fontSize: "clamp(10px, 2.2vw, 22px)",
