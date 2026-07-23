@@ -1,40 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
-
-const SUPABASE_URL = "https://asnsthgubpeptoiexajf.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzbnN0aGd1YnBlcHRvaWV4YWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc4MzM5NDgsImV4cCI6MjA2MzQwOTk0OH0.r3WDFbJQgPuVnakMUJQa_cEWBUBbnT3hbDbT5GiZoNA";
-
-function mirrorGlowDropToSupabase(newDrop, createdBy) {
-  if (!newDrop?.id) return;
-  fetch(`${SUPABASE_URL}/rest/v1/glow_drops`, {
-    method: "POST",
-    headers: {
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "Content-Type": "application/json",
-      "Prefer": "resolution=merge-duplicates,return=minimal"
-    },
-    body: JSON.stringify([{
-      id: newDrop.id,
-      reflection: newDrop.reflection || "",
-      verse: newDrop.verse || "",
-      category: newDrop.category || "",
-      description: newDrop.description || null,
-      media_url: newDrop.media_url || null,
-      hashtags: newDrop.hashtags || "",
-      status: newDrop.status || "approved",
-      likes_count: newDrop.likes_count || 0,
-      bonus_likes_count: newDrop.bonus_likes_count || 0,
-      pinned: newDrop.pinned || false,
-      hidden: newDrop.hidden || false,
-      hidden_reason: newDrop.hidden_reason || null,
-      is_flagged: newDrop.is_flagged || false,
-      moderation_note: newDrop.moderation_note || null,
-      created_by: createdBy || "",
-      created_date: newDrop.created_date || new Date().toISOString(),
-      updated_date: newDrop.updated_date || newDrop.created_date || new Date().toISOString()
-    }])
-  }).catch(err => console.warn("Supabase dual-write failed silently:", err));
-}
+import { mirrorToSupabase } from '../../shared/supabase.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -155,7 +120,29 @@ Deno.serve(async (req) => {
     // post to silently fail.
     const drop = await base44.asServiceRole.entities.GlowDrop.create(dropPayload);
 
-    mirrorGlowDropToSupabase(drop, effectiveEmail);
+    // Dual-write: mirror into Supabase via service role key (fire-and-forget).
+    mirrorToSupabase('glow_drops', {
+      id: drop.id,
+      user_email: drop.user_email,
+      author_name: drop.author_name,
+      author_username: drop.author_username,
+      author_avatar: drop.author_avatar,
+      verse: drop.verse,
+      reflection: drop.reflection,
+      hashtags: drop.hashtags,
+      category: drop.category,
+      media_url: drop.media_url,
+      status: drop.status,
+      hidden: drop.hidden,
+      likes_count: drop.likes_count,
+      bonus_likes_count: drop.bonus_likes_count,
+      bonus_likes_enabled: drop.bonus_likes_enabled,
+      pinned: drop.pinned,
+      is_flagged: drop.is_flagged,
+      created_date: drop.created_date,
+      updated_date: drop.updated_date,
+      created_by_id: drop.created_by_id,
+    });
 
     if (postAsLeader) {
       try {

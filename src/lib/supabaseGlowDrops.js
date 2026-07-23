@@ -1,8 +1,8 @@
-const SUPABASE_URL = "https://asnsthgubpeptoiexajf.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzbnN0aGd1YnBlcHRvaWV4YWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc4MzM5NDgsImV4cCI6MjA2MzQwOTk0OH0.r3WDFbJQgPuVnakMUJQa_cEWBUBbnT3hbDbT5GiZoNA";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export function mirrorGlowDropToSupabase(newDrop, currentUser) {
-  if (!newDrop?.id) return;
+  if (!newDrop?.id || !SUPABASE_URL || !SUPABASE_ANON_KEY) return;
 
   fetch(`${SUPABASE_URL}/rest/v1/glow_drops`, {
     method: "POST",

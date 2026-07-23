@@ -1,22 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
-
-// Fire-and-forget mirror of a Base44 record into Supabase. Never awaited by the
-// caller, never throws — the Base44 write stays the primary source of truth.
-const SUPABASE_URL = 'https://asnsthgubpeptoiexajf.supabase.co';
-function mirrorToSupabase(table, row) {
-  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  if (!key || !row?.id) return;
-  fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-    method: 'POST',
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      'Content-Type': 'application/json',
-      Prefer: 'resolution=merge-duplicates,return=minimal',
-    },
-    body: JSON.stringify(row),
-  }).catch((e) => console.error(`Supabase mirror ${table} failed:`, e?.message));
-}
+import { mirrorToSupabase } from '../../shared/supabase.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -24,7 +7,7 @@ Deno.serve(async (req) => {
     const actor = await base44.auth.me();
     if (!actor) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { user_id, type, message, link, actor_user_id } = await req.json();
+    const { user_id, type, message, link, actor_user_id, reference_id } = await req.json();
     if (!user_id || !type || !message) {
       return Response.json({ error: 'user_id, type and message are required' }, { status: 400 });
     }
@@ -37,21 +20,37 @@ Deno.serve(async (req) => {
     const target = await base44.asServiceRole.entities.User.get(user_id).catch(() => null);
     if (!target) return Response.json({ error: 'Recipient not found' }, { status: 404 });
 
+    // Idempotency: if a reference_id is provided, skip if a notification already
+    // exists for the same (user_id, type, reference_id) combination. This prevents
+    // the duplicate fan-out problem from growing.
+    if (reference_id) {
+      const existing = await base44.asServiceRole.entities.Notification.filter({
+        user_id,
+        type,
+        reference_id,
+      }).catch(() => []);
+      if (existing && existing.length > 0) {
+        return Response.json({ success: true, id: existing[0].id, deduplicated: true });
+      }
+    }
+
     const created = await base44.asServiceRole.entities.Notification.create({
       user_id,
       actor_user_id: actor_user_id || actor.id,
       type,
+      reference_id: reference_id || '',
       message: String(message).slice(0, 500),
       link: link || '',
       read: false,
     });
 
-    // Dual-write Step 1: mirror into Supabase (fire-and-forget, never blocks).
+    // Dual-write: mirror into Supabase (fire-and-forget, never blocks).
     mirrorToSupabase('notifications', {
       id: created.id,
       user_id: created.user_id,
       actor_user_id: created.actor_user_id,
       type: created.type,
+      reference_id: created.reference_id,
       message: created.message,
       link: created.link,
       read: created.read,
