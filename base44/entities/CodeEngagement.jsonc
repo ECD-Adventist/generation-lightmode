@@ -26,7 +26,7 @@
     "code_id"
   ],
   "rls": {
-    "create": true,
+    "create": false,
     "read": true,
     "update": {
       "$or": [
