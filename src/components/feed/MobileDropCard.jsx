@@ -1,7 +1,7 @@
 import React, { memo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, UserPlus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -27,6 +27,8 @@ function MobileDropCard({
   userLikes = [],
   savedDropRecords = [],
   leaderAccounts = [],
+  following = [],
+  followMutation,
 }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -50,6 +52,10 @@ function MobileDropCard({
   );
   const usesDesignedPoster = isKeepIt100 || isCodeOfTruth;
   const hasDarkActionBackdrop = Boolean(drop.media_url || usesDesignedPoster);
+  const isFollowingAuthor = following.some(follow =>
+    follow.following_id === dropUser?.id || follow.following_email === drop.user_email
+  );
+  const canFollowAuthor = !!user && user.email !== drop.user_email && drop.user_email !== "system@lightmode.com" && !isFollowingAuthor;
 
   const savedForThisDrop = savedDropRecords.filter(s => s.drop_id === drop.id);
   const isSaved = savedForThisDrop.length > 0;
@@ -184,6 +190,19 @@ function MobileDropCard({
         </Link>
 
         <div className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
+          {canFollowAuthor && (
+            <button
+              onClick={() => followMutation?.mutate(drop.user_email)}
+              disabled={followMutation?.isPending}
+              className="flex flex-col items-center gap-1 active:scale-95 transition disabled:opacity-60"
+              aria-label={`Follow ${getDisplayName(authorProfile)}`}
+            >
+              <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.28)", color: "#FFFFFF" }}>
+                <UserPlus className="w-5 h-5" />
+              </span>
+              <span className="text-[9px] font-black uppercase" style={{ color: hasDarkActionBackdrop ? "#FFFFFF" : "#0B3FD9", textShadow: hasDarkActionBackdrop ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>Follow</span>
+            </button>
+          )}
           <button onClick={handleLike} className="flex flex-col items-center gap-1 active:scale-95 transition">
             <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: userHasLiked ? "#EF4444" : "#0B3FD9" }}>
               <Heart className={`w-5 h-5 ${userHasLiked ? "fill-red-500 text-red-500" : ""}`} />

@@ -229,6 +229,8 @@ export default function MobileFeed({
             userLikes={userLikes}
             savedDropRecords={savedDropRecords}
             leaderAccounts={leaderAccounts}
+            following={following}
+            followMutation={followMutation}
             hasMore={hasMore}
             isLoadingMore={isLoadingMore}
             onLoadMore={onLoadMore}
