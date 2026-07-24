@@ -4,18 +4,34 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    
-    // Called by entity automations on GlowDrop create or GlowGroup create
-    const { event, data } = body;
-    if (!event || !data) {
-      return Response.json({ error: "Missing event or data" }, { status: 400 });
+
+    // Called by entity automations on GlowDrop create or GlowGroup create.
+    // SECURITY: never trust payload data — validate the event and re-fetch
+    // the authoritative record by id before writing any alerts.
+    const { event } = body;
+    const entityName = event?.entity_name;
+    const entityId = event?.entity_id;
+
+    if (!entityId || !["GlowDrop", "GlowGroup"].includes(entityName)) {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const entityName = event.entity_name;
-    const eventType = event.type;
-
-    if (eventType !== "create") {
+    if (event.type !== "create") {
       return Response.json({ skipped: true, reason: "Not a create event" });
+    }
+
+    let data = null;
+    try {
+      data = await base44.asServiceRole.entities[entityName].get(entityId);
+    } catch { data = null; }
+    if (!data) {
+      return Response.json({ error: "Record not found" }, { status: 404 });
+    }
+
+    // Replay protection: only alert once per entity.
+    const existingAlerts = await base44.asServiceRole.entities.TerritoryAlert.filter({ entity_id: entityId });
+    if (existingAlerts.length > 0) {
+      return Response.json({ skipped: true, reason: "Alerts already created for this entity" });
     }
 
     // Determine alert type and country

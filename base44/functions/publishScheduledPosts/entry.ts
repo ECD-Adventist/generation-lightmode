@@ -17,12 +17,19 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Allow both scheduled automation (no user auth) and manual admin invocation.
-    // For manual invocation via frontend, verify super_admin.
+    // Allow only: (a) the platform scheduler, identified by a shared token passed
+    // via the automation's function_args, or (b) an authenticated super_admin.
+    // Anonymous callers without the token are rejected.
+    const SCHEDULER_TOKEN = 'glm_sched_v1_Qk7xR2mZ9aT4wN8pJ3fL6cY1sB5hD0uE';
+    const body = await req.json().catch(() => ({}));
+
     let user = null;
     try { user = await base44.auth.me(); } catch { /* scheduled automation has no user */ }
 
-    if (user && user.role !== 'super_admin') {
+    const isScheduler = body?.scheduler_token === SCHEDULER_TOKEN;
+    const isSuperAdmin = !!user && user.role === 'super_admin';
+
+    if (!isScheduler && !isSuperAdmin) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 

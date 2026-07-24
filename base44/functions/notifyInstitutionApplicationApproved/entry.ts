@@ -42,7 +42,18 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const payload = await req.json().catch(() => ({}));
-    const app = payload.data || payload;
+
+    // SECURITY: never trust payload data. Only accept an entity-automation event
+    // referencing a real InstitutionApplication, then re-fetch the authoritative record.
+    const entityId = payload?.event?.entity_id;
+    if (payload?.event?.entity_name !== 'InstitutionApplication' || !entityId) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    let app = null;
+    try {
+      app = await base44.asServiceRole.entities.InstitutionApplication.get(entityId);
+    } catch { app = null; }
 
     if (!app?.institution_name || app.status !== 'approved') {
       return Response.json({ success: true, skipped: true, reason: 'Application is not approved' });
@@ -60,6 +71,12 @@ Deno.serve(async (req) => {
 
     const existingPages = await base44.asServiceRole.entities.InstitutionPage.filter({ owner_email: app.user_email });
     const existingPage = existingPages.find(page => page.name?.toLowerCase() === app.institution_name?.toLowerCase()) || existingPages[0];
+
+    // Replay protection: if the page is already verified for this owner, the approval
+    // was already processed — skip to avoid duplicate emails/page writes.
+    if (existingPage?.verified) {
+      return Response.json({ success: true, skipped: true, reason: 'Already processed', institution_page_id: existingPage.id });
+    }
     const pageData = {
       name: app.institution_name,
       slug: existingPage?.slug || `${slugBase}-${String(app.user_email || '').split('@')[0].toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
