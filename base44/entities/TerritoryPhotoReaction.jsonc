@@ -33,7 +33,7 @@
     "create": {
       "data.user_email": "{{user.email}}"
     },
-    "read": null,
+    "read": true,
     "update": {
       "user_condition": {
         "role": "super_admin"

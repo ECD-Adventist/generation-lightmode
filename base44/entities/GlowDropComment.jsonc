@@ -21,7 +21,7 @@
     "create": {
       "created_by_id": "{{user.id}}"
     },
-    "read": null,
+    "read": true,
     "update": {
       "$or": [
         {

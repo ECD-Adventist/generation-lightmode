@@ -25,7 +25,7 @@
     "create": {
       "data.user_email": "{{user.email}}"
     },
-    "read": null,
+    "read": true,
     "update": {
       "created_by_id": "{{user.id}}"
     },
