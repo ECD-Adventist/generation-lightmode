@@ -40,19 +40,6 @@ import UserAvatar from "@/components/common/UserAvatar";
 import { getDisplayName } from "@/lib/displayName";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
-const fetchAll = async (entity, query = {}, sort = null) => {
-  let allRecords = [];
-  let skip = 0;
-  const limit = 100;
-  while (true) {
-    const result = await entity.filter(query, sort, limit, skip);
-    allRecords = [...allRecords, ...result];
-    if (result.length < limit) break;
-    skip += limit;
-  }
-  return allRecords;
-};
-
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
     <Link
@@ -226,9 +213,10 @@ export default function Feed() {
   });
 
   // Deferred — stories are a secondary section above the feed.
+  // Stories expire within 24h, so the most recent 100 always covers all active ones.
   const { data: stories = [] } = useQuery({
     queryKey: ["activeStories"],
-    queryFn: () => fetchAll(base44.entities.Story, {}, "-created_date"),
+    queryFn: () => base44.entities.Story.list("-created_date", 100),
     enabled: !!user && deferredReady
   });
 
@@ -266,16 +254,18 @@ export default function Feed() {
     }
   });
 
+  // Recent 500 likes/saves are enough to mark visible feed posts — avoids
+  // unbounded pagination for very active users.
   const { data: userLikes = [] } = useQuery({
     queryKey: ["userLikes", user?.email],
-    queryFn: () => fetchAll(base44.entities.GlowDropLike, { user_email: user?.email }),
+    queryFn: () => base44.entities.GlowDropLike.filter({ user_email: user?.email }, "-created_date", 500),
     enabled: !!user,
     staleTime: 1000 * 60 * 2,
   });
 
   const { data: savedDropRecords = [] } = useQuery({
     queryKey: ["savedDrops", user?.email],
-    queryFn: () => fetchAll(base44.entities.SavedDrop, { user_email: user?.email }),
+    queryFn: () => base44.entities.SavedDrop.filter({ user_email: user?.email }, "-created_date", 500),
     enabled: !!user,
     staleTime: 1000 * 60 * 2,
   });

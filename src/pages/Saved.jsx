@@ -33,9 +33,12 @@ export default function Saved() {
     enabled: !!user
   });
 
+  // Fetch only the saved drops by id — never the whole collection.
+  const savedIds = savedRecords.map(r => r.drop_id).filter(Boolean);
   const { data: drops = [], isLoading: dropsLoading } = useQuery({
-    queryKey: ["allGlowDrops"],
-    queryFn: () => base44.entities.GlowDrop.list(),
+    queryKey: ["savedDropEntities", savedIds.join("|")],
+    queryFn: () => base44.entities.GlowDrop.filter({ id: { $in: savedIds } }, "-created_date", 500),
+    enabled: savedIds.length > 0,
     retry: 1
   });
 

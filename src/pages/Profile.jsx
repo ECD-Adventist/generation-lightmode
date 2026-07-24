@@ -307,15 +307,15 @@ export default function Profile() {
     enabled: Boolean(profileEmail && isOwnProfile)
   });
 
-  const { data: allDrops = [] } = useQuery({
-    queryKey: ["profileAllGlowDrops"],
-    queryFn: () => fetchAll(base44.entities.GlowDrop, {}, '-created_date'),
-  });
+  // Fetch only the drops that were actually saved (by id) instead of loading
+  // the entire GlowDrop collection — critical for scalability.
+  const savedDropIds = useMemo(() => savedRecords.map(r => r.drop_id).filter(Boolean), [savedRecords]);
 
-  const savedDrops = useMemo(() => {
-    const ids = new Set(savedRecords.map(r => r.drop_id));
-    return allDrops.filter(d => ids.has(d.id));
-  }, [savedRecords, allDrops]);
+  const { data: savedDrops = [] } = useQuery({
+    queryKey: ["profileSavedDropEntities", savedDropIds.join("|")],
+    queryFn: () => base44.entities.GlowDrop.filter({ id: { $in: savedDropIds } }, '-created_date', 500),
+    enabled: savedDropIds.length > 0,
+  });
 
   const { data: challengeSubmissions = [] } = useQuery({
     queryKey: ["myChallengeSubmissions", profileEmail],
