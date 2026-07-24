@@ -4,8 +4,9 @@
 export const getSupabaseUrl = (): string => {
   const databaseUrl = Deno.env.get('SUPABASE_DATABASE_URL') || '';
   const match = databaseUrl.match(/postgres\.([a-z0-9]+)@|\/\/[^@]*@(?:db\.)?([a-z0-9]+)\.supabase\.co/i);
-  const projectRef = match?.[1] || match?.[2] || 'asnsthgubpeptoiexajf';
-  return `https://${projectRef}.supabase.co`;
+  const projectRef = match?.[1] || match?.[2];
+  if (projectRef) return `https://${projectRef}.supabase.co`;
+  return Deno.env.get('SUPABASE_URL') || '';
 };
 
 export const getSupabaseServiceKey = (): string => {

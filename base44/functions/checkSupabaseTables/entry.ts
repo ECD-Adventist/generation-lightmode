@@ -39,8 +39,8 @@ Deno.serve(async (req) => {
 
     const databaseUrl = Deno.env.get('SUPABASE_DATABASE_URL') || '';
     const match = databaseUrl.match(/postgres\.([a-z0-9]+)@|\/\/[^@]*@(?:db\.)?([a-z0-9]+)\.supabase\.co/i);
-    const projectRef = match?.[1] || match?.[2] || 'asnsthgubpeptoiexajf';
-    const supabaseUrl = `https://${projectRef}.supabase.co`;
+    const projectRef = match?.[1] || match?.[2];
+    const supabaseUrl = projectRef ? `https://${projectRef}.supabase.co` : (Deno.env.get('SUPABASE_URL') || '');
 
     const response = await fetch(`${supabaseUrl}/rest/v1/`, {
       headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },

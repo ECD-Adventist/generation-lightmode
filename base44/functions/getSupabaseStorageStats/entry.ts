@@ -15,7 +15,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Supabase credentials are not configured' }, { status: 500 });
     }
 
-    const endpoint = 'https://api.supabase.com/v1/projects/asnsthgubpeptoiexajf/database/query';
+    const projectRef = (Deno.env.get('SUPABASE_URL') || '').match(/([a-z0-9]+)\.supabase\.co/)?.[1];
+    if (!projectRef) {
+      return Response.json({ error: 'SUPABASE_URL is not configured' }, { status: 500 });
+    }
+    const endpoint = `https://api.supabase.com/v1/projects/${projectRef}/database/query`;
     const headers = {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',

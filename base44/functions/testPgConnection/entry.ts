@@ -11,7 +11,8 @@ Deno.serve(async (req) => {
     if (!databaseUrl) return Response.json({ error: 'No database URL' }, { status: 500 });
 
     const parsed = new URL(databaseUrl);
-    const projectRef = parsed.hostname.match(/([a-z0-9]+)\.supabase\.co/)?.[1] || 'asnsthgubpeptoiexajf';
+    const projectRef = parsed.hostname.match(/([a-z0-9]+)\.supabase\.co/)?.[1]
+      || (Deno.env.get('SUPABASE_URL') || '').match(/([a-z0-9]+)\.supabase\.co/)?.[1] || '';
 
     // Try pooler connection via pg (node-postgres)
     const poolerUrl = `postgresql://postgres.${projectRef}:${parsed.password}@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?sslmode=require`;

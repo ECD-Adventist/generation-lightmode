@@ -29,7 +29,7 @@ const resolveSupabaseUrl = () => {
   const databaseUrl = Deno.env.get('SUPABASE_DATABASE_URL') || '';
   const match = databaseUrl.match(/postgres\.([a-z0-9]+)@|\/\/[^@]*@(?:db\.)?([a-z0-9]+)\.supabase\.co/i);
   const projectRef = match?.[1] || match?.[2];
-  if (!projectRef) return 'https://asnsthgubpeptoiexajf.supabase.co';
+  if (!projectRef) return Deno.env.get('SUPABASE_URL') || '';
   return `https://${projectRef}.supabase.co`;
 };
 
