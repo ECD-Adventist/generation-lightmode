@@ -21,11 +21,11 @@
     "create": {
       "created_by_id": "{{user.id}}"
     },
-    "read": true,
+    "read": null,
     "update": {
       "$or": [
         {
-          "created_by": "{{user.email}}"
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -42,7 +42,7 @@
     "delete": {
       "$or": [
         {
-          "created_by": "{{user.email}}"
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
