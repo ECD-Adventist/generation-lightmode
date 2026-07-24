@@ -4,9 +4,9 @@ import { ArrowLeft, ShieldCheck } from "lucide-react";
 
 export default function LegalDocument({ title, summary, sections }) {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="dark min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-card">
-        <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8">
+        <div className="mx-auto max-w-3xl px-5 pb-12 pt-32 sm:px-8 sm:pt-36">
           <Link to="/Feed" className="mb-8 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <ArrowLeft className="h-4 w-4" /> Back to Feed
           </Link>

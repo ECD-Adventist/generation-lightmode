@@ -283,17 +283,17 @@ export default function Layout({ children, currentPageName }) {
         /* Public nav for non-logged-in users */
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, paddingTop: "env(safe-area-inset-top)",
-        background: isLegalPage || scrolled ? "rgba(11,15,26,0.96)" : "transparent",
-        backdropFilter: isLegalPage || scrolled ? "blur(24px) saturate(1.4)" : "none",
-        borderBottom: isLegalPage ? "1px solid rgba(0,207,255,0.16)" : "none",
+        background: scrolled ? "rgba(11,15,26,0.85)" : "transparent",
+        backdropFilter: scrolled ? "blur(24px) saturate(1.4)" : "none",
+        borderBottom: "none",
         transition: "all 0.4s ease",
         padding: "0 24px",
       }}>
         {/* Branded gradient veil — soft fade only at top, no hard edge at bottom */}
         <div style={{
           position: "absolute", inset: 0, zIndex: -1,
-          background: isLegalPage || scrolled
-            ? "linear-gradient(180deg, rgba(11,15,26,0.98) 0%, rgba(11,15,26,0.92) 100%)"
+          background: scrolled
+            ? "linear-gradient(180deg, rgba(11,15,26,0.92) 0%, rgba(11,15,26,0.85) 100%)"
             : "none",
           transition: "all 0.4s ease",
           pointerEvents: "none",
@@ -637,7 +637,7 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Page Content */}
-      <main className={`${isAppShellPage || currentPageName === "Home" || hideDesktopChrome ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"} ${isAppShellPage ? "has-mobile-bottom-nav" : ""}`}>
+      <main className={`${isAppShellPage || currentPageName === "Home" || isLegalPage || hideDesktopChrome ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"} ${isAppShellPage ? "has-mobile-bottom-nav" : ""}`}>
         {children}
       </main>
 
