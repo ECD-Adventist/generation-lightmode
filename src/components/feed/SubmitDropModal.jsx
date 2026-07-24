@@ -103,18 +103,14 @@ RULES:
 
   const dailyCode = codes[0];
 
-  const handleFileSelect = async (e) => {
-    const selected = e.target.files?.[0];
-    if (!selected) return;
-    if (!selected.type.startsWith("image/")) {
+  const preparePhotoForEditing = async (selected) => {
+    if (!selected?.type.startsWith("image/")) {
       toast.error("Please choose an image file");
       return;
     }
 
     setCompressing(true);
     const originalSize = selected.size;
-
-    // Always compress large images — never reject. Users expect to just post their photos.
     const compressed = await compressImageUnder2MB(selected);
     const compressedSize = compressed.size;
     const savedPercent = originalSize > compressedSize
@@ -128,11 +124,25 @@ RULES:
       wasCompressed: compressedSize < originalSize,
     });
     setCompressing(false);
+    setEditorFile(new File([compressed], `glow-drop-${Date.now()}.jpg`, { type: "image/jpeg" }));
+  };
 
-    // Open the photo editor so the user can crop/rotate/zoom before posting.
-    const finalFile = new File([compressed], `glow-drop-${Date.now()}.jpg`, { type: "image/jpeg" });
-    setEditorFile(finalFile);
+  const handleFileSelect = async (e) => {
+    const selected = e.target.files?.[0];
+    await preparePhotoForEditing(selected);
     e.target.value = "";
+  };
+
+  const handleSamplePhoto = async () => {
+    try {
+      setCompressing(true);
+      const response = await fetch("https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=80");
+      const blob = await response.blob();
+      await preparePhotoForEditing(new File([blob], "sample-glow-drop.jpg", { type: blob.type || "image/jpeg" }));
+    } catch {
+      setCompressing(false);
+      toast.error("Could not load the sample photo. Please try again.");
+    }
   };
 
   const handleEditorApply = async (editedFile) => {
@@ -624,17 +634,28 @@ RULES:
                   )}
                 </div>
               ) : (
-                <label
-                  htmlFor="glow-drop-photo-input"
-                  aria-label="Choose a photo for your Glow Drop"
-                  className={`w-full h-28 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-2 group ${loading ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
-                  style={{ borderColor: "#D6E4FF", background: "#F6F8FC" }}
-                >
-                  <ImagePlus className="w-8 h-8 transition-colors" style={{ color: "#8A97B5" }} />
-                  <span className="text-xs transition-colors font-medium" style={{ color: "#8A97B5" }}>
-                    Tap to add a photo
-                  </span>
-                </label>
+                <div>
+                  <label
+                    htmlFor="glow-drop-photo-input"
+                    aria-label="Choose a photo for your Glow Drop"
+                    className={`w-full h-28 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-2 group ${loading || compressing ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
+                    style={{ borderColor: "#D6E4FF", background: "#F6F8FC" }}
+                  >
+                    <ImagePlus className="w-8 h-8 transition-colors" style={{ color: "#8A97B5" }} />
+                    <span className="text-xs transition-colors font-medium" style={{ color: "#8A97B5" }}>
+                      Tap to add a photo
+                    </span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleSamplePhoto}
+                    disabled={loading || compressing}
+                    className="mt-2 w-full text-center text-xs font-semibold transition hover:opacity-80 disabled:opacity-50"
+                    style={{ color: "#0B3FD9" }}
+                  >
+                    Or use a sample photo
+                  </button>
+                </div>
               )}
             </div>
 
