@@ -577,7 +577,15 @@ RULES:
                   </span>
                 )}
               </div>
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
+              <input
+                ref={fileInputRef}
+                id="glow-drop-photo-input"
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="sr-only"
+                aria-label="Choose a photo for your Glow Drop"
+              />
 
               {preview ? (
                 <div className="relative rounded-2xl overflow-hidden flex items-center justify-center" style={{ border: "1px solid #E6ECF5", background: "#F6F8FC", minHeight: "12rem", maxHeight: "32rem" }}>
@@ -616,18 +624,17 @@ RULES:
                   )}
                 </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={loading}
-                  className="w-full h-28 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-2 group disabled:opacity-50"
+                <label
+                  htmlFor="glow-drop-photo-input"
+                  aria-label="Choose a photo for your Glow Drop"
+                  className={`w-full h-28 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-2 group ${loading ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
                   style={{ borderColor: "#D6E4FF", background: "#F6F8FC" }}
                 >
                   <ImagePlus className="w-8 h-8 transition-colors" style={{ color: "#8A97B5" }} />
                   <span className="text-xs transition-colors font-medium" style={{ color: "#8A97B5" }}>
                     Tap to add a photo
                   </span>
-                </button>
+                </label>
               )}
             </div>
 
