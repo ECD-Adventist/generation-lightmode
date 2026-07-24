@@ -16,6 +16,7 @@ import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 import { getDisplayName } from "@/lib/displayName";
 
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
+const limitToNineLines = (value) => value.split("\n").slice(0, 9).join("\n");
 
 export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [loading, setLoading] = useState(false);
@@ -226,6 +227,18 @@ RULES:
     setUploadProgress(5);
     setUploadStage(file ? "Uploading photo..." : "Creating post...");
 
+    if (!navigator.onLine) {
+      await queueDropForSync({
+        ...formData,
+        media_file: file || null,
+        post_as_leader_id: postAsLeaderId || undefined,
+      });
+      toast.success("You're offline. This drop was queued and will post when internet returns.");
+      setLoading(false);
+      resetAndClose();
+      return;
+    }
+
     try {
       let uploadedMediaUrl = null;
 
@@ -357,13 +370,13 @@ RULES:
       } else {
         const msg = (error?.message || "").toLowerCase();
         if (msg.includes("network") || msg.includes("timeout") || msg.includes("fetch") || !navigator.onLine) {
-          if (file) {
-            toast.error("Photo posts need internet to upload the image. Your text posts can be queued offline.");
-          } else {
-            await queueDropForSync({ ...formData, media_url: null, post_as_leader_id: postAsLeaderId || undefined });
-            toast.success("You're offline. This drop was queued and will post when internet returns.");
-            resetAndClose();
-          }
+          await queueDropForSync({
+            ...formData,
+            media_file: file || null,
+            post_as_leader_id: postAsLeaderId || undefined,
+          });
+          toast.success("Connection lost. This drop was queued and will post when internet returns.");
+          resetAndClose();
         } else {
           toast.error(serverMsg || error?.message || "Failed to post. Try again.");
         }
@@ -505,12 +518,15 @@ RULES:
                 )}
               </div>
               <Textarea
-                placeholder="Share what's on your heart..."
+                placeholder="Create a poster-style quote, one line at a time..."
                 value={formData.reflection}
-                onChange={e => setFormData({ ...formData, reflection: e.target.value })}
-                className="min-h-[100px] rounded-xl resize-none"
+                onChange={e => setFormData({ ...formData, reflection: limitToNineLines(e.target.value) })}
+                className="min-h-[140px] rounded-xl resize-none"
                 style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }}
               />
+              <p className="mt-1.5 text-right text-[10px] font-bold" style={{ color: "#8A97B5" }}>
+                {formData.reflection ? formData.reflection.split("\n").length : 0}/9 lines
+              </p>
             </div>
 
             <div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { cacheDrops, getCachedDrops, getQueuedActions, removeQueuedAction, getLastCachedAt } from "@/lib/offlineCache";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
@@ -10,6 +11,7 @@ import { toast } from "sonner";
  * 3. Provides cached drops when offline
  */
 export default function useOfflineSync(liveDrops, isOnline) {
+  const queryClient = useQueryClient();
   const [cachedDrops, setCachedDrops] = useState([]);
   const [lastCached, setLastCached] = useState(null);
   const [syncing, setSyncing] = useState(false);
@@ -46,7 +48,13 @@ export default function useOfflineSync(liveDrops, isOnline) {
             await base44.functions.invoke("handleLikeDrop", item.payload);
           } else {
             const { queueId, queuedAt, type, payload, ...legacyDropData } = item;
-            await base44.functions.invoke("createGlowDrop", payload || legacyDropData);
+            const dropData = payload || legacyDropData;
+            const { media_file: mediaFile, ...postData } = dropData;
+            if (mediaFile) {
+              const upload = await base44.integrations.Core.UploadFile({ file: mediaFile });
+              postData.media_url = upload.file_url;
+            }
+            await base44.functions.invoke("createGlowDrop", postData);
           }
           await removeQueuedAction(item.queueId);
           syncedCount++;
@@ -56,13 +64,16 @@ export default function useOfflineSync(liveDrops, isOnline) {
       }
 
       if (syncedCount > 0) {
+        await queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+        queryClient.invalidateQueries({ queryKey: ["myGlowDropsProfile"] });
+        queryClient.invalidateQueries({ queryKey: ["userLikes"] });
         toast.success(`Synced ${syncedCount} offline action${syncedCount > 1 ? "s" : ""}!`);
       }
     } finally {
       syncingRef.current = false;
       setSyncing(false);
     }
-  }, []); // stable — no deps that change
+  }, [queryClient]);
 
   // Sync once when coming back online
   useEffect(() => {
