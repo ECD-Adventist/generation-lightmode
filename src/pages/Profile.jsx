@@ -555,7 +555,7 @@ export default function Profile() {
   ]), [isMyDropsLoading, myDrops.length, challengeSubmissions.length, myMemberships.length, certificates.length]);
 
   const handleShareProfile = async () => {
-    const shareUrl = window.location.href;
+    const shareUrl = `${window.location.origin}${createPageUrl("Profile")}?user=${encodeURIComponent(profileEmail)}`;
     const displayName = getDisplayName(user);
     const shareText = `${displayName} • ${glowRank.name} • ${user.glow_score || 0} Glow Points`;
 
