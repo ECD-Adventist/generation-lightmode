@@ -293,9 +293,7 @@ export default function MobileProfile({
                   : { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.3)" }}>
                   <Edit3 className="w-3.5 h-3.5" /> {isLeader ? "Edit Leader Profile" : "Edit Profile"}
                 </button>
-                <button onClick={onShareProfile} className="flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-[12px] font-black active:scale-95 transition" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #D6E4FF" }}>
-                  <Share2 className="w-3.5 h-3.5" />
-                </button>
+
               </>
             ) : (
               <>
