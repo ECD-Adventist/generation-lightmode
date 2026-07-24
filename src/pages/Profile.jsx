@@ -558,12 +558,22 @@ export default function Profile() {
     const shareUrl = window.location.href;
     const displayName = getDisplayName(user);
     const shareText = `${displayName} • ${glowRank.name} • ${user.glow_score || 0} Glow Points`;
+
     if (navigator.share) {
-      await navigator.share({ title: `${displayName} | LightMode`, text: shareText, url: shareUrl });
-      return;
+      try {
+        await navigator.share({ title: `${displayName} | LightMode`, text: shareText, url: shareUrl });
+        return;
+      } catch (error) {
+        if (error?.name === "AbortError") return;
+      }
     }
-    await navigator.clipboard.writeText(shareUrl);
-    toast.success("Profile link copied");
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Profile link copied");
+    } catch {
+      toast.error("Sharing is unavailable here. Please copy the link from your browser.");
+    }
   };
 
   const handleImageSelect = (e, type) => {
