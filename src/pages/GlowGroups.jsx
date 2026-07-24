@@ -424,22 +424,31 @@ export default function GlowGroups() {
             )}
 
             {filteredGroups.map(group => {
-              const isMember = myMemberships.some(m => m.group_id === group.id);
+              const isMember = myMemberships.some(m => m.group_id === group.id) || group.leader_email === user?.email;
               const hasPending = myJoinRequests.some(r => r.group_id === group.id && r.status === "pending");
+              const openGroup = () => navigate(createPageUrl("GroupChat") + `?id=${encodeURIComponent(group.id)}`);
               return (
                 <div key={group.id} className="flex items-center gap-4 rounded-2xl p-4 transition-all hover:-translate-y-0.5" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}>
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0" style={{ background: "linear-gradient(135deg, rgba(31,184,255,0.1), rgba(11,63,217,0.08))", border: "1px solid #D6E4FF" }}>
-                    ✨
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{group.name}</div>
-                    <div className="text-xs mt-0.5 flex items-center gap-1" style={{ color: "#6B7FA0" }}>
-                      <MapPin className="w-3 h-3" /> {group.country || "Global"}
+                  {/* Card body opens the group's chat & activities for members/leaders */}
+                  <button
+                    type="button"
+                    onClick={() => { if (isMember) openGroup(); }}
+                    className={`flex items-center gap-4 flex-1 min-w-0 text-left ${isMember ? "cursor-pointer" : "cursor-default"}`}
+                    title={isMember ? "Open group" : undefined}
+                  >
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0" style={{ background: "linear-gradient(135deg, rgba(31,184,255,0.1), rgba(11,63,217,0.08))", border: "1px solid #D6E4FF" }}>
+                      ✨
                     </div>
-                    {group.description && (
-                      <div className="text-xs mt-1 line-clamp-1" style={{ color: "#4A5878" }}>{group.description}</div>
-                    )}
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{group.name}</div>
+                      <div className="text-xs mt-0.5 flex items-center gap-1" style={{ color: "#6B7FA0" }}>
+                        <MapPin className="w-3 h-3" /> {group.country || "Global"}
+                      </div>
+                      {group.description && (
+                        <div className="text-xs mt-1 line-clamp-1" style={{ color: "#4A5878" }}>{group.description}</div>
+                      )}
+                    </div>
+                  </button>
                   <div className="flex items-center gap-2 shrink-0">
                     {isMember && (
                       <button
