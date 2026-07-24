@@ -4,6 +4,7 @@ import { Calendar, Video } from "lucide-react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
+import { toast } from "sonner";
 
 export default function GroupSessionsPanel({ user, groups, memberships }) {
   const [groupId, setGroupId] = useState("");
@@ -13,12 +14,21 @@ export default function GroupSessionsPanel({ user, groups, memberships }) {
   const queryClient = useQueryClient();
   const memberGroupIds = memberships.map(m => m.group_id);
   const availableGroups = groups.filter(g => memberGroupIds.includes(g.id) || g.leader_email === user?.email);
+  // Only group leaders are allowed to create sessions (enforced by data permissions).
+  const hostableGroups = availableGroups.filter(g => g.leader_email === user?.email);
   const { data: sessions = [] } = useQuery({ queryKey: ["groupSessions"], queryFn: () => base44.entities.GroupSession.list("-scheduled_at", 100), enabled: !!user });
   const mySessions = useMemo(() => sessions.filter(s => availableGroups.some(g => g.id === s.group_id)), [sessions, availableGroups]);
 
   const createMutation = useMutation({
     mutationFn: () => base44.entities.GroupSession.create({ group_id: groupId, host_email: user.email, title, description, scheduled_at: new Date(scheduledAt).toISOString(), is_active: false }),
-    onSuccess: () => { setGroupId(""); setTitle(""); setDescription(""); setScheduledAt(""); queryClient.invalidateQueries({ queryKey: ["groupSessions"] }); }
+    onSuccess: () => {
+      setGroupId(""); setTitle(""); setDescription(""); setScheduledAt("");
+      queryClient.invalidateQueries({ queryKey: ["groupSessions"] });
+      toast.success("Session created! It now appears below. 🎥");
+    },
+    onError: () => {
+      toast.error("Couldn't create the session. Only the group's leader can host sessions — make sure you lead this group and try again.");
+    }
   });
 
   const inputStyle = { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#0B1B3D" };
@@ -32,13 +42,13 @@ export default function GroupSessionsPanel({ user, groups, memberships }) {
           <p className="text-sm mt-1" style={{ color: "#6B7FA0" }}>Create a private session for study, fellowship, or prayer.</p>
         </div>
         <select value={groupId} onChange={e => setGroupId(e.target.value)} className="w-full h-12 rounded-2xl px-4 focus:outline-none" style={inputStyle}>
-          <option value="">Choose a group</option>
-          {availableGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+          <option value="">{hostableGroups.length === 0 ? "You don't lead any groups yet" : "Choose a group"}</option>
+          {hostableGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
         </select>
         <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Session title" className="w-full h-12 rounded-2xl px-4 focus:outline-none" style={inputStyle} />
         <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Description" className="w-full min-h-[96px] rounded-2xl px-4 py-3 focus:outline-none" style={inputStyle} />
         <input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} className="w-full h-12 rounded-2xl px-4 focus:outline-none" style={inputStyle} />
-        <button onClick={() => createMutation.mutate()} disabled={!groupId || !title.trim() || !scheduledAt} className="px-5 py-3 rounded-2xl font-semibold disabled:opacity-50" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}>Create session</button>
+        <button onClick={() => createMutation.mutate()} disabled={!groupId || !title.trim() || !scheduledAt || createMutation.isPending} className="px-5 py-3 rounded-2xl font-semibold disabled:opacity-50" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}>{createMutation.isPending ? "Creating…" : "Create session"}</button>
       </div>
 
       <div className="space-y-4">
