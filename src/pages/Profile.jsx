@@ -735,7 +735,7 @@ export default function Profile() {
     {/* MOBILE branded layout */}
     <div className="md:hidden">
       {isOwnProfile && managedLeaderAccounts.length > 0 && (
-        <div className="px-4 pt-4">
+        <div className="px-4 pt-4" style={{ background: "linear-gradient(180deg, #FFFFFF 0%, #F6F8FC 100%)" }}>
           <LeaderAccountSwitcher
             currentUser={currentUser}
             managedAccounts={managedLeaderAccounts}
