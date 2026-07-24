@@ -100,6 +100,24 @@
   }
 }
 
+/* Mobile edge-to-edge canvas: page backgrounds extend behind iOS system bars. */
+@media (max-width: 767px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-height: 100%;
+    min-height: 100dvh;
+    margin: 0;
+    padding: 0;
+  }
+
+  #root {
+    position: relative;
+    isolation: isolate;
+  }
+}
+
 /* iOS safe-area helpers */
 .safe-pt { padding-top: env(safe-area-inset-top); }
 .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
