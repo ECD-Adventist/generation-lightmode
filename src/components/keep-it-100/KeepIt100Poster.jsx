@@ -28,6 +28,7 @@ export default function KeepIt100Poster({ text, verse, className = "" }) {
         backgroundImage: `url(${KEEP_IT_100_BACKGROUND_URL})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
+        containerType: "inline-size",
       }}
     >
       <div className="absolute z-10 top-[15.5%] bottom-[35%] left-[13%] right-[16%] flex items-center justify-center text-center overflow-hidden">
@@ -37,7 +38,7 @@ export default function KeepIt100Poster({ text, verse, className = "" }) {
               className="font-['Space_Grotesk'] font-semibold leading-[1.18] line-clamp-[8]"
               style={{
                 color: "#FFFFFF",
-                fontSize: "clamp(10px, 2.2vw, 22px)",
+                fontSize: "clamp(13px, 4.8cqw, 34px)",
                 letterSpacing: "-0.035em",
                 textShadow: "0 4px 20px rgba(0,0,0,0.72), 0 0 18px rgba(0,207,255,0.22)",
               }}
@@ -53,7 +54,7 @@ export default function KeepIt100Poster({ text, verse, className = "" }) {
                 className="font-['Space_Grotesk'] font-black uppercase whitespace-nowrap truncate"
                 style={{
                   color: "#FFD000",
-                  fontSize: "clamp(7px, 0.85vw, 11px)",
+                  fontSize: "clamp(8px, 2.2cqw, 15px)",
                   letterSpacing: "0.26em",
                   textShadow: "0 0 12px rgba(255,208,0,0.5), 0 2px 10px rgba(0,0,0,0.7)",
                 }}
