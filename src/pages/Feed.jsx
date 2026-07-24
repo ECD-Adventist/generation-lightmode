@@ -996,7 +996,7 @@ export default function Feed() {
              <div className="flex gap-2">
                <a href="#" className="hover:underline">Privacy</a>
                <a href="#" className="hover:underline">Terms</a>
-               <a href="#" className="hover:underline">Nexus Guide</a>
+               <a href="#" className="hover:underline">Community Guidelines</a>
              </div>
           </div>
         </div>
