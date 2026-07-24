@@ -95,7 +95,7 @@ export default function MobileProfile({
       )}
 
       {/* COVER — branded rounded card with rotating conic border + sweeping shimmer (mobile port of desktop effect) */}
-      <div className="px-4 pb-1">
+      <div className="px-4 pt-4 pb-1">
         <button
           type="button"
           onClick={() => user.cover_picture_url && setViewerImage({ url: user.cover_picture_url, alt: "Cover photo" })}
