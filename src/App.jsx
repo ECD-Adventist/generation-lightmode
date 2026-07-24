@@ -25,6 +25,8 @@ const DailyTruthFeed = lazy(() => import('./pages/DailyTruthFeed'));
 const InstitutionPageView = lazy(() => import('./pages/InstitutionPage'));
 const About = lazy(() => import('./pages/About'));
 const Privacy = lazy(() => import('./pages/Privacy'));
+const Terms = lazy(() => import('./pages/Terms'));
+const CommunityGuidelines = lazy(() => import('./pages/CommunityGuidelines'));
 const Settings = lazy(() => import('./pages/Settings'));
 const TerritoryPhotos = lazy(() => import('./pages/TerritoryPhotos'));
 const ClaimInstitutionDashboard = lazy(() => import('./pages/ClaimInstitutionDashboard'));
@@ -126,6 +128,8 @@ const AuthenticatedApp = () => {
       <Route path="/InstitutionPage" element={<LayoutWrapper currentPageName="InstitutionPage"><InstitutionPageView /></LayoutWrapper>} />
       <Route path="/About" element={<LayoutWrapper currentPageName="About"><About /></LayoutWrapper>} />
       <Route path="/Privacy" element={<LayoutWrapper currentPageName="Privacy"><Privacy /></LayoutWrapper>} />
+      <Route path="/Terms" element={<LayoutWrapper currentPageName="Terms"><Terms /></LayoutWrapper>} />
+      <Route path="/CommunityGuidelines" element={<LayoutWrapper currentPageName="CommunityGuidelines"><CommunityGuidelines /></LayoutWrapper>} />
       <Route path="/Settings" element={<LayoutWrapper currentPageName="Settings"><Settings /></LayoutWrapper>} />
       <Route path="/TerritoryPhotos" element={<LayoutWrapper currentPageName="TerritoryPhotos"><TerritoryPhotos /></LayoutWrapper>} />
       <Route path="/ClaimInstitutionDashboard" element={<LayoutWrapper currentPageName="ClaimInstitutionDashboard"><ClaimInstitutionDashboard /></LayoutWrapper>} />

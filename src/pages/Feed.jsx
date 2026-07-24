@@ -994,9 +994,9 @@ export default function Feed() {
           <div className="mt-6 text-[9px] flex flex-col gap-1" style={{ color: "#8A97B5" }}>
              <p>© 2026 GENERATION LIGHTMODE. ALL RIGHTS RESERVED.</p>
              <div className="flex gap-2">
-               <a href="#" className="hover:underline">Privacy</a>
-               <a href="#" className="hover:underline">Terms</a>
-               <a href="#" className="hover:underline">Community Guidelines</a>
+               <Link to="/Privacy" className="hover:underline">Privacy</Link>
+               <Link to="/Terms" className="hover:underline">Terms</Link>
+               <Link to="/CommunityGuidelines" className="hover:underline">Community Guidelines</Link>
              </div>
           </div>
         </div>
