@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getDisplayName } from "@/lib/displayName";
 import { feedThumb, avatarThumb } from "@/lib/imageProxy";
+import CountryFlag from "@/components/common/CountryFlag";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 
@@ -182,27 +183,30 @@ function MobileDropCard({
             />
           </div>
           <div className="min-w-0 max-w-[150px]">
-            <div className="text-[12px] font-black truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(authorProfile)}</div>
+            <div className="flex items-center gap-1 text-[12px] font-black" style={{ color: "#0B1B3D" }}>
+              <span className="truncate">{getDisplayName(authorProfile)}</span>
+              <CountryFlag country={authorProfile.country} size="xs" />
+            </div>
             <div className="text-[10px] truncate" style={{ color: "#4A5878" }}>
               {drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}
             </div>
           </div>
         </Link>
 
+        {canFollowAuthor && (
+          <button
+            onClick={() => followMutation?.mutate(drop.user_email)}
+            disabled={followMutation?.isPending}
+            className="absolute top-3 right-3 z-20 h-10 px-3 rounded-full flex items-center gap-1.5 text-[11px] font-black active:scale-95 transition disabled:opacity-60"
+            style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.28)", color: "#FFFFFF" }}
+            aria-label={`Follow ${getDisplayName(authorProfile)}`}
+          >
+            <UserPlus className="w-4 h-4" />
+            Follow
+          </button>
+        )}
+
         <div className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
-          {canFollowAuthor && (
-            <button
-              onClick={() => followMutation?.mutate(drop.user_email)}
-              disabled={followMutation?.isPending}
-              className="flex flex-col items-center gap-1 active:scale-95 transition disabled:opacity-60"
-              aria-label={`Follow ${getDisplayName(authorProfile)}`}
-            >
-              <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.28)", color: "#FFFFFF" }}>
-                <UserPlus className="w-5 h-5" />
-              </span>
-              <span className="text-[9px] font-black uppercase" style={{ color: hasDarkActionBackdrop ? "#FFFFFF" : "#0B3FD9", textShadow: hasDarkActionBackdrop ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>Follow</span>
-            </button>
-          )}
           <button onClick={handleLike} className="flex flex-col items-center gap-1 active:scale-95 transition">
             <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: userHasLiked ? "#EF4444" : "#0B3FD9" }}>
               <Heart className={`w-5 h-5 ${userHasLiked ? "fill-red-500 text-red-500" : ""}`} />
