@@ -57,6 +57,7 @@ function buildSections({ isSuperAdmin, isRegionalAdmin }) {
         { id: "analytics", icon: BarChart3, label: "Analytics" },
         { id: "growth-analytics", icon: TrendingUp, label: "Growth Analytics" },
         { id: "charts", icon: PieChart, label: "Charts Dashboard" },
+        ...(!isRegionalAdmin ? [{ id: "storage-dashboard", icon: Database, label: "Storage Dashboard" }] : []),
       ],
     },
     {

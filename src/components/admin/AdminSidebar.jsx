@@ -131,6 +131,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
           <SidebarItem id="analytics" icon={<BarChart3 size={16} />} label="Analytics" />
           <SidebarItem id="growth-analytics" icon={<TrendingUp size={16} />} label="Growth Analytics" />
           <SidebarItem id="charts" icon={<PieChart size={16} />} label="Charts Dashboard" />
+          {!isRegionalAdmin && <SidebarItem id="storage-dashboard" icon={<Database size={16} />} label="Storage Dashboard" />}
         </SidebarSection>
 
         <SidebarSection label="Content" isDark={isDark}>
