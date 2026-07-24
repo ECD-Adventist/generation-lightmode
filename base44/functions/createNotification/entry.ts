@@ -7,14 +7,16 @@ Deno.serve(async (req) => {
     const actor = await base44.auth.me();
     if (!actor) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { user_id, type, message, link, actor_user_id, reference_id } = await req.json();
-    if (!user_id || !type || !message) {
-      return Response.json({ error: 'user_id, type and message are required' }, { status: 400 });
-    }
-
+    const { user_id, type, message, description, link, actor_user_id, reference_id } = await req.json();
     const allowedTypes = ['like', 'reply', 'milestone', 'system', 'follow', 'message'];
-    if (!allowedTypes.includes(type)) {
-      return Response.json({ error: 'Invalid notification type' }, { status: 400 });
+    const validUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const normalizedLink = typeof link === 'string' ? link.trim() : '';
+    const hasSuspiciousScheme = /^(javascript|data|vbscript):/i.test(normalizedLink);
+    const hasValidLink = !normalizedLink || normalizedLink.startsWith('/') || normalizedLink.startsWith('https://');
+
+    if (!validUuid.test(String(user_id || '')) || !allowedTypes.includes(type) || typeof message !== 'string' || message.length > 500 || (description !== undefined && (typeof description !== 'string' || description.length > 500)) || !hasValidLink) {
+      if (hasSuspiciousScheme) console.warn('Blocked suspicious notification link scheme');
+      return Response.json({ error: 'Invalid input' }, { status: 400 });
     }
 
     const target = await base44.asServiceRole.entities.User.get(user_id).catch(() => null);
@@ -39,8 +41,9 @@ Deno.serve(async (req) => {
       actor_user_id: actor_user_id || actor.id,
       type,
       reference_id: reference_id || '',
-      message: String(message).slice(0, 500),
-      link: link || '',
+      message,
+      description: description || '',
+      link: normalizedLink,
       read: false,
     });
 

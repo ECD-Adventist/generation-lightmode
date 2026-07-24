@@ -237,10 +237,9 @@ export default function AdminAnnouncementsTab() {
             {body.trim() && (
               <div>
                 <label className="text-[10px] text-gray-500 uppercase tracking-wider mb-1.5 block">Live Preview</label>
-                <div
-                  className="bg-[#0B0F1A] border border-white/10 rounded-xl px-5 py-4 text-gray-300 text-sm leading-relaxed prose prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: body }}
-                />
+                <div className="bg-[#0B0F1A] border border-white/10 rounded-xl px-5 py-4 text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                  {body}
+                </div>
               </div>
             )}
           </div>
@@ -300,8 +299,9 @@ export default function AdminAnnouncementsTab() {
                         </div>
                       </button>
                       {isExpanded && parsed.body && (
-                        <div className="mt-3 bg-[#0B0F1A] rounded-xl px-4 py-3 text-xs text-gray-300 leading-relaxed border border-white/5"
-                          dangerouslySetInnerHTML={{ __html: parsed.body }} />
+                        <div className="mt-3 bg-[#0B0F1A] rounded-xl px-4 py-3 text-xs text-gray-300 leading-relaxed border border-white/5 whitespace-pre-wrap">
+                          {parsed.body}
+                        </div>
                       )}
                     </div>
                   );

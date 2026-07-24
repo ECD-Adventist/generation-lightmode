@@ -1,16 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
 
-const ALLOWED_ROLES = new Set([
-  'admin',
-  'super_admin',
-  'moderator',
-  'ecd_admin',
-  'country_admin',
-  'union_admin',
-  'conference_field_admin',
-  'church_admin'
-]);
-
 // Run an async op over items in small throttled batches to stay under rate limits.
 async function runInBatches(items, fn, batchSize, pauseMs) {
   let processed = 0;
@@ -28,7 +17,7 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!ALLOWED_ROLES.has(user.role)) return Response.json({ error: 'Forbidden' }, { status: 403 });
+    if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
     let body = {};
     try { body = await req.json(); } catch { body = {}; }

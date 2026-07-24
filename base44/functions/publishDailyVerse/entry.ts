@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
+import { authorizeSchedulerOrAdmin } from '../../shared/schedulerAuth.ts';
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
@@ -14,6 +15,9 @@ function mirrorGlowDropToSupabase(newDrop, createdBy) {
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
+        if (!await authorizeSchedulerOrAdmin(base44, req)) {
+            return Response.json({ error: 'Forbidden' }, { status: 403 });
+        }
 
         const today = new Date().toISOString().split('T')[0];
         

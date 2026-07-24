@@ -1,9 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { authorizeSchedulerOrAdmin } from '../../shared/schedulerAuth.ts';
 
-const SUPABASE_URL = "https://asnsthgubpeptoiexajf.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzbnN0aGd1YnBlcHRvaWV4YWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc4MzM5NDgsImV4cCI6MjA2MzQwOTk0OH0.r3WDFbJQgPuVnakMUJQa_cEWBUBbnT3hbDbT5GiZoNA";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
+
 function mirrorGlowDropToSupabase(newDrop, createdBy) {
-  if (!newDrop?.id) return;
+  if (!newDrop?.id || !SUPABASE_URL || !SUPABASE_ANON_KEY) return;
   fetch(`${SUPABASE_URL}/rest/v1/glow_drops`, {
     method: "POST",
     headers: { "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}`, "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates,return=minimal" },
@@ -16,20 +18,7 @@ function mirrorGlowDropToSupabase(newDrop, createdBy) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-
-    // Allow only: (a) the platform scheduler, identified by a shared token passed
-    // via the automation's function_args, or (b) an authenticated super_admin.
-    // Anonymous callers without the token are rejected.
-    const SCHEDULER_TOKEN = 'glm_sched_v1_Qk7xR2mZ9aT4wN8pJ3fL6cY1sB5hD0uE';
-    const body = await req.json().catch(() => ({}));
-
-    let user = null;
-    try { user = await base44.auth.me(); } catch { /* scheduled automation has no user */ }
-
-    const isScheduler = body?.scheduler_token === SCHEDULER_TOKEN;
-    const isSuperAdmin = !!user && user.role === 'super_admin';
-
-    if (!isScheduler && !isSuperAdmin) {
+    if (!await authorizeSchedulerOrAdmin(base44, req)) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 

@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { authorizeSchedulerOrAdmin } from '../../shared/schedulerAuth.ts';
 
 const ACCOUNT_EMAIL = 'system@lightmode.com';
 const ACCOUNT_ID = 'official-generation-lightmode';
@@ -36,6 +37,9 @@ async function ensureFollow(base44, followerUser) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    if (!await authorizeSchedulerOrAdmin(base44, req)) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
     let payload = {};
 
     try {

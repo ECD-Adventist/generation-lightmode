@@ -202,11 +202,9 @@ export default function ScheduledPostsCalendar() {
                       <div className="text-xs text-[#00CFFF] font-semibold truncate mb-1">{post.verse}</div>
                     )}
                     {post.reflection && (
-                      <div
-                        className="text-xs text-gray-400 line-clamp-2"
-                        // Quill stores HTML — show stripped preview
-                        dangerouslySetInnerHTML={{ __html: post.reflection.replace(/<[^>]*>/g, " ").slice(0, 150) + "..." }}
-                      />
+                      <div className="text-xs text-gray-400 line-clamp-2">
+                        {post.reflection.replace(/<[^>]*>/g, " ").slice(0, 150)}...
+                      </div>
                     )}
                     {post.media_url && (
                       <div className="flex items-center gap-1 mt-2 text-[10px] text-gray-500">

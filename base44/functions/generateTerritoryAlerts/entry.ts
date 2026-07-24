@@ -1,8 +1,12 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { authorizeSchedulerOrAdmin } from '../../shared/schedulerAuth.ts';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    if (!await authorizeSchedulerOrAdmin(base44, req)) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
     const body = await req.json();
 
     // Called by entity automations on GlowDrop create or GlowGroup create.
