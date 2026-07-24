@@ -79,46 +79,20 @@ export default function MobileProfile({
         }
       `}</style>
 
-      {/* Compact social-style profile header */}
-      <section className="bg-white">
-        <div className="safe-pt">
-          <div className="flex items-center justify-between px-5 pt-4 pb-4">
-            {isOwnProfile ? (
-              <div className="w-10 h-10" aria-hidden="true" />
-            ) : (
-              <Link
-                to={createPageUrl("Feed")}
-                className="w-10 h-10 flex items-center justify-center active:scale-95 transition"
-                style={{ color: "#081A3A" }}
-                aria-label="Back to feed"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-              </Link>
-            )}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={onShareProfile}
-                className="w-10 h-10 flex items-center justify-center active:scale-95 transition"
-                style={{ color: "#081A3A" }}
-                aria-label="Share profile"
-              >
-                <Share2 className="w-6 h-6" />
-              </button>
-              {isOwnProfile && (
-                <Link
-                  to={createPageUrl("Settings")}
-                  className="w-10 h-10 flex items-center justify-center active:scale-95 transition"
-                  style={{ color: "#081A3A" }}
-                  aria-label="Profile settings"
-                >
-                  <Settings className="w-6 h-6" />
-                </Link>
-              )}
-            </div>
+      {!isOwnProfile && (
+        <section className="bg-white safe-pt">
+          <div className="px-5 pt-4 pb-4">
+            <Link
+              to={createPageUrl("Feed")}
+              className="w-10 h-10 flex items-center justify-center active:scale-95 transition"
+              style={{ color: "#081A3A" }}
+              aria-label="Back to feed"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </Link>
           </div>
-
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* COVER — branded rounded card with rotating conic border + sweeping shimmer (mobile port of desktop effect) */}
       <div className="px-4 pb-1">
@@ -293,7 +267,12 @@ export default function MobileProfile({
                   : { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.3)" }}>
                   <Edit3 className="w-3.5 h-3.5" /> {isLeader ? "Edit Leader Profile" : "Edit Profile"}
                 </button>
-
+                <button onClick={onShareProfile} className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #D6E4FF" }} aria-label="Share profile">
+                  <Share2 className="w-4 h-4" />
+                </button>
+                <Link to={createPageUrl("Settings")} className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #D6E4FF" }} aria-label="Profile settings">
+                  <Settings className="w-4 h-4" />
+                </Link>
               </>
             ) : (
               <>
@@ -307,6 +286,9 @@ export default function MobileProfile({
                 <Link to={createPageUrl("Messages") + `?user=${encodeURIComponent(profileEmail)}`} className="flex items-center justify-center px-5 py-2.5 rounded-full text-[12px] font-black active:scale-95 transition no-underline" style={{ background: "#FFD000", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 208, 0, 0.35)" }}>
                   <MessageCircle className="w-3.5 h-3.5" />
                 </Link>
+                <button onClick={onShareProfile} className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "#FFFFFF", color: "#0B3FD9", border: "1px solid #D6E4FF" }} aria-label="Share profile">
+                  <Share2 className="w-4 h-4" />
+                </button>
               </>
             )}
           </div>
