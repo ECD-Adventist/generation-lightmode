@@ -83,14 +83,18 @@ export default function MobileProfile({
       <section className="bg-white">
         <div className="safe-pt">
           <div className="flex items-center justify-between px-5 pt-4 pb-4">
-            <Link
-              to={createPageUrl("Feed")}
-              className="w-10 h-10 flex items-center justify-center active:scale-95 transition"
-              style={{ color: "#081A3A" }}
-              aria-label="Back to feed"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            </Link>
+            {isOwnProfile ? (
+              <div className="w-10 h-10" aria-hidden="true" />
+            ) : (
+              <Link
+                to={createPageUrl("Feed")}
+                className="w-10 h-10 flex items-center justify-center active:scale-95 transition"
+                style={{ color: "#081A3A" }}
+                aria-label="Back to feed"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              </Link>
+            )}
             <div className="flex items-center gap-3">
               <button
                 onClick={onShareProfile}
