@@ -22,6 +22,7 @@ const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","Glo
 export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const isAppShellPage = appShellPages.includes(currentPageName);
+  const isLegalPage = ["Privacy", "Terms", "CommunityGuidelines"].includes(currentPageName);
   const isMobileViewport = useIsMobile();
   // On mobile, these pages render their own full-bleed mobile shell (with their own nav + footer).
   const mobileOwnedPages = ["Home", "About", "Impact", "Assistant", "Resources", "KeepIt100", "CodesOfTruth", "Challenges", "Media", "Privacy", "GenerationLightMode"];
@@ -282,17 +283,17 @@ export default function Layout({ children, currentPageName }) {
         /* Public nav for non-logged-in users */
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, paddingTop: "env(safe-area-inset-top)",
-        background: scrolled ? "rgba(11,15,26,0.85)" : "transparent",
-        backdropFilter: scrolled ? "blur(24px) saturate(1.4)" : "none",
-        borderBottom: "none",
+        background: isLegalPage || scrolled ? "rgba(11,15,26,0.96)" : "transparent",
+        backdropFilter: isLegalPage || scrolled ? "blur(24px) saturate(1.4)" : "none",
+        borderBottom: isLegalPage ? "1px solid rgba(0,207,255,0.16)" : "none",
         transition: "all 0.4s ease",
         padding: "0 24px",
       }}>
         {/* Branded gradient veil — soft fade only at top, no hard edge at bottom */}
         <div style={{
           position: "absolute", inset: 0, zIndex: -1,
-          background: scrolled
-            ? "linear-gradient(180deg, rgba(11,15,26,0.92) 0%, rgba(11,15,26,0.85) 100%)"
+          background: isLegalPage || scrolled
+            ? "linear-gradient(180deg, rgba(11,15,26,0.98) 0%, rgba(11,15,26,0.92) 100%)"
             : "none",
           transition: "all 0.4s ease",
           pointerEvents: "none",
