@@ -42,6 +42,12 @@ export default function Messages() {
     enabled: !!user,
   });
 
+  const { data: allConversations = [] } = useQuery({
+    queryKey: ["directConversations", user?.email],
+    queryFn: () => base44.entities.DirectConversation.list("-updated_date", 200),
+    enabled: !!user,
+  });
+
   const uniqueParticipantEmails = useMemo(() => {
     const emails = new Set();
     allConversations.forEach(c => {
@@ -79,12 +85,6 @@ export default function Messages() {
     () => following.map(f => f.following_email || mergedUsers.find(u => u.id === f.following_id)?.email).filter(Boolean),
     [following, mergedUsers]
   );
-
-  const { data: allConversations = [] } = useQuery({
-    queryKey: ["directConversations", user?.email],
-    queryFn: () => base44.entities.DirectConversation.list("-updated_date", 200),
-    enabled: !!user,
-  });
 
   // GlowGroup memberships for group chat
   const { data: myMemberships = [] } = useQuery({
