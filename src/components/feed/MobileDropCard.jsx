@@ -49,6 +49,7 @@ function MobileDropCard({
     /codes?\s*of\s*truth|codes?oftruth/i.test(drop.hashtags || "")
   );
   const usesDesignedPoster = isKeepIt100 || isCodeOfTruth;
+  const hasDarkActionBackdrop = Boolean(drop.media_url || usesDesignedPoster);
 
   const savedForThisDrop = savedDropRecords.filter(s => s.drop_id === drop.id);
   const isSaved = savedForThisDrop.length > 0;
@@ -187,19 +188,19 @@ function MobileDropCard({
             <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: userHasLiked ? "#EF4444" : "#0B3FD9" }}>
               <Heart className={`w-5 h-5 ${userHasLiked ? "fill-red-500 text-red-500" : ""}`} />
             </span>
-            <span className="text-[11px] font-black" style={{ color: drop.media_url ? "#FFFFFF" : "#0B1B3D", textShadow: drop.media_url ? "0 1px 4px rgba(0,0,0,0.45)" : "none" }}>{drop.likes_count || 0}</span>
+            <span className="text-[11px] font-black" style={{ color: hasDarkActionBackdrop ? "#FFFFFF" : "#0B1B3D", textShadow: hasDarkActionBackdrop ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>{drop.likes_count || 0}</span>
           </button>
           <Link to={postLink} className="flex flex-col items-center gap-1 active:scale-95 transition no-underline">
             <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: "#0B3FD9" }}>
               <MessageCircle className="w-5 h-5" />
             </span>
-            <span className="text-[11px] font-black" style={{ color: drop.media_url ? "#FFFFFF" : "#0B1B3D", textShadow: drop.media_url ? "0 1px 4px rgba(0,0,0,0.45)" : "none" }}>0</span>
+            <span className="text-[11px] font-black" style={{ color: hasDarkActionBackdrop ? "#FFFFFF" : "#0B1B3D", textShadow: hasDarkActionBackdrop ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>0</span>
           </Link>
           <button onClick={() => handleShare(drop)} className="flex flex-col items-center gap-1 active:scale-95 transition">
             <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: "#0B3FD9" }}>
               <Share2 className="w-5 h-5" />
             </span>
-            <span className="text-[11px] font-black" style={{ color: drop.media_url ? "#FFFFFF" : "#0B1B3D", textShadow: drop.media_url ? "0 1px 4px rgba(0,0,0,0.45)" : "none" }}>0</span>
+            <span className="text-[11px] font-black" style={{ color: hasDarkActionBackdrop ? "#FFFFFF" : "#0B1B3D", textShadow: hasDarkActionBackdrop ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>0</span>
           </button>
           <button onClick={() => toggleSaveMutation.mutate()} className="w-11 h-11 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: isSaved ? "#F59E0B" : "#0B3FD9" }}>
             <Bookmark className={`w-5 h-5 ${isSaved ? "fill-amber-400 text-amber-400" : ""}`} />
