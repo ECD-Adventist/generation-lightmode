@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 const ADMIN_ROLES = new Set([
   'admin',
@@ -56,8 +57,19 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
 
-    const payload = await req.json().catch(() => ({}));
+    const validated = await readValidatedJson(req, {
+      limit: { type: 'number', integer: true, min: 1, max: MAX_LIMIT },
+      skip: { type: 'number', integer: true, min: 0, max: 100000 },
+      emails: { type: 'array', maxItems: MAX_LIMIT, items: { type: 'string', maxLength: 254 } },
+      search: { type: 'string', maxLength: 100 },
+      q: { type: 'string', maxLength: 100 },
+      include_count: { type: 'boolean' },
+    });
+    if (validated.response) return validated.response;
+    const payload = validated.data;
 
     const requestedLimit = Number.parseInt(payload.limit, 10);
     const limit = Math.max(1, Math.min(Number.isFinite(requestedLimit) ? requestedLimit : DEFAULT_LIMIT, MAX_LIMIT));

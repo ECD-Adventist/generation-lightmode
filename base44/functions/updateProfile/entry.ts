@@ -1,11 +1,35 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 Deno.serve(async (req) => {
   try {
-    const body = await req.json().catch(() => ({}));
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
+
+    const validated = await readValidatedJson(req, {
+      display_name: { type: 'string', maxLength: 120 },
+      username: { type: 'string', maxLength: 40 },
+      website_url: { type: 'string', maxLength: 2048 },
+      country: { type: 'string', maxLength: 100 },
+      location: { type: 'string', maxLength: 200 },
+      bio: { type: 'string', maxLength: 1200 },
+      profile_picture: { type: 'string', maxLength: 2048 },
+      profile_picture_url: { type: 'string', maxLength: 2048 },
+      cover_image: { type: 'string', maxLength: 2048 },
+      cover_picture_url: { type: 'string', maxLength: 2048 },
+      gender: { type: 'string', maxLength: 50 },
+      date_of_birth: { type: 'string', maxLength: 10 },
+      phone: { type: 'string', maxLength: 40 },
+      city: { type: 'string', maxLength: 120 },
+      address: { type: 'string', maxLength: 300 },
+      postal_code: { type: 'string', maxLength: 30 },
+      social_links: { type: 'string', maxLength: 2000 },
+    });
+    if (validated.response) return validated.response;
+    const body = validated.data;
 
     const has = (key) => Object.prototype.hasOwnProperty.call(body, key);
     const clean = (value) => (typeof value === 'string' ? value.trim() : value);

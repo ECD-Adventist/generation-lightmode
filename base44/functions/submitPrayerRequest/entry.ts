@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { mirrorToSupabase } from '../../shared/supabase.ts';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 // Owns PrayerRequest create/update so anonymity is enforced server-side:
 // when is_anonymous is true, user_email is NEVER persisted (privacy / GDPR).
@@ -8,9 +9,18 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
 
-    const body = await req.json();
-    const { request_id, content, category, is_anonymous, answered } = body;
+    const validated = await readValidatedJson(req, {
+      request_id: { type: 'string', format: 'uuid' },
+      content: { type: 'string', maxLength: 2000 },
+      category: { type: 'string', maxLength: 100 },
+      is_anonymous: { type: 'boolean' },
+      answered: { type: 'boolean' },
+    });
+    if (validated.response) return validated.response;
+    const { request_id, content, category, is_anonymous, answered } = validated.data;
 
     const anonymous = is_anonymous === true;
 

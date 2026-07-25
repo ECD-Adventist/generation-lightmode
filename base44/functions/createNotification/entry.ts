@@ -1,22 +1,31 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { mirrorToSupabase } from '../../shared/supabase.ts';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const actor = await base44.auth.me();
     if (!actor) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, actor);
+    if (rateLimited) return rateLimited;
 
-    const { user_id, type, message, description, link, actor_user_id, reference_id } = await req.json();
-    const allowedTypes = ['like', 'reply', 'milestone', 'system', 'follow', 'message'];
-    const validUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const validated = await readValidatedJson(req, {
+      user_id: { type: 'string', required: true, format: 'uuid' },
+      type: { type: 'string', required: true, enum: ['like', 'reply', 'milestone', 'system', 'follow', 'message'] },
+      message: { type: 'string', required: true, minLength: 1, maxLength: 500 },
+      description: { type: 'string', maxLength: 500 },
+      link: { type: 'string', maxLength: 2048 },
+      reference_id: { type: 'string', maxLength: 200 },
+    });
+    if (validated.response) return validated.response;
+    const { user_id, type, message, description, link, reference_id } = validated.data;
     const normalizedLink = typeof link === 'string' ? link.trim() : '';
     const hasSuspiciousScheme = /^(javascript|data|vbscript):/i.test(normalizedLink);
     const hasValidLink = !normalizedLink || normalizedLink.startsWith('/') || normalizedLink.startsWith('https://');
-
-    if (!validUuid.test(String(user_id || '')) || !allowedTypes.includes(type) || typeof message !== 'string' || message.length > 500 || (description !== undefined && (typeof description !== 'string' || description.length > 500)) || !hasValidLink) {
+    if (!hasValidLink) {
       if (hasSuspiciousScheme) console.warn('Blocked suspicious notification link scheme');
-      return Response.json({ error: 'Invalid input' }, { status: 400 });
+      return Response.json({ error: 'link must be relative or use HTTPS' }, { status: 400 });
     }
 
     const target = await base44.asServiceRole.entities.User.get(user_id).catch(() => null);
@@ -38,7 +47,7 @@ Deno.serve(async (req) => {
 
     const created = await base44.asServiceRole.entities.Notification.create({
       user_id,
-      actor_user_id: actor_user_id || actor.id,
+      actor_user_id: actor.id,
       type,
       reference_id: reference_id || '',
       message,

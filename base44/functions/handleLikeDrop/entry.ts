@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import { createNotificationIdempotent } from '../../shared/notifications.ts';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -9,12 +10,17 @@ Deno.serve(async (req) => {
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
 
-    const { drop_id } = await req.json();
-
-    if (!drop_id) {
-      return Response.json({ error: 'Missing drop_id' }, { status: 400 });
-    }
+    const validated = await readValidatedJson(req, {
+      drop_id: { type: 'string', required: true, format: 'uuid' },
+      author_email: { type: 'string', maxLength: 254 },
+      author_name: { type: 'string', maxLength: 120 },
+      action: { type: 'string', enum: ['toggle'] },
+    });
+    if (validated.response) return validated.response;
+    const { drop_id } = validated.data;
 
     // Check if user already liked this drop
     const existingLikes = await base44.entities.GlowDropLike.filter({

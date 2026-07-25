@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { enforceApiRateLimit } from '../../shared/apiSecurity.ts';
 
 // Hard cap to avoid full-table scans (audit F-19). Aggregates are computed
 // server-side and only non-PII counts/snippets are returned to the client.
@@ -7,6 +8,8 @@ const SCAN_CAP = 5000;
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const rateLimited = await enforceApiRateLimit(base44, req);
+    if (rateLimited) return rateLimited;
     const svc = base44.asServiceRole;
 
     // Read each entity independently and tolerate individual failures so a single

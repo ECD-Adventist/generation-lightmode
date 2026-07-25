@@ -1,0 +1,45 @@
+{
+  "name": "ApiRateLimit",
+  "type": "object",
+  "properties": {
+    "subject_hash": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "window_started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "request_count": {
+      "type": "number",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "subject_hash",
+    "window_started_at",
+    "request_count"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

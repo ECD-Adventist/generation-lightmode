@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 function safeLeader(account) {
   return {
@@ -19,8 +20,16 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
 
-    const body = await req.json().catch(() => ({}));
+    const validated = await readValidatedJson(req, {
+      limit: { type: 'number', integer: true, min: 1, max: 200 },
+      search: { type: 'string', maxLength: 100 },
+      emails: { type: 'array', maxItems: 100, items: { type: 'string', maxLength: 254 } },
+    });
+    if (validated.response) return validated.response;
+    const body = validated.data;
     const limit = Math.max(1, Math.min(Number.parseInt(body.limit, 10) || 100, 200));
     const search = String(body.search || '').trim().toLowerCase().slice(0, 100);
     const emails = Array.isArray(body.emails)

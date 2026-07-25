@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
 import { mirrorToSupabase } from '../../shared/supabase.ts';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -7,19 +8,34 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
 
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
 
-    const body = await req.json();
-    const { verse, reflection, hashtags, category, media_url: rawMediaUrl, post_as_leader_id } = body;
+    const validated = await readValidatedJson(req, {
+      verse: { type: 'string', maxLength: 500 },
+      reflection: { type: 'string', maxLength: 2000 },
+      hashtags: { type: 'string', maxLength: 200 },
+      category: { type: 'string', maxLength: 100 },
+      media_url: { type: 'string', maxLength: 2048 },
+      post_as_leader_id: { type: 'string', format: 'uuid' },
+    });
+    if (validated.response) return validated.response;
+    const { verse, reflection, hashtags, category, media_url: rawMediaUrl, post_as_leader_id } = validated.data;
 
     const ALLOWED_CDN_HOSTS = ['media.base44.com', 'base44.app', 'images.unsplash.com', 'res.cloudinary.com'];
     const ALLOWED_MIME = new Set([
-      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-      'video/mp4', 'video/webm',
+      'image/jpeg', 'image/png', 'image/gif',
+      'video/mp4', 'application/pdf',
     ]);
     const MAX_BYTES = 10 * 1024 * 1024; // 10MB
 
     let media_url = null;
     if (rawMediaUrl) {
+      let decodedMediaUrl = rawMediaUrl;
+      try { decodedMediaUrl = decodeURIComponent(rawMediaUrl); } catch { /* URL parser reports the error below */ }
+      if (decodedMediaUrl.includes('../') || decodedMediaUrl.includes('..\\') || decodedMediaUrl.includes('\\')) {
+        return Response.json({ error: 'Invalid media path.' }, { status: 400 });
+      }
       let parsed;
       try {
         parsed = new URL(rawMediaUrl);
@@ -37,14 +53,20 @@ Deno.serve(async (req) => {
         const contentType = (head.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
         const contentLength = Number.parseInt(head.headers.get('content-length') || '0', 10);
 
-        if (contentType && !ALLOWED_MIME.has(contentType)) {
-          return Response.json({ error: 'Unsupported file type. Allowed: JPEG, PNG, GIF, WebP images and MP4/WebM video.' }, { status: 400 });
+        if (!head.ok) {
+          return Response.json({ error: 'Unable to verify uploaded file.' }, { status: 400 });
         }
-        if (Number.isFinite(contentLength) && contentLength > MAX_BYTES) {
+        if (!contentType || !ALLOWED_MIME.has(contentType)) {
+          return Response.json({ error: 'Unsupported file type. Allowed: JPEG, PNG, GIF, MP4, and PDF.' }, { status: 400 });
+        }
+        if (!Number.isFinite(contentLength) || contentLength <= 0) {
+          return Response.json({ error: 'Unable to verify uploaded file size.' }, { status: 400 });
+        }
+        if (contentLength > MAX_BYTES) {
           return Response.json({ error: 'File too large. Maximum size is 10MB.' }, { status: 400 });
         }
       } catch {
-        // If the HEAD check fails (e.g. CDN blocks HEAD), fall through — host is already allowlisted.
+        return Response.json({ error: 'Unable to verify uploaded file.' }, { status: 400 });
       }
       media_url = rawMediaUrl;
     }
