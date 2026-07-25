@@ -5,6 +5,8 @@ import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+const CHECK_INTERVAL_MS = 15 * 1000;
+const LAST_ACTIVITY_KEY = "glm_last_authenticated_activity";
 const ACTIVITY_EVENTS = ["pointerdown", "keydown", "scroll", "touchstart"];
 
 export default function SessionSecurity() {
@@ -22,23 +24,37 @@ export default function SessionSecurity() {
   }, [location.pathname, location.search, location.hash]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      localStorage.removeItem(LAST_ACTIVITY_KEY);
+      return;
+    }
 
-    let timeoutId;
-    const expireSession = () => base44.auth.logout(`${window.location.origin}/Home?session=expired`);
-    const resetTimeout = () => {
-      window.clearTimeout(timeoutId);
-      timeoutId = window.setTimeout(expireSession, SESSION_TIMEOUT_MS);
+    let expired = false;
+    const markActivity = () => localStorage.setItem(LAST_ACTIVITY_KEY, String(Date.now()));
+    const expireSession = () => {
+      if (expired) return;
+      expired = true;
+      localStorage.removeItem(LAST_ACTIVITY_KEY);
+      base44.auth.logout(`${window.location.origin}/Home?session=expired`);
+    };
+    const checkSession = () => {
+      const lastActivity = Number(localStorage.getItem(LAST_ACTIVITY_KEY));
+      if (lastActivity && Date.now() - lastActivity >= SESSION_TIMEOUT_MS) expireSession();
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") checkSession();
     };
 
-    ACTIVITY_EVENTS.forEach((event) => window.addEventListener(event, resetTimeout, { passive: true }));
-    document.addEventListener("visibilitychange", resetTimeout);
-    resetTimeout();
+    if (!localStorage.getItem(LAST_ACTIVITY_KEY)) markActivity();
+    checkSession();
+    ACTIVITY_EVENTS.forEach((event) => window.addEventListener(event, markActivity, { passive: true }));
+    document.addEventListener("visibilitychange", handleVisibility);
+    const intervalId = window.setInterval(checkSession, CHECK_INTERVAL_MS);
 
     return () => {
-      window.clearTimeout(timeoutId);
-      ACTIVITY_EVENTS.forEach((event) => window.removeEventListener(event, resetTimeout));
-      document.removeEventListener("visibilitychange", resetTimeout);
+      window.clearInterval(intervalId);
+      ACTIVITY_EVENTS.forEach((event) => window.removeEventListener(event, markActivity));
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [isAuthenticated]);
 
