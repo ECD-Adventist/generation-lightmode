@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 // Admin-initiated user invite + audit log
 Deno.serve(async (req) => {
@@ -12,6 +13,7 @@ Deno.serve(async (req) => {
 
     const ADMIN_ROLES = ['admin', 'super_admin'];
     if (!ADMIN_ROLES.includes(caller.role)) {
+      await logPermissionDenied(base44, req, caller, 'user_invitation', 'create');
       return Response.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
@@ -62,6 +64,8 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.User.update(existing.id, { role: 'super_admin' });
       }
     }
+
+    await logAdminAction(base44, req, caller, 'user_invitation', 'user_invited', `Role: ${role}`);
 
     // Audit log
     await base44.asServiceRole.entities.AdminLog.create({

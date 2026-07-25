@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import { createNotificationIdempotent } from '../../shared/notifications.ts';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 // Send an admin notification (and optional email) to a specific user
 Deno.serve(async (req) => {
@@ -13,6 +14,7 @@ Deno.serve(async (req) => {
 
     const ADMIN_ROLES = ['admin', 'super_admin'];
     if (!ADMIN_ROLES.includes(caller.role)) {
+      await logPermissionDenied(base44, req, caller, 'user_notification', 'create');
       return Response.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
@@ -51,6 +53,7 @@ Deno.serve(async (req) => {
       }
     }
 
+    await logAdminAction(base44, req, caller, `user:${targetUserId}`, 'notification_sent', sendEmail ? 'In-app and email' : 'In-app only');
     await base44.asServiceRole.entities.AdminLog.create({
       admin_email: caller.email,
       admin_name: caller.full_name || caller.email,

@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 const ADMIN_ROLES = new Set([
   'admin',
@@ -28,6 +29,7 @@ Deno.serve(async (req) => {
     if (rateLimited) return rateLimited;
 
     if (!ADMIN_ROLES.has(caller.role)) {
+      await logPermissionDenied(base44, req, caller, 'leader_followers', 'bulk_create');
       return Response.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
@@ -74,6 +76,7 @@ Deno.serve(async (req) => {
       }
     }
 
+    await logAdminAction(base44, req, caller, `leader:${leaderAccountId}`, dryRun ? 'followers_dry_run' : 'followers_created', `Count: ${newFollows.length}`);
     return Response.json({
       leader_email: leaderEmail,
       dry_run: dryRun,

@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 const PIN_ALLOWED_ROLES = new Set(['ecd_admin', 'super_admin']);
 
@@ -11,6 +12,7 @@ Deno.serve(async (req) => {
     const rateLimited = await enforceApiRateLimit(base44, req, user);
     if (rateLimited) return rateLimited;
     if (!PIN_ALLOWED_ROLES.has(user.role)) {
+      await logPermissionDenied(base44, req, user, 'glow_drop_pin', 'update');
       return Response.json({ error: 'Only ECD Admins and super admins can pin feed posts.' }, { status: 403 });
     }
 
@@ -23,6 +25,7 @@ Deno.serve(async (req) => {
     const pinned = validated.data.pinned;
 
     await base44.asServiceRole.entities.GlowDrop.update(dropId, { pinned });
+    await logAdminAction(base44, req, user, `glow_drop:${dropId}`, pinned ? 'pin' : 'unpin');
 
     await base44.asServiceRole.entities.AdminLog.create({
       admin_email: user.email,

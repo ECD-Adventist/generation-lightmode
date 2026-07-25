@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 // Search registered users by name or email for manager assignment in
 // ManagedLeaderAccount. Returns minimal fields (no PII). Restricted to admins.
@@ -13,6 +14,7 @@ Deno.serve(async (req) => {
     const rateLimited = await enforceApiRateLimit(base44, req, me);
     if (rateLimited) return rateLimited;
     if (me.role !== 'admin' && me.role !== 'super_admin') {
+      await logPermissionDenied(base44, req, me, 'manager_assignment_search', 'read');
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
@@ -44,6 +46,7 @@ Deno.serve(async (req) => {
         country: u.country,
       }));
 
+    await logAdminAction(base44, req, me, 'manager_assignment_search', 'search', `Returned ${matches.length} users`);
     return Response.json({ users: matches });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

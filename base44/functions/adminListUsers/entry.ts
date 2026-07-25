@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 // Admin-only endpoint that returns the full user list including real roles + status.
 Deno.serve(async (req) => {
@@ -18,6 +19,7 @@ Deno.serve(async (req) => {
       'union_admin', 'conference_field_admin', 'church_admin', 'moderator'
     ];
     if (!ADMIN_ROLES.includes(caller.role)) {
+      await logPermissionDenied(base44, req, caller, 'users', 'list');
       return Response.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
@@ -61,6 +63,7 @@ Deno.serve(async (req) => {
       territory_level: u.territory_level,
     }));
 
+    await logAdminAction(base44, req, caller, 'users', 'list', `Returned ${adminUsers.length} users`);
     return Response.json(adminUsers);
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

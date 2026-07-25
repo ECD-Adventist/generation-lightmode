@@ -1,10 +1,10 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
-function safeLeader(account) {
+function safeLeader(account, includeEmail = false) {
   return {
     id: account.id,
-    leader_email: account.leader_email || '',
+    ...(includeEmail ? { leader_email: account.leader_email || '' } : {}),
     leader_name: account.leader_name || '',
     leader_title: account.leader_title || '',
     leader_country: account.leader_country || '',
@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
         return text.includes(search);
       })
       .slice(0, limit)
-      .map(safeLeader);
+      .map((account) => safeLeader(account, Boolean(emails)));
 
     return Response.json(filtered);
   } catch (error) {

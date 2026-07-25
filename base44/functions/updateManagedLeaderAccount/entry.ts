@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 const ADMIN_ROLES = new Set(['admin', 'super_admin']);
 const ADMIN_FIELDS = new Set([
@@ -31,7 +32,10 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
     const rateLimited = await enforceApiRateLimit(base44, req, user);
     if (rateLimited) return rateLimited;
-    if (!ADMIN_ROLES.has(user.role)) return Response.json({ error: 'Admin access required' }, { status: 403 });
+    if (!ADMIN_ROLES.has(user.role)) {
+      await logPermissionDenied(base44, req, user, 'managed_leader_account', 'update');
+      return Response.json({ error: 'Admin access required' }, { status: 403 });
+    }
 
     const validated = await readValidatedJson(req, {
       account_id: { type: 'string', required: true, format: 'uuid' },
@@ -77,6 +81,7 @@ Deno.serve(async (req) => {
     if (Object.keys(payload).length === 0) return Response.json({ success: true, updated_fields: [] });
 
     await base44.asServiceRole.entities.ManagedLeaderAccount.update(account.id, payload);
+    await logAdminAction(base44, req, user, `managed_leader:${account.id}`, 'update', `Fields: ${Object.keys(payload).join(', ')}`);
     return Response.json({ success: true, updated_fields: Object.keys(payload) });
   } catch (error) {
     console.error('updateManagedLeaderAccount failed:', error?.message);

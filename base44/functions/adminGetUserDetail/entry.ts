@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 // Returns a rich profile bundle for the admin detail drawer:
 //   user, activity counts, recent drops, audit log, orphan warnings
@@ -16,6 +17,7 @@ Deno.serve(async (req) => {
       'union_admin', 'conference_field_admin', 'church_admin', 'moderator'
     ];
     if (!ADMIN_ROLES.includes(caller.role)) {
+      await logPermissionDenied(base44, req, caller, 'user_detail', 'read');
       return Response.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
@@ -72,6 +74,7 @@ Deno.serve(async (req) => {
         created_date: d.created_date,
       }));
 
+    await logAdminAction(base44, req, caller, `user:${targetUserId}`, 'detail_read');
     return Response.json({
       user: {
         id: user.id,

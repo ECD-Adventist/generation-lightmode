@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
@@ -9,7 +10,8 @@ Deno.serve(async (req) => {
   if (rateLimited) return rateLimited;
 
   const ADMIN_ROLES = ["admin", "super_admin", "ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin"];
-  if (!user || !ADMIN_ROLES.includes(user.role)) {
+  if (!ADMIN_ROLES.includes(user.role)) {
+    await logPermissionDenied(base44, req, user, 'user_territory', 'update');
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -55,5 +57,6 @@ Deno.serve(async (req) => {
     return Response.json({ error: "User not found or update failed: " + err.message }, { status: 404 });
   }
 
+  await logAdminAction(base44, req, user, `user:${userId}`, 'territory_assigned', `Fields: ${Object.keys(updates).join(', ')}`);
   return Response.json({ success: true, userId, updates });
 });

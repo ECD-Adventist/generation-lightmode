@@ -1,4 +1,9 @@
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+import { logSecurityEvent } from './securityEvents.ts';
+
+// Base44 records currently use 24-character hexadecimal ids; imported records
+// may use UUIDs. Accept both canonical identifier formats without accepting
+// arbitrary query/operator strings.
+const UUID_PATTERN = /^(?:[0-9a-f]{24}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i;
 const WINDOW_MS = 60_000;
 
 async function sha256(value) {
@@ -13,14 +18,32 @@ export async function enforceApiRateLimit(base44, req, user = null) {
   const identity = user?.id ? `user:${user.id}` : `ip:${ip}`;
   const endpoint = new URL(req.url).pathname;
   const subjectHash = await sha256(`${endpoint}|${identity}`);
+  const abuseHash = await sha256(`abuse|${identity}`);
   const limit = user?.id ? 120 : 60;
   const now = Date.now();
   const windowStart = Math.floor(now / WINDOW_MS) * WINDOW_MS;
   const windowIso = new Date(windowStart).toISOString();
   const retryAfter = Math.max(1, Math.ceil((windowStart + WINDOW_MS - now) / 1000));
 
-  const records = await base44.asServiceRole.entities.ApiRateLimit.filter({ subject_hash: subjectHash }, '-updated_date', 1);
+  const [records, abuseRecords] = await Promise.all([
+    base44.asServiceRole.entities.ApiRateLimit.filter({ subject_hash: subjectHash }, '-updated_date', 1),
+    base44.asServiceRole.entities.ApiRateLimit.filter({ subject_hash: abuseHash }, '-updated_date', 1),
+  ]);
   const record = records[0];
+  const abuseRecord = abuseRecords[0];
+  const abuseCount = abuseRecord?.window_started_at === windowIso ? Number(abuseRecord.request_count || 0) + 1 : 1;
+  if (abuseRecord) {
+    await base44.asServiceRole.entities.ApiRateLimit.update(abuseRecord.id, { window_started_at: windowIso, request_count: abuseCount });
+  } else {
+    await base44.asServiceRole.entities.ApiRateLimit.create({ subject_hash: abuseHash, window_started_at: windowIso, request_count: 1 });
+  }
+  if (abuseCount === 101) {
+    await logSecurityEvent(base44, req, {
+      event_type: 'api_abuse_flagged', severity: 'critical', user_id: user?.id || '',
+      resource: endpoint, action: req.method, request_count: abuseCount,
+      details: 'More than 100 API calls in one minute',
+    });
+  }
   if (record?.window_started_at === windowIso && Number(record.request_count || 0) >= limit) {
     return Response.json({ error: 'Too many requests. Please try again shortly.' }, {
       status: 429,
@@ -49,7 +72,7 @@ function validateValue(name, value, rule) {
     if (typeof value !== 'string') return `${name} must be a string`;
     if (rule.minLength !== undefined && value.length < rule.minLength) return `${name} is too short`;
     if (rule.maxLength !== undefined && value.length > rule.maxLength) return `${name} must be at most ${rule.maxLength} characters`;
-    if (rule.format === 'uuid' && !UUID_PATTERN.test(value)) return `${name} must be a valid UUID`;
+    if (rule.format === 'uuid' && !UUID_PATTERN.test(value)) return `${name} must be a valid identifier`;
     if (rule.enum && !rule.enum.includes(value)) return `${name} has an invalid value`;
   } else if (rule.type === 'number') {
     if (typeof value !== 'number' || !Number.isFinite(value)) return `${name} must be a number`;

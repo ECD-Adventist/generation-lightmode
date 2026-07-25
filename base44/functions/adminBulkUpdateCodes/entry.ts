@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 // Run an async op over items in small throttled batches to stay under rate limits.
 async function runInBatches(items, fn, batchSize, pauseMs) {
@@ -20,7 +21,10 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
     const rateLimited = await enforceApiRateLimit(base44, req, user);
     if (rateLimited) return rateLimited;
-    if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
+    if (user.role !== 'admin') {
+      await logPermissionDenied(base44, req, user, 'codes_of_truth', 'bulk_update');
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const validated = await readValidatedJson(req, {
       action: { type: 'string', required: true, enum: ['approve', 'reject', 'pending', 'delete'] },
@@ -70,9 +74,10 @@ Deno.serve(async (req) => {
       action === 'delete'
         ? id => base44.asServiceRole.entities.CodeOfTruth.delete(id)
         : id => base44.asServiceRole.entities.CodeOfTruth.update(id, { status: statusMap[action] }),
-      25,   // 25 per batch
-      150   // short pause between batches
+      25,
+      150
     );
+    await logAdminAction(base44, req, user, 'codes_of_truth', `bulk_${action}`, `Processed ${processed} records`);
 
     return Response.json({ processed });
   } catch (error) {

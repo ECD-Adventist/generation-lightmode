@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 // Role hierarchy — higher index = more privileged
 const ROLE_HIERARCHY = [
@@ -19,6 +20,7 @@ Deno.serve(async (req) => {
 
     const ADMIN_ROLES = ["admin", "super_admin"];
     if (!ADMIN_ROLES.includes(caller.role)) {
+      await logPermissionDenied(base44, req, caller, 'user_role', 'update');
       return Response.json({ error: "Forbidden: admin access required" }, { status: 403 });
     }
 
@@ -52,6 +54,7 @@ Deno.serve(async (req) => {
     const oldRole = target.role || "user";
 
     await base44.asServiceRole.entities.User.update(targetUserId, { role: newRole });
+    await logAdminAction(base44, req, caller, `user:${targetUserId}`, 'role_changed', `${oldRole} to ${newRole}`);
 
     // Audit log
     await base44.asServiceRole.entities.AdminLog.create({

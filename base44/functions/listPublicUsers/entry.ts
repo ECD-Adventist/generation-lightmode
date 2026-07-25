@@ -25,13 +25,13 @@ function cleanString(value, max = 500) {
 
 // Public, PII-free user shape. Never includes email, gender, date_of_birth,
 // status, phone, address, or any other personal data.
-function publicUserShape(user) {
+function publicUserShape(user, includeEmail = false) {
   const profilePicture = user.profile_picture || user.profile_picture_url || '';
   const coverImage = user.cover_image || user.cover_picture_url || '';
   const xpPoints = user.xp_points ?? user.glow_score ?? 0;
   return {
     id: user.id,
-    email: user.email || '',
+    ...(includeEmail ? { email: user.email || '' } : {}),
     username: user.username || '',
     display_name: user.display_name || '',
     full_name: user.full_name || '',
@@ -136,7 +136,9 @@ Deno.serve(async (req) => {
       users = await base44.asServiceRole.entities.User.list('-created_date', limit, skip);
     }
 
-    const publicUsers = users.map(publicUserShape);
+    // Email is returned only for explicit email-resolution calls used to map known
+    // participants; general lists and searches remain email-free.
+    const publicUsers = users.map((item) => publicUserShape(item, requestedEmails.length > 0));
 
     if (includeCount) {
       return Response.json({ users: publicUsers, totalUsers: totalUsers ?? publicUsers.length, visibleUsers: publicUsers.length });
