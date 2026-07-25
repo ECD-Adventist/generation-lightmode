@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 const ADMIN_ROLES = new Set(['admin', 'super_admin']);
 
@@ -22,8 +23,14 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
 
-    const body = await req.json().catch(() => ({}));
+    const validated = await readValidatedJson(req, {
+      leader_email: { type: 'string', maxLength: 254 },
+    }, { allowEmpty: true });
+    if (validated.response) return validated.response;
+    const body = validated.data;
     const leaderEmail = String(body.leader_email || '').trim().toLowerCase();
     const isAdmin = ADMIN_ROLES.has(user.role);
     const accounts = await base44.asServiceRole.entities.ManagedLeaderAccount.filter({ active: true });

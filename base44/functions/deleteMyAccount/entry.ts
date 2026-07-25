@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 /**
  * Permanently deletes the authenticated user's account and all associated content.
@@ -21,6 +22,10 @@ Deno.serve(async (req) => {
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
+    const validated = await readValidatedJson(req, {}, { allowEmpty: true });
+    if (validated.response) return validated.response;
 
     const email = user.email;
     const service = base44.asServiceRole;

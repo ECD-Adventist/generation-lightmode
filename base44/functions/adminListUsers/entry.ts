@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 // Admin-only endpoint that returns the full user list including real roles + status.
 Deno.serve(async (req) => {
@@ -9,6 +10,8 @@ Deno.serve(async (req) => {
     if (!caller) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const rateLimited = await enforceApiRateLimit(base44, req, caller);
+    if (rateLimited) return rateLimited;
 
     const ADMIN_ROLES = [
       'admin', 'super_admin', 'ecd_admin', 'country_admin',
@@ -20,7 +23,12 @@ Deno.serve(async (req) => {
 
     // Admin-only function (403-gated above). Supports optional pagination but
     // defaults to a full load so the admin dashboard's search/stats/heatmaps work.
-    const payload = await req.json().catch(() => ({}));
+    const validated = await readValidatedJson(req, {
+      limit: { type: 'number', integer: true, min: 1, max: 10000 },
+      skip: { type: 'number', integer: true, min: 0, max: 1000000 },
+    }, { allowEmpty: true });
+    if (validated.response) return validated.response;
+    const payload = validated.data;
     const requestedLimit = Number.parseInt(payload.limit, 10);
     const limit = Number.isFinite(requestedLimit) ? Math.max(1, Math.min(requestedLimit, 10000)) : 10000;
     const skip = Math.max(0, Number.parseInt(payload.skip, 10) || 0);

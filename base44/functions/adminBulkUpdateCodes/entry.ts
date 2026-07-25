@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 // Run an async op over items in small throttled batches to stay under rate limits.
 async function runInBatches(items, fn, batchSize, pauseMs) {
@@ -17,10 +18,18 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
     if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
-    let body = {};
-    try { body = await req.json(); } catch { body = {}; }
+    const validated = await readValidatedJson(req, {
+      action: { type: 'string', required: true, enum: ['approve', 'reject', 'pending', 'delete'] },
+      ids: { type: 'array', maxItems: 5000, items: { type: 'string', format: 'uuid' } },
+      sourceFilter: { type: 'string', enum: ['keeping_it_100', 'codes_of_truth'] },
+      statusFilter: { type: 'string', enum: ['all', 'pending', 'approved', 'rejected'] },
+    });
+    if (validated.response) return validated.response;
+    const body = validated.data;
 
     const action = body?.action;            // "approve" | "reject" | "pending" | "delete"
     const ids = Array.isArray(body?.ids) ? body.ids : null;        // explicit id list, or

@@ -65,16 +65,26 @@ function validateValue(name, value, rule) {
       const itemError = validateValue(`${name} item`, item, rule.items);
       if (itemError) return itemError;
     }
+  } else if (rule.type === 'object') {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return `${name} must be an object`;
+    const properties = rule.properties || {};
+    const unexpected = Object.keys(value).find((key) => !Object.prototype.hasOwnProperty.call(properties, key));
+    if (unexpected) return `Unexpected field: ${name}.${unexpected}`;
+    for (const [key, childRule] of Object.entries(properties)) {
+      const childError = validateValue(`${name}.${key}`, value[key], childRule);
+      if (childError) return childError;
+    }
   }
   return null;
 }
 
-export async function readValidatedJson(req, rules) {
+export async function readValidatedJson(req, rules, { allowEmpty = false } = {}) {
   let data;
   try {
     data = await req.json();
   } catch {
-    return { response: Response.json({ error: 'Request body must be valid JSON' }, { status: 400 }) };
+    if (allowEmpty) data = {};
+    else return { response: Response.json({ error: 'Request body must be valid JSON' }, { status: 400 }) };
   }
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     return { response: Response.json({ error: 'Request body must be an object' }, { status: 400 }) };

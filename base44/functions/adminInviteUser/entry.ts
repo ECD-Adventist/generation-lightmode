@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 // Admin-initiated user invite + audit log
 Deno.serve(async (req) => {
@@ -6,16 +7,20 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const caller = await base44.auth.me();
     if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, caller);
+    if (rateLimited) return rateLimited;
 
     const ADMIN_ROLES = ['admin', 'super_admin'];
     if (!ADMIN_ROLES.includes(caller.role)) {
       return Response.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
-    const { email, role } = await req.json();
-    if (!email || !role) {
-      return Response.json({ error: 'email and role are required' }, { status: 400 });
-    }
+    const validated = await readValidatedJson(req, {
+      email: { type: 'string', required: true, minLength: 3, maxLength: 254 },
+      role: { type: 'string', required: true, maxLength: 50 },
+    });
+    if (validated.response) return validated.response;
+    const { email, role } = validated.data;
 
     const normalizedEmail = String(email).trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {

@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 // Role hierarchy — higher index = more privileged
 const ROLE_HIERARCHY = [
@@ -13,17 +14,20 @@ Deno.serve(async (req) => {
     const caller = await base44.auth.me();
 
     if (!caller) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, caller);
+    if (rateLimited) return rateLimited;
 
     const ADMIN_ROLES = ["admin", "super_admin"];
     if (!ADMIN_ROLES.includes(caller.role)) {
       return Response.json({ error: "Forbidden: admin access required" }, { status: 403 });
     }
 
-    const { targetUserId, newRole } = await req.json();
-
-    if (!targetUserId || !newRole) {
-      return Response.json({ error: "targetUserId and newRole are required" }, { status: 400 });
-    }
+    const validated = await readValidatedJson(req, {
+      targetUserId: { type: 'string', required: true, format: 'uuid' },
+      newRole: { type: 'string', required: true, enum: ROLE_HIERARCHY },
+    });
+    if (validated.response) return validated.response;
+    const { targetUserId, newRole } = validated.data;
 
     // Prevent self-modification
     if (targetUserId === caller.id) {

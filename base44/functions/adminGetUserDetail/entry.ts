@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 // Returns a rich profile bundle for the admin detail drawer:
 //   user, activity counts, recent drops, audit log, orphan warnings
@@ -7,6 +8,8 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const caller = await base44.auth.me();
     if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, caller);
+    if (rateLimited) return rateLimited;
 
     const ADMIN_ROLES = [
       'admin', 'super_admin', 'ecd_admin', 'country_admin',
@@ -16,8 +19,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
-    const { targetUserId } = await req.json();
-    if (!targetUserId) return Response.json({ error: 'targetUserId is required' }, { status: 400 });
+    const validated = await readValidatedJson(req, {
+      targetUserId: { type: 'string', required: true, format: 'uuid' },
+    });
+    if (validated.response) return validated.response;
+    const { targetUserId } = validated.data;
 
     const user = await base44.asServiceRole.entities.User.get(targetUserId).catch(() => null);
     if (!user) return Response.json({ error: 'User not found' }, { status: 404 });

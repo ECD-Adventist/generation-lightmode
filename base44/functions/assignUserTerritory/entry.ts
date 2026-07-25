@@ -1,19 +1,27 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
   const user = await base44.auth.me();
+  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  const rateLimited = await enforceApiRateLimit(base44, req, user);
+  if (rateLimited) return rateLimited;
 
   const ADMIN_ROLES = ["admin", "super_admin", "ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin"];
   if (!user || !ADMIN_ROLES.includes(user.role)) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  let body = {};
-  try { body = await req.json(); } catch { /* empty body */ }
-  const { userId, status, territory_name, territory_level, territory_countries } = body;
-
-  if (!userId) return Response.json({ error: "userId required" }, { status: 400 });
+  const validated = await readValidatedJson(req, {
+    userId: { type: 'string', required: true, format: 'uuid' },
+    status: { type: 'string', enum: ['pending', 'approved', 'rejected'] },
+    territory_name: { type: 'string', maxLength: 200 },
+    territory_level: { type: 'string', enum: ['church', 'conference_field', 'union', 'country', 'ecd', 'global'] },
+    territory_countries: { type: 'array', maxItems: 100, items: { type: 'string', maxLength: 100 } },
+  });
+  if (validated.response) return validated.response;
+  const { userId, status, territory_name, territory_level, territory_countries } = validated.data;
 
   // Prevent self-escalation
   if (userId === user.id) {

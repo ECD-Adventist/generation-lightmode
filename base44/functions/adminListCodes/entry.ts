@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 const ALLOWED_ROLES = new Set([
   'admin',
@@ -19,13 +20,17 @@ Deno.serve(async (req) => {
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
     if (!ALLOWED_ROLES.has(user.role)) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    let body = {};
-    try { body = await req.json(); } catch { body = {}; }
-    const sourceFilter = body?.sourceFilter || null;
+    const validated = await readValidatedJson(req, {
+      sourceFilter: { type: 'string', enum: ['keeping_it_100', 'codes_of_truth'] },
+    }, { allowEmpty: true });
+    if (validated.response) return validated.response;
+    const sourceFilter = validated.data.sourceFilter || null;
 
     // Read via service role so an admin always sees the full library,
     // independent of user-level RLS timing. Paginate to avoid per-call caps.

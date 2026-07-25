@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 const ADMIN_ROLES = new Set(['admin', 'super_admin']);
 const ADMIN_FIELDS = new Set([
@@ -28,11 +29,28 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
     if (!ADMIN_ROLES.has(user.role)) return Response.json({ error: 'Admin access required' }, { status: 403 });
 
-    const body = await req.json().catch(() => ({}));
-    const accountId = String(body.account_id || '').trim();
-    const updates = body.updates && typeof body.updates === 'object' ? body.updates : {};
+    const validated = await readValidatedJson(req, {
+      account_id: { type: 'string', required: true, format: 'uuid' },
+      updates: { type: 'object', required: true, properties: {
+        leader_name: { type: 'string', maxLength: 300 },
+        leader_title: { type: 'string', maxLength: 300 },
+        leader_country: { type: 'string', maxLength: 300 },
+        leader_bio: { type: 'string', maxLength: 2000 },
+        leader_profile_picture_url: { type: 'string', maxLength: 2048 },
+        leader_cover_picture_url: { type: 'string', maxLength: 2048 },
+        manager_emails: { type: 'array', maxItems: 3, items: { type: 'string', maxLength: 254 } },
+        active: { type: 'boolean' },
+        notes: { type: 'string', maxLength: 2000 },
+      } },
+    });
+    if (validated.response) return validated.response;
+    const body = validated.data;
+    const accountId = body.account_id.trim();
+    const updates = body.updates;
     if (!accountId) return Response.json({ error: 'Account id is required' }, { status: 400 });
 
     const accounts = await base44.asServiceRole.entities.ManagedLeaderAccount.list('-created_date', 200);

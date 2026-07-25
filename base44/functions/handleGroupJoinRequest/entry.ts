@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import { createNotificationIdempotent } from '../../shared/notifications.ts';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 async function sendInboxMessage(base44, senderEmail, recipientEmail, content) {
   if (senderEmail === recipientEmail) return;
@@ -38,11 +39,15 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
 
-    const { request_id, action } = await req.json();
-    if (!request_id || !['approve', 'reject'].includes(action)) {
-      return Response.json({ error: 'Invalid parameters' }, { status: 400 });
-    }
+    const validated = await readValidatedJson(req, {
+      request_id: { type: 'string', required: true, format: 'uuid' },
+      action: { type: 'string', required: true, enum: ['approve', 'reject'] },
+    });
+    if (validated.response) return validated.response;
+    const { request_id, action } = validated.data;
 
     const requests = await base44.asServiceRole.entities.GlowGroupJoinRequest.filter({ id: request_id });
     const request = requests[0];

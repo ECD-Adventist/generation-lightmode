@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 const ADMIN_ROLES = new Set([
   'admin',
@@ -23,12 +24,19 @@ Deno.serve(async (req) => {
     if (!caller) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const rateLimited = await enforceApiRateLimit(base44, req, caller);
+    if (rateLimited) return rateLimited;
 
     if (!ADMIN_ROLES.has(caller.role)) {
       return Response.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
-    const payload = await req.json();
+    const validated = await readValidatedJson(req, {
+      leader_email: { type: 'string', required: true, minLength: 3, maxLength: 254 },
+      dry_run: { type: 'boolean' },
+    });
+    if (validated.response) return validated.response;
+    const payload = validated.data;
     const leaderEmail = normalizeEmail(payload.leader_email);
     const dryRun = payload.dry_run === true;
 

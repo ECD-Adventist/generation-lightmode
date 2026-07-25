@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 // Search registered users by name or email for manager assignment in
 // ManagedLeaderAccount. Returns minimal fields (no PII). Restricted to admins.
@@ -9,12 +10,18 @@ Deno.serve(async (req) => {
     if (!me) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const rateLimited = await enforceApiRateLimit(base44, req, me);
+    if (rateLimited) return rateLimited;
     if (me.role !== 'admin' && me.role !== 'super_admin') {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const { query = '' } = await req.json().catch(() => ({}));
-    const q = (query || '').toString().trim().toLowerCase();
+    const validated = await readValidatedJson(req, {
+      query: { type: 'string', maxLength: 100 },
+    }, { allowEmpty: true });
+    if (validated.response) return validated.response;
+    const { query = '' } = validated.data;
+    const q = query.trim().toLowerCase();
     if (!q || q.length < 2) {
       return Response.json({ users: [] });
     }

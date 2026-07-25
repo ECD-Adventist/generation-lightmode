@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 const PIN_ALLOWED_ROLES = new Set(['ecd_admin', 'super_admin']);
 
@@ -7,14 +8,19 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
     if (!PIN_ALLOWED_ROLES.has(user.role)) {
       return Response.json({ error: 'Only ECD Admins and super admins can pin feed posts.' }, { status: 403 });
     }
 
-    const body = await req.json();
-    const dropId = body.drop_id;
-    const pinned = body.pinned === true;
-    if (!dropId) return Response.json({ error: 'Missing drop_id' }, { status: 400 });
+    const validated = await readValidatedJson(req, {
+      drop_id: { type: 'string', required: true, format: 'uuid' },
+      pinned: { type: 'boolean', required: true },
+    });
+    if (validated.response) return validated.response;
+    const dropId = validated.data.drop_id;
+    const pinned = validated.data.pinned;
 
     await base44.asServiceRole.entities.GlowDrop.update(dropId, { pinned });
 

@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
 // Suspend or reactivate a user + write audit log
 Deno.serve(async (req) => {
@@ -6,19 +7,21 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const caller = await base44.auth.me();
     if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, caller);
+    if (rateLimited) return rateLimited;
 
     const ADMIN_ROLES = ['admin', 'super_admin'];
     if (!ADMIN_ROLES.includes(caller.role)) {
       return Response.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
-    const { targetUserId, action, reason } = await req.json();
-    if (!targetUserId || !action) {
-      return Response.json({ error: 'targetUserId and action are required' }, { status: 400 });
-    }
-    if (!['suspend', 'activate'].includes(action)) {
-      return Response.json({ error: 'action must be "suspend" or "activate"' }, { status: 400 });
-    }
+    const validated = await readValidatedJson(req, {
+      targetUserId: { type: 'string', required: true, format: 'uuid' },
+      action: { type: 'string', required: true, enum: ['suspend', 'activate'] },
+      reason: { type: 'string', maxLength: 500 },
+    });
+    if (validated.response) return validated.response;
+    const { targetUserId, action, reason } = validated.data;
     if (targetUserId === caller.id) {
       return Response.json({ error: 'Cannot change your own status' }, { status: 403 });
     }
