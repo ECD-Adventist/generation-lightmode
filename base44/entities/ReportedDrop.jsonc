@@ -27,7 +27,7 @@
     "read": {
       "$or": [
         {
-          "created_by": "{{user.email}}"
+          "data.reporter_email": "{{user.email}}"
         },
         {
           "user_condition": {

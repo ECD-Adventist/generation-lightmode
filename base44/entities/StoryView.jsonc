@@ -27,16 +27,6 @@
           "data.viewer_email": "{{user.email}}"
         },
         {
-          "in": {
-            "data.story_id": {
-              "$entity": "Story",
-              "params": {
-                "user_email": "{{user.email}}"
-              }
-            }
-          }
-        },
-        {
           "user_condition": {
             "role": "admin"
           }
@@ -48,7 +38,15 @@
         }
       ]
     },
-    "update": false,
-    "delete": false
+    "update": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    }
   }
 }

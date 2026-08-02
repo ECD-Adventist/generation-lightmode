@@ -58,14 +58,6 @@
           "data.leader_email": "{{user.email}}"
         },
         {
-          "id": {
-            "$entity": "GlowGroupMember",
-            "params": {
-              "user_email": "{{user.email}}"
-            }
-          }
-        },
-        {
           "user_condition": {
             "role": "admin"
           }

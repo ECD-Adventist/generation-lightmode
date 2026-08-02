@@ -54,12 +54,7 @@
   ],
   "rls": {
     "create": {
-      "data.member_email": "{{user.email}}",
-      "user_condition": {
-        "role": {
-          "$ne": "guest"
-        }
-      }
+      "data.member_email": "{{user.email}}"
     },
     "read": {
       "$or": [

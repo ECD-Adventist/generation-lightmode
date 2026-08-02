@@ -31,57 +31,26 @@
   ],
   "rls": {
     "create": {
-      "$and": [
+      "$or": [
         {
           "data.host_email": "{{user.email}}"
         },
         {
-          "$or": [
-            {
-              "in": {
-                "data.group_id": {
-                  "$entity": "GlowGroup",
-                  "params": {
-                    "leader_email": "{{user.email}}"
-                  }
-                }
-              }
-            },
-            {
-              "user_condition": {
-                "role": "admin"
-              }
-            },
-            {
-              "user_condition": {
-                "role": "super_admin"
-              }
-            }
-          ]
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
         }
       ]
     },
     "read": {
       "$or": [
         {
-          "in": {
-            "data.group_id": {
-              "$entity": "GlowGroupMember",
-              "params": {
-                "user_email": "{{user.email}}"
-              }
-            }
-          }
-        },
-        {
-          "in": {
-            "data.group_id": {
-              "$entity": "GlowGroup",
-              "params": {
-                "leader_email": "{{user.email}}"
-              }
-            }
-          }
+          "data.host_email": "{{user.email}}"
         },
         {
           "user_condition": {

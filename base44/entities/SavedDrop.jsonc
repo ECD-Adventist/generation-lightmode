@@ -24,7 +24,7 @@
     "read": {
       "$or": [
         {
-          "created_by_id": "{{user.id}}"
+          "data.user_email": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -41,11 +41,16 @@
     "update": {
       "$or": [
         {
-          "created_by_id": "{{user.id}}"
+          "data.user_email": "{{user.email}}"
         },
         {
           "user_condition": {
             "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
           }
         }
       ]
@@ -53,7 +58,7 @@
     "delete": {
       "$or": [
         {
-          "created_by_id": "{{user.id}}"
+          "data.user_email": "{{user.email}}"
         },
         {
           "user_condition": {

@@ -22,57 +22,12 @@
   ],
   "rls": {
     "create": {
-      "$and": [
-        {
-          "data.user_email": "{{user.email}}"
-        },
-        {
-          "$or": [
-            {
-              "in": {
-                "data.group_id": {
-                  "$entity": "GlowGroupMember",
-                  "params": {
-                    "user_email": "{{user.email}}"
-                  }
-                }
-              }
-            },
-            {
-              "in": {
-                "data.group_id": {
-                  "$entity": "GlowGroup",
-                  "params": {
-                    "leader_email": "{{user.email}}"
-                  }
-                }
-              }
-            }
-          ]
-        }
-      ]
+      "data.user_email": "{{user.email}}"
     },
     "read": {
       "$or": [
         {
-          "in": {
-            "data.group_id": {
-              "$entity": "GlowGroupMember",
-              "params": {
-                "user_email": "{{user.email}}"
-              }
-            }
-          }
-        },
-        {
-          "in": {
-            "data.group_id": {
-              "$entity": "GlowGroup",
-              "params": {
-                "leader_email": "{{user.email}}"
-              }
-            }
-          }
+          "data.user_email": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -97,14 +52,7 @@
           "created_by": "{{user.email}}"
         },
         {
-          "in": {
-            "data.group_id": {
-              "$entity": "GlowGroup",
-              "params": {
-                "leader_email": "{{user.email}}"
-              }
-            }
-          }
+          "data.user_email": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -129,14 +77,7 @@
           "created_by": "{{user.email}}"
         },
         {
-          "in": {
-            "data.group_id": {
-              "$entity": "GlowGroup",
-              "params": {
-                "leader_email": "{{user.email}}"
-              }
-            }
-          }
+          "data.user_email": "{{user.email}}"
         },
         {
           "user_condition": {

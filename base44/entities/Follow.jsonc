@@ -35,7 +35,26 @@
         }
       ]
     },
-    "read": true,
+    "read": {
+      "$or": [
+        {
+          "data.follower_id": "{{user.id}}"
+        },
+        {
+          "data.following_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
     "update": {
       "user_condition": {
         "role": "super_admin"
