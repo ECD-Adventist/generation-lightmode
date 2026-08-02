@@ -9,6 +9,7 @@
   "background_color": "#0B0F1A",
   "theme_color": "#0B0F1A",
   "orientation": "portrait-primary",
+  "categories": ["lifestyle", "social"],
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icons/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },

@@ -1,4 +1,7 @@
-const CACHE = "lightmode-shell-v1";
+// Generation LightMode PWA Service Worker
+// Brand Colors: Gold #FFD000, Cyan #00CFFF, Violet #8A5CFF, Dark #0A0A0A
+// Supports offline access with network-first page strategy & cache-first assets.
+const CACHE = "lightmode-v2";
 const OFFLINE_URL = "/";
 
 self.addEventListener("install", (event) => {
