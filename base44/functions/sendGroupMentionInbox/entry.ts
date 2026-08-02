@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { group_id, mentioned_emails, message_preview, sender_email, sender_name } = await req.json();
+    const { group_id, mentioned_emails, message_preview } = await req.json();
     if (!group_id || !Array.isArray(mentioned_emails) || mentioned_emails.length === 0) {
       return Response.json({ error: 'Invalid parameters' }, { status: 400 });
     }
@@ -52,9 +52,9 @@ Deno.serve(async (req) => {
     const memberEmails = new Set(members.map(m => m.user_email));
     if (group.leader_email) memberEmails.add(group.leader_email);
 
-    // Use sender_email from payload if provided (more reliable than service role user.email)
-    const actualSenderEmail = sender_email || user.email;
-    const actualSenderName = sender_name || user.full_name || user.email?.split('@')[0] || 'Someone';
+    // Sender identity always comes from the authenticated caller — never from the payload
+    const actualSenderEmail = user.email;
+    const actualSenderName = user.full_name || user.email?.split('@')[0] || 'Someone';
 
     // Prevent non-members from sending mentions
     if (!memberEmails.has(actualSenderEmail)) {
