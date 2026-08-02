@@ -1,4 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { readValidatedJson } from '../../shared/apiSecurity.ts';
+import { logSecurityEvent } from '../../shared/securityEvents.ts';
 
 function escapeHtml(value) {
   return String(value || '').replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
@@ -40,11 +42,30 @@ function applicationEmailBody(app) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const payload = await req.json().catch(() => ({}));
-    const app = payload.data;
+    const caller = await base44.auth.me().catch(() => null);
+    if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!app?.institution_name) {
-      return Response.json({ success: true, skipped: true, reason: 'No application payload' });
+    const validated = await readValidatedJson(req, {
+      event: { type: 'object', required: true, properties: {
+        entity_id: { type: 'string', required: true, format: 'uuid' },
+      } },
+    });
+    if (validated.response) return validated.response;
+
+    const applicationId = validated.data.event.entity_id;
+    const app = await base44.asServiceRole.entities.InstitutionApplication.get(applicationId).catch(() => null);
+    if (!app) return Response.json({ error: 'Application not found' }, { status: 404 });
+    if (!['admin', 'super_admin'].includes(caller.role) && caller.email !== app.user_email) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const resource = `institution_application:${applicationId}`;
+    const existingNotifications = await base44.asServiceRole.entities.SecurityEvent.filter({
+      event_type: 'institution_application_admin_notification',
+      resource,
+    }, '-created_date', 1);
+    if (existingNotifications.length > 0) {
+      return Response.json({ success: true, skipped: true, reason: 'Already notified' });
     }
 
     const admins = await base44.asServiceRole.entities.User.list('-created_date', 1000);
@@ -59,6 +80,14 @@ Deno.serve(async (req) => {
       subject: `New Institution Application: ${app.institution_name}`,
       body: applicationEmailBody(app),
     })));
+    await logSecurityEvent(base44, req, {
+      event_type: 'institution_application_admin_notification',
+      severity: 'info',
+      user_id: caller.id,
+      resource,
+      action: 'admins_notified',
+      details: `Recipients: ${recipients.length}`,
+    });
 
     return Response.json({ success: true, notified: recipients.length });
   } catch (error) {

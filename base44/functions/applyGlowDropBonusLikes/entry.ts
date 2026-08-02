@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { authorizeSchedulerOrAdmin } from '../../shared/schedulerAuth.ts';
 
 const MAX_BONUS_LIKES = 24;
 const BATCH_LIMIT = 500;
@@ -14,11 +15,9 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    let caller = null;
-    try { caller = await base44.auth.me(); } catch { /* scheduled automation */ }
-
-    if (caller && !['admin', 'super_admin'].includes(caller.role)) {
-      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+    const authorized = await authorizeSchedulerOrAdmin(base44, req);
+    if (!authorized) {
+      return Response.json({ error: 'Forbidden: Admin or scheduler access required' }, { status: 403 });
     }
 
     const now = new Date();

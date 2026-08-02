@@ -7,7 +7,7 @@ export async function authorizeSchedulerOrAdmin(base44, req) {
 
   try {
     const user = await base44.auth.me();
-    return user?.role === "admin";
+    return ["admin", "super_admin"].includes(user?.role);
   } catch {
     return false;
   }

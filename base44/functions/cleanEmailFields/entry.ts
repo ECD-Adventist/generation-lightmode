@@ -7,6 +7,9 @@ Deno.serve(async (req) => {
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    if (!['admin', 'super_admin'].includes(user.role)) {
+      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+    }
 
     const db = base44.asServiceRole.entities;
 
