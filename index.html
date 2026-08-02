@@ -24,7 +24,22 @@
     <meta name="twitter:image" content="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static instant-paint splash, shown before JS loads. React overwrites this on mount;
+           keep this markup visually identical to src/components/SplashScreen.jsx. -->
+      <div style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0B0F1A;">
+        <div style="position:relative;display:flex;align-items:center;justify-content:center;">
+          <div style="position:absolute;width:10rem;height:10rem;border-radius:9999px;filter:blur(24px);background:radial-gradient(circle,rgba(255,208,0,0.35),transparent 70%);animation:splashPulse 2s ease-in-out infinite;"></div>
+          <img src="/icons/icon-192.png" alt="" style="position:relative;width:5rem;height:5rem;border-radius:1rem;box-shadow:0 0 40px rgba(255,208,0,0.25);animation:splashBreathe 2.4s ease-in-out infinite;" />
+        </div>
+        <div style="margin-top:1.5rem;color:#fff;font-weight:800;font-size:1.25rem;letter-spacing:-0.01em;font-family:'Space Grotesk',sans-serif;">Generation LightMode</div>
+        <div style="margin-top:0.375rem;color:#FFD000;font-weight:600;font-size:0.875rem;letter-spacing:0.02em;">Faith. Always On.</div>
+      </div>
+      <style>
+        @keyframes splashPulse { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
+        @keyframes splashBreathe { 0%,100% { transform:scale(1); } 50% { transform:scale(1.06); } }
+      </style>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
       if ("serviceWorker" in navigator) {

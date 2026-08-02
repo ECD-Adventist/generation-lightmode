@@ -17,6 +17,7 @@ import AutoTranslator from '@/components/i18n/AutoTranslator';
 import NotificationOnboardingModal from '@/components/notifications/NotificationOnboardingModal';
 import ReportProblemButton from '@/components/ReportProblemButton';
 import SessionSecurity from '@/components/security/SessionSecurity';
+import SplashScreen from '@/components/SplashScreen';
 
 // Code-split route pages — loaded on demand to reduce initial bundle.
 const LightReflections = lazy(() => import('./pages/LightReflections'));
@@ -59,13 +60,9 @@ const RootRedirect = () => {
   const { isLoadingAuth, isAuthenticated } = useAuth();
   
   if (isLoadingAuth) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
-      </div>
-    );
+    return <SplashScreen />;
   }
-  
+
   return isAuthenticated ? <Navigate to="/Feed" replace /> : <Navigate to="/Home" replace />;
 };
 
@@ -87,13 +84,9 @@ const RequireAuth = ({ children }) => {
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, user, isAuthenticated } = useAuth();
 
-  // Show loading spinner while checking app public settings or auth
+  // Show branded splash while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
-      </div>
-    );
+    return <SplashScreen />;
   }
 
   // Only block for users whose account is not registered. Missing auth is handled per-route,
