@@ -1,0 +1,34 @@
+{
+  "name": "Institution Application Approved Email",
+  "description": "Emails applicants a branded congratulations message when their institution application is approved.",
+  "trigger": {
+    "condition": "${ ((.trigger.changed_fields | index(\"status\") != null) and (.trigger.data.status == \"approved\")) }",
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "update"
+      ],
+      "entity_name": "InstitutionApplication"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "institution_application_approved_email",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "notifyInstitutionApplicationApproved",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  }
+}

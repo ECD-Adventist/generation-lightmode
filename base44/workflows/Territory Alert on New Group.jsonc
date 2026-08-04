@@ -1,0 +1,34 @@
+{
+  "name": "Territory Alert on New Group",
+  "description": "Notifies regional admins when a new group is created in their territory",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create"
+      ],
+      "entity_name": "GlowGroup"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "territory_alert_on_new_group",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "generateTerritoryAlerts",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  }
+}

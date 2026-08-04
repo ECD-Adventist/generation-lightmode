@@ -1,0 +1,35 @@
+{
+  "name": "Repair Follow Records on Change",
+  "description": "Automatically normalizes follower/following data whenever a follow record is created or updated so profile following lists stay visible.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create",
+        "update"
+      ],
+      "entity_name": "Follow"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "repair_follow_records_on_change",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "repairFollowRecords",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  }
+}

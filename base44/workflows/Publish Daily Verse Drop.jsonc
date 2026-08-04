@@ -1,0 +1,41 @@
+{
+  "name": "Publish Daily Verse Drop",
+  "description": "Posts a Daily Verse to the feed at 12 PM EAT (09:00 UTC), complementing Code of Truth and Keep It 100",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 6 * * *",
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "publish_daily_verse_drop",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "publishDailyVerse",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  }
+}
