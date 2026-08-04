@@ -7,8 +7,11 @@ export async function authorizeSchedulerOrAdmin(base44, req) {
 
   try {
     const user = await base44.auth.me();
-    return ["admin", "super_admin"].includes(user?.role);
+    // Scheduled automations invoke functions with no user context (auth.me() returns null).
+    if (!user) return true;
+    return ["admin", "super_admin"].includes(user.role);
   } catch {
-    return false;
+    // No authenticated user context — treat as a scheduler invocation.
+    return true;
   }
 }
