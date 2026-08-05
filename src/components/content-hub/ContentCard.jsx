@@ -8,7 +8,7 @@ import ContentPreviewModal from "./ContentPreviewModal";
 import BrandIcon from "./BrandIcon";
 import { fetchContentFile, saveContentFile } from "./contentMedia";
 import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
-import { copyShareLink, openShareWindow, tryNativeShare, buildDirectShareUrl, ALL_SHARE_PLATFORMS, DIRECT_SHARE_PLATFORMS } from "@/lib/shareActions";
+import { copyShareLink, openShareWindow, tryNativeShare, buildDirectShareUrl, isUploadPlatform, ALL_SHARE_PLATFORMS, DIRECT_SHARE_PLATFORMS } from "@/lib/shareActions";
 
 const SHARE_PLATFORMS = ALL_SHARE_PLATFORMS;
 
@@ -109,7 +109,12 @@ export default function ContentCard({ item }) {
       }
       return;
     }
-    // Direct URL share platforms (WhatsApp, Facebook, X, Telegram, LinkedIn, Email)
+    // Direct URL share platforms (WhatsApp, Facebook, X, Telegram, LinkedIn, Email,
+    // Instagram, TikTok, YouTube). The latter three open an upload page — copy the
+    // link first so the user can paste it as a caption.
+    if (isUploadPlatform(platform)) {
+      try { await copyShareLink(shareUrl); } catch { /* non-fatal */ }
+    }
     const target = buildDirectShareUrl(platform, shareUrl, shareText, item.title);
     if (!target || !openShareWindow(target, context)) {
       setShareOpen(true);

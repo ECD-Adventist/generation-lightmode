@@ -87,17 +87,15 @@ export const DIRECT_SHARE_PLATFORMS = [
   { id: "telegram", label: "Telegram" },
   { id: "linkedin", label: "LinkedIn" },
   { id: "email", label: "Email" },
-];
-
-/**
- * Platforms that only work via the native device share API (mobile only).
- * YouTube, TikTok, and Instagram don't support web-based share URLs.
- */
-export const NATIVE_ONLY_PLATFORMS = [
   { id: "instagram", label: "Instagram" },
   { id: "tiktok", label: "TikTok" },
   { id: "youtube", label: "YouTube" },
 ];
+
+/**
+ * Platforms that only work via the native device share API (mobile only).
+ */
+export const NATIVE_ONLY_PLATFORMS = [];
 
 /**
  * Full ordered list of all share platforms for consistent arrangement.
@@ -107,6 +105,17 @@ export const ALL_SHARE_PLATFORMS = [
   ...NATIVE_ONLY_PLATFORMS,
 ];
 
+/**
+ * Platforms that open an upload/create page rather than pre-filling a post.
+ * The share link is copied to the clipboard first so the user can paste it
+ * as a caption when uploading their media.
+ */
+export const UPLOAD_SHARE_PLATFORMS = ["instagram", "tiktok", "youtube"];
+
+export function isUploadPlatform(platformId) {
+  return UPLOAD_SHARE_PLATFORMS.includes(platformId);
+}
+
 export function buildDirectShareUrl(platformId, url, text, title) {
   switch (platformId) {
     case "whatsapp": return whatsappShareUrl(text);
@@ -115,6 +124,9 @@ export function buildDirectShareUrl(platformId, url, text, title) {
     case "telegram": return telegramShareUrl(url, text);
     case "linkedin": return linkedinShareUrl(url, title);
     case "email": return emailShareUrl(title, text);
+    case "instagram": return "https://www.instagram.com/";
+    case "tiktok": return "https://www.tiktok.com/upload";
+    case "youtube": return "https://www.youtube.com/upload";
     default: return null;
   }
 }

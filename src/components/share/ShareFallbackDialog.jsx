@@ -6,6 +6,7 @@ import {
   logShareError,
   openShareWindow,
   buildDirectShareUrl,
+  isUploadPlatform,
   tryNativeShare,
   ALL_SHARE_PLATFORMS,
   DIRECT_SHARE_PLATFORMS,
@@ -39,10 +40,14 @@ export default function ShareFallbackDialog({ share, onClose }) {
     }
   };
 
-  const handleDirectShare = (platformId) => {
+  const handleDirectShare = async (platformId) => {
+    if (isUploadPlatform(platformId)) {
+      try { await copyShareLink(share.url); } catch { /* non-fatal */ }
+      toast.success("Link copied — paste it as your caption");
+    }
     const target = buildDirectShareUrl(platformId, share.url, share.text, share.title);
     if (!target || !openShareWindow(target, { contentId: share.id, platform: platformId })) {
-      copy();
+      await copy();
     }
   };
 
