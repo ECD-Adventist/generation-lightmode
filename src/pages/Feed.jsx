@@ -655,6 +655,10 @@ export default function Feed() {
                <span className="w-5 h-5 flex items-center justify-center shrink-0"><BookOpen className="w-[18px] h-[18px]" /></span>
                <span className="text-[13px] font-medium flex-1">Bible School</span>
              </a>
+             <a href="https://hopestartsherecd.org/" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-white/30" style={{ color: "#37474F" }}>
+               <span className="w-5 h-5 flex items-center justify-center shrink-0"><BookOpen className="w-[18px] h-[18px]" /></span>
+               <span className="text-[13px] font-medium flex-1">Bible Study Guides</span>
+             </a>
              <SidebarLink to={createPageUrl("Home")} icon={<ExternalLink className="w-[18px] h-[18px]" />} label="Back to Website" />
 
              <MyGlowGroupsSidebar userEmail={user?.email} />
@@ -1068,6 +1072,10 @@ export default function Feed() {
                 <a href="https://bible-school.base44.app/website/Home" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileNavOpen(false)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-white/30" style={{ color: "#37474F" }}>
                   <span className="w-5 h-5 flex items-center justify-center shrink-0"><BookOpen className="w-[18px] h-[18px]" /></span>
                   <span className="text-[13px] font-medium flex-1">Bible School</span>
+                </a>
+                <a href="https://hopestartsherecd.org/" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileNavOpen(false)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-white/30" style={{ color: "#37474F" }}>
+                  <span className="w-5 h-5 flex items-center justify-center shrink-0"><BookOpen className="w-[18px] h-[18px]" /></span>
+                  <span className="text-[13px] font-medium flex-1">Bible Study Guides</span>
                 </a>
                 <SidebarLink to={createPageUrl("Home")} icon={<ExternalLink className="w-[18px] h-[18px]" />} label="Back to Website" />
 
