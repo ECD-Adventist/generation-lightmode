@@ -54,7 +54,7 @@ export default function AdminContentScheduleTab() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-xl font-black font-['Space_Grotesk']" style={{ color: t.textPrimary }}>Content Schedule</h1>
+          <h1 className="text-xl font-black font-['Space_Grotesk']" style={{ color: t.textPrimary }}>All Things New</h1>
           <p className="text-xs" style={{ color: t.textMuted }}>Schedule videos, posters & animations — they unlock automatically for users at the set day & time.</p>
         </div>
         <button onClick={() => openNew()} className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition active:scale-95"

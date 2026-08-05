@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { Loader2, CalendarDays, Sparkles } from "lucide-react";
+import MobileSubPageHeader from "@/components/mobile/MobileSubPageHeader";
 import ContentCard, { LockedContentCard } from "@/components/content-hub/ContentCard";
 import { CONTENT_TYPES } from "@/components/content-hub/contentConstants";
 
@@ -36,7 +37,8 @@ export default function ContentHub() {
   });
 
   return (
-    <div className="min-h-screen safe-pt" style={{ background: "#0B0F1A" }}>
+    <div className="min-h-screen" style={{ background: "#0B0F1A" }}>
+      <MobileSubPageHeader title="All Things New" />
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pt-12 pb-8 text-center">
         <div className="absolute -top-16 left-1/4 w-64 h-64 rounded-full blur-3xl pointer-events-none" style={{ background: "#00CFFF", opacity: 0.1 }} />
@@ -44,10 +46,10 @@ export default function ContentHub() {
         <div className="relative max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-4" style={{ background: "rgba(0,207,255,0.08)", border: "1px solid rgba(0,207,255,0.25)" }}>
             <Sparkles size={11} style={{ color: "#00CFFF" }} />
-            <span className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: "#00CFFF" }}>Content Hub</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: "#00CFFF" }}>All Things New</span>
           </div>
           <h1 className="glm-headline text-3xl md:text-5xl text-white mb-3">
-            Fresh Light, <span className="glm-gradient-text">Dropped Daily</span>
+            All Things <span className="glm-gradient-text">New</span>
           </h1>
           <p className="glm-body text-sm md:text-base max-w-xl mx-auto">
             Videos, posters & animations in your language — new content unlocks on schedule. Download it, share it, spread the light.

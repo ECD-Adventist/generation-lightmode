@@ -138,7 +138,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
           <SidebarItem id="codes" icon={<Hash size={16} />} label="Codes of Truth" />
           <SidebarItem id="keepit100" icon={<span className="text-[14px]">💯</span>} label="Keep It 100" />
           <SidebarItem id="media" icon={<ImageIcon size={16} />} label="Media Library" />
-          {canScheduleContent && <SidebarItem id="content-schedule" icon={<CalendarDays size={16} />} label="Content Schedule" />}
+          {canScheduleContent && <SidebarItem id="content-schedule" icon={<CalendarDays size={16} />} label="All Things New" />}
         </SidebarSection>
 
         <SidebarSection label="Comms" isDark={isDark}>

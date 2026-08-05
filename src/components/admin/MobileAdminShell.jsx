@@ -66,7 +66,7 @@ function buildSections({ isSuperAdmin, isRegionalAdmin, canScheduleContent }) {
         { id: "codes", icon: Hash, label: "Codes of Truth" },
         { id: "keepit100", icon: null, emoji: "💯", label: "Keep It 100" },
         { id: "media", icon: ImageIcon, label: "Media Library" },
-        ...(canScheduleContent ? [{ id: "content-schedule", icon: CalendarDays, label: "Content Schedule" }] : []),
+        ...(canScheduleContent ? [{ id: "content-schedule", icon: CalendarDays, label: "All Things New" }] : []),
       ],
     },
     {

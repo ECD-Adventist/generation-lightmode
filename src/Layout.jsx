@@ -25,7 +25,7 @@ export default function Layout({ children, currentPageName }) {
   const isLegalPage = ["Privacy", "Terms", "CommunityGuidelines"].includes(currentPageName);
   const isMobileViewport = useIsMobile();
   // On mobile, these pages render their own full-bleed mobile shell (with their own nav + footer).
-  const mobileOwnedPages = ["Home", "About", "Impact", "Assistant", "Resources", "KeepIt100", "CodesOfTruth", "Challenges", "Media", "Privacy", "GenerationLightMode"];
+  const mobileOwnedPages = ["Home", "About", "Impact", "Assistant", "Resources", "KeepIt100", "CodesOfTruth", "Challenges", "Media", "Privacy", "GenerationLightMode", "ContentHub"];
   const hideDesktopChrome = isMobileViewport && mobileOwnedPages.includes(currentPageName);
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
@@ -393,6 +393,12 @@ export default function Layout({ children, currentPageName }) {
                     >
                       🌍 Other Resources
                     </Link>
+                    <Link to="/ContentHub" style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
+                      onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
+                      onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
+                    >
+                      🎬 All Things New
+                    </Link>
                   </div>
                 </div>
               )}
@@ -560,6 +566,10 @@ export default function Layout({ children, currentPageName }) {
                   <span className="flex items-center gap-3"><span className="text-lg">🌍</span> Resources</span>
                   <ChevronRight size={16} style={{ color: "#8A9BB0" }} />
                 </Link>
+                <Link to="/ContentHub" onClick={() => setMenuOpen(false)} className="flex items-center justify-between px-2 py-3.5 border-b border-white/5 font-medium transition-colors hover:bg-white/5" style={{ color: "#E8EEF8", fontSize: "15px" }}>
+                  <span className="flex items-center gap-3"><span className="text-lg">🎬</span> All Things New</span>
+                  <ChevronRight size={16} style={{ color: "#8A9BB0" }} />
+                </Link>
                 <Link to={createPageUrl("Challenges")} onClick={() => setMenuOpen(false)} className="flex items-center justify-between px-2 py-3.5 border-b border-white/5 font-medium transition-colors hover:bg-white/5" style={{ color: "#E8EEF8", fontSize: "15px" }}>
                   <span className="flex items-center gap-3"><span className="text-lg">🎯</span> Challenges</span>
                   <ChevronRight size={16} style={{ color: "#8A9BB0" }} />
@@ -687,6 +697,10 @@ export default function Layout({ children, currentPageName }) {
                 onMouseOver={e => e.target.style.color = "#00CFFF"}
                 onMouseOut={e => e.target.style.color = "#C8D0E0"}
               >Other Resources</Link>
+              <Link to="/ContentHub" style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
+                onMouseOver={e => e.target.style.color = "#00CFFF"}
+                onMouseOut={e => e.target.style.color = "#C8D0E0"}
+              >All Things New</Link>
               <Link to={createPageUrl("Assistant")} style={{ display: "block", color: "#C8D0E0", textDecoration: "none", marginBottom: 10, fontSize: 14, transition: "color 0.2s" }}
                 onMouseOver={e => e.target.style.color = "#00CFFF"}
                 onMouseOut={e => e.target.style.color = "#C8D0E0"}
