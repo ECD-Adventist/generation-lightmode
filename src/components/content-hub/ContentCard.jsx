@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { Download, Share2, Loader2, Lock, Copy, Check } from "lucide-react";
+import { Download, Share2, Loader2, Lock, Copy, Check, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { typeMeta } from "./contentConstants";
+import ContentPreviewModal from "./ContentPreviewModal";
 
 const SHARE_PLATFORMS = [
   { id: "whatsapp", label: "WhatsApp", emoji: "💬", url: (u, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${u}`)}` },
@@ -14,6 +15,7 @@ const SHARE_PLATFORMS = [
 export default function ContentCard({ item }) {
   const [downloading, setDownloading] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const meta = typeMeta(item.content_type);
   const shareUrl = `${window.location.origin}/ContentHub?item=${item.id}`;
@@ -74,6 +76,11 @@ export default function ContentCard({ item }) {
         {item.description && <p className="text-[11.5px] leading-relaxed mb-3 line-clamp-2" style={{ color: "#8A9BB0" }}>{item.description}</p>}
 
         <div className="mt-auto flex items-center gap-2">
+          <button onClick={() => setPreviewOpen(true)} disabled={!item.preview_url}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-black text-[11.5px] font-['Space_Grotesk'] transition active:scale-95 disabled:opacity-40"
+            style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${meta.color}55`, color: meta.color }}>
+            <Eye size={13} /> View
+          </button>
           <button onClick={handleDownload} disabled={downloading}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-black text-[11.5px] font-['Space_Grotesk'] transition active:scale-95"
             style={{ background: meta.color, color: "#0B0F1A" }}>
@@ -109,6 +116,7 @@ export default function ContentCard({ item }) {
           <span>{item.download_count} downloads</span>·<span>{item.share_count} shares</span>
         </p>
       </div>
+      <ContentPreviewModal item={item} open={previewOpen} onClose={() => setPreviewOpen(false)} />
     </div>
   );
 }

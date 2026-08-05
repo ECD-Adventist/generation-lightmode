@@ -14,3 +14,8 @@ export function toDirectDownloadUrl(link) {
   // confirm=t skips the "can't scan for viruses" interstitial on large files.
   return id ? `https://drive.google.com/uc?export=download&id=${id}&confirm=t` : link;
 }
+
+export function toDrivePreviewUrl(link) {
+  const id = extractDriveFileId(link);
+  return id ? `https://drive.google.com/file/d/${id}/preview` : null;
+}
