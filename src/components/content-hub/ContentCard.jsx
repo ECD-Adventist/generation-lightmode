@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { typeMeta } from "./contentConstants";
 import ContentPreviewModal from "./ContentPreviewModal";
 import BrandIcon from "./BrandIcon";
+import { fetchContentFile, saveContentFile } from "./contentMedia";
 
 const SHARE_PLATFORMS = [
   { id: "whatsapp", label: "WhatsApp", url: (u, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${u}`)}` },
@@ -27,9 +28,7 @@ export default function ContentCard({ item }) {
   const queryClient = useQueryClient();
   const meta = typeMeta(item.content_type);
   const shareUrl = `${window.location.origin}/ContentHub?item=${item.id}`;
-  // The actual media (image or video) so recipients see the content itself, plus where it came from.
-  const mediaUrl = item.content_type === "poster" ? (item.image_url || item.thumbnail_url) : item.preview_url;
-  const shareText = `⚡ ${item.title} — Generation LightMode${mediaUrl ? `\n${mediaUrl}` : ""}`;
+  const shareText = `⚡ ${item.title} — Generation LightMode`;
 
   const track = async (action, platform = "") => {
     const res = await base44.functions.invoke("trackContentEngagement", { content_id: item.id, action, platform });
@@ -49,26 +48,8 @@ export default function ContentCard({ item }) {
   const handleDownload = async () => {
     setDownloading(true);
     try {
-      const response = await base44.functions.fetch("/trackContentEngagement", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content_id: item.id, action: "download", platform: "", stream: true }),
-      });
-      if (!response.ok) throw new Error("Download request failed");
-
-      const blob = await response.blob();
-      const disposition = response.headers.get("Content-Disposition") || "";
-      const encodedName = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
-      const plainName = disposition.match(/filename="?([^";]+)"?/i)?.[1];
-      const fileName = encodedName ? decodeURIComponent(encodedName) : plainName || item.title;
-      const objectUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = objectUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      const file = await fetchContentFile(item, "download");
+      saveContentFile(file);
       queryClient.invalidateQueries({ queryKey: ["digital-content-public"] });
       toast.success("Download started");
     } catch {
@@ -79,6 +60,27 @@ export default function ContentCard({ item }) {
 
   const handleShare = async (platform) => {
     setShareOpen(false);
+    const mediaPlatforms = ["whatsapp", "instagram", "tiktok", "youtube", "native"];
+
+    if (mediaPlatforms.includes(platform)) {
+      const loadingToast = toast.loading("Preparing media…");
+      try {
+        const file = await fetchContentFile(item, "share", platform);
+        toast.dismiss(loadingToast);
+        if (navigator.share && navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ files: [file], title: item.title, text: shareText });
+        } else {
+          saveContentFile(file);
+          toast.success("Media downloaded — attach it in the app");
+        }
+      } catch (error) {
+        toast.dismiss(loadingToast);
+        if (error.name === "AbortError") return;
+        toast.error("Unable to share this media");
+      }
+      return;
+    }
+
     if (platform === "copy_link") {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);

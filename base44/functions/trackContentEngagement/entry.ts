@@ -16,7 +16,7 @@ export default async function(req) {
     const contentId = String(payload.content_id || "").slice(0, 64);
     const action = String(payload.action || "");
     const platform = String(payload.platform || "").slice(0, 30);
-    const streamDownload = action === "download" && payload.stream === true;
+    const streamMedia = payload.stream === true && (action === "download" || action === "share");
 
     if (!contentId || !VALID_ACTIONS.includes(action)) {
       return Response.json({ error: "Invalid request" }, { status: 400 });
@@ -34,7 +34,7 @@ export default async function(req) {
     }
 
     let driveResponse = null;
-    if (streamDownload) {
+    if (streamMedia) {
       const fileId = extractDriveFileId(item.drive_link);
       if (!fileId) return Response.json({ error: "Invalid Drive file" }, { status: 400 });
 
@@ -64,7 +64,7 @@ export default async function(req) {
       [countField]: (item[countField] || 0) + 1
     });
 
-    if (streamDownload && driveResponse) {
+    if (streamMedia && driveResponse) {
       const headers = new Headers();
       headers.set("Content-Type", driveResponse.headers.get("Content-Type") || "application/octet-stream");
       headers.set("Content-Disposition", driveResponse.headers.get("Content-Disposition") || `attachment; filename="${item.title.replace(/["\\]/g, "_")}"`);
