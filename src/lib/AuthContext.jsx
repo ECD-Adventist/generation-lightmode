@@ -18,6 +18,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAppState = async () => {
+    // Safety timeout: if auth/settings take too long (e.g. after returning from
+    // an external share page with a stale network state), unblock the app so it
+    // never gets permanently stuck on the splash screen.
+    const timeoutId = setTimeout(() => {
+      setIsLoadingPublicSettings(false);
+      setIsLoadingAuth(false);
+    }, 12000);
+
     try {
       setIsLoadingPublicSettings(true);
       setAuthError(null);
@@ -45,6 +53,7 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(false);
         }
         setIsLoadingPublicSettings(false);
+        clearTimeout(timeoutId);
       } catch (appError) {
         console.error('App state check failed:', appError);
         
@@ -75,6 +84,7 @@ export const AuthProvider = ({ children }) => {
         }
         setIsLoadingPublicSettings(false);
         setIsLoadingAuth(false);
+        clearTimeout(timeoutId);
       }
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -84,6 +94,7 @@ export const AuthProvider = ({ children }) => {
       });
       setIsLoadingPublicSettings(false);
       setIsLoadingAuth(false);
+      clearTimeout(timeoutId);
     }
   };
 
