@@ -15,6 +15,12 @@ export function toDirectDownloadUrl(link) {
   return id ? `https://drive.google.com/uc?export=download&id=${id}&confirm=t` : link;
 }
 
+// Renderable image URL for <img> tags (the uc?export=download URL is blocked as an image source).
+export function toDriveImageUrl(link) {
+  const id = extractDriveFileId(link);
+  return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w2000` : link;
+}
+
 export function toDrivePreviewUrl(link) {
   const id = extractDriveFileId(link);
   return id ? `https://drive.google.com/file/d/${id}/preview` : null;

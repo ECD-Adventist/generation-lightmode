@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Loader2, CalendarDays, Sparkles } from "lucide-react";
+import { Loader2, CalendarDays, Sparkles, Search } from "lucide-react";
 import MobileSubPageHeader from "@/components/mobile/MobileSubPageHeader";
 import ContentCard, { LockedContentCard } from "@/components/content-hub/ContentCard";
 import ContentPreviewModal from "@/components/content-hub/ContentPreviewModal";
@@ -20,6 +20,7 @@ const readCachedItems = () => {
 export default function ContentHub() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [langFilter, setLangFilter] = useState("all");
+  const [search, setSearch] = useState("");
   const [sharedPreviewId, setSharedPreviewId] = useState(() => new URLSearchParams(window.location.search).get("item"));
 
   const { data: items = [], isLoading: loading } = useQuery({
@@ -55,10 +56,14 @@ export default function ContentHub() {
 
   const languages = useMemo(() => [...new Set(items.map(i => i.language).filter(Boolean))], [items]);
 
-  const filtered = useMemo(() => items.filter(i =>
-    (typeFilter === "all" || i.content_type === typeFilter) &&
-    (langFilter === "all" || i.language === langFilter)
-  ), [items, typeFilter, langFilter]);
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return items.filter(i =>
+      (typeFilter === "all" || i.content_type === typeFilter) &&
+      (langFilter === "all" || i.language === langFilter) &&
+      (!q || `${i.title} ${i.description} ${i.language}`.toLowerCase().includes(q))
+    );
+  }, [items, typeFilter, langFilter, search]);
 
   const unlockedItems = filtered.filter(i => i.unlocked);
   const lockedItems = filtered.filter(i => !i.unlocked).sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
@@ -89,6 +94,20 @@ export default function ContentHub() {
           <p className="glm-body text-sm md:text-base max-w-xl mx-auto">
             Videos, posters & animations in your language — new content unlocks on schedule. Download it, share it, spread the light.
           </p>
+        </div>
+      </section>
+
+      {/* Search */}
+      <section className="px-6 pb-4">
+        <div className="max-w-lg mx-auto relative">
+          <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "#5A6B85" }} />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search resources by title or keyword…"
+            className="w-full rounded-full py-3 pl-11 pr-4 text-sm text-white outline-none placeholder:text-[#5A6B85]"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(0,207,255,0.2)" }}
+          />
         </div>
       </section>
 

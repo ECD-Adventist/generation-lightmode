@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Save, Share2, Loader2, Lock, Copy, Check, Eye } from "lucide-react";
 import { toast } from "sonner";
@@ -23,12 +24,18 @@ export default function ContentCard({ item }) {
   const [shareMenuView, setShareMenuView] = useState("main");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const queryClient = useQueryClient();
   const meta = typeMeta(item.content_type);
   const shareUrl = `${window.location.origin}/ContentHub?item=${item.id}`;
-  const shareText = `⚡ ${item.title} — Generation LightMode`;
+  // The actual media (image or video) so recipients see the content itself, plus where it came from.
+  const mediaUrl = item.content_type === "poster" ? (item.image_url || item.thumbnail_url) : item.preview_url;
+  const shareText = `⚡ ${item.title} — Generation LightMode${mediaUrl ? `\n${mediaUrl}` : ""}`;
 
-  const track = (action, platform = "") =>
-    base44.functions.invoke("trackContentEngagement", { content_id: item.id, action, platform });
+  const track = async (action, platform = "") => {
+    const res = await base44.functions.invoke("trackContentEngagement", { content_id: item.id, action, platform });
+    queryClient.invalidateQueries({ queryKey: ["digital-content-public"] });
+    return res;
+  };
 
   const primePreview = () => {
     if (!item.download_url || document.querySelector(`link[data-preview-id="${item.id}"]`)) return;
@@ -99,9 +106,6 @@ export default function ContentCard({ item }) {
         {item.thumbnail_url
           ? <img src={item.thumbnail_url} className="w-full h-full object-cover" alt={item.title} loading="lazy" decoding="async" width="640" height="360" />
           : <div className="w-full h-full flex items-center justify-center text-4xl">{meta.emoji}</div>}
-        <span className="absolute top-2 left-2 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: "rgba(11,15,26,0.85)", color: meta.color, border: `1px solid ${meta.color}50` }}>
-          {meta.emoji} {meta.label}
-        </span>
         <span className="absolute top-2 right-2 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: "rgba(11,15,26,0.85)", color: "#C8D0E0", border: "1px solid rgba(255,255,255,0.15)" }}>
           {item.language}
         </span>
@@ -204,7 +208,6 @@ export function LockedContentCard({ item }) {
       </div>
       <div className="p-3.5">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full" style={{ background: `${meta.color}15`, color: meta.color }}>{meta.emoji} {meta.label}</span>
           <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)", color: "#8A9BB0" }}>{item.language}</span>
         </div>
         <h3 className="font-['Space_Grotesk'] font-black text-[13px] text-white leading-snug">{item.title}</h3>

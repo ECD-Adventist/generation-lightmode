@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { toDirectDownloadUrl, toDrivePreviewUrl } from '../../shared/driveLinks.ts';
+import { toDirectDownloadUrl, toDrivePreviewUrl, toDriveImageUrl } from '../../shared/driveLinks.ts';
 
 // Public listing of scheduled digital content.
 // Locked items (scheduled in the future) have their download links stripped —
@@ -25,6 +25,7 @@ export default async function(req) {
         share_count: item.share_count || 0,
         unlocked,
         preview_url: unlocked ? toDrivePreviewUrl(item.drive_link) : null,
+        image_url: unlocked ? toDriveImageUrl(item.drive_link) : null,
         download_url: unlocked ? toDirectDownloadUrl(item.drive_link) : null
       };
     });
