@@ -9,15 +9,24 @@ export default function ContentPreviewModal({ item, open, onClose }) {
           <DialogTitle className="font-['Space_Grotesk'] text-base">{item.title}</DialogTitle>
           {item.description && <p className="text-xs text-white/50 leading-relaxed">{item.description}</p>}
         </DialogHeader>
-        <div className="aspect-video bg-black">
-          <iframe
-            src={item.preview_url}
-            title={`Preview ${item.title}`}
-            className="w-full h-full border-0"
-            loading="eager"
-            allow="autoplay; fullscreen"
-            allowFullScreen
-          />
+        <div className="aspect-video bg-black flex items-center justify-center">
+          {item.content_type === "poster" ? (
+            <img
+              src={item.download_url}
+              alt={item.title}
+              className="w-full h-full object-contain"
+              decoding="async"
+            />
+          ) : (
+            <video
+              src={item.download_url}
+              title={`Preview ${item.title}`}
+              className="w-full h-full object-contain"
+              controls
+              playsInline
+              preload="auto"
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>

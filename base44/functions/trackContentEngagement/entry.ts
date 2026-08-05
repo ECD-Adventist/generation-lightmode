@@ -2,7 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { toDirectDownloadUrl } from '../../shared/driveLinks.ts';
 
 const VALID_ACTIONS = ["download", "share"];
-const VALID_PLATFORMS = ["whatsapp", "facebook", "x", "telegram", "copy_link", "native", ""];
+const VALID_PLATFORMS = ["whatsapp", "facebook", "youtube", "instagram", "tiktok", "x", "telegram", "copy_link", "native", ""];
 
 // Records a download or share for a content item and returns the direct
 // download URL (downloads only). Enforces the scheduled unlock time.

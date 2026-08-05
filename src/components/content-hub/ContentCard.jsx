@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { Download, Share2, Loader2, Lock, Copy, Check, Eye } from "lucide-react";
+import { Save, Share2, Loader2, Lock, Copy, Check, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { typeMeta } from "./contentConstants";
 import ContentPreviewModal from "./ContentPreviewModal";
@@ -8,6 +8,9 @@ import ContentPreviewModal from "./ContentPreviewModal";
 const SHARE_PLATFORMS = [
   { id: "whatsapp", label: "WhatsApp", emoji: "💬", url: (u, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${u}`)}` },
   { id: "facebook", label: "Facebook", emoji: "📘", url: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
+  { id: "youtube", label: "YouTube", emoji: "▶️" },
+  { id: "instagram", label: "Instagram", emoji: "📸" },
+  { id: "tiktok", label: "TikTok", emoji: "🎵" },
   { id: "x", label: "X (Twitter)", emoji: "🐦", url: (u, text) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(u)}` },
   { id: "telegram", label: "Telegram", emoji: "✈️", url: (u, text) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(text)}` },
   { id: "native", label: "More apps", emoji: "↗️" },
@@ -26,10 +29,10 @@ export default function ContentCard({ item }) {
     base44.functions.invoke("trackContentEngagement", { content_id: item.id, action, platform });
 
   const primePreview = () => {
-    if (!item.preview_url || document.querySelector(`link[data-preview-id="${item.id}"]`)) return;
+    if (!item.download_url || document.querySelector(`link[data-preview-id="${item.id}"]`)) return;
     const link = document.createElement("link");
     link.rel = "prefetch";
-    link.href = item.preview_url;
+    link.href = item.download_url;
     link.dataset.previewId = item.id;
     document.head.appendChild(link);
   };
@@ -70,7 +73,20 @@ export default function ContentCard({ item }) {
       }
     } else {
       const p = SHARE_PLATFORMS.find(s => s.id === platform);
-      if (p?.url) window.open(p.url(shareUrl, shareText), "_blank", "noopener");
+      if (p?.url) {
+        window.open(p.url(shareUrl, shareText), "_blank", "noopener");
+      } else if (navigator.share) {
+        try {
+          await navigator.share({ title: item.title, text: shareText, url: shareUrl });
+        } catch (error) {
+          if (error.name === "AbortError") return;
+          toast.error("Unable to open sharing");
+          return;
+        }
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success(`Link copied — open ${p?.label || "the app"} to share`);
+      }
     }
     track("share", platform).catch(() => {});
   };
@@ -94,7 +110,7 @@ export default function ContentCard({ item }) {
         {item.description && <p className="text-[11.5px] leading-relaxed mb-3 line-clamp-2" style={{ color: "#8A9BB0" }}>{item.description}</p>}
 
         <div className="mt-auto flex items-center gap-2">
-          <button onClick={() => setPreviewOpen(true)} onPointerEnter={primePreview} onFocus={primePreview} disabled={!item.preview_url}
+          <button onClick={() => setPreviewOpen(true)} onPointerEnter={primePreview} onFocus={primePreview} disabled={!item.download_url}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-black text-[11.5px] font-['Space_Grotesk'] transition active:scale-95 disabled:opacity-40"
             style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${meta.color}55`, color: meta.color }}>
             <Eye size={13} /> View
@@ -102,7 +118,7 @@ export default function ContentCard({ item }) {
           <button onClick={handleDownload} disabled={downloading}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-black text-[11.5px] font-['Space_Grotesk'] transition active:scale-95"
             style={{ background: meta.color, color: "#0B0F1A" }}>
-            {downloading ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />} Download
+            {downloading ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Download
           </button>
           <div className="relative">
             <button onClick={() => setShareOpen(v => !v)}
