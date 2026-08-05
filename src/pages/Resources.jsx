@@ -7,6 +7,7 @@ import DownloadsShowcase from "../components/resources/DownloadsShowcase";
 import { downloads, mediaItems } from "../components/resources/resourcesData";
 import CodesShowcase from "../components/resources/CodesShowcase";
 import MobileResources from "../components/resources/MobileResources";
+import ContentHubPromo from "../components/resources/ContentHubPromo";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const KEEPING_IT_100_CATEGORIES = [
@@ -30,7 +31,7 @@ export default function Resources() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const tab = urlParams.get("tab") || "media";
-    if (["media", "downloads", "keeping-it-100", "codes-of-truth"].includes(tab)) {
+    if (["media", "downloads", "keeping-it-100", "codes-of-truth", "content-hub"].includes(tab)) {
       setActiveTab(tab);
     }
   }, [location.search]);
@@ -68,6 +69,8 @@ export default function Resources() {
         />
       ) : activeTab === "downloads" ? (
         <DownloadsShowcase sections={downloads} />
+      ) : activeTab === "content-hub" ? (
+        <ContentHubPromo />
       ) : activeTab === "keeping-it-100" ? (
         <CodesShowcase 
           sourceDocument="keeping_it_100" 

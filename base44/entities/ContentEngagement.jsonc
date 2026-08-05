@@ -1,0 +1,79 @@
+{
+  "name": "ContentEngagement",
+  "type": "object",
+  "properties": {
+    "content_id": {
+      "type": "string"
+    },
+    "content_title": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user who downloaded/shared, or 'guest'"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "download",
+        "share"
+      ]
+    },
+    "platform": {
+      "type": "string",
+      "description": "Share platform: whatsapp, facebook, x, telegram, copy_link, native"
+    }
+  },
+  "required": [
+    "content_id",
+    "action"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "ecd_admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    }
+  }
+}

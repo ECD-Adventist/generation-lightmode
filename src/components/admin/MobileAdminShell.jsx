@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award,
   BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map,
   UserCheck, PieChart, Flag, TrendingUp, Building2, Sparkles, ShieldCheck, FileText,
-  Medal, AlertTriangle, Database, Menu, X, ChevronRight, Search
+  Medal, AlertTriangle, Database, Menu, X, ChevronRight, Search, CalendarDays
 } from "lucide-react";
 import AdminThemeToggle from "./AdminThemeToggle";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
@@ -14,7 +14,7 @@ const LOGO_GOLD = "https://media.base44.com/images/public/69a6fca6155ae283f1b551
 const LOGO_BLUE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/ce3018808_LOGO-LANDSCAPE-BLUE.png";
 
 // Build the grouped nav config. Mirrors AdminSidebar but tuned for mobile.
-function buildSections({ isSuperAdmin, isRegionalAdmin }) {
+function buildSections({ isSuperAdmin, isRegionalAdmin, canScheduleContent }) {
   return [
     {
       label: "Overview",
@@ -66,6 +66,7 @@ function buildSections({ isSuperAdmin, isRegionalAdmin }) {
         { id: "codes", icon: Hash, label: "Codes of Truth" },
         { id: "keepit100", icon: null, emoji: "💯", label: "Keep It 100" },
         { id: "media", icon: ImageIcon, label: "Media Library" },
+        ...(canScheduleContent ? [{ id: "content-schedule", icon: CalendarDays, label: "Content Schedule" }] : []),
       ],
     },
     {
@@ -93,14 +94,14 @@ function buildSections({ isSuperAdmin, isRegionalAdmin }) {
   ];
 }
 
-export default function MobileAdminShell({ user, activeTab, setActiveTab, isSuperAdmin, isRegionalAdmin, children }) {
+export default function MobileAdminShell({ user, activeTab, setActiveTab, isSuperAdmin, isRegionalAdmin, canScheduleContent, children }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [query, setQuery] = useState("");
 
-  const sections = buildSections({ isSuperAdmin, isRegionalAdmin });
+  const sections = buildSections({ isSuperAdmin, isRegionalAdmin, canScheduleContent });
   const allItems = sections.flatMap(s => s.items);
   const activeItem = allItems.find(i => i.id === activeTab);
 

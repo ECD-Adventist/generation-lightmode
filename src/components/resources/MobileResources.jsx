@@ -11,6 +11,7 @@ const TABS = [
   { key: "downloads", label: "Downloads", icon: Download, color: "#FFD000", desc: "Graphics & guides" },
   { key: "keeping-it-100", label: "Keep It 100", icon: Sparkles, color: "#FF9F1A", desc: "Truth slogans" },
   { key: "codes-of-truth", label: "Codes", icon: BookOpen, color: "#8A5CFF", desc: "Fundamental truths" },
+  { key: "content-hub", label: "Content Hub", icon: ImageIcon, color: "#10E0A8", desc: "Scheduled drops" },
 ];
 
 /**
@@ -108,6 +109,7 @@ export default function MobileResources({ activeTab, onTabChange }) {
         {activeTab === "downloads" && <DownloadsTab />}
         {activeTab === "keeping-it-100" && <CodesTabLink tab="keeping-it-100" color="#FF9F1A" title="Keep It 100" description="Short truth slogans to share on social media daily. Stand out, don't blend in." emoji="💯" />}
         {activeTab === "codes-of-truth" && <CodesTabLink tab="codes-of-truth" color="#8A5CFF" title="Key Codes of Truth" description="Fundamental truths to guide your daily walk. Share the light." emoji="🔐" />}
+        {activeTab === "content-hub" && <ContentHubTabLink />}
       </section>
 
       {/* CTA */}
@@ -306,6 +308,24 @@ function DownloadsTab() {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+function ContentHubTabLink() {
+  const color = "#10E0A8";
+  return (
+    <div className="rounded-2xl p-5" style={{ background: `linear-gradient(135deg, ${color}12, rgba(18,24,38,0.7))`, border: `1px solid ${color}25` }}>
+      <div className="flex items-start gap-3 mb-3">
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 text-[24px]" style={{ background: `${color}15`, border: `1px solid ${color}35`, boxShadow: `0 0 16px ${color}25` }}>🎬</div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-['Space_Grotesk'] font-black text-[17px] leading-tight mb-1" style={{ color: "#FFFFFF" }}>Content Hub</h3>
+          <p className="text-[12.5px] leading-[1.55]" style={{ color: "#B0BAC8" }}>Videos, posters & animations in your language — new drops unlock on schedule. Download and share instantly.</p>
+        </div>
+      </div>
+      <Link to="/ContentHub" className="w-full flex items-center justify-center gap-1.5 py-3 rounded-full font-black text-[12.5px] font-['Space_Grotesk'] no-underline active:scale-95 transition" style={{ background: color, color: "#0B0F1A", boxShadow: `0 4px 16px ${color}40` }}>
+        Open Content Hub <ArrowRight className="w-3.5 h-3.5" />
+      </Link>
     </div>
   );
 }

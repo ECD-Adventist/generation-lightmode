@@ -20,6 +20,7 @@ import AdminLeaderboardsTab from "../components/admin/AdminLeaderboardsTab";
 import AdminNotificationsTab from "../components/admin/AdminNotificationsTab";
 import AdminBadgesTab from "../components/admin/AdminBadgesTab";
 import AdminMediaTab from "../components/admin/AdminMediaTab";
+import AdminContentScheduleTab from "../components/admin/AdminContentScheduleTab";
 import AdminAnnouncementsTab from "../components/admin/AdminAnnouncementsTab";
 import AdminTerritoryMapTab from "../components/admin/AdminTerritoryMapTab";
 import AdminTerritoryAssignTab from "../components/admin/AdminTerritoryAssignTab";
@@ -151,6 +152,7 @@ function AdminCenterInner() {
   if (!user || !isAdmin) return null;
 
   const isSuperAdmin = user.role === "super_admin";
+  const canScheduleContent = ["admin", "super_admin", "ecd_admin"].includes(user.role);
   const hasApprovedTerritory = !isRegionalAdmin || user?.territory_status === "approved";
 
   const renderTab = () => {
@@ -171,6 +173,7 @@ function AdminCenterInner() {
       case "codes": return <AdminCodesTab sourceFilter="codes_of_truth" title="Codes of Truth" />;
       case "keepit100": return <AdminCodesTab sourceFilter="keeping_it_100" title="Keep It 100" />;
       case "media": return <AdminMediaTab />;
+      case "content-schedule": return canScheduleContent ? <AdminContentScheduleTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin or ECD Admin access required to schedule content.</div>;
       case "badges": return <AdminBadgesTab />;
       case "analytics": return <AdminAnalyticsTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "growth-analytics": return <AdminGrowthAnalyticsTab territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} />;
@@ -204,13 +207,13 @@ function AdminCenterInner() {
   return (
     <>
     {/* Mobile admin shell — dedicated drawer-based navigation */}
-    <MobileAdminShell user={user} activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} isRegionalAdmin={isRegionalAdmin}>
+    <MobileAdminShell user={user} activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} isRegionalAdmin={isRegionalAdmin} canScheduleContent={canScheduleContent}>
       {renderTab()}
     </MobileAdminShell>
 
     {/* Desktop layout */}
     <div className="hidden md:flex md:flex-row" style={{ minHeight: "100vh", background: t.appBg, color: t.textPrimary }}>
-      <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} isRegionalAdmin={isRegionalAdmin} />
+      <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} isRegionalAdmin={isRegionalAdmin} canScheduleContent={canScheduleContent} />
       <div className="flex-1 flex flex-col h-screen overflow-hidden" style={{ background: contentBg }}>
         {/* Top Nav Bar */}
         <div className="sticky top-0 z-50 backdrop-blur-2xl shrink-0 hidden md:block" style={{ background: topBarBg, borderBottom: `1px solid ${t.border}` }}>

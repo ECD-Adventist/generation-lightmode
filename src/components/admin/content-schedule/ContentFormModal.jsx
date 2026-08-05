@@ -1,0 +1,159 @@
+import React, { useState, useEffect, useRef } from "react";
+import { base44 } from "@/api/base44Client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Loader2, Upload, Link2, CheckCircle2, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { CONTENT_TYPES, CONTENT_LANGUAGES } from "@/components/content-hub/contentConstants";
+
+function extractDriveId(link) {
+  const str = String(link || "");
+  const m = str.match(/\/file\/d\/([\w-]+)/) || str.match(/[?&]id=([\w-]+)/) || str.match(/\/d\/([\w-]+)/);
+  return m ? m[1] : null;
+}
+
+const emptyForm = { title: "", description: "", content_type: "video", language: "English", drive_link: "", thumbnail_url: "", date: "", time: "09:00" };
+
+export default function ContentFormModal({ open, onClose, onSaved, item, defaultDate }) {
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    if (item) {
+      const d = new Date(item.scheduled_at);
+      setForm({
+        title: item.title || "", description: item.description || "",
+        content_type: item.content_type || "video", language: item.language || "English",
+        drive_link: item.drive_link || "", thumbnail_url: item.thumbnail_url || "",
+        date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
+        time: `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
+      });
+    } else {
+      setForm({ ...emptyForm, date: defaultDate || "" });
+    }
+  }, [open, item, defaultDate]);
+
+  const set = (key, value) => setForm(f => ({ ...f, [key]: value }));
+  const driveId = extractDriveId(form.drive_link);
+
+  const handleThumbnail = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    set("thumbnail_url", file_url);
+    setUploading(false);
+  };
+
+  const handleSave = async () => {
+    if (!form.title.trim() || !form.drive_link.trim() || !form.date || !form.time) {
+      toast.error("Title, Drive link, date and time are required");
+      return;
+    }
+    if (!driveId) {
+      toast.error("That doesn't look like a valid Google Drive link");
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = {
+        title: form.title.trim(),
+        description: form.description.trim(),
+        content_type: form.content_type,
+        language: form.language,
+        drive_link: form.drive_link.trim(),
+        thumbnail_url: form.thumbnail_url,
+        scheduled_at: new Date(`${form.date}T${form.time}`).toISOString(),
+      };
+      if (item) await base44.entities.DigitalContent.update(item.id, payload);
+      else await base44.entities.DigitalContent.create(payload);
+      toast.success(item ? "Content updated" : "Content scheduled");
+      onSaved();
+      onClose();
+    } catch (err) {
+      toast.error(err?.message || "Failed to save");
+    }
+    setSaving(false);
+  };
+
+  const inputCls = "w-full rounded-xl px-3 py-2.5 text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-cyan-400/50";
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-lg bg-[#0E1524] border-white/10 text-white max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="font-['Space_Grotesk']">{item ? "Edit Content" : "Schedule New Content"}</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-bold text-white/60 mb-1 block">Title *</label>
+            <input className={inputCls} value={form.title} onChange={e => set("title", e.target.value)} placeholder="e.g. Faith Always On — Episode 1" />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-white/60 mb-1 block">Description</label>
+            <textarea className={inputCls} rows={2} value={form.description} onChange={e => set("description", e.target.value)} placeholder="Short description shown to users" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-bold text-white/60 mb-1 block">Type *</label>
+              <select className={inputCls} value={form.content_type} onChange={e => set("content_type", e.target.value)}>
+                {CONTENT_TYPES.map(t => <option key={t.id} value={t.id} className="bg-[#0E1524]">{t.emoji} {t.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-white/60 mb-1 block">Language *</label>
+              <select className={inputCls} value={form.language} onChange={e => set("language", e.target.value)}>
+                {CONTENT_LANGUAGES.map(l => <option key={l} value={l} className="bg-[#0E1524]">{l}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-white/60 mb-1 block flex items-center gap-1.5"><Link2 size={12} /> Google Drive Link *</label>
+            <input className={inputCls} value={form.drive_link} onChange={e => set("drive_link", e.target.value)} placeholder="https://drive.google.com/file/d/..." />
+            {form.drive_link && (
+              driveId
+                ? <p className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1"><CheckCircle2 size={11} /> Valid Drive link — users will download directly</p>
+                : <p className="text-[11px] text-red-400 mt-1 flex items-center gap-1"><AlertCircle size={11} /> Could not find a file ID in this link</p>
+            )}
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-white/60 mb-1 block">Thumbnail</label>
+            <div className="flex items-center gap-3">
+              {form.thumbnail_url && <img src={form.thumbnail_url} className="w-16 h-16 rounded-xl object-cover border border-white/10" alt="" />}
+              <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-white/5 border border-white/10 hover:bg-white/10 transition">
+                {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                {form.thumbnail_url ? "Replace thumbnail" : "Upload thumbnail"}
+              </button>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleThumbnail} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-bold text-white/60 mb-1 block">Unlock Date *</label>
+              <input type="date" className={inputCls} value={form.date} onChange={e => set("date", e.target.value)} />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-white/60 mb-1 block">Unlock Time *</label>
+              <input type="time" className={inputCls} value={form.time} onChange={e => set("time", e.target.value)} />
+            </div>
+          </div>
+
+          <button onClick={handleSave} disabled={saving}
+            className="w-full py-3 rounded-xl font-black text-sm font-['Space_Grotesk'] transition active:scale-[0.98]"
+            style={{ background: "linear-gradient(90deg, #00CFFF, #8A5CFF)", color: "#0B0F1A" }}>
+            {saving ? "Saving…" : item ? "Save Changes" : "Schedule Content"}
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

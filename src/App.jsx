@@ -41,6 +41,7 @@ const GenerationLightMode = lazy(() => import('./pages/GenerationLightMode'));
 const GroupChat = lazy(() => import('./pages/GroupChat'));
 const LeaderAnalytics = lazy(() => import('./pages/LeaderAnalytics'));
 const AdminSupabaseMigration = lazy(() => import('./pages/AdminSupabaseMigration'));
+const ContentHub = lazy(() => import('./pages/ContentHub'));
 
 const RouteFallback = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-background">
@@ -136,6 +137,7 @@ const AuthenticatedApp = () => {
       <Route path="/GroupChat" element={<LayoutWrapper currentPageName="GroupChat"><GroupChat /></LayoutWrapper>} />
       <Route path="/LeaderAnalytics" element={<LayoutWrapper currentPageName="LeaderAnalytics"><LeaderAnalytics /></LayoutWrapper>} />
       <Route path="/AdminSupabaseMigration" element={<LayoutWrapper currentPageName="AdminSupabaseMigration"><AdminSupabaseMigration /></LayoutWrapper>} />
+      <Route path="/ContentHub" element={<LayoutWrapper currentPageName="ContentHub"><ContentHub /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
       </Suspense>

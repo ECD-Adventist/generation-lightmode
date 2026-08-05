@@ -4,6 +4,7 @@ export default function ResourcesTabs({ activeTab, onTabChange }) {
     { id: "downloads", label: "📥 Downloads" },
     { id: "keeping-it-100", label: "💯 Keeping It 100" },
     { id: "codes-of-truth", label: "🔐 Codes of Truth" },
+    { id: "content-hub", label: "🎬 Content Hub" },
   ];
 
   return (

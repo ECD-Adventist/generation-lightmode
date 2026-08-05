@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map, UserCheck, PieChart, Flag, TrendingUp, ChevronDown, ChevronRight, Building2, Sparkles, ShieldCheck, FileText, Medal, AlertTriangle, Database } from "lucide-react";
+import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map, UserCheck, PieChart, Flag, TrendingUp, ChevronDown, ChevronRight, Building2, Sparkles, ShieldCheck, FileText, Medal, AlertTriangle, Database, CalendarDays } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
@@ -33,7 +33,7 @@ function SidebarGroup({ label, icon, children, isDark, defaultOpen = false }) {
   );
 }
 
-export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, isRegionalAdmin }) {
+export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, isRegionalAdmin, canScheduleContent }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
@@ -138,6 +138,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
           <SidebarItem id="codes" icon={<Hash size={16} />} label="Codes of Truth" />
           <SidebarItem id="keepit100" icon={<span className="text-[14px]">💯</span>} label="Keep It 100" />
           <SidebarItem id="media" icon={<ImageIcon size={16} />} label="Media Library" />
+          {canScheduleContent && <SidebarItem id="content-schedule" icon={<CalendarDays size={16} />} label="Content Schedule" />}
         </SidebarSection>
 
         <SidebarSection label="Comms" isDark={isDark}>
