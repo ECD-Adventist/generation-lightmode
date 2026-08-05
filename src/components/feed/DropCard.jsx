@@ -31,6 +31,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
   const clickTimerRef = useRef(null);
   const [showComments, setShowComments] = useState(false);
   const [musicEditorOpen, setMusicEditorOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
@@ -746,10 +747,12 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
           </div>
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5 mt-1 sm:mt-2">
-            <DropdownMenu>
+            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <button
-                  onClick={(e) => e.stopPropagation()}
+                  type="button"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v); }}
                   className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all focus:outline-none border ${useGlass ? "bg-[#06112b]/85 border-cyan-300/40 backdrop-blur-md shadow-[0_0_16px_rgba(0,207,255,0.24)]" : "bg-white border-[#E2E8F0] shadow-sm"}`}
                 >
                   <MoreHorizontal className={`w-4 h-4 ${useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
