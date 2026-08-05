@@ -38,10 +38,9 @@ export default function ContentCard({ item }) {
     document.head.appendChild(link);
   };
 
-  const handleView = () => {
-    setPreviewOpen(true);
-    track("view").catch(() => {});
-  };
+  // View tracking is handled by ContentPreviewModal when it opens, so every
+  // path into the preview (thumbnail tap, View button, shared link) counts.
+  const handleView = () => setPreviewOpen(true);
 
   const handleDownload = async () => {
     setDownloading(true);
@@ -117,7 +116,15 @@ export default function ContentCard({ item }) {
 
   return (
     <div className="rounded-2xl overflow-hidden flex flex-col relative" style={{ background: "#121826", border: `1px solid ${meta.color}25` }}>
-      <div className="relative aspect-video" style={{ background: `${meta.color}10` }}>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => item.download_url && handleView()}
+        onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && item.download_url) { e.preventDefault(); handleView(); } }}
+        onPointerEnter={primePreview}
+        className="relative aspect-video cursor-pointer"
+        style={{ background: `${meta.color}10` }}
+      >
         {item.thumbnail_url
           ? <img src={item.thumbnail_url} className="w-full h-full object-cover" alt={item.title} loading="lazy" decoding="async" width="640" height="360" />
           : <div className="w-full h-full flex items-center justify-center text-4xl">{meta.emoji}</div>}

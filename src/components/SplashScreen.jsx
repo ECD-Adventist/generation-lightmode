@@ -9,9 +9,6 @@ export default function SplashScreen() {
         className="w-auto max-w-[280px] h-auto"
         onError={(e) => { e.currentTarget.style.display = 'none'; }}
       />
-      <p className="font-['Space_Grotesk',sans-serif] font-bold text-lg tracking-wider" style={{ color: '#FFD000' }}>
-        LightMode
-      </p>
     </div>
   );
 }
