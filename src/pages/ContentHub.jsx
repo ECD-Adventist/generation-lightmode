@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Loader2, CalendarDays, Sparkles, Search } from "lucide-react";
+import { Loader2, CalendarDays, Search } from "lucide-react";
 import MobileSubPageHeader from "@/components/mobile/MobileSubPageHeader";
 import ContentCard, { LockedContentCard } from "@/components/content-hub/ContentCard";
 import ContentPreviewModal from "@/components/content-hub/ContentPreviewModal";
@@ -84,10 +84,6 @@ export default function ContentHub() {
         <div className="absolute -top-16 left-1/4 w-64 h-64 rounded-full blur-3xl pointer-events-none" style={{ background: "#00CFFF", opacity: 0.1 }} />
         <div className="absolute -bottom-16 right-1/4 w-64 h-64 rounded-full blur-3xl pointer-events-none" style={{ background: "#8A5CFF", opacity: 0.1 }} />
         <div className="relative max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-4" style={{ background: "rgba(0,207,255,0.08)", border: "1px solid rgba(0,207,255,0.25)" }}>
-            <Sparkles size={11} style={{ color: "#00CFFF" }} />
-            <span className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: "#00CFFF" }}>All Things New</span>
-          </div>
           <h1 className="glm-headline text-3xl md:text-5xl text-white mb-3">
             All Things <span className="glm-gradient-text">New</span>
           </h1>

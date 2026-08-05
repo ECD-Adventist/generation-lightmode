@@ -56,15 +56,17 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
       : baseName || `All Things New ${typeLabel}`;
     const suggestedDescription = file.description?.trim() || `${suggestedTitle} is an All Things New ${typeLabel.toLowerCase()} resource ready to download and share.`;
 
+    // Picking a new file replaces all of its details, so the entry matches the new content.
     setForm(f => ({
       ...f,
       drive_link: file.link,
-      title: f.title.trim() ? f.title : suggestedTitle,
-      description: f.description.trim() ? f.description : suggestedDescription,
+      title: suggestedTitle,
+      description: suggestedDescription,
       content_type: inferredType,
+      thumbnail_url: "",
     }));
     setThumbnailSuggestion(file.thumbnail_link || "");
-    toast.success(`Selected "${file.name}" and added its details`);
+    toast.success(`Selected "${file.name}" and updated its details`);
   };
 
   const handleThumbnail = async (e) => {

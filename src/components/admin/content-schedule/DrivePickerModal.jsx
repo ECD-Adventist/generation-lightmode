@@ -48,6 +48,12 @@ export default function DrivePickerModal({ open, onClose, onPick }) {
     if (open) load();
   }, [open, load]);
 
+  // Live search — results update as the admin types.
+  useEffect(() => {
+    const id = setTimeout(() => setActiveSearch(search.trim()), 300);
+    return () => clearTimeout(id);
+  }, [search]);
+
   useEffect(() => {
     if (!open) { setPath([DRIVE_ROOT]); setSearch(""); setActiveSearch(""); }
   }, [open]);
@@ -82,7 +88,6 @@ export default function DrivePickerModal({ open, onClose, onPick }) {
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && setActiveSearch(search.trim())}
               placeholder="Search your Drive…"
               className="flex-1 bg-transparent py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none"
             />
