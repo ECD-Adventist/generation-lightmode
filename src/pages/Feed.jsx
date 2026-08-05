@@ -640,6 +640,7 @@ export default function Feed() {
                  <Link to={createPageUrl("KeepIt100")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-white/40" style={{ color: "#3A4A6B" }}><span>💯</span> Keep It 100</Link>
                  <Link to={createPageUrl("CodesOfTruth")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-white/40" style={{ color: "#3A4A6B" }}><span>🔐</span> Codes of Truth</Link>
                  <Link to={createPageUrl("Resources")} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-white/40" style={{ color: "#3A4A6B" }}><span>🌍</span> Other Resources</Link>
+                 <Link to="/ContentHub" className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-white/40" style={{ color: "#3A4A6B" }}><span>🎬</span> All Things New</Link>
                </div>
              )}
 
@@ -1054,6 +1055,7 @@ export default function Feed() {
                     <Link to={createPageUrl("KeepIt100")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-white/40" style={{ color: "#4A5878" }}><span>💯</span> Keep It 100</Link>
                     <Link to={createPageUrl("CodesOfTruth")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-white/40" style={{ color: "#4A5878" }}><span>🔐</span> Codes of Truth</Link>
                     <Link to={createPageUrl("Resources")} onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-white/40" style={{ color: "#4A5878" }}><span>🌍</span> Other Resources</Link>
+                    <Link to="/ContentHub" onClick={() => setIsMobileNavOpen(false)} className="flex items-center gap-2.5 text-xs font-semibold px-3 py-2 rounded-lg transition hover:bg-white/40" style={{ color: "#4A5878" }}><span>🎬</span> All Things New</Link>
                   </div>
                 )}
                 <a href="https://bible-school.base44.app/website/Home" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileNavOpen(false)} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-white/30" style={{ color: "#37474F" }}>

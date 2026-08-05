@@ -19,6 +19,7 @@ const SHARE_PLATFORMS = [
 export default function ContentCard({ item }) {
   const [downloading, setDownloading] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [shareMenuView, setShareMenuView] = useState("main");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const meta = typeMeta(item.content_type);
@@ -121,7 +122,7 @@ export default function ContentCard({ item }) {
             {downloading ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Download
           </button>
           <div className="relative">
-            <button onClick={() => setShareOpen(v => !v)}
+            <button onClick={() => { setShareMenuView("main"); setShareOpen(v => !v); }}
               className="w-10 h-10 rounded-full flex items-center justify-center transition active:scale-95"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#C8D0E0" }}>
               <Share2 size={14} />
@@ -130,16 +131,43 @@ export default function ContentCard({ item }) {
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShareOpen(false)} />
                 <div className="absolute bottom-12 right-0 z-20 rounded-2xl p-1.5 min-w-[170px]" style={{ background: "rgba(18,24,38,0.98)", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
-                  {SHARE_PLATFORMS.filter(p => p.id !== "native" || navigator.share).map(p => (
-                    <button key={p.id} onClick={() => handleShare(p.id)}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
-                      <span>{p.emoji}</span> {p.label}
-                    </button>
-                  ))}
-                  <button onClick={() => handleShare("copy_link")}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
-                    {copied ? <Check size={13} style={{ color: "#10B981" }} /> : <Copy size={13} />} Copy link
-                  </button>
+                  {shareMenuView === "main" ? (
+                    <>
+                      {SHARE_PLATFORMS.filter(p => !["x", "telegram", "native"].includes(p.id)).map(p => (
+                        <button key={p.id} onClick={() => handleShare(p.id)}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
+                          <span>{p.emoji}</span> {p.label}
+                        </button>
+                      ))}
+                      <button onClick={() => setShareMenuView("more")}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
+                        <span>↗️</span> More apps
+                      </button>
+                      <button onClick={() => handleShare("copy_link")}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
+                        {copied ? <Check size={13} style={{ color: "#10B981" }} /> : <Copy size={13} />} Copy link
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => setShareMenuView("main")}
+                        className="w-full px-3 py-2 rounded-xl text-[11px] font-bold text-left transition hover:bg-white/5" style={{ color: "#00CFFF" }}>
+                        ← Back
+                      </button>
+                      {SHARE_PLATFORMS.filter(p => ["x", "telegram"].includes(p.id)).map(p => (
+                        <button key={p.id} onClick={() => handleShare(p.id)}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
+                          <span>{p.emoji}</span> {p.label}
+                        </button>
+                      ))}
+                      {navigator.share && (
+                        <button onClick={() => handleShare("native")}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
+                          <span>↗️</span> Other apps
+                        </button>
+                      )}
+                    </>
+                  )}
                 </div>
               </>
             )}

@@ -10,7 +10,7 @@ export default function ContentPreviewModal({ item, open, onClose }) {
           {item.description && <p className="text-xs text-white/50 leading-relaxed">{item.description}</p>}
         </DialogHeader>
         <div className="aspect-video bg-black flex items-center justify-center">
-          {item.content_type === "poster" ? (
+          {item.content_type !== "video" ? (
             <img
               src={item.download_url}
               alt={item.title}

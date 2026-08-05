@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Upload, Link2, CheckCircle2, AlertCircle, HardDrive } from "lucide-react";
+import { Loader2, Upload, Link2, CheckCircle2, AlertCircle, HardDrive, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import DrivePickerModal from "./DrivePickerModal";
 import { CONTENT_TYPES, CONTENT_LANGUAGES } from "@/components/content-hub/contentConstants";
@@ -17,6 +17,7 @@ const emptyForm = { title: "", description: "", content_type: "video", language:
 export default function ContentFormModal({ open, onClose, onSaved, item, defaultDate }) {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [thumbnailSuggestion, setThumbnailSuggestion] = useState("");
@@ -105,6 +106,15 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
       toast.error(err?.message || "Failed to save");
     }
     setSaving(false);
+  };
+
+  const handleDelete = async () => {
+    if (!item || !window.confirm(`Delete "${item.title}"?`)) return;
+    setDeleting(true);
+    await base44.entities.DigitalContent.delete(item.id);
+    toast.success("Content deleted");
+    onSaved();
+    onClose();
   };
 
   const inputCls = "w-full rounded-xl px-3 py-2.5 text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-cyan-400/50";
@@ -200,11 +210,20 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
             </div>
           </div>
 
-          <button onClick={handleSave} disabled={saving}
-            className="w-full py-3 rounded-xl font-black text-sm font-['Space_Grotesk'] transition active:scale-[0.98]"
-            style={{ background: "linear-gradient(90deg, #00CFFF, #8A5CFF)", color: "#0B0F1A" }}>
-            {saving ? "Saving…" : item ? "Save Changes" : "Schedule Content"}
-          </button>
+          <div className="flex gap-2">
+            {item && (
+              <button onClick={handleDelete} disabled={deleting || saving}
+                className="px-4 py-3 rounded-xl font-black text-sm transition active:scale-[0.98] disabled:opacity-50"
+                style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#F87171" }}>
+                {deleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+              </button>
+            )}
+            <button onClick={handleSave} disabled={saving || deleting}
+              className="flex-1 py-3 rounded-xl font-black text-sm font-['Space_Grotesk'] transition active:scale-[0.98] disabled:opacity-50"
+              style={{ background: "linear-gradient(90deg, #00CFFF, #8A5CFF)", color: "#0B0F1A" }}>
+              {saving ? "Saving…" : item ? "Save Changes" : "Schedule Content"}
+            </button>
+          </div>
         </div>
         <DrivePickerModal open={pickerOpen} onClose={() => setPickerOpen(false)} onPick={handleDrivePick} />
       </DialogContent>
