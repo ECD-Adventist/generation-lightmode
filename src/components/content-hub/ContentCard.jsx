@@ -25,6 +25,15 @@ export default function ContentCard({ item }) {
   const track = (action, platform = "") =>
     base44.functions.invoke("trackContentEngagement", { content_id: item.id, action, platform });
 
+  const primePreview = () => {
+    if (!item.preview_url || document.querySelector(`link[data-preview-id="${item.id}"]`)) return;
+    const link = document.createElement("link");
+    link.rel = "prefetch";
+    link.href = item.preview_url;
+    link.dataset.previewId = item.id;
+    document.head.appendChild(link);
+  };
+
   const handleDownload = async () => {
     setDownloading(true);
     try {
@@ -70,7 +79,7 @@ export default function ContentCard({ item }) {
     <div className="rounded-2xl overflow-hidden flex flex-col relative" style={{ background: "#121826", border: `1px solid ${meta.color}25` }}>
       <div className="relative aspect-video" style={{ background: `${meta.color}10` }}>
         {item.thumbnail_url
-          ? <img src={item.thumbnail_url} className="w-full h-full object-cover" alt={item.title} loading="lazy" />
+          ? <img src={item.thumbnail_url} className="w-full h-full object-cover" alt={item.title} loading="lazy" decoding="async" width="640" height="360" />
           : <div className="w-full h-full flex items-center justify-center text-4xl">{meta.emoji}</div>}
         <span className="absolute top-2 left-2 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: "rgba(11,15,26,0.85)", color: meta.color, border: `1px solid ${meta.color}50` }}>
           {meta.emoji} {meta.label}
@@ -85,7 +94,7 @@ export default function ContentCard({ item }) {
         {item.description && <p className="text-[11.5px] leading-relaxed mb-3 line-clamp-2" style={{ color: "#8A9BB0" }}>{item.description}</p>}
 
         <div className="mt-auto flex items-center gap-2">
-          <button onClick={() => setPreviewOpen(true)} disabled={!item.preview_url}
+          <button onClick={() => setPreviewOpen(true)} onPointerEnter={primePreview} onFocus={primePreview} disabled={!item.preview_url}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-black text-[11.5px] font-['Space_Grotesk'] transition active:scale-95 disabled:opacity-40"
             style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${meta.color}55`, color: meta.color }}>
             <Eye size={13} /> View

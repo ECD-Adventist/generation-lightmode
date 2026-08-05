@@ -14,6 +14,7 @@ export default function ContentPreviewModal({ item, open, onClose }) {
             src={item.preview_url}
             title={`Preview ${item.title}`}
             className="w-full h-full border-0"
+            loading="eager"
             allow="autoplay; fullscreen"
             allowFullScreen
           />

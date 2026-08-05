@@ -29,7 +29,11 @@ export default async function(req) {
       };
     });
 
-    return Response.json({ items: result });
+    return Response.json({ items: result }, {
+      headers: {
+        'Cache-Control': 'public, max-age=30, stale-while-revalidate=120'
+      }
+    });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

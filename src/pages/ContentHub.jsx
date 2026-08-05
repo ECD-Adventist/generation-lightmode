@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Loader2, CalendarDays, Sparkles } from "lucide-react";
 import MobileSubPageHeader from "@/components/mobile/MobileSubPageHeader";
@@ -6,27 +7,46 @@ import ContentCard, { LockedContentCard } from "@/components/content-hub/Content
 import ContentPreviewModal from "@/components/content-hub/ContentPreviewModal";
 import { CONTENT_TYPES } from "@/components/content-hub/contentConstants";
 
+const CONTENT_CACHE_KEY = "all-things-new-items";
+
+const readCachedItems = () => {
+  try {
+    return JSON.parse(sessionStorage.getItem(CONTENT_CACHE_KEY) || "null") || undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 export default function ContentHub() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("all");
   const [langFilter, setLangFilter] = useState("all");
-  const [sharedPreview, setSharedPreview] = useState(null);
+  const [sharedPreviewId, setSharedPreviewId] = useState(() => new URLSearchParams(window.location.search).get("item"));
+
+  const { data: items = [], isLoading: loading } = useQuery({
+    queryKey: ["digital-content-public"],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listDigitalContent", {});
+      const loadedItems = res.data?.items || [];
+      sessionStorage.setItem(CONTENT_CACHE_KEY, JSON.stringify(loadedItems));
+      return loadedItems;
+    },
+    initialData: readCachedItems,
+    staleTime: 60_000,
+    gcTime: 30 * 60_000,
+  });
 
   useEffect(() => {
-    base44.functions.invoke("listDigitalContent", {})
-      .then(res => {
-        const loadedItems = res.data?.items || [];
-        setItems(loadedItems);
-        const requestedId = new URLSearchParams(window.location.search).get("item");
-        setSharedPreview(loadedItems.find(item => item.id === requestedId && item.unlocked) || null);
-      })
-      .catch(() => setItems([]))
-      .finally(() => setLoading(false));
+    const link = document.createElement("link");
+    link.rel = "preconnect";
+    link.href = "https://drive.google.com";
+    document.head.appendChild(link);
+    return () => link.remove();
   }, []);
 
+  const sharedPreview = items.find(item => item.id === sharedPreviewId && item.unlocked) || null;
+
   const closeSharedPreview = () => {
-    setSharedPreview(null);
+    setSharedPreviewId(null);
     const params = new URLSearchParams(window.location.search);
     params.delete("item");
     window.history.replaceState({}, "", `${window.location.pathname}${params.toString() ? `?${params}` : ""}`);

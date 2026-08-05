@@ -104,7 +104,7 @@ export default function Layout({ children, currentPageName }) {
   }, [location.pathname, location.search, location.hash]);
 
   return (
-    <div dir={isRTL ? "rtl" : "ltr"} className={`${usesDarkPublicHeader ? "bg-[#0B0F1A]" : "bg-background"} min-h-screen text-foreground`} style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
+    <div dir={isRTL ? "rtl" : "ltr"} className={`${usesDarkPublicHeader ? "public-dark-theme bg-[#0B0F1A]" : "bg-background"} min-h-screen text-foreground`} style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
@@ -129,6 +129,10 @@ export default function Layout({ children, currentPageName }) {
           font-family: 'Space Grotesk', sans-serif;
           font-weight: 800;
           letter-spacing: -0.02em;
+        }
+
+        .public-dark-theme .glm-headline {
+          color: #FFFFFF;
         }
 
         .glm-body {
