@@ -6,24 +6,30 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#0B0F1A",
   "background_color": "#0B0F1A",
+  "theme_color": "#0B0F1A",
   "categories": ["lifestyle", "social", "education"],
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/073f0601a_generated_image.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/3c5db2bfc_generated_image.png",
+      "src": "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/073f0601a_generated_image.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/3c5db2bfc_generated_image.png",
+      "src": "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/073f0601a_generated_image.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/073f0601a_generated_image.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
