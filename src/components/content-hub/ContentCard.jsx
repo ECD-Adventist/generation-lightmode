@@ -60,7 +60,7 @@ export default function ContentCard({ item }) {
     setShareOpen(value => !value);
   };
 
-  const handleShare = async (platform) => {
+  const handleShare = async (platform, nativeAppLabel = "") => {
     const context = { contentType: "content_hub", contentId: item.id, platform };
     if (platform === "copy_link") {
       try {
@@ -98,9 +98,14 @@ export default function ContentCard({ item }) {
       const result = await tryNativeShare({ title: item.title || "Generation LightMode", text: shareText, url: shareUrl }, context);
       if (result.status === "shared") {
         setShareOpen(false);
-        track("share", platform).catch(() => {});
+        track("share", nativeAppLabel.toLowerCase() || platform).catch(() => {});
       } else if (result.status === "failed" || result.status === "unavailable") {
-        setShareOpen(true);
+        try {
+          await copyShareLink(shareUrl);
+          toast.success(`${nativeAppLabel || "This app"} needs the device share menu — the link is copied for you to paste.`);
+        } catch {
+          toast.error(`${nativeAppLabel || "This app"} sharing is available from the device share menu.`);
+        }
       }
       return;
     }
@@ -162,7 +167,7 @@ export default function ContentCard({ item }) {
                     {SHARE_PLATFORMS.map(p => {
                       const isNativeOnly = !DIRECT_SHARE_PLATFORMS.some(d => d.id === p.id);
                       return (
-                        <button type="button" key={p.id} onClick={() => isNativeOnly ? handleShare("native") : handleShare(p.id)}
+                        <button type="button" key={p.id} onClick={() => isNativeOnly ? handleShare("native", p.label) : handleShare(p.id)}
                           className="flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition hover:bg-white/5">
                           <span className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: p.id === "tiktok" || p.id === "x" ? "#000000" : p.id === "whatsapp" ? "#25D366" : p.id === "facebook" ? "#1877F2" : p.id === "telegram" ? "#26A5E4" : p.id === "linkedin" ? "#0A66C2" : p.id === "email" ? "#4A5878" : p.id === "instagram" ? "#E4405F" : p.id === "youtube" ? "#FF0000" : "#4A5878" }}>
                             <BrandIcon brand={p.id} />
