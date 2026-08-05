@@ -22,6 +22,7 @@ import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 import RepostButton from "@/components/feed/RepostButton";
+import PostMusicEditor from "@/components/feed/PostMusicEditor";
 
 export default function DropCard({ drop, user, isGuest = false, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
@@ -29,6 +30,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
   const requireAuth = useRequireAuth(user);
   const clickTimerRef = useRef(null);
   const [showComments, setShowComments] = useState(false);
+  const [musicEditorOpen, setMusicEditorOpen] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
@@ -760,10 +762,28 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
                   const isManagerOfLeader = !!leaderForDrop && Array.isArray(leaderForDrop.manager_emails) && leaderForDrop.manager_emails.includes(user?.email);
                   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
                   const canDelete = user?.email === drop.user_email || isManagerOfLeader || isAdmin;
+                  const canEditMusic = user?.email === drop.user_email || isManagerOfLeader;
                   return canDelete ? (
-                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }} className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer focus:bg-red-50 focus:text-red-600">
-                      Delete Post
-                    </DropdownMenuItem>
+                    <>
+                      {canEditMusic && (
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setMusicEditorOpen(true); }} className="hover:bg-muted cursor-pointer focus:bg-muted">
+                          {drop.audio_url ? "Change Music" : "Add Music"}
+                        </DropdownMenuItem>
+                      )}
+                      {canEditMusic && drop.audio_url && (
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation();
+                          base44.entities.GlowDrop.update(drop.id, { audio_url: "", audio_title: "" })
+                            .then(() => { queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] }); toast.success("Music removed"); })
+                            .catch(() => toast.error("Could not remove music"));
+                        }} className="hover:bg-muted cursor-pointer focus:bg-muted">
+                          Remove Music
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }} className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer focus:bg-red-50 focus:text-red-600">
+                        Delete Post
+                      </DropdownMenuItem>
+                    </>
                   ) : (
                     <DropdownMenuItem onClick={(e) => {
                       e.stopPropagation();
@@ -791,6 +811,8 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
           </button>
         )}
       </div>
+
+      <PostMusicEditor drop={drop} isOpen={musicEditorOpen} onClose={() => setMusicEditorOpen(false)} />
 
       {drop.audio_url && (
         <div className="px-3 sm:px-4 pt-3">

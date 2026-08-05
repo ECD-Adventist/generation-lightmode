@@ -42,8 +42,18 @@ export default function RepostButton({ drop, user, compact = false, dark = false
     <button type="button" disabled={mutation.isPending} onClick={(event) => { event.stopPropagation(); mutation.mutate(); }}
       className={compact ? "flex items-center gap-1.5 text-xs font-bold disabled:opacity-50" : "flex flex-col items-center gap-1 disabled:opacity-50"}
       style={{ color: existing ? "#10B981" : dark ? "#FFFFFF" : "#0B3FD9" }} title={existing ? "Undo repost" : "Repost"}>
-      <span className={compact ? "" : "w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] shadow-sm"}><Repeat2 className="w-5 h-5" /></span>
-      <span>{compact ? (existing ? "Undo repost" : "Repost") : (drop.reposts_count || 0)}</span>
+      <span
+        className={compact ? "" : "w-11 h-11 rounded-full flex items-center justify-center"}
+        style={compact ? undefined : {
+          background: "rgba(255,255,255,0.96)",
+          border: "1px solid #D6E4FF",
+          boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)",
+          color: existing ? "#10B981" : "#0B3FD9",
+        }}
+      >
+        <Repeat2 className="w-5 h-5" />
+      </span>
+      <span className={compact ? "" : "text-[11px] font-black"} style={compact ? undefined : { textShadow: dark ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>{compact ? (existing ? "Undo repost" : "Repost") : (drop.reposts_count || 0)}</span>
     </button>
   );
 }

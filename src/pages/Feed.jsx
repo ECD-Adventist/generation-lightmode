@@ -595,18 +595,6 @@ export default function Feed() {
             else if (hasNextPage && !isFetchingNextPage) fetchNextPage();
           }}
         />
-        <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
-        <StatusComposerModal isOpen={isStatusModalOpen} onClose={() => setIsStatusModalOpen(false)} user={user} />
-        <StatusViewerModal
-          story={selectedStory}
-          storyUser={selectedStory ? getUserInfo(selectedStory.user_email) : null}
-          isOpen={!!selectedStory}
-          onClose={() => setSelectedStory(null)}
-          allStories={stories}
-          allUsers={users}
-          getUserInfo={getUserInfo}
-          currentUser={user}
-        />
       </div>
 
       <div className="hidden lg:grid flex-1 min-h-0 relative z-10 grid-cols-1 lg:grid-cols-[320px_1fr_320px] gap-0 backdrop-blur-[2px]">

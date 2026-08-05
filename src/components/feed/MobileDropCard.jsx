@@ -13,6 +13,7 @@ import CountryFlag from "@/components/common/CountryFlag";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import RepostButton from "@/components/feed/RepostButton";
+import PostMusicEditor from "@/components/feed/PostMusicEditor";
 
 /**
  * Lightweight mobile-only DropCard.
@@ -128,6 +129,8 @@ function MobileDropCard({
   const postLink = createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`;
 
   const [showComments, setShowComments] = useState(false);
+  const [musicEditorOpen, setMusicEditorOpen] = useState(false);
+  const canEditMusic = user?.email === drop.user_email || isManagerOfLeader;
 
   return (
     <article
@@ -241,7 +244,27 @@ function MobileDropCard({
                 <MoreHorizontal className="w-5 h-5" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuContent align="end" className="w-44">
+              {canEditMusic && (
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setMusicEditorOpen(true)}>
+                  {drop.audio_url ? "Change Music" : "Add Music"}
+                </DropdownMenuItem>
+              )}
+              {canEditMusic && drop.audio_url && (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => {
+                    base44.entities.GlowDrop.update(drop.id, { audio_url: "", audio_title: "" })
+                      .then(() => {
+                        queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
+                        toast.success("Music removed");
+                      })
+                      .catch(() => toast.error("Could not remove music"));
+                  }}
+                >
+                  Remove Music
+                </DropdownMenuItem>
+              )}
               {canDelete ? (
                 <DropdownMenuItem
                   className="text-red-500 cursor-pointer"
@@ -275,6 +298,8 @@ function MobileDropCard({
           </DropdownMenu>
         </div>
       </div>
+
+      <PostMusicEditor drop={drop} isOpen={musicEditorOpen} onClose={() => setMusicEditorOpen(false)} />
 
       {drop.audio_url && (
         <div className="px-3 pt-3">
