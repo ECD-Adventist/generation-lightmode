@@ -58,12 +58,9 @@ export async function cacheDrops(drops) {
   if (!isIndexedDBAvailable()) return;
   const db = await openDB();
   const store = tx(db, STORE_DROPS, "readwrite");
-  for (const drop of drops) {
-    store.put(drop);
-  }
-  // Save timestamp
+  await Promise.all(drops.map(drop => promisifyRequest(store.put(drop))));
   const meta = tx(db, STORE_META, "readwrite");
-  meta.put({ key: "lastCachedAt", value: new Date().toISOString() });
+  await promisifyRequest(meta.put({ key: "lastCachedAt", value: new Date().toISOString() }));
   db.close();
 }
 

@@ -16,10 +16,15 @@ export default function useOfflineSync(liveDrops, isOnline) {
   const [lastCached, setLastCached] = useState(null);
   const [syncing, setSyncing] = useState(false);
   const syncingRef = useRef(false);
+  const lastCachedIdsRef = useRef("");
 
-  // Cache live drops when they arrive and we're online
+  // Cache live drops when they arrive and we're online.
+  // Uses a ref to avoid re-caching the same drops on every render.
   useEffect(() => {
     if (liveDrops && liveDrops.length > 0 && isOnline) {
+      const ids = liveDrops.map(d => d.id).sort().join("|");
+      if (ids === lastCachedIdsRef.current) return;
+      lastCachedIdsRef.current = ids;
       cacheDrops(liveDrops).catch(() => {});
       getLastCachedAt().then(setLastCached).catch(() => {});
     }

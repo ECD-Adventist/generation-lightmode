@@ -583,7 +583,7 @@ export default function Feed() {
           allUsers={usersWithSearch}
           savedDropRecords={savedDropRecords}
           isLoading={dropsLoading || (userSearch.isActive && userSearch.isLoading)}
-          isError={dropsError}
+          isError={dropsError && isOnline}
           onRefetch={() => refetchDrops()}
           leaderAccounts={leaderAccounts}
           following={followingWithEmails}
@@ -882,7 +882,7 @@ export default function Feed() {
           <div className="flex flex-col px-3 sm:px-4 py-2 pb-24 lg:pb-6 max-w-2xl mx-auto w-full flex-none">
             {dropsLoading && drops.length === 0 ? (
               <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>
-            ) : dropsError && filteredDrops.length === 0 ? (
+            ) : dropsError && filteredDrops.length === 0 && isOnline ? (
               <div className="text-center py-20" style={{ color: "#4A5878" }}>
                 <div className="text-4xl mb-4">↻</div>
                 <p>We're refreshing the feed. Please try again in a moment.</p>
