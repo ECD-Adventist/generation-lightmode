@@ -8,15 +8,9 @@ import ContentPreviewModal from "./ContentPreviewModal";
 import BrandIcon from "./BrandIcon";
 import { fetchContentFile, saveContentFile } from "./contentMedia";
 import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
-import { copyShareLink, openShareWindow, tryNativeShare, whatsappShareUrl } from "@/lib/shareActions";
+import { copyShareLink, openShareWindow, tryNativeShare, buildDirectShareUrl, ALL_SHARE_PLATFORMS, DIRECT_SHARE_PLATFORMS } from "@/lib/shareActions";
 
-const SHARE_PLATFORMS = [
-  { id: "whatsapp", label: "WhatsApp", url: (_u, text) => whatsappShareUrl(text) },
-  { id: "facebook", label: "Facebook", url: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
-  { id: "x", label: "X (Twitter)", url: (u, text) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(u)}` },
-  { id: "telegram", label: "Telegram", url: (u, text) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(text)}` },
-  { id: "native", label: "More apps" },
-];
+const SHARE_PLATFORMS = ALL_SHARE_PLATFORMS;
 
 export default function ContentCard({ item }) {
   const [downloading, setDownloading] = useState(false);
@@ -107,14 +101,13 @@ export default function ContentCard({ item }) {
         setShareOpen(false);
         track("share", platform).catch(() => {});
       } else if (result.status === "failed" || result.status === "unavailable") {
-        setShareMenuView("main");
         setShareOpen(true);
       }
       return;
     }
-    const target = SHARE_PLATFORMS.find(entry => entry.id === platform)?.url?.(shareUrl, shareText);
+    // Direct URL share platforms (WhatsApp, Facebook, X, Telegram, LinkedIn, Email)
+    const target = buildDirectShareUrl(platform, shareUrl, shareText, item.title);
     if (!target || !openShareWindow(target, context)) {
-      setShareMenuView("main");
       setShareOpen(true);
       return;
     }
@@ -157,44 +150,31 @@ export default function ContentCard({ item }) {
             {shareOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShareOpen(false)} />
-                <div className="absolute bottom-12 right-0 z-20 rounded-2xl p-1.5 min-w-[170px]" style={{ background: "rgba(18,24,38,0.98)", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
-                  {shareMenuView === "main" ? (
-                    <>
-                      {SHARE_PLATFORMS.filter(p => !["x", "telegram", "native"].includes(p.id)).map(p => (
-                        <button type="button" key={p.id} onClick={() => handleShare(p.id)}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
-                          <BrandIcon brand={p.id} /> {p.label}
+                <div className="absolute bottom-12 right-0 z-20 rounded-2xl p-2 min-w-[200px]" style={{ background: "rgba(18,24,38,0.98)", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
+                  <div className="grid grid-cols-3 gap-1 mb-2">
+                    {SHARE_PLATFORMS.map(p => {
+                      const isNativeOnly = !DIRECT_SHARE_PLATFORMS.some(d => d.id === p.id);
+                      return (
+                        <button type="button" key={p.id} onClick={() => isNativeOnly ? handleShare("native") : handleShare(p.id)}
+                          className="flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition hover:bg-white/5">
+                          <span className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: p.id === "tiktok" || p.id === "x" ? "#000000" : p.id === "whatsapp" ? "#25D366" : p.id === "facebook" ? "#1877F2" : p.id === "telegram" ? "#26A5E4" : p.id === "linkedin" ? "#0A66C2" : p.id === "email" ? "#4A5878" : p.id === "instagram" ? "#E4405F" : p.id === "youtube" ? "#FF0000" : "#4A5878" }}>
+                            <BrandIcon brand={p.id} />
+                          </span>
+                          <span className="text-[9px] font-semibold text-center" style={{ color: "#C8D0E0" }}>{p.label}</span>
                         </button>
-                      ))}
-                      <button type="button" onClick={() => setShareMenuView("more")}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
-                        <span>↗️</span> More apps
-                      </button>
-                      <button type="button" onClick={() => handleShare("copy_link")}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
-                        {copied ? <Check size={13} style={{ color: "#10B981" }} /> : <Copy size={13} />} Copy link
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button type="button" onClick={() => setShareMenuView("main")}
-                        className="w-full px-3 py-2 rounded-xl text-[11px] font-bold text-left transition hover:bg-white/5" style={{ color: "#00CFFF" }}>
-                        ← Back
-                      </button>
-                      {SHARE_PLATFORMS.filter(p => ["x", "telegram"].includes(p.id)).map(p => (
-                        <button type="button" key={p.id} onClick={() => handleShare(p.id)}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
-                          <BrandIcon brand={p.id} /> {p.label}
-                        </button>
-                      ))}
-                      {navigator.share && (
-                        <button type="button" onClick={() => handleShare("native")}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
-                          <span>↗️</span> Other apps
-                        </button>
-                      )}
-                    </>
+                      );
+                    })}
+                  </div>
+                  {navigator.share && (
+                    <button type="button" onClick={() => handleShare("native")}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#00CFFF" }}>
+                      <span>↗️</span> More apps
+                    </button>
                   )}
+                  <button type="button" onClick={() => handleShare("copy_link")}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
+                    {copied ? <Check size={13} style={{ color: "#10B981" }} /> : <Copy size={13} />} Copy link
+                  </button>
                 </div>
               </>
             )}

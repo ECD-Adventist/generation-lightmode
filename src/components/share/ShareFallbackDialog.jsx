@@ -1,16 +1,28 @@
 import React, { useState } from "react";
-import { Check, Copy, MessageCircle, X, Share2, Twitter, Facebook, Linkedin, Mail } from "lucide-react";
+import { Check, Copy, X, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   copyShareLink,
   logShareError,
   openShareWindow,
-  whatsappShareUrl,
-  twitterShareUrl,
-  facebookShareUrl,
-  linkedinShareUrl,
-  emailShareUrl,
+  buildDirectShareUrl,
+  tryNativeShare,
+  ALL_SHARE_PLATFORMS,
+  DIRECT_SHARE_PLATFORMS,
 } from "@/lib/shareActions";
+import BrandIcon from "@/components/content-hub/BrandIcon";
+
+const PLATFORM_COLORS = {
+  whatsapp: "#25D366",
+  facebook: "#1877F2",
+  x: "#000000",
+  telegram: "#26A5E4",
+  linkedin: "#0A66C2",
+  email: "#4A5878",
+  instagram: "#E4405F",
+  tiktok: "#000000",
+  youtube: "#FF0000",
+};
 
 export default function ShareFallbackDialog({ share, onClose }) {
   const [copied, setCopied] = useState(false);
@@ -27,46 +39,20 @@ export default function ShareFallbackDialog({ share, onClose }) {
     }
   };
 
-  const whatsapp = () => {
-    if (!openShareWindow(whatsappShareUrl(share.text), { contentId: share.id, platform: "whatsapp" })) copy();
-  };
-  const twitter = () => {
-    if (!openShareWindow(twitterShareUrl(share.text, share.url), { contentId: share.id, platform: "twitter" })) copy();
-  };
-  const facebook = () => {
-    if (!openShareWindow(facebookShareUrl(share.url), { contentId: share.id, platform: "facebook" })) copy();
-  };
-  const linkedin = () => {
-    if (!openShareWindow(linkedinShareUrl(share.url, share.title), { contentId: share.id, platform: "linkedin" })) copy();
-  };
-  const email = () => {
-    if (!openShareWindow(emailShareUrl(share.title, share.text), { contentId: share.id, platform: "email" })) copy();
+  const handleDirectShare = (platformId) => {
+    const target = buildDirectShareUrl(platformId, share.url, share.text, share.title);
+    if (!target || !openShareWindow(target, { contentId: share.id, platform: platformId })) {
+      copy();
+    }
   };
 
-  const nativeShare = async () => {
-    if (typeof navigator.share !== "function") {
-      toast.error("Native sharing is not available on this device");
-      return;
-    }
-    try {
-      await navigator.share({ title: share.title || "Generation LightMode", text: share.text, url: share.url });
-      toast.success("Shared successfully");
-    } catch (error) {
-      if (error?.name !== "AbortError") {
-        logShareError("native_share", error, { contentId: share.id });
-      }
-    }
+  const handleNativeShare = async () => {
+    const result = await tryNativeShare(share, { contentId: share.id });
+    if (result.status === "shared") toast.success("Shared successfully");
+    else if (result.status === "failed") toast.error("Sharing failed — try copying the link");
   };
 
   const hasNativeShare = typeof navigator.share === "function";
-
-  const platformBtns = [
-    { label: "WhatsApp", icon: <MessageCircle className="w-4 h-4" />, bg: "#25D366", onClick: whatsapp },
-    { label: "X / Twitter", icon: <Twitter className="w-4 h-4" />, bg: "#000000", onClick: twitter },
-    { label: "Facebook", icon: <Facebook className="w-4 h-4" />, bg: "#1877F2", onClick: facebook },
-    { label: "LinkedIn", icon: <Linkedin className="w-4 h-4" />, bg: "#0A66C2", onClick: linkedin },
-    { label: "Email", icon: <Mail className="w-4 h-4" />, bg: "#4A5878", onClick: email },
-  ];
 
   return (
     <div className="fixed inset-0 z-[6000] flex items-end sm:items-center justify-center bg-black/50 p-4" onClick={onClose}>
@@ -80,7 +66,7 @@ export default function ShareFallbackDialog({ share, onClose }) {
         {hasNativeShare && (
           <button
             type="button"
-            onClick={nativeShare}
+            onClick={handleNativeShare}
             className="w-full rounded-2xl py-3 text-sm font-bold text-white flex items-center justify-center gap-2 mb-3"
             style={{ background: "linear-gradient(90deg, #00CFFF, #8A5CFF)" }}
           >
@@ -88,24 +74,27 @@ export default function ShareFallbackDialog({ share, onClose }) {
           </button>
         )}
 
-        <div className="grid grid-cols-5 gap-2 mb-3">
-          {platformBtns.map(btn => (
-            <button
-              key={btn.label}
-              type="button"
-              onClick={btn.onClick}
-              title={btn.label}
-              className="flex flex-col items-center gap-1.5"
-            >
-              <span
-                className="w-11 h-11 rounded-full flex items-center justify-center text-white"
-                style={{ background: btn.bg }}
+        <div className="grid grid-cols-4 gap-2 mb-3">
+          {ALL_SHARE_PLATFORMS.map(btn => {
+            const isNativeOnly = !DIRECT_SHARE_PLATFORMS.some(p => p.id === btn.id);
+            return (
+              <button
+                key={btn.id}
+                type="button"
+                onClick={() => isNativeOnly ? handleNativeShare() : handleDirectShare(btn.id)}
+                title={btn.label}
+                className="flex flex-col items-center gap-1.5"
               >
-                {btn.icon}
-              </span>
-              <span className="text-[10px] font-semibold text-[#4A5878] leading-tight text-center">{btn.label}</span>
-            </button>
-          ))}
+                <span
+                  className="w-11 h-11 rounded-full flex items-center justify-center"
+                  style={{ background: PLATFORM_COLORS[btn.id] || "#4A5878" }}
+                >
+                  <BrandIcon brand={btn.id} />
+                </span>
+                <span className="text-[10px] font-semibold text-[#4A5878] leading-tight text-center">{btn.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         <button type="button" onClick={copy} className="w-full rounded-2xl bg-[#EEF3FF] py-3 text-sm font-bold text-[#0B3FD9] flex items-center justify-center gap-2">

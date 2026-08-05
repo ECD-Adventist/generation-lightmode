@@ -4,10 +4,13 @@ export function logShareError(stage, error, context = {}) {
   }
 }
 
-export async function tryNativeShare({ title, text, url }, context = {}) {
+export async function tryNativeShare({ title, text, url, files }, context = {}) {
   if (typeof navigator.share !== "function") return { status: "unavailable" };
   try {
-    await navigator.share({ title: title || "Generation LightMode", text: (text || "").replace(url, "").trim(), url });
+    const shareData = { title: title || "Generation LightMode", text: (text || "").replace(url, "").trim() };
+    if (url) shareData.url = url;
+    if (files && files.length) shareData.files = files;
+    await navigator.share(shareData);
     return { status: "shared" };
   } catch (error) {
     if (error?.name === "AbortError") return { status: "cancelled", error };
@@ -60,9 +63,58 @@ export const linkedinShareUrl = (url, title) => {
   return `https://www.linkedin.com/sharing/share-offsite/?${params.toString()}`;
 };
 
+export const telegramShareUrl = (url, text) => {
+  const params = new URLSearchParams();
+  params.set("url", url);
+  if (text) params.set("text", text);
+  return `https://t.me/share/url?${params.toString()}`;
+};
+
 export const emailShareUrl = (subject, body) => {
   const params = new URLSearchParams();
   if (subject) params.set("subject", subject);
   params.set("body", body || "");
   return `mailto:?${params.toString()}`;
 };
+
+/**
+ * Platforms that support direct web share URLs (open in a new window).
+ */
+export const DIRECT_SHARE_PLATFORMS = [
+  { id: "whatsapp", label: "WhatsApp" },
+  { id: "facebook", label: "Facebook" },
+  { id: "x", label: "X" },
+  { id: "telegram", label: "Telegram" },
+  { id: "linkedin", label: "LinkedIn" },
+  { id: "email", label: "Email" },
+];
+
+/**
+ * Platforms that only work via the native device share API (mobile only).
+ * YouTube, TikTok, and Instagram don't support web-based share URLs.
+ */
+export const NATIVE_ONLY_PLATFORMS = [
+  { id: "instagram", label: "Instagram" },
+  { id: "tiktok", label: "TikTok" },
+  { id: "youtube", label: "YouTube" },
+];
+
+/**
+ * Full ordered list of all share platforms for consistent arrangement.
+ */
+export const ALL_SHARE_PLATFORMS = [
+  ...DIRECT_SHARE_PLATFORMS,
+  ...NATIVE_ONLY_PLATFORMS,
+];
+
+export function buildDirectShareUrl(platformId, url, text, title) {
+  switch (platformId) {
+    case "whatsapp": return whatsappShareUrl(text);
+    case "facebook": return facebookShareUrl(url);
+    case "x": return twitterShareUrl(text, url);
+    case "telegram": return telegramShareUrl(url, text);
+    case "linkedin": return linkedinShareUrl(url, title);
+    case "email": return emailShareUrl(title, text);
+    default: return null;
+  }
+}
