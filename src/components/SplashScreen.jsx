@@ -3,7 +3,11 @@
 export default function SplashScreen() {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#0B0F1A]">
-      <div className="w-8 h-8 rounded-full border-2 border-white/15 border-t-cyan-400 animate-spin" aria-label="Loading" />
+      <img
+        src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
+        alt="Generation LightMode"
+        className="w-auto max-w-[280px] h-auto"
+      />
     </div>
   );
 }

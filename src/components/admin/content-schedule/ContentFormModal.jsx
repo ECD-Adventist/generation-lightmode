@@ -97,8 +97,8 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
         thumbnail_url: form.thumbnail_url,
         scheduled_at: new Date(`${form.date}T${form.time}`).toISOString(),
       };
-      if (item) await base44.entities.DigitalContent.update(item.id, payload);
-      else await base44.entities.DigitalContent.create(payload);
+      const res = await base44.functions.invoke("saveDigitalContent", { id: item?.id, data: payload });
+      if (res.data?.error) throw new Error(res.data.error);
       toast.success(item ? "Content updated" : "Content scheduled");
       onSaved();
       onClose();
@@ -111,7 +111,7 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
   const handleDelete = async () => {
     if (!item || !window.confirm(`Delete "${item.title}"?`)) return;
     setDeleting(true);
-    await base44.entities.DigitalContent.delete(item.id);
+    await base44.functions.invoke("saveDigitalContent", { id: item.id, action: "delete" });
     toast.success("Content deleted");
     onSaved();
     onClose();

@@ -42,7 +42,7 @@ export default function AdminContentScheduleTab() {
 
   const handleDelete = async (item) => {
     if (!window.confirm(`Delete "${item.title}"?`)) return;
-    await base44.entities.DigitalContent.delete(item.id);
+    await base44.functions.invoke("saveDigitalContent", { id: item.id, action: "delete" });
     toast.success("Content deleted");
     refresh();
   };
