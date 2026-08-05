@@ -3,6 +3,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 // The "ALL THINGS NEW" shared drive — royalty-free music lives here.
 const SHARED_DRIVE_ID = "0ABkm6ojo6LD0Uk9PVA";
 
+// Dedicated music folder inside the shared drive.
+const MUSIC_FOLDER_ID = "13TMHi_OJSm3g1S_RwG42O-YmO0qI0xnN";
+
 // Lets signed-in users browse/search audio tracks from the shared drive
 // so they can attach music to their Glow Drops.
 export default async function (req) {
@@ -18,7 +21,7 @@ export default async function (req) {
 
     const search = String(payload.search || "").trim().slice(0, 100).replace(/'/g, "");
 
-    const clauses = ["trashed = false", "mimeType contains 'audio/'"];
+    const clauses = ["trashed = false", "mimeType contains 'audio/'", `'${MUSIC_FOLDER_ID}' in parents`];
     if (search) clauses.push(`name contains '${search}'`);
 
     const params = new URLSearchParams({
