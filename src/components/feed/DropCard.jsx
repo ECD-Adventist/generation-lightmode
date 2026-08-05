@@ -23,6 +23,7 @@ import useRequireAuth from "@/hooks/useRequireAuth";
 import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 import RepostButton from "@/components/feed/RepostButton";
 import PostMusicEditor from "@/components/feed/PostMusicEditor";
+import PostAudioTrack from "@/components/feed/PostAudioTrack";
 
 export default function DropCard({ drop, user, isGuest = false, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
@@ -312,12 +313,6 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
         boxShadow: "0 1px 2px rgba(11, 63, 217, 0.04), 0 8px 24px rgba(11, 63, 217, 0.08), 0 16px 48px rgba(11, 63, 217, 0.04)"
       }}
     >
-      {drop.repost && (
-        <div className="mb-2 px-3 py-2 rounded-2xl text-xs font-bold flex flex-wrap gap-x-2" style={{ background: "#EEF3FF", color: "#0B3FD9" }}>
-          <span>Reposted by {drop.repost.reposter_name || "a member"}</span>
-          <span style={{ color: "#6B7FA0" }}>Originally posted by {getDisplayName(authorProfile)}</span>
-        </div>
-      )}
       {isLeaderPost && (
         <div className="absolute -top-3 left-5 sm:left-6 z-30 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg"
           style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 40%, #1A6B3F 70%, #D4B82E 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35), 0 0 20px rgba(212, 184, 46, 0.4)" }}>
@@ -817,11 +812,14 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
 
       <PostMusicEditor drop={drop} isOpen={musicEditorOpen} onClose={() => setMusicEditorOpen(false)} />
 
-      {drop.audio_url && (
-        <div className="px-3 sm:px-4 pt-3">
-          <audio src={drop.audio_url} controls preload="none" className="w-full h-9" />
+      {drop.repost && (
+        <div className="px-3 sm:px-4 pt-3 text-xs font-semibold flex flex-wrap gap-x-1.5" style={{ color: "#6B7FA0" }}>
+          <span style={{ color: "#0B3FD9" }}>↻ Reposted by {drop.repost.reposter_name || "a member"}</span>
+          <span>· Originally by {getDisplayName(authorProfile)}</span>
         </div>
       )}
+
+      <PostAudioTrack audioUrl={drop.audio_url} audioTitle={drop.audio_title} />
 
       {/* Verse & Reflection */}
       {(drop.verse || drop.reflection) && (

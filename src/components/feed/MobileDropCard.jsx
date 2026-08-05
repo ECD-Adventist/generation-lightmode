@@ -14,6 +14,7 @@ import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import RepostButton from "@/components/feed/RepostButton";
 import PostMusicEditor from "@/components/feed/PostMusicEditor";
+import PostAudioTrack from "@/components/feed/PostAudioTrack";
 
 /**
  * Lightweight mobile-only DropCard.
@@ -137,11 +138,6 @@ function MobileDropCard({
       className="relative rounded-[2rem] mb-5 p-3 overflow-hidden"
       style={{ background: "#FFFFFF", border: "1px solid #D6E4FF", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.10)" }}
     >
-      {drop.repost && (
-        <div className="mb-2 px-3 py-2 rounded-2xl text-[11px] font-bold" style={{ background: "#EEF3FF", color: "#0B3FD9" }}>
-          Reposted by {drop.repost.reposter_name || "a member"} · Originally posted by {getDisplayName(authorProfile)}
-        </div>
-      )}
       <div className="relative rounded-[1.45rem] overflow-hidden" style={{ aspectRatio: "4 / 5", background: drop.media_url ? "#DDE7FB" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
         <div
           role="button"
@@ -301,11 +297,13 @@ function MobileDropCard({
 
       <PostMusicEditor drop={drop} isOpen={musicEditorOpen} onClose={() => setMusicEditorOpen(false)} />
 
-      {drop.audio_url && (
-        <div className="px-3 pt-3">
-          <audio src={drop.audio_url} controls preload="none" className="w-full h-9" />
+      {drop.repost && (
+        <div className="px-3 pt-3 text-[11px] font-semibold" style={{ color: "#6B7FA0" }}>
+          <span style={{ color: "#0B3FD9" }}>↻ Reposted by {drop.repost.reposter_name || "a member"}</span> · Originally by {getDisplayName(authorProfile)}
         </div>
       )}
+
+      <PostAudioTrack audioUrl={drop.audio_url} audioTitle={drop.audio_title} />
 
       {(drop.verse || reflectionText || drop.category || drop.hashtags) && (
         <div className="px-3 pt-3 pb-1">
