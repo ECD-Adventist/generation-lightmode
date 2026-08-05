@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { toDirectDownloadUrl } from '../../shared/driveLinks.ts';
+import { extractDriveFileId, toDirectDownloadUrl } from '../../shared/driveLinks.ts';
 
 const VALID_ACTIONS = ["download", "share"];
 const VALID_PLATFORMS = ["whatsapp", "facebook", "youtube", "instagram", "tiktok", "x", "telegram", "copy_link", "native", ""];
@@ -16,6 +16,7 @@ export default async function(req) {
     const contentId = String(payload.content_id || "").slice(0, 64);
     const action = String(payload.action || "");
     const platform = String(payload.platform || "").slice(0, 30);
+    const streamDownload = action === "download" && payload.stream === true;
 
     if (!contentId || !VALID_ACTIONS.includes(action)) {
       return Response.json({ error: "Invalid request" }, { status: 400 });
@@ -30,6 +31,20 @@ export default async function(req) {
     const unlockTime = new Date(item.scheduled_at).getTime();
     if (Number.isNaN(unlockTime) || unlockTime > Date.now()) {
       return Response.json({ error: "This content is not unlocked yet" }, { status: 403 });
+    }
+
+    let driveResponse = null;
+    if (streamDownload) {
+      const fileId = extractDriveFileId(item.drive_link);
+      if (!fileId) return Response.json({ error: "Invalid Drive file" }, { status: 400 });
+
+      const { accessToken } = await base44.asServiceRole.connectors.getConnection("googledrive");
+      driveResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&supportsAllDrives=true`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      if (!driveResponse.ok) {
+        return Response.json({ error: "The file could not be downloaded" }, { status: driveResponse.status });
+      }
     }
 
     let user = null;
@@ -48,6 +63,14 @@ export default async function(req) {
     await base44.asServiceRole.entities.DigitalContent.update(item.id, {
       [countField]: (item[countField] || 0) + 1
     });
+
+    if (streamDownload && driveResponse) {
+      const headers = new Headers();
+      headers.set("Content-Type", driveResponse.headers.get("Content-Type") || "application/octet-stream");
+      headers.set("Content-Disposition", driveResponse.headers.get("Content-Disposition") || `attachment; filename="${item.title.replace(/["\\]/g, "_")}"`);
+      headers.set("Cache-Control", "private, no-store");
+      return new Response(driveResponse.body, { status: 200, headers });
+    }
 
     return Response.json({
       ok: true,

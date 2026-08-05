@@ -49,19 +49,27 @@ export default function ContentCard({ item }) {
   const handleDownload = async () => {
     setDownloading(true);
     try {
-      const res = await track("download");
-      const downloadUrl = res.data?.download_url;
-      if (!downloadUrl) throw new Error("No download URL returned");
+      const response = await base44.functions.fetch("/trackContentEngagement", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content_id: item.id, action: "download", platform: "", stream: true }),
+      });
+      if (!response.ok) throw new Error("Download request failed");
 
-      // Use a real link: Google Drive blocks downloads launched inside hidden iframes.
+      const blob = await response.blob();
+      const disposition = response.headers.get("Content-Disposition") || "";
+      const encodedName = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
+      const plainName = disposition.match(/filename="?([^";]+)"?/i)?.[1];
+      const fileName = encodedName ? decodeURIComponent(encodedName) : plainName || item.title;
+      const objectUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.download = "";
+      link.href = objectUrl;
+      link.download = fileName;
       document.body.appendChild(link);
       link.click();
       link.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      queryClient.invalidateQueries({ queryKey: ["digital-content-public"] });
       toast.success("Download started");
     } catch {
       toast.error("Download failed — please try again");
