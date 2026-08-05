@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Upload, Link2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, Upload, Link2, CheckCircle2, AlertCircle, HardDrive } from "lucide-react";
 import { toast } from "sonner";
+import DrivePickerModal from "./DrivePickerModal";
 import { CONTENT_TYPES, CONTENT_LANGUAGES } from "@/components/content-hub/contentConstants";
 
 function extractDriveId(link) {
@@ -17,6 +18,7 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const fileRef = useRef(null);
 
   useEffect(() => {
@@ -37,6 +39,16 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
 
   const set = (key, value) => setForm(f => ({ ...f, [key]: value }));
   const driveId = extractDriveId(form.drive_link);
+
+  const handleDrivePick = (file) => {
+    setForm(f => ({
+      ...f,
+      drive_link: file.link,
+      title: f.title || file.name.replace(/\.[^.]+$/, ""),
+      content_type: file.mime_type?.startsWith("video/") ? "video" : f.content_type,
+    }));
+    toast.success(`Selected "${file.name}"`);
+  };
 
   const handleThumbnail = async (e) => {
     const file = e.target.files?.[0];
@@ -114,8 +126,15 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
           </div>
 
           <div>
-            <label className="text-xs font-bold text-white/60 mb-1 block flex items-center gap-1.5"><Link2 size={12} /> Google Drive Link *</label>
-            <input className={inputCls} value={form.drive_link} onChange={e => set("drive_link", e.target.value)} placeholder="https://drive.google.com/file/d/..." />
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-bold text-white/60 flex items-center gap-1.5"><Link2 size={12} /> Google Drive File *</label>
+              <button type="button" onClick={() => setPickerOpen(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition active:scale-95"
+                style={{ background: "rgba(0,207,255,0.12)", border: "1px solid rgba(0,207,255,0.35)", color: "#00CFFF" }}>
+                <HardDrive size={11} /> Browse Drive
+              </button>
+            </div>
+            <input className={inputCls} value={form.drive_link} onChange={e => set("drive_link", e.target.value)} placeholder="Browse Drive, or paste a link" />
             {form.drive_link && (
               driveId
                 ? <p className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1"><CheckCircle2 size={11} /> Valid Drive link — users will download directly</p>
@@ -153,6 +172,7 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
             {saving ? "Saving…" : item ? "Save Changes" : "Schedule Content"}
           </button>
         </div>
+        <DrivePickerModal open={pickerOpen} onClose={() => setPickerOpen(false)} onPick={handleDrivePick} />
       </DialogContent>
     </Dialog>
   );

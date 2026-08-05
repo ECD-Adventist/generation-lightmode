@@ -27,7 +27,12 @@ export default function ContentCard({ item }) {
     try {
       const res = await track("download");
       if (res.data?.download_url) {
-        window.open(res.data.download_url, "_blank");
+        // Hidden iframe: the file downloads without navigating away from the app.
+        const frame = document.createElement("iframe");
+        frame.style.display = "none";
+        frame.src = res.data.download_url;
+        document.body.appendChild(frame);
+        setTimeout(() => frame.remove(), 60000);
         toast.success("Download started");
       }
     } catch {
