@@ -1,14 +1,21 @@
+import { Mail } from "lucide-react";
+
 const brands = {
-  whatsapp: ["whatsapp", "25D366"],
-  facebook: ["facebook", "1877F2"],
-  youtube: ["youtube", "FF0000"],
-  instagram: ["instagram", "E4405F"],
+  whatsapp: ["whatsapp", "FFFFFF"],
+  facebook: ["facebook", "FFFFFF"],
+  youtube: ["youtube", "FFFFFF"],
+  instagram: ["instagram", "FFFFFF"],
   tiktok: ["tiktok", "FFFFFF"],
   x: ["x", "FFFFFF"],
-  telegram: ["telegram", "26A5E4"],
+  telegram: ["telegram", "FFFFFF"],
+  linkedin: ["linkedin", "FFFFFF"],
 };
 
 export default function BrandIcon({ brand }) {
+  if (brand === "email") {
+    return <Mail className="w-4 h-4 text-white" />;
+  }
+
   const config = brands[brand];
   if (!config) return null;
 
