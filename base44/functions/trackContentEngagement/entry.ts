@@ -16,7 +16,8 @@ export default async function(req) {
     const contentId = String(payload.content_id || "").slice(0, 64);
     const action = String(payload.action || "");
     const platform = String(payload.platform || "").slice(0, 30);
-    const streamMedia = payload.stream === true && (action === "download" || action === "share");
+    const streamMedia = payload.stream === true && VALID_ACTIONS.includes(action);
+    const recordEngagement = payload.record !== false;
 
     if (!contentId || !VALID_ACTIONS.includes(action)) {
       return Response.json({ error: "Invalid request" }, { status: 400 });
@@ -47,22 +48,24 @@ export default async function(req) {
       }
     }
 
-    let user = null;
-    try { user = await base44.auth.me(); } catch (_e) { user = null; }
+    if (recordEngagement) {
+      let user = null;
+      try { user = await base44.auth.me(); } catch (_e) { user = null; }
 
-    await base44.asServiceRole.entities.ContentEngagement.create({
-      content_id: item.id,
-      content_title: item.title,
-      user_email: user?.email || "guest",
-      user_name: user?.full_name || "",
-      action,
-      platform: action === "share" ? platform : ""
-    });
+      await base44.asServiceRole.entities.ContentEngagement.create({
+        content_id: item.id,
+        content_title: item.title,
+        user_email: user?.email || "guest",
+        user_name: user?.full_name || "",
+        action,
+        platform: action === "share" ? platform : ""
+      });
 
-    const countField = action === "view" ? "view_count" : action === "download" ? "download_count" : "share_count";
-    await base44.asServiceRole.entities.DigitalContent.update(item.id, {
-      [countField]: (item[countField] || 0) + 1
-    });
+      const countField = action === "view" ? "view_count" : action === "download" ? "download_count" : "share_count";
+      await base44.asServiceRole.entities.DigitalContent.update(item.id, {
+        [countField]: (item[countField] || 0) + 1
+      });
+    }
 
     if (streamMedia && driveResponse) {
       const headers = new Headers();

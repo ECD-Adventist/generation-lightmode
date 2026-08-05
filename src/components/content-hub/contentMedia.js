@@ -1,10 +1,10 @@
 import { base44 } from "@/api/base44Client";
 
-export async function fetchContentFile(item, action, platform = "") {
+export async function fetchContentFile(item, action, platform = "", record = true) {
   const response = await base44.functions.fetch("/trackContentEngagement", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content_id: item.id, action, platform, stream: true }),
+    body: JSON.stringify({ content_id: item.id, action, platform, stream: true, record }),
   });
   if (!response.ok) throw new Error("Media request failed");
 

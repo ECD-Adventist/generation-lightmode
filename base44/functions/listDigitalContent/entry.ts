@@ -21,6 +21,7 @@ export default async function(req) {
         language: item.language,
         thumbnail_url: item.thumbnail_url || "",
         scheduled_at: item.scheduled_at,
+        view_count: item.view_count || 0,
         download_count: item.download_count || 0,
         share_count: item.share_count || 0,
         unlocked,

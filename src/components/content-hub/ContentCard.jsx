@@ -69,19 +69,25 @@ export default function ContentCard({ item }) {
 
     if (mediaPlatforms.includes(platform)) {
       const loadingToast = toast.loading("Preparing media…");
+      let preparedFile = null;
       try {
-        const file = await fetchContentFile(item, "share", platform);
+        preparedFile = await fetchContentFile(item, "share", platform);
         toast.dismiss(loadingToast);
-        if (navigator.share && navigator.canShare?.({ files: [file] })) {
-          await navigator.share({ files: [file], title: item.title, text: shareText });
+        if (navigator.share && navigator.canShare?.({ files: [preparedFile] })) {
+          await navigator.share({ files: [preparedFile], title: item.title, text: shareText });
         } else {
-          saveContentFile(file);
+          saveContentFile(preparedFile);
           toast.success("Media downloaded — attach it in the app");
         }
       } catch (error) {
         toast.dismiss(loadingToast);
         if (error.name === "AbortError") return;
-        toast.error("Unable to share this media");
+        if (preparedFile) {
+          saveContentFile(preparedFile);
+          toast.success("Media downloaded — attach it in the app");
+        } else {
+          toast.error("Unable to prepare this media");
+        }
       }
       return;
     }
