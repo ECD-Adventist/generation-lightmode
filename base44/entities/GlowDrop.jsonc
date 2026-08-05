@@ -31,6 +31,14 @@
     "media_url": {
       "type": "string"
     },
+    "audio_url": {
+      "type": "string",
+      "description": "URL of the music track attached to this drop."
+    },
+    "audio_title": {
+      "type": "string",
+      "description": "Display name of the attached music track."
+    },
     "status": {
       "type": "string",
       "enum": [

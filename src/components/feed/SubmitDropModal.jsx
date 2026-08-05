@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, Sparkles, ImagePlus, X, Zap, Hash, BookOpen, ChevronRight, UserCircle2 } from "lucide-react";
+import { Loader2, Sparkles, ImagePlus, X, Zap, Hash, BookOpen, ChevronRight, UserCircle2, Music } from "lucide-react";
+import MusicPickerModal from "@/components/feed/MusicPickerModal";
+import AudioPlayer from "@/components/feed/AudioPlayer";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
@@ -36,6 +38,9 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [editorFile, setEditorFile] = useState(null); // file currently open in photo editor
   const [postAsLeaderId, setPostAsLeaderId] = useState(""); // empty = post as self
   const [postSuccess, setPostSuccess] = useState(false); // shows green success banner before auto-close
+  const [musicOpen, setMusicOpen] = useState(false);
+  const [audioUrl, setAudioUrl] = useState("");
+  const [audioTitle, setAudioTitle] = useState("");
 
   // Fetch only leader accounts this user is allowed to manage.
   const { data: leaderAccounts = [] } = useQuery({
@@ -222,6 +227,8 @@ RULES:
     setCompressing(false);
     setPostAsLeaderId("");
     setPostSuccess(false);
+    setAudioUrl("");
+    setAudioTitle("");
     onClose();
   };
 
@@ -289,6 +296,8 @@ RULES:
         category: formData.category,
         hashtags: formData.hashtags,
         media_url: uploadedMediaUrl,
+        audio_url: audioUrl || null,
+        audio_title: audioTitle || null,
         user_email: user.email,
         author_name: authorName,
         author_username: authorUsername,
@@ -310,6 +319,8 @@ RULES:
         await base44.functions.invoke('createGlowDrop', {
           ...formData,
           media_url: uploadedMediaUrl,
+          audio_url: audioUrl || undefined,
+          audio_title: audioTitle || undefined,
           post_as_leader_id: postAsLeaderId || undefined,
         });
       } catch (invokeErr) {
@@ -329,6 +340,8 @@ RULES:
           hashtags: formData.hashtags || "",
           category: formData.category || "Devotional",
           media_url: uploadedMediaUrl || null,
+          audio_url: audioUrl || null,
+          audio_title: audioTitle || null,
           status: "approved",
         });
         mirrorGlowDropToSupabase(newDrop, user);
@@ -405,6 +418,11 @@ RULES:
           onCancel={handleEditorCancel}
         />
       )}
+      <MusicPickerModal
+        isOpen={musicOpen}
+        onClose={() => setMusicOpen(false)}
+        onSelect={(track) => { setAudioUrl(track.audio_url); setAudioTitle(track.audio_title); }}
+      />
       <Dialog open={isOpen} onOpenChange={resetAndClose}>
         <DialogContent className="w-full max-w-2xl max-h-[92vh] overflow-y-auto z-[2000] p-0 rounded-3xl [&>button]:text-[#4A5878] [&>button]:hover:text-[#0B3FD9]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D", boxShadow: "0 16px 48px rgba(11, 63, 217, 0.18)" }}>
           <div className="relative px-6 pt-6 pb-4">
@@ -656,6 +674,28 @@ RULES:
                     Or use a sample photo
                   </button>
                 </div>
+              )}
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-widest mb-1.5 block ml-1" style={{ color: "#6B7FA0" }}>Attach Music</label>
+              {audioUrl ? (
+                <AudioPlayer
+                  audioUrl={audioUrl}
+                  audioTitle={audioTitle}
+                  onRemove={() => { setAudioUrl(""); setAudioTitle(""); }}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setMusicOpen(true)}
+                  disabled={loading}
+                  className="w-full h-12 rounded-xl border-2 border-dashed transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  style={{ borderColor: "#D6E4FF", background: "#F6F8FC" }}
+                >
+                  <Music className="w-4 h-4" style={{ color: "#8A97B5" }} />
+                  <span className="text-xs font-medium" style={{ color: "#8A97B5" }}>Browse music library</span>
+                </button>
               )}
             </div>
 
