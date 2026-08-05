@@ -184,7 +184,7 @@ export default function Feed() {
   const { data: suggestedUsers = [] } = useQuery({
     queryKey: ["feedSuggestedUsers", user?.email],
     queryFn: async () => {
-      const res = await base44.functions.invoke('listPublicUsers', {});
+      const res = await base44.functions.invoke('listPublicUsers', { include_email: true, limit: 30 });
       return (res.data || [])
         .filter(u => u.email !== user?.email)
         .slice(0, 8);

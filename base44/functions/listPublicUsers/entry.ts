@@ -67,6 +67,7 @@ Deno.serve(async (req) => {
       search: { type: 'string', maxLength: 100 },
       q: { type: 'string', maxLength: 100 },
       include_count: { type: 'boolean' },
+      include_email: { type: 'boolean' },
     });
     if (validated.response) return validated.response;
     const payload = validated.data;
@@ -138,7 +139,9 @@ Deno.serve(async (req) => {
 
     // Email is returned only for explicit email-resolution calls used to map known
     // participants; general lists and searches remain email-free.
-    const publicUsers = users.map((item) => publicUserShape(item, requestedEmails.length > 0));
+    // Member-directory features (suggestions, connections) need the email to build
+    // profile links and follow targets, so callers can opt in explicitly.
+    const publicUsers = users.map((item) => publicUserShape(item, requestedEmails.length > 0 || payload.include_email === true));
 
     if (includeCount) {
       return Response.json({ users: publicUsers, totalUsers: totalUsers ?? publicUsers.length, visibleUsers: publicUsers.length });
