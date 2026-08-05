@@ -34,6 +34,10 @@
       "format": "date-time",
       "description": "When this content unlocks for users"
     },
+    "view_count": {
+      "type": "number",
+      "default": 0
+    },
     "download_count": {
       "type": "number",
       "default": 0

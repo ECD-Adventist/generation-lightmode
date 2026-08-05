@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { extractDriveFileId, toDirectDownloadUrl } from '../../shared/driveLinks.ts';
 
-const VALID_ACTIONS = ["download", "share"];
+const VALID_ACTIONS = ["view", "download", "share"];
 const VALID_PLATFORMS = ["whatsapp", "facebook", "youtube", "instagram", "tiktok", "x", "telegram", "copy_link", "native", ""];
 
 // Records a download or share for a content item and returns the direct
@@ -59,7 +59,7 @@ export default async function(req) {
       platform: action === "share" ? platform : ""
     });
 
-    const countField = action === "download" ? "download_count" : "share_count";
+    const countField = action === "view" ? "view_count" : action === "download" ? "download_count" : "share_count";
     await base44.asServiceRole.entities.DigitalContent.update(item.id, {
       [countField]: (item[countField] || 0) + 1
     });

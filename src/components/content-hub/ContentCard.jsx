@@ -45,6 +45,11 @@ export default function ContentCard({ item }) {
     document.head.appendChild(link);
   };
 
+  const handleView = () => {
+    setPreviewOpen(true);
+    track("view").catch(() => {});
+  };
+
   const handleDownload = async () => {
     setDownloading(true);
     try {
@@ -130,7 +135,7 @@ export default function ContentCard({ item }) {
         {item.description && <p className="text-[11.5px] leading-relaxed mb-3 line-clamp-2" style={{ color: "#8A9BB0" }}>{item.description}</p>}
 
         <div className="mt-auto flex items-center gap-2">
-          <button onClick={() => setPreviewOpen(true)} onPointerEnter={primePreview} onFocus={primePreview} disabled={!item.download_url}
+          <button onClick={handleView} onPointerEnter={primePreview} onFocus={primePreview} disabled={!item.download_url}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-black text-[11.5px] font-['Space_Grotesk'] transition active:scale-95 disabled:opacity-40"
             style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${meta.color}55`, color: meta.color }}>
             <Eye size={13} /> View
@@ -194,7 +199,7 @@ export default function ContentCard({ item }) {
         </div>
 
         <p className="text-[10px] mt-2 flex items-center gap-2" style={{ color: "#5A6B85" }}>
-          <span>{item.download_count} downloads</span>·<span>{item.share_count} shares</span>
+          <span>{item.view_count || 0} views</span>·<span>{item.download_count || 0} downloads</span>·<span>{item.share_count || 0} shares</span>
         </p>
       </div>
       <ContentPreviewModal item={item} open={previewOpen} onClose={() => setPreviewOpen(false)} />

@@ -10,7 +10,7 @@
     },
     "user_email": {
       "type": "string",
-      "description": "Email of the user who downloaded/shared, or 'guest'"
+      "description": "Email of the user who viewed, downloaded, or shared, or 'guest'"
     },
     "user_name": {
       "type": "string"
@@ -18,6 +18,7 @@
     "action": {
       "type": "string",
       "enum": [
+        "view",
         "download",
         "share"
       ]
