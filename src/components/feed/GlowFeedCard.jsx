@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
+import { tryNativeShare } from "@/lib/shareActions";
+import ShareFallbackDialog from "@/components/share/ShareFallbackDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
@@ -15,6 +17,7 @@ import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = [] }) {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
+  const [shareFallback, setShareFallback] = useState(null);
   const queryClient = useQueryClient();
 
   const userHasLiked = userLikes.some(like => like.drop_id === drop.id);
@@ -81,16 +84,15 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
   });
 
   const handleShare = async () => {
-    const author = drop.author_name || drop.author_username || "Generation LightMode";
-    const title = drop.verse || `Post by ${author}`;
-    const url = getSharePreviewUrl("glowdrop", drop.id);
-    const text = buildShareText(title, drop.reflection, url);
-    if (navigator.share) {
-      try { await navigator.share({ title, text }); } catch {}
-    } else {
-      await navigator.clipboard.writeText(text);
-      toast.success("Link copied!");
-    }
+    if (!drop?.id) return toast.error("This post is no longer available");
+    if (drop.hidden || drop.is_flagged || drop.status === "rejected") return toast.error("This post is restricted and cannot be shared");
+    const author = drop?.author_name || drop?.author_username || "Generation LightMode";
+    const title = drop?.verse || `Post by ${author}`;
+    const url = getSharePreviewUrl("glowdrop", drop?.id || "post");
+    const text = buildShareText(title, drop?.reflection, url);
+    const share = { id: drop?.id, title, text, url };
+    const result = await tryNativeShare(share, { contentType: "glowfeed", contentId: drop?.id });
+    if (result.status === "failed" || result.status === "unavailable") setShareFallback(share);
   };
 
   const authorProfile = {
@@ -107,6 +109,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
 
   return (
     <div className="bg-[#121826]/80 backdrop-blur-sm border border-white/10 rounded-3xl overflow-hidden hover:border-[#00CFFF]/30 transition-all duration-300 shadow-xl">
+      <ShareFallbackDialog share={shareFallback} onClose={() => setShareFallback(null)} />
 
       {/* Media */}
       {drop.media_url && (
@@ -210,6 +213,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
           </button>
 
           <button
+            type="button"
             onClick={handleShare}
             className="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-white transition ml-auto"
           >

@@ -39,6 +39,8 @@ import CountryFlag from "@/components/common/CountryFlag";
 import UserAvatar from "@/components/common/UserAvatar";
 import { getDisplayName } from "@/lib/displayName";
 import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
+import { tryNativeShare } from "@/lib/shareActions";
+import ShareFallbackDialog from "@/components/share/ShareFallbackDialog";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
@@ -73,6 +75,7 @@ export default function Feed() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
   const [isClaimInstitutionOpen, setIsClaimInstitutionOpen] = useState(false);
+  const [shareFallback, setShareFallback] = useState(null);
   // Mobile starts at 4 cards to minimize initial GPU/decoding cost; desktop bumps to 10 once mounted.
   const isMobileViewport = typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
   const [displayCount, setDisplayCount] = useState(isMobileViewport ? 4 : 10);
@@ -351,27 +354,16 @@ export default function Feed() {
   }, [user?.id, user?.email, queryClient]);
 
   const handleShare = async (drop) => {
-    const author = drop.author_name || drop.author_username || "Generation LightMode";
-    const title = drop.verse || `Post by ${author}`;
-    const shareUrl = getSharePreviewUrl("glowdrop", drop.id);
-    const shareText = buildShareText(title, drop.reflection, shareUrl);
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, text: shareText });
-        queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
-        toast.success("Shared successfully!");
-      } catch (err) {
-        if (err.name !== 'AbortError') console.log('Share cancelled');
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(shareText);
-        queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
-        toast.success("Link copied to clipboard! Share it anywhere.");
-      } catch {
-        toast.error("Could not copy link");
-      }
-    }
+    if (!drop?.id) return toast.error("This post is no longer available");
+    if (drop.hidden || drop.is_flagged || drop.status === "rejected") return toast.error("This post is restricted and cannot be shared");
+    const author = drop?.author_name || drop?.author_username || "Generation LightMode";
+    const title = drop?.verse || `Post by ${author}`;
+    const shareUrl = getSharePreviewUrl("glowdrop", drop?.id || "post");
+    const shareText = buildShareText(title, drop?.reflection, shareUrl);
+    const share = { id: drop?.id, title, text: shareText, url: shareUrl };
+    const result = await tryNativeShare(share, { contentType: "glowdrop", contentId: drop?.id });
+    if (result.status === "shared") toast.success("Shared successfully");
+    if (result.status === "failed" || result.status === "unavailable") setShareFallback(share);
   };
 
   const getUserInfo = (email) => {
@@ -516,6 +508,7 @@ export default function Feed() {
 
   return (
     <div className="h-[100dvh] relative overflow-hidden font-['Inter'] flex flex-col" style={{ background: "linear-gradient(135deg, #D4F5D4 0%, #F5F99A 100%)", color: "#0B1B3D" }}>
+      <ShareFallbackDialog share={shareFallback} onClose={() => setShareFallback(null)} />
       {isGuest && <GuestStickyBar />}
       <OnboardingModal
         isOpen={!!user && (!user.privacy_consent_given || !user.country || !user.gender || !user.date_of_birth || !user.city || !user.address || !user.postal_code)}

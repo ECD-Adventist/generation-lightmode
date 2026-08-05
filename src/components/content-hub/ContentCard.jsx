@@ -8,13 +8,11 @@ import ContentPreviewModal from "./ContentPreviewModal";
 import BrandIcon from "./BrandIcon";
 import { fetchContentFile, saveContentFile } from "./contentMedia";
 import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
+import { copyShareLink, openShareWindow, tryNativeShare, whatsappShareUrl } from "@/lib/shareActions";
 
 const SHARE_PLATFORMS = [
-  { id: "whatsapp", label: "WhatsApp", url: (u, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${u}`)}` },
+  { id: "whatsapp", label: "WhatsApp", url: (_u, text) => whatsappShareUrl(text) },
   { id: "facebook", label: "Facebook", url: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
-  { id: "youtube", label: "YouTube", url: () => "https://www.youtube.com/upload" },
-  { id: "instagram", label: "Instagram", url: () => "https://www.instagram.com/" },
-  { id: "tiktok", label: "TikTok", url: () => "https://www.tiktok.com/upload" },
   { id: "x", label: "X (Twitter)", url: (u, text) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(u)}` },
   { id: "telegram", label: "Telegram", url: (u, text) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(text)}` },
   { id: "native", label: "More apps" },
@@ -26,8 +24,6 @@ export default function ContentCard({ item }) {
   const [shareMenuView, setShareMenuView] = useState("main");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [shareFile, setShareFile] = useState(null);
-  const [preparingShare, setPreparingShare] = useState(false);
   const queryClient = useQueryClient();
   const meta = typeMeta(item.content_type);
   const shareUrl = getSharePreviewUrl("content", item.id);
@@ -68,64 +64,42 @@ export default function ContentCard({ item }) {
 
   const toggleShareMenu = () => {
     setShareMenuView("main");
-    if (!shareOpen && !shareFile && !preparingShare) {
-      setPreparingShare(true);
-      fetchContentFile(item, "share", "", false)
-        .then(setShareFile)
-        .catch(() => toast.error("Unable to prepare this post"))
-        .finally(() => setPreparingShare(false));
-    }
     setShareOpen(value => !value);
   };
 
   const handleShare = async (platform) => {
-    setShareOpen(false);
-    const mediaPlatforms = ["whatsapp", "facebook", "youtube", "instagram", "tiktok", "x", "telegram", "native"];
-
-    if (mediaPlatforms.includes(platform)) {
-      if (!shareFile || !navigator.share || !navigator.canShare?.({ files: [shareFile] })) {
-        toast.error("Actual file sharing is not supported by this browser");
-        return;
-      }
+    const context = { contentType: "content_hub", contentId: item.id, platform };
+    if (platform === "copy_link") {
       try {
-        await navigator.share({ files: [shareFile], title: item.title, text: shareText });
+        await copyShareLink(shareUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        toast.success("Link copied");
         track("share", platform).catch(() => {});
       } catch (error) {
-        if (error.name !== "AbortError") toast.error("Unable to share this post");
+        if (import.meta.env.DEV) console.error("[share_error]", { stage: "copy_link", error, ...context });
+        toast.error("Copy failed — select the link and try again");
       }
       return;
     }
-
-    if (platform === "copy_link") {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      toast.success("Link copied");
-    } else if (platform === "native" && navigator.share) {
-      try {
-        await navigator.share({ title: item.title, text: shareText, url: shareUrl });
-      } catch (error) {
-        if (error.name === "AbortError") return;
-        toast.error("Unable to open sharing");
-        return;
+    if (platform === "native") {
+      const result = await tryNativeShare({ title: item.title || "Generation LightMode", text: shareText, url: shareUrl }, context);
+      if (result.status === "shared") {
+        setShareOpen(false);
+        track("share", platform).catch(() => {});
+      } else if (result.status === "failed" || result.status === "unavailable") {
+        setShareMenuView("main");
+        setShareOpen(true);
       }
-    } else {
-      const p = SHARE_PLATFORMS.find(s => s.id === platform);
-      if (p?.url) {
-        window.open(p.url(shareUrl, shareText), "_blank", "noopener");
-      } else if (navigator.share) {
-        try {
-          await navigator.share({ title: item.title, text: shareText, url: shareUrl });
-        } catch (error) {
-          if (error.name === "AbortError") return;
-          toast.error("Unable to open sharing");
-          return;
-        }
-      } else {
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success(`Link copied — open ${p?.label || "the app"} to share`);
-      }
+      return;
     }
+    const target = SHARE_PLATFORMS.find(entry => entry.id === platform)?.url?.(shareUrl, shareText);
+    if (!target || !openShareWindow(target, context)) {
+      setShareMenuView("main");
+      setShareOpen(true);
+      return;
+    }
+    setShareOpen(false);
     track("share", platform).catch(() => {});
   };
 
@@ -145,21 +119,21 @@ export default function ContentCard({ item }) {
         {item.description && <p className="text-[11.5px] leading-relaxed mb-3 line-clamp-2" style={{ color: "#8A9BB0" }}>{item.description}</p>}
 
         <div className="mt-auto flex items-center gap-2">
-          <button onClick={handleView} onPointerEnter={primePreview} onFocus={primePreview} disabled={!item.download_url}
+          <button type="button" onClick={handleView} onPointerEnter={primePreview} onFocus={primePreview} disabled={!item.download_url}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-black text-[11.5px] font-['Space_Grotesk'] transition active:scale-95 disabled:opacity-40"
             style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${meta.color}55`, color: meta.color }}>
             <Eye size={13} /> View
           </button>
-          <button onClick={handleDownload} disabled={downloading}
+          <button type="button" onClick={handleDownload} disabled={downloading}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-black text-[11.5px] font-['Space_Grotesk'] transition active:scale-95"
             style={{ background: meta.color, color: "#0B0F1A" }}>
             {downloading ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Download
           </button>
           <div className="relative">
-            <button onClick={toggleShareMenu}
+            <button type="button" onClick={toggleShareMenu}
               className="w-10 h-10 rounded-full flex items-center justify-center transition active:scale-95"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#C8D0E0" }}>
-              {preparingShare ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />}
+              <Share2 size={14} />
             </button>
             {shareOpen && (
               <>
@@ -168,35 +142,35 @@ export default function ContentCard({ item }) {
                   {shareMenuView === "main" ? (
                     <>
                       {SHARE_PLATFORMS.filter(p => !["x", "telegram", "native"].includes(p.id)).map(p => (
-                        <button key={p.id} onClick={() => handleShare(p.id)} disabled={!shareFile}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5 disabled:opacity-40" style={{ color: "#C8D0E0" }}>
+                        <button type="button" key={p.id} onClick={() => handleShare(p.id)}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
                           <BrandIcon brand={p.id} /> {p.label}
                         </button>
                       ))}
-                      <button onClick={() => setShareMenuView("more")}
+                      <button type="button" onClick={() => setShareMenuView("more")}
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
                         <span>↗️</span> More apps
                       </button>
-                      <button onClick={() => handleShare("copy_link")}
+                      <button type="button" onClick={() => handleShare("copy_link")}
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
                         {copied ? <Check size={13} style={{ color: "#10B981" }} /> : <Copy size={13} />} Copy link
                       </button>
                     </>
                   ) : (
                     <>
-                      <button onClick={() => setShareMenuView("main")}
+                      <button type="button" onClick={() => setShareMenuView("main")}
                         className="w-full px-3 py-2 rounded-xl text-[11px] font-bold text-left transition hover:bg-white/5" style={{ color: "#00CFFF" }}>
                         ← Back
                       </button>
                       {SHARE_PLATFORMS.filter(p => ["x", "telegram"].includes(p.id)).map(p => (
-                        <button key={p.id} onClick={() => handleShare(p.id)} disabled={!shareFile}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5 disabled:opacity-40" style={{ color: "#C8D0E0" }}>
+                        <button type="button" key={p.id} onClick={() => handleShare(p.id)}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
                           <BrandIcon brand={p.id} /> {p.label}
                         </button>
                       ))}
                       {navigator.share && (
-                        <button onClick={() => handleShare("native")} disabled={!shareFile}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5 disabled:opacity-40" style={{ color: "#C8D0E0" }}>
+                        <button type="button" onClick={() => handleShare("native")}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
                           <span>↗️</span> Other apps
                         </button>
                       )}

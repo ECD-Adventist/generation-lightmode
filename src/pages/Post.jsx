@@ -8,10 +8,13 @@ import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { isNotificationEnabled } from "@/lib/notifications";
 import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
+import { tryNativeShare } from "@/lib/shareActions";
+import ShareFallbackDialog from "@/components/share/ShareFallbackDialog";
 import DropCard from "@/components/feed/DropCard";
 
 export default function Post() {
   const [currentUser, setCurrentUser] = useState(null);
+  const [shareFallback, setShareFallback] = useState(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -21,11 +24,7 @@ export default function Post() {
 
   useEffect(() => {
     base44.auth.isAuthenticated().then((isAuth) => {
-      if (isAuth) {
-        base44.auth.me().then(setCurrentUser);
-      } else {
-        base44.auth.redirectToLogin(window.location.pathname + window.location.search);
-      }
+      if (isAuth) base44.auth.me().then(setCurrentUser);
     });
   }, []);
 
@@ -185,16 +184,15 @@ export default function Post() {
   });
 
   const handleShare = async (drop) => {
-    const author = drop.author_name || drop.author_username || "Generation LightMode";
-    const title = drop.verse || `Post by ${author}`;
-    const shareUrl = getSharePreviewUrl("glowdrop", drop.id);
-    const shareText = buildShareText(title, drop.reflection, shareUrl);
-    if (navigator.share) {
-      try { await navigator.share({ title, text: shareText }); } catch {}
-    } else {
-      await navigator.clipboard.writeText(shareText);
-      toast.success('Copied to clipboard!');
-    }
+    if (!drop?.id) return toast.error("This post is no longer available");
+    if (drop.hidden || drop.is_flagged || drop.status === "rejected") return toast.error("This post is restricted and cannot be shared");
+    const author = drop?.author_name || drop?.author_username || "Generation LightMode";
+    const title = drop?.verse || `Post by ${author}`;
+    const shareUrl = getSharePreviewUrl("glowdrop", drop?.id || "post");
+    const shareText = buildShareText(title, drop?.reflection, shareUrl);
+    const share = { id: drop?.id, title, text: shareText, url: shareUrl };
+    const result = await tryNativeShare(share, { contentType: "post", contentId: drop?.id });
+    if (result.status === "failed" || result.status === "unavailable") setShareFallback(share);
   };
 
   if (isLoading || !drop) {
@@ -203,6 +201,7 @@ export default function Post() {
 
   return (
     <div className="min-h-screen font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+      <ShareFallbackDialog share={shareFallback} onClose={() => setShareFallback(null)} />
       {/* Sticky header */}
       <div className="sticky top-0 z-40 backdrop-blur-xl border-b" style={{ background: "rgba(246, 248, 252, 0.85)", borderColor: "#E6ECF5" }}>
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
@@ -222,6 +221,7 @@ export default function Post() {
         <DropCard
           drop={drop}
           user={currentUser}
+          isGuest={!currentUser}
           dropUser={getUserInfo(drop.user_email)}
           likeMutation={likeMutation}
           handleShare={handleShare}

@@ -308,6 +308,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
 
   const handleShareClick = (e) => {
     e.stopPropagation();
+    if (e.currentTarget.form) e.preventDefault();
     setSharePulse(true);
     setTimeout(() => setSharePulse(false), 500);
     handleShare(drop);
@@ -741,6 +742,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
+              type="button"
               onClick={handleShareClick}
               className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${sharePulse ? 'dc-anim-pulse' : ''} ${useGlass ? "bg-[#06112b]/85 backdrop-blur-md border border-cyan-300/40 shadow-[0_0_16px_rgba(0,207,255,0.24)]" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
             >
@@ -803,6 +805,11 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
         </div>
           );
         })()}
+        {isGuest && (
+          <button type="button" onClick={handleShareClick} className="absolute right-3 bottom-4 z-30 w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] shadow-lg" aria-label="Share post">
+            <Share2 className="w-5 h-5 text-[#0B3FD9]" />
+          </button>
+        )}
       </div>
 
       {/* Verse & Reflection */}

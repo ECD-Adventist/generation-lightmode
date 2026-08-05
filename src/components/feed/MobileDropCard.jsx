@@ -219,7 +219,7 @@ function MobileDropCard({
             </span>
             <span className="text-[11px] font-black" style={{ color: hasDarkActionBackdrop ? "#FFFFFF" : "#0B1B3D", textShadow: hasDarkActionBackdrop ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>0</span>
           </Link>
-          <button onClick={() => handleShare(drop)} className="flex flex-col items-center gap-1 active:scale-95 transition">
+          <button type="button" onClick={(event) => { event.stopPropagation(); handleShare(drop); }} className="flex flex-col items-center gap-1 active:scale-95 transition">
             <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: "#0B3FD9" }}>
               <Share2 className="w-5 h-5" />
             </span>
