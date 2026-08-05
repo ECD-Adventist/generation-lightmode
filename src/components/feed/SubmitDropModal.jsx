@@ -313,7 +313,7 @@ RULES:
         const firstPage = old.pages[0] || [];
         return { ...old, pages: [[tempDrop, ...firstPage], ...old.pages.slice(1)] };
       });
-      queryClient.setQueryData(["glowFeed"], old => [tempDrop, ...(old || [])]);
+      queryClient.setQueryData(["glowFeed"], old => (Array.isArray(old) ? [tempDrop, ...old] : old));
 
       try {
         await base44.functions.invoke('createGlowDrop', {
