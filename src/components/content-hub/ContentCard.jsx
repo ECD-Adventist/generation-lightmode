@@ -11,9 +11,9 @@ import { fetchContentFile, saveContentFile } from "./contentMedia";
 const SHARE_PLATFORMS = [
   { id: "whatsapp", label: "WhatsApp", url: (u, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${u}`)}` },
   { id: "facebook", label: "Facebook", url: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
-  { id: "youtube", label: "YouTube" },
-  { id: "instagram", label: "Instagram" },
-  { id: "tiktok", label: "TikTok" },
+  { id: "youtube", label: "YouTube", url: () => "https://www.youtube.com/upload" },
+  { id: "instagram", label: "Instagram", url: () => "https://www.instagram.com/" },
+  { id: "tiktok", label: "TikTok", url: () => "https://www.tiktok.com/upload" },
   { id: "x", label: "X (Twitter)", url: (u, text) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(u)}` },
   { id: "telegram", label: "Telegram", url: (u, text) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(text)}` },
   { id: "native", label: "More apps" },
@@ -65,7 +65,7 @@ export default function ContentCard({ item }) {
 
   const handleShare = async (platform) => {
     setShareOpen(false);
-    const mediaPlatforms = ["whatsapp", "instagram", "tiktok", "youtube", "native"];
+    const mediaPlatforms = ["native"];
 
     if (mediaPlatforms.includes(platform)) {
       const loadingToast = toast.loading("Preparing media…");
