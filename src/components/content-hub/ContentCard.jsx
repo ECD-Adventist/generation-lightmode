@@ -25,6 +25,8 @@ export default function ContentCard({ item }) {
   const [shareMenuView, setShareMenuView] = useState("main");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shareFile, setShareFile] = useState(null);
+  const [preparingShare, setPreparingShare] = useState(false);
   const queryClient = useQueryClient();
   const meta = typeMeta(item.content_type);
   const shareUrl = `${window.location.origin}/ContentHub?item=${item.id}`;
@@ -63,31 +65,32 @@ export default function ContentCard({ item }) {
     setDownloading(false);
   };
 
+  const toggleShareMenu = () => {
+    setShareMenuView("main");
+    if (!shareOpen && !shareFile && !preparingShare) {
+      setPreparingShare(true);
+      fetchContentFile(item, "share", "", false)
+        .then(setShareFile)
+        .catch(() => toast.error("Unable to prepare this post"))
+        .finally(() => setPreparingShare(false));
+    }
+    setShareOpen(value => !value);
+  };
+
   const handleShare = async (platform) => {
     setShareOpen(false);
-    const mediaPlatforms = ["native"];
+    const mediaPlatforms = ["whatsapp", "facebook", "youtube", "instagram", "tiktok", "x", "telegram", "native"];
 
     if (mediaPlatforms.includes(platform)) {
-      const loadingToast = toast.loading("Preparing media…");
-      let preparedFile = null;
+      if (!shareFile || !navigator.share || !navigator.canShare?.({ files: [shareFile] })) {
+        toast.error("Actual file sharing is not supported by this browser");
+        return;
+      }
       try {
-        preparedFile = await fetchContentFile(item, "share", platform);
-        toast.dismiss(loadingToast);
-        if (navigator.share && navigator.canShare?.({ files: [preparedFile] })) {
-          await navigator.share({ files: [preparedFile], title: item.title, text: shareText });
-        } else {
-          saveContentFile(preparedFile);
-          toast.success("Media downloaded — attach it in the app");
-        }
+        await navigator.share({ files: [shareFile], title: item.title, text: shareText });
+        track("share", platform).catch(() => {});
       } catch (error) {
-        toast.dismiss(loadingToast);
-        if (error.name === "AbortError") return;
-        if (preparedFile) {
-          saveContentFile(preparedFile);
-          toast.success("Media downloaded — attach it in the app");
-        } else {
-          toast.error("Unable to prepare this media");
-        }
+        if (error.name !== "AbortError") toast.error("Unable to share this post");
       }
       return;
     }
@@ -152,10 +155,10 @@ export default function ContentCard({ item }) {
             {downloading ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Download
           </button>
           <div className="relative">
-            <button onClick={() => { setShareMenuView("main"); setShareOpen(v => !v); }}
+            <button onClick={toggleShareMenu}
               className="w-10 h-10 rounded-full flex items-center justify-center transition active:scale-95"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#C8D0E0" }}>
-              <Share2 size={14} />
+              {preparingShare ? <Loader2 size={14} className="animate-spin" /> : <Share2 size={14} />}
             </button>
             {shareOpen && (
               <>
@@ -164,8 +167,8 @@ export default function ContentCard({ item }) {
                   {shareMenuView === "main" ? (
                     <>
                       {SHARE_PLATFORMS.filter(p => !["x", "telegram", "native"].includes(p.id)).map(p => (
-                        <button key={p.id} onClick={() => handleShare(p.id)}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
+                        <button key={p.id} onClick={() => handleShare(p.id)} disabled={!shareFile}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5 disabled:opacity-40" style={{ color: "#C8D0E0" }}>
                           <BrandIcon brand={p.id} /> {p.label}
                         </button>
                       ))}
@@ -185,14 +188,14 @@ export default function ContentCard({ item }) {
                         ← Back
                       </button>
                       {SHARE_PLATFORMS.filter(p => ["x", "telegram"].includes(p.id)).map(p => (
-                        <button key={p.id} onClick={() => handleShare(p.id)}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
+                        <button key={p.id} onClick={() => handleShare(p.id)} disabled={!shareFile}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5 disabled:opacity-40" style={{ color: "#C8D0E0" }}>
                           <BrandIcon brand={p.id} /> {p.label}
                         </button>
                       ))}
                       {navigator.share && (
-                        <button onClick={() => handleShare("native")}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
+                        <button onClick={() => handleShare("native")} disabled={!shareFile}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5 disabled:opacity-40" style={{ color: "#C8D0E0" }}>
                           <span>↗️</span> Other apps
                         </button>
                       )}
