@@ -7,6 +7,7 @@ import { typeMeta } from "./contentConstants";
 import ContentPreviewModal from "./ContentPreviewModal";
 import BrandIcon from "./BrandIcon";
 import { fetchContentFile, saveContentFile } from "./contentMedia";
+import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
 
 const SHARE_PLATFORMS = [
   { id: "whatsapp", label: "WhatsApp", url: (u, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${u}`)}` },
@@ -29,8 +30,8 @@ export default function ContentCard({ item }) {
   const [preparingShare, setPreparingShare] = useState(false);
   const queryClient = useQueryClient();
   const meta = typeMeta(item.content_type);
-  const shareUrl = `${window.location.origin}/ContentHub?item=${item.id}`;
-  const shareText = `⚡ ${item.title} — Generation LightMode`;
+  const shareUrl = getSharePreviewUrl("content", item.id);
+  const shareText = buildShareText(item.title, item.description, shareUrl);
 
   const track = async (action, platform = "") => {
     const res = await base44.functions.invoke("trackContentEngagement", { content_id: item.id, action, platform });

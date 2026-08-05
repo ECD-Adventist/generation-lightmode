@@ -38,6 +38,7 @@ import GuestStickyBar from "@/components/pledge/GuestStickyBar";
 import CountryFlag from "@/components/common/CountryFlag";
 import UserAvatar from "@/components/common/UserAvatar";
 import { getDisplayName } from "@/lib/displayName";
+import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
@@ -350,11 +351,13 @@ export default function Feed() {
   }, [user?.id, user?.email, queryClient]);
 
   const handleShare = async (drop) => {
-    const postUrl = `${window.location.origin}/Post?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`;
-    const shareText = `✨ Generation LightMode\n\n"${drop.verse || ''}"\n\n${drop.reflection || ''}\n\nJoin the movement!\n${postUrl}`;
+    const author = drop.author_name || drop.author_username || "Generation LightMode";
+    const title = drop.verse || `Post by ${author}`;
+    const shareUrl = getSharePreviewUrl("glowdrop", drop.id);
+    const shareText = buildShareText(title, drop.reflection, shareUrl);
     if (navigator.share) {
       try {
-        await navigator.share({ text: shareText });
+        await navigator.share({ title, text: shareText });
         queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
         toast.success("Shared successfully!");
       } catch (err) {

@@ -7,6 +7,7 @@ import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import { isNotificationEnabled } from "@/lib/notifications";
+import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
 import DropCard from "@/components/feed/DropCard";
 
 export default function Post() {
@@ -184,35 +185,12 @@ export default function Post() {
   });
 
   const handleShare = async (drop) => {
-    const response = await base44.functions.invoke('generateSharePreview', { drop_id: drop.id });
-    const shareUrl = response.data.share_url;
-    const shareText = `✨ Generation LightMode\n\n"${drop.verse || ''}"\n\n${drop.reflection || ''}\n\n${shareUrl}`;
-
-    document.title = response.data.title || 'Glow Drop';
-
-    const setMeta = (property, content, attr = 'property') => {
-      let tag = document.head.querySelector(`meta[${attr}="${property}"]`);
-      if (!tag) {
-        tag = document.createElement('meta');
-        tag.setAttribute(attr, property);
-        document.head.appendChild(tag);
-      }
-      tag.setAttribute('content', content || '');
-    };
-
-    setMeta('og:title', response.data.title);
-    setMeta('og:description', response.data.description);
-    setMeta('og:image', response.data.image_url);
-    setMeta('og:url', response.data.share_url);
-    setMeta('twitter:title', response.data.title, 'name');
-    setMeta('twitter:description', response.data.description, 'name');
-    setMeta('twitter:image', response.data.image_url, 'name');
-    setMeta('twitter:card', 'summary_large_image', 'name');
-
+    const author = drop.author_name || drop.author_username || "Generation LightMode";
+    const title = drop.verse || `Post by ${author}`;
+    const shareUrl = getSharePreviewUrl("glowdrop", drop.id);
+    const shareText = buildShareText(title, drop.reflection, shareUrl);
     if (navigator.share) {
-      try {
-        await navigator.share({ title: response.data.title || 'Glow Drop', text: shareText, url: shareUrl });
-      } catch {}
+      try { await navigator.share({ title, text: shareText }); } catch {}
     } else {
       await navigator.clipboard.writeText(shareText);
       toast.success('Copied to clipboard!');

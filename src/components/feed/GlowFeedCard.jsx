@@ -6,6 +6,7 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
@@ -80,10 +81,12 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
   });
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/Post?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`;
-    const text = `✨ "${drop.verse || ""}" — ${drop.reflection || ""}\n\n${url}`;
+    const author = drop.author_name || drop.author_username || "Generation LightMode";
+    const title = drop.verse || `Post by ${author}`;
+    const url = getSharePreviewUrl("glowdrop", drop.id);
+    const text = buildShareText(title, drop.reflection, url);
     if (navigator.share) {
-      try { await navigator.share({ text }); } catch {}
+      try { await navigator.share({ title, text }); } catch {}
     } else {
       await navigator.clipboard.writeText(text);
       toast.success("Link copied!");
