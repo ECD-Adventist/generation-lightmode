@@ -1,11 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { secrets } from 'base44:runtime';
-import { connectSupabaseDatabase } from '../../shared/supabaseDatabase.ts';
+import { prepareRepostStorage, insertSupabaseRepost, deleteSupabaseRepost } from '../../shared/supabaseReposts.ts';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 import { createNotificationIdempotent } from '../../shared/notifications.ts';
 
 export default async function(req) {
-  let database = null;
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -39,29 +37,22 @@ export default async function(req) {
     const reverseBlocks = await base44.asServiceRole.entities.BlockedUser.filter({ blocker_email: original.user_email, blocked_email: user.email });
     if (blocks.length || reverseBlocks.length) return Response.json({ error: 'This post is not available to repost' }, { status: 403 });
 
-    const dbUrl = secrets.get('SUPABASE_DATABASE_URL');
-    if (!dbUrl) return Response.json({ error: 'Repost storage is not configured' }, { status: 503 });
-    database = await connectSupabaseDatabase(base44, dbUrl);
-    await database.query(`CREATE TABLE IF NOT EXISTS public.reposts (
-      id text PRIMARY KEY,
-      original_post_id text NOT NULL,
-      reposter_user_id text NOT NULL,
-      reposter_email text,
-      reposter_name text,
-      caption text,
-      created_at timestamptz NOT NULL DEFAULT now(),
-      UNIQUE (reposter_user_id, original_post_id)
-    )`);
+    const storage = await prepareRepostStorage(base44);
 
     const existing = await base44.asServiceRole.entities.Repost.filter({ reposter_user_id: user.id, original_post_id: canonicalId }, '-created_at', 1);
     if (action === 'undo') {
       const repost = existing[0];
       if (!repost) return Response.json({ error: 'You have not reposted this post' }, { status: 404 });
-      await database.query('DELETE FROM public.reposts WHERE id = $1 AND reposter_user_id = $2', [repost.id, user.id]);
+      await deleteSupabaseRepost(storage, repost.id, user.id);
       try {
         await base44.asServiceRole.entities.Repost.delete(repost.id);
       } catch (error) {
-        await database.query('INSERT INTO public.reposts (id, original_post_id, reposter_user_id, reposter_email, reposter_name, caption, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT DO NOTHING', [repost.id, canonicalId, user.id, repost.reposter_email || user.email, repost.reposter_name || user.full_name || '', repost.caption || '', repost.created_at]);
+        await insertSupabaseRepost(storage, {
+          id: repost.id, original_post_id: canonicalId, reposter_user_id: user.id,
+          reposter_email: repost.reposter_email || user.email,
+          reposter_name: repost.reposter_name || user.full_name || '',
+          caption: repost.caption || '', created_at: repost.created_at,
+        }).catch(() => null);
         throw error;
       }
       await base44.asServiceRole.entities.GlowDrop.update(original.id, { reposts_count: Math.max(0, (original.reposts_count || 0) - 1) });
@@ -79,10 +70,15 @@ export default async function(req) {
       created_at: now,
     });
     try {
-      await database.query('INSERT INTO public.reposts (id, original_post_id, reposter_user_id, reposter_email, reposter_name, caption, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)', [repost.id, canonicalId, user.id, repost.reposter_email, repost.reposter_name, repost.caption || '', now]);
+      await insertSupabaseRepost(storage, {
+        id: repost.id, original_post_id: canonicalId, reposter_user_id: user.id,
+        reposter_email: repost.reposter_email, reposter_name: repost.reposter_name,
+        caption: repost.caption || '', created_at: now,
+      });
     } catch (error) {
+      console.error('Supabase repost insert failed', { message: error?.message, status: error?.status, details: error?.details });
       await base44.asServiceRole.entities.Repost.delete(repost.id).catch(() => null);
-      if (String(error?.code) === '23505') return Response.json({ error: 'You already reposted this post' }, { status: 409 });
+      if (String(error?.code) === '23505' || error?.status === 409) return Response.json({ error: 'You already reposted this post' }, { status: 409 });
       return Response.json({ error: 'Repost could not be saved to all storage systems' }, { status: 502 });
     }
     await base44.asServiceRole.entities.GlowDrop.update(original.id, { reposts_count: (original.reposts_count || 0) + 1 });
@@ -103,7 +99,5 @@ export default async function(req) {
   } catch (error) {
     console.error('manageRepost failed', { message: error?.message, code: error?.code });
     return Response.json({ error: error?.message || 'Unable to manage repost' }, { status: 500 });
-  } finally {
-    if (database) await database.end().catch(() => null);
   }
 }
