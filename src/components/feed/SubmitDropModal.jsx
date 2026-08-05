@@ -308,12 +308,13 @@ RULES:
         reposts_count: 0,
         status: 'approved'
       };
-      queryClient.setQueryData(["allGlowDrops"], old => {
+      const prependToInfinite = (old, drop) => {
         if (!old?.pages) return old;
-        const firstPage = old.pages[0] || [];
-        return { ...old, pages: [[tempDrop, ...firstPage], ...old.pages.slice(1)] };
-      });
-      queryClient.setQueryData(["glowFeed"], old => [tempDrop, ...(old || [])]);
+        const firstPage = old.pages[0] || { items: [] };
+        return { ...old, pages: [{ ...firstPage, items: [drop, ...(firstPage.items || [])] }, ...old.pages.slice(1)] };
+      };
+      queryClient.setQueryData(["allGlowDrops"], old => prependToInfinite(old, tempDrop));
+      queryClient.setQueryData(["glowFeed"], old => prependToInfinite(old, tempDrop));
 
       try {
         await base44.functions.invoke('createGlowDrop', {
