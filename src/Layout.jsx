@@ -23,7 +23,7 @@ export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const isAppShellPage = appShellPages.includes(currentPageName);
   const isLegalPage = ["Privacy", "Terms", "CommunityGuidelines"].includes(currentPageName);
-  const usesDarkPublicHeader = currentPageName === "ContentHub";
+  const usesDarkPublicHeader = !isAppShellPage;
   const isMobileViewport = useIsMobile();
   // On mobile, these pages render their own full-bleed mobile shell (with their own nav + footer).
   const mobileOwnedPages = ["Home", "About", "Impact", "Assistant", "Resources", "KeepIt100", "CodesOfTruth", "Challenges", "Media", "Privacy", "GenerationLightMode", "ContentHub"];
