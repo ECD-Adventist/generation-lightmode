@@ -22,7 +22,11 @@ export default function PinnedLeaderPosts({ leaderAccounts = [] }) {
 
   if (isLoading || pinnedDrops.length === 0) return null;
 
-  const resolveLeader = (email) => leaderAccounts.find(a => a.leader_email === email);
+  const resolveLeader = (email) => {
+    if (!email) return null;
+    // Match by leader_email, or by manager_emails if the drop was created by a manager
+    return leaderAccounts.find(a => a.leader_email === email || (a.manager_emails || []).includes(email));
+  };
 
   return (
     <div className="px-3 sm:px-4 mb-5 sm:mb-6 shrink-0">
@@ -41,9 +45,9 @@ export default function PinnedLeaderPosts({ leaderAccounts = [] }) {
       <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
         {pinnedDrops.map(drop => {
           const leader = resolveLeader(drop.user_email);
-          const leaderName = leader?.leader_name || drop.user_email?.split("@")[0] || "Leader";
+          const leaderName = leader?.leader_name || drop.author_name || drop.user_email?.split("@")[0] || "Leader";
           const leaderTitle = leader?.leader_title || "Official Leader";
-          const avatar = leader?.leader_profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
+          const avatar = leader?.leader_profile_picture_url || drop.author_avatar || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
           return (
             <Link

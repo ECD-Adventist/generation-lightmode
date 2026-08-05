@@ -50,6 +50,11 @@ export default function ShareFallbackDialog({ share, onClose }) {
     const result = await tryNativeShare(share, { contentId: share.id });
     if (result.status === "shared") toast.success("Shared successfully");
     else if (result.status === "failed") toast.error("Sharing failed — try copying the link");
+    else if (result.status === "unavailable") {
+      // Desktop browsers don't support navigator.share — fall back to copying the link
+      await copy();
+      toast.info("Native sharing isn't available here — link copied instead");
+    }
   };
 
   const hasNativeShare = typeof navigator.share === "function";
