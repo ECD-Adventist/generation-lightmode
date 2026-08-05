@@ -67,6 +67,26 @@
           "user_condition": {
             "role": "ecd_admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "country_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "union_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "conference_field_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
+          }
         }
       ]
     },
@@ -85,6 +105,26 @@
         {
           "user_condition": {
             "role": "ecd_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "country_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "union_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "conference_field_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
           }
         }
       ]
@@ -105,6 +145,26 @@
           "user_condition": {
             "role": "ecd_admin"
           }
+        },
+        {
+          "user_condition": {
+            "role": "country_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "union_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "conference_field_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
+          }
         }
       ]
     },
@@ -123,6 +183,26 @@
         {
           "user_condition": {
             "role": "ecd_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "country_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "union_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "conference_field_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
           }
         }
       ]
