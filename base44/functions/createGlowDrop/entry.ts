@@ -17,10 +17,28 @@ Deno.serve(async (req) => {
       hashtags: { type: 'string', maxLength: 200 },
       category: { type: 'string', maxLength: 100 },
       media_url: { type: 'string', maxLength: 2048 },
+      audio_url: { type: 'string', maxLength: 2048 },
+      audio_title: { type: 'string', maxLength: 200 },
       post_as_leader_id: { type: 'string', format: 'uuid' },
     });
     if (validated.response) return validated.response;
-    const { verse, reflection, hashtags, category, media_url: rawMediaUrl, post_as_leader_id } = validated.data;
+    const { verse, reflection, hashtags, category, media_url: rawMediaUrl, audio_url: rawAudioUrl, audio_title, post_as_leader_id } = validated.data;
+
+    // Audio must be an app-hosted file (music library tracks are copied into app storage).
+    let audio_url = null;
+    if (rawAudioUrl) {
+      let parsedAudio;
+      try {
+        parsedAudio = new URL(rawAudioUrl);
+      } catch {
+        return Response.json({ error: 'Invalid audio URL.' }, { status: 400 });
+      }
+      const audioHostOk = ['media.base44.com', 'base44.app'].some(
+        (host) => parsedAudio.hostname === host || parsedAudio.hostname.endsWith('.' + host)
+      );
+      if (!audioHostOk) return Response.json({ error: 'Audio must come from the app music library.' }, { status: 400 });
+      audio_url = rawAudioUrl;
+    }
 
     const ALLOWED_CDN_HOSTS = ['media.base44.com', 'base44.app', 'images.unsplash.com', 'res.cloudinary.com'];
     const ALLOWED_MIME = new Set([
@@ -130,6 +148,8 @@ Deno.serve(async (req) => {
       hashtags: (hashtags || '').slice(0, 200),
       category: category || 'Devotional',
       media_url: media_url || null,
+      audio_url: audio_url,
+      audio_title: audio_url ? (audio_title || '').slice(0, 200) : null,
       status: 'approved',
       hidden: false,
       likes_count: 0,

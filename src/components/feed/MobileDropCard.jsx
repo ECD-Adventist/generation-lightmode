@@ -276,6 +276,12 @@ function MobileDropCard({
         </div>
       </div>
 
+      {drop.audio_url && (
+        <div className="px-3 pt-3">
+          <audio src={drop.audio_url} controls preload="none" className="w-full h-9" />
+        </div>
+      )}
+
       {(drop.verse || reflectionText || drop.category || drop.hashtags) && (
         <div className="px-3 pt-3 pb-1">
           {drop.verse && (

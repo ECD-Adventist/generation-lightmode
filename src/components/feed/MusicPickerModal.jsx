@@ -4,9 +4,12 @@ import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Loader2, Music, Search } from "lucide-react";
+import { toast } from "sonner";
 
 export default function MusicPickerModal({ isOpen, onClose, onSelect }) {
   const [search, setSearch] = useState("");
+  const [resolved, setResolved] = useState({}); // driveId -> playable url
+  const [busyId, setBusyId] = useState(null);
 
   const { data: tracks = [], isLoading, isError } = useQuery({
     queryKey: ["musicLibrary", search],
@@ -17,6 +20,35 @@ export default function MusicPickerModal({ isOpen, onClose, onSelect }) {
     enabled: isOpen,
     staleTime: 1000 * 60 * 5,
   });
+
+  // Drive links can't stream directly — copy the file into app storage once, then play.
+  const resolveUrl = async (track) => {
+    if (resolved[track.id]) return resolved[track.id];
+    if (track.audio_url) {
+      setResolved((r) => ({ ...r, [track.id]: track.audio_url }));
+      return track.audio_url;
+    }
+    setBusyId(track.id);
+    try {
+      const res = await base44.functions.invoke("resolveMusicTrack", { file_id: track.id, name: track.name });
+      const url = res.data?.file_url;
+      if (!url) throw new Error("No URL returned");
+      setResolved((r) => ({ ...r, [track.id]: url }));
+      return url;
+    } catch (e) {
+      toast.error("Could not load this track. Try again.");
+      return null;
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleUse = async (track) => {
+    const url = await resolveUrl(track);
+    if (!url) return;
+    onSelect({ audio_url: url, audio_title: track.name });
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -51,12 +83,25 @@ export default function MusicPickerModal({ isOpen, onClose, onSelect }) {
                 <div key={track.id} className="rounded-xl p-3 flex items-center gap-3" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold truncate">{track.name}</p>
-                    <audio src={track.audio_url} controls preload="none" className="w-full h-8 mt-1" />
+                    {resolved[track.id] ? (
+                      <audio src={resolved[track.id]} controls autoPlay className="w-full h-8 mt-1" />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => resolveUrl(track)}
+                        disabled={busyId === track.id}
+                        className="mt-1 text-[11px] font-bold flex items-center gap-1.5 disabled:opacity-60"
+                        style={{ color: "#0B3FD9" }}
+                      >
+                        {busyId === track.id ? <><Loader2 className="w-3 h-3 animate-spin" /> Loading…</> : "▶ Preview"}
+                      </button>
+                    )}
                   </div>
                   <button
                     type="button"
-                    onClick={() => { onSelect({ audio_url: track.audio_url, audio_title: track.name }); onClose(); }}
-                    className="px-3 py-1.5 rounded-full text-[11px] font-black shrink-0"
+                    onClick={() => handleUse(track)}
+                    disabled={busyId === track.id}
+                    className="px-3 py-1.5 rounded-full text-[11px] font-black shrink-0 disabled:opacity-60"
                     style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}
                   >
                     USE

@@ -792,6 +792,12 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
         )}
       </div>
 
+      {drop.audio_url && (
+        <div className="px-3 sm:px-4 pt-3">
+          <audio src={drop.audio_url} controls preload="none" className="w-full h-9" />
+        </div>
+      )}
+
       {/* Verse & Reflection */}
       {(drop.verse || drop.reflection) && (
         <div className="px-3 sm:px-4 pt-3 pb-1">
