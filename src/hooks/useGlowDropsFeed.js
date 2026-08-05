@@ -7,39 +7,42 @@ export const GLOW_DROPS_PAGE_SIZE = 15;
 export default function useGlowDropsFeed() {
   const query = useInfiniteQuery({
     queryKey: glowDropsFeedQueryKey,
-    queryFn: ({ pageParam = 0 }) => base44.entities.GlowDrop.list("-created_date", GLOW_DROPS_PAGE_SIZE, pageParam),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
-      if (!Array.isArray(lastPage) || lastPage.length < GLOW_DROPS_PAGE_SIZE) return undefined;
-      return (allPages?.length || 0) * GLOW_DROPS_PAGE_SIZE;
+    queryFn: async ({ pageParam = null }) => {
+      const cursor = pageParam ? { $lt: pageParam } : undefined;
+      const [drops, reposts] = await Promise.all([
+        base44.entities.GlowDrop.filter(cursor ? { created_date: cursor } : {}, "-created_date", GLOW_DROPS_PAGE_SIZE),
+        base44.entities.Repost.filter(cursor ? { created_at: cursor } : {}, "-created_at", GLOW_DROPS_PAGE_SIZE),
+      ]);
+      const ids = [...new Set(reposts.map(item => item.original_post_id).filter(Boolean))];
+      const originals = ids.length ? await base44.entities.GlowDrop.filter({ id: { $in: ids } }, "-created_date", GLOW_DROPS_PAGE_SIZE) : [];
+      const originalsById = new Map(originals.map(item => [item.id, item]));
+      const items = [
+        ...drops.map(drop => ({ ...drop, feed_item_id: `post:${drop.id}`, feed_date: drop.created_date })),
+        ...reposts.map(repost => {
+          const original = originalsById.get(repost.original_post_id);
+          return original ? { ...original, feed_item_id: `repost:${repost.id}`, feed_date: repost.created_at, repost } : null;
+        }).filter(Boolean),
+      ].sort((a, b) => new Date(b.feed_date || 0) - new Date(a.feed_date || 0)).slice(0, GLOW_DROPS_PAGE_SIZE);
+      return { items, hasMore: drops.length === GLOW_DROPS_PAGE_SIZE || reposts.length === GLOW_DROPS_PAGE_SIZE, nextCursor: items.at(-1)?.feed_date };
     },
+    initialPageParam: null,
+    getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.nextCursor : undefined,
     staleTime: 1000 * 60 * 3,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
-    // Rate-limit errors are transient — retry more persistently with a longer
-    // backoff so the feed self-heals instead of getting stuck on the error screen.
-    retry: (failureCount, error) => {
-      const isRateLimit = /rate limit/i.test(error?.message || "");
-      return failureCount < (isRateLimit ? 6 : 3);
-    },
-    retryDelay: (attempt, error) => {
-      const isRateLimit = /rate limit/i.test(error?.message || "");
-      const base = isRateLimit ? 3000 : 1000;
-      return Math.min(base * 2 ** attempt, isRateLimit ? 20000 : 8000);
-    },
+    retry: 3,
   });
 
   const seen = new Set();
   const data = (query.data?.pages || [])
-    .flat()
+    .flatMap(page => page.items || [])
     .filter(drop => {
-      if (!drop?.id || seen.has(drop.id)) return false;
-      seen.add(drop.id);
+      const key = drop?.feed_item_id || drop?.id;
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
       return true;
     })
-    // Author email lives in the built-in `created_by` field — backfill `user_email`
-    // so author name/picture resolution works across the feed.
     .map(drop => drop.user_email ? drop : { ...drop, user_email: drop.created_by });
 
   return { ...query, data };

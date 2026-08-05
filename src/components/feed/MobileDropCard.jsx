@@ -12,6 +12,7 @@ import { feedThumb, avatarThumb } from "@/lib/imageProxy";
 import CountryFlag from "@/components/common/CountryFlag";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
+import RepostButton from "@/components/feed/RepostButton";
 
 /**
  * Lightweight mobile-only DropCard.
@@ -133,6 +134,11 @@ function MobileDropCard({
       className="relative rounded-[2rem] mb-5 p-3 overflow-hidden"
       style={{ background: "#FFFFFF", border: "1px solid #D6E4FF", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.10)" }}
     >
+      {drop.repost && (
+        <div className="mb-2 px-3 py-2 rounded-2xl text-[11px] font-bold" style={{ background: "#EEF3FF", color: "#0B3FD9" }}>
+          Reposted by {drop.repost.reposter_name || "a member"} · Originally posted by {getDisplayName(authorProfile)}
+        </div>
+      )}
       <div className="relative rounded-[1.45rem] overflow-hidden" style={{ aspectRatio: "4 / 5", background: drop.media_url ? "#DDE7FB" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
         <div
           role="button"
@@ -225,6 +231,7 @@ function MobileDropCard({
             </span>
             <span className="text-[11px] font-black" style={{ color: hasDarkActionBackdrop ? "#FFFFFF" : "#0B1B3D", textShadow: hasDarkActionBackdrop ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>0</span>
           </button>
+          <RepostButton drop={drop} user={user} dark={hasDarkActionBackdrop} />
           <button onClick={() => toggleSaveMutation.mutate()} className="w-11 h-11 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: isSaved ? "#F59E0B" : "#0B3FD9" }}>
             <Bookmark className={`w-5 h-5 ${isSaved ? "fill-amber-400 text-amber-400" : ""}`} />
           </button>

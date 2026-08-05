@@ -44,7 +44,7 @@ function FeedDropList({
     <>
       {visibleDrops.map(drop => (
         <DropCard
-          key={drop.id}
+          key={drop.feed_item_id || drop.id}
           drop={drop}
           user={user}
           isGuest={isGuest}

@@ -476,7 +476,7 @@ export default function Feed() {
       })
       .sort((a, b) => {
         if (activeFilter === 'Most Liked') return (b.likes_count || 0) - (a.likes_count || 0);
-        return new Date(b.created_date || 0) - new Date(a.created_date || 0);
+        return new Date(b.feed_date || b.created_date || 0) - new Date(a.feed_date || a.created_date || 0);
       });
   }, [dropsWithSearch, activeFilter, searchQuery, followingTargets, usersWithSearch, leaderAccounts, user?.email, isAdminViewer]);
 

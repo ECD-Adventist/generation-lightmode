@@ -21,6 +21,7 @@ import KeepIt100Poster, { KEEP_IT_100_BACKGROUND_URL } from "@/components/keep-i
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
+import RepostButton from "@/components/feed/RepostButton";
 
 export default function DropCard({ drop, user, isGuest = false, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
@@ -245,32 +246,6 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
     }
   });
 
-  const repostMutation = useMutation({
-    mutationFn: async () => {
-      const newDrop = await base44.entities.GlowDrop.create({
-        user_email: user.email,
-        verse: drop.verse,
-        reflection: `[Reposted from ${getDisplayName(authorProfile)}]\n\n${drop.reflection || ""}`,
-        media_url: drop.media_url,
-        category: drop.category,
-        hashtags: drop.hashtags,
-        original_drop_id: drop.id,
-        status: "approved"
-      });
-      
-      // Increment the reposts_count on the original drop
-      await base44.entities.GlowDrop.update(drop.id, {
-        reposts_count: (drop.reposts_count || 0) + 1
-      }).catch(console.error);
-
-      mirrorGlowDropToSupabase(newDrop, user);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
-      toast.success("Successfully reposted!");
-    }
-  });
-
   const triggerLike = () => {
     if (!user) { requireAuth(); return; }
     setLikeBurst(true);
@@ -334,6 +309,12 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
         boxShadow: "0 1px 2px rgba(11, 63, 217, 0.04), 0 8px 24px rgba(11, 63, 217, 0.08), 0 16px 48px rgba(11, 63, 217, 0.04)"
       }}
     >
+      {drop.repost && (
+        <div className="mb-2 px-3 py-2 rounded-2xl text-xs font-bold flex flex-wrap gap-x-2" style={{ background: "#EEF3FF", color: "#0B3FD9" }}>
+          <span>Reposted by {drop.repost.reposter_name || "a member"}</span>
+          <span style={{ color: "#6B7FA0" }}>Originally posted by {getDisplayName(authorProfile)}</span>
+        </div>
+      )}
       {isLeaderPost && (
         <div className="absolute -top-3 left-5 sm:left-6 z-30 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg"
           style={{ background: "linear-gradient(135deg, #0080FE 0%, #0040A0 40%, #1A6B3F 70%, #D4B82E 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.35), 0 0 20px rgba(212, 184, 46, 0.4)" }}>
@@ -751,6 +732,8 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
             <span className={`text-[11px] sm:text-xs font-bold ${useGlass ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{drop.shares_count || 0}</span>
           </div>
 
+          <RepostButton drop={drop} user={user} dark={useGlass} />
+
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleSaveClick}
@@ -795,9 +778,6 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
                     </DropdownMenuItem>
                   );
                 })()}
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); repostMutation.mutate(); }} className="hover:bg-muted cursor-pointer focus:bg-muted">
-                  Repost
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             {drop.reposts_count > 0 && <span className="text-white text-[11px] sm:text-xs font-bold drop-shadow-md">{drop.reposts_count}</span>}

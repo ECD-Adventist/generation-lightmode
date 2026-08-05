@@ -49,7 +49,7 @@ function MobileFeedDropList({
     <>
       {visibleDrops.map(drop => (
         <MobileDropCard
-          key={drop.id}
+          key={drop.feed_item_id || drop.id}
           drop={drop}
           user={user}
           dropUser={getUserInfo(drop.user_email)}

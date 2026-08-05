@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
+import RepostButton from "@/components/feed/RepostButton";
 
 export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = [] }) {
   const [showComments, setShowComments] = useState(false);
@@ -109,6 +110,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
 
   return (
     <div className="bg-[#121826]/80 backdrop-blur-sm border border-white/10 rounded-3xl overflow-hidden hover:border-[#00CFFF]/30 transition-all duration-300 shadow-xl">
+      {drop.repost && <div className="px-4 py-2 text-xs font-bold text-[#00CFFF]">Reposted by {drop.repost.reposter_name || "a member"} · Originally posted by {authorProfile.full_name}</div>}
       <ShareFallbackDialog share={shareFallback} onClose={() => setShareFallback(null)} />
 
       {/* Media */}
@@ -220,6 +222,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
             <Share2 className="w-4 h-4" />
             Share
           </button>
+          <RepostButton drop={drop} user={currentUser} compact dark />
         </div>
 
         {/* Comments */}

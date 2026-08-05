@@ -18,12 +18,13 @@
         "milestone",
         "system",
         "follow",
-        "message"
+        "message",
+        "repost"
       ]
     },
     "reference_id": {
       "type": "string",
-      "description": "Id of the entity that triggered this notification (e.g. drop_id, follow record id). Used for idempotency dedup."
+      "description": "Id of the entity that triggered this notification. Used for idempotency dedup."
     },
     "message": {
       "type": "string"
