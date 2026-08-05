@@ -4,16 +4,17 @@ import { Save, Share2, Loader2, Lock, Copy, Check, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { typeMeta } from "./contentConstants";
 import ContentPreviewModal from "./ContentPreviewModal";
+import BrandIcon from "./BrandIcon";
 
 const SHARE_PLATFORMS = [
-  { id: "whatsapp", label: "WhatsApp", emoji: "💬", url: (u, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${u}`)}` },
-  { id: "facebook", label: "Facebook", emoji: "📘", url: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
-  { id: "youtube", label: "YouTube", emoji: "▶️" },
-  { id: "instagram", label: "Instagram", emoji: "📸" },
-  { id: "tiktok", label: "TikTok", emoji: "🎵" },
-  { id: "x", label: "X (Twitter)", emoji: "🐦", url: (u, text) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(u)}` },
-  { id: "telegram", label: "Telegram", emoji: "✈️", url: (u, text) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(text)}` },
-  { id: "native", label: "More apps", emoji: "↗️" },
+  { id: "whatsapp", label: "WhatsApp", url: (u, text) => `https://wa.me/?text=${encodeURIComponent(`${text} ${u}`)}` },
+  { id: "facebook", label: "Facebook", url: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
+  { id: "youtube", label: "YouTube" },
+  { id: "instagram", label: "Instagram" },
+  { id: "tiktok", label: "TikTok" },
+  { id: "x", label: "X (Twitter)", url: (u, text) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(u)}` },
+  { id: "telegram", label: "Telegram", url: (u, text) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(text)}` },
+  { id: "native", label: "More apps" },
 ];
 
 export default function ContentCard({ item }) {
@@ -136,7 +137,7 @@ export default function ContentCard({ item }) {
                       {SHARE_PLATFORMS.filter(p => !["x", "telegram", "native"].includes(p.id)).map(p => (
                         <button key={p.id} onClick={() => handleShare(p.id)}
                           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
-                          <span>{p.emoji}</span> {p.label}
+                          <BrandIcon brand={p.id} /> {p.label}
                         </button>
                       ))}
                       <button onClick={() => setShareMenuView("more")}
@@ -157,7 +158,7 @@ export default function ContentCard({ item }) {
                       {SHARE_PLATFORMS.filter(p => ["x", "telegram"].includes(p.id)).map(p => (
                         <button key={p.id} onClick={() => handleShare(p.id)}
                           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
-                          <span>{p.emoji}</span> {p.label}
+                          <BrandIcon brand={p.id} /> {p.label}
                         </button>
                       ))}
                       {navigator.share && (

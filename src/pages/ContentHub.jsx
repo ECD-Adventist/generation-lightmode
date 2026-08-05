@@ -30,9 +30,10 @@ export default function ContentHub() {
       sessionStorage.setItem(CONTENT_CACHE_KEY, JSON.stringify(loadedItems));
       return loadedItems;
     },
-    initialData: readCachedItems,
-    staleTime: 60_000,
+    placeholderData: readCachedItems,
+    staleTime: 0,
     gcTime: 30 * 60_000,
+    refetchOnMount: "always",
   });
 
   useEffect(() => {

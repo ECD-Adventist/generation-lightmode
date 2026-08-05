@@ -218,7 +218,7 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
                 {deleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
               </button>
             )}
-            <button onClick={handleSave} disabled={saving || deleting}
+            <button type="button" onClick={handleSave} disabled={saving || deleting}
               className="flex-1 py-3 rounded-xl font-black text-sm font-['Space_Grotesk'] transition active:scale-[0.98] disabled:opacity-50"
               style={{ background: "linear-gradient(90deg, #00CFFF, #8A5CFF)", color: "#0B0F1A" }}>
               {saving ? "Saving…" : item ? "Save Changes" : "Schedule Content"}

@@ -31,7 +31,7 @@ export default async function(req) {
 
     return Response.json({ items: result }, {
       headers: {
-        'Cache-Control': 'public, max-age=30, stale-while-revalidate=120'
+        'Cache-Control': 'no-store, max-age=0'
       }
     });
   } catch (error) {

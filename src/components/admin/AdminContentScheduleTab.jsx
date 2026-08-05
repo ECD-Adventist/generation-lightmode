@@ -31,7 +31,11 @@ export default function AdminContentScheduleTab() {
     enabled: view === "stats",
   });
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ["digital-content"] });
+  const refresh = () => {
+    sessionStorage.removeItem("all-things-new-items");
+    queryClient.invalidateQueries({ queryKey: ["digital-content"] });
+    queryClient.invalidateQueries({ queryKey: ["digital-content-public"] });
+  };
 
   const openNew = (date = "") => { setEditItem(null); setDefaultDate(date); setModalOpen(true); };
   const openEdit = (item) => { setEditItem(item); setModalOpen(true); };
