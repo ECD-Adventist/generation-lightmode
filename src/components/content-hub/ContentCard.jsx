@@ -50,15 +50,19 @@ export default function ContentCard({ item }) {
     setDownloading(true);
     try {
       const res = await track("download");
-      if (res.data?.download_url) {
-        // Hidden iframe: the file downloads without navigating away from the app.
-        const frame = document.createElement("iframe");
-        frame.style.display = "none";
-        frame.src = res.data.download_url;
-        document.body.appendChild(frame);
-        setTimeout(() => frame.remove(), 60000);
-        toast.success("Download started");
-      }
+      const downloadUrl = res.data?.download_url;
+      if (!downloadUrl) throw new Error("No download URL returned");
+
+      // Use a real link: Google Drive blocks downloads launched inside hidden iframes.
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.download = "";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success("Download started");
     } catch {
       toast.error("Download failed — please try again");
     }

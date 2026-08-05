@@ -11,8 +11,8 @@ export function extractDriveFileId(link) {
 
 export function toDirectDownloadUrl(link) {
   const id = extractDriveFileId(link);
-  // confirm=t skips the "can't scan for viruses" interstitial on large files.
-  return id ? `https://drive.google.com/uc?export=download&id=${id}&confirm=t` : link;
+  // The usercontent host serves the file response directly instead of the Drive viewer.
+  return id ? `https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=t` : link;
 }
 
 // Renderable image URL for <img> tags (the uc?export=download URL is blocked as an image source).
