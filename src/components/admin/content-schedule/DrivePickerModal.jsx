@@ -3,6 +3,9 @@ import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Folder, FileVideo, FileImage, File as FileIcon, Search, ChevronLeft, AlertCircle } from "lucide-react";
 
+// Root of the "ALL THINGS NEW" shared drive (id resolved server-side too).
+const DRIVE_ROOT = { id: "0ABkm6ojo6LD0Uk9PVA", name: "ALL THINGS NEW" };
+
 const fmtSize = (bytes) => {
   if (!bytes) return "";
   const mb = bytes / 1048576;
@@ -17,7 +20,7 @@ const iconFor = (file) => {
 };
 
 export default function DrivePickerModal({ open, onClose, onPick }) {
-  const [path, setPath] = useState([{ id: "root", name: "My Drive" }]);
+  const [path, setPath] = useState([DRIVE_ROOT]);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -46,7 +49,7 @@ export default function DrivePickerModal({ open, onClose, onPick }) {
   }, [open, load]);
 
   useEffect(() => {
-    if (!open) { setPath([{ id: "root", name: "My Drive" }]); setSearch(""); setActiveSearch(""); }
+    if (!open) { setPath([DRIVE_ROOT]); setSearch(""); setActiveSearch(""); }
   }, [open]);
 
   const handleRowClick = (file) => {
@@ -64,7 +67,7 @@ export default function DrivePickerModal({ open, onClose, onPick }) {
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-lg bg-[#0E1524] border-white/10 text-white">
         <DialogHeader>
-          <DialogTitle className="font-['Space_Grotesk'] text-base">Pick a file from Google Drive</DialogTitle>
+          <DialogTitle className="font-['Space_Grotesk'] text-base">Pick a file from ALL THINGS NEW</DialogTitle>
         </DialogHeader>
 
         <div className="flex items-center gap-2 mb-2">

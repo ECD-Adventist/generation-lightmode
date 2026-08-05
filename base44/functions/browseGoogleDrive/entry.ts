@@ -2,6 +2,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 
 const ALLOWED_ROLES = ["admin", "super_admin", "ecd_admin"];
 
+// The "ALL THINGS NEW" shared drive — the only drive admins browse for resources.
+const SHARED_DRIVE_ID = "0ABkm6ojo6LD0Uk9PVA";
+
 // Admin-only browser for the connected (shared) Google Drive account.
 // Lists folders + media files so admins can pick a file instead of pasting links.
 export default async function(req) {
@@ -17,7 +20,7 @@ export default async function(req) {
     let payload = {};
     try { payload = await req.json(); } catch (_e) { payload = {}; }
 
-    const folderId = String(payload.folder_id || "root").slice(0, 100);
+    const folderId = String(payload.folder_id || SHARED_DRIVE_ID).slice(0, 100);
     const search = String(payload.search || "").trim().slice(0, 100).replace(/'/g, "");
 
     const clauses = ["trashed = false"];
@@ -31,6 +34,8 @@ export default async function(req) {
       pageSize: "100",
       supportsAllDrives: "true",
       includeItemsFromAllDrives: "true",
+      corpora: "drive",
+      driveId: SHARED_DRIVE_ID,
     });
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection("googledrive");
