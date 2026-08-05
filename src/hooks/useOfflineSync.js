@@ -15,6 +15,7 @@ export default function useOfflineSync(liveDrops, isOnline) {
   const [cachedDrops, setCachedDrops] = useState([]);
   const [lastCached, setLastCached] = useState(null);
   const [syncing, setSyncing] = useState(false);
+  const [loadingCached, setLoadingCached] = useState(true);
   const syncingRef = useRef(false);
   const lastCachedIdsRef = useRef("");
 
@@ -32,8 +33,17 @@ export default function useOfflineSync(liveDrops, isOnline) {
 
   // Load cached drops on mount (for offline fallback)
   useEffect(() => {
-    getCachedDrops().then(setCachedDrops).catch(() => {});
-    getLastCachedAt().then(setLastCached).catch(() => {});
+    let cancelled = false;
+    Promise.all([
+      getCachedDrops().catch(() => []),
+      getLastCachedAt().catch(() => null),
+    ]).then(([drops, ts]) => {
+      if (cancelled) return;
+      setCachedDrops(drops);
+      if (ts) setLastCached(ts);
+      setLoadingCached(false);
+    });
+    return () => { cancelled = true; };
   }, []);
 
   // Sync queued actions — stable reference, uses ref to guard against double-calls
@@ -92,5 +102,6 @@ export default function useOfflineSync(liveDrops, isOnline) {
     lastCached,
     syncing,
     syncQueue,
+    loadingCached,
   };
 }

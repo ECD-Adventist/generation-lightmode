@@ -148,7 +148,7 @@ export default function Feed() {
     refetch: refetchDrops,
   } = useGlowDropsFeed();
 
-  const { drops, lastCached, syncing, syncQueue } = useOfflineSync(liveDrops, isOnline);
+  const { drops, lastCached, syncing, syncQueue, loadingCached } = useOfflineSync(liveDrops, isOnline);
 
   // Global user-by-name/email search. Fetches matched users + their recent drops
   // when the local feed cache doesn't already contain them.
@@ -582,7 +582,7 @@ export default function Feed() {
           userLikes={userLikes}
           allUsers={usersWithSearch}
           savedDropRecords={savedDropRecords}
-          isLoading={dropsLoading || (userSearch.isActive && userSearch.isLoading)}
+          isLoading={dropsLoading || loadingCached || (userSearch.isActive && userSearch.isLoading)}
           isError={dropsError && isOnline}
           onRefetch={() => refetchDrops()}
           leaderAccounts={leaderAccounts}
@@ -880,7 +880,7 @@ export default function Feed() {
 
           {/* Feed */}
           <div className="flex flex-col px-3 sm:px-4 py-2 pb-24 lg:pb-6 max-w-2xl mx-auto w-full flex-none">
-            {dropsLoading && drops.length === 0 ? (
+            {(dropsLoading || loadingCached) && drops.length === 0 ? (
               <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>
             ) : dropsError && filteredDrops.length === 0 && isOnline ? (
               <div className="text-center py-20" style={{ color: "#4A5878" }}>
