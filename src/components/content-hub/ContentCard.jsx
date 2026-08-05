@@ -83,6 +83,25 @@ export default function ContentCard({ item }) {
       return;
     }
     if (platform === "native") {
+      // Try to attach the thumbnail image when the device supports file sharing
+      if (typeof navigator.canShare === "function" && typeof navigator.share === "function" && item.thumbnail_url) {
+        try {
+          const res = await fetch(item.thumbnail_url, { mode: "cors" });
+          if (res.ok) {
+            const blob = await res.blob();
+            const file = new File([blob], `content-${item.id}.png`, { type: blob.type || "image/png" });
+            if (navigator.canShare({ files: [file] })) {
+              await navigator.share({ title: item.title || "Generation LightMode", text: shareText, files: [file] });
+              setShareOpen(false);
+              track("share", platform).catch(() => {});
+              return;
+            }
+          }
+        } catch (err) {
+          if (err?.name === "AbortError") return;
+          // Fall through to text-based native share below
+        }
+      }
       const result = await tryNativeShare({ title: item.title || "Generation LightMode", text: shareText, url: shareUrl }, context);
       if (result.status === "shared") {
         setShareOpen(false);

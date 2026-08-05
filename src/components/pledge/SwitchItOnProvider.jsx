@@ -16,12 +16,17 @@ export function SwitchItOnProvider({ children }) {
       base44.auth.redirectToLogin(createPageUrl(dest));
       return;
     }
-    const me = await base44.auth.me();
-    if (!me?.pledge_signed) {
-      setOpen(true);
-      return;
+    try {
+      const me = await base44.auth.me();
+      if (!me?.pledge_signed) {
+        setOpen(true);
+        return;
+      }
+      window.location.href = createPageUrl(dest);
+    } catch {
+      // Token is stale/expired — clear it and redirect to login
+      base44.auth.redirectToLogin(createPageUrl(dest));
     }
-    window.location.href = createPageUrl(dest);
   }, []);
 
   const handleSigned = () => {
@@ -48,13 +53,16 @@ export function useSwitchItOn() {
           base44.auth.redirectToLogin(createPageUrl(dest));
           return;
         }
-        const me = await base44.auth.me();
-        if (!me?.pledge_signed) {
-          // No modal available; send them to Home pledge section
-          window.location.href = createPageUrl("Home") + "#join";
-          return;
+        try {
+          const me = await base44.auth.me();
+          if (!me?.pledge_signed) {
+            window.location.href = createPageUrl("Home") + "#join";
+            return;
+          }
+          window.location.href = createPageUrl(dest);
+        } catch {
+          base44.auth.redirectToLogin(createPageUrl(dest));
         }
-        window.location.href = createPageUrl(dest);
       }
     };
   }
