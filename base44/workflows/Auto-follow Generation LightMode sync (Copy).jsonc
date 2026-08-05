@@ -1,5 +1,5 @@
 {
-  "name": "Auto-follow Generation LightMode sync (Copy)",
+  "name": "Auto-follow Generation LightMode sync",
   "description": "Keeps all registered users following the official Generation LightMode page so they see official posts.",
   "trigger": {
     "condition": null,
