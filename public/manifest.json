@@ -1,23 +1,32 @@
 {
   "name": "LightMode",
   "short_name": "LightMode",
-  "description": "Faith. Always On.",
+  "description": "Generation LightMode — Faith. Always On.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0B0F1A",
+  "orientation": "portrait",
   "theme_color": "#0B0F1A",
+  "background_color": "#0B0F1A",
+  "categories": ["lifestyle", "social", "education"],
   "icons": [
     {
-      "src": "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/741681e20_ALLICONS.jpg",
+      "src": "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/3c5db2bfc_generated_image.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/3c5db2bfc_generated_image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
