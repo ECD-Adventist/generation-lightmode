@@ -23,6 +23,7 @@ export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const isAppShellPage = appShellPages.includes(currentPageName);
   const isLegalPage = ["Privacy", "Terms", "CommunityGuidelines"].includes(currentPageName);
+  const usesDarkPublicHeader = currentPageName === "ContentHub";
   const isMobileViewport = useIsMobile();
   // On mobile, these pages render their own full-bleed mobile shell (with their own nav + footer).
   const mobileOwnedPages = ["Home", "About", "Impact", "Assistant", "Resources", "KeepIt100", "CodesOfTruth", "Challenges", "Media", "Privacy", "GenerationLightMode", "ContentHub"];
@@ -103,7 +104,7 @@ export default function Layout({ children, currentPageName }) {
   }, [location.pathname, location.search, location.hash]);
 
   return (
-    <div dir={isRTL ? "rtl" : "ltr"} className="bg-background min-h-screen text-foreground" style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
+    <div dir={isRTL ? "rtl" : "ltr"} className={`${usesDarkPublicHeader ? "bg-[#0B0F1A]" : "bg-background"} min-h-screen text-foreground`} style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
@@ -283,8 +284,8 @@ export default function Layout({ children, currentPageName }) {
         /* Public nav for non-logged-in users */
         <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, paddingTop: "env(safe-area-inset-top)",
-        background: scrolled ? "rgba(11,15,26,0.85)" : "transparent",
-        backdropFilter: scrolled ? "blur(24px) saturate(1.4)" : "none",
+        background: usesDarkPublicHeader || scrolled ? "rgba(11,15,26,0.92)" : "transparent",
+        backdropFilter: usesDarkPublicHeader || scrolled ? "blur(24px) saturate(1.4)" : "none",
         borderBottom: "none",
         transition: "all 0.4s ease",
         padding: "0 24px",
@@ -292,8 +293,8 @@ export default function Layout({ children, currentPageName }) {
         {/* Branded gradient veil — soft fade only at top, no hard edge at bottom */}
         <div style={{
           position: "absolute", inset: 0, zIndex: -1,
-          background: scrolled
-            ? "linear-gradient(180deg, rgba(11,15,26,0.92) 0%, rgba(11,15,26,0.85) 100%)"
+          background: usesDarkPublicHeader || scrolled
+            ? "linear-gradient(180deg, rgba(11,15,26,0.98) 0%, rgba(11,15,26,0.9) 100%)"
             : "none",
           transition: "all 0.4s ease",
           pointerEvents: "none",
