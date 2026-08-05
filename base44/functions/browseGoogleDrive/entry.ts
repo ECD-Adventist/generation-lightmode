@@ -29,7 +29,7 @@ export default async function(req) {
 
     const params = new URLSearchParams({
       q: clauses.join(" and "),
-      fields: "files(id,name,mimeType,size,modifiedTime,iconLink,hasThumbnail,thumbnailLink)",
+      fields: "files(id,name,description,mimeType,size,modifiedTime,iconLink,hasThumbnail,thumbnailLink)",
       orderBy: "folder,name",
       pageSize: "100",
       supportsAllDrives: "true",
@@ -52,10 +52,13 @@ export default async function(req) {
     const files = (data.files || []).map((f) => ({
       id: f.id,
       name: f.name,
+      description: f.description || "",
       mime_type: f.mimeType,
       is_folder: f.mimeType === "application/vnd.google-apps.folder",
       size: f.size ? Number(f.size) : null,
       modified_time: f.modifiedTime,
+      has_thumbnail: Boolean(f.hasThumbnail),
+      thumbnail_link: f.thumbnailLink ? f.thumbnailLink.replace(/=s\d+$/, "=s800") : "",
       link: `https://drive.google.com/file/d/${f.id}/view`,
     }));
 

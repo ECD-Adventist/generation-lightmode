@@ -19,10 +19,12 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [thumbnailSuggestion, setThumbnailSuggestion] = useState("");
   const fileRef = useRef(null);
 
   useEffect(() => {
     if (!open) return;
+    setThumbnailSuggestion("");
     if (item) {
       const d = new Date(item.scheduled_at);
       setForm({
@@ -41,13 +43,27 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
   const driveId = extractDriveId(form.drive_link);
 
   const handleDrivePick = (file) => {
+    const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim();
+    const inferredType = file.mime_type?.startsWith("video/")
+      ? "video"
+      : file.mime_type?.startsWith("image/")
+        ? "poster"
+        : form.content_type;
+    const typeLabel = CONTENT_TYPES.find(type => type.id === inferredType)?.label || "Resource";
+    const suggestedTitle = /^\d+$/.test(baseName)
+      ? `All Things New ${typeLabel} ${baseName}`
+      : baseName || `All Things New ${typeLabel}`;
+    const suggestedDescription = file.description?.trim() || `${suggestedTitle} is an All Things New ${typeLabel.toLowerCase()} resource ready to download and share.`;
+
     setForm(f => ({
       ...f,
       drive_link: file.link,
-      title: f.title || file.name.replace(/\.[^.]+$/, ""),
-      content_type: file.mime_type?.startsWith("video/") ? "video" : f.content_type,
+      title: f.title.trim() ? f.title : suggestedTitle,
+      description: f.description.trim() ? f.description : suggestedDescription,
+      content_type: inferredType,
     }));
-    toast.success(`Selected "${file.name}"`);
+    setThumbnailSuggestion(file.thumbnail_link || "");
+    toast.success(`Selected "${file.name}" and added its details`);
   };
 
   const handleThumbnail = async (e) => {
@@ -56,6 +72,7 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
     setUploading(true);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     set("thumbnail_url", file_url);
+    setThumbnailSuggestion("");
     setUploading(false);
   };
 
@@ -144,12 +161,29 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
 
           <div>
             <label className="text-xs font-bold text-white/60 mb-1 block">Thumbnail</label>
+            {thumbnailSuggestion && !form.thumbnail_url && (
+              <div className="mb-3 rounded-xl p-3 bg-cyan-400/5 border border-cyan-400/20">
+                <div className="flex items-center gap-3">
+                  <img src={thumbnailSuggestion} className="w-16 h-16 rounded-xl object-cover border border-white/10" alt="Suggested thumbnail from Google Drive" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-white">Use this thumbnail from the content?</p>
+                    <p className="text-[10px] text-white/45 mt-0.5">Approve it, or upload a different image.</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <button type="button" onClick={() => { set("thumbnail_url", thumbnailSuggestion); setThumbnailSuggestion(""); }}
+                    className="flex-1 py-2 rounded-lg text-[11px] font-bold bg-cyan-400 text-[#0B0F1A]">Use suggested</button>
+                  <button type="button" onClick={() => fileRef.current?.click()}
+                    className="flex-1 py-2 rounded-lg text-[11px] font-bold bg-white/5 border border-white/10">Upload different</button>
+                </div>
+              </div>
+            )}
             <div className="flex items-center gap-3">
-              {form.thumbnail_url && <img src={form.thumbnail_url} className="w-16 h-16 rounded-xl object-cover border border-white/10" alt="" />}
+              {form.thumbnail_url && <img src={form.thumbnail_url} className="w-16 h-16 rounded-xl object-cover border border-white/10" alt="Selected thumbnail" />}
               <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-white/5 border border-white/10 hover:bg-white/10 transition">
                 {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-                {form.thumbnail_url ? "Replace thumbnail" : "Upload thumbnail"}
+                {form.thumbnail_url ? "Replace thumbnail" : thumbnailSuggestion ? "Upload different" : "Upload thumbnail"}
               </button>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleThumbnail} />
             </div>
