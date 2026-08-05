@@ -10,6 +10,7 @@ const SHARE_PLATFORMS = [
   { id: "facebook", label: "Facebook", emoji: "📘", url: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
   { id: "x", label: "X (Twitter)", emoji: "🐦", url: (u, text) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(u)}` },
   { id: "telegram", label: "Telegram", emoji: "✈️", url: (u, text) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(text)}` },
+  { id: "native", label: "More apps", emoji: "↗️" },
 ];
 
 export default function ContentCard({ item }) {
@@ -50,9 +51,17 @@ export default function ContentCard({ item }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       toast.success("Link copied");
+    } else if (platform === "native" && navigator.share) {
+      try {
+        await navigator.share({ title: item.title, text: shareText, url: shareUrl });
+      } catch (error) {
+        if (error.name === "AbortError") return;
+        toast.error("Unable to open sharing");
+        return;
+      }
     } else {
       const p = SHARE_PLATFORMS.find(s => s.id === platform);
-      if (p) window.open(p.url(shareUrl, shareText), "_blank", "noopener");
+      if (p?.url) window.open(p.url(shareUrl, shareText), "_blank", "noopener");
     }
     track("share", platform).catch(() => {});
   };
@@ -96,7 +105,7 @@ export default function ContentCard({ item }) {
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShareOpen(false)} />
                 <div className="absolute bottom-12 right-0 z-20 rounded-2xl p-1.5 min-w-[170px]" style={{ background: "rgba(18,24,38,0.98)", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
-                  {SHARE_PLATFORMS.map(p => (
+                  {SHARE_PLATFORMS.filter(p => p.id !== "native" || navigator.share).map(p => (
                     <button key={p.id} onClick={() => handleShare(p.id)}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-semibold text-left transition hover:bg-white/5" style={{ color: "#C8D0E0" }}>
                       <span>{p.emoji}</span> {p.label}

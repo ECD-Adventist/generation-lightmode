@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Loader2, CalendarDays, Sparkles } from "lucide-react";
 import MobileSubPageHeader from "@/components/mobile/MobileSubPageHeader";
 import ContentCard, { LockedContentCard } from "@/components/content-hub/ContentCard";
+import ContentPreviewModal from "@/components/content-hub/ContentPreviewModal";
 import { CONTENT_TYPES } from "@/components/content-hub/contentConstants";
 
 export default function ContentHub() {
@@ -10,13 +11,26 @@ export default function ContentHub() {
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("all");
   const [langFilter, setLangFilter] = useState("all");
+  const [sharedPreview, setSharedPreview] = useState(null);
 
   useEffect(() => {
     base44.functions.invoke("listDigitalContent", {})
-      .then(res => setItems(res.data?.items || []))
+      .then(res => {
+        const loadedItems = res.data?.items || [];
+        setItems(loadedItems);
+        const requestedId = new URLSearchParams(window.location.search).get("item");
+        setSharedPreview(loadedItems.find(item => item.id === requestedId && item.unlocked) || null);
+      })
       .catch(() => setItems([]))
       .finally(() => setLoading(false));
   }, []);
+
+  const closeSharedPreview = () => {
+    setSharedPreview(null);
+    const params = new URLSearchParams(window.location.search);
+    params.delete("item");
+    window.history.replaceState({}, "", `${window.location.pathname}${params.toString() ? `?${params}` : ""}`);
+  };
 
   const languages = useMemo(() => [...new Set(items.map(i => i.language).filter(Boolean))], [items]);
 
@@ -115,6 +129,7 @@ export default function ContentHub() {
           )}
         </>
       )}
+      {sharedPreview && <ContentPreviewModal item={sharedPreview} open onClose={closeSharedPreview} />}
     </div>
   );
 }
