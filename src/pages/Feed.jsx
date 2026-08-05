@@ -279,7 +279,10 @@ export default function Feed() {
       if (!old?.pages) return old;
       return {
         ...old,
-        pages: old.pages.map(page => page.map(updater))
+        pages: old.pages.map(page => ({
+          ...page,
+          items: (page.items || []).map(updater)
+        }))
       };
     });
   };
