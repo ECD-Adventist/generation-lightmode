@@ -361,6 +361,26 @@ export default function Feed() {
     const shareUrl = getSharePreviewUrl("glowdrop", drop?.id || "post");
     const shareText = buildShareText(title, drop?.reflection, shareUrl);
     const share = { id: drop?.id, title, text: shareText, url: shareUrl };
+
+    // If the device supports file sharing and the post has an image, attach the actual image
+    if (typeof navigator.canShare === "function" && typeof navigator.share === "function" && drop.media_url) {
+      try {
+        const res = await fetch(drop.media_url, { mode: "cors" });
+        if (res.ok) {
+          const blob = await res.blob();
+          const file = new File([blob], `post-${drop.id}.png`, { type: blob.type || "image/png" });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({ title: share.title || "Generation LightMode", text: share.text, files: [file] });
+            toast.success("Shared successfully");
+            return;
+          }
+        }
+      } catch (err) {
+        if (err?.name === "AbortError") return;
+        // Fall through to text-based native share below
+      }
+    }
+
     const result = await tryNativeShare(share, { contentType: "glowdrop", contentId: drop?.id });
     if (result.status === "shared") toast.success("Shared successfully");
     if (result.status === "failed" || result.status === "unavailable") setShareFallback(share);

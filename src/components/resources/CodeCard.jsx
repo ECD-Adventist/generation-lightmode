@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import html2canvas from "html2canvas";
 import { Download, Share2, Repeat2, Loader2, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
@@ -10,6 +11,8 @@ import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 export default function CodeCard({ code, user }) {
   const queryClient = useQueryClient();
   const [isSharing, setIsSharing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const posterRef = useRef(null);
   const isKeepIt100 = code.source_document === "keeping_it_100";
   const isCodeOfTruth = code.source_document === "codes_of_truth" || !isKeepIt100;
 
@@ -75,6 +78,7 @@ export default function CodeCard({ code, user }) {
   };
 
   const handleDownload = async () => {
+    // Prefer a stored poster image if one exists
     if (code.poster_image_url) {
       try {
         const response = await fetch(code.poster_image_url);
@@ -89,11 +93,39 @@ export default function CodeCard({ code, user }) {
         document.body.removeChild(a);
         await updateEngagement('downloads_count');
         toast.success("Downloaded successfully!");
+        return;
       } catch (err) {
-        toast.error("Failed to download image");
+        // Fall through to canvas capture below
       }
-    } else {
+    }
+
+    // Otherwise capture the rendered poster element (text + background) as an image
+    if (!posterRef.current) {
       toast.error("No poster image available");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const canvas = await html2canvas(posterRef.current, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+      });
+      const dataUrl = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `${isKeepIt100 ? "KeepIt100" : "CodeOfTruth"}-${code.id}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      await updateEngagement('downloads_count');
+      toast.success("Downloaded successfully!");
+    } catch (err) {
+      console.error("Poster capture failed", err);
+      toast.error("Failed to download image");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -126,7 +158,7 @@ export default function CodeCard({ code, user }) {
   return (
     <div className="bg-[#121826] border border-white/10 rounded-2xl overflow-hidden flex flex-col group transition-all hover:border-[#00CFFF]/50 hover:shadow-[0_0_20px_rgba(0,207,255,0.1)]">
       {/* Poster Image / Content */}
-      <div className={`${isKeepIt100 || isCodeOfTruth ? "aspect-[4/5]" : "aspect-square"} relative bg-gradient-to-br from-[#0B0F1A] to-[#121826] flex flex-col items-center justify-center p-6 text-center overflow-hidden`}>
+      <div ref={posterRef} className={`${isKeepIt100 || isCodeOfTruth ? "aspect-[4/5]" : "aspect-square"} relative bg-gradient-to-br from-[#0B0F1A] to-[#121826] flex flex-col items-center justify-center p-6 text-center overflow-hidden`}>
         {isKeepIt100 ? (
           <KeepIt100Poster text={code.slogan_text} verse={code.bible_reference} className="absolute inset-0 w-full h-full" />
         ) : isCodeOfTruth ? (
@@ -169,11 +201,12 @@ export default function CodeCard({ code, user }) {
           >
             <Share2 size={16} /> Share
           </button>
-          <button 
+          <button
             onClick={handleDownload}
-            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition"
+            disabled={isSaving}
+            className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition disabled:opacity-50"
           >
-            <Download size={16} /> Save
+            {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} Save
           </button>
         </div>
         <div className="grid grid-cols-2 gap-2">

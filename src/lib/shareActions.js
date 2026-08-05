@@ -42,3 +42,27 @@ export function openShareWindow(url, context = {}) {
 }
 
 export const whatsappShareUrl = (text) => `https://wa.me/?text=${encodeURIComponent(text)}`;
+
+export const twitterShareUrl = (text, url) => {
+  const base = "https://twitter.com/intent/tweet";
+  const params = new URLSearchParams();
+  params.set("text", text || "");
+  if (url) params.set("url", url);
+  return `${base}?${params.toString()}`;
+};
+
+export const facebookShareUrl = (url) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+
+export const linkedinShareUrl = (url, title) => {
+  const params = new URLSearchParams();
+  params.set("url", url);
+  if (title) params.set("title", title);
+  return `https://www.linkedin.com/sharing/share-offsite/?${params.toString()}`;
+};
+
+export const emailShareUrl = (subject, body) => {
+  const params = new URLSearchParams();
+  if (subject) params.set("subject", subject);
+  params.set("body", body || "");
+  return `mailto:?${params.toString()}`;
+};
