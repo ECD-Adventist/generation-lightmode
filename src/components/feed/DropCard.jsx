@@ -388,7 +388,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
       <div
         className={`relative w-full rounded-xl sm:rounded-[1.5rem] overflow-hidden shadow-inner ${
           drop.media_url
-            ? 'aspect-[4/5] sm:aspect-[3/4]'
+            ? ''
             : isKeepIt100 || isCodeOfTruth
               ? 'aspect-[4/5] flex flex-col justify-center items-center text-center'
               : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center'
@@ -400,7 +400,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
               ? { background: "#000000" }
               : isLeaderContent && !drop.media_url
                 ? { background: "linear-gradient(160deg, #070B18 0%, #0B1B3D 40%, #0B2870 80%, #0B1B3D 100%)" }
-                : { background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" }
+                : { background: drop.media_url ? "#FFFFFF" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" }
         }
         onClick={handlePostSurfaceClick}
       >
@@ -529,7 +529,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
         </div>
 
         {drop.media_url && (
-          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="w-full h-full object-contain" loading="lazy" />
+          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="block w-full h-auto" loading="lazy" />
         )}
 
         {!drop.media_url && (
@@ -696,6 +696,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
 
         {!isGuest && (
           <FeedActionCapsule
+            floating={!drop.media_url}
             more={
               <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
                 <DropdownMenuTrigger asChild>
@@ -730,7 +731,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
           </FeedActionCapsule>
         )}
         {isGuest && (
-          <div className="absolute left-0 right-0 bottom-0 z-30 flex flex-row items-center justify-center gap-3 px-4 py-3" style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%)" }}>
+          <div className={`${drop.media_url ? "relative" : "absolute left-0 right-0 bottom-0"} z-30 flex flex-row items-center justify-center gap-3 px-4 py-3`} style={{ background: drop.media_url ? "transparent" : "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%)" }}>
             <button type="button" onClick={handleShareClick} className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] shadow-lg" aria-label="Share post">
               <Share2 className="w-5 h-5 text-[#0B3FD9]" />
             </button>
