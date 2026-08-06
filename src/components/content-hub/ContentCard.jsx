@@ -18,6 +18,7 @@ export default function ContentCard({ item }) {
   const [shareMenuView, setShareMenuView] = useState("main");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [thumbFailed, setThumbFailed] = useState(false);
   const queryClient = useQueryClient();
   const meta = typeMeta(item.content_type);
   const shareUrl = getSharePreviewUrl("content", item.id);
@@ -135,8 +136,8 @@ export default function ContentCard({ item }) {
         className="relative aspect-video cursor-pointer"
         style={{ background: `${meta.color}10` }}
       >
-        {item.thumbnail_url
-          ? <img src={item.thumbnail_url} className="w-full h-full object-cover" alt={item.title} loading="lazy" decoding="async" width="640" height="360" />
+        {item.thumbnail_url && !thumbFailed
+          ? <img src={item.thumbnail_url} className="w-full h-full object-cover" alt={item.title} loading="lazy" decoding="async" width="640" height="360" onError={() => setThumbFailed(true)} />
           : <div className="w-full h-full flex items-center justify-center text-4xl">{meta.emoji}</div>}
         <span className="absolute top-2 right-2 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: "rgba(11,15,26,0.85)", color: "#C8D0E0", border: "1px solid rgba(255,255,255,0.15)" }}>
           {item.language}
@@ -209,11 +210,12 @@ export default function ContentCard({ item }) {
 
 export function LockedContentCard({ item }) {
   const meta = typeMeta(item.content_type);
+  const [thumbFailed, setThumbFailed] = useState(false);
   return (
     <div className="rounded-2xl overflow-hidden relative" style={{ background: "#121826", border: "1px solid rgba(255,255,255,0.06)", opacity: 0.85 }}>
       <div className="relative aspect-video" style={{ background: "rgba(255,255,255,0.03)" }}>
-        {item.thumbnail_url
-          ? <img src={item.thumbnail_url} className="w-full h-full object-cover blur-[6px] scale-105" alt="" loading="lazy" />
+        {item.thumbnail_url && !thumbFailed
+          ? <img src={item.thumbnail_url} className="w-full h-full object-cover blur-[6px] scale-105" alt="" loading="lazy" onError={() => setThumbFailed(true)} />
           : <div className="w-full h-full flex items-center justify-center text-4xl opacity-30">{meta.emoji}</div>}
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5" style={{ background: "rgba(11,15,26,0.6)" }}>
           <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,208,0,0.12)", border: "1px solid rgba(255,208,0,0.35)" }}>
