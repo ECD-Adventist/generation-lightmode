@@ -1,7 +1,9 @@
+import { Clapperboard, Image as ImageIcon, Sparkles } from "lucide-react";
+
 export const CONTENT_TYPES = [
-  { id: "video", label: "Video", emoji: "🎬", color: "#00CFFF" },
-  { id: "poster", label: "Poster", emoji: "🖼️", color: "#FFD000" },
-  { id: "animation", label: "Animation", emoji: "✨", color: "#8A5CFF" },
+  { id: "video", label: "Video", icon: Clapperboard, color: "#00CFFF" },
+  { id: "poster", label: "Poster", icon: ImageIcon, color: "#FFD000" },
+  { id: "animation", label: "Animation", icon: Sparkles, color: "#8A5CFF" },
 ];
 
 export const CONTENT_LANGUAGES = [

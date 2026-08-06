@@ -22,6 +22,8 @@ export default function ContentHub() {
   const [langFilter, setLangFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [sharedPreviewId, setSharedPreviewId] = useState(() => new URLSearchParams(window.location.search).get("item"));
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toLocaleDateString("en-CA"));
+  const [viewAll, setViewAll] = useState(false);
 
   const { data: items = [], isLoading: loading } = useQuery({
     queryKey: ["digital-content-public"],
@@ -69,8 +71,10 @@ export default function ContentHub() {
     );
   }, [items, typeFilter, langFilter, search]);
 
-  const unlockedItems = filtered.filter(i => i.unlocked);
-  const lockedItems = filtered.filter(i => !i.unlocked).sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
+  const dateFiltered = viewAll ? filtered : filtered.filter(i => new Date(i.scheduled_at).toLocaleDateString("en-CA") === selectedDate);
+  const unlockedItems = dateFiltered.filter(i => i.unlocked);
+  const lockedItems = dateFiltered.filter(i => !i.unlocked).sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
+  const horizontal = !viewAll && langFilter === "all";
 
   const chip = (active, color = "#00CFFF") => ({
     padding: "8px 16px", borderRadius: 999, fontSize: 12, fontWeight: 700, cursor: "pointer",
@@ -111,13 +115,30 @@ export default function ContentHub() {
         </div>
       </section>
 
+      {/* Date Picker */}
+      <section className="px-6 pb-4">
+        <div className="max-w-6xl mx-auto flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 rounded-full px-4 py-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(0,207,255,0.2)" }}>
+            <CalendarDays size={15} style={{ color: "#00CFFF" }} />
+            <input type="date" value={selectedDate} onChange={e => { setSelectedDate(e.target.value); setViewAll(false); }}
+              className="bg-transparent text-sm text-white outline-none" style={{ colorScheme: "dark" }} />
+          </div>
+          <button style={chip(viewAll, "#8A5CFF")} onClick={() => setViewAll(v => !v)}>{viewAll ? "Show Selected Date" : "View All Content"}</button>
+        </div>
+      </section>
+
       {/* Filters */}
       <section className="px-6 pb-6">
         <div className="max-w-6xl mx-auto flex flex-wrap justify-center gap-2">
           <button style={chip(typeFilter === "all")} onClick={() => setTypeFilter("all")}>All Types</button>
-          {CONTENT_TYPES.map(t => (
-            <button key={t.id} style={chip(typeFilter === t.id, t.color)} onClick={() => setTypeFilter(t.id)}>{t.emoji} {t.label}s</button>
-          ))}
+          {CONTENT_TYPES.map(t => {
+            const Icon = t.icon;
+            return (
+              <button key={t.id} style={chip(typeFilter === t.id, t.color)} onClick={() => setTypeFilter(t.id)}>
+                <Icon size={13} className="inline align-text-bottom" /> {t.label}s
+              </button>
+            );
+          })}
           {languages.length > 1 && (
             <>
               <span className="w-px self-stretch mx-1" style={{ background: "rgba(255,255,255,0.1)" }} />
@@ -146,7 +167,7 @@ export default function ContentHub() {
                   <p className="text-xs" style={{ color: "#8A9BB0" }}>Check the schedule below — new content is on the way ⚡</p>
                 </div>
               ) : (
-                <ContentGroupedList items={unlockedItems} />
+                <ContentGroupedList items={unlockedItems} horizontal={horizontal} />
               )}
             </div>
           </section>
@@ -159,7 +180,7 @@ export default function ContentHub() {
                   <CalendarDays size={17} style={{ color: "#FFD000" }} /> Coming Up
                 </h2>
                 <p className="text-xs mb-4" style={{ color: "#8A9BB0" }}>These unlock at one global moment; the time shown on each item is automatically converted to your local timezone.</p>
-                <ContentGroupedList items={lockedItems} locked />
+                <ContentGroupedList items={lockedItems} locked horizontal={horizontal} />
               </div>
             </section>
           )}

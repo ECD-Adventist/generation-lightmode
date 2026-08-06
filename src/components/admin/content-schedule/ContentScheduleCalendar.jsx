@@ -81,7 +81,7 @@ export default function ContentScheduleCalendar({ items, onAddClick, onItemClick
                       className="w-full text-left rounded px-1 py-0.5 text-[9px] font-semibold truncate block transition hover:opacity-80"
                       style={{ background: `${meta.color}20`, color: meta.color, border: `1px solid ${meta.color}35` }}
                       title={item.title}>
-                      {meta.emoji} {item.title}
+                      <meta.icon size={10} className="inline-block" /> {item.title}
                     </button>
                   );
                 })}

@@ -5,6 +5,7 @@ import { Save, Share2, Loader2, Lock, Copy, Check, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { typeMeta } from "./contentConstants";
 import ContentPreviewModal from "./ContentPreviewModal";
+import ContentRepostButton from "./ContentRepostButton";
 import BrandIcon from "./BrandIcon";
 import ContentThumbnail from "./ContentThumbnail";
 import { fetchContentFile, saveContentFile } from "./contentMedia";
@@ -139,7 +140,7 @@ export default function ContentCard({ item, priority = false }) {
         <ContentThumbnail
           item={item}
           priority={priority}
-          fallback={<div className="w-full h-full flex items-center justify-center text-4xl">{meta.emoji}</div>}
+          fallback={<div className="w-full h-full flex items-center justify-center"><meta.icon className="w-8 h-8" style={{ color: meta.color }} /></div>}
         />
         <span className="absolute top-2 right-2 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: "rgba(11,15,26,0.85)", color: "#C8D0E0", border: "1px solid rgba(255,255,255,0.15)" }}>
           {item.language}
@@ -161,6 +162,7 @@ export default function ContentCard({ item, priority = false }) {
             style={{ background: meta.color, color: "#0B0F1A" }}>
             {downloading ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Download
           </button>
+          <ContentRepostButton item={item} />
           <div className="relative">
             <button type="button" onClick={toggleShareMenu}
               className="w-10 h-10 rounded-full flex items-center justify-center transition active:scale-95"

@@ -20,7 +20,7 @@ export default function DayContentPanel({ date, items, onAdd, onEdit }) {
         <div className="space-y-2 max-h-80 overflow-y-auto">
           {items.map(item => { const meta = typeMeta(item.content_type); return (
             <button key={item.id} onClick={() => onEdit(item)} className="w-full min-h-14 flex items-center gap-3 rounded-xl p-2 text-left hover:opacity-80" style={{ background: `${meta.color}10`, border: `1px solid ${meta.color}25` }}>
-              <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0"><ContentThumbnail item={item} fallback={<div className="w-full h-full flex items-center justify-center">{meta.emoji}</div>} /></div>
+              <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0"><ContentThumbnail item={item} fallback={<div className="w-full h-full flex items-center justify-center"><meta.icon className="w-6 h-6" style={{ color: meta.color }} /></div>} /></div>
               <span className="flex-1 min-w-0"><span className="block text-xs font-bold truncate" style={{ color: t.textPrimary }}>{item.title}</span><span className="block text-[10px]" style={{ color: t.textMuted }}>{new Date(item.scheduled_at).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })} · {meta.label} · {item.language}</span></span>
               <Pencil size={14} className="shrink-0" style={{ color: t.textSecondary }} />
             </button>

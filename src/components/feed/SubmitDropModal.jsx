@@ -25,6 +25,7 @@ export default function SubmitDropModal({ isOpen, onClose, user }) {
   const [aiLoading, setAiLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [dragOver, setDragOver] = useState(false);
   const [mood, setMood] = useState("");
   const [showSuggestion, setShowSuggestion] = useState(true);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -136,6 +137,14 @@ RULES:
     const selected = e.target.files?.[0];
     await preparePhotoForEditing(selected);
     e.target.value = "";
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+    const selected = e.dataTransfer.files?.[0];
+    if (selected) await preparePhotoForEditing(selected);
   };
 
   const handleSamplePhoto = async () => {
@@ -657,12 +666,15 @@ RULES:
                   <label
                     htmlFor="glow-drop-photo-input"
                     aria-label="Choose a photo for your Glow Drop"
+                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={(e) => { e.preventDefault(); setDragOver(false); }}
+                    onDrop={handleDrop}
                     className={`w-full h-28 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-2 group ${loading || compressing ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
-                    style={{ borderColor: "#D6E4FF", background: "#F6F8FC" }}
+                    style={{ borderColor: dragOver ? "#00CFFF" : "#D6E4FF", background: dragOver ? "rgba(0,207,255,0.05)" : "#F6F8FC" }}
                   >
-                    <ImagePlus className="w-8 h-8 transition-colors" style={{ color: "#8A97B5" }} />
-                    <span className="text-xs transition-colors font-medium" style={{ color: "#8A97B5" }}>
-                      Tap to add a photo
+                    <ImagePlus className="w-8 h-8 transition-colors" style={{ color: dragOver ? "#00CFFF" : "#8A97B5" }} />
+                    <span className="text-xs transition-colors font-medium" style={{ color: dragOver ? "#00CFFF" : "#8A97B5" }}>
+                      {dragOver ? "Drop photo here" : "Tap or drag a photo here"}
                     </span>
                   </label>
                   <button
