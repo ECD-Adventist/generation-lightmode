@@ -38,11 +38,15 @@ export default function ContentHub() {
   });
 
   useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "preconnect";
-    link.href = "https://drive.google.com";
-    document.head.appendChild(link);
-    return () => link.remove();
+    const hosts = ["https://drive.google.com", "https://media.base44.com"];
+    const links = hosts.map((href) => {
+      const link = document.createElement("link");
+      link.rel = "preconnect";
+      link.href = href;
+      document.head.appendChild(link);
+      return link;
+    });
+    return () => links.forEach(link => link.remove());
   }, []);
 
   const sharedPreview = items.find(item => item.id === sharedPreviewId && item.unlocked) || null;
@@ -143,7 +147,7 @@ export default function ContentHub() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {unlockedItems.map(item => <ContentCard key={item.id} item={item} />)}
+                  {unlockedItems.map((item, index) => <ContentCard key={item.id} item={item} priority={index < 3} />)}
                 </div>
               )}
             </div>

@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { fetchContentFile } from "./contentMedia";
+import ContentThumbnail from "./ContentThumbnail";
 
 export default function ContentPreviewModal({ item, open, onClose }) {
   const [mediaUrl, setMediaUrl] = useState("");
@@ -47,10 +48,14 @@ export default function ContentPreviewModal({ item, open, onClose }) {
         {/* Media keeps its own aspect ratio — portrait stays portrait on every device. */}
         <div className="bg-black flex items-center justify-center min-h-[220px] max-h-[75vh] overflow-hidden">
           {!mediaUrl && !failed && <Loader2 className="w-7 h-7 animate-spin text-white/60" />}
-          {failed && item.thumbnail_url && (
-            <img src={item.thumbnail_url} alt={item.title} className="max-w-full max-h-[75vh] w-auto h-auto object-contain" />
+          {failed && (
+            <ContentThumbnail
+              item={item}
+              priority
+              className="max-w-full max-h-[75vh] w-auto h-auto object-contain"
+              fallback={<p className="text-sm text-white/60">Preview unavailable</p>}
+            />
           )}
-          {failed && !item.thumbnail_url && <p className="text-sm text-white/60">Preview unavailable</p>}
           {mediaUrl && (isVideo
             ? <video src={mediaUrl} className="max-w-full max-h-[75vh] w-auto h-auto" controls playsInline />
             : <img src={mediaUrl} alt={item.title} className="max-w-full max-h-[75vh] w-auto h-auto object-contain" />)}

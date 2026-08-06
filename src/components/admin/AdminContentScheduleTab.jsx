@@ -8,6 +8,7 @@ import ContentScheduleCalendar from "./content-schedule/ContentScheduleCalendar"
 import ContentStatsPanel from "./content-schedule/ContentStatsPanel";
 import { typeMeta } from "@/components/content-hub/contentConstants";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
+import ContentThumbnail from "@/components/content-hub/ContentThumbnail";
 
 export default function AdminContentScheduleTab() {
   const { theme } = useAdminTheme();
@@ -85,7 +86,7 @@ export default function AdminContentScheduleTab() {
       {isLoading ? (
         <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin" style={{ color: t.accent }} /></div>
       ) : view === "calendar" ? (
-        <ContentScheduleCalendar items={items} onDayClick={openNew} onItemClick={openEdit} />
+        <ContentScheduleCalendar items={items} onAddClick={openNew} onItemClick={openEdit} />
       ) : view === "stats" ? (
         <ContentStatsPanel items={items} engagements={engagements} />
       ) : (
@@ -101,9 +102,9 @@ export default function AdminContentScheduleTab() {
             const unlocked = new Date(item.scheduled_at).getTime() <= now;
             return (
               <div key={item.id} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: t.surface, border: `1px solid ${t.border}` }}>
-                {item.thumbnail_url
-                  ? <img src={item.thumbnail_url} className="w-14 h-14 rounded-xl object-cover shrink-0" alt="" />
-                  : <div className="w-14 h-14 rounded-xl flex items-center justify-center text-xl shrink-0" style={{ background: `${meta.color}15` }}>{meta.emoji}</div>}
+                <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0">
+                  <ContentThumbnail item={{ ...item, unlocked }} fallback={<div className="w-full h-full flex items-center justify-center text-xl" style={{ background: `${meta.color}15` }}>{meta.emoji}</div>} />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-bold truncate" style={{ color: t.textPrimary }}>{item.title}</p>

@@ -2,14 +2,16 @@ import React, { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { typeMeta } from "@/components/content-hub/contentConstants";
 import { useAdminTheme, getAdminTokens } from "../AdminThemeContext";
+import DayContentPanel from "./DayContentPanel";
 
 const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
-export default function ContentScheduleCalendar({ items, onDayClick, onItemClick }) {
+export default function ContentScheduleCalendar({ items, onAddClick, onItemClick }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
   const [month, setMonth] = useState(() => { const d = new Date(); d.setDate(1); return d; });
+  const [selectedDay, setSelectedDay] = useState("");
 
   const itemsByDay = useMemo(() => {
     const map = {};
@@ -60,11 +62,11 @@ export default function ContentScheduleCalendar({ items, onDayClick, onItemClick
           const isToday = key === todayKey;
           return (
             <div key={key}
-              onClick={() => onDayClick(key)}
+              onClick={() => setSelectedDay(key)}
               className="min-h-[74px] rounded-lg p-1 cursor-pointer group transition"
               style={{
                 background: isToday ? (isDark ? "rgba(0,207,255,0.08)" : "rgba(11,63,217,0.06)") : (isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"),
-                border: `1px solid ${isToday ? (isDark ? "rgba(0,207,255,0.35)" : "rgba(11,63,217,0.3)") : t.border}`,
+                border: `1px solid ${selectedDay === key ? t.accent : isToday ? (isDark ? "rgba(0,207,255,0.35)" : "rgba(11,63,217,0.3)") : t.border}`,
               }}>
               <div className="flex items-center justify-between px-0.5">
                 <span className="text-[10px] font-bold" style={{ color: isToday ? t.accent : t.textSecondary }}>{date.getDate()}</span>
@@ -89,6 +91,14 @@ export default function ContentScheduleCalendar({ items, onDayClick, onItemClick
           );
         })}
       </div>
+      {selectedDay && (
+        <DayContentPanel
+          date={selectedDay}
+          items={itemsByDay[selectedDay] || []}
+          onAdd={onAddClick}
+          onEdit={onItemClick}
+        />
+      )}
     </div>
   );
 }
