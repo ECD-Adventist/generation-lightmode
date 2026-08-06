@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Loader2, CalendarDays, Search } from "lucide-react";
 import MobileSubPageHeader from "@/components/mobile/MobileSubPageHeader";
-import ContentCard, { LockedContentCard } from "@/components/content-hub/ContentCard";
+import ContentGroupedList from "@/components/content-hub/ContentGroupedList";
 import ContentPreviewModal from "@/components/content-hub/ContentPreviewModal";
 import { CONTENT_TYPES } from "@/components/content-hub/contentConstants";
 
@@ -146,9 +146,7 @@ export default function ContentHub() {
                   <p className="text-xs" style={{ color: "#8A9BB0" }}>Check the schedule below — new content is on the way ⚡</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {unlockedItems.map((item, index) => <ContentCard key={item.id} item={item} priority={index < 3} />)}
-                </div>
+                <ContentGroupedList items={unlockedItems} />
               )}
             </div>
           </section>
@@ -160,10 +158,8 @@ export default function ContentHub() {
                 <h2 className="glm-headline text-lg text-white mb-1 flex items-center gap-2">
                   <CalendarDays size={17} style={{ color: "#FFD000" }} /> Coming Up
                 </h2>
-                <p className="text-xs mb-4" style={{ color: "#8A9BB0" }}>These drop automatically at their scheduled day & time — come back to unlock them.</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {lockedItems.map(item => <LockedContentCard key={item.id} item={item} />)}
-                </div>
+                <p className="text-xs mb-4" style={{ color: "#8A9BB0" }}>These unlock at one global moment; the time shown on each item is automatically converted to your local timezone.</p>
+                <ContentGroupedList items={lockedItems} locked />
               </div>
             </section>
           )}

@@ -5,6 +5,7 @@ import { Loader2, Upload, Link2, CheckCircle2, AlertCircle, HardDrive, Trash2 } 
 import { toast } from "sonner";
 import DrivePickerModal from "./DrivePickerModal";
 import { CONTENT_TYPES, CONTENT_LANGUAGES } from "@/components/content-hub/contentConstants";
+import GlobalTimePreview from "./GlobalTimePreview";
 
 function extractDriveId(link) {
   const str = String(link || "");
@@ -203,14 +204,16 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-white/60 mb-1 block">Unlock Date *</label>
+              <label className="text-xs font-bold text-white/60 mb-1 block">Global Release Date *</label>
               <input type="date" className={inputCls} value={form.date} onChange={e => set("date", e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-bold text-white/60 mb-1 block">Unlock Time *</label>
+              <label className="text-xs font-bold text-white/60 mb-1 block">Time in Your Timezone *</label>
               <input type="time" className={inputCls} value={form.time} onChange={e => set("time", e.target.value)} />
             </div>
           </div>
+
+          <GlobalTimePreview date={form.date} time={form.time} />
 
           <div className="flex gap-2">
             {item && (
