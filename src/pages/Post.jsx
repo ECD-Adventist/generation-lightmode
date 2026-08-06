@@ -40,7 +40,7 @@ export default function Post() {
     queryKey: ["allUsers"],
     queryFn: async () => {
       const res = await base44.functions.invoke("listPublicUsers", {});
-      return res.data;
+      return Array.isArray(res.data) ? res.data : [];
     },
     enabled: !!currentUser,
   });
