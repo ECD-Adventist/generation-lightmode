@@ -63,6 +63,43 @@ export default function ContentCard({ item, priority = false }) {
 
   const handleShare = async (platform, nativeAppLabel = "") => {
     const context = { contentType: "content_hub", contentId: item.id, platform };
+    // WhatsApp: prefer native share with file attachment so recipients can reshare
+    // the actual image on their WhatsApp Status, not just a link.
+    if (platform === "whatsapp" && typeof navigator.share === "function") {
+      if (typeof navigator.canShare === "function" && item.thumbnail_url) {
+        try {
+          const res = await fetch(item.thumbnail_url, { mode: "cors" });
+          if (res.ok) {
+            const blob = await res.blob();
+            const file = new File([blob], `content-${item.id}.png`, { type: blob.type || "image/png" });
+            if (navigator.canShare({ files: [file] })) {
+              await navigator.share({ title: item.title || "Generation LightMode", text: shareText, files: [file] });
+              setShareOpen(false);
+              track("share", "whatsapp").catch(() => {});
+              return;
+            }
+          }
+        } catch (err) {
+          if (err?.name === "AbortError") return;
+          // Fall through to text-only native share
+        }
+      }
+      const result = await tryNativeShare({ title: item.title || "Generation LightMode", text: shareText, url: shareUrl }, context);
+      if (result.status === "shared") {
+        setShareOpen(false);
+        track("share", "whatsapp").catch(() => {});
+        return;
+      }
+      // Desktop fallback: open wa.me with the share link
+      const target = buildDirectShareUrl("whatsapp", shareUrl, shareText, item.title);
+      if (target && openShareWindow(target, context)) {
+        setShareOpen(false);
+        track("share", "whatsapp").catch(() => {});
+        return;
+      }
+      setShareOpen(true);
+      return;
+    }
     if (platform === "copy_link") {
       try {
         await copyShareLink(shareUrl);

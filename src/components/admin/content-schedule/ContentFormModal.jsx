@@ -212,6 +212,44 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
             </div>
           </div>
 
+          {form.date && form.time && (() => {
+            const scheduledDate = new Date(`${form.date}T${form.time}`);
+            if (isNaN(scheduledDate.getTime())) return null;
+            const adminTz = Intl.DateTimeFormat().resolvedOptions().timeZone || "local";
+            const ECD_CITIES = [
+              { city: "Nairobi", tz: "Africa/Nairobi" },
+              { city: "Addis Ababa", tz: "Africa/Addis_Ababa" },
+              { city: "Dar es Salaam", tz: "Africa/Dar_es_Salaam" },
+              { city: "Kampala", tz: "Africa/Kampala" },
+              { city: "Kigali", tz: "Africa/Kigali" },
+              { city: "Bujumbura", tz: "Africa/Bujumbura" },
+              { city: "Lubumbashi / Goma", tz: "Africa/Lubumbashi" },
+              { city: "Kinshasa", tz: "Africa/Kinshasa" },
+            ];
+            const fmt = (tz) => new Intl.DateTimeFormat("en-GB", {
+              timeZone: tz, weekday: "short", day: "numeric", month: "short",
+              hour: "2-digit", minute: "2-digit", hour12: true,
+            }).format(scheduledDate);
+            return (
+              <div className="rounded-xl p-3" style={{ background: "rgba(0,207,255,0.05)", border: "1px solid rgba(0,207,255,0.2)" }}>
+                <p className="text-[11px] font-bold mb-1" style={{ color: "#00CFFF" }}>
+                  🌍 Content unlocks simultaneously for all users at this moment:
+                </p>
+                <p className="text-[10px] mb-2" style={{ color: "#8A9BB0" }}>
+                  Your timezone: {adminTz}. Equivalent local times across the Division:
+                </p>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                  {ECD_CITIES.map(({ city, tz }) => (
+                    <div key={tz} className="flex justify-between text-[10px]">
+                      <span style={{ color: "#8A9BB0" }}>{city}</span>
+                      <span className="font-semibold text-white">{fmt(tz)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
           <div className="flex gap-2">
             {item && (
               <button onClick={handleDelete} disabled={deleting || saving}
