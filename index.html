@@ -32,11 +32,18 @@
       <style>@keyframes splashSpin { to { transform:rotate(360deg); } }</style>
     </div>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
+    <script type="module">
       if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/sw.js").catch(() => {});
-        });
+        if (import.meta.env.DEV) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map((registration) => registration.unregister()));
+          const cacheNames = await caches.keys();
+          await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
+        } else {
+          window.addEventListener("load", () => {
+            navigator.serviceWorker.register("/sw.js").catch(() => {});
+          });
+        }
       }
     </script>
   </body>

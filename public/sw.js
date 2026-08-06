@@ -6,16 +6,25 @@
 // renders a blank page (the app has no /auth/login route, and a stale asset
 // hash leaves #root empty). Same applies to /api/*.
 
-const CACHE_NAME = "lightmode-shell-v3";
+const CACHE_NAME = "lightmode-shell-v4";
 const SHELL_URL = "/";
 
 // Paths the service worker must stay completely out of.
 const BYPASS_PREFIXES = ["/auth", "/api", "/login", "/logout", "/oauth"];
+const DEV_PREFIXES = ["/src", "/node_modules/.vite", "/@vite", "/@react-refresh"];
 
 function shouldBypass(url) {
   return BYPASS_PREFIXES.some(
     (prefix) => url.pathname === prefix || url.pathname.startsWith(prefix + "/")
   );
+}
+
+function shouldUseNetworkOnly(request, url) {
+  return DEV_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))
+    || request.destination === "script"
+    || request.destination === "style"
+    || url.pathname.endsWith(".js")
+    || url.pathname.endsWith(".css");
 }
 
 self.addEventListener("install", (event) => {
@@ -51,6 +60,13 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
   if (shouldBypass(url)) return;
 
+  // Never cache development modules or executable/style bundles. This prevents
+  // mixed React runtimes after deployments and during Vite hot reloads.
+  if (shouldUseNetworkOnly(request, url)) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
   // Page navigations: network-first, fall back to the cached shell only offline.
   if (request.mode === "navigate") {
     event.respondWith(
@@ -65,7 +81,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets: cache-first, refresh in the background.
+  // Non-executable static assets: cache-first, refresh in the background.
   event.respondWith(
     caches.match(request).then((cached) => {
       const network = fetch(request)
