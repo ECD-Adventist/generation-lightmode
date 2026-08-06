@@ -15,6 +15,7 @@ import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import RepostButton from "@/components/feed/RepostButton";
 import PostMusicEditor from "@/components/feed/PostMusicEditor";
 import PostAudioTrack from "@/components/feed/PostAudioTrack";
+import FeedActionCapsule, { FeedActionItem } from "@/components/feed/FeedActionCapsule";
 
 /**
  * Lightweight mobile-only DropCard.
@@ -151,14 +152,6 @@ function MobileDropCard({
           </Link>
           <div className="flex shrink-0 items-center gap-1.5">
             {canFollowAuthor && <button onClick={() => followMutation?.mutate(drop.user_email)} className="rounded-full px-3 py-2 text-[10px] font-black text-white" style={{ background: "#0B3FD9" }}>Follow</button>}
-            <button onClick={() => toggleSaveMutation.mutate()} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ color: isSaved ? "#F59E0B" : "#0B3FD9", background: "#F3F7FC" }} aria-label={isSaved ? "Remove from saved" : "Save post"}><Bookmark className={`w-4 h-4 ${isSaved ? "fill-amber-400 text-amber-400" : ""}`} /></button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild><button className="w-8 h-8 rounded-full flex items-center justify-center" style={{ color: "#0B3FD9", background: "#F3F7FC" }} aria-label="Post options"><MoreHorizontal className="w-4 h-4" /></button></DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
-                {canEditMusic && <DropdownMenuItem onClick={() => setMusicEditorOpen(true)}>{drop.audio_url ? "Change Music" : "Add Music"}</DropdownMenuItem>}
-                {canDelete ? <DropdownMenuItem className="text-red-500" onClick={() => { if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }}>Delete Post</DropdownMenuItem> : <DropdownMenuItem onClick={() => { if (!user) return toast.error("Please log in to report"); const reason = window.prompt("Why are you reporting this content?"); if (reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Reported")); }}>Report Post</DropdownMenuItem>}
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
       )}
@@ -183,7 +176,7 @@ function MobileDropCard({
           ) : isCodeOfTruth ? (
             <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
           ) : (
-            <div className="absolute inset-0 pl-6 pr-[5.75rem] pt-20 pb-10 flex flex-col items-center justify-center text-center" style={{ background: "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
+            <div className="absolute inset-0 px-6 pt-20 pb-24 flex flex-col items-center justify-center text-center" style={{ background: "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
               {drop.verse && (
                 <p className="text-[20px] font-black leading-tight mb-4 line-clamp-7" style={{ color: "#62A4FF", fontFamily: "Space Grotesk, Inter, sans-serif" }}>
                   {drop.verse}
@@ -224,24 +217,24 @@ function MobileDropCard({
           </button>
         )}
 
-        {!drop.media_url && <div className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
-          <button onClick={handleLike} className="flex flex-col items-center gap-1 active:scale-95 transition"><span className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] text-[#0B3FD9]"><Heart className={`w-5 h-5 ${userHasLiked ? "fill-red-500 text-red-500" : ""}`} /></span><span className="text-[11px] font-black text-[#0B1B3D]">{drop.likes_count || 0}</span></button>
-          <Link to={postLink} className="flex flex-col items-center gap-1 no-underline"><span className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] text-[#0B3FD9]"><MessageCircle className="w-5 h-5" /></span><span className="text-[11px] font-black text-[#0B1B3D]">0</span></Link>
-          <button type="button" onClick={(event) => { event.stopPropagation(); handleShare(drop); }} className="flex flex-col items-center gap-1"><span className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] text-[#0B3FD9]"><Share2 className="w-5 h-5" /></span><span className="text-[11px] font-black text-[#0B1B3D]">{drop.shares_count || 0}</span></button>
-          <RepostButton drop={drop} user={user} dark={hasDarkActionBackdrop} />
-          <button onClick={() => toggleSaveMutation.mutate()} className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] text-[#0B3FD9]"><Bookmark className={`w-5 h-5 ${isSaved ? "fill-amber-400 text-amber-400" : ""}`} /></button>
-          <DropdownMenu><DropdownMenuTrigger asChild><button className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] text-[#0B3FD9]"><MoreHorizontal className="w-5 h-5" /></button></DropdownMenuTrigger><DropdownMenuContent align="end" className="w-44"><DropdownMenuItem onClick={() => setMusicEditorOpen(true)}>{drop.audio_url ? "Change Music" : "Add Music"}</DropdownMenuItem>{canDelete && <DropdownMenuItem className="text-red-500" onClick={() => { if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }}>Delete Post</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu>
-        </div>}
+        <FeedActionCapsule
+          more={
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild><button className="w-[50px] h-[50px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF]" aria-label="Post options"><MoreHorizontal className="w-5 h-5" /></button></DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                {(drop.media_url ? canEditMusic : true) && <DropdownMenuItem onClick={() => setMusicEditorOpen(true)}>{drop.audio_url ? "Change Music" : "Add Music"}</DropdownMenuItem>}
+                {canDelete ? <DropdownMenuItem className="text-red-500" onClick={() => { if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }}>Delete Post</DropdownMenuItem> : drop.media_url ? <DropdownMenuItem onClick={() => { if (!user) return toast.error("Please log in to report"); const reason = window.prompt("Why are you reporting this content?"); if (reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Reported")); }}>Report Post</DropdownMenuItem> : null}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          }
+        >
+          <FeedActionItem icon={<Heart className={`w-5 h-5 ${userHasLiked ? "fill-[#F4C84A]" : ""}`} />} label="Like" value={drop.likes_count || 0} active={userHasLiked} onClick={handleLike} />
+          <FeedActionItem icon={<MessageCircle className="w-5 h-5" />} label="Comment" value={0} to={postLink} />
+          <FeedActionItem icon={<Share2 className="w-5 h-5" />} label="Share" value={drop.shares_count || 0} onClick={(event) => { event.stopPropagation(); handleShare(drop); }} />
+          <RepostButton drop={drop} user={user} capsule />
+          <FeedActionItem icon={<Bookmark className={`w-5 h-5 ${isSaved ? "fill-current" : ""}`} />} label={isSaved ? "Saved" : "Save"} active={isSaved} onClick={() => toggleSaveMutation.mutate()} />
+        </FeedActionCapsule>
       </div>
-
-      {drop.media_url && (
-        <div className="grid grid-cols-4 px-4 py-3" style={{ background: "linear-gradient(135deg, #071A33 0%, #082847 100%)", boxShadow: "0 8px 24px rgba(7,26,51,0.2)" }}>
-          <button onClick={handleLike} className="flex flex-col items-center gap-1 text-white"><Heart className={`w-5 h-5 text-[#18C8E8] ${userHasLiked ? "fill-[#18C8E8]" : ""}`} /><span className="text-xs font-black">{drop.likes_count || 0}</span><span className="text-[10px] text-white/70">likes</span></button>
-          <Link to={postLink} className="flex flex-col items-center gap-1 text-white no-underline"><MessageCircle className="w-5 h-5 text-[#18C8E8]" /><span className="text-xs font-black">0</span><span className="text-[10px] text-white/70">comments</span></Link>
-          <button type="button" onClick={(event) => { event.stopPropagation(); handleShare(drop); }} className="flex flex-col items-center gap-1 text-white"><Share2 className="w-5 h-5 text-[#18C8E8]" /><span className="text-xs font-black">{drop.shares_count || 0}</span><span className="text-[10px] text-white/70">shares</span></button>
-          <RepostButton drop={drop} user={user} dock />
-        </div>
-      )}
 
       <PostMusicEditor drop={drop} isOpen={musicEditorOpen} onClose={() => setMusicEditorOpen(false)} />
 

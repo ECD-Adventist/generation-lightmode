@@ -24,6 +24,7 @@ import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 import RepostButton from "@/components/feed/RepostButton";
 import PostMusicEditor from "@/components/feed/PostMusicEditor";
 import PostAudioTrack from "@/components/feed/PostAudioTrack";
+import FeedActionCapsule, { FeedActionItem } from "@/components/feed/FeedActionCapsule";
 
 export default function DropCard({ drop, user, isGuest = false, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
@@ -693,116 +694,41 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
           </div>
         )}
 
-        {!isGuest && (() => {
-          // Leader text posts share the dark glass treatment with media posts.
-          const useGlass = drop.media_url || isLeaderContent || isKeepIt100 || isCodeOfTruth;
-          return (
-        <div className="absolute left-0 right-0 bottom-0 z-20 flex flex-row items-center justify-center gap-3 sm:gap-5 px-3 sm:px-4 py-2.5 sm:py-3" style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%)" }}>
-          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
-            <button
-              onClick={handleLike}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${likeBurst ? 'dc-anim-pulse' : ''} ${useGlass ? "bg-[#06112b]/85 backdrop-blur-md border border-cyan-300/40 shadow-[0_0_16px_rgba(0,207,255,0.24)]" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
-              title={userHasLiked ? "Unlike this drop" : "Like this drop"}
-            >
-              <Heart className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${likeBurst ? 'dc-anim-like' : ''} ${userHasLiked ? "text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" : useGlass ? "text-white hover:scale-110" : "text-blue-600 dark:text-blue-400 hover:scale-110"}`} />
-            </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${useGlass ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{drop.likes_count || 0}</span>
-          </div>
-
-          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
-            <button
-              onClick={handleCommentToggle}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${useGlass ? "bg-[#06112b]/85 backdrop-blur-md border border-cyan-300/40 shadow-[0_0_16px_rgba(0,207,255,0.24)]" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
-            >
-              <MessageCircle className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${commentBounce ? 'dc-anim-bounce' : ''} ${showComments ? "text-cyan-500" : useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
-            </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${useGlass ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{showComments ? comments.length : commentsCount}</span>
-          </div>
-
-          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
-            <button
-              type="button"
-              onClick={handleShareClick}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${sharePulse ? 'dc-anim-pulse' : ''} ${useGlass ? "bg-[#06112b]/85 backdrop-blur-md border border-cyan-300/40 shadow-[0_0_16px_rgba(0,207,255,0.24)]" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
-            >
-              <Share2 className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${sharePulse ? 'dc-anim-bounce' : ''} ${useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
-            </button>
-            <span className={`text-[11px] sm:text-xs font-bold ${useGlass ? "text-white drop-shadow-md" : "text-[#3A4A6B]"}`}>{drop.shares_count || 0}</span>
-          </div>
-
-          <RepostButton drop={drop} user={user} dark={useGlass} />
-
-          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
-            <button
-              onClick={handleSaveClick}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all focus:outline-none ${useGlass ? "bg-[#06112b]/85 backdrop-blur-md border border-cyan-300/40 shadow-[0_0_16px_rgba(0,207,255,0.24)]" : "bg-white border border-[#E2E8F0] shadow-sm"}`}
-            >
-              <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform hover:scale-110 ${saveBounce ? 'dc-anim-bounce' : ''} ${isSaved ? "fill-amber-400 text-amber-400" : useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
-            </button>
-          </div>
-
-          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
-            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v); }}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all focus:outline-none border ${useGlass ? "bg-[#06112b]/85 border-cyan-300/40 backdrop-blur-md shadow-[0_0_16px_rgba(0,207,255,0.24)]" : "bg-white border-[#E2E8F0] shadow-sm"}`}
-                >
-                  <MoreHorizontal className={`w-4 h-4 ${useGlass ? "text-white" : "text-blue-600 dark:text-blue-400"}`} />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-card border border-border text-foreground w-40 z-50">
-                {(() => {
-                  // Managers of the leader account whose email matches the drop owner can also delete.
-                  const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
-                  const isManagerOfLeader = !!leaderForDrop && Array.isArray(leaderForDrop.manager_emails) && leaderForDrop.manager_emails.includes(user?.email);
-                  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
-                  const canDelete = user?.email === drop.user_email || isManagerOfLeader || isAdmin;
-                  const canEditMusic = user?.email === drop.user_email || isManagerOfLeader;
-                  return canDelete ? (
-                    <>
-                      {canEditMusic && (
-                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setMusicEditorOpen(true); }} className="hover:bg-muted cursor-pointer focus:bg-muted">
-                          {drop.audio_url ? "Change Music" : "Add Music"}
-                        </DropdownMenuItem>
-                      )}
-                      {canEditMusic && drop.audio_url && (
-                        <DropdownMenuItem onClick={(e) => {
-                          e.stopPropagation();
-                          base44.entities.GlowDrop.update(drop.id, { audio_url: "", audio_title: "" })
-                            .then(() => { queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] }); toast.success("Music removed"); })
-                            .catch(() => toast.error("Could not remove music"));
-                        }} className="hover:bg-muted cursor-pointer focus:bg-muted">
-                          Remove Music
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }} className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer focus:bg-red-50 focus:text-red-600">
-                        Delete Post
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <DropdownMenuItem onClick={(e) => {
-                      e.stopPropagation();
-                      if(!user) return toast.error("Please login to report");
-                      const reason = window.prompt("Why are you reporting this content?");
-                      if(reason) {
-                        base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason })
-                          .then(() => toast.success("Content reported to moderators."));
-                      }
-                    }} className="hover:bg-muted cursor-pointer focus:bg-muted">
-                      Report Post
-                    </DropdownMenuItem>
-                  );
-                })()}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            {drop.reposts_count > 0 && <span className="text-white text-[11px] sm:text-xs font-bold drop-shadow-md">{drop.reposts_count}</span>}
-          </div>
-        </div>
-          );
-        })()}
+        {!isGuest && (
+          <FeedActionCapsule
+            more={
+              <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+                <DropdownMenuTrigger asChild>
+                  <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v); }} className="w-[50px] h-[50px] sm:w-[56px] sm:h-[56px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF] focus:outline-none" aria-label="More post options">
+                    <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-card border border-border text-foreground w-40 z-50">
+                  {(() => {
+                    const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
+                    const isManagerOfLeader = !!leaderForDrop && Array.isArray(leaderForDrop.manager_emails) && leaderForDrop.manager_emails.includes(user?.email);
+                    const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+                    const canDelete = user?.email === drop.user_email || isManagerOfLeader || isAdmin;
+                    const canEditMusic = user?.email === drop.user_email || isManagerOfLeader;
+                    return canDelete ? (
+                      <>
+                        {canEditMusic && <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setMusicEditorOpen(true); }} className="hover:bg-muted cursor-pointer focus:bg-muted">{drop.audio_url ? "Change Music" : "Add Music"}</DropdownMenuItem>}
+                        {canEditMusic && drop.audio_url && <DropdownMenuItem onClick={(e) => { e.stopPropagation(); base44.entities.GlowDrop.update(drop.id, { audio_url: "", audio_title: "" }).then(() => { queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] }); toast.success("Music removed"); }).catch(() => toast.error("Could not remove music")); }} className="hover:bg-muted cursor-pointer focus:bg-muted">Remove Music</DropdownMenuItem>}
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }} className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer focus:bg-red-50 focus:text-red-600">Delete Post</DropdownMenuItem>
+                      </>
+                    ) : <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if(!user) return toast.error("Please login to report"); const reason = window.prompt("Why are you reporting this content?"); if(reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Content reported to moderators.")); }} className="hover:bg-muted cursor-pointer focus:bg-muted">Report Post</DropdownMenuItem>;
+                  })()}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            }
+          >
+            <FeedActionItem icon={<Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${userHasLiked ? "fill-[#F4C84A]" : ""}`} />} label="Like" value={drop.likes_count || 0} active={userHasLiked} onClick={handleLike} ariaLabel={userHasLiked ? "Unlike this drop" : "Like this drop"} />
+            <FeedActionItem icon={<MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />} label="Comment" value={showComments ? comments.length : commentsCount} active={showComments} onClick={handleCommentToggle} />
+            <FeedActionItem icon={<Share2 className="w-5 h-5 sm:w-6 sm:h-6" />} label="Share" value={drop.shares_count || 0} onClick={handleShareClick} />
+            <RepostButton drop={drop} user={user} capsule />
+            <FeedActionItem icon={<Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 ${isSaved ? "fill-current" : ""}`} />} label={isSaved ? "Saved" : "Save"} active={isSaved} onClick={handleSaveClick} />
+          </FeedActionCapsule>
+        )}
         {isGuest && (
           <div className="absolute left-0 right-0 bottom-0 z-30 flex flex-row items-center justify-center gap-3 px-4 py-3" style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%)" }}>
             <button type="button" onClick={handleShareClick} className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] shadow-lg" aria-label="Share post">
