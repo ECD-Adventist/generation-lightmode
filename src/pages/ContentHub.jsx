@@ -78,7 +78,7 @@ export default function ContentHub() {
 
   return (
     <div className="min-h-screen" style={{ background: "#0B0F1A" }}>
-      <MobileSubPageHeader title="All Things New" />
+      <MobileSubPageHeader title="All Things New" showMenu />
       <ContentControlRail
         items={items}
         selectedDate={selectedDate}

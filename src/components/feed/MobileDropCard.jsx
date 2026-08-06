@@ -135,11 +135,11 @@ function MobileDropCard({
 
   return (
     <article
-      className="relative rounded-[2rem] mb-5 p-3 overflow-hidden"
+      className="relative rounded-[1.5rem] mb-5 overflow-hidden"
       style={{ background: "#FFFFFF", border: "1px solid #D6E4FF", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.10)" }}
     >
       {drop.media_url && (
-        <div className="flex items-center justify-between gap-3 px-2 pb-3">
+        <div className="flex items-center justify-between gap-3 px-4 pt-3 pb-3">
           <Link to={profileLink} className="flex min-w-0 items-center no-underline">
             <div className="shrink-0 w-10 h-10 rounded-full p-[2px] mr-2.5" style={{ background: isLeaderPost ? "linear-gradient(135deg, #FFD000, #FF9F1A)" : "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
               <img src={avatarThumb(authorProfile.profile_picture) || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="" className="w-full h-full rounded-full object-cover bg-white" />
@@ -235,7 +235,7 @@ function MobileDropCard({
       </div>
 
       {drop.media_url && (
-        <div className="mt-3 grid grid-cols-4 rounded-2xl px-3 py-3" style={{ background: "linear-gradient(135deg, #071A33 0%, #082847 100%)", boxShadow: "0 8px 24px rgba(7,26,51,0.2)" }}>
+        <div className="grid grid-cols-4 px-4 py-3" style={{ background: "linear-gradient(135deg, #071A33 0%, #082847 100%)", boxShadow: "0 8px 24px rgba(7,26,51,0.2)" }}>
           <button onClick={handleLike} className="flex flex-col items-center gap-1 text-white"><Heart className={`w-5 h-5 text-[#18C8E8] ${userHasLiked ? "fill-[#18C8E8]" : ""}`} /><span className="text-xs font-black">{drop.likes_count || 0}</span><span className="text-[10px] text-white/70">likes</span></button>
           <Link to={postLink} className="flex flex-col items-center gap-1 text-white no-underline"><MessageCircle className="w-5 h-5 text-[#18C8E8]" /><span className="text-xs font-black">0</span><span className="text-[10px] text-white/70">comments</span></Link>
           <button type="button" onClick={(event) => { event.stopPropagation(); handleShare(drop); }} className="flex flex-col items-center gap-1 text-white"><Share2 className="w-5 h-5 text-[#18C8E8]" /><span className="text-xs font-black">{drop.shares_count || 0}</span><span className="text-[10px] text-white/70">shares</span></button>
@@ -254,12 +254,12 @@ function MobileDropCard({
       <PostAudioTrack audioUrl={drop.audio_url} audioTitle={drop.audio_title} />
 
       {(drop.verse || reflectionText || drop.category || drop.hashtags) && (
-        <div className="px-3 pt-3 pb-1">
+        <div className="px-4 py-4" style={{ background: "#F8FAFC" }}>
           {drop.verse && (
-            <Link to={postLink} className="block text-[14px] font-black mb-1 no-underline" style={{ color: "#004CFF" }}>{drop.verse}</Link>
+            <Link to={postLink} className="block text-[15px] font-black mb-1.5 no-underline" style={{ color: "#0B1B3D" }}>{drop.verse}</Link>
           )}
           {reflectionText && (
-            <p className="text-[13px] leading-relaxed line-clamp-3" style={{ color: "#8A8F98" }}>
+            <p className="text-[13px] leading-relaxed line-clamp-3" style={{ color: "#5A6B85" }}>
               {drop.category === "Keep It 100" ? "📌 " : ""}{reflectionText}
             </p>
           )}

@@ -17,7 +17,7 @@ const navLinks = [
   { key: "assistant", page: "Assistant" },
 ];
 
-const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","GroupChat","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession","DailyDevotion","Discover","Leaderboard","DailyTruthFeed","InstitutionPage","InstitutionDashboard","InstitutionControlCenter","Settings","Post","GlowFeed","GenerationLightMode","LightReflections","FaithQuiz","TerritoryPhotos"];
+const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","GroupChat","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession","DailyDevotion","Discover","Leaderboard","DailyTruthFeed","InstitutionPage","InstitutionDashboard","InstitutionControlCenter","Settings","Post","GlowFeed","GenerationLightMode","LightReflections","FaithQuiz","TerritoryPhotos","ContentHub"];
 
 export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,7 +26,7 @@ export default function Layout({ children, currentPageName }) {
   const usesDarkPublicHeader = !isAppShellPage;
   const isMobileViewport = useIsMobile();
   // On mobile, these pages render their own full-bleed mobile shell (with their own nav + footer).
-  const mobileOwnedPages = ["Home", "About", "Impact", "Assistant", "Resources", "KeepIt100", "CodesOfTruth", "Challenges", "Media", "Privacy", "GenerationLightMode", "ContentHub"];
+  const mobileOwnedPages = ["Home", "About", "Impact", "Assistant", "Resources", "KeepIt100", "CodesOfTruth", "Challenges", "Media", "Privacy", "GenerationLightMode"];
   const hideDesktopChrome = isMobileViewport && mobileOwnedPages.includes(currentPageName);
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);

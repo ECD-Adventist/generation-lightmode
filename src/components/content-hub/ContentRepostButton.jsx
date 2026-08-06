@@ -31,9 +31,14 @@ export default function ContentRepostButton({ item }) {
     try {
       let safeMediaUrl = isAllowedMediaUrl(item.thumbnail_url) ? item.thumbnail_url : null;
       if (!safeMediaUrl) {
-        const sourceFile = await fetchContentFile(item, "view", "", false);
-        const uploaded = await base44.integrations.Core.UploadFile({ file: sourceFile });
-        safeMediaUrl = uploaded.file_url;
+        try {
+          const sourceFile = await fetchContentFile(item, "view", "", false);
+          const uploaded = await base44.integrations.Core.UploadFile({ file: sourceFile });
+          safeMediaUrl = uploaded.file_url;
+        } catch (mediaErr) {
+          console.warn("[repost] Could not fetch media, posting without image:", mediaErr);
+          safeMediaUrl = null;
+        }
       }
 
       await base44.functions.invoke("createGlowDrop", {
