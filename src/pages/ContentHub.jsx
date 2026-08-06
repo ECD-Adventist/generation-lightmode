@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Loader2, CalendarDays, Search } from "lucide-react";
 import MobileSubPageHeader from "@/components/mobile/MobileSubPageHeader";
-import ContentGroupView from "@/components/content-hub/ContentGroupView";
+import ContentCard, { LockedContentCard } from "@/components/content-hub/ContentCard";
 import ContentPreviewModal from "@/components/content-hub/ContentPreviewModal";
 import { CONTENT_TYPES } from "@/components/content-hub/contentConstants";
 
@@ -132,28 +132,28 @@ export default function ContentHub() {
 
       {loading ? (
         <div className="flex justify-center py-24"><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#00CFFF" }} /></div>
-      ) : filtered.length === 0 ? (
-        <div className="max-w-6xl mx-auto px-6 pb-16">
-          <div className="rounded-2xl p-12 text-center" style={{ background: "#121826", border: "1px dashed rgba(0,207,255,0.2)" }}>
-            <p className="text-white font-bold mb-1">No content found</p>
-            <p className="text-xs" style={{ color: "#8A9BB0" }}>Try adjusting your search or filters.</p>
-          </div>
-        </div>
       ) : (
         <>
-          {/* Available now — grouped by Type > Date > Language */}
-          {unlockedItems.length > 0 && (
-            <section className="px-6 pb-8">
-              <div className="max-w-6xl mx-auto">
-                <h2 className="glm-headline text-lg text-white mb-4 flex items-center gap-2">
-                  <span className="glow-dot" /> Available Now
-                </h2>
-                <ContentGroupView items={unlockedItems} />
-              </div>
-            </section>
-          )}
+          {/* Available now */}
+          <section className="px-6 pb-12">
+            <div className="max-w-6xl mx-auto">
+              <h2 className="glm-headline text-lg text-white mb-4 flex items-center gap-2">
+                <span className="glow-dot" /> Available Now
+              </h2>
+              {unlockedItems.length === 0 ? (
+                <div className="rounded-2xl p-12 text-center" style={{ background: "#121826", border: "1px dashed rgba(0,207,255,0.2)" }}>
+                  <p className="text-white font-bold mb-1">Nothing unlocked yet</p>
+                  <p className="text-xs" style={{ color: "#8A9BB0" }}>Check the schedule below — new content is on the way ⚡</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {unlockedItems.map((item, index) => <ContentCard key={item.id} item={item} priority={index < 3} />)}
+                </div>
+              )}
+            </div>
+          </section>
 
-          {/* Coming up — locked schedule, grouped by Type > Date > Language */}
+          {/* Coming up — locked schedule */}
           {lockedItems.length > 0 && (
             <section className="px-6 pb-16">
               <div className="max-w-6xl mx-auto">
@@ -161,7 +161,9 @@ export default function ContentHub() {
                   <CalendarDays size={17} style={{ color: "#FFD000" }} /> Coming Up
                 </h2>
                 <p className="text-xs mb-4" style={{ color: "#8A9BB0" }}>These drop automatically at their scheduled day & time — come back to unlock them.</p>
-                <ContentGroupView items={lockedItems} locked />
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {lockedItems.map(item => <LockedContentCard key={item.id} item={item} />)}
+                </div>
               </div>
             </section>
           )}
