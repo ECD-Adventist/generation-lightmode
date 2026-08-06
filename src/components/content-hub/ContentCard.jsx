@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { typeMeta } from "./contentConstants";
 import ContentPreviewModal from "./ContentPreviewModal";
 import BrandIcon from "./BrandIcon";
+import ContentThumbnail from "./ContentThumbnail";
 import { fetchContentFile, saveContentFile } from "./contentMedia";
 import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
 import { copyShareLink, openShareWindow, tryNativeShare, buildDirectShareUrl, isUploadPlatform, ALL_SHARE_PLATFORMS, DIRECT_SHARE_PLATFORMS } from "@/lib/shareActions";
@@ -18,7 +19,6 @@ export default function ContentCard({ item }) {
   const [shareMenuView, setShareMenuView] = useState("main");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [thumbFailed, setThumbFailed] = useState(false);
   const queryClient = useQueryClient();
   const meta = typeMeta(item.content_type);
   const shareUrl = getSharePreviewUrl("content", item.id);
@@ -136,9 +136,10 @@ export default function ContentCard({ item }) {
         className="relative aspect-video cursor-pointer"
         style={{ background: `${meta.color}10` }}
       >
-        {item.thumbnail_url && !thumbFailed
-          ? <img src={item.thumbnail_url} className="w-full h-full object-cover" alt={item.title} loading="lazy" decoding="async" width="640" height="360" onError={() => setThumbFailed(true)} />
-          : <div className="w-full h-full flex items-center justify-center text-4xl">{meta.emoji}</div>}
+        <ContentThumbnail
+          item={item}
+          fallback={<div className="w-full h-full flex items-center justify-center text-4xl">{meta.emoji}</div>}
+        />
         <span className="absolute top-2 right-2 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: "rgba(11,15,26,0.85)", color: "#C8D0E0", border: "1px solid rgba(255,255,255,0.15)" }}>
           {item.language}
         </span>
