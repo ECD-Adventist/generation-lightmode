@@ -24,6 +24,7 @@ export default async function(req) {
         view_count: item.view_count || 0,
         download_count: item.download_count || 0,
         share_count: item.share_count || 0,
+        repost_count: item.repost_count || 0,
         unlocked,
         preview_url: unlocked ? toDrivePreviewUrl(item.drive_link) : null,
         image_url: unlocked ? toDriveImageUrl(item.drive_link) : null,

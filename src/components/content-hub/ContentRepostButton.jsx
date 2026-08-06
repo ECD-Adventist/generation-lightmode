@@ -3,6 +3,7 @@ import { Repeat2, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { fetchContentFile } from "./contentMedia";
 
 const ALLOWED_MEDIA_HOSTS = ["media.base44.com", "base44.app", "images.unsplash.com", "res.cloudinary.com"];
 
@@ -28,9 +29,12 @@ export default function ContentRepostButton({ item }) {
     }
     setLoading(true);
     try {
-      // Only pass media_url if it's from an allowed CDN host.
-      // Google Drive thumbnail URLs are rejected by createGlowDrop's server-side validation.
-      const safeMediaUrl = isAllowedMediaUrl(item.thumbnail_url) ? item.thumbnail_url : null;
+      let safeMediaUrl = isAllowedMediaUrl(item.thumbnail_url) ? item.thumbnail_url : null;
+      if (!safeMediaUrl) {
+        const sourceFile = await fetchContentFile(item, "view", "", false);
+        const uploaded = await base44.integrations.Core.UploadFile({ file: sourceFile });
+        safeMediaUrl = uploaded.file_url;
+      }
 
       await base44.functions.invoke("createGlowDrop", {
         verse: item.title || "",

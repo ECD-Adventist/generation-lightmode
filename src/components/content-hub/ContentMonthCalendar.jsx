@@ -46,22 +46,16 @@ export default function ContentMonthCalendar({ items, selectedDate, onSelect }) 
   const todayKey = toKey(today);
 
   return (
-    <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(0,207,255,0.2)" }}>
-      <div className="flex items-center justify-between mb-4">
-        <button onClick={prevMonth} className="w-8 h-8 rounded-full flex items-center justify-center transition hover:bg-white/10" style={{ color: "#C8D0E0" }}>
-          <ChevronLeft size={16} />
-        </button>
-        <span className="font-['Space_Grotesk'] font-bold text-sm text-white">{MONTHS[viewMonth]} {viewYear}</span>
-        <button onClick={nextMonth} className="w-8 h-8 rounded-full flex items-center justify-center transition hover:bg-white/10" style={{ color: "#C8D0E0" }}>
-          <ChevronRight size={16} />
-        </button>
+    <div className="w-full max-w-[280px] mx-auto lg:mx-0">
+      <div className="flex items-center justify-between mb-5">
+        <button onClick={prevMonth} className="w-7 h-7 rounded-lg flex items-center justify-center transition hover:bg-white/10" style={{ color: "#7F8CA2" }} aria-label="Previous month"><ChevronLeft size={15} /></button>
+        <span className="font-['Space_Grotesk'] font-medium text-xl text-white">{MONTHS[viewMonth]} {viewYear}</span>
+        <button onClick={nextMonth} className="w-7 h-7 rounded-lg flex items-center justify-center transition hover:bg-white/10" style={{ color: "#7F8CA2" }} aria-label="Next month"><ChevronRight size={15} /></button>
       </div>
-      <div className="grid grid-cols-7 gap-1 mb-2">
-        {WEEKDAYS.map((d, i) => (
-          <div key={i} className="text-center text-[10px] font-bold uppercase" style={{ color: "#5A6B85" }}>{d}</div>
-        ))}
+      <div className="grid grid-cols-7 gap-1 mb-3">
+        {WEEKDAYS.map((d, i) => <div key={i} className="text-center text-[10px] font-bold uppercase" style={{ color: "#778397" }}>{d}</div>)}
       </div>
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-1.5">
         {days.map((day, i) => {
           if (!day) return <div key={i} />;
           const key = toKey(day);
@@ -69,14 +63,9 @@ export default function ContentMonthCalendar({ items, selectedDate, onSelect }) 
           const isSelected = key === selectedDate;
           const isToday = key === todayKey;
           return (
-            <button key={i} onClick={() => onSelect(key)}
-              className="aspect-square rounded-lg flex flex-col items-center justify-center gap-1 transition relative"
-              style={{
-                background: isSelected ? "linear-gradient(135deg, #00CFFF, #8A5CFF)" : hasContent ? "rgba(0,207,255,0.12)" : "rgba(255,255,255,0.02)",
-                border: `1px solid ${isSelected ? "transparent" : isToday ? "rgba(0,207,255,0.4)" : "rgba(255,255,255,0.05)"}`,
-              }}>
-              <span className="text-[11px] font-bold" style={{ color: isSelected ? "#0B0F1A" : "#C8D0E0" }}>{day.getDate()}</span>
-              {hasContent && <span className="w-1 h-1 rounded-full" style={{ background: isSelected ? "#0B0F1A" : "#00CFFF" }} />}
+            <button key={i} onClick={() => onSelect(key)} className="h-8 rounded-lg flex flex-col items-center justify-center transition relative" style={{ background: isSelected ? "linear-gradient(135deg, #18C8FF 0%, #70D2B2 48%, #F4C84A 100%)" : "transparent", boxShadow: isSelected ? "0 5px 16px rgba(24,200,255,0.2)" : "none" }}>
+              <span className="text-[12px] font-semibold" style={{ color: isSelected ? "#07111F" : isToday ? "#FFFFFF" : "#D5DDEA" }}>{day.getDate()}</span>
+              {hasContent && !isSelected && <span className="absolute -bottom-0.5 w-4 h-[2px] rounded-full" style={{ background: "linear-gradient(90deg, #18C8FF, #F4C84A)" }} />}
             </button>
           );
         })}

@@ -61,7 +61,8 @@ export default async function(req) {
         platform: action === "share" ? platform : ""
       });
 
-      const countField = action === "view" ? "view_count" : action === "download" ? "download_count" : "share_count";
+        const isFeedRepost = action === "share" && platform === "Base 1_feed";
+      const countField = action === "view" ? "view_count" : action === "download" ? "download_count" : isFeedRepost ? "repost_count" : "share_count";
       await base44.asServiceRole.entities.DigitalContent.update(item.id, {
         [countField]: (item[countField] || 0) + 1
       });

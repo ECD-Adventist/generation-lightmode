@@ -126,23 +126,20 @@ export default function ContentCard({ item, priority = false }) {
     track("share", platform).catch(() => {});
   };
 
-  const isPoster = item.content_type === "poster";
-
   return (
-    <div className="flex flex-col relative" style={{ background: "#121826" }}>
+    <div className="flex flex-col relative rounded-xl overflow-hidden" style={{ background: "#121826" }}>
       <div
         role="button"
         tabIndex={0}
         onClick={() => item.download_url && handleView()}
         onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && item.download_url) { e.preventDefault(); handleView(); } }}
         onPointerEnter={primePreview}
-        className={`relative cursor-pointer overflow-hidden ${isPoster ? "aspect-[3/4]" : "aspect-video"}`}
+        className="relative cursor-pointer overflow-hidden aspect-video"
         style={{ background: "#0B0F1A" }}
       >
         <ContentThumbnail
           item={item}
           priority={priority}
-          className={isPoster ? "w-full h-full object-contain" : undefined}
           fallback={<div className="w-full h-full flex items-center justify-center"><meta.icon className="w-8 h-8" style={{ color: meta.color }} /></div>}
         />
         <span className="absolute top-2 right-2 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: "rgba(11,15,26,0.85)", color: "#C8D0E0", border: "1px solid rgba(255,255,255,0.15)" }}>
@@ -207,7 +204,7 @@ export default function ContentCard({ item, priority = false }) {
         </div>
 
         <p className="text-[10px] mt-2 flex items-center gap-2" style={{ color: "#5A6B85" }}>
-          <span>{item.view_count || 0} views</span>·<span>{item.download_count || 0} downloads</span>·<span>{item.share_count || 0} shares</span>
+          <span>{item.view_count || 0} views</span>·<span>{item.download_count || 0} downloads</span>·<span>{item.share_count || 0} shares</span>·<span>{item.repost_count || 0} reposts</span>
         </p>
       </div>
       <ContentPreviewModal item={item} open={previewOpen} onClose={() => setPreviewOpen(false)} />
@@ -217,13 +214,12 @@ export default function ContentCard({ item, priority = false }) {
 
 export function LockedContentCard({ item }) {
   const meta = typeMeta(item.content_type);
-  const isPoster = item.content_type === "poster";
   return (
-    <div className="overflow-hidden relative" style={{ background: "#121826", border: "1px solid rgba(255,255,255,0.06)", opacity: 0.85 }}>
-      <div className={`relative overflow-hidden ${isPoster ? "aspect-[3/4]" : "aspect-video"}`} style={{ background: "rgba(255,255,255,0.03)" }}>
+    <div className="rounded-2xl overflow-hidden relative" style={{ background: "#121826", border: "1px solid rgba(255,255,255,0.06)", opacity: 0.85 }}>
+      <div className="relative aspect-video overflow-hidden" style={{ background: "rgba(255,255,255,0.03)" }}>
         <ContentThumbnail
           item={item}
-          className={`w-full h-full object-cover blur-[6px] scale-105 ${isPoster ? "" : ""}`}
+          className="w-full h-full object-cover blur-[6px] scale-105"
           fallback={<div className="w-full h-full flex items-center justify-center"><meta.icon className="w-8 h-8 opacity-30" style={{ color: meta.color }} /></div>}
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5" style={{ background: "rgba(11,15,26,0.6)" }}>

@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Loader2, CalendarDays, Search } from "lucide-react";
+import { Loader2, CalendarDays } from "lucide-react";
 import MobileSubPageHeader from "@/components/mobile/MobileSubPageHeader";
 import ContentGroupedList from "@/components/content-hub/ContentGroupedList";
 import ContentPreviewModal from "@/components/content-hub/ContentPreviewModal";
-import ContentMonthCalendar from "@/components/content-hub/ContentMonthCalendar";
-import LanguageDropdown from "@/components/content-hub/LanguageDropdown";
-import { CONTENT_TYPES } from "@/components/content-hub/contentConstants";
+import ContentControlRail from "@/components/content-hub/ContentControlRail";
 
 const CONTENT_CACHE_KEY = "all-things-new-items";
 
@@ -78,76 +76,23 @@ export default function ContentHub() {
   const lockedItems = dateFiltered.filter(i => !i.unlocked).sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
   const horizontal = !viewAll && langFilter === "all";
 
-  const chip = (active, color = "#00CFFF") => ({
-    padding: "8px 16px", borderRadius: 999, fontSize: 12, fontWeight: 700, cursor: "pointer",
-    fontFamily: "Inter, sans-serif", transition: "all 0.2s", whiteSpace: "nowrap",
-    background: active ? `${color}18` : "rgba(255,255,255,0.03)",
-    border: `1px solid ${active ? color : "rgba(255,255,255,0.1)"}`,
-    color: active ? color : "#C8D0E0",
-  });
-
   return (
     <div className="min-h-screen" style={{ background: "#0B0F1A" }}>
       <MobileSubPageHeader title="All Things New" />
-      {/* Hero */}
-      <section className="relative overflow-hidden px-6 pt-12 pb-8 text-center">
-        <div className="absolute -top-16 left-1/4 w-64 h-64 rounded-full blur-3xl pointer-events-none" style={{ background: "#00CFFF", opacity: 0.1 }} />
-        <div className="absolute -bottom-16 right-1/4 w-64 h-64 rounded-full blur-3xl pointer-events-none" style={{ background: "#8A5CFF", opacity: 0.1 }} />
-        <div className="relative max-w-3xl mx-auto">
-          <h1 className="glm-headline text-3xl md:text-5xl text-white mb-3">
-            All Things <span className="glm-gradient-text">New</span>
-          </h1>
-          <p className="glm-body text-sm md:text-base max-w-xl mx-auto">
-            Videos, posters & animations in your language — new content unlocks on schedule. Download it, share it, spread the light.
-          </p>
-        </div>
-      </section>
-
-      {/* Search */}
-      <section className="px-6 pb-4">
-        <div className="max-w-lg mx-auto relative">
-          <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "#5A6B85" }} />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search resources by title or keyword…"
-            className="w-full rounded-full py-3 pl-11 pr-4 text-sm text-white outline-none placeholder:text-[#5A6B85]"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(0,207,255,0.2)" }}
-          />
-        </div>
-      </section>
-
-      {/* Calendar + Language Selector */}
-      <section className="px-6 pb-6">
-        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-4 items-start">
-          <div className="w-full lg:flex-1">
-            <ContentMonthCalendar items={items} selectedDate={selectedDate} onSelect={(key) => { setSelectedDate(key); setViewAll(false); }} />
-          </div>
-          <div className="flex flex-col gap-3 w-full lg:w-auto">
-            <button style={chip(viewAll, "#8A5CFF")} onClick={() => setViewAll(v => !v)}>
-              {viewAll ? "📅 Show Selected Date" : "📋 View All Content"}
-            </button>
-            {languages.length > 1 && (
-              <LanguageDropdown languages={languages} selected={langFilter} onSelect={setLangFilter} />
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Type Filters */}
-      <section className="px-6 pb-6">
-        <div className="max-w-6xl mx-auto flex flex-wrap justify-center gap-2">
-          <button style={chip(typeFilter === "all")} onClick={() => setTypeFilter("all")}>All Types</button>
-          {CONTENT_TYPES.map(t => {
-            const Icon = t.icon;
-            return (
-              <button key={t.id} style={chip(typeFilter === t.id, t.color)} onClick={() => setTypeFilter(t.id)}>
-                <Icon size={13} className="inline align-text-bottom" /> {t.label}s
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      <ContentControlRail
+        items={items}
+        selectedDate={selectedDate}
+        onSelectDate={(key) => { setSelectedDate(key); setViewAll(false); }}
+        search={search}
+        onSearch={setSearch}
+        viewAll={viewAll}
+        onToggleViewAll={() => setViewAll(value => !value)}
+        languages={languages}
+        language={langFilter}
+        onLanguage={setLangFilter}
+        type={typeFilter}
+        onType={setTypeFilter}
+      />
 
       {loading ? (
         <div className="flex justify-center py-24"><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#00CFFF" }} /></div>

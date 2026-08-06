@@ -45,6 +45,10 @@
     "share_count": {
       "type": "number",
       "default": 0
+    },
+    "repost_count": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [

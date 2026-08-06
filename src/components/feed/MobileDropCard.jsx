@@ -8,7 +8,7 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getDisplayName } from "@/lib/displayName";
-import { feedThumb, avatarThumb } from "@/lib/imageProxy";
+import { avatarThumb } from "@/lib/imageProxy";
 import CountryFlag from "@/components/common/CountryFlag";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
@@ -138,21 +138,45 @@ function MobileDropCard({
       className="relative rounded-[2rem] mb-5 p-3 overflow-hidden"
       style={{ background: "#FFFFFF", border: "1px solid #D6E4FF", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.10)" }}
     >
-      <div className="relative rounded-[1.45rem] overflow-hidden" style={{ aspectRatio: "4 / 5", background: drop.media_url ? "#DDE7FB" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
+      {drop.media_url && (
+        <div className="flex items-center justify-between gap-3 px-2 pb-3">
+          <Link to={profileLink} className="flex min-w-0 items-center no-underline">
+            <div className="shrink-0 w-10 h-10 rounded-full p-[2px] mr-2.5" style={{ background: isLeaderPost ? "linear-gradient(135deg, #FFD000, #FF9F1A)" : "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
+              <img src={avatarThumb(authorProfile.profile_picture) || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="" className="w-full h-full rounded-full object-cover bg-white" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1 text-[13px] font-black" style={{ color: "#0B1B3D" }}><span className="truncate">{getDisplayName(authorProfile)}</span><CountryFlag country={authorProfile.country} size="xs" /></div>
+              <div className="text-[10px]" style={{ color: "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</div>
+            </div>
+          </Link>
+          <div className="flex shrink-0 items-center gap-1.5">
+            {canFollowAuthor && <button onClick={() => followMutation?.mutate(drop.user_email)} className="rounded-full px-3 py-2 text-[10px] font-black text-white" style={{ background: "#0B3FD9" }}>Follow</button>}
+            <button onClick={() => toggleSaveMutation.mutate()} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ color: isSaved ? "#F59E0B" : "#0B3FD9", background: "#F3F7FC" }} aria-label={isSaved ? "Remove from saved" : "Save post"}><Bookmark className={`w-4 h-4 ${isSaved ? "fill-amber-400 text-amber-400" : ""}`} /></button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild><button className="w-8 h-8 rounded-full flex items-center justify-center" style={{ color: "#0B3FD9", background: "#F3F7FC" }} aria-label="Post options"><MoreHorizontal className="w-4 h-4" /></button></DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                {canEditMusic && <DropdownMenuItem onClick={() => setMusicEditorOpen(true)}>{drop.audio_url ? "Change Music" : "Add Music"}</DropdownMenuItem>}
+                {canDelete ? <DropdownMenuItem className="text-red-500" onClick={() => { if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }}>Delete Post</DropdownMenuItem> : <DropdownMenuItem onClick={() => { if (!user) return toast.error("Please log in to report"); const reason = window.prompt("Why are you reporting this content?"); if (reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Reported")); }}>Report Post</DropdownMenuItem>}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      )}
+      <div className={drop.media_url ? "relative overflow-hidden" : "relative rounded-[1.45rem] overflow-hidden"} style={{ aspectRatio: drop.media_url ? "auto" : "4 / 5", background: drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
         <div
           role="button"
           tabIndex={0}
           onClick={handlePostSurfaceClick}
           onKeyDown={(e) => { if (e.key === "Enter") navigate(postLink); }}
-          className="absolute inset-0 block no-underline cursor-pointer touch-manipulation"
+          className={drop.media_url ? "relative block no-underline cursor-pointer touch-manipulation" : "absolute inset-0 block no-underline cursor-pointer touch-manipulation"}
         >
           {drop.media_url ? (
             <img
-              src={feedThumb(drop.media_url)}
+              src={drop.media_url}
               alt=""
               loading="lazy"
               decoding="async"
-              className="absolute inset-0 w-full h-full object-contain"
+              className="relative block w-full h-auto object-contain"
             />
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
@@ -177,28 +201,17 @@ function MobileDropCard({
           )}
         </div>
 
-        <Link to={profileLink} className="absolute top-3 left-3 z-20 flex items-center rounded-full pr-4 py-1 pl-1 no-underline" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #E6ECF5", boxShadow: "0 4px 14px rgba(11, 27, 61, 0.12)" }}>
+        {!drop.media_url && <Link to={profileLink} className="absolute top-3 left-3 z-20 flex items-center rounded-full pr-4 py-1 pl-1 no-underline" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #E6ECF5", boxShadow: "0 4px 14px rgba(11, 27, 61, 0.12)" }}>
           <div className="shrink-0 w-9 h-9 rounded-full p-[2px] mr-2" style={{ background: isLeaderPost ? "linear-gradient(135deg, #FFD000, #FF9F1A)" : "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
-            <img
-              src={avatarThumb(authorProfile.profile_picture) || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full rounded-full object-cover bg-white"
-            />
+            <img src={avatarThumb(authorProfile.profile_picture) || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="" loading="lazy" decoding="async" className="w-full h-full rounded-full object-cover bg-white" />
           </div>
           <div className="min-w-0 max-w-[150px]">
-            <div className="flex items-center gap-1 text-[12px] font-black" style={{ color: "#0B1B3D" }}>
-              <span className="truncate">{getDisplayName(authorProfile)}</span>
-              <CountryFlag country={authorProfile.country} size="xs" />
-            </div>
-            <div className="text-[10px] truncate" style={{ color: "#4A5878" }}>
-              {drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}
-            </div>
+            <div className="flex items-center gap-1 text-[12px] font-black" style={{ color: "#0B1B3D" }}><span className="truncate">{getDisplayName(authorProfile)}</span><CountryFlag country={authorProfile.country} size="xs" /></div>
+            <div className="text-[10px] truncate" style={{ color: "#4A5878" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</div>
           </div>
-        </Link>
+        </Link>}
 
-        {canFollowAuthor && (
+        {!drop.media_url && canFollowAuthor && (
           <button
             onClick={() => followMutation?.mutate(drop.user_email)}
             disabled={followMutation?.isPending}
@@ -211,89 +224,24 @@ function MobileDropCard({
           </button>
         )}
 
-        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
-          <button onClick={handleLike} className="flex flex-col items-center gap-1 active:scale-95 transition">
-            <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: userHasLiked ? "#EF4444" : "#0B3FD9" }}>
-              <Heart className={`w-5 h-5 ${userHasLiked ? "fill-red-500 text-red-500" : ""}`} />
-            </span>
-            <span className="text-[11px] font-black" style={{ color: hasDarkActionBackdrop ? "#FFFFFF" : "#0B1B3D", textShadow: hasDarkActionBackdrop ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>{drop.likes_count || 0}</span>
-          </button>
-          <Link to={postLink} className="flex flex-col items-center gap-1 active:scale-95 transition no-underline">
-            <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: "#0B3FD9" }}>
-              <MessageCircle className="w-5 h-5" />
-            </span>
-            <span className="text-[11px] font-black" style={{ color: hasDarkActionBackdrop ? "#FFFFFF" : "#0B1B3D", textShadow: hasDarkActionBackdrop ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>0</span>
-          </Link>
-          <button type="button" onClick={(event) => { event.stopPropagation(); handleShare(drop); }} className="flex flex-col items-center gap-1 active:scale-95 transition">
-            <span className="w-11 h-11 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: "#0B3FD9" }}>
-              <Share2 className="w-5 h-5" />
-            </span>
-            <span className="text-[11px] font-black" style={{ color: hasDarkActionBackdrop ? "#FFFFFF" : "#0B1B3D", textShadow: hasDarkActionBackdrop ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>0</span>
-          </button>
+        {!drop.media_url && <div className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
+          <button onClick={handleLike} className="flex flex-col items-center gap-1 active:scale-95 transition"><span className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] text-[#0B3FD9]"><Heart className={`w-5 h-5 ${userHasLiked ? "fill-red-500 text-red-500" : ""}`} /></span><span className="text-[11px] font-black text-[#0B1B3D]">{drop.likes_count || 0}</span></button>
+          <Link to={postLink} className="flex flex-col items-center gap-1 no-underline"><span className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] text-[#0B3FD9]"><MessageCircle className="w-5 h-5" /></span><span className="text-[11px] font-black text-[#0B1B3D]">0</span></Link>
+          <button type="button" onClick={(event) => { event.stopPropagation(); handleShare(drop); }} className="flex flex-col items-center gap-1"><span className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] text-[#0B3FD9]"><Share2 className="w-5 h-5" /></span><span className="text-[11px] font-black text-[#0B1B3D]">{drop.shares_count || 0}</span></button>
           <RepostButton drop={drop} user={user} dark={hasDarkActionBackdrop} />
-          <button onClick={() => toggleSaveMutation.mutate()} className="w-11 h-11 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: isSaved ? "#F59E0B" : "#0B3FD9" }}>
-            <Bookmark className={`w-5 h-5 ${isSaved ? "fill-amber-400 text-amber-400" : ""}`} />
-          </button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="w-11 h-11 rounded-full flex items-center justify-center active:scale-95 transition" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #D6E4FF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)", color: "#0B3FD9" }}>
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
-              {canEditMusic && (
-                <DropdownMenuItem className="cursor-pointer" onClick={() => setMusicEditorOpen(true)}>
-                  {drop.audio_url ? "Change Music" : "Add Music"}
-                </DropdownMenuItem>
-              )}
-              {canEditMusic && drop.audio_url && (
-                <DropdownMenuItem
-                  className="cursor-pointer"
-                  onClick={() => {
-                    base44.entities.GlowDrop.update(drop.id, { audio_url: "", audio_title: "" })
-                      .then(() => {
-                        queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
-                        toast.success("Music removed");
-                      })
-                      .catch(() => toast.error("Could not remove music"));
-                  }}
-                >
-                  Remove Music
-                </DropdownMenuItem>
-              )}
-              {canDelete ? (
-                <DropdownMenuItem
-                  className="text-red-500 cursor-pointer"
-                  onClick={() => {
-                    if (window.confirm("Delete this post? This cannot be undone.")) {
-                      deleteDropMutation.mutate();
-                    }
-                  }}
-                >
-                  Delete Post
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem
-                  className="cursor-pointer"
-                  onClick={() => {
-                    if (!user) return toast.error("Please log in to report");
-                    const reason = window.prompt("Why are you reporting this content?");
-                    if (reason) {
-                      base44.entities.ReportedDrop.create({
-                        drop_id: drop.id,
-                        reporter_email: user.email,
-                        reason,
-                      }).then(() => toast.success("Reported"));
-                    }
-                  }}
-                >
-                  Report Post
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+          <button onClick={() => toggleSaveMutation.mutate()} className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] text-[#0B3FD9]"><Bookmark className={`w-5 h-5 ${isSaved ? "fill-amber-400 text-amber-400" : ""}`} /></button>
+          <DropdownMenu><DropdownMenuTrigger asChild><button className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] text-[#0B3FD9]"><MoreHorizontal className="w-5 h-5" /></button></DropdownMenuTrigger><DropdownMenuContent align="end" className="w-44"><DropdownMenuItem onClick={() => setMusicEditorOpen(true)}>{drop.audio_url ? "Change Music" : "Add Music"}</DropdownMenuItem>{canDelete && <DropdownMenuItem className="text-red-500" onClick={() => { if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }}>Delete Post</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu>
+        </div>}
       </div>
+
+      {drop.media_url && (
+        <div className="mt-3 grid grid-cols-4 rounded-2xl px-3 py-3" style={{ background: "linear-gradient(135deg, #071A33 0%, #082847 100%)", boxShadow: "0 8px 24px rgba(7,26,51,0.2)" }}>
+          <button onClick={handleLike} className="flex flex-col items-center gap-1 text-white"><Heart className={`w-5 h-5 text-[#18C8E8] ${userHasLiked ? "fill-[#18C8E8]" : ""}`} /><span className="text-xs font-black">{drop.likes_count || 0}</span><span className="text-[10px] text-white/70">likes</span></button>
+          <Link to={postLink} className="flex flex-col items-center gap-1 text-white no-underline"><MessageCircle className="w-5 h-5 text-[#18C8E8]" /><span className="text-xs font-black">0</span><span className="text-[10px] text-white/70">comments</span></Link>
+          <button type="button" onClick={(event) => { event.stopPropagation(); handleShare(drop); }} className="flex flex-col items-center gap-1 text-white"><Share2 className="w-5 h-5 text-[#18C8E8]" /><span className="text-xs font-black">{drop.shares_count || 0}</span><span className="text-[10px] text-white/70">shares</span></button>
+          <RepostButton drop={drop} user={user} dock />
+        </div>
+      )}
 
       <PostMusicEditor drop={drop} isOpen={musicEditorOpen} onClose={() => setMusicEditorOpen(false)} />
 

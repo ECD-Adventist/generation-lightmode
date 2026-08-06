@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 
-export default function RepostButton({ drop, user, compact = false, dark = false }) {
+export default function RepostButton({ drop, user, compact = false, dark = false, dock = false }) {
   const queryClient = useQueryClient();
   const originalId = drop?.repost?.original_post_id || drop?.original_drop_id || drop?.id;
   const { data: records = [] } = useQuery({
@@ -41,19 +41,20 @@ export default function RepostButton({ drop, user, compact = false, dark = false
   return (
     <button type="button" disabled={mutation.isPending} onClick={(event) => { event.stopPropagation(); mutation.mutate(); }}
       className={compact ? "flex items-center gap-1.5 text-xs font-bold disabled:opacity-50" : "flex flex-col items-center gap-1 disabled:opacity-50"}
-      style={{ color: existing ? "#10B981" : dark ? "#FFFFFF" : "#0B3FD9" }} title={existing ? "Undo repost" : "Repost"}>
+      style={{ color: existing ? "#10B981" : dock ? "#18C8E8" : dark ? "#FFFFFF" : "#0B3FD9" }} title={existing ? "Undo repost" : "Repost"}>
       <span
         className={compact ? "" : "w-11 h-11 rounded-full flex items-center justify-center"}
-        style={compact ? undefined : {
+        style={compact ? undefined : dock ? { color: existing ? "#10B981" : "#18C8E8" } : {
           background: "rgba(255,255,255,0.96)",
           border: "1px solid #D6E4FF",
-          boxShadow: "0 4px 12px rgba(11, 63, 217, 0.12)",
+          boxShadow: "0 4px 12px rgba(11, 63, 217,0.12)",
           color: existing ? "#10B981" : "#0B3FD9",
         }}
       >
         <Repeat2 className="w-5 h-5" />
       </span>
-      <span className={compact ? "" : "text-[11px] font-black"} style={compact ? undefined : { textShadow: dark ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>{compact ? (existing ? "Undo repost" : "Repost") : (drop.reposts_count || 0)}</span>
+      <span className={compact ? "" : "text-[11px] font-black"} style={compact ? undefined : { textShadow: dark && !dock ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>{compact ? (existing ? "Undo repost" : "Repost") : (drop.reposts_count || 0)}</span>
+      {dock && <span className="text-[10px] text-white/70">reposts</span>}
     </button>
   );
 }
