@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { authorizeSchedulerOrAdmin } from '../../shared/schedulerAuth.ts';
 
 const DEFAULT_RECOVERY_CAP = 50;
 const MIN_RECOVERY_SCORE = 4;
@@ -39,6 +40,9 @@ async function bulkCreate(entity, rows) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const authorized = await authorizeSchedulerOrAdmin(base44, req);
+    if (!authorized) return Response.json({ error: 'Forbidden' }, { status: 403 });
+
     let payload = {};
     try {
       payload = await req.json();
