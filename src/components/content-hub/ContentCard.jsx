@@ -151,19 +151,19 @@ export default function ContentCard({ item, priority = false }) {
         <h3 className="font-['Space_Grotesk'] font-black text-[14px] text-white leading-snug mb-1">{item.title}</h3>
         {item.description && <p className="text-[11.5px] leading-relaxed mb-3 line-clamp-2" style={{ color: "#8A9BB0" }}>{item.description}</p>}
 
-        <div className="mt-auto flex items-center gap-2">
+        <div className="mt-auto flex items-center gap-1.5">
           <button type="button" onClick={handleView} onPointerEnter={primePreview} onFocus={primePreview} disabled={!item.download_url}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-black text-[11.5px] font-['Space_Grotesk'] transition active:scale-95 disabled:opacity-40"
+            className="flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 rounded-full font-black text-[11px] font-['Space_Grotesk'] transition active:scale-95 disabled:opacity-40"
             style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${meta.color}55`, color: meta.color }}>
-            <Eye size={13} /> View
+            <Eye size={12} /> View
           </button>
           <button type="button" onClick={handleDownload} disabled={downloading}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-black text-[11.5px] font-['Space_Grotesk'] transition active:scale-95"
+            className="flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 rounded-full font-black text-[11px] font-['Space_Grotesk'] transition active:scale-95"
             style={{ background: meta.color, color: "#0B0F1A" }}>
-            {downloading ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Download
+            {downloading ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Download
           </button>
           <ContentRepostButton item={item} />
-          <div className="relative">
+          <div className="relative shrink-0">
             <button type="button" onClick={toggleShareMenu}
               className="w-10 h-10 rounded-full flex items-center justify-center transition active:scale-95"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#C8D0E0" }}>

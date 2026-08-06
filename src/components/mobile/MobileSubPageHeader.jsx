@@ -11,13 +11,19 @@ export default function MobileSubPageHeader({ title, showMenu = false }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const menuItems = [
+    { label: "About", page: "About" },
+    { label: "Impact", page: "Impact" },
+    { label: "Assistant", page: "Assistant" },
+    { label: "Keep It 100", page: "KeepIt100" },
+    { label: "Codes of Truth", page: "CodesOfTruth" },
+    { label: "Resources", page: "Resources" },
+    { label: "All Things New", page: "ContentHub" },
+    { label: "Challenges", page: "Challenges" },
+    { label: "GlowGroups", page: "GlowGroups" },
     { label: "Feed", page: "Feed" },
-    { label: "Discover", page: "Discover" },
     { label: "Notifications", page: "Notifications" },
     { label: "Dashboard", page: "Dashboard" },
     { label: "Profile", page: "Profile" },
-    { label: "All Things New", page: "ContentHub" },
-    { label: "Resources", page: "Resources" },
     { label: "Settings", page: "Settings" },
   ];
 

@@ -17,7 +17,7 @@ const navLinks = [
   { key: "assistant", page: "Assistant" },
 ];
 
-const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","GroupChat","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession","DailyDevotion","Discover","Leaderboard","DailyTruthFeed","InstitutionPage","InstitutionDashboard","InstitutionControlCenter","Settings","Post","GlowFeed","GenerationLightMode","LightReflections","FaithQuiz","TerritoryPhotos","ContentHub"];
+const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","GroupChat","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession","DailyDevotion","Discover","Leaderboard","DailyTruthFeed","InstitutionPage","InstitutionDashboard","InstitutionControlCenter","Settings","Post","GlowFeed","GenerationLightMode","LightReflections","FaithQuiz","TerritoryPhotos"];
 
 export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,7 +26,7 @@ export default function Layout({ children, currentPageName }) {
   const usesDarkPublicHeader = !isAppShellPage;
   const isMobileViewport = useIsMobile();
   // On mobile, these pages render their own full-bleed mobile shell (with their own nav + footer).
-  const mobileOwnedPages = ["Home", "About", "Impact", "Assistant", "Resources", "KeepIt100", "CodesOfTruth", "Challenges", "Media", "Privacy", "GenerationLightMode"];
+  const mobileOwnedPages = ["Home", "About", "Impact", "Assistant", "Resources", "KeepIt100", "CodesOfTruth", "Challenges", "Media", "Privacy", "GenerationLightMode", "ContentHub"];
   const hideDesktopChrome = isMobileViewport && mobileOwnedPages.includes(currentPageName);
   const [scrolled, setScrolled] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
@@ -652,12 +652,12 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Page Content */}
-      <main className={`${isAppShellPage || currentPageName === "Home" || isLegalPage || hideDesktopChrome ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"} ${isAppShellPage ? "has-mobile-bottom-nav" : ""}`}>
+      <main className={`${isAppShellPage || currentPageName === "Home" || isLegalPage || hideDesktopChrome ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"} ${(isAppShellPage || currentPageName === "ContentHub") ? "has-mobile-bottom-nav" : ""}`}>
         {children}
       </main>
 
       {/* Mobile bottom nav — app-shell pages only */}
-      {isAppShellPage && <MobileBottomNav currentPageName={currentPageName} />}
+      {(isAppShellPage || currentPageName === "ContentHub") && <MobileBottomNav currentPageName={currentPageName} />}
 
       {/* FOOTER — public-site only */}
       {!isAppShellPage && !hideDesktopChrome ? (

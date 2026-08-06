@@ -697,7 +697,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
           // Leader text posts share the dark glass treatment with media posts.
           const useGlass = drop.media_url || isLeaderContent || isKeepIt100 || isCodeOfTruth;
           return (
-        <div className="absolute right-2 sm:right-3 bottom-4 sm:bottom-6 z-20 flex flex-col items-center gap-3 sm:gap-5">
+        <div className="absolute left-0 right-0 bottom-0 z-20 flex flex-row items-center justify-center gap-3 sm:gap-5 px-3 sm:px-4 py-2.5 sm:py-3" style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%)" }}>
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleLike}
@@ -741,7 +741,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
             </button>
           </div>
 
-          <div className="flex flex-col items-center gap-1 sm:gap-1.5 mt-1 sm:mt-2">
+          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
             <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <button
@@ -804,9 +804,11 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
           );
         })()}
         {isGuest && (
-          <button type="button" onClick={handleShareClick} className="absolute right-3 bottom-4 z-30 w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] shadow-lg" aria-label="Share post">
-            <Share2 className="w-5 h-5 text-[#0B3FD9]" />
-          </button>
+          <div className="absolute left-0 right-0 bottom-0 z-30 flex flex-row items-center justify-center gap-3 px-4 py-3" style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%)" }}>
+            <button type="button" onClick={handleShareClick} className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] shadow-lg" aria-label="Share post">
+              <Share2 className="w-5 h-5 text-[#0B3FD9]" />
+            </button>
+          </div>
         )}
       </div>
 
