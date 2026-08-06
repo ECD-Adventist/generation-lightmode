@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import { fetchContentFile } from "./contentMedia";
 
 export default function ContentThumbnail({ item, fallback, priority = false, className = "w-full h-full object-cover" }) {
-  const candidates = [item.thumbnail_url, item.image_url].filter(Boolean);
+  // Only trust the stored thumbnail_url as a direct <img> source.
+  // The Google Drive thumbnail URL (image_url) only works for public files —
+  // for private shared-drive files it renders a broken-image icon before
+  // onError fires, so we skip it and recover via the authenticated stream.
+  const candidates = [item.thumbnail_url].filter(Boolean);
   const [candidateIndex, setCandidateIndex] = useState(0);
   const [mediaUrl, setMediaUrl] = useState("");
   const [recovering, setRecovering] = useState(false);
