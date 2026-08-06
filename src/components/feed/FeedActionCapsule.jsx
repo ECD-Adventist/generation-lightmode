@@ -15,7 +15,7 @@ export function FeedActionItem({ icon, label, value, onClick, to, active = false
 
 export default function FeedActionCapsule({ children, more }) {
   return (
-    <div className="absolute left-2.5 right-2.5 bottom-4 z-30 flex items-center gap-2 pointer-events-none" onClick={(event) => event.stopPropagation()}>
+    <div className="absolute left-2.5 right-2.5 bottom-3 z-30 flex items-center gap-2 pointer-events-none" onClick={(event) => event.stopPropagation()}>
       <div className="min-w-0 flex-1 rounded-full p-[2px] pointer-events-auto" style={{ background: "linear-gradient(105deg, #18C8FF 0%, #55D5C8 48%, #F4C84A 100%)", boxShadow: "0 6px 20px rgba(24,200,255,0.28), 0 6px 20px rgba(244,200,74,0.20)" }}>
         <div className="grid grid-cols-5 overflow-hidden rounded-full bg-[#08111F]/95 backdrop-blur-xl border border-white/10">
           {children}

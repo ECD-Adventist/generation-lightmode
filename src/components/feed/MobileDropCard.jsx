@@ -176,7 +176,7 @@ function MobileDropCard({
           ) : isCodeOfTruth ? (
             <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
           ) : (
-            <div className="absolute inset-0 px-6 pt-20 pb-24 flex flex-col items-center justify-center text-center" style={{ background: "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
+            <div className="absolute inset-0 px-6 pt-20 pb-28 flex flex-col items-center justify-center text-center" style={{ background: "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
               {drop.verse && (
                 <p className="text-[20px] font-black leading-tight mb-4 line-clamp-7" style={{ color: "#62A4FF", fontFamily: "Space Grotesk, Inter, sans-serif" }}>
                   {drop.verse}

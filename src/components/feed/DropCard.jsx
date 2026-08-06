@@ -303,7 +303,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
 
   return (
     <div
-      className="rounded-[1.75rem] sm:rounded-[2.25rem] mb-6 sm:mb-8 p-2 sm:p-3 transition-all duration-300 group hover:-translate-y-0.5 relative"
+      className="rounded-[1.75rem] sm:rounded-[2.25rem] mb-6 sm:mb-8 px-2 sm:px-3 pb-2 sm:pb-3 pt-0 transition-all duration-300 group hover:-translate-y-0.5 relative"
       style={isLeaderPost ? {
         background: "linear-gradient(135deg, #FFFFFF 0%, #F4F8FF 50%, #FFFCF0 100%)",
         border: "1px solid #FFE4A0",
@@ -386,7 +386,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
       `}</style>
 
       <div
-        className={`relative w-full rounded-xl sm:rounded-[1.5rem] overflow-hidden shadow-inner ${
+        className={`relative w-full rounded-t-xl sm:rounded-t-[1.5rem] overflow-hidden shadow-inner ${
           drop.media_url
             ? 'aspect-[4/5] sm:aspect-[3/4]'
             : isKeepIt100 || isCodeOfTruth
@@ -539,7 +539,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
             {isCodeOfTruth && (
               <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
             )}
-            <div className={isKeepIt100 ? "absolute z-10 top-[15.5%] bottom-[35%] left-[13%] right-[16%] flex items-center justify-center text-center overflow-hidden" : isCodeOfTruth ? "hidden" : `p-4 sm:p-8 pr-14 sm:pr-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderContent ? "py-10 sm:py-14" : ""}`}>
+            <div className={isKeepIt100 ? "absolute z-10 top-[15.5%] bottom-[35%] left-[13%] right-[16%] flex items-center justify-center text-center overflow-hidden" : isCodeOfTruth ? "hidden" : `p-4 sm:p-8 pr-14 sm:pr-20 pb-16 sm:pb-20 relative z-10 w-full h-full flex flex-col items-center justify-center ${isLeaderContent ? "py-10 sm:py-14" : ""}`}>
               {isKeepIt100 ? (
                 <div className="w-full max-w-[76%] sm:max-w-[64%] flex flex-col items-center justify-center text-center">
                   {cleanReflection(drop.reflection) && (() => {
