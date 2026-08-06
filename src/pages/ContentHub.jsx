@@ -5,6 +5,8 @@ import { Loader2, CalendarDays, Search } from "lucide-react";
 import MobileSubPageHeader from "@/components/mobile/MobileSubPageHeader";
 import ContentGroupedList from "@/components/content-hub/ContentGroupedList";
 import ContentPreviewModal from "@/components/content-hub/ContentPreviewModal";
+import ContentMonthCalendar from "@/components/content-hub/ContentMonthCalendar";
+import LanguageDropdown from "@/components/content-hub/LanguageDropdown";
 import { CONTENT_TYPES } from "@/components/content-hub/contentConstants";
 
 const CONTENT_CACHE_KEY = "all-things-new-items";
@@ -115,19 +117,24 @@ export default function ContentHub() {
         </div>
       </section>
 
-      {/* Date Picker */}
-      <section className="px-6 pb-4">
-        <div className="max-w-6xl mx-auto flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2 rounded-full px-4 py-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(0,207,255,0.2)" }}>
-            <CalendarDays size={15} style={{ color: "#00CFFF" }} />
-            <input type="date" value={selectedDate} onChange={e => { setSelectedDate(e.target.value); setViewAll(false); }}
-              className="bg-transparent text-sm text-white outline-none" style={{ colorScheme: "dark" }} />
+      {/* Calendar + Language Selector */}
+      <section className="px-6 pb-6">
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-4 items-start">
+          <div className="w-full lg:flex-1">
+            <ContentMonthCalendar items={items} selectedDate={selectedDate} onSelect={(key) => { setSelectedDate(key); setViewAll(false); }} />
           </div>
-          <button style={chip(viewAll, "#8A5CFF")} onClick={() => setViewAll(v => !v)}>{viewAll ? "Show Selected Date" : "View All Content"}</button>
+          <div className="flex flex-col gap-3 w-full lg:w-auto">
+            <button style={chip(viewAll, "#8A5CFF")} onClick={() => setViewAll(v => !v)}>
+              {viewAll ? "📅 Show Selected Date" : "📋 View All Content"}
+            </button>
+            {languages.length > 1 && (
+              <LanguageDropdown languages={languages} selected={langFilter} onSelect={setLangFilter} />
+            )}
+          </div>
         </div>
       </section>
 
-      {/* Filters */}
+      {/* Type Filters */}
       <section className="px-6 pb-6">
         <div className="max-w-6xl mx-auto flex flex-wrap justify-center gap-2">
           <button style={chip(typeFilter === "all")} onClick={() => setTypeFilter("all")}>All Types</button>
@@ -139,15 +146,6 @@ export default function ContentHub() {
               </button>
             );
           })}
-          {languages.length > 1 && (
-            <>
-              <span className="w-px self-stretch mx-1" style={{ background: "rgba(255,255,255,0.1)" }} />
-              <button style={chip(langFilter === "all", "#FFD000")} onClick={() => setLangFilter("all")}>All Languages</button>
-              {languages.map(l => (
-                <button key={l} style={chip(langFilter === l, "#FFD000")} onClick={() => setLangFilter(l)}>{l}</button>
-              ))}
-            </>
-          )}
         </div>
       </section>
 

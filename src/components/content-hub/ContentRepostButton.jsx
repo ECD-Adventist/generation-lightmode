@@ -1,8 +1,20 @@
 import React, { useState } from "react";
-import { Repeat2 } from "lucide-react";
+import { Repeat2, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+
+const ALLOWED_MEDIA_HOSTS = ["media.base44.com", "base44.app", "images.unsplash.com", "res.cloudinary.com"];
+
+const isAllowedMediaUrl = (url) => {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return ALLOWED_MEDIA_HOSTS.some(host => parsed.hostname === host || parsed.hostname.endsWith("." + host));
+  } catch {
+    return false;
+  }
+};
 
 export default function ContentRepostButton({ item }) {
   const [loading, setLoading] = useState(false);
@@ -16,12 +28,16 @@ export default function ContentRepostButton({ item }) {
     }
     setLoading(true);
     try {
+      // Only pass media_url if it's from an allowed CDN host.
+      // Google Drive thumbnail URLs are rejected by createGlowDrop's server-side validation.
+      const safeMediaUrl = isAllowedMediaUrl(item.thumbnail_url) ? item.thumbnail_url : null;
+
       await base44.functions.invoke("createGlowDrop", {
         verse: item.title || "",
         reflection: item.description || "",
         hashtags: "#AllThingsNew #FaithAlwaysOn",
         category: "Devotional",
-        media_url: item.thumbnail_url || null,
+        media_url: safeMediaUrl,
       });
       await base44.functions.invoke("trackContentEngagement", {
         content_id: item.id,
@@ -39,10 +55,10 @@ export default function ContentRepostButton({ item }) {
 
   return (
     <button type="button" onClick={handleRepost} disabled={loading}
-      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-black text-[11.5px] font-['Space_Grotesk'] transition active:scale-95 disabled:opacity-50"
+      className="w-10 h-10 rounded-full flex items-center justify-center transition active:scale-95 disabled:opacity-50"
       style={{ background: "rgba(138,92,255,0.12)", border: "1px solid rgba(138,92,255,0.4)", color: "#8A5CFF" }}
       title="Repost to Generation LightMode feed">
-      <Repeat2 size={13} /> {loading ? "Posting…" : "Repost"}
+      {loading ? <Loader2 size={14} className="animate-spin" /> : <Repeat2 size={14} />}
     </button>
   );
 }

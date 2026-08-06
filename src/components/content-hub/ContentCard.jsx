@@ -126,20 +126,23 @@ export default function ContentCard({ item, priority = false }) {
     track("share", platform).catch(() => {});
   };
 
+  const isPoster = item.content_type === "poster";
+
   return (
-    <div className="rounded-2xl overflow-hidden flex flex-col relative" style={{ background: "#121826", border: `1px solid ${meta.color}25` }}>
+    <div className="flex flex-col relative" style={{ background: "#121826" }}>
       <div
         role="button"
         tabIndex={0}
         onClick={() => item.download_url && handleView()}
         onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && item.download_url) { e.preventDefault(); handleView(); } }}
         onPointerEnter={primePreview}
-        className="relative aspect-video cursor-pointer"
-        style={{ background: `${meta.color}10` }}
+        className={`relative cursor-pointer overflow-hidden ${isPoster ? "aspect-[3/4]" : "aspect-video"}`}
+        style={{ background: "#0B0F1A" }}
       >
         <ContentThumbnail
           item={item}
           priority={priority}
+          className={isPoster ? "w-full h-full object-contain" : undefined}
           fallback={<div className="w-full h-full flex items-center justify-center"><meta.icon className="w-8 h-8" style={{ color: meta.color }} /></div>}
         />
         <span className="absolute top-2 right-2 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full" style={{ background: "rgba(11,15,26,0.85)", color: "#C8D0E0", border: "1px solid rgba(255,255,255,0.15)" }}>
@@ -147,7 +150,7 @@ export default function ContentCard({ item, priority = false }) {
         </span>
       </div>
 
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-4 flex flex-col flex-1 rounded-b-xl" style={{ border: `1px solid ${meta.color}25`, borderTop: "none" }}>
         <h3 className="font-['Space_Grotesk'] font-black text-[14px] text-white leading-snug mb-1">{item.title}</h3>
         {item.description && <p className="text-[11.5px] leading-relaxed mb-3 line-clamp-2" style={{ color: "#8A9BB0" }}>{item.description}</p>}
 
@@ -214,13 +217,14 @@ export default function ContentCard({ item, priority = false }) {
 
 export function LockedContentCard({ item }) {
   const meta = typeMeta(item.content_type);
+  const isPoster = item.content_type === "poster";
   return (
-    <div className="rounded-2xl overflow-hidden relative" style={{ background: "#121826", border: "1px solid rgba(255,255,255,0.06)", opacity: 0.85 }}>
-      <div className="relative aspect-video overflow-hidden" style={{ background: "rgba(255,255,255,0.03)" }}>
+    <div className="overflow-hidden relative" style={{ background: "#121826", border: "1px solid rgba(255,255,255,0.06)", opacity: 0.85 }}>
+      <div className={`relative overflow-hidden ${isPoster ? "aspect-[3/4]" : "aspect-video"}`} style={{ background: "rgba(255,255,255,0.03)" }}>
         <ContentThumbnail
           item={item}
-          className="w-full h-full object-cover blur-[6px] scale-105"
-          fallback={<div className="w-full h-full flex items-center justify-center text-4xl opacity-30">{meta.emoji}</div>}
+          className={`w-full h-full object-cover blur-[6px] scale-105 ${isPoster ? "" : ""}`}
+          fallback={<div className="w-full h-full flex items-center justify-center"><meta.icon className="w-8 h-8 opacity-30" style={{ color: meta.color }} /></div>}
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5" style={{ background: "rgba(11,15,26,0.6)" }}>
           <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,208,0,0.12)", border: "1px solid rgba(255,208,0,0.35)" }}>
