@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Repeat2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -14,6 +14,12 @@ export default function RepostButton({ drop, user, compact = false, dark = false
     staleTime: 60000,
   });
   const existing = records.find(record => record.original_post_id === originalId);
+  const [displayedCount, setDisplayedCount] = useState(drop?.reposts_count || 0);
+
+  useEffect(() => {
+    setDisplayedCount(drop?.reposts_count || 0);
+  }, [drop?.reposts_count]);
+
   const mutation = useMutation({
     mutationFn: async () => {
       const response = await base44.functions.invoke("manageRepost", { action: existing ? "undo" : "create", original_post_id: originalId });
@@ -22,19 +28,25 @@ export default function RepostButton({ drop, user, compact = false, dark = false
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["myReposts", user.id] });
       const previous = queryClient.getQueryData(["myReposts", user.id]) || [];
+      const previousCount = displayedCount;
+      const toastId = toast.loading(existing ? "Removing repost..." : "Reposting...");
+      setDisplayedCount(count => Math.max(0, count + (existing ? -1 : 1)));
       queryClient.setQueryData(["myReposts", user.id], existing
         ? previous.filter(record => record.id !== existing.id)
         : [{ id: `pending-${originalId}`, original_post_id: originalId, reposter_user_id: user.id }, ...previous]);
-      return { previous };
+      return { previous, previousCount, toastId };
     },
-    onSuccess: (data) => {
+    onSuccess: (data, _variables, context) => {
       queryClient.invalidateQueries({ queryKey: ["myReposts", user.id] });
-      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
-      toast.success(data.action === "undone" ? "Repost undone" : "Reposted to your feed");
+      ["allGlowDrops", "glowFeed", "feedDrops", "discoverDrops"].forEach(queryKey => {
+        queryClient.invalidateQueries({ queryKey: [queryKey] });
+      });
+      toast.success(data.action === "undone" ? "Repost undone" : "Reposted to your feed", { id: context?.toastId });
     },
     onError: (error, _variables, context) => {
       if (context?.previous) queryClient.setQueryData(["myReposts", user.id], context.previous);
-      toast.error(error?.response?.data?.error || error?.message || "Repost failed");
+      if (typeof context?.previousCount === "number") setDisplayedCount(context.previousCount);
+      toast.error(error?.response?.data?.error || error?.message || "Repost failed", { id: context?.toastId });
     },
   });
   if (!user || !originalId || drop?.user_email === user.email || drop?.hidden || drop?.is_flagged || drop?.status === "rejected") return null;
@@ -53,7 +65,7 @@ export default function RepostButton({ drop, user, compact = false, dark = false
       >
         <Repeat2 className="w-5 h-5" />
       </span>
-      <span className={compact ? "" : "text-[11px] font-black"} style={compact ? undefined : { textShadow: dark && !dock ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>{compact ? (existing ? "Undo repost" : "Repost") : (drop.reposts_count || 0)}</span>
+      <span className={compact ? "" : "text-[11px] font-black"} style={compact ? undefined : { textShadow: dark && !dock ? "0 1px 4px rgba(0,0,0,0.65)" : "none" }}>{compact ? (existing ? "Undo repost" : "Repost") : displayedCount}</span>
       {dock && <span className="text-[10px] text-white/70">reposts</span>}
     </button>
   );
