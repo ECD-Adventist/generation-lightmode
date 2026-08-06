@@ -53,12 +53,11 @@ export default function RepostButton({ drop, user, compact = false, dark = false
   if (capsule) {
     return (
       <button type="button" disabled={mutation.isPending} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); mutation.mutate(); }}
-        className="min-w-0 h-[70px] sm:h-[76px] px-1 sm:px-2.5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-left border-r border-[#31516D] transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#18C8FF]"
+        className="min-w-0 h-[44px] sm:h-[48px] px-1 sm:px-2 flex items-center justify-center gap-1 border-r border-[#31516D] last:border-r-0 transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#18C8FF]"
         title={existing ? "Undo repost" : "Repost"} aria-label={existing ? "Undo repost" : "Repost"}>
         <Repeat2 className={`shrink-0 w-5 h-5 sm:w-6 sm:h-6 ${existing ? "text-[#F4C84A]" : "text-[#18C8FF]"}`} />
         <span className="min-w-0 flex flex-col items-center sm:items-start leading-none">
-          <span className="text-[9px] sm:text-[13px] font-bold text-white truncate">{existing ? "Undo" : "Repost"}</span>
-          <span className="mt-1 text-[8px] sm:text-[11px] font-medium text-[#A8B4C5] truncate">{displayedCount}</span>
+          {displayedCount > 0 && <span className="text-[10px] sm:text-[11px] font-bold text-white/90 leading-none">{displayedCount}</span>}
         </span>
       </button>
     );

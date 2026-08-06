@@ -699,8 +699,8 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
             more={
               <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
                 <DropdownMenuTrigger asChild>
-                  <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v); }} className="w-[50px] h-[50px] sm:w-[56px] sm:h-[56px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF] focus:outline-none" aria-label="More post options">
-                    <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v); }} className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF] focus:outline-none" aria-label="More post options">
+                    <MoreHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-card border border-border text-foreground w-40 z-50">
@@ -722,11 +722,11 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
               </DropdownMenu>
             }
           >
-            <FeedActionItem icon={<Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${userHasLiked ? "fill-[#F4C84A]" : ""}`} />} label="Like" value={drop.likes_count || 0} active={userHasLiked} onClick={handleLike} ariaLabel={userHasLiked ? "Unlike this drop" : "Like this drop"} />
-            <FeedActionItem icon={<MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />} label="Comment" value={showComments ? comments.length : commentsCount} active={showComments} onClick={handleCommentToggle} />
-            <FeedActionItem icon={<Share2 className="w-5 h-5 sm:w-6 sm:h-6" />} label="Share" value={drop.shares_count || 0} onClick={handleShareClick} />
+            <FeedActionItem icon={<Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${userHasLiked ? "fill-[#F4C84A]" : ""}`} />} label="Like" value={drop.likes_count || 0} active={userHasLiked} onClick={handleLike} ariaLabel={userHasLiked ? "Unlike this drop" : "Like this drop"} />
+            <FeedActionItem icon={<MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />} label="Comment" value={showComments ? comments.length : commentsCount} active={showComments} onClick={handleCommentToggle} />
+            <FeedActionItem icon={<Share2 className="w-4 h-4 sm:w-5 sm:h-5" />} label="Share" value={drop.shares_count || 0} onClick={handleShareClick} />
             <RepostButton drop={drop} user={user} capsule />
-            <FeedActionItem icon={<Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 ${isSaved ? "fill-current" : ""}`} />} label={isSaved ? "Saved" : "Save"} active={isSaved} onClick={handleSaveClick} />
+            <FeedActionItem icon={<Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isSaved ? "fill-current" : ""}`} />} label={isSaved ? "Saved" : "Save"} active={isSaved} onClick={handleSaveClick} />
           </FeedActionCapsule>
         )}
         {isGuest && (

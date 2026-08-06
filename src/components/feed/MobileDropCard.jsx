@@ -220,7 +220,7 @@ function MobileDropCard({
         <FeedActionCapsule
           more={
             <DropdownMenu>
-              <DropdownMenuTrigger asChild><button className="w-[50px] h-[50px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF]" aria-label="Post options"><MoreHorizontal className="w-5 h-5" /></button></DropdownMenuTrigger>
+              <DropdownMenuTrigger asChild><button className="w-[44px] h-[44px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF]" aria-label="Post options"><MoreHorizontal className="w-4 h-4" /></button></DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
                 {(drop.media_url ? canEditMusic : true) && <DropdownMenuItem onClick={() => setMusicEditorOpen(true)}>{drop.audio_url ? "Change Music" : "Add Music"}</DropdownMenuItem>}
                 {canDelete ? <DropdownMenuItem className="text-red-500" onClick={() => { if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }}>Delete Post</DropdownMenuItem> : drop.media_url ? <DropdownMenuItem onClick={() => { if (!user) return toast.error("Please log in to report"); const reason = window.prompt("Why are you reporting this content?"); if (reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Reported")); }}>Report Post</DropdownMenuItem> : null}
@@ -228,11 +228,11 @@ function MobileDropCard({
             </DropdownMenu>
           }
         >
-          <FeedActionItem icon={<Heart className={`w-5 h-5 ${userHasLiked ? "fill-[#F4C84A]" : ""}`} />} label="Like" value={drop.likes_count || 0} active={userHasLiked} onClick={handleLike} />
-          <FeedActionItem icon={<MessageCircle className="w-5 h-5" />} label="Comment" value={0} to={postLink} />
-          <FeedActionItem icon={<Share2 className="w-5 h-5" />} label="Share" value={drop.shares_count || 0} onClick={(event) => { event.stopPropagation(); handleShare(drop); }} />
+          <FeedActionItem icon={<Heart className={`w-4 h-4 ${userHasLiked ? "fill-[#F4C84A]" : ""}`} />} label="Like" value={drop.likes_count || 0} active={userHasLiked} onClick={handleLike} />
+          <FeedActionItem icon={<MessageCircle className="w-4 h-4" />} label="Comment" value={0} to={postLink} />
+          <FeedActionItem icon={<Share2 className="w-4 h-4" />} label="Share" value={drop.shares_count || 0} onClick={(event) => { event.stopPropagation(); handleShare(drop); }} />
           <RepostButton drop={drop} user={user} capsule />
-          <FeedActionItem icon={<Bookmark className={`w-5 h-5 ${isSaved ? "fill-current" : ""}`} />} label={isSaved ? "Saved" : "Save"} active={isSaved} onClick={() => toggleSaveMutation.mutate()} />
+          <FeedActionItem icon={<Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />} label={isSaved ? "Saved" : "Save"} active={isSaved} onClick={() => toggleSaveMutation.mutate()} />
         </FeedActionCapsule>
       </div>
 
