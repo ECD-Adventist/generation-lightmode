@@ -22,31 +22,29 @@ export default function RepostButton({ drop, user, compact = false, dark = false
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const response = await base44.functions.invoke("manageRepost", { action: existing ? "undo" : "create", original_post_id: originalId });
+      // The server resolves the canonical post id and decides create vs undo. The client
+      // never guesses — a stale cache used to send "undo" for a post that was never reposted.
+      const response = await base44.functions.invoke("manageRepost", { action: "toggle", original_post_id: originalId });
       return response.data;
     },
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ["myReposts", user.id] });
-      const previous = queryClient.getQueryData(["myReposts", user.id]) || [];
       const previousCount = displayedCount;
       const toastId = toast.loading(existing ? "Removing repost..." : "Reposting...");
-      setDisplayedCount(count => Math.max(0, count + (existing ? -1 : 1)));
-      queryClient.setQueryData(["myReposts", user.id], existing
-        ? previous.filter(record => record.id !== existing.id)
-        : [{ id: `pending-${originalId}`, original_post_id: originalId, reposter_user_id: user.id }, ...previous]);
-      return { previous, previousCount, toastId };
+      return { previousCount, toastId };
     },
     onSuccess: (data, _variables, context) => {
+      if (typeof data?.reposts_count === "number") setDisplayedCount(data.reposts_count);
       queryClient.invalidateQueries({ queryKey: ["myReposts", user.id] });
       ["allGlowDrops", "glowFeed", "feedDrops", "discoverDrops"].forEach(queryKey => {
         queryClient.invalidateQueries({ queryKey: [queryKey] });
       });
-      toast.success(data.action === "undone" ? "Repost undone" : "Reposted to your feed", { id: context?.toastId });
+      toast.success(data?.reposted ? "Reposted to your feed" : "Repost undone", { id: context?.toastId });
     },
     onError: (error, _variables, context) => {
-      if (context?.previous) queryClient.setQueryData(["myReposts", user.id], context.previous);
       if (typeof context?.previousCount === "number") setDisplayedCount(context.previousCount);
-      toast.error(error?.response?.data?.error || error?.message || "Repost failed", { id: context?.toastId });
+      const message = error?.response?.data?.error || error?.message || "Repost failed";
+      console.error("Repost failed:", message, error);
+      toast.error(message, { id: context?.toastId });
     },
   });
   if (!user || !originalId || drop?.user_email === user.email || drop?.hidden || drop?.is_flagged || drop?.status === "rejected") return null;
