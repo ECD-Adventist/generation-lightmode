@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Loader2, ImagePlus, Type, X } from "lucide-react";
+import { Loader2, ImagePlus, Type, X, Music } from "lucide-react";
+import MusicPickerModal from "./MusicPickerModal";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -26,10 +27,12 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [music, setMusic] = useState(null);
+  const [musicPickerOpen, setMusicPickerOpen] = useState(false);
   const fileRef = useRef(null);
   const queryClient = useQueryClient();
 
-  const reset = () => { setMode("status"); setText(""); setTheme("ocean"); setFile(null); setPreview(null); };
+  const reset = () => { setMode("status"); setText(""); setTheme("ocean"); setFile(null); setPreview(null); setMusic(null); };
   const handleClose = () => { reset(); onClose(); };
 
   const handleFileChange = async (e) => {
@@ -63,6 +66,8 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
       media_url: mediaUrl,
       text_content: mode === "status" ? text.trim() : "",
       background_theme: theme,
+      audio_url: music?.audio_url || "",
+      audio_title: music?.audio_title || "",
       expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     });
 
@@ -174,6 +179,28 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
             </div>
           )}
 
+          {/* Music */}
+          <div>
+            <Label className="text-xs text-[#6B7FA0] uppercase tracking-wider mb-2 block">Music</Label>
+            {music ? (
+              <div className="flex items-center gap-2 rounded-xl px-3 py-2.5 bg-[#F6F8FC] border border-[#E6ECF5]">
+                <Music className="w-4 h-4 shrink-0" style={{ color: "#0B3FD9" }} />
+                <span className="text-sm font-bold truncate flex-1">{music.audio_title}</span>
+                <button type="button" onClick={() => setMusic(null)} className="text-[#8A97B5] hover:text-[#0B1B3D]">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setMusicPickerOpen(true)}
+                className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold border border-dashed border-[#D6E4FF] bg-[#F6F8FC] text-[#0B3FD9] hover:bg-[#EEF3FF] transition"
+              >
+                <Music className="w-4 h-4" /> Add music
+              </button>
+            )}
+          </div>
+
           <Button
             type="submit"
             disabled={saving}
@@ -183,6 +210,11 @@ export default function StatusComposerModal({ isOpen, onClose, user }) {
           </Button>
         </form>
       </DialogContent>
+      <MusicPickerModal
+        isOpen={musicPickerOpen}
+        onClose={() => setMusicPickerOpen(false)}
+        onSelect={(track) => setMusic(track)}
+      />
     </Dialog>
   );
 }

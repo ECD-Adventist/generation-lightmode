@@ -6,6 +6,7 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import StoryReactionBar from "./StoryReactionBar";
+import StoryAudio from "./StoryAudio";
 import { getDisplayName } from "@/lib/displayName";
 
 const themeClasses = {
@@ -305,6 +306,9 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
           <button className="w-1/3 h-full" onMouseDown={() => setIsPaused(true)} onMouseUp={() => setIsPaused(false)} aria-label="Hold" />
           <button className="w-1/3 h-full" onClick={goNext} aria-label="Next" />
         </div>
+
+        {/* Attached music */}
+        <StoryAudio src={currentStory.audio_url} title={currentStory.audio_title} isPaused={isPaused || !imageLoaded} />
 
         {/* Reaction bar with like, emoji reactions, reply */}
         {currentUser && (
