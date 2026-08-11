@@ -67,7 +67,9 @@ export async function enforceApiRateLimit(base44, req, user = null) {
 }
 
 function validateValue(name, value, rule) {
-  if (value === undefined) return rule.required ? `${name} is required` : null;
+  // `null` means "not provided" — clients legitimately send null for optional fields
+  // (e.g. a repost with no image), which must not be treated as a type mismatch.
+  if (value === undefined || value === null) return rule.required ? `${name} is required` : null;
   if (rule.type === 'string') {
     if (typeof value !== 'string') return `${name} must be a string`;
     if (rule.minLength !== undefined && value.length < rule.minLength) return `${name} is too short`;
