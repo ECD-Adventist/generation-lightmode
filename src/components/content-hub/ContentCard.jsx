@@ -127,14 +127,14 @@ export default function ContentCard({ item, priority = false }) {
   };
 
   return (
-    <div className="flex flex-col relative rounded-xl overflow-hidden" style={{ background: "#121826" }}>
+    <div className="flex flex-col relative rounded-xl" style={{ background: "#121826" }}>
       <div
         role="button"
         tabIndex={0}
         onClick={() => item.download_url && handleView()}
         onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && item.download_url) { e.preventDefault(); handleView(); } }}
         onPointerEnter={primePreview}
-        className="relative cursor-pointer overflow-hidden aspect-video"
+        className="relative cursor-pointer overflow-hidden aspect-video rounded-t-xl"
         style={{ background: "#0B0F1A" }}
       >
         <ContentThumbnail
