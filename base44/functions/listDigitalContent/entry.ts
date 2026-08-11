@@ -18,6 +18,7 @@ export default async function(req) {
         title: item.title,
         description: item.description || "",
         content_type: item.content_type,
+        category: item.category || "",
         language: item.language,
         thumbnail_url: item.thumbnail_url || "",
         scheduled_at: item.scheduled_at,

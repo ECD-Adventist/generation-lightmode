@@ -33,6 +33,7 @@ export default async function(req) {
       title: String(data.title).slice(0, 200),
       description: String(data.description || '').slice(0, 2000),
       content_type: data.content_type,
+      category: data.category || undefined,
       language: data.language,
       drive_link: data.drive_link,
       thumbnail_url: data.thumbnail_url || '',

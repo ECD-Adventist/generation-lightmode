@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Loader2, Upload, Link2, CheckCircle2, AlertCircle, HardDrive, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import DrivePickerModal from "./DrivePickerModal";
-import { CONTENT_TYPES, CONTENT_LANGUAGES } from "@/components/content-hub/contentConstants";
+import { CONTENT_TYPES, CONTENT_LANGUAGES, CONTENT_CATEGORIES, categoryMeta } from "@/components/content-hub/contentConstants";
 import GlobalTimePreview from "./GlobalTimePreview";
 
 function extractDriveId(link) {
@@ -13,7 +13,7 @@ function extractDriveId(link) {
   return m ? m[1] : null;
 }
 
-const emptyForm = { title: "", description: "", content_type: "video", language: "English", drive_link: "", thumbnail_url: "", date: "", time: "09:00" };
+const emptyForm = { title: "", description: "", content_type: "video", category: "evangelistic_videos", language: "English", drive_link: "", thumbnail_url: "", date: "", time: "09:00" };
 
 export default function ContentFormModal({ open, onClose, onSaved, item, defaultDate }) {
   const [form, setForm] = useState(emptyForm);
@@ -31,7 +31,9 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
       const d = new Date(item.scheduled_at);
       setForm({
         title: item.title || "", description: item.description || "",
-        content_type: item.content_type || "video", language: item.language || "English",
+        content_type: item.content_type || "video",
+        category: item.category || CONTENT_CATEGORIES.find(c => c.type === (item.content_type || "video"))?.id || "evangelistic_videos",
+        language: item.language || "English",
         drive_link: item.drive_link || "", thumbnail_url: item.thumbnail_url || "",
         date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
         time: `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
@@ -64,6 +66,9 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
       title: suggestedTitle,
       description: suggestedDescription,
       content_type: inferredType,
+      category: categoryMeta(f.category)?.type === inferredType
+        ? f.category
+        : CONTENT_CATEGORIES.find(c => c.type === inferredType)?.id || f.category,
       thumbnail_url: "",
     }));
     setThumbnailSuggestion(file.thumbnail_link || "");
@@ -95,6 +100,7 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
         title: form.title.trim(),
         description: form.description.trim(),
         content_type: form.content_type,
+        category: form.category,
         language: form.language,
         drive_link: form.drive_link.trim(),
         thumbnail_url: form.thumbnail_url,
@@ -142,9 +148,13 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-white/60 mb-1 block">Type *</label>
-              <select className={inputCls} value={form.content_type} onChange={e => set("content_type", e.target.value)}>
-                {CONTENT_TYPES.map(t => <option key={t.id} value={t.id} className="bg-[#0E1524]">{t.emoji} {t.label}</option>)}
+              <label className="text-xs font-bold text-white/60 mb-1 block">Category *</label>
+              <select className={inputCls} value={form.category}
+                onChange={e => {
+                  const category = e.target.value;
+                  setForm(f => ({ ...f, category, content_type: categoryMeta(category)?.type || f.content_type }));
+                }}>
+                {CONTENT_CATEGORIES.map(c => <option key={c.id} value={c.id} className="bg-[#0E1524]">{c.label}</option>)}
               </select>
             </div>
             <div>

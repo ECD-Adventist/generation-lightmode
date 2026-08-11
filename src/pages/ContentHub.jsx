@@ -20,6 +20,7 @@ const readCachedItems = () => {
 export default function ContentHub() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [langFilter, setLangFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [sharedPreviewId, setSharedPreviewId] = useState(() => new URLSearchParams(window.location.search).get("item"));
   const [selectedDate, setSelectedDate] = useState(() => new Date().toLocaleDateString("en-CA"));
@@ -66,10 +67,11 @@ export default function ContentHub() {
     const q = search.trim().toLowerCase();
     return items.filter(i =>
       (typeFilter === "all" || i.content_type === typeFilter) &&
+      (categoryFilter === "all" || i.category === categoryFilter) &&
       (langFilter === "all" || i.language === langFilter) &&
       (!q || `${i.title} ${i.description} ${i.language}`.toLowerCase().includes(q))
     );
-  }, [items, typeFilter, langFilter, search]);
+  }, [items, typeFilter, categoryFilter, langFilter, search]);
 
   const dateFiltered = viewAll ? filtered : filtered.filter(i => new Date(i.scheduled_at).toLocaleDateString("en-CA") === selectedDate);
   const unlockedItems = dateFiltered.filter(i => i.unlocked);
@@ -92,6 +94,8 @@ export default function ContentHub() {
         onLanguage={setLangFilter}
         type={typeFilter}
         onType={setTypeFilter}
+        category={categoryFilter}
+        onCategory={setCategoryFilter}
       />
 
       {loading ? (

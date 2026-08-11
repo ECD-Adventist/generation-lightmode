@@ -18,6 +18,19 @@
         "animation"
       ]
     },
+    "category": {
+      "type": "string",
+      "enum": [
+        "evangelistic_videos",
+        "testimony_videos",
+        "bible_study_guides",
+        "promotional_posters",
+        "quote_cards",
+        "invitation_cards",
+        "motion_graphics_templates"
+      ],
+      "description": "Content category selected by the admin"
+    },
     "language": {
       "type": "string",
       "maxLength": 60
