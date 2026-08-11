@@ -29,9 +29,19 @@
         "ocean",
         "violet",
         "sunrise",
-        "midnight"
+        "midnight",
+        "emerald",
+        "rose"
       ],
       "default": "ocean"
+    },
+    "audio_url": {
+      "type": "string",
+      "description": "URL of the music track attached to this status."
+    },
+    "audio_title": {
+      "type": "string",
+      "description": "Display name of the attached music track."
     },
     "expires_at": {
       "type": "string",
