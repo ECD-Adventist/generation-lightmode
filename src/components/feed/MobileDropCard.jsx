@@ -16,6 +16,7 @@ import RepostButton from "@/components/feed/RepostButton";
 import PostMusicEditor from "@/components/feed/PostMusicEditor";
 import PostAudioTrack from "@/components/feed/PostAudioTrack";
 import FeedActionCapsule, { FeedActionItem } from "@/components/feed/FeedActionCapsule";
+import MobileDropComments from "@/components/feed/MobileDropComments";
 
 /**
  * Lightweight mobile-only DropCard.
@@ -142,13 +143,16 @@ function MobileDropCard({
           <DropdownMenuTrigger asChild><button className="w-[44px] h-[44px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF]" aria-label="Post options"><MoreHorizontal className="w-4 h-4" /></button></DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
             {canEditMusic && <DropdownMenuItem onClick={() => setMusicEditorOpen(true)}>{drop.audio_url ? "Change Music" : "Add Music"}</DropdownMenuItem>}
-            {canDelete ? <DropdownMenuItem className="text-red-500" onClick={() => { if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }}>Delete Post</DropdownMenuItem> : drop.media_url ? <DropdownMenuItem onClick={() => { if (!user) return toast.error("Please log in to report"); const reason = window.prompt("Why are you reporting this content?"); if (reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Reported")); }}>Report Post</DropdownMenuItem> : null}
+            <DropdownMenuItem onClick={() => { navigator.clipboard.writeText(`${window.location.origin}${postLink}`).then(() => toast.success("Link copied")); }}>Copy Link</DropdownMenuItem>
+            {canDelete
+              ? <DropdownMenuItem className="text-red-500" onClick={() => { if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }}>Delete Post</DropdownMenuItem>
+              : <DropdownMenuItem onClick={() => { if (!user) return toast.error("Please log in to report"); const reason = window.prompt("Why are you reporting this content?"); if (reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Reported")); }}>Report Post</DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
       }
     >
       <FeedActionItem icon={<Heart className={`w-4 h-4 ${userHasLiked ? "fill-[#F4C84A]" : ""}`} />} label="Like" value={drop.likes_count || 0} active={userHasLiked} onClick={handleLike} />
-      <FeedActionItem icon={<MessageCircle className="w-4 h-4" />} label="Comment" value={0} to={postLink} />
+      <FeedActionItem icon={<MessageCircle className="w-4 h-4" />} label="Comment" active={showComments} onClick={() => setShowComments(v => !v)} />
       <FeedActionItem icon={<Share2 className="w-4 h-4" />} label="Share" value={drop.shares_count || 0} onClick={(event) => { event.stopPropagation(); handleShare(drop); }} />
       <RepostButton drop={drop} user={user} capsule />
       <FeedActionItem icon={<Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />} label={isSaved ? "Saved" : "Save"} active={isSaved} onClick={() => toggleSaveMutation.mutate()} />
@@ -252,6 +256,8 @@ function MobileDropCard({
       )}
 
       <PostAudioTrack audioUrl={drop.audio_url} audioTitle={drop.audio_title} />
+
+      {showComments && <MobileDropComments drop={drop} user={user} />}
 
       {(drop.verse || reflectionText || drop.category || drop.hashtags) && (
         <div className="px-4 py-4" style={{ background: "#F8FAFC" }}>

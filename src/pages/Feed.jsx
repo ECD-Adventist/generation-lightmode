@@ -42,6 +42,7 @@ import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
 import { tryNativeShare } from "@/lib/shareActions";
 import ShareFallbackDialog from "@/components/share/ShareFallbackDialog";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import useFeedScrollRestore from "@/hooks/useFeedScrollRestore";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
@@ -78,7 +79,10 @@ export default function Feed() {
   const [shareFallback, setShareFallback] = useState(null);
   // Mobile starts at 4 cards to minimize initial GPU/decoding cost; desktop bumps to 10 once mounted.
   const isMobileViewport = typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
-  const [displayCount, setDisplayCount] = useState(isMobileViewport ? 4 : 10);
+  // Restore how many cards were shown before navigating away (e.g. opening a post).
+  const [displayCount, setDisplayCount] = useState(() =>
+    Math.max(Number(sessionStorage.getItem("feedDisplayCount") || 0), isMobileViewport ? 4 : 10)
+  );
   const queryClient = useQueryClient();
   const feedEndRef = useRef(null);
   const feedScrollRef = useRef(null);
@@ -93,7 +97,13 @@ export default function Feed() {
 
   // Reset paginated display when the search query changes so newly-fetched
   // matching drops are visible from the top of the list.
-  useEffect(() => { setDisplayCount(isMobileViewport ? 4 : 10); }, [searchQuery, isMobileViewport]);
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    setDisplayCount(isMobileViewport ? 4 : 10);
+  }, [searchQuery, isMobileViewport]);
+
+  useEffect(() => { sessionStorage.setItem("feedDisplayCount", String(displayCount)); }, [displayCount]);
 
   useEffect(() => {
     async function checkAuth() {
@@ -465,6 +475,9 @@ export default function Feed() {
     userSearch.matchedUsers.forEach(u => { if (u?.email && !byEmail.has(u.email)) byEmail.set(u.email, u); });
     return Array.from(byEmail.values());
   }, [users, userSearch.isActive, userSearch.matchedUsers]);
+
+  useFeedScrollRestore(mobileScrollRef, drops.length > 0);
+  useFeedScrollRestore(feedScrollRef, drops.length > 0);
 
   const isAdminViewer = user?.role === "admin" || user?.role === "super_admin" || user?.role === "moderator";
 

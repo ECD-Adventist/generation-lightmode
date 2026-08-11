@@ -29,14 +29,14 @@ function FeedDropList({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) onLoadMore?.();
+        if (entry.isIntersecting && !isLoadingMore) onLoadMore?.();
       },
       { rootMargin: "700px 0px" }
     );
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [hasMore, onLoadMore]);
+  }, [hasMore, onLoadMore, isLoadingMore, displayCount, drops.length]);
 
   const visibleDrops = drops.slice(0, displayCount);
 

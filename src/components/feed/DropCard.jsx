@@ -310,7 +310,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
       more={
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>
-            <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v); }} className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF] focus:outline-none" aria-label="More post options">
+            <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF] focus:outline-none" aria-label="More post options">
               <MoreHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </DropdownMenuTrigger>

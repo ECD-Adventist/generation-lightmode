@@ -34,14 +34,16 @@ function MobileFeedDropList({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) onLoadMore?.();
+        if (entry.isIntersecting && !isLoadingMore) onLoadMore?.();
       },
-      { rootMargin: "120px 0px" }
+      { rootMargin: "300px 0px" }
     );
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [hasMore, onLoadMore]);
+    // Re-observing after each batch re-fires immediately when the sentinel is
+    // still on screen, so scrolling keeps loading instead of stalling.
+  }, [hasMore, onLoadMore, isLoadingMore, displayCount, drops.length]);
 
   const visibleDrops = drops.slice(0, displayCount);
 
