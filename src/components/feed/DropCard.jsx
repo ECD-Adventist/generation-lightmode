@@ -301,10 +301,12 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
     toggleSaveMutation.mutate();
   };
 
-  // Image posts show the action bar BELOW the media so nothing covers the artwork.
+  // Poster-style posts (photos, Keep It 100, Codes of Truth) show the action bar BELOW
+  // the artwork so nothing covers it. Other cards keep the floating capsule.
+  const showActionBarBelow = !!drop.media_url || isKeepIt100 || isCodeOfTruth;
   const actionBar = isGuest ? null : (
     <FeedActionCapsule
-      inline={!!drop.media_url}
+      inline={showActionBarBelow}
       more={
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>
@@ -426,7 +428,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
       <div
         className={`relative w-full rounded-xl sm:rounded-[1.5rem] overflow-hidden shadow-inner ${
           drop.media_url
-            ? 'aspect-[4/5] sm:aspect-[3/4]'
+            ? ''
             : isKeepIt100 || isCodeOfTruth
               ? 'aspect-[4/5] flex flex-col justify-center items-center text-center'
               : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center'
@@ -567,7 +569,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
         </div>
 
         {drop.media_url && (
-          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="w-full h-full object-contain" loading="lazy" />
+          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="block w-full h-auto" loading="lazy" />
         )}
 
         {!drop.media_url && (
@@ -732,7 +734,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
           </div>
         )}
 
-        {!isGuest && !drop.media_url && actionBar}
+        {!isGuest && !showActionBarBelow && actionBar}
         {isGuest && (
           <div className="absolute left-0 right-0 bottom-0 z-30 flex flex-row items-center justify-center gap-3 px-4 py-3" style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%)" }}>
             <button type="button" onClick={handleShareClick} className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] shadow-lg" aria-label="Share post">
@@ -742,7 +744,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
         )}
       </div>
 
-      {!isGuest && drop.media_url && <div className="pt-2.5">{actionBar}</div>}
+      {!isGuest && showActionBarBelow && <div className="pt-2.5">{actionBar}</div>}
 
       <PostMusicEditor drop={drop} isOpen={musicEditorOpen} onClose={() => setMusicEditorOpen(false)} />
 
