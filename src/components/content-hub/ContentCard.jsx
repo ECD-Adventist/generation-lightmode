@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Save, Share2, Loader2, Lock, Copy, Check, Eye } from "lucide-react";
@@ -20,22 +20,7 @@ export default function ContentCard({ item, priority = false }) {
   const [shareMenuView, setShareMenuView] = useState("main");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [shareMenuPlacement, setShareMenuPlacement] = useState("up");
-  const shareBtnRef = useRef(null);
   const queryClient = useQueryClient();
-
-  const computePlacement = useCallback(() => {
-    const el = shareBtnRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    // The menu is ~260px tall; if there's not enough space above the button,
-    // flip it to open downward instead.
-    setShareMenuPlacement(rect.top < 280 ? "down" : "up");
-  }, []);
-
-  useEffect(() => {
-    if (shareOpen) computePlacement();
-  }, [shareOpen, computePlacement]);
   const meta = typeMeta(item.content_type);
   const shareUrl = getSharePreviewUrl("content", item.id);
   const shareText = buildShareText(item.title, item.description, shareUrl);
@@ -179,7 +164,7 @@ export default function ContentCard({ item, priority = false }) {
           </button>
           <ContentRepostButton item={item} />
           <div className="relative shrink-0">
-            <button type="button" ref={shareBtnRef} onClick={toggleShareMenu}
+            <button type="button" onClick={toggleShareMenu}
               className="w-10 h-10 rounded-full flex items-center justify-center transition active:scale-95"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#C8D0E0" }}>
               <Share2 size={14} />
@@ -187,7 +172,7 @@ export default function ContentCard({ item, priority = false }) {
             {shareOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShareOpen(false)} />
-                <div className={`absolute ${shareMenuPlacement === "down" ? "top-12" : "bottom-12"} right-0 z-20 rounded-2xl p-2 min-w-[200px]`} style={{ background: "rgba(18,24,38,0.98)", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
+                <div className="absolute bottom-12 right-0 z-20 rounded-2xl p-2 min-w-[200px]" style={{ background: "rgba(18,24,38,0.98)", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
                   <div className="grid grid-cols-3 gap-1 mb-2">
                     {SHARE_PLATFORMS.map(p => {
                       const isNativeOnly = !DIRECT_SHARE_PLATFORMS.some(d => d.id === p.id);

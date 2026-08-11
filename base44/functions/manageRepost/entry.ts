@@ -12,7 +12,7 @@ export default async function(req) {
     if (limited) return limited;
 
     const validated = await readValidatedJson(req, {
-      action: { type: 'string', enum: ['create', 'undo', 'toggle'] },
+      action: { type: 'string', enum: ['create', 'undo'] },
       original_post_id: { type: 'string', maxLength: 64 },
       caption: { type: 'string', maxLength: 500 },
     });
@@ -23,7 +23,7 @@ export default async function(req) {
 
     // Resolve to the canonical original: a repost of a repost always points at the root post.
     let canonicalId = requestedId;
-    const referenced = await base44.asServiceRole.entities.Repost.filter({ id: requestedId }, '-created_at', 1).catch(() => []);
+    const referenced = await base44.asServiceRole.entities.Repost.filter({ id: requestedId }, '-created_at', 1);
     if (referenced[0]) canonicalId = referenced[0].original_post_id;
     for (let depth = 0; depth < 5; depth += 1) {
       const candidate = await base44.asServiceRole.entities.GlowDrop.get(canonicalId).catch(() => null);
@@ -46,12 +46,7 @@ export default async function(req) {
 
     const existing = await base44.asServiceRole.entities.Repost.filter({ reposter_user_id: user.id, original_post_id: canonicalId }, '-created_at', 1);
 
-    // `toggle` lets the server — the only place that knows the canonical post id and the
-    // true stored state — decide whether this click creates or undoes a repost. Clients
-    // guessing this from a cached list is what caused false "undo" calls.
-    const effectiveAction = action === 'toggle' ? (existing[0] ? 'undo' : 'create') : action;
-
-    if (effectiveAction === 'undo') {
+    if (action === 'undo') {
       const repost = existing[0];
       if (!repost) return Response.json({ error: 'You have not reposted this post' }, { status: 404 });
       // Ownership is derived from the authenticated user, never from the request body — a
@@ -59,9 +54,8 @@ export default async function(req) {
       const removed = await deleteRepostRow(repost.id, user.id);
       if (!removed) return Response.json({ error: 'Repost could not be removed from all storage systems' }, { status: 502 });
       await base44.asServiceRole.entities.Repost.delete(repost.id);
-      const nextCount = Math.max(0, (original.reposts_count || 0) - 1);
-      await base44.asServiceRole.entities.GlowDrop.update(original.id, { reposts_count: nextCount });
-      return Response.json({ success: true, action: 'undone', reposted: false, reposts_count: nextCount, original_post_id: canonicalId });
+      await base44.asServiceRole.entities.GlowDrop.update(original.id, { reposts_count: Math.max(0, (original.reposts_count || 0) - 1) });
+      return Response.json({ success: true, action: 'undone', original_post_id: canonicalId });
     }
 
     if (existing[0]) return Response.json({ error: 'You already reposted this post' }, { status: 409 });
@@ -92,8 +86,7 @@ export default async function(req) {
       return Response.json({ error: 'Repost could not be saved to all storage systems' }, { status: 502 });
     }
 
-    const nextCount = (original.reposts_count || 0) + 1;
-    await base44.asServiceRole.entities.GlowDrop.update(original.id, { reposts_count: nextCount });
+    await base44.asServiceRole.entities.GlowDrop.update(original.id, { reposts_count: (original.reposts_count || 0) + 1 });
 
     const authors = await base44.asServiceRole.entities.User.filter({ email: original.user_email }, '-created_date', 1);
     const author = authors[0];
@@ -108,7 +101,7 @@ export default async function(req) {
       });
     }
 
-    return Response.json({ success: true, action: 'created', reposted: true, reposts_count: nextCount, original_post_id: canonicalId, repost });
+    return Response.json({ success: true, action: 'created', repost });
   } catch (error) {
     console.error('manageRepost failed:', error?.message);
     return Response.json({ error: error?.message || 'Unable to manage repost' }, { status: 500 });

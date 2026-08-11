@@ -218,7 +218,6 @@ function MobileDropCard({
         )}
 
         <FeedActionCapsule
-          floating={!drop.media_url}
           more={
             <DropdownMenu>
               <DropdownMenuTrigger asChild><button className="w-[44px] h-[44px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF]" aria-label="Post options"><MoreHorizontal className="w-4 h-4" /></button></DropdownMenuTrigger>
