@@ -301,6 +301,44 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
     toggleSaveMutation.mutate();
   };
 
+  // Image posts show the action bar BELOW the media so nothing covers the artwork.
+  const actionBar = isGuest ? null : (
+    <FeedActionCapsule
+      inline={!!drop.media_url}
+      more={
+        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+          <DropdownMenuTrigger asChild>
+            <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v); }} className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF] focus:outline-none" aria-label="More post options">
+              <MoreHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-card border border-border text-foreground w-40 z-50">
+            {(() => {
+              const leaderForThisDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
+              const isManagerOfLeader = !!leaderForThisDrop && Array.isArray(leaderForThisDrop.manager_emails) && leaderForThisDrop.manager_emails.includes(user?.email);
+              const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+              const canDelete = user?.email === drop.user_email || isManagerOfLeader || isAdmin;
+              const canEditMusic = user?.email === drop.user_email || isManagerOfLeader;
+              return canDelete ? (
+                <>
+                  {canEditMusic && <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setMusicEditorOpen(true); }} className="hover:bg-muted cursor-pointer focus:bg-muted">{drop.audio_url ? "Change Music" : "Add Music"}</DropdownMenuItem>}
+                  {canEditMusic && drop.audio_url && <DropdownMenuItem onClick={(e) => { e.stopPropagation(); base44.entities.GlowDrop.update(drop.id, { audio_url: "", audio_title: "" }).then(() => { queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] }); toast.success("Music removed"); }).catch(() => toast.error("Could not remove music")); }} className="hover:bg-muted cursor-pointer focus:bg-muted">Remove Music</DropdownMenuItem>}
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }} className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer focus:bg-red-50 focus:text-red-600">Delete Post</DropdownMenuItem>
+                </>
+              ) : <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if(!user) return toast.error("Please login to report"); const reason = window.prompt("Why are you reporting this content?"); if(reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Content reported to moderators.")); }} className="hover:bg-muted cursor-pointer focus:bg-muted">Report Post</DropdownMenuItem>;
+            })()}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      }
+    >
+      <FeedActionItem icon={<Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${userHasLiked ? "fill-[#F4C84A]" : ""}`} />} label="Like" value={drop.likes_count || 0} active={userHasLiked} onClick={handleLike} ariaLabel={userHasLiked ? "Unlike this drop" : "Like this drop"} />
+      <FeedActionItem icon={<MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />} label="Comment" value={showComments ? comments.length : commentsCount} active={showComments} onClick={handleCommentToggle} />
+      <FeedActionItem icon={<Share2 className="w-4 h-4 sm:w-5 sm:h-5" />} label="Share" value={drop.shares_count || 0} onClick={handleShareClick} />
+      <RepostButton drop={drop} user={user} capsule />
+      <FeedActionItem icon={<Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isSaved ? "fill-current" : ""}`} />} label={isSaved ? "Saved" : "Save"} active={isSaved} onClick={handleSaveClick} />
+    </FeedActionCapsule>
+  );
+
   return (
     <div
       className="rounded-[1.75rem] sm:rounded-[2.25rem] mb-6 sm:mb-8 p-2 sm:p-3 transition-all duration-300 group hover:-translate-y-0.5 relative"
@@ -407,7 +445,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
         {drop.media_url && (
           <>
             <div className="absolute top-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-b from-black/40 to-transparent pointer-events-none z-0" />
-            <div className="absolute bottom-0 left-0 right-0 h-40 sm:h-56 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none z-0" />
+            <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-black/25 to-transparent pointer-events-none z-0" />
           </>
         )}
 
@@ -694,41 +732,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
           </div>
         )}
 
-        {!isGuest && (
-          <FeedActionCapsule
-            more={
-              <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-                <DropdownMenuTrigger asChild>
-                  <button type="button" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v); }} className="w-[44px] h-[44px] sm:w-[48px] sm:h-[48px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF] focus:outline-none" aria-label="More post options">
-                    <MoreHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-card border border-border text-foreground w-40 z-50">
-                  {(() => {
-                    const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
-                    const isManagerOfLeader = !!leaderForDrop && Array.isArray(leaderForDrop.manager_emails) && leaderForDrop.manager_emails.includes(user?.email);
-                    const isAdmin = user?.role === "admin" || user?.role === "super_admin";
-                    const canDelete = user?.email === drop.user_email || isManagerOfLeader || isAdmin;
-                    const canEditMusic = user?.email === drop.user_email || isManagerOfLeader;
-                    return canDelete ? (
-                      <>
-                        {canEditMusic && <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setMusicEditorOpen(true); }} className="hover:bg-muted cursor-pointer focus:bg-muted">{drop.audio_url ? "Change Music" : "Add Music"}</DropdownMenuItem>}
-                        {canEditMusic && drop.audio_url && <DropdownMenuItem onClick={(e) => { e.stopPropagation(); base44.entities.GlowDrop.update(drop.id, { audio_url: "", audio_title: "" }).then(() => { queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] }); toast.success("Music removed"); }).catch(() => toast.error("Could not remove music")); }} className="hover:bg-muted cursor-pointer focus:bg-muted">Remove Music</DropdownMenuItem>}
-                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }} className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer focus:bg-red-50 focus:text-red-600">Delete Post</DropdownMenuItem>
-                      </>
-                    ) : <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if(!user) return toast.error("Please login to report"); const reason = window.prompt("Why are you reporting this content?"); if(reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Content reported to moderators.")); }} className="hover:bg-muted cursor-pointer focus:bg-muted">Report Post</DropdownMenuItem>;
-                  })()}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            }
-          >
-            <FeedActionItem icon={<Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${userHasLiked ? "fill-[#F4C84A]" : ""}`} />} label="Like" value={drop.likes_count || 0} active={userHasLiked} onClick={handleLike} ariaLabel={userHasLiked ? "Unlike this drop" : "Like this drop"} />
-            <FeedActionItem icon={<MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />} label="Comment" value={showComments ? comments.length : commentsCount} active={showComments} onClick={handleCommentToggle} />
-            <FeedActionItem icon={<Share2 className="w-4 h-4 sm:w-5 sm:h-5" />} label="Share" value={drop.shares_count || 0} onClick={handleShareClick} />
-            <RepostButton drop={drop} user={user} capsule />
-            <FeedActionItem icon={<Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isSaved ? "fill-current" : ""}`} />} label={isSaved ? "Saved" : "Save"} active={isSaved} onClick={handleSaveClick} />
-          </FeedActionCapsule>
-        )}
+        {!isGuest && !drop.media_url && actionBar}
         {isGuest && (
           <div className="absolute left-0 right-0 bottom-0 z-30 flex flex-row items-center justify-center gap-3 px-4 py-3" style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%)" }}>
             <button type="button" onClick={handleShareClick} className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] shadow-lg" aria-label="Share post">
@@ -737,6 +741,8 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
           </div>
         )}
       </div>
+
+      {!isGuest && drop.media_url && <div className="pt-2.5">{actionBar}</div>}
 
       <PostMusicEditor drop={drop} isOpen={musicEditorOpen} onClose={() => setMusicEditorOpen(false)} />
 
