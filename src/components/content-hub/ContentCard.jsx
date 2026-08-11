@@ -20,6 +20,8 @@ export default function ContentCard({ item, priority = false }) {
   const [shareMenuView, setShareMenuView] = useState("main");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [menuPos, setMenuPos] = useState(null);
+  const shareBtnRef = React.useRef(null);
   const queryClient = useQueryClient();
   const meta = typeMeta(item.content_type);
   const shareUrl = getSharePreviewUrl("content", item.id);
@@ -59,7 +61,18 @@ export default function ContentCard({ item, priority = false }) {
 
   const toggleShareMenu = () => {
     setShareMenuView("main");
-    setShareOpen(value => !value);
+    setShareOpen(value => {
+      if (!value && shareBtnRef.current) {
+        const r = shareBtnRef.current.getBoundingClientRect();
+        const menuW = 232;
+        setMenuPos({
+          top: r.top - 8,
+          left: Math.max(8, Math.min(r.right - menuW, window.innerWidth - menuW - 8)),
+          maxHeight: Math.max(200, r.top - 16),
+        });
+      }
+      return !value;
+    });
   };
 
   const handleShare = async (platform, nativeAppLabel = "") => {
@@ -164,15 +177,15 @@ export default function ContentCard({ item, priority = false }) {
           </button>
           <ContentRepostButton item={item} />
           <div className="relative shrink-0">
-            <button type="button" onClick={toggleShareMenu}
+            <button type="button" ref={shareBtnRef} onClick={toggleShareMenu}
               className="w-10 h-10 rounded-full flex items-center justify-center transition active:scale-95"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#C8D0E0" }}>
               <Share2 size={14} />
             </button>
-            {shareOpen && (
+            {shareOpen && menuPos && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setShareOpen(false)} />
-                <div className="absolute bottom-12 right-0 z-20 rounded-2xl p-2 min-w-[200px]" style={{ background: "rgba(18,24,38,0.98)", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
+                <div className="fixed inset-0 z-[90]" onClick={() => setShareOpen(false)} />
+                <div className="fixed z-[95] rounded-2xl p-2 w-[232px] overflow-y-auto" style={{ top: menuPos.top, left: menuPos.left, maxHeight: menuPos.maxHeight, transform: "translateY(-100%)", background: "rgba(18,24,38,0.98)", border: "1px solid rgba(0,207,255,0.2)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}>
                   <div className="grid grid-cols-3 gap-1 mb-2">
                     {SHARE_PLATFORMS.map(p => {
                       const isNativeOnly = !DIRECT_SHARE_PLATFORMS.some(d => d.id === p.id);
