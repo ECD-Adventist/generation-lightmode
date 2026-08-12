@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { toast } from 'sonner';
+import { validateImageFile } from '@/lib/uploadValidation';
 
 export default function ImageCropperModal({ file, aspectRatio = 1, onCancel, onCrop }) {
   const [imageSrc, setImageSrc] = useState(null);
@@ -14,6 +16,12 @@ export default function ImageCropperModal({ file, aspectRatio = 1, onCancel, onC
 
   useEffect(() => {
     if (file) {
+      const check = validateImageFile(file);
+      if (!check.ok) {
+        toast.error(check.error);
+        onCancel();
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (e) => setImageSrc(e.target.result);
       reader.readAsDataURL(file);

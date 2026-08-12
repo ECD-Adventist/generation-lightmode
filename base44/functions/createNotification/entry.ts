@@ -28,6 +28,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'link must be relative or use HTTPS' }, { status: 400 });
     }
 
+    // Anti-spoofing: 'system' and 'milestone' notifications look like they come from the
+    // platform itself. Only admins may send them to OTHER users; regular users may only
+    // create them for themselves (e.g. self-granted milestone flows).
+    if ((type === 'system' || type === 'milestone') && user_id !== actor.id) {
+      if (actor.role !== 'admin' && actor.role !== 'super_admin') {
+        return Response.json({ error: 'Not allowed' }, { status: 403 });
+      }
+    }
+
     const target = await base44.asServiceRole.entities.User.get(user_id).catch(() => null);
     if (!target) return Response.json({ error: 'Recipient not found' }, { status: 404 });
 
