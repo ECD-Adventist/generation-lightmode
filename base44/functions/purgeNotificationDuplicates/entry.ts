@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { authorizeSchedulerOrAdmin } from '../../shared/schedulerAuth.ts';
 
 const PAGE_SIZE = 500;
 const DELETE_CHUNK = 200;
@@ -11,12 +12,10 @@ function groupKey(n) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    // Scheduled automation runs have no user session. When a user IS present,
-    // require admin. The operation is safe/idempotent (only removes exact
-    // duplicate notifications, always keeping the oldest per group).
-    let user = null;
-    try { user = await base44.auth.me(); } catch (_e) { user = null; }
-    if (user && user.role !== 'admin' && user.role !== 'super_admin') {
+    // Allow either the scheduler token (for automated runs, which have no user
+    // session) or an authenticated admin. Anonymous callers are rejected.
+    const authorized = await authorizeSchedulerOrAdmin(base44, req);
+    if (!authorized) {
       return Response.json({ error: 'Forbidden — admin only' }, { status: 403 });
     }
 
