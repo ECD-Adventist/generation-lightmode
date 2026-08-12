@@ -11,7 +11,29 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="LightMode" />
     <meta name="theme-color" content="#0B0F1A" />
-    <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; upgrade-insecure-requests" />
+    <!-- Content-Security-Policy. Delivered via meta because Base44 hosting owns the HTTP
+         response headers. Note: frame-ancestors is ignored in meta form — clickjacking is
+         already covered by the server's X-Frame-Options: DENY header (verified live).
+         'unsafe-inline' in script-src is required by the Vite dev/React Refresh bootstrap
+         and platform-injected inline module scripts in the builder preview; no dependency
+         requires 'unsafe-eval' (production bundle verified free of eval/new Function). -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               script-src 'self' 'unsafe-inline' blob:;
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+               img-src 'self' data: blob: https:;
+               font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+               media-src 'self' data: blob: https:;
+               connect-src 'self' https://*.supabase.co https://*.base44.com https://*.base44.app https://fonts.googleapis.com https://fonts.gstatic.com https://*.ingest.sentry.io https://flagcdn.com https://images.unsplash.com;
+               worker-src 'self' blob:;
+               frame-src 'self' https://www.youtube.com;
+               frame-ancestors 'none';
+               base-uri 'self';
+               form-action 'self';
+               object-src 'none';
+               upgrade-insecure-requests"
+    />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <link rel="manifest" href="/manifest.json" />
     <title>LightMode</title>
