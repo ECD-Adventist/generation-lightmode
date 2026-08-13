@@ -99,7 +99,7 @@ function AdminCenterInner() {
   const isMissionary = MISSIONARY_ROLES.includes(user?.role);
   const isRegionalAdmin = ["ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin"].includes(user?.role);
 
-  if (!loading && user && !isAdmin && !isModerator && !isLeader && !isMissionary) {
+  if (!loading && (!user || (!isAdmin && !isModerator && !isLeader && !isMissionary))) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ background: t.appBg, color: t.textPrimary }}>
         <div className="text-red-500 mb-2"><ShieldAlert size={48} /></div>
