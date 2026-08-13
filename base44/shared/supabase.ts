@@ -13,6 +13,26 @@ export const getSupabaseServiceKey = (): string => {
   return Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
 };
 
+// Per-isolate cache of table → column set (from the PostgREST OpenAPI schema).
+let schemaCache: Map<string, Set<string>> | null = null;
+export const getTableColumns = async (url: string, key: string, tableName: string): Promise<Set<string> | null> => {
+  if (!schemaCache) {
+    try {
+      const res = await fetch(`${url}/rest/v1/`, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
+      if (!res.ok) return null;
+      const spec = await res.json();
+      const defs = spec?.definitions || spec?.components?.schemas || {};
+      schemaCache = new Map();
+      for (const [table, schema] of Object.entries(defs)) {
+        schemaCache.set(table, new Set(Object.keys((schema as any)?.properties || {})));
+      }
+    } catch {
+      return null;
+    }
+  }
+  return schemaCache.get(tableName) || null;
+};
+
 // Canonical Base44 entity → Supabase table mapping. Supabase tables are snake_case;
 // never pass a PascalCase entity name to PostgREST (it 404s: "Could not find the table").
 export const SUPABASE_TABLE_MAP: Record<string, string> = {
@@ -36,6 +56,17 @@ export const mirrorToSupabase = async (table: string, row: Record<string, any>):
   const tableName = SUPABASE_TABLE_MAP[table] || table;
   if (!key || !row?.id) return false;
   try {
+    // Only send columns that actually exist in the Supabase table — Base44 records
+    // carry extra fields (e.g. author_avatar) that make PostgREST reject the whole
+    // insert with 400 PGRST204. Schema is cached per isolate.
+    const columns = await getTableColumns(url, key, tableName);
+    let payload = row;
+    if (columns && columns.size > 0) {
+      payload = {};
+      for (const [k, v] of Object.entries(row)) {
+        if (columns.has(k)) payload[k] = v === undefined ? null : (v && typeof v === 'object' ? JSON.stringify(v) : v);
+      }
+    }
     const res = await fetch(`${url}/rest/v1/${tableName}`, {
       method: 'POST',
       headers: {
@@ -44,7 +75,7 @@ export const mirrorToSupabase = async (table: string, row: Record<string, any>):
         'Content-Type': 'application/json',
         Prefer: 'resolution=merge-duplicates,return=minimal',
       },
-      body: JSON.stringify(row),
+      body: JSON.stringify(payload),
     });
     if (!res.ok) {
       const body = await res.text().catch(() => '');
