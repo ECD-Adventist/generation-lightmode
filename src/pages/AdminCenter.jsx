@@ -55,17 +55,22 @@ function AdminCenterInner() {
 
   useEffect(() => {
     async function checkAuth() {
-      const isAuth = await base44.auth.isAuthenticated();
-      if (!isAuth) {
-        base44.auth.redirectToLogin(window.location.pathname);
-        return;
+      try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (!isAuth) {
+          base44.auth.redirectToLogin(window.location.pathname);
+          return;
+        }
+        const me = await base44.auth.me();
+        setUser(me);
+        if (!urlParams.get("tab") && REGIONAL_ROLES.includes(me?.role)) {
+          setActiveTab("territory-map");
+        }
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-      const me = await base44.auth.me();
-      setUser(me);
-      if (!urlParams.get("tab") && REGIONAL_ROLES.includes(me?.role)) {
-        setActiveTab("territory-map");
-      }
-      setLoading(false);
     }
     checkAuth();
   }, []);
