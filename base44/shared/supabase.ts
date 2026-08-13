@@ -23,31 +23,37 @@ export const SUPABASE_TABLE_MAP: Record<string, string> = {
   PrayerRequest: 'prayer_requests',
 };
 
-// Fire-and-forget mirror of a Base44 record into Supabase. Never throws.
-// Uses the service role key + Prefer: resolution=merge-duplicates to prevent dupes.
+// Mirror of a Base44 record into Supabase. Never throws — MUST be awaited by callers:
+// un-awaited fetches are cancelled when the serverless function returns, which is
+// exactly how writes were silently lost. Uses the service role key +
+// Prefer: resolution=merge-duplicates to prevent dupes.
 // FAILURES ARE NEVER SILENT: both network errors AND non-2xx HTTP responses
 // (e.g. 404 wrong table, 400 bad column) are logged with table, id, and timestamp.
-export const mirrorToSupabase = (table: string, row: Record<string, any>): void => {
+export const mirrorToSupabase = async (table: string, row: Record<string, any>): Promise<boolean> => {
   const key = getSupabaseServiceKey();
   const url = getSupabaseUrl();
   // Accept a PascalCase entity name defensively and normalize it.
   const tableName = SUPABASE_TABLE_MAP[table] || table;
-  if (!key || !row?.id) return;
-  fetch(`${url}/rest/v1/${tableName}`, {
-    method: 'POST',
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      'Content-Type': 'application/json',
-      Prefer: 'resolution=merge-duplicates,return=minimal',
-    },
-    body: JSON.stringify(row),
-  }).then(async (res) => {
+  if (!key || !row?.id) return false;
+  try {
+    const res = await fetch(`${url}/rest/v1/${tableName}`, {
+      method: 'POST',
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates,return=minimal',
+      },
+      body: JSON.stringify(row),
+    });
     if (!res.ok) {
       const body = await res.text().catch(() => '');
       console.error(`[supabase-mirror] FAILED table=${tableName} id=${row.id} status=${res.status} at=${new Date().toISOString()} body=${body.slice(0, 300)}`);
+      return false;
     }
-  }).catch((e) => {
+    return true;
+  } catch (e) {
     console.error(`[supabase-mirror] FAILED table=${tableName} id=${row?.id} at=${new Date().toISOString()} error=${e?.message}`);
-  });
+    return false;
+  }
 };

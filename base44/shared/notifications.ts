@@ -37,8 +37,8 @@ export async function createNotificationIdempotent(
     read: false,
   });
 
-  // Dual-write: mirror into Supabase (fire-and-forget, logs on failure).
-  mirrorToSupabase('notifications', {
+  // Dual-write: mirror into Supabase. Awaited so the write isn't cancelled on return.
+  await mirrorToSupabase('notifications', {
     id: created.id,
     user_id: created.user_id,
     actor_user_id: created.actor_user_id,

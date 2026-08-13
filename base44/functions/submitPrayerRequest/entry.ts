@@ -62,8 +62,9 @@ Deno.serve(async (req) => {
       answered: false,
     });
 
-    // Dual-write: mirror into Supabase via service role key (fire-and-forget).
-    mirrorToSupabase('prayer_requests', {
+    // Dual-write: mirror into Supabase via service role key. Awaited so the write
+    // isn't cancelled when the function returns.
+    await mirrorToSupabase('prayer_requests', {
       id: created.id,
       user_email: created.user_email,
       content: created.content,

@@ -65,8 +65,8 @@ Deno.serve(async (req) => {
       read: false,
     });
 
-    // Dual-write: mirror into Supabase (fire-and-forget, never blocks).
-    mirrorToSupabase('notifications', {
+    // Dual-write: mirror into Supabase. Awaited so the write isn't cancelled on return.
+    await mirrorToSupabase('notifications', {
       id: created.id,
       user_id: created.user_id,
       actor_user_id: created.actor_user_id,

@@ -162,8 +162,9 @@ Deno.serve(async (req) => {
     // post to silently fail.
     const drop = await base44.asServiceRole.entities.GlowDrop.create(dropPayload);
 
-    // Dual-write: mirror into Supabase via service role key (fire-and-forget).
-    mirrorToSupabase('glow_drops', {
+    // Dual-write: mirror into Supabase via service role key. Awaited — an un-awaited
+    // fetch is cancelled when the function returns, silently losing the write.
+    await mirrorToSupabase('glow_drops', {
       id: drop.id,
       user_email: drop.user_email,
       author_name: drop.author_name,
