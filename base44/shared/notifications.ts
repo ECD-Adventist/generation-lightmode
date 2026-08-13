@@ -1,5 +1,6 @@
 // Idempotent notification creator: skips insertion if a notification already
 // exists with the same (user_id, type, reference_id). Prevents duplicate fan-out.
+import { mirrorToSupabase } from './supabase.ts';
 
 export async function createNotificationIdempotent(
   base44: any,
@@ -34,6 +35,19 @@ export async function createNotificationIdempotent(
     message: String(message || '').slice(0, 500),
     link: link || '',
     read: false,
+  });
+
+  // Dual-write: mirror into Supabase (fire-and-forget, logs on failure).
+  mirrorToSupabase('notifications', {
+    id: created.id,
+    user_id: created.user_id,
+    actor_user_id: created.actor_user_id,
+    type: created.type,
+    reference_id: created.reference_id,
+    message: created.message,
+    link: created.link,
+    read: created.read,
+    created_date: created.created_date,
   });
 
   return created.id;

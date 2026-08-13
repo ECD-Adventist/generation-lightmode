@@ -15,10 +15,14 @@ import { base44 } from "@/api/base44Client";
  */
 export function dualWriteSupabase(table, record) {
   if (!record || !record.id) return;
-  // Intentionally not awaited — fire-and-forget.
+  // Intentionally not awaited — fire-and-forget, but failures are always logged
+  // (never silent) so Supabase drift is visible in the console.
   base44.functions
     .invoke("dualWriteSupabase", { table, record })
-    .catch(() => {
-      /* swallow: primary Base44 write already succeeded */
+    .catch((err) => {
+      console.error(
+        `[supabase-mirror] FAILED table=${table} id=${record.id} at=${new Date().toISOString()}`,
+        err?.message || err
+      );
     });
 }
