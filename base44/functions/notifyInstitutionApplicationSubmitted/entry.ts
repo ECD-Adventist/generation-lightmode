@@ -1,5 +1,4 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
-import { readValidatedJson } from '../../shared/apiSecurity.ts';
 import { logSecurityEvent } from '../../shared/securityEvents.ts';
 
 function escapeHtml(value) {
@@ -45,14 +44,13 @@ Deno.serve(async (req) => {
     const caller = await base44.auth.me().catch(() => null);
     if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const validated = await readValidatedJson(req, {
-      event: { type: 'object', required: true, properties: {
-        entity_id: { type: 'string', required: true, format: 'uuid' },
-      } },
-    });
-    if (validated.response) return validated.response;
-
-    const applicationId = validated.data.event.entity_id;
+    // Tolerant parsing: the workflow runtime may attach extra metadata (e.g. `automation`),
+    // so only the fields we need are validated — never trusted beyond the entity re-fetch below.
+    const payload = await req.json().catch(() => ({}));
+    const applicationId = payload?.event?.entity_id;
+    if (typeof applicationId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(applicationId)) {
+      return Response.json({ error: 'event.entity_id must be a valid identifier' }, { status: 400 });
+    }
     const app = await base44.asServiceRole.entities.InstitutionApplication.get(applicationId).catch(() => null);
     if (!app) return Response.json({ error: 'Application not found' }, { status: 404 });
     if (!['admin', 'super_admin'].includes(caller.role) && caller.email !== app.user_email) {

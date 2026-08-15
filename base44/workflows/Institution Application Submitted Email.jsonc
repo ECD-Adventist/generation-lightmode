@@ -24,9 +24,18 @@
           "call": "invoke_backend_function",
           "with": {
             "function_name": "notifyInstitutionApplicationSubmitted",
-            "args": {}
+            "args": {
+              "event": {
+                "entity_id": "${ .trigger.entity_id }",
+                "entity_name": "${ .trigger.entity_name }"
+              }
+            }
           },
-          "then": "end"
+          "then": "end",
+          "x-base44": {
+            "title": "Notify admins",
+            "description": "Email admins about the new application"
+          }
         }
       }
     ]
