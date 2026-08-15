@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
+import { dualDeleteSupabase } from "@/lib/dualDeleteSupabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bell, Heart, MessageCircle, Zap, Info, CheckCheck, Trash2, Loader2, Home, Users, User, Globe, UserPlus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -53,15 +54,11 @@ export default function Notifications() {
     });
   }, []);
 
-  // Fetch window grows with the visible count so "Load More" keeps pulling
-  // older notifications from the server instead of capping at a fixed 100.
-  const fetchLimit = visibleCount + 20;
   const { data: notifications = [], isLoading } = useQuery({
-    queryKey: ["allNotifications", user?.id, fetchLimit],
-    queryFn: () => base44.entities.Notification.filter({ user_id: user.id }, "-created_date", fetchLimit),
+    queryKey: ["allNotifications", user?.id],
+    queryFn: () => base44.entities.Notification.filter({ user_id: user.id }, "-created_date", 100),
     enabled: !!user?.id,
     refetchInterval: 15000,
-    placeholderData: (prev) => prev,
   });
 
   // Reset the visible window when the category filter changes.
@@ -130,7 +127,10 @@ export default function Notifications() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Notification.delete(id),
+    mutationFn: async (id) => {
+      await base44.entities.Notification.delete(id);
+      dualDeleteSupabase("notifications", id);
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["allNotifications", user?.id] })
   });
 
@@ -175,8 +175,7 @@ export default function Notifications() {
     ? sorted
     : sorted.filter((notification) => getNotificationCategory(notification.type) === activeCategory);
   const filteredNotifications = allFilteredNotifications.slice(0, visibleCount);
-  // More to show if the local window has more, or the server returned a full batch.
-  const hasMoreNotifications = visibleCount < allFilteredNotifications.length || notifications.length >= fetchLimit;
+  const hasMoreNotifications = visibleCount < allFilteredNotifications.length;
 
   const categoryCounts = useMemo(() => ({
     all: sorted.length,
