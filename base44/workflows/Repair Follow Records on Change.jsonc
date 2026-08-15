@@ -24,10 +24,14 @@
         "run_function": {
           "call": "invoke_backend_function",
           "with": {
-            "function_name": "repairFollowRecords",
+            "function_name": "repairAndRecoverFollows",
             "args": {}
           },
-          "then": "end"
+          "then": "end",
+          "x-base44": {
+            "title": "Repair follow records",
+            "description": "Deduplicate and normalize follow records"
+          }
         }
       }
     ]
