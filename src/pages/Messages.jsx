@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
+import { dualDeleteSupabase } from "@/lib/dualDeleteSupabase";
 import { Link } from "react-router-dom";
 import { ArrowLeft, MessageCircle, Users, Home, Zap, Bell, User, Globe } from "lucide-react";
 import { createPageUrl } from "@/utils";
@@ -223,6 +224,8 @@ export default function Messages() {
   const deleteMessageMutation = useMutation({
     mutationFn: async (messageId) => {
       await base44.entities.DirectMessage.delete(messageId);
+      // Dual-delete: drop the Supabase mirror so it doesn't become an orphan row.
+      dualDeleteSupabase("direct_messages", messageId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["directMessages", selectedConversationId] });

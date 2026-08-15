@@ -25,10 +25,14 @@ export default function PrayerWall() {
     });
   }, []);
 
+  // Fetch window grows with the visible count so "Load More" keeps pulling
+  // older requests from the server instead of capping at a fixed 100.
+  const fetchLimit = visibleCount + 10;
   const { data: requests = [] } = useQuery({
-    queryKey: ["prayerRequests"],
-    queryFn: () => base44.entities.PrayerRequest.list("-created_date", 100),
+    queryKey: ["prayerRequests", fetchLimit],
+    queryFn: () => base44.entities.PrayerRequest.list("-created_date", fetchLimit),
     enabled: !!user,
+    placeholderData: (prev) => prev,
   });
 
   const { data: supports = [] } = useQuery({
@@ -102,7 +106,7 @@ export default function PrayerWall() {
   const getName = (email) => getDisplayName(allUsers.find((entry) => entry.email === email) || { email });
 
   const visibleRequests = requests.slice(0, visibleCount);
-  const hasMoreRequests = visibleCount < requests.length;
+  const hasMoreRequests = visibleCount < requests.length || requests.length >= fetchLimit;
 
   if (!user) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><span style={{ color: "#1FB8FF" }}>Loading prayer wall...</span></div>;
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
+import { dualDeleteSupabase } from "@/lib/dualDeleteSupabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Zap, Home, Users, Bell, Globe, Bookmark, Building2, Sparkles, BarChart3 } from "lucide-react";
 import { createPageUrl } from "@/utils";
@@ -442,10 +443,13 @@ export default function Profile() {
       const existingFollows = await base44.entities.Follow.filter({ follower_id: currentUser.id, following_id: targetUserId });
       if (existingFollows.length > 0) {
         if (shouldFollow === true) {
-          await Promise.all(existingFollows.slice(1).map(f => base44.entities.Follow.delete(f.id)));
+          const extras = existingFollows.slice(1);
+          await Promise.all(extras.map(f => base44.entities.Follow.delete(f.id)));
+          extras.forEach(f => dualDeleteSupabase("follows", f.id));
           return { targetEmail, action: "follow" };
         }
         await Promise.all(existingFollows.map(f => base44.entities.Follow.delete(f.id)));
+        existingFollows.forEach(f => dualDeleteSupabase("follows", f.id));
         return { targetEmail, action: "unfollow" };
       }
       
