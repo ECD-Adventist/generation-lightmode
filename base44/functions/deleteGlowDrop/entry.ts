@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
+import { deleteFromSupabase } from '../../shared/supabase.ts';
 
 /**
  * Deletes a Glow Drop after verifying the requester is authorized:
@@ -96,6 +97,9 @@ Deno.serve(async (req) => {
     } catch { /* non-fatal */ }
 
     await service.entities.GlowDrop.delete(drop_id);
+
+    // Dual-delete: remove the mirrored Supabase row so it doesn't become an orphan.
+    await deleteFromSupabase('glow_drops', drop_id);
 
     return Response.json({ success: true });
   } catch (error) {

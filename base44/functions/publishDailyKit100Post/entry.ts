@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.32';
 import { authorizeSchedulerOrAdmin } from '../../shared/schedulerAuth.ts';
+import { mirrorToSupabase } from '../../shared/supabase.ts';
 
 /**
  * Publishes ONE new "Keep It 100" post per day as the official system account,
@@ -45,6 +46,9 @@ Deno.serve(async (req) => {
             category: "Keep It 100",
             hashtags: "#KeepIt100 #DailyDrops #GenerationLightMode"
         });
+
+        // Dual-write: mirror into Supabase (awaited — a fire-and-forget fetch is cancelled on return).
+        await mirrorToSupabase('glow_drops', drop);
 
         return Response.json({ success: true, type: "keeping_it_100", drop_id: drop.id, code_id: selected.id });
     } catch (error) {

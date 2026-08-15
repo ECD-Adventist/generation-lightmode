@@ -46,6 +46,17 @@ Deno.serve(async (req) => {
         updates.user_email = anonymous ? '' : (record.user_email || user.email);
       }
       const updated = await base44.asServiceRole.entities.PrayerRequest.update(request_id, updates);
+      // Mirror the update too — otherwise Supabase keeps the stale row.
+      await mirrorToSupabase('prayer_requests', {
+        id: updated.id,
+        user_email: updated.user_email,
+        content: updated.content,
+        category: updated.category,
+        is_anonymous: updated.is_anonymous,
+        answered: updated.answered,
+        created_date: updated.created_date,
+        created_by_id: updated.created_by_id,
+      });
       return Response.json({ success: true, id: updated.id });
     }
 

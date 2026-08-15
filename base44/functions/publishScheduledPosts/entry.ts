@@ -1,17 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import { authorizeSchedulerOrAdmin } from '../../shared/schedulerAuth.ts';
-
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
-const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
-
-function mirrorGlowDropToSupabase(newDrop, createdBy) {
-  if (!newDrop?.id || !SUPABASE_URL || !SUPABASE_ANON_KEY) return;
-  fetch(`${SUPABASE_URL}/rest/v1/glow_drops`, {
-    method: "POST",
-    headers: { "apikey": SUPABASE_ANON_KEY, "Authorization": `Bearer ${SUPABASE_ANON_KEY}`, "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates,return=minimal" },
-    body: JSON.stringify([{ id: newDrop.id, reflection: newDrop.reflection || "", verse: newDrop.verse || "", category: newDrop.category || "", description: newDrop.description || null, media_url: newDrop.media_url || null, hashtags: newDrop.hashtags || "", status: newDrop.status || "approved", likes_count: newDrop.likes_count || 0, bonus_likes_count: newDrop.bonus_likes_count || 0, pinned: newDrop.pinned || false, hidden: newDrop.hidden || false, hidden_reason: newDrop.hidden_reason || null, is_flagged: newDrop.is_flagged || false, moderation_note: newDrop.moderation_note || null, created_by: createdBy || "", created_date: newDrop.created_date || new Date().toISOString(), updated_date: newDrop.updated_date || newDrop.created_date || new Date().toISOString() }])
-  }).catch(err => console.warn("Supabase dual-write failed silently:", err));
-}
+import { mirrorToSupabase } from '../../shared/supabase.ts';
 
 // Runs on schedule. Finds all ScheduledPost records with scheduled_for <= now
 // and status = "scheduled", publishes them as GlowDrops from the official brand account.
@@ -41,7 +30,7 @@ Deno.serve(async (req) => {
           bonus_likes_count: 0,
           bonus_likes_enabled: true,
         });
-        mirrorGlowDropToSupabase(drop, 'system@lightmode.com');
+        await mirrorToSupabase('glow_drops', drop);
         await base44.asServiceRole.entities.ScheduledPost.update(post.id, {
           status: 'published',
           published_drop_id: drop.id,

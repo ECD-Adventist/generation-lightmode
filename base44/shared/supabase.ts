@@ -88,3 +88,52 @@ export const mirrorToSupabase = async (table: string, row: Record<string, any>):
     return false;
   }
 };
+
+// Dual-DELETE counterpart of mirrorToSupabase. Removes the mirrored row so a record
+// deleted in Base44 never lingers in Supabase (reverse drift). Never throws, always
+// logs failures. MUST be awaited (an un-awaited fetch is cancelled on return).
+export const deleteFromSupabase = async (table: string, id: string): Promise<boolean> => {
+  const key = getSupabaseServiceKey();
+  const url = getSupabaseUrl();
+  const tableName = SUPABASE_TABLE_MAP[table] || table;
+  if (!key || !url || !id) return false;
+  try {
+    const res = await fetch(`${url}/rest/v1/${tableName}?id=eq.${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: { apikey: key, Authorization: `Bearer ${key}`, Prefer: 'return=minimal' },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      console.error(`[supabase-delete] FAILED table=${tableName} id=${id} status=${res.status} at=${new Date().toISOString()} body=${body.slice(0, 300)}`);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error(`[supabase-delete] FAILED table=${tableName} id=${id} at=${new Date().toISOString()} error=${e?.message}`);
+    return false;
+  }
+};
+
+// Every row id currently stored in a Supabase table (paginated — PostgREST caps page size).
+export const fetchSupabaseIds = async (tableName: string): Promise<Set<string>> => {
+  const key = getSupabaseServiceKey();
+  const url = getSupabaseUrl();
+  const ids = new Set<string>();
+  if (!key || !url) return ids;
+  const pageSize = 1000;
+  for (let offset = 0; ; offset += pageSize) {
+    const res = await fetch(`${url}/rest/v1/${tableName}?select=id&limit=${pageSize}&offset=${offset}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      console.error(`[supabase-read] FAILED table=${tableName} status=${res.status} body=${body.slice(0, 300)}`);
+      break;
+    }
+    const rows = await res.json();
+    if (!Array.isArray(rows)) break;
+    rows.forEach((r: any) => r?.id && ids.add(String(r.id)));
+    if (rows.length < pageSize) break;
+  }
+  return ids;
+};
