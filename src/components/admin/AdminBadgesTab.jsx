@@ -7,7 +7,7 @@ import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 const getBadgeDefs = (isDark) => [
   { id: "gs100", name: "Spark", desc: "Reached 100 XP", icon: "⚡", color: isDark ? "#00CFFF" : "#0B3FD9", condition: u => (u.glow_score || 0) >= 100 },
   { id: "gs500", name: "Flame", desc: "Reached 500 XP", icon: "🔥", color: isDark ? "#f97316" : "#ea580c", condition: u => (u.glow_score || 0) >= 500 },
-  { id: "gs1000", name: "Inferno", desc: "Reached 1000 XP", icon: "🌟", color: isDark ? "#FFD000" : "#d97706", condition: u => (u.glow_score || 0) >= 1000 },
+  { id: "gs1000", name: "Beacon", desc: "Reached 1000 XP", icon: "🌟", color: isDark ? "#FFD000" : "#d97706", condition: u => (u.glow_score || 0) >= 1000 },
   { id: "creator", name: "Creator", desc: "Posted at least 1 drop", icon: "📝", color: isDark ? "#8A5CFF" : "#7e22ce", needsDrops: true },
   { id: "community", name: "Community Member", desc: "Joined a GlowGroup", icon: "🤝", color: isDark ? "#22c55e" : "#16a34a", needsMembership: true },
   { id: "warrior", name: "Prayer Warrior", desc: "Supported 50+ prayer requests", icon: "🛡️", color: isDark ? "#a78bfa" : "#8b5cf6", needsPrayers: true },

@@ -7,7 +7,7 @@ export const QUIZ_LEVELS = [
     title: "Foundations",
     subtitle: "Keep It 100 basics",
     icon: "📖",
-    xpPerQuestion: 10,
+    xpPerQuestion: 5,
     passScore: 6,
     questions: [
       { id: "l1q1", question: "What does 'Keeping It 100' mean in the context of faith?", options: ["Being 100% perfect", "Being completely honest, real and authentic with God", "Scoring 100% on Bible tests", "Attending church 100 times"], correct: 1, slogan: "Keeping it 100 means being real, honest, and true—no pretending, no fakeness.", reference: "John 8:32" },
@@ -27,7 +27,7 @@ export const QUIZ_LEVELS = [
     title: "Identity & Purity",
     subtitle: "Know who you are",
     icon: "✝️",
-    xpPerQuestion: 15,
+    xpPerQuestion: 8,
     passScore: 6,
     questions: [
       { id: "l2q1", question: "In 1 Peter 2:9, believers are called a chosen people and a...", options: ["Royal priesthood", "Mighty army", "Faithful remnant", "Holy assembly"], correct: 0, slogan: "You were chosen to declare His praises.", reference: "1 Peter 2:9" },
@@ -47,7 +47,7 @@ export const QUIZ_LEVELS = [
     title: "Word Power",
     subtitle: "Scripture sharpshooter",
     icon: "⚔️",
-    xpPerQuestion: 20,
+    xpPerQuestion: 10,
     passScore: 7,
     questions: [
       { id: "l3q1", question: "Which book records the phrase 'The fear of the LORD is the beginning of wisdom'?", options: ["Psalms", "Proverbs", "Ecclesiastes", "Job"], correct: 1, slogan: "Wisdom starts with reverence.", reference: "Proverbs 9:10" },
@@ -67,7 +67,7 @@ export const QUIZ_LEVELS = [
     title: "Deep Waters",
     subtitle: "Doctrine & discipleship",
     icon: "🌊",
-    xpPerQuestion: 25,
+    xpPerQuestion: 13,
     passScore: 7,
     questions: [
       { id: "l4q1", question: "According to Ephesians 2:8-9, salvation comes by grace through faith and not by...", options: ["Works, so no one can boast", "Baptism alone", "Church membership", "Obedience to the law"], correct: 0, slogan: "Grace leaves no room for pride.", reference: "Ephesians 2:8-9" },
@@ -87,7 +87,7 @@ export const QUIZ_LEVELS = [
     title: "Fire Trials",
     subtitle: "For the seasoned",
     icon: "🔥",
-    xpPerQuestion: 30,
+    xpPerQuestion: 15,
     passScore: 8,
     questions: [
       { id: "l5q1", question: "Which prophet was told 'Before I formed you in the womb I knew you'?", options: ["Isaiah", "Jeremiah", "Ezekiel", "Hosea"], correct: 1, slogan: "God's call on your life predates your birth.", reference: "Jeremiah 1:5" },
@@ -107,7 +107,7 @@ export const QUIZ_LEVELS = [
     title: "Champion Round",
     subtitle: "Only the sharpest pass",
     icon: "👑",
-    xpPerQuestion: 40,
+    xpPerQuestion: 20,
     passScore: 9,
     questions: [
       { id: "l6q1", question: "How many books are in the Protestant Old Testament?", options: ["27", "36", "39", "46"], correct: 2, slogan: "Know the shape of the Book you carry.", reference: "Luke 24:44" },

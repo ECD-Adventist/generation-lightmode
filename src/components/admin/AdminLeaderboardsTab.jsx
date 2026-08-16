@@ -5,10 +5,11 @@ import { Trophy, Zap, Heart, Users, Medal } from "lucide-react";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 
 const getTiers = (isDark) => [
-  { min: 0, label: "Bronze Missionary", color: isDark ? "#C77A2B" : "#b45309", icon: "🥉" },
-  { min: 30, label: "Silver Missionary", color: isDark ? "#C7CEDB" : "#6B7FA0", icon: "🥈" },
-  { min: 80, label: "Gold Missionary", color: isDark ? "#FFD000" : "#d97706", icon: "🥇" },
-  { min: 200, label: "Platinum Ambassador", color: isDark ? "#E8EFFE" : "#1e40af", icon: "💎" },
+  { min: 0, label: "Seed", color: isDark ? "#5A8CFF" : "#0B3FD9", icon: "🌱" },
+  { min: 100, label: "Spark", color: "#1FB8FF", icon: "⚡" },
+  { min: 500, label: "Flame", color: "#FF8A00", icon: "🔥" },
+  { min: 1000, label: "Beacon", color: isDark ? "#FFD000" : "#d97706", icon: "🏆" },
+  { min: 5000, label: "Radiance", color: "#8A5CFF", icon: "💎" },
 ];
 
 const getTierForScore = (score, tiers) => {
@@ -107,7 +108,7 @@ export default function AdminLeaderboardsTab() {
       </div>
 
       {/* Tier Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {TIERS.map(tier => (
           <div key={tier.label} className="border rounded-2xl p-4 text-center" style={{ background: t.surface, borderColor: t.border }}>
             <div className="text-3xl mb-2">{tier.icon}</div>

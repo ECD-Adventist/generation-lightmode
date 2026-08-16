@@ -2,6 +2,7 @@ import React from "react";
 import { Flame, Share2, Sparkles, Globe, Building2, CheckCircle2 } from "lucide-react";
 
 const rankConfig = [
+  { min: 5000, name: "Radiance", color: "#8A5CFF", bg: "linear-gradient(135deg, #F3EEFF 0%, #E8DDFF 100%)", border: "#D6C5FF" },
   { min: 1000, name: "Beacon", color: "#FFD000", bg: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "#FFE4A0" },
   { min: 500, name: "Flame", color: "#FF8A00", bg: "linear-gradient(135deg, #FFF3E6 0%, #FFE6CC 100%)", border: "#FFD0A0" },
   { min: 100, name: "Spark", color: "#1FB8FF", bg: "linear-gradient(135deg, #EEF8FF 0%, #DDF0FF 100%)", border: "#B8E5FF" },

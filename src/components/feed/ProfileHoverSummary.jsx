@@ -8,12 +8,11 @@ import { getDisplayName } from "@/lib/displayName";
 import UserAvatar from "@/components/common/UserAvatar";
 
 const GLOW_RANKS = [
-  { min: 0, name: "Spark", color: "#6B7FA0" },
-  { min: 50, name: "Flame", color: "#FF9F1A" },
-  { min: 150, name: "Torch", color: "#0B3FD9" },
-  { min: 300, name: "Beacon", color: "#1FB8FF" },
-  { min: 600, name: "Luminary", color: "#8A5CFF" },
-  { min: 1000, name: "Lightbearer", color: "#FFD000" },
+  { min: 0, name: "Seed", color: "#0B3FD9" },
+  { min: 100, name: "Spark", color: "#1FB8FF" },
+  { min: 500, name: "Flame", color: "#FF8A00" },
+  { min: 1000, name: "Beacon", color: "#FFD000" },
+  { min: 5000, name: "Radiance", color: "#8A5CFF" },
 ];
 
 function getRank(score) {
