@@ -21,33 +21,20 @@ export default function Leaderboard() {
     });
   }, []);
 
-  const { data: users = [] } = useQuery({
-    queryKey: ["leaderboardUsers"],
-    queryFn: async () => { const res = await base44.functions.invoke("listPublicUsers", {}); return res.data; },
+  const metric = timeFilter === "top-liked" ? "likes" : "glow";
+  const scopeCountry = timeFilter === "my-region" ? (user?.country || "") : "";
+
+  const { data: board } = useQuery({
+    queryKey: ["leaderboardRanked", metric, scopeCountry],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("getLeaderboard", { metric, limit: 100, ...(scopeCountry ? { country: scopeCountry } : {}) });
+      return res.data;
+    },
     enabled: !!user,
+    staleTime: 1000 * 60 * 2,
   });
 
-  const { data: drops = [] } = useQuery({
-    queryKey: ["leaderboardDrops"],
-    queryFn: () => base44.entities.GlowDrop.list('-created_date', 500),
-    enabled: !!user,
-  });
-
-  const likesPerUser = useMemo(() => {
-    const map = {};
-    drops.forEach(d => { map[d.user_email] = (map[d.user_email] || 0) + (d.likes_count || 0); });
-    return map;
-  }, [drops]);
-
-  const leaderboard = useMemo(() => {
-    let filteredUsers = users;
-    if (timeFilter === "my-region") {
-      filteredUsers = users.filter(u => u.country === user?.country);
-    } else if (timeFilter === "top-liked") {
-      return [...filteredUsers].sort((a, b) => (likesPerUser[b.email] || 0) - (likesPerUser[a.email] || 0));
-    }
-    return [...filteredUsers].sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0));
-  }, [users, timeFilter, user?.country, likesPerUser]);
+  const leaderboard = board?.entries || [];
 
   const getMedalEmoji = (index) => index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : null;
 
@@ -58,7 +45,6 @@ export default function Leaderboard() {
         leaderboard={leaderboard}
         timeFilter={timeFilter}
         setTimeFilter={setTimeFilter}
-        likesPerUser={likesPerUser}
       />
     );
   }
@@ -171,14 +157,11 @@ export default function Leaderboard() {
                   </div>
                   <div className="text-right shrink-0">
                     <div className="text-3xl font-black font-['Space_Grotesk']" style={{ color: isCurrentUser ? "#CC7A00" : "#0B1B3D" }}>
-                      {timeFilter === "top-liked" ? (likesPerUser[warrior.email] || 0) : (warrior.glow_score || 0)}
+                      {(warrior.value || 0).toLocaleString()}
                     </div>
                     <div className="text-xs uppercase tracking-wider font-semibold" style={{ color: "#8A97B5" }}>
                       {timeFilter === "top-liked" ? "LIKES" : "XP"}
                     </div>
-                    {timeFilter !== "top-liked" && (likesPerUser[warrior.email] || 0) > 0 && (
-                      <div className="text-[10px] mt-0.5 flex items-center gap-0.5 justify-end" style={{ color: "#EF4444" }}>❤️ {likesPerUser[warrior.email]} likes</div>
-                    )}
                   </div>
                   <ArrowUp className="w-4 h-4 opacity-0 group-hover:opacity-100 transition shrink-0" style={{ color: "#0B3FD9" }} />
                 </Link>
@@ -195,8 +178,8 @@ export default function Leaderboard() {
         <div className="mt-12 grid grid-cols-3 gap-4">
           {[
             { value: leaderboard.length, label: "Ranked Warriors", color: "#CC7A00", bg: "rgba(255,208,0,0.06)", border: "#FFE4A0" },
-            { value: leaderboard[0]?.glow_score || 0, label: "Top Score", color: "#0B3FD9", bg: "rgba(31,184,255,0.06)", border: "#B8E5FF" },
-            { value: leaderboard[leaderboard.length - 1]?.glow_score || 0, label: "Lowest Ranked", color: "#6B7FA0", bg: "#F6F8FC", border: "#E6ECF5" },
+            { value: leaderboard[0]?.value || 0, label: "Top Score", color: "#0B3FD9", bg: "rgba(31,184,255,0.06)", border: "#B8E5FF" },
+            { value: leaderboard[leaderboard.length - 1]?.value || 0, label: "Lowest Ranked", color: "#6B7FA0", bg: "#F6F8FC", border: "#E6ECF5" },
           ].map((stat, i) => (
             <div key={i} className="rounded-2xl p-6 text-center" style={{ background: stat.bg, border: `1px solid ${stat.border}` }}>
               <div className="text-3xl font-black font-['Space_Grotesk'] mb-1" style={{ color: stat.color }}>{stat.value}</div>

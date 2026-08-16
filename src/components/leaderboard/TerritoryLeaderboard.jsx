@@ -7,107 +7,18 @@ import { Loader2 } from "lucide-react";
 export default function TerritoryLeaderboard({ userTerritory = null }) {
   const [sortBy, setSortBy] = useState("glow_score");
 
-  // Fetch all users and aggregate by territory
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ["leaderboardUsers"],
+  // Territory totals are aggregated server-side across the FULL dataset.
+  const { data: board, isLoading } = useQuery({
+    queryKey: ["territoryLeaderboardRanked"],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
+      const res = await base44.functions.invoke("getTerritoryLeaderboard", {});
       return res.data;
     },
-    staleTime: 1000 * 60 * 5,
-    refetchInterval: 30000, // Refresh every 30s for real-time feel
+    staleTime: 1000 * 60 * 3,
+    refetchInterval: 60000,
   });
 
-  const { data: allDrops = [] } = useQuery({
-    queryKey: ["leaderboardDrops"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 1000),
-    staleTime: 1000 * 60 * 2,
-    refetchInterval: 30000,
-  });
-
-  const { data: allChallenges = [] } = useQuery({
-    queryKey: ["leaderboardChallenges"],
-    queryFn: () => base44.entities.ChallengeSubmission.list("-created_date", 1000),
-    staleTime: 1000 * 60 * 2,
-    refetchInterval: 30000,
-  });
-
-  const { data: allGroups = [] } = useQuery({
-    queryKey: ["leaderboardGroups"],
-    queryFn: () => base44.entities.GlowGroup.list(),
-    staleTime: 1000 * 60 * 5,
-    refetchInterval: 30000,
-  });
-
-  const { data: allPrayerSupports = [] } = useQuery({
-    queryKey: ["leaderboardPrayerSupports"],
-    queryFn: () => base44.entities.PrayerSupport.list(),
-    staleTime: 1000 * 60 * 5,
-    refetchInterval: 30000,
-  });
-
-  // Compute territory stats
-  const territoryStats = useMemo(() => {
-    const stats = {};
-
-    // Group users by territory
-    allUsers.forEach((user) => {
-      const territory = user.country || "Global";
-      if (!stats[territory]) {
-        stats[territory] = {
-          territory_name: territory,
-          total_glow_score: 0,
-          total_users: 0,
-          total_drops: 0,
-          total_challenges_completed: 0,
-          total_prayer_supports: 0,
-          active_groups: 0,
-        };
-      }
-      stats[territory].total_users += 1;
-      stats[territory].total_glow_score += user.glow_score || 0;
-    });
-
-    // Count drops per territory
-    allDrops.forEach((drop) => {
-      const user = allUsers.find((u) => u.email === drop.user_email);
-      const territory = user?.country || "Global";
-      if (stats[territory]) stats[territory].total_drops += 1;
-    });
-
-    // Count challenge submissions
-    allChallenges.forEach((sub) => {
-      const user = allUsers.find((u) => u.email === sub.user_email);
-      const territory = user?.country || "Global";
-      if (stats[territory]) stats[territory].total_challenges_completed += 1;
-    });
-
-    // Count prayer supports
-    allPrayerSupports.forEach((support) => {
-      const user = allUsers.find((u) => u.email === support.user_email);
-      const territory = user?.country || "Global";
-      if (stats[territory]) stats[territory].total_prayer_supports += 1;
-    });
-
-    // Count active groups per territory
-    allGroups.forEach((group) => {
-      const territory = group.country || "Global";
-      if (!stats[territory]) {
-        stats[territory] = {
-          territory_name: territory,
-          total_glow_score: 0,
-          total_users: 0,
-          total_drops: 0,
-          total_challenges_completed: 0,
-          total_prayer_supports: 0,
-          active_groups: 0,
-        };
-      }
-      stats[territory].active_groups += 1;
-    });
-
-    return Object.values(stats);
-  }, [allUsers, allDrops, allChallenges, allGroups, allPrayerSupports]);
+  const territoryStats = board?.territories || [];
 
   // Sort territories
   const sortedTerritories = useMemo(() => {
@@ -129,7 +40,7 @@ export default function TerritoryLeaderboard({ userTerritory = null }) {
   const podiumTop3 = sortedTerritories.slice(0, 3);
   const topTerritory = podiumTop3[0];
 
-  if (allUsers.length === 0) {
+  if (isLoading || territoryStats.length === 0) {
     return (
       <div className="flex justify-center py-20">
         <Loader2 className="w-8 h-8 text-[#00CFFF] animate-spin" />

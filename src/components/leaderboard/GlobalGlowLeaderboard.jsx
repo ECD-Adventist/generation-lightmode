@@ -26,31 +26,26 @@ function MedalOrRank({ index, isCurrentUser }) {
 export default function GlobalGlowLeaderboard({ currentUser }) {
   const [scopeFilter, setScopeFilter] = useState("global");
 
-  const { data: allUsers = [], isLoading } = useQuery({
-    queryKey: ["glowLeaderboardUsers"],
-    queryFn: async () => { const res = await base44.functions.invoke("listPublicUsers", {}); return res.data; },
+  const scope = useMemo(() => {
+    if (scopeFilter === "country") return { country: currentUser?.country || "" };
+    if (scopeFilter === "church") {
+      if (currentUser?.city) return { city: currentUser.city };
+      return { country: currentUser?.country || "" };
+    }
+    return {};
+  }, [scopeFilter, currentUser?.country, currentUser?.city]);
+
+  const { data: board, isLoading } = useQuery({
+    queryKey: ["glowLeaderboardRanked", scope.country || "", scope.city || ""],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("getLeaderboard", { metric: "glow", limit: 20, ...scope });
+      return res.data;
+    },
     staleTime: 1000 * 60 * 3,
   });
 
-  const leaderboard = useMemo(() => {
-    let pool = allUsers;
-    if (scopeFilter === "country" && currentUser?.country) {
-      pool = pool.filter(u => u.country === currentUser.country);
-    } else if (scopeFilter === "church") {
-      if (currentUser?.city) {
-        pool = pool.filter(u => u.city && u.city.toLowerCase() === currentUser.city.toLowerCase());
-      } else if (currentUser?.country) {
-        pool = pool.filter(u => u.country === currentUser.country);
-      }
-    }
-    return [...pool].sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0)).slice(0, 20);
-  }, [allUsers, scopeFilter, currentUser]);
-
-  const currentUserRank = useMemo(() => {
-    const sorted = [...allUsers].sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0));
-    const idx = sorted.findIndex(u => u.email === currentUser?.email);
-    return idx >= 0 ? idx + 1 : null;
-  }, [allUsers, currentUser]);
+  const leaderboard = board?.entries || [];
+  const currentUserRank = board?.my_rank || null;
 
   const topScore = leaderboard[0]?.glow_score || 0;
 

@@ -6,7 +6,7 @@ import GlobalGlowLeaderboard from "@/components/leaderboard/GlobalGlowLeaderboar
 import MobilePageHeader from "@/components/mobile/MobilePageHeader";
 import { getDisplayName } from "@/lib/displayName";
 
-export default function MobileLeaderboard({ user, leaderboard, timeFilter, setTimeFilter, likesPerUser }) {
+export default function MobileLeaderboard({ user, leaderboard, timeFilter, setTimeFilter }) {
   const filters = [
     { id: "all-time", label: "All Time", icon: Flame },
     { id: "top-liked", label: "Top Liked", icon: TrendingUp },
@@ -86,7 +86,7 @@ export default function MobileLeaderboard({ user, leaderboard, timeFilter, setTi
                   </div>
                   <div className="text-right shrink-0">
                     <div className="text-lg font-black leading-none" style={{ color: isMe ? "#CC7A00" : "#0B1B3D", fontFamily: "Space Grotesk, sans-serif" }}>
-                      {timeFilter === "top-liked" ? (likesPerUser[w.email] || 0) : (w.glow_score || 0)}
+                      {(w.value || 0).toLocaleString()}
                     </div>
                     <div className="text-[9px] uppercase tracking-wider font-bold mt-0.5" style={{ color: "#8A97B5" }}>
                       {timeFilter === "top-liked" ? "Likes" : "XP"}
