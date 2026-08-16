@@ -113,6 +113,20 @@
       "type": "number",
       "default": 0
     },
+    "quiz_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Best cumulative Faith Quiz XP used for the champions leaderboard."
+    },
+    "quiz_level": {
+      "type": "number",
+      "default": 1,
+      "description": "Highest Faith Quiz level unlocked for this user."
+    },
+    "quiz_stars": {
+      "type": "string",
+      "description": "JSON map of Faith Quiz level number to stars earned (0-3)."
+    },
     "faith_streak_count": {
       "type": "number",
       "default": 0
