@@ -103,8 +103,8 @@ export default function FaithQuiz() {
     <div style={{ background: "#F6F8FC", minHeight: "100vh", fontFamily: "Inter, sans-serif", color: "#0B1B3D" }}>
       <AppTopNav />
       {/* Sub-nav */}
-      <div style={{ background: "#FFFFFF", borderBottom: "1px solid #E6ECF5", padding: "12px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ background: "#FFFFFF", borderBottom: "1px solid #E6ECF5" }} className="px-4 py-3 md:px-6">
+        <div style={{ maxWidth: 1100, margin: "0 auto" }} className="flex flex-wrap items-center justify-between gap-2">
           <Link to={createPageUrl("Feed")} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "#4A5878", fontSize: 14, fontWeight: 600 }}>
             <Home size={16} /> Back to Feed
           </Link>
@@ -118,9 +118,9 @@ export default function FaithQuiz() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 24px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }} className="px-4 py-8 md:px-6 md:py-12">
         {screen === "home" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "start" }}>
+          <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 md:gap-8">
             {/* Left: Quiz intro */}
             <div>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.12)", border: "1px solid #FFE4A0", borderRadius: 999, padding: "7px 18px", marginBottom: 24 }}>
@@ -133,7 +133,7 @@ export default function FaithQuiz() {
                 Test your knowledge on the "Keeping It 100" truths. 10 questions covering purity, identity, faith, and more. Each correct answer earns you <strong style={{ color: "#CC7A00" }}>10 XP</strong> towards the LightMode Champion leaderboard!
               </p>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 32 }}>
+              <div className="mb-8 grid grid-cols-2 gap-2 md:gap-3">
                 {[
                   { label: "10 Questions", icon: "📖" },
                   { label: "10 XP per Answer", icon: "⚡" },
@@ -156,7 +156,7 @@ export default function FaithQuiz() {
             </div>
 
             {/* Right: Leaderboard */}
-            <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 24, padding: "28px", position: "sticky", top: 90, boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+            <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 24, boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }} className="w-full min-w-0 p-4 md:sticky md:top-[90px] md:p-7">
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
                 <Trophy size={20} color="#CC7A00" />
                 <h3 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: 20, color: "#CC7A00" }}>LightMode Champions</h3>
@@ -204,7 +204,7 @@ export default function FaithQuiz() {
             </div>
 
             {/* Question Card */}
-            <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 24, padding: "36px 32px", marginBottom: 20, boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+            <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 24, marginBottom: 20, boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }} className="p-5 md:p-9">
               <div style={{ display: "inline-block", background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF", borderRadius: 999, padding: "5px 14px", marginBottom: 20 }}>
                 <span style={{ color: "#0B3FD9", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>💯 Keep It 100</span>
               </div>
@@ -229,11 +229,12 @@ export default function FaithQuiz() {
                       disabled={selected !== null}
                       style={{
                         display: "flex", alignItems: "center", gap: 14,
-                        padding: "16px 20px", borderRadius: 14,
+                        padding: "14px 16px", borderRadius: 14,
                         background: bg, border: `1px solid ${border}`,
                         color, cursor: selected !== null ? "default" : "pointer",
                         textAlign: "left", fontSize: 15, fontWeight: 600, fontFamily: "Inter, sans-serif",
-                        transition: "all 0.25s", width: "100%"
+                        transition: "background 0.25s, border-color 0.25s, color 0.25s", width: "100%",
+                        minWidth: 0, overflowWrap: "anywhere"
                       }}
                     >
                       <span style={{ width: 28, height: 28, borderRadius: "50%", background: "#FFFFFF", border: `1px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800, flexShrink: 0, color: "#0B3FD9" }}>
@@ -260,7 +261,7 @@ export default function FaithQuiz() {
 
         {screen === "result" && (
           <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center" }}>
-            <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 28, padding: "48px 40px", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
+            <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 28, boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }} className="p-6 md:p-12">
               <div style={{ fontSize: 72, marginBottom: 16 }}>
                 {score === QUIZ_QUESTIONS.length ? "🏆" : score >= 7 ? "🌟" : score >= 5 ? "⚡" : "📖"}
               </div>
@@ -271,7 +272,7 @@ export default function FaithQuiz() {
                 You got <strong style={{ color: "#0B1B3D" }}>{score}</strong> out of <strong style={{ color: "#0B1B3D" }}>{QUIZ_QUESTIONS.length}</strong> correct
               </p>
 
-              <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 32 }}>
+              <div className="mb-8 flex flex-wrap justify-center gap-3">
                 <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.25)", borderRadius: 14, padding: "16px 24px" }}>
                   <div style={{ fontSize: 28, fontWeight: 900, color: "#16A34A", fontFamily: "Space Grotesk, sans-serif" }}>{score}</div>
                   <div style={{ fontSize: 11, color: "#6B7FA0", fontWeight: 700, textTransform: "uppercase" }}>Correct</div>
