@@ -86,7 +86,7 @@ export default function PrayerWall() {
 
   const prayMutation = useMutation({
     mutationFn: async (requestId) => {
-      await base44.entities.PrayerSupport.create({ request_id: requestId, user_email: user.email });
+      await base44.functions.invoke("createPrayerSupport", { request_id: requestId });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["prayerSupports"] }),
   });

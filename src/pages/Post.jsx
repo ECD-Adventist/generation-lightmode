@@ -167,13 +167,17 @@ export default function Post() {
       const followRec = await base44.entities.Follow.create({ follower_id: currentUser.id, following_id: targetUser.id });
       dualWriteSupabase("follows", followRec);
       if (isNotificationEnabled(targetUser, "follows")) {
-        const notifRec = await base44.entities.Notification.create({
-          user_id: targetUser.id,
-          type: "follow",
-          message: `${currentUser.username || currentUser.full_name || "Someone"} started following you.`,
-          link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`
-        });
-        dualWriteSupabase("notifications", notifRec);
+        try {
+          await base44.functions.invoke("createNotification", {
+            user_id: targetUser.id,
+            type: "follow",
+            reference_id: `follow_${currentUser.id}`,
+            message: `${currentUser.username || currentUser.full_name || "Someone"} started following you.`,
+            link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`
+          });
+        } catch (notificationError) {
+          console.error('[notification:error]', { type: 'follow', recipient: targetUser.id, action: 'follow_user', error: notificationError });
+        }
       }
       return "follow";
     },

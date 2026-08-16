@@ -1,8 +1,8 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { createNotificationIdempotent } from '../../shared/notifications.ts';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
     if (rateLimited) return rateLimited;
 
     const validated = await readValidatedJson(req, {
-      drop_id: { type: 'string', required: true, format: 'uuid' },
+      drop_id: { type: 'string', required: true, maxLength: 64 },
       author_email: { type: 'string', maxLength: 254 },
       author_name: { type: 'string', maxLength: 120 },
       action: { type: 'string', enum: ['toggle'] },
@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
     const hasLiked = existingLikes.length > 0;
 
     // Use service role to read/update the drop
-    const drop = await base44.asServiceRole.entities.GlowDrop.get(drop_id);
+    const drop = await base44.asServiceRole.entities.GlowDrop.get(drop_id).catch(() => null);
 
     if (!drop) {
       return Response.json({ error: 'Drop not found' }, { status: 404 });
@@ -59,18 +59,22 @@ Deno.serve(async (req) => {
         await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
       }
 
-      // Notify real drop author — idempotent (deduped on drop_id)
+      // Notify the real author and await the dual-write so serverless completion cannot cancel it.
       if (authorEmail && authorEmail !== user.email) {
-        const author = (await base44.asServiceRole.entities.User.filter({ email: authorEmail }))[0];
+        const author = (await base44.asServiceRole.entities.User.filter({ email: authorEmail }, '-created_date', 1))[0];
         if (author?.id) {
-          createNotificationIdempotent(base44, {
-            user_id: author.id,
-            actor_user_id: user.id,
-            type: 'like',
-            reference_id: `like_${drop_id}`,
-            message: `${user.full_name || 'Someone'} liked your Glow Drop.`,
-            link: `/Post?id=${encodeURIComponent(drop_id)}&user=${encodeURIComponent(authorEmail)}`,
-          }).catch(() => {});
+          try {
+            await createNotificationIdempotent(base44, {
+              user_id: author.id,
+              actor_user_id: user.id,
+              type: 'like',
+              reference_id: `like_${user.id}_${drop_id}`,
+              message: `${user.full_name || 'Someone'} liked your post.`,
+              link: `/Post?id=${encodeURIComponent(drop_id)}&user=${encodeURIComponent(authorEmail)}`,
+            });
+          } catch (notificationError) {
+            console.error('[notification:error]', { type: 'like', recipient: author.id, action: 'like_glowdrop', error: notificationError?.message });
+          }
         }
       }
 
@@ -80,4 +84,4 @@ Deno.serve(async (req) => {
     console.error('Like error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}

@@ -11,6 +11,7 @@ import { Loader2, Send } from "lucide-react";
 export default function MobileDropComments({ drop, user }) {
   const queryClient = useQueryClient();
   const [text, setText] = useState("");
+  const [replyToComment, setReplyToComment] = useState(null);
 
   const { data: comments = [], isLoading } = useQuery({
     queryKey: ["dropComments", drop.id],
@@ -20,10 +21,11 @@ export default function MobileDropComments({ drop, user }) {
   const addComment = useMutation({
     mutationFn: async () => {
       if (!user) { toast.error("Please log in to comment"); return; }
-      await base44.entities.GlowDropComment.create({ drop_id: drop.id, user_email: user.email, content: text.trim() });
+      await base44.functions.invoke("createGlowDropComment", { drop_id: drop.id, content: text.trim(), parent_comment_id: replyToComment?.id || undefined });
     },
     onSuccess: () => {
       setText("");
+      setReplyToComment(null);
       queryClient.invalidateQueries({ queryKey: ["dropComments", drop.id] });
     },
     onError: () => toast.error("Could not post your comment"),
@@ -42,11 +44,13 @@ export default function MobileDropComments({ drop, user }) {
               <div key={c.id} className="rounded-xl px-3 py-2" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
                 <div className="text-[11px] font-black" style={{ color: "#0B3FD9" }}>{c.user_email?.split("@")[0] || "Member"}</div>
                 <p className="text-[13px] leading-snug" style={{ color: "#0B1B3D" }}>{c.content}</p>
+                {user && c.user_email !== user.email && <button type="button" onClick={() => setReplyToComment(c)} className="mt-1 text-[10px] font-black" style={{ color: "#0B3FD9" }}>Reply</button>}
               </div>
             ))}
           </div>
         )}
 
+        {replyToComment && <div className="flex items-center justify-between text-[11px]" style={{ color: "#6B7FA0" }}><span>Replying to {replyToComment.user_email?.split("@")[0]}</span><button type="button" onClick={() => setReplyToComment(null)} className="font-black" style={{ color: "#0B3FD9" }}>Cancel</button></div>}
         <form
           onSubmit={(e) => { e.preventDefault(); if (text.trim()) addComment.mutate(); }}
           className="flex items-center gap-2"

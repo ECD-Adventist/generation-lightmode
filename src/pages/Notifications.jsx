@@ -18,8 +18,12 @@ import UserAvatar from "@/components/common/UserAvatar";
 
 const typeIcon = {
   like: <Heart className="w-4 h-4" style={{ color: "#EF4444" }} />,
+  comment: <MessageCircle className="w-4 h-4" style={{ color: "#1FB8FF" }} />,
   reply: <MessageCircle className="w-4 h-4" style={{ color: "#1FB8FF" }} />,
   message: <MessageCircle className="w-4 h-4" style={{ color: "#1FB8FF" }} />,
+  dm: <MessageCircle className="w-4 h-4" style={{ color: "#1FB8FF" }} />,
+  prayer: <Heart className="w-4 h-4" style={{ color: "#0B3FD9" }} />,
+  repost: <Zap className="w-4 h-4" style={{ color: "#CC7A00" }} />,
   milestone: <Zap className="w-4 h-4" style={{ color: "#CC7A00" }} />,
   system: <Info className="w-4 h-4" style={{ color: "#0B3FD9" }} />,
   follow: <UserPlus className="w-4 h-4" style={{ color: "#22C55E" }} />,
@@ -27,8 +31,12 @@ const typeIcon = {
 
 const typeBgStyle = {
   like: { background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)" },
+  comment: { background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF" },
   reply: { background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF" },
   message: { background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF" },
+  dm: { background: "rgba(31, 184, 255, 0.1)", border: "1px solid #B8E5FF" },
+  prayer: { background: "rgba(11, 63, 217, 0.08)", border: "1px solid #D6E4FF" },
+  repost: { background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0" },
   milestone: { background: "rgba(255, 208, 0, 0.12)", border: "1px solid #FFE4A0" },
   system: { background: "rgba(11, 63, 217, 0.08)", border: "1px solid #D6E4FF" },
   follow: { background: "rgba(34, 197, 94, 0.1)", border: "1px solid rgba(34, 197, 94, 0.25)" },

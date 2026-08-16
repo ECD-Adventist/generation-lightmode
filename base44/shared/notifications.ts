@@ -27,28 +27,31 @@ export async function createNotificationIdempotent(
     return existing[0].id;
   }
 
-  const created = await base44.asServiceRole.entities.Notification.create({
-    user_id,
-    actor_user_id: actor_user_id || '',
-    type,
-    reference_id,
-    message: String(message || '').slice(0, 500),
-    link: link || '',
-    read: false,
-  });
+  try {
+    const created = await base44.asServiceRole.entities.Notification.create({
+      user_id,
+      actor_user_id: actor_user_id || '',
+      type,
+      reference_id,
+      message: String(message || '').slice(0, 500),
+      link: link || '',
+      read: false,
+    });
 
-  // Dual-write: mirror into Supabase. Awaited so the write isn't cancelled on return.
-  await mirrorToSupabase('notifications', {
-    id: created.id,
-    user_id: created.user_id,
-    actor_user_id: created.actor_user_id,
-    type: created.type,
-    reference_id: created.reference_id,
-    message: created.message,
-    link: created.link,
-    read: created.read,
-    created_date: created.created_date,
-  });
-
-  return created.id;
+    await mirrorToSupabase('notifications', {
+      id: created.id,
+      user_id: created.user_id,
+      actor_user_id: created.actor_user_id,
+      type: created.type,
+      reference_id: created.reference_id,
+      message: created.message,
+      link: created.link,
+      read: created.read,
+      created_date: created.created_date,
+    });
+    return created.id;
+  } catch (error) {
+    console.error('[notification:error]', { type, recipient: user_id, action: reference_id, error: error?.message });
+    throw error;
+  }
 }

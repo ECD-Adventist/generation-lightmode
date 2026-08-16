@@ -18,6 +18,7 @@ import {
 
 export default function DropViewerModal({ drop, drops, user, onClose, onNavigate }) {
   const [newComment, setNewComment] = useState("");
+  const [replyToComment, setReplyToComment] = useState(null);
   const [liked, setLiked] = useState(false);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
   const queryClient = useQueryClient();
@@ -72,8 +73,8 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
   const likeMutation = useMutation({
     mutationFn: async () => {
       if (!user) { toast.error("Please log in"); return; }
-      setLiked(true);
-      await base44.entities.GlowDrop.update(drop.id, { likes_count: (drop.likes_count || 0) + 1 });
+      const response = await base44.functions.invoke("handleLikeDrop", { drop_id: drop.id, action: "toggle" });
+      setLiked(response.data.action === "like");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myGlowDropsProfile"] });
@@ -83,16 +84,11 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
 
   const commentMutation = useMutation({
     mutationFn: async (content) => {
-      await base44.entities.GlowDropComment.create({ drop_id: drop.id, user_email: user.email, content });
-      if (drop.user_email && drop.user_email !== user.email) {
-        await base44.entities.Notification.create({
-          user_email: drop.user_email, type: "reply",
-          message: `${user.full_name} commented on your Glow Drop!`, link: `/Feed`
-        });
-      }
+      await base44.functions.invoke("createGlowDropComment", { drop_id: drop.id, content, parent_comment_id: replyToComment?.id || undefined });
     },
     onSuccess: () => {
       setNewComment("");
+      setReplyToComment(null);
       queryClient.invalidateQueries({ queryKey: ["comments", drop.id] });
       setTimeout(() => commentsEndRef.current?.scrollIntoView({ behavior: "smooth" }), 200);
     }
@@ -352,6 +348,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                       <span className="text-[11px] text-[#8A97B5]">
                         {c.created_date ? formatDistanceToNow(new Date(c.created_date), { addSuffix: true }) : ""}
                       </span>
+                      {user && !isCommentOwner && <button onClick={() => setReplyToComment(c)} className="text-[11px] font-semibold text-[#0B3FD9]">Reply</button>}
                       {canDelete && (
                         <button onClick={() => deleteCommentMutation.mutate(c.id)}
                           className="text-[11px] text-[#8A97B5] hover:text-red-500 opacity-0 group-hover/c:opacity-100 transition font-semibold">
@@ -405,6 +402,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
           {/* Comment Input */}
           {user && (
             <form onSubmit={submitComment} className="border-t border-[#E6ECF5] px-4 py-3 flex items-center gap-2 shrink-0">
+              {replyToComment && <button type="button" onClick={() => setReplyToComment(null)} className="text-[10px] font-bold text-[#0B3FD9]">Cancel reply</button>}
               <div className="w-7 h-7 rounded-full shrink-0 overflow-hidden">
                 <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
               </div>

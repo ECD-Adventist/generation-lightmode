@@ -10,6 +10,10 @@
     },
     "content": {
       "type": "string"
+    },
+    "parent_comment_id": {
+      "type": "string",
+      "description": "Parent comment id when this is a reply"
     }
   },
   "required": [

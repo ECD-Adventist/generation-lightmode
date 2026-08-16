@@ -35,6 +35,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
   const [musicEditorOpen, setMusicEditorOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [newComment, setNewComment] = useState("");
+  const [replyToComment, setReplyToComment] = useState(null);
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
   const [likeBurst, setLikeBurst] = useState(false);
@@ -128,10 +129,10 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
     mutationFn: async (content) => {
       if (!user) { toast.error("Please log in to comment"); return; }
       if (!content.trim()) return;
-      await base44.entities.GlowDropComment.create({
+      await base44.functions.invoke("createGlowDropComment", {
         drop_id: drop.id,
-        user_email: user.email,
-        content: content.trim()
+        content: content.trim(),
+        parent_comment_id: replyToComment?.id || undefined
       });
       
       const todayStr = new Date().toISOString().split('T')[0];
@@ -141,14 +142,6 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
         await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
       }
 
-      if (dropUser?.id && drop.user_email && drop.user_email !== user.email && isNotificationEnabled(dropUser, "comments")) {
-        base44.functions.invoke("createNotification", {
-          user_id: dropUser.id,
-          type: "reply",
-          message: `${getDisplayName(user)} commented on your Glow Drop: "${content.trim().slice(0, 50)}${content.trim().length > 50 ? '...' : ''}"`,
-          link: `/Post?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`
-        }).catch(() => {});
-      }
     },
     onMutate: async (content) => {
       await queryClient.cancelQueries({ queryKey: ["comments", drop.id] });
@@ -177,6 +170,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
       queryClient.invalidateQueries({ queryKey: ["comments", drop.id] });
     },
     onSuccess: () => {
+      setReplyToComment(null);
       toast.success("Comment posted!");
     }
   });
@@ -884,11 +878,20 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
                       toggleColor="#0B3FD9"
                     />
                   )}
+                  {user && c.user_email !== user.email && (
+                    <button type="button" onClick={() => { setReplyToComment(c); setNewComment(""); }} className="mt-1 text-[11px] font-bold" style={{ color: "#0B3FD9" }}>Reply</button>
+                  )}
                 </div>
               </div>
             ))}
             {visibleComments.length === 0 && <div className="text-xs italic text-center py-6" style={{ color: "#8A97B5" }}>No comments yet. Ignite the conversation! 🔥</div>}
           </div>
+          {replyToComment && (
+            <div className="flex items-center justify-between text-xs px-2" style={{ color: "#6B7FA0" }}>
+              <span>Replying to {getDisplayName(getCommentUser(replyToComment.user_email))}</span>
+              <button type="button" onClick={() => setReplyToComment(null)} className="font-bold" style={{ color: "#0B3FD9" }}>Cancel</button>
+            </div>
+          )}
           <form onSubmit={submitComment} className="flex gap-2 relative mt-2">
             <Input
               value={newComment}

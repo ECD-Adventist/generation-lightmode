@@ -91,14 +91,18 @@ export default async function(req) {
     const authors = await base44.asServiceRole.entities.User.filter({ email: original.user_email }, '-created_date', 1);
     const author = authors[0];
     if (author && author.id !== user.id && author.notify_reposts !== false) {
-      await createNotificationIdempotent(base44, {
-        user_id: author.id,
-        actor_user_id: user.id,
-        type: 'repost',
-        reference_id: `repost_${user.id}_${canonicalId}`,
-        message: `${repost.reposter_name} reposted your GlowDrop.`,
-        link: `/Post?id=${encodeURIComponent(canonicalId)}`,
-      });
+      try {
+        await createNotificationIdempotent(base44, {
+          user_id: author.id,
+          actor_user_id: user.id,
+          type: 'repost',
+          reference_id: `repost_${user.id}_${canonicalId}`,
+          message: `${repost.reposter_name} reposted your GlowDrop.`,
+          link: `/Post?id=${encodeURIComponent(canonicalId)}`,
+        });
+      } catch (notificationError) {
+        console.error('[notification:error]', { type: 'repost', recipient: author.id, action: 'repost_glowdrop', error: notificationError?.message });
+      }
     }
 
     return Response.json({ success: true, action: 'created', repost });

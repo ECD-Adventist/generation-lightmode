@@ -14,11 +14,14 @@
       "type": "string",
       "enum": [
         "like",
+        "comment",
         "reply",
         "milestone",
         "system",
         "follow",
         "message",
+        "dm",
+        "prayer",
         "repost"
       ]
     },

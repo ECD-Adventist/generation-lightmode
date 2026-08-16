@@ -8,8 +8,8 @@ export function isNotificationEnabled(targetUser, preferenceType) {
 }
 
 export function getNotificationCategory(type) {
-  if (["like", "follow"].includes(type)) return "social";
-  if (["reply", "milestone", "message"].includes(type)) return "community";
+  if (["like", "follow", "repost"].includes(type)) return "social";
+  if (["comment", "reply", "milestone", "message", "dm", "prayer"].includes(type)) return "community";
   return "system";
 }
 

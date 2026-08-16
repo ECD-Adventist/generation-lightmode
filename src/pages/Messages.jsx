@@ -199,15 +199,18 @@ export default function Messages() {
         last_message_at: new Date().toISOString(),
       });
 
-      // Notification (fire and forget, don't block)
       if (otherUser?.id && otherEmail && otherEmail !== user.email && isNotificationEnabled(otherUser, "messages")) {
-        base44.functions.invoke("createNotification", {
-          user_id: otherUser.id,
-          type: "message",
-          reference_id: `dm_${message.id}`,
-          message: `${getDisplayName(user)} sent you a message: "${(content?.trim() || 'shared a file').slice(0, 60)}${(content?.trim() || 'shared a file').length > 60 ? '...' : ''}"`,
-          link: `/Messages?user=${encodeURIComponent(user.email)}`,
-        }).catch(() => {});
+        try {
+          await base44.functions.invoke("createNotification", {
+            user_id: otherUser.id,
+            type: "dm",
+            reference_id: `dm_${message.id}`,
+            message: `${getDisplayName(user)} sent you a message: "${(content?.trim() || 'shared a file').slice(0, 60)}${(content?.trim() || 'shared a file').length > 60 ? '...' : ''}"`,
+            link: `/Messages?user=${encodeURIComponent(user.email)}`,
+          });
+        } catch (notificationError) {
+          console.error('[notification:error]', { type: 'dm', recipient: otherUser.id, action: 'send_direct_message', error: notificationError });
+        }
       }
 
       await base44.entities.DirectMessage.update(message.id, { status: "delivered" });

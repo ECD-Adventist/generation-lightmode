@@ -2,7 +2,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { mirrorToSupabase } from '../../shared/supabase.ts';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
-Deno.serve(async (req) => {
+export default async function(req) {
+  let notificationContext = { type: 'unknown', recipient: 'unknown', action: 'create_notification' };
   try {
     const base44 = createClientFromRequest(req);
     const actor = await base44.auth.me();
@@ -11,8 +12,8 @@ Deno.serve(async (req) => {
     if (rateLimited) return rateLimited;
 
     const validated = await readValidatedJson(req, {
-      user_id: { type: 'string', required: true, format: 'uuid' },
-      type: { type: 'string', required: true, enum: ['like', 'reply', 'milestone', 'system', 'follow', 'message'] },
+      user_id: { type: 'string', required: true, maxLength: 64 },
+      type: { type: 'string', required: true, enum: ['like', 'comment', 'reply', 'milestone', 'system', 'follow', 'message', 'dm', 'prayer', 'repost'] },
       message: { type: 'string', required: true, minLength: 1, maxLength: 500 },
       description: { type: 'string', maxLength: 500 },
       link: { type: 'string', maxLength: 2048 },
@@ -20,6 +21,10 @@ Deno.serve(async (req) => {
     });
     if (validated.response) return validated.response;
     const { user_id, type, message, description, link, reference_id } = validated.data;
+    notificationContext = { type, recipient: user_id, action: reference_id || 'create_notification' };
+    if (user_id === actor.id && ['like', 'comment', 'reply', 'follow', 'message', 'dm', 'prayer', 'repost'].includes(type)) {
+      return Response.json({ success: true, suppressed: 'self_notification' });
+    }
     const normalizedLink = typeof link === 'string' ? link.trim() : '';
     const hasSuspiciousScheme = /^(javascript|data|vbscript):/i.test(normalizedLink);
     const hasValidLink = !normalizedLink || normalizedLink.startsWith('/') || normalizedLink.startsWith('https://');
@@ -80,6 +85,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ success: true, id: created.id });
   } catch (error) {
+    console.error('[notification:error]', { ...notificationContext, error: error?.message });
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}
