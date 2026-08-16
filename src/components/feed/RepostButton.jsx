@@ -56,10 +56,19 @@ export default function RepostButton({ drop, user, compact = false, dark = false
       toast.error(error?.response?.data?.error || error?.message || "Repost failed", { id: context?.toastId });
     },
   });
-  if (!user || !originalId || drop?.hidden || drop?.is_flagged || drop?.status === "rejected") return null;
+  // NOTE: never gate this on `user` — the feed can briefly resolve the viewer as a
+  // guest, and hiding the button made Repost disappear from the action bar entirely.
+  if (!originalId || drop?.hidden || drop?.is_flagged || drop?.status === "rejected") return null;
+
+  const handleClick = (event) => {
+    event.stopPropagation();
+    if (!user) { toast.error("Please log in to repost"); return; }
+    mutation.mutate();
+  };
+
   if (capsule) {
     return (
-      <button type="button" disabled={mutation.isPending} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); mutation.mutate(); }}
+      <button type="button" disabled={mutation.isPending} onPointerDown={(event) => event.stopPropagation()} onClick={handleClick}
         className="min-w-0 h-[44px] sm:h-[48px] px-1 sm:px-2 flex items-center justify-center gap-1 border-r border-[#31516D] last:border-r-0 transition disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#18C8FF]"
         title={existing ? "Undo repost" : "Repost"} aria-label={existing ? "Undo repost" : "Repost"}>
         <Repeat2 className={`shrink-0 w-5 h-5 sm:w-6 sm:h-6 ${existing ? "text-[#F4C84A]" : "text-[#18C8FF]"}`} />
@@ -70,7 +79,7 @@ export default function RepostButton({ drop, user, compact = false, dark = false
     );
   }
   return (
-    <button type="button" disabled={mutation.isPending} onClick={(event) => { event.stopPropagation(); mutation.mutate(); }}
+    <button type="button" disabled={mutation.isPending} onClick={handleClick}
       className={compact ? "flex items-center gap-1.5 text-xs font-bold disabled:opacity-50" : "flex flex-col items-center gap-1 disabled:opacity-50"}
       style={{ color: existing ? "#10B981" : dock ? "#18C8E8" : dark ? "#FFFFFF" : "#0B3FD9" }} title={existing ? "Undo repost" : "Repost"}>
       <span
