@@ -11,6 +11,7 @@ import PrayerAnalyticsTab from "@/components/dashboard/PrayerAnalyticsTab";
 import AICoachingTab from "@/components/dashboard/AICoachingTab";
 import TerritoryLeaderboard from "@/components/leaderboard/TerritoryLeaderboard";
 import DashboardMapHero from "@/components/dashboard/DashboardMapHero";
+import DashboardMoreLinks from "@/components/dashboard/DashboardMoreLinks";
 import { Zap } from "lucide-react";
 
 const TABS = [
@@ -54,6 +55,8 @@ export default function MobileDashboard({ user }) {
           </div>
           <DashboardMapHero userCountry={user?.country} />
         </div>
+
+        <DashboardMoreLinks />
 
         {/* Horizontal tab scroll */}
         <div className="overflow-x-auto hide-scrollbar -mx-3 px-3">

@@ -19,6 +19,7 @@ import { applyDailyCheckIn } from "@/lib/gamification";
 import AppFooter from "@/components/AppFooter";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileDashboard from "@/components/dashboard/MobileDashboard";
+import DashboardMoreLinks from "@/components/dashboard/DashboardMoreLinks";
 
 export default function Dashboard() {
   const isMobile = useIsMobile();
@@ -138,6 +139,8 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        <DashboardMoreLinks />
 
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="bg-transparent border-none p-0 flex flex-wrap gap-2 mb-10 h-auto justify-start">

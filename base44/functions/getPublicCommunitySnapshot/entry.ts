@@ -1,22 +1,25 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { enforceApiRateLimit } from '../../shared/apiSecurity.ts';
 
-// Hard cap to avoid full-table scans (audit F-19). Aggregates are computed
-// server-side and only non-PII counts/snippets are returned to the client.
-const SCAN_CAP = 5000;
+const PAGE_SIZE = 500;
 
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const rateLimited = await enforceApiRateLimit(base44, req);
     if (rateLimited) return rateLimited;
     const svc = base44.asServiceRole;
 
-    // Read each entity independently and tolerate individual failures so a single
-    // RLS / auth hiccup can never zero-out the entire public snapshot.
+    // Read every database page so map totals stay accurate as the community grows.
     const safeList = async (entity) => {
       try {
-        return await svc.entities[entity].list('-created_date', SCAN_CAP);
+        const records = [];
+        for (let skip = 0; ; skip += PAGE_SIZE) {
+          const page = await svc.entities[entity].list('-created_date', PAGE_SIZE, skip);
+          records.push(...page);
+          if (page.length < PAGE_SIZE) break;
+        }
+        return records;
       } catch (e) {
         console.error(`getPublicCommunitySnapshot: ${entity} read failed:`, e?.message);
         return [];
@@ -36,37 +39,41 @@ Deno.serve(async (req) => {
     const approvedDrops = drops.filter((d) => d.status === 'approved' && !d.hidden && !d.is_flagged);
 
     const COUNTRY_ALIASES = {
-      "usa": "United States",
-      "u.s.a.": "United States",
-      "us": "United States",
-      "united states of america": "United States",
-      "uk": "United Kingdom",
-      "great britain": "United Kingdom",
-      "england": "United Kingdom",
-      "southafrica": "South Africa",
-      "united republic of tanzania": "Tanzania",
-      "tanzanie": "Tanzania",
-      "kenia": "Kenya",
-      "ouganda": "Uganda",
-      "ethiopie": "Ethiopia",
-      "éthiopie": "Ethiopia",
-      "drc": "Democratic Republic of the Congo",
-      "rdc": "Democratic Republic of the Congo",
-      "dr congo": "Democratic Republic of the Congo",
-      "congo dr": "Democratic Republic of the Congo",
-      "congo, democratic republic": "Democratic Republic of the Congo",
-      "république démocratique du congo": "Democratic Republic of the Congo",
-      "republique democratique du congo": "Democratic Republic of the Congo",
-      "rep. dem. du congo": "Democratic Republic of the Congo",
-      "democratic republic of congo": "Democratic Republic of the Congo",
-      "s. sudan": "South Sudan",
-      "ivory coast": "Côte d'Ivoire",
+      "usa": "United States", "u.s.a.": "United States", "us": "United States", "united states of america": "United States",
+      "uk": "United Kingdom", "great britain": "United Kingdom", "england": "United Kingdom",
+      "southafrica": "South Africa", "united republic of tanzania": "Tanzania", "tanzanie": "Tanzania",
+      "kenia": "Kenya", "ouganda": "Uganda", "ethiopie": "Ethiopia", "éthiopie": "Ethiopia",
+      "drc": "Democratic Republic of the Congo", "rdc": "Democratic Republic of the Congo", "rd congo": "Democratic Republic of the Congo",
+      "dr congo": "Democratic Republic of the Congo", "congo": "Democratic Republic of the Congo",
+      "congo dr": "Democratic Republic of the Congo", "congo, democratic republic": "Democratic Republic of the Congo",
+      "république démocratique du congo": "Democratic Republic of the Congo", "republique democratique du congo": "Democratic Republic of the Congo",
+      "rep. dem. du congo": "Democratic Republic of the Congo", "democratic republic of congo": "Democratic Republic of the Congo",
+      "s. sudan": "South Sudan", "ivory coast": "Côte d'Ivoire", "somali": "Somalia",
     };
+    const CANONICAL_COUNTRIES = [
+      "Kenya", "Tanzania", "Uganda", "Rwanda", "Burundi", "Ethiopia", "Somalia", "Djibouti", "Eritrea", "Sudan", "South Sudan",
+      "Democratic Republic of the Congo", "Zambia", "Namibia", "Zimbabwe", "Angola", "Nigeria", "Ghana", "South Africa",
+      "United States", "United Kingdom", "Canada", "Brazil", "India", "Philippines", "Australia", "China", "France", "Côte d'Ivoire",
+    ];
+    const canonicalByLower = new Map(CANONICAL_COUNTRIES.map((country) => [country.toLowerCase(), country]));
 
     const normalizeCountry = (countryName) => {
       if (!countryName) return "";
-      const cleaned = String(countryName).trim().replace(/\s+/g, " ");
-      return COUNTRY_ALIASES[cleaned.toLowerCase()] || cleaned;
+      const cleaned = String(countryName).replace(/[\u{1F1E6}-\u{1F1FF}]/gu, "").trim().replace(/\s+/g, " ");
+      const lower = cleaned.toLowerCase();
+      if (!lower || lower === "other" || lower === "ecd" || lower === "global") return "";
+      if (COUNTRY_ALIASES[lower]) return COUNTRY_ALIASES[lower];
+      if (canonicalByLower.has(lower)) return canonicalByLower.get(lower);
+      const aliasMatch = Object.entries(COUNTRY_ALIASES).find(([alias]) => lower.includes(alias));
+      if (aliasMatch) return aliasMatch[1];
+      const countryMatch = CANONICAL_COUNTRIES.find((country) => lower.includes(country.toLowerCase()));
+      if (countryMatch) return countryMatch;
+      if (/lubumbashi|bukavu/.test(lower)) return "Democratic Republic of the Congo";
+      if (/kisumu|khwisero|nairobi|webuye/.test(lower)) return "Kenya";
+      if (/arua|mbarara|kampala/.test(lower)) return "Uganda";
+      if (/dar es salaam/.test(lower)) return "Tanzania";
+      if (/butanyerera/.test(lower)) return "Burundi";
+      return cleaned;
     };
 
     const userCountryByEmail = new Map(users.map((user) => [user.email, normalizeCountry(user.country)]));
@@ -86,7 +93,8 @@ Deno.serve(async (req) => {
     });
 
     groups.forEach((group) => {
-      ensureCountry(group.country).groups += 1;
+      const country = normalizeCountry(group.country);
+      if (country) ensureCountry(country).groups += 1;
     });
 
     approvedDrops.forEach((drop) => {
@@ -143,7 +151,7 @@ Deno.serve(async (req) => {
       category: drop.category || '',
     }));
 
-    const totalCountries = new Set(users.map((user) => normalizeCountry(user.country)).filter(Boolean)).size;
+    const totalCountries = countryStats.length;
 
     return Response.json({
       totalUsers: users.length,
@@ -160,4 +168,4 @@ Deno.serve(async (req) => {
     console.error('getPublicCommunitySnapshot failed:', error?.message);
     return Response.json({ error: 'Unable to load community snapshot' }, { status: 500 });
   }
-});
+}

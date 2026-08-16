@@ -113,6 +113,9 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
   const statsRef = useRef(null);
   const [statsVisible, setStatsVisible] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const locatedMembers = liveCountries.reduce((sum, item) => sum + (item.users || 0), 0);
+  const mappedGroups = liveCountries.reduce((sum, item) => sum + (item.groups || 0), 0);
+  const mappedDrops = liveCountries.reduce((sum, item) => sum + (item.drops || 0), 0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -539,10 +542,10 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
           <div style={{ position: "absolute", top: 20, right: 20, zIndex: 1000, background: "rgba(11,15,26,0.92)", backdropFilter: "blur(14px)", borderRadius: 16, padding: "16px 18px", border: "1px solid rgba(0,207,255,0.2)", minWidth: 180 }}>
             <div style={{ fontSize: 9, fontWeight: 800, color: "#00CFFF", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12, fontFamily: "Space Grotesk, sans-serif" }}>Live Statistics</div>
             {[
-              { label: "Members", value: snapshot?.totalUsers || 0, color: "#00CFFF" },
-              { label: "Countries", value: snapshot?.totalCountries || 0, color: "#FFD000" },
-              { label: "GlowGroups", value: snapshot?.totalGroups || 0, color: "#8A5CFF" },
-              { label: "Glow Drops", value: snapshot?.totalDrops || 0, color: "#1DA1FF" },
+              { label: "Located Members", value: locatedMembers, color: "#00CFFF" },
+              { label: "Countries", value: liveCountries.length, color: "#FFD000" },
+              { label: "GlowGroups", value: mappedGroups, color: "#8A5CFF" },
+              { label: "Glow Drops", value: mappedDrops, color: "#1DA1FF" },
             ].map((stat, index, arr) => (
               <div key={stat.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: index === arr.length - 1 ? "none" : "1px solid rgba(255,255,255,0.04)" }}>
                 <span style={{ fontSize: 11, color: "#8A9BB0", fontFamily: "Inter, sans-serif" }}>{stat.label}</span>
