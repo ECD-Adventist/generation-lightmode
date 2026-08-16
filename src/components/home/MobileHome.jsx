@@ -16,7 +16,7 @@ import "leaflet/dist/leaflet.css";
  * Hero-first, thumb-friendly, high-touch layout for mobile users.
  * All content parity with desktop Home, redesigned for mobile.
  */
-export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryImages }) {
+export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot, galleryImages }) {
   const [showVideo, setShowVideo] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userEmail, setUserEmail] = useState(null);
@@ -47,9 +47,10 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
     return () => obs.disconnect();
   }, []);
 
-  const totalMembers = liveCountries.reduce((s, c) => s + (c.users || 0), 0);
-  const totalDrops = liveCountries.reduce((s, c) => s + (c.drops || 0), 0);
-  const totalGroups = liveCountries.reduce((s, c) => s + (c.groups || 0), 0);
+  const totalMembers = snapshot?.totalUsers || 0;
+  const totalDrops = snapshot?.totalDrops || 0;
+  const totalGroups = snapshot?.totalGroups || 0;
+  const totalCountries = snapshot?.totalCountries || 0;
 
   return (
     <div className="font-['Inter'] relative overflow-hidden" style={{ background: "#0B0F1A", color: "#FFFFFF" }}>
@@ -460,7 +461,7 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, galleryI
         <div className="px-5 grid grid-cols-2 gap-2.5 mb-4">
           {[
             { label: "Members", value: totalMembers, color: "#00CFFF" },
-            { label: "Countries", value: liveCountries.length, color: "#FFD000" },
+            { label: "Countries", value: totalCountries, color: "#FFD000" },
             { label: "GlowGroups", value: totalGroups, color: "#8A5CFF" },
             { label: "Glow Drops", value: totalDrops, color: "#1DA1FF" },
           ].map(s => (
