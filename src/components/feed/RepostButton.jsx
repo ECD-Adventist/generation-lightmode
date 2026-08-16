@@ -14,9 +14,15 @@ export default function RepostButton({ drop, user, compact = false, dark = false
         base44.entities.Repost.filter({ reposter_user_id: user.id }, "-created_at", 500),
         base44.entities.GlowDrop.filter({ user_email: user.email }, "-created_date", 500),
       ]);
-      return [...legacyReposts, ...repostDrops.filter(record => record.original_drop_id)];
+      // Re-assert ownership client-side. If either identity field were ever missing the
+      // filter above would come back unscoped, and another member's repost would light
+      // this button up as "already reposted by me".
+      return [
+        ...legacyReposts.filter(record => record.reposter_user_id === user.id),
+        ...repostDrops.filter(record => record.original_drop_id && record.user_email === user.email),
+      ];
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!user?.email,
     staleTime: 60000,
   });
   const existing = records.find(record => (record.original_post_id || record.original_drop_id) === originalId);
@@ -53,6 +59,8 @@ export default function RepostButton({ drop, user, compact = false, dark = false
       console.error("Repost action failed:", error?.response?.data?.error || error?.message || error);
       if (context?.previous) queryClient.setQueryData(["myReposts", user.id], context.previous);
       if (typeof context?.previousCount === "number") setDisplayedCount(context.previousCount);
+      // The button's state disagreed with the server — refetch so it self-corrects.
+      queryClient.invalidateQueries({ queryKey: ["myReposts", user.id] });
       toast.error(error?.response?.data?.error || error?.message || "Repost failed", { id: context?.toastId });
     },
   });
