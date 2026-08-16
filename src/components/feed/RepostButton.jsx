@@ -34,7 +34,9 @@ export default function RepostButton({ drop, user, compact = false, dark = false
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const response = await base44.functions.invoke("manageRepost", { action: existing ? "undo" : "create", original_post_id: originalId });
+      // Send "toggle" — the server decides create vs undo from its own records, so a stale
+      // client cache can no longer send "undo" for a post that was never reposted.
+      const response = await base44.functions.invoke("manageRepost", { action: "toggle", original_post_id: originalId });
       return response.data;
     },
     onMutate: async () => {

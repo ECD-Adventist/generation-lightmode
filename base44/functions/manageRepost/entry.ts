@@ -13,7 +13,7 @@ export default async function(req) {
     if (limited) return limited;
 
     const validated = await readValidatedJson(req, {
-      action: { type: 'string', enum: ['create', 'undo'] },
+      action: { type: 'string', enum: ['create', 'undo', 'toggle'] },
       original_post_id: { type: 'string', maxLength: 64 },
       caption: { type: 'string', maxLength: 500 },
     });
@@ -46,7 +46,12 @@ export default async function(req) {
       base44.asServiceRole.entities.GlowDrop.filter({ user_email: user.email, original_drop_id: canonicalId }, '-created_date', 1),
     ]);
 
-    if (action === 'undo') {
+    // The server owns the create-vs-undo decision. A client cache can be stale and pick
+    // 'undo' for a post that was never reposted; these records are the source of truth.
+    const hasRepost = Boolean(repostDrops[0] || legacyReposts[0]);
+    const effectiveAction = action === 'toggle' ? (hasRepost ? 'undo' : 'create') : action;
+
+    if (effectiveAction === 'undo') {
       const repostDrop = repostDrops[0];
       const legacyRepost = legacyReposts[0];
       if (!repostDrop && !legacyRepost) return Response.json({ error: 'You have not reposted this post' }, { status: 404 });
