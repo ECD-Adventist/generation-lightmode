@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Trophy } from "lucide-react";
@@ -6,21 +6,22 @@ import { Trophy } from "lucide-react";
 export default function LeaderboardTab({ user }) {
   const [region, setRegion] = useState('global');
 
-  const { data: users = [], isLoading } = useQuery({
-    queryKey: ["allUsers"],
+  const scopeCountry = region === 'regional' ? (user?.country || '') : '';
+  const { data: board, isLoading } = useQuery({
+    queryKey: ["dashboardGlowLeaderboard", scopeCountry],
     queryFn: async () => {
-      const res = await base44.functions.invoke('listPublicUsers', {});
+      const res = await base44.functions.invoke('getLeaderboard', {
+        metric: 'glow',
+        limit: 10,
+        ...(scopeCountry ? { country: scopeCountry } : {}),
+      });
       return res.data;
-    }
+    },
+    enabled: region === 'global' || !!scopeCountry,
+    staleTime: 1000 * 60 * 2,
   });
 
-  const displayUsers = useMemo(() => {
-    let filteredUsers = [...users];
-    if (region === 'regional' && user?.country) {
-      filteredUsers = filteredUsers.filter(u => u.country === user.country);
-    }
-    return filteredUsers.sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0)).slice(0, 10);
-  }, [users, region, user?.country]);
+  const displayUsers = board?.entries || [];
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 font-['Inter']">
@@ -101,7 +102,7 @@ export default function LeaderboardTab({ user }) {
                       </td>
                       <td className="py-5 px-6 text-right">
                         <span className="font-black font-['Space_Grotesk'] text-xl" style={{ color: isTop3 ? "#CC7A00" : "#0B1B3D" }}>
-                          {(u.displayScore ?? u.glow_score) || 0}
+                          {(u.value || 0).toLocaleString()}
                         </span>
                       </td>
                     </tr>

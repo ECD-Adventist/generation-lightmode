@@ -37,7 +37,7 @@ function publicEntry(user) {
   };
 }
 
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const me = await base44.auth.me();
@@ -96,6 +96,12 @@ Deno.serve(async (req) => {
       .sort((a, b) => b.value - a.value || (b.glow_score || 0) - (a.glow_score || 0));
 
     const myIndex = ranked.findIndex((entry) => String(entry.email).toLowerCase() === String(me.email || '').toLowerCase());
+    const tierCounts = { Seed: 0, Spark: 0, Flame: 0, Beacon: 0, Radiance: 0 };
+    allUsers.forEach((u) => {
+      const score = u.xp_points ?? u.glow_score ?? 0;
+      const tier = score >= 5000 ? 'Radiance' : score >= 1000 ? 'Beacon' : score >= 500 ? 'Flame' : score >= 100 ? 'Spark' : 'Seed';
+      tierCounts[tier] += 1;
+    });
 
     return Response.json({
       metric,
@@ -103,9 +109,10 @@ Deno.serve(async (req) => {
       total_ranked: ranked.length,
       my_rank: myIndex >= 0 ? myIndex + 1 : null,
       my_value: myIndex >= 0 ? ranked[myIndex].value : 0,
+      tier_counts: tierCounts,
     });
   } catch (error) {
     console.error('getLeaderboard failed:', error?.message);
     return Response.json({ error: 'Unable to build leaderboard' }, { status: 500 });
   }
-});
+}

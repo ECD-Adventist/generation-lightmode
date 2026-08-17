@@ -26,72 +26,18 @@ export default function AdminLeaderboardsTab() {
 
   const [view, setView] = useState("xp");
 
-  const { data: users = [], isLoading } = useQuery({
-    queryKey: ["lb_users"],
+  const metric = view === "xp" ? "glow" : view;
+  const { data: board, isLoading } = useQuery({
+    queryKey: ["adminLeaderboardRanked", metric],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
-      return res.data || [];
-    }
+      const res = await base44.functions.invoke("getLeaderboard", { metric, limit: 50 });
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 2,
   });
 
-  const { data: drops = [] } = useQuery({
-    queryKey: ["lb_drops"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 500),
-  });
-
-  const { data: follows = [] } = useQuery({
-    queryKey: ["lb_follows"],
-    queryFn: () => base44.entities.Follow.list("-created_date", 500),
-  });
-
-  const dropsPerUser = useMemo(() => {
-    const map = {};
-    drops.forEach(d => { map[d.user_email] = (map[d.user_email] || 0) + 1; });
-    return map;
-  }, [drops]);
-
-  const likesPerUser = useMemo(() => {
-    const map = {};
-    drops.forEach(d => {
-      if (d.likes_count) map[d.user_email] = (map[d.user_email] || 0) + (d.likes_count || 0);
-    });
-    return map;
-  }, [drops]);
-
-  const followersPerUser = useMemo(() => {
-    const map = {};
-    follows.forEach(f => { map[f.following_email] = (map[f.following_email] || 0) + 1; });
-    return map;
-  }, [follows]);
-
-  const ranked = useMemo(() => {
-    return [...users]
-      .map(u => ({
-        ...u,
-        drops: dropsPerUser[u.email] || 0,
-        likes: likesPerUser[u.email] || 0,
-        followers: followersPerUser[u.email] || 0,
-        glow_score: u.glow_score || 0,
-      }))
-      .sort((a, b) => {
-        if (view === "xp") return b.glow_score - a.glow_score;
-        if (view === "drops") return b.drops - a.drops;
-        if (view === "likes") return b.likes - a.likes;
-        if (view === "followers") return b.followers - a.followers;
-        return 0;
-      })
-      .slice(0, 50);
-  }, [users, view, dropsPerUser, likesPerUser, followersPerUser]);
-
-  const tierCounts = useMemo(() => {
-    const counts = {};
-    TIERS.forEach(tier => { counts[tier.label] = 0; });
-    users.forEach(u => {
-      const tier = getTierForScore(u.glow_score || 0, TIERS);
-      counts[tier.label]++;
-    });
-    return counts;
-  }, [users, TIERS]);
+  const ranked = board?.entries || [];
+  const tierCounts = board?.tier_counts || {};
 
   const tabs = [
     { key: "xp", label: "Glow XP", icon: <Zap className="w-3.5 h-3.5" /> },
@@ -145,7 +91,7 @@ export default function AdminLeaderboardsTab() {
                   className="w-12 h-12 rounded-full object-cover border-2" style={{ borderColor: tierColor }} />
                 <span className="text-xs font-bold truncate max-w-[80px] text-center" style={{ color: t.textPrimary }}>{u.full_name || u.email?.split("@")[0]}</span>
                 <span className="text-xs font-black" style={{ color: tierColor }}>
-                  {view === "xp" ? `${u.glow_score} XP` : view === "drops" ? `${u.drops} drops` : view === "likes" ? `${u.likes} likes` : `${u.followers} followers`}
+                  {`${(u.value || 0).toLocaleString()} ${view === "xp" ? "XP" : view}`}
                 </span>
                 <div className={`w-20 ${heights[idx]} rounded-t-xl flex items-center justify-center text-2xl font-black border-t border-x`}
                   style={{ background: `${tierColor}18`, borderColor: `${tierColor}40`, color: tierColor }}>
@@ -160,7 +106,7 @@ export default function AdminLeaderboardsTab() {
       {/* Full Leaderboard Table */}
       <div className="border rounded-2xl overflow-hidden" style={{ background: t.surface, borderColor: t.border }}>
         <div className="grid grid-cols-[40px_1fr_auto_auto_auto] gap-3 px-5 py-3 text-[10px] uppercase tracking-widest border-b" style={{ color: t.textMuted, borderColor: t.border }}>
-          <span>#</span><span>Member</span><span className="text-right">XP</span><span className="text-right">Drops</span><span className="text-right">Tier</span>
+          <span>#</span><span>Member</span><span className="text-right">{view === "xp" ? "XP" : view}</span><span className="text-right">Glow XP</span><span className="text-right">Tier</span>
         </div>
         {isLoading ? (
           <div className="py-12 text-center text-sm" style={{ color: t.textMuted }}>Loading rankings...</div>
@@ -183,8 +129,8 @@ export default function AdminLeaderboardsTab() {
                     <p className="text-[10px] truncate" style={{ color: t.textMuted }}>{u.country || "Global"}</p>
                   </div>
                 </div>
-                <span className="text-sm font-black text-right" style={{ color: isDark ? "#FFD000" : "#d97706" }}>{u.glow_score.toLocaleString()}</span>
-                <span className="text-sm font-bold text-right" style={{ color: t.textSecondary }}>{u.drops}</span>
+                <span className="text-sm font-black text-right" style={{ color: isDark ? "#FFD000" : "#d97706" }}>{(u.value || 0).toLocaleString()}</span>
+                <span className="text-sm font-bold text-right" style={{ color: t.textSecondary }}>{(u.glow_score || 0).toLocaleString()}</span>
                 <span className="text-xs font-bold text-right" style={{ color: tier.color }}>{tier.icon}</span>
               </div>
             );
