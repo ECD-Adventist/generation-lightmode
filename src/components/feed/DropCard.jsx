@@ -752,34 +752,12 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
 
       <PostAudioTrack audioUrl={drop.audio_url} audioTitle={drop.audio_title} />
 
-      {/* Verse & Reflection */}
-      {(drop.verse || drop.reflection) && (
+      {/* Verse caption */}
+      {drop.verse && (
         <div className="px-3 sm:px-4 pt-3 pb-1">
-          {getRepostOwner(drop.reflection) && (
-            <p className="text-xs mb-2" style={{ color: "#6B7FA0" }}>
-              Reposted from <Link to={getRepostOwner(drop.reflection) === "Generation LightMode" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`} className="font-semibold hover:underline" style={{ color: "#0B3FD9" }}>{getRepostOwner(drop.reflection)}</Link>
-            </p>
-          )}
-          {drop.verse && (
-            <div className="font-bold text-sm mb-1 break-words" style={{ color: "#0B3FD9" }}>
-              {drop.verse}
-            </div>
-          )}
-          {cleanReflection(drop.reflection) && (
-            containsHtml(cleanReflection(drop.reflection)) ? (
-              <div
-                className="text-sm leading-relaxed prose prose-sm max-w-none break-words prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-strong:text-foreground prose-headings:text-foreground [&_iframe]:w-full [&_iframe]:rounded-lg [&_iframe]:aspect-video [&_img]:rounded-lg [&_img]:max-w-full [&_p]:break-words [&_a]:break-all text-muted-foreground"
-                dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(cleanReflection(drop.reflection)) }}
-              />
-            ) : (
-              <ReadMoreText
-                text={cleanReflection(drop.reflection)}
-                lines={3}
-                className="text-sm leading-relaxed break-words text-muted-foreground"
-                toggleColor="#3b82f6"
-              />
-            )
-          )}
+          <div className="font-bold text-sm break-words" style={{ color: "#0B3FD9" }}>
+            {drop.verse}
+          </div>
         </div>
       )}
 
