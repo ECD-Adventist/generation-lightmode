@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { authorizeSchedulerOrAdmin } from '../../shared/schedulerAuth.ts';
+import { mirrorToSupabase } from '../../shared/supabase.ts';
 
 const ACCOUNT_EMAIL = 'system@lightmode.com';
 const ACCOUNT_ID = 'official-generation-lightmode';
@@ -26,10 +27,11 @@ async function ensureFollow(base44, followerUser) {
     return { checked: 1, created: 0, skipped: 1 };
   }
 
-  await base44.asServiceRole.entities.Follow.create({
+  const created = await base44.asServiceRole.entities.Follow.create({
     follower_id: followerId,
     following_id: ACCOUNT_ID
   });
+  await mirrorToSupabase('follows', created);
 
   return { checked: 1, created: 1, skipped: 0 };
 }
@@ -77,7 +79,8 @@ Deno.serve(async (req) => {
       }));
 
     for (let i = 0; i < newFollows.length; i += 100) {
-      await base44.asServiceRole.entities.Follow.bulkCreate(newFollows.slice(i, i + 100));
+      const created = await base44.asServiceRole.entities.Follow.bulkCreate(newFollows.slice(i, i + 100));
+      for (const follow of created) await mirrorToSupabase('follows', follow);
     }
 
     return Response.json({

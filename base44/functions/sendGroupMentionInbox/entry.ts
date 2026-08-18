@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
       const recipientId = userIdByEmail.get(email);
       if (recipientId) {
         // Idempotent: dedup on group + recipient
-        createNotificationIdempotent(base44, {
+        await createNotificationIdempotent(base44, {
           user_id: recipientId,
           actor_user_id: user.id,
           type: 'message',

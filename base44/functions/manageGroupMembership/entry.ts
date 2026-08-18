@@ -1,4 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { mirrorToSupabase } from '../../shared/supabase.ts';
+
+async function createMirroredNotification(base44, payload) {
+  const created = await base44.asServiceRole.entities.Notification.create(payload);
+  await mirrorToSupabase('notifications', created);
+  return created;
+}
 
 // Leader-only actions for managing a GlowGroup:
 // - set_role: assign/change a member's role within the group
@@ -43,7 +50,7 @@ Deno.serve(async (req) => {
 
       await base44.asServiceRole.entities.GlowGroupMember.update(membership.id, { role });
 
-      await base44.asServiceRole.entities.Notification.create({
+      await createMirroredNotification(base44, {
         user_email: target_email,
         type: 'system',
         message: `You were assigned the role of "${role.replace('_', ' ')}" in "${group.name}".`,
@@ -64,7 +71,7 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.GlowGroupMember.delete(m.id);
       }
 
-      await base44.asServiceRole.entities.Notification.create({
+      await createMirroredNotification(base44, {
         user_email: target_email,
         type: 'system',
         message: `You were removed from the group "${group.name}".`,
@@ -108,13 +115,13 @@ Deno.serve(async (req) => {
 
       // Notify both
       await Promise.all([
-        base44.asServiceRole.entities.Notification.create({
+        createMirroredNotification(base44, {
           user_email: target_email,
           type: 'system',
           message: `You are now the leader of "${group.name}" 👑`,
           link: `/GroupChat?id=${group_id}`,
         }).catch(() => {}),
-        previousLeaderEmail ? base44.asServiceRole.entities.Notification.create({
+        previousLeaderEmail ? createMirroredNotification(base44, {
           user_email: previousLeaderEmail,
           type: 'system',
           message: `You transferred leadership of "${group.name}".`,
@@ -149,7 +156,7 @@ Deno.serve(async (req) => {
 
       // Notify former members
       await Promise.all(memberEmails.map(email =>
-        base44.asServiceRole.entities.Notification.create({
+        createMirroredNotification(base44, {
           user_email: email,
           type: 'system',
           message: `The group "${group.name}" was closed by its leader.`,

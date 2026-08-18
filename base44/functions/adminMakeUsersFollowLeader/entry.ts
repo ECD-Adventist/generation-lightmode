@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
+import { mirrorToSupabase } from '../../shared/supabase.ts';
 
 const ADMIN_ROLES = new Set([
   'admin',
@@ -72,7 +73,8 @@ Deno.serve(async (req) => {
 
     if (!dryRun && newFollows.length > 0) {
       for (let i = 0; i < newFollows.length; i += 100) {
-        await base44.asServiceRole.entities.Follow.bulkCreate(newFollows.slice(i, i + 100));
+        const created = await base44.asServiceRole.entities.Follow.bulkCreate(newFollows.slice(i, i + 100));
+        for (const follow of created) await mirrorToSupabase('follows', follow);
       }
     }
 

@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import { mirrorToSupabase } from '../../shared/supabase.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -24,7 +25,8 @@ Deno.serve(async (req) => {
     // Create in batches of 25
     for (let i = 0; i < notifications.length; i += 25) {
       const batch = notifications.slice(i, i + 25);
-      await base44.asServiceRole.entities.Notification.bulkCreate(batch);
+      const created = await base44.asServiceRole.entities.Notification.bulkCreate(batch);
+      for (const notification of created) await mirrorToSupabase('notifications', notification);
     }
 
     return Response.json({ success: true, notified: notifications.length });

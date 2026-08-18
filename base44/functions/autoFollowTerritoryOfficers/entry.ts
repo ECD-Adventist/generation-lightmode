@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { mirrorToSupabase } from '../../shared/supabase.ts';
 
 const OFFICER_TITLE_PATTERNS = [/president/i, /executive\s+secretar(?:y|ies)/i, /treasurer/i];
 
@@ -72,9 +73,12 @@ Deno.serve(async (req) => {
       // Create follows one-by-one with the service role; bulkCreate is rejected
       // by the tightened Follow RLS when any row is evaluated in a non-owner context.
       for (const follow of followsToCreate) {
-        await base44.asServiceRole.entities.Follow.create(follow).catch((err) => {
+        try {
+          const created = await base44.asServiceRole.entities.Follow.create(follow);
+          await mirrorToSupabase('follows', created);
+        } catch (err) {
           console.warn('autoFollow create failed:', err?.message);
-        });
+        }
       }
     }
 

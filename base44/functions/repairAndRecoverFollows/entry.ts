@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { authorizeSchedulerOrAdmin } from '../../shared/schedulerAuth.ts';
+import { mirrorToSupabase } from '../../shared/supabase.ts';
 
 const DEFAULT_RECOVERY_CAP = 50;
 const MIN_RECOVERY_SCORE = 4;
@@ -33,7 +34,8 @@ async function listAll(entity, sort = '-created_date') {
 
 async function bulkCreate(entity, rows) {
   for (let i = 0; i < rows.length; i += 100) {
-    await entity.bulkCreate(rows.slice(i, i + 100));
+    const created = await entity.bulkCreate(rows.slice(i, i + 100));
+    for (const follow of created) await mirrorToSupabase('follows', follow);
   }
 }
 
