@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
       entry.total_glow_score += u.xp_points ?? u.glow_score ?? 0;
     });
 
-    const territoryFor = (email) => territoryByEmail.get(String(email || '').toLowerCase()) || 'Global';
+    const territoryFor = (email) => territoryByEmail.get(String(email || '').toLowerCase()) || 'Unspecified';
 
     drops.forEach((d) => {
       const entry = ensure(territoryFor(d.user_email));

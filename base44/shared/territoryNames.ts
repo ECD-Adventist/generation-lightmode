@@ -18,7 +18,7 @@ const ALIASES: Record<string, string> = {
 
 export function normalizeTerritoryName(value: unknown): string {
   const raw = String(value ?? '').trim();
-  if (!raw) return 'Global';
+  if (!raw) return 'Unspecified';
   const key = raw.toLowerCase().replace(/\s+/g, ' ');
   return ALIASES[key] || raw;
 }
