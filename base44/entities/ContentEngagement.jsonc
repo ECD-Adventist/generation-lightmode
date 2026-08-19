@@ -26,6 +26,10 @@
     "platform": {
       "type": "string",
       "description": "Share platform: whatsapp, facebook, x, telegram, copy_link, native"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
     }
   },
   "required": [

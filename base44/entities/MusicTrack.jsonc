@@ -13,6 +13,10 @@
     "file_url": {
       "type": "string",
       "description": "Permanent playable URL after the Drive file was copied into app storage."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
     }
   },
   "required": [
