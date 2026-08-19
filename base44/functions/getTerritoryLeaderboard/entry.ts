@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { enforceApiRateLimit } from '../../shared/apiSecurity.ts';
+import { normalizeTerritoryName } from '../../shared/territoryNames.ts';
 
 const PAGE = 500;
 const MAX_RECORDS = 60000;
@@ -51,7 +52,7 @@ Deno.serve(async (req) => {
     const ensure = (name) => (stats[name] ||= blank(name));
 
     users.forEach((u) => {
-      const territory = u.country || 'Global';
+      const territory = normalizeTerritoryName(u.country);
       const email = String(u.email || '').toLowerCase();
       if (email) territoryByEmail.set(email, territory);
       const entry = ensure(territory);
@@ -68,7 +69,7 @@ Deno.serve(async (req) => {
     });
     challenges.forEach((c) => { ensure(territoryFor(c.user_email)).total_challenges_completed += 1; });
     prayers.forEach((p) => { ensure(territoryFor(p.user_email)).total_prayer_supports += 1; });
-    groups.forEach((g) => { ensure(g.country || 'Global').active_groups += 1; });
+    groups.forEach((g) => { ensure(normalizeTerritoryName(g.country)).active_groups += 1; });
 
     return Response.json({ territories: Object.values(stats), total_users: users.length });
   } catch (error) {
