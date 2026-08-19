@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { toDirectDownloadUrl, toDrivePreviewUrl, toDriveImageUrl } from '../../shared/driveLinks.ts';
+import { enforceApiRateLimit } from '../../shared/apiSecurity.ts';
 
 // Public listing of scheduled digital content.
 // Locked items (scheduled in the future) have their download links stripped —
@@ -7,6 +8,8 @@ import { toDirectDownloadUrl, toDrivePreviewUrl, toDriveImageUrl } from '../../s
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
+    const rateLimited = await enforceApiRateLimit(base44, req);
+    if (rateLimited) return rateLimited;
     const items = await base44.asServiceRole.entities.DigitalContent.list('-scheduled_at', 500);
     const now = Date.now();
 

@@ -48,7 +48,7 @@ Generation LightMode Team`.trim()
     }
 
     // Also notify admin
-    const adminEmail = Deno.env.get('PROFILE_REMINDER_ADMIN_EMAIL');
+    const adminEmail = Deno.env.get('ADMIN_EMAIL');
     if (adminEmail) {
       await base44.asServiceRole.integrations.Core.SendEmail({
         to: adminEmail,

@@ -147,7 +147,7 @@ Deno.serve(async (req) => {
     // Member-directory callers (People/Explore, connections, follow targets) opt in
     // explicitly via include_email — the address is the identifier those flows use to
     // build profile links. Everything else stays email-free.
-    const includeEmails = requestedEmails.length > 0 || payload.include_email === true;
+    const includeEmails = requestedEmails.length > 0 || (payload.include_email === true && ADMIN_ROLES.has(user.role));
     const publicUsers = users.map((item) => publicUserShape(item, includeEmails));
 
     if (includeCount) {
