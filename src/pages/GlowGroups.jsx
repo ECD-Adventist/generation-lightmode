@@ -101,9 +101,9 @@ export default function GlowGroups() {
     // Leaders take precedence over a same-email regular user so the
     // verified-leader identity always wins.
     const byEmail = new Map();
-    safeRegular.forEach(u => { if (u.email) byEmail.set(u.email, u); });
-    searchedRegularUsers.forEach(u => { if (u.email) byEmail.set(u.email, u); });
-    leadersAsUsers.forEach(u => { if (u.email) byEmail.set(u.email, u); });
+    safeRegular.forEach(u => { const k = u.email || u.id; if (k) byEmail.set(k, u); });
+    searchedRegularUsers.forEach(u => { const k = u.email || u.id; if (k) byEmail.set(k, u); });
+    leadersAsUsers.forEach(u => { const k = u.email || u.id; if (k) byEmail.set(k, u); });
     return Array.from(byEmail.values());
   }, [regularUsers, searchedRegularUsers, leaderAccounts]);
 

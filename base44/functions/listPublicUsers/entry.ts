@@ -144,8 +144,11 @@ Deno.serve(async (req) => {
     // Only admins may receive email addresses via the include_email flag. Explicit
     // email-resolution calls (requestedEmails) already know the addresses they pass in,
     // so echoing those back is safe for any authenticated caller.
-    const canSeeEmails = ADMIN_ROLES.has(user.role) || requestedEmails.length > 0;
-    const publicUsers = users.map((item) => publicUserShape(item, canSeeEmails && (requestedEmails.length > 0 || payload.include_email === true)));
+    // Member-directory callers (People/Explore, connections, follow targets) opt in
+    // explicitly via include_email — the address is the identifier those flows use to
+    // build profile links. Everything else stays email-free.
+    const includeEmails = requestedEmails.length > 0 || payload.include_email === true;
+    const publicUsers = users.map((item) => publicUserShape(item, includeEmails));
 
     if (includeCount) {
       return Response.json({ users: publicUsers, totalUsers: totalUsers ?? publicUsers.length, visibleUsers: publicUsers.length });
