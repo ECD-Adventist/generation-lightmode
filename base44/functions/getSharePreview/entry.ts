@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { extractDriveFileId } from '../../shared/driveLinks.ts';
+import { enforceApiRateLimit } from '../../shared/apiSecurity.ts';
 
 const APP_ORIGIN = 'https://lightmode.ecd.adventist.org';
 const FALLBACK_IMAGE = 'https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png';
@@ -24,6 +25,8 @@ function renderHtml(preview) {
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
+    const rateLimited = await enforceApiRateLimit(base44, req);
+    if (rateLimited) return rateLimited;
     const url = new URL(req.url);
     let type = url.searchParams.get('type') || '';
     let id = url.searchParams.get('id') || '';

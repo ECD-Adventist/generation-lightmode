@@ -139,15 +139,11 @@ Deno.serve(async (req) => {
 
     // Email is returned only for explicit email-resolution calls used to map known
     // participants; general lists and searches remain email-free.
-    // Member-directory features (suggestions, connections) need the email to build
-    // profile links and follow targets, so callers can opt in explicitly.
-    // Only admins may receive email addresses via the include_email flag. Explicit
-    // email-resolution calls (requestedEmails) already know the addresses they pass in,
-    // so echoing those back is safe for any authenticated caller.
-    // Member-directory callers (People/Explore, connections, follow targets) opt in
-    // explicitly via include_email — the address is the identifier those flows use to
-    // build profile links. Everything else stays email-free.
-    const includeEmails = requestedEmails.length > 0 || payload.include_email === true;
+    // Explicit email-resolution calls (requestedEmails) already know the addresses they
+    // pass in, so echoing those back is safe for any authenticated caller. The bare
+    // include_email flag (browsing/searching ALL users) can leak every user's email to
+    // any authenticated caller, so that path is restricted to admin roles only.
+    const includeEmails = requestedEmails.length > 0 || (payload.include_email === true && ADMIN_ROLES.has(user.role));
     const publicUsers = users.map((item) => publicUserShape(item, includeEmails));
 
     if (includeCount) {
