@@ -43,6 +43,7 @@ import { tryNativeShare } from "@/lib/shareActions";
 import ShareFallbackDialog from "@/components/share/ShareFallbackDialog";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import useFeedScrollRestore from "@/hooks/useFeedScrollRestore";
+import useUrlOverlay from "@/hooks/useUrlOverlay";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
@@ -66,11 +67,16 @@ function SidebarLink({ to, icon, label, active, badge, accent }) {
 
 export default function Feed() {
   const [user, setUser] = useState(null);
-  const [isDropModalOpen, setIsDropModalOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [selectedStory, setSelectedStory] = useState(null);
+  const composeOverlay = useUrlOverlay("compose");
+  const isDropModalOpen = composeOverlay.value === "1";
+  const setIsDropModalOpen = (open) => open ? composeOverlay.open("1") : composeOverlay.close();
+  const [activeFilter, setActiveFilter] = useState(() => sessionStorage.getItem("feedActiveFilter") || "All");
+  const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem("feedSearchQuery") || "");
+  const statusComposerOverlay = useUrlOverlay("newStatus");
+  const isStatusModalOpen = statusComposerOverlay.value === "1";
+  const setIsStatusModalOpen = (open) => open ? statusComposerOverlay.open("1") : statusComposerOverlay.close();
+  const statusOverlay = useUrlOverlay("status");
+  const selectedStoryId = statusOverlay.value;
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
@@ -104,6 +110,8 @@ export default function Feed() {
   }, [searchQuery, isMobileViewport]);
 
   useEffect(() => { sessionStorage.setItem("feedDisplayCount", String(displayCount)); }, [displayCount]);
+  useEffect(() => { sessionStorage.setItem("feedActiveFilter", activeFilter); }, [activeFilter]);
+  useEffect(() => { sessionStorage.setItem("feedSearchQuery", searchQuery); }, [searchQuery]);
 
   useEffect(() => {
     async function checkAuth() {
@@ -126,25 +134,23 @@ export default function Feed() {
     checkAuth();
   }, []);
 
-  // Open the post composer when arriving via the bottom-nav "+" button (?compose=1)
-  // or when tapping Drop while already on the Feed tab.
+  // The composer is URL-backed so Android back dismisses it before leaving Feed.
   useEffect(() => {
+    if (composeOverlay.value && composeOverlay.value !== "1") composeOverlay.clearInvalid();
+    if (composeOverlay.value === "1" && authChecked && !user) {
+      base44.auth.redirectToLogin(window.location.pathname + window.location.search);
+    }
     const openComposer = () => {
       if (user) setIsDropModalOpen(true);
       else base44.auth.redirectToLogin(window.location.pathname);
     };
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("compose") === "1") {
-      openComposer();
-      params.delete("compose");
-      const newSearch = params.toString();
-      window.history.replaceState({}, "", window.location.pathname + (newSearch ? `?${newSearch}` : ""));
-    }
-
     window.addEventListener("openDropComposer", openComposer);
     return () => window.removeEventListener("openDropComposer", openComposer);
-  }, [user]);
+  }, [user, authChecked, composeOverlay.value, composeOverlay.clearInvalid]);
+
+  useEffect(() => {
+    if (statusComposerOverlay.value && statusComposerOverlay.value !== "1") statusComposerOverlay.clearInvalid();
+  }, [statusComposerOverlay.value, statusComposerOverlay.clearInvalid]);
 
   const isOnline = useNetworkStatus();
 
@@ -233,6 +239,18 @@ export default function Feed() {
     queryFn: () => base44.entities.Story.list("-created_date", 100),
     enabled: !!user && deferredReady
   });
+
+  const { data: deepLinkedStory, isFetched: isStoryResolved, isError: isStoryMissing } = useQuery({
+    queryKey: ["storyOverlay", selectedStoryId],
+    queryFn: () => base44.entities.Story.get(selectedStoryId),
+    enabled: !!selectedStoryId,
+    retry: false,
+  });
+  const selectedStory = stories.find(story => story.id === selectedStoryId) || deepLinkedStory || null;
+
+  useEffect(() => {
+    if (selectedStoryId && isStoryResolved && (isStoryMissing || !selectedStory)) statusOverlay.clearInvalid();
+  }, [selectedStoryId, isStoryResolved, isStoryMissing, selectedStory, statusOverlay.clearInvalid]);
 
   const followMutation = useMutation({
     mutationFn: async (targetEmail) => {
@@ -584,7 +602,7 @@ export default function Feed() {
           onFilterChange={setActiveFilter}
           stories={activeStories}
           getUserInfo={getUserInfo}
-          onOpenStatus={(s) => setSelectedStory(s)}
+          onOpenStatus={(story) => statusOverlay.open(story.id)}
           onOpenStatusComposer={() => requireAuth(() => setIsStatusModalOpen(true))}
           onOpenDropModal={() => requireAuth(() => setIsDropModalOpen(true))}
           filteredDrops={filteredDrops}
@@ -828,7 +846,7 @@ export default function Feed() {
               return (
                 <button
                   key={story.id}
-                  onClick={() => setSelectedStory(story)}
+                  onClick={() => statusOverlay.open(story.id)}
                   className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0 opacity-90 hover:opacity-100 transition-opacity"
                 >
                   <div className="w-16 h-16 rounded-full p-[2px]" style={{ background: "#E2E8F0" }}>
@@ -1032,8 +1050,8 @@ export default function Feed() {
         <StatusViewerModal
           story={selectedStory}
           storyUser={selectedStory ? getUserInfo(selectedStory.user_email) : null}
-          isOpen={!!selectedStory}
-          onClose={() => setSelectedStory(null)}
+          isOpen={!!selectedStoryId && !!selectedStory}
+          onClose={statusOverlay.close}
           allStories={stories}
           allUsers={users}
           getUserInfo={getUserInfo}
@@ -1119,33 +1137,6 @@ export default function Feed() {
           </div>
         )}
 
-        {/* Bottom Mobile Navigation — hidden for guests (sticky sign-in bar replaces it) */}
-        <div className={`fixed bottom-0 left-0 right-0 backdrop-blur-xl border-t justify-around items-center py-2.5 px-3 sm:px-6 z-50 pb-4 sm:pb-5 sm:max-w-xl sm:mx-auto sm:border-x lg:hidden ${isGuest ? "hidden" : "flex"}`} style={{ background: "rgba(246, 248, 252, 0.98)", borderColor: "#E2E8F0", boxShadow: "0 -8px 24px rgba(15, 23, 42, 0.08)" }}>
-          <Link to={createPageUrl("Feed")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Home">
-            <Home className="w-5 h-5" fill="#0B3FD9" style={{ color: "#0B3FD9" }} />
-          </Link>
-          <button onClick={() => setIsSearchOpen(true)} className="flex h-11 w-11 items-center justify-center rounded-full" title="Search">
-            <SearchIcon className="w-5 h-5" style={{ color: "#0B1B3D" }} />
-          </button>
-          {!isGuest && (
-            <button onClick={() => requireAuth(() => setIsDropModalOpen(true))} className="flex h-11 w-11 items-center justify-center rounded-full" title="Create post">
-              <SquarePlus className="w-5 h-5" style={{ color: "#0B1B3D" }} />
-            </button>
-          )}
-          <Link to={createPageUrl("GlobalReach")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Global Reach">
-            <Globe className="w-5 h-5" style={{ color: "#0B1B3D" }} />
-          </Link>
-          <Link to={createPageUrl("DailyTruthFeed")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Daily Drops">
-            <PlaySquare className="w-5 h-5" style={{ color: "#0B1B3D" }} />
-          </Link>
-          {!isGuest && (
-            <Link to={createPageUrl("Profile")} className="flex h-11 w-11 items-center justify-center rounded-full" title="Profile">
-              <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] uppercase font-bold overflow-hidden" style={{ border: "2px solid #1FB8FF" }}>
-                <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-              </div>
-            </Link>
-          )}
-        </div>
       </div>
     </div>
   );

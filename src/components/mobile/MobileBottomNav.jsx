@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, User, Search, MessageCircle, Plus } from "lucide-react";
+import useMobileTabNavigation from "@/hooks/useMobileTabNavigation";
 
 const tabs = [
   { key: "Feed", label: "Feed", icon: Zap, match: ["Feed", "GlowFeed", "Post"] },
@@ -14,6 +15,7 @@ const tabs = [
 export default function MobileBottomNav({ currentPageName }) {
   const location = useLocation();
   const scrollPositions = useRef({});
+  const { activeTab, switchTab, targetFor } = useMobileTabNavigation(currentPageName);
 
   // 1. Save scroll position on scroll
   useEffect(() => {
@@ -83,18 +85,15 @@ export default function MobileBottomNav({ currentPageName }) {
               </Link>
             );
           }
-          const active = match.includes(currentPageName) || location.pathname === `/${key}`;
-          const targetPath = createPageUrl(key);
+          const active = activeTab === key || match.includes(currentPageName) || location.pathname === `/${key}`;
+          const targetPath = targetFor(key);
           return (
             <Link
               key={key}
               to={targetPath}
               onClick={(e) => {
-                sessionStorage.setItem('tab_switch', 'true');
-                if (location.pathname === targetPath && !location.search) {
-                  e.preventDefault();
-                  window.location.href = targetPath;
-                }
+                e.preventDefault();
+                switchTab(key);
               }}
               className="flex-1 flex flex-col items-center justify-center gap-1 py-2"
               style={{

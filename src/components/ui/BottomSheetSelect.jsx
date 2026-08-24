@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ChevronDown, Search, X } from "lucide-react";
 
@@ -50,6 +50,13 @@ export default function BottomSheetSelect({
     setQuery("");
   };
 
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = event => { if (event.key === "Escape") close(); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
   return (
     <>
       <button
@@ -67,6 +74,9 @@ export default function BottomSheetSelect({
         {open && (
           <motion.div
             className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center"
+            role="dialog"
+            aria-modal="true"
+            aria-label={placeholder}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -85,7 +95,7 @@ export default function BottomSheetSelect({
             {/* Sheet */}
             <motion.div
               className="relative w-full sm:max-w-md sm:mx-4 rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden"
-              style={{ background: "#FFFFFF", maxHeight: "min(calc(100dvh - env(safe-area-inset-top) - 1rem), 640px)", boxShadow: "0 -12px 40px rgba(11, 27, 61, 0.25)" }}
+              style={{ background: "#FFFFFF", maxHeight: "min(calc(100dvh - env(safe-area-inset-top) - 1rem), 640px)", paddingBottom: "env(safe-area-inset-bottom)", boxShadow: "0 -12px 40px rgba(11, 27, 61, 0.25)" }}
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
@@ -148,7 +158,6 @@ export default function BottomSheetSelect({
                 )}
               </div>
 
-              <div className="h-[env(safe-area-inset-bottom)]" />
             </motion.div>
           </motion.div>
         )}

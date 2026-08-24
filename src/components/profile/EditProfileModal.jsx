@@ -42,6 +42,18 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
     social_links: parseSocialLinks(user?.social_links),
   });
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = event => { if (event.key === "Escape" && !cropData) onClose(); };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isOpen, cropData, onClose]);
+
   // Sync when user prop changes (e.g. after an image upload outside modal)
   React.useEffect(() => {
     if (user) {

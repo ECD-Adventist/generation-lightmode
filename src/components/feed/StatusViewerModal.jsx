@@ -286,7 +286,7 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
             </button>
             <button
               onClick={() => {
-                const text = `✨ Check out this story on Generation LightMode!\n${window.location.origin}/Feed`;
+                const text = `✨ Check out this story on Generation LightMode!\n${window.location.origin}/Feed?status=${encodeURIComponent(currentStory.id)}`;
                 if (navigator.share) { navigator.share({ text }).catch(() => {}); }
                 else { navigator.clipboard.writeText(text); toast.success("Link copied!"); }
               }}

@@ -32,7 +32,7 @@ export default function PostViewerModal({
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   if (!isOpen || drops.length === 0) return null;
 

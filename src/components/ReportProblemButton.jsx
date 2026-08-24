@@ -10,13 +10,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import ResponsiveSelect from "@/components/ui/ResponsiveSelect";
 import { toast } from "sonner";
 
 const issueTypes = [
@@ -87,16 +81,13 @@ export default function ReportProblemButton() {
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Issue type</label>
-              <Select value={issueType} onValueChange={setIssueType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select issue type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {issueTypes.map((type) => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <ResponsiveSelect
+                value={issueType}
+                onChange={setIssueType}
+                options={issueTypes}
+                placeholder="Select issue type"
+                disabled={submitting}
+              />
             </div>
 
             <div className="space-y-2">

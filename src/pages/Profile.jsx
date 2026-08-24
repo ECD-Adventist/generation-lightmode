@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Zap, Home, Users, Bell, Globe, Bookmark, Building2, Sparkles, BarChart3 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
+import useUrlOverlay from "@/hooks/useUrlOverlay";
 import { toast } from "sonner";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
@@ -48,13 +49,17 @@ export default function Profile() {
   const [user, setUser] = useState(null); // profile being viewed
   const [isDropModalOpen, setIsDropModalOpen] = useState(false);
   const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(false);
+  const editOverlay = useUrlOverlay("edit");
+  const postOverlay = useUrlOverlay("post");
+  const isEditing = editOverlay.value === "true";
+  const setIsEditing = (open) => open ? editOverlay.open("true") : editOverlay.close();
   const [editData, setEditData] = useState({ full_name: "", country: "", bio: "", website_url: "", profile_picture_url: "", cover_picture_url: "", gender: "", date_of_birth: "", phone: "", city: "", address: "", postal_code: "" });
   const [activeProfileTab, setActiveProfileTab] = useState("drops");
   const [connectionsView, setConnectionsView] = useState(null);
   const [pledgeModalOpen, setPledgeModalOpen] = useState(false);
   const [viewPledgeOpen, setViewPledgeOpen] = useState(false);
-  const [viewingDropId, setViewingDropId] = useState(null);
+  const viewingDropId = postOverlay.value;
+  const setViewingDropId = (dropId) => dropId ? postOverlay.open(dropId) : postOverlay.close();
   const [activeLeaderEmail, setActiveLeaderEmail] = useState(null);
   const [isEditingLeader, setIsEditingLeader] = useState(false);
 
@@ -199,6 +204,11 @@ export default function Profile() {
   const isOwnProfile = currentUser && (!viewUserEmail || viewUserEmail === currentUser.email);
   const baseProfileEmail = viewUserEmail || currentUser?.email;
 
+  useEffect(() => {
+    if (editOverlay.value && editOverlay.value !== "true") editOverlay.clearInvalid();
+    else if (editOverlay.value === "true" && currentUser && !isOwnProfile) editOverlay.clearInvalid();
+  }, [editOverlay.value, editOverlay.clearInvalid, currentUser, isOwnProfile]);
+
   // Leader accounts this logged-in user is authorized to manage (or all, if admin/super_admin).
   const { data: managedLeaderAccounts = [] } = useQuery({
     queryKey: ["managedLeaderAccountsForUser", currentUser?.email, currentUser?.role],
@@ -302,7 +312,7 @@ export default function Profile() {
     enabled: !!profileEmail
   });
 
-  const { data: savedRecords = [] } = useQuery({
+  const { data: savedRecords = [], isLoading: isSavedRecordsLoading } = useQuery({
     queryKey: ["mySavedDropsProfile", profileEmail],
     queryFn: () => fetchAll(base44.entities.SavedDrop, { user_email: profileEmail }),
     enabled: Boolean(profileEmail && isOwnProfile)
@@ -312,11 +322,18 @@ export default function Profile() {
   // the entire GlowDrop collection — critical for scalability.
   const savedDropIds = useMemo(() => savedRecords.map(r => r.drop_id).filter(Boolean), [savedRecords]);
 
-  const { data: savedDrops = [] } = useQuery({
+  const { data: savedDrops = [], isLoading: isSavedDropsLoading } = useQuery({
     queryKey: ["profileSavedDropEntities", savedDropIds.join("|")],
     queryFn: () => base44.entities.GlowDrop.filter({ id: { $in: savedDropIds } }, '-created_date', 500),
     enabled: savedDropIds.length > 0,
   });
+  const profileViewerDrops = (activeProfileTab === "saved" || (!myDrops.some(drop => drop.id === viewingDropId) && savedDrops.some(drop => drop.id === viewingDropId))) ? savedDrops : myDrops;
+
+  useEffect(() => {
+    if (!viewingDropId || isMyDropsLoading || isSavedRecordsLoading || isSavedDropsLoading) return;
+    const exists = [...myDrops, ...savedDrops].some(drop => drop.id === viewingDropId);
+    if (!exists) postOverlay.clearInvalid();
+  }, [viewingDropId, isMyDropsLoading, isSavedRecordsLoading, isSavedDropsLoading, myDrops, savedDrops, postOverlay.clearInvalid]);
 
   const { data: challengeSubmissions = [] } = useQuery({
     queryKey: ["myChallengeSubmissions", profileEmail],
@@ -823,11 +840,6 @@ export default function Profile() {
         onClose={() => setConnectionsView(null)}
         onToggleFollow={(email) => followMutation.mutate(email)}
       />
-      {isEditing && isOwnProfile && (
-        <EditProfileModal isOpen={isEditing} onClose={() => setIsEditing(false)} user={user}
-          onSaved={(updated) => { setUser(prev => ({ ...prev, ...updated })); setCurrentUser(prev => ({ ...prev, ...updated })); }}
-        />
-      )}
       {isEditingLeader && activeLeaderAccount && (
         <LeaderAccountFormModal
           account={activeLeaderAccount}
@@ -838,23 +850,6 @@ export default function Profile() {
           }}
         />
       )}
-      <PostViewerModal
-        isOpen={!!viewingDropId}
-        onClose={() => setViewingDropId(null)}
-        drops={activeProfileTab === "saved" ? savedDrops : myDrops}
-        initialDropId={viewingDropId}
-        user={displayUser}
-        currentUser={currentUser}
-        allUsers={allUsersForProfile}
-        likeMutation={profileLikeMutation}
-        handleShare={handleDropShare}
-        userLikes={profileUserLikes}
-        savedDropRecords={profileSavedDrops}
-        leaderAccounts={[...publicLeaderAccounts, ...managedLeaderAccounts]}
-        following={currentUserFollowingEnriched}
-        followMutation={followMutation}
-        commentsByDropId={commentsByDropId}
-      />
     </div>
 
     {/* DESKTOP original layout */}
@@ -1185,25 +1180,6 @@ export default function Profile() {
           </div>
         )}
 
-        {isEditing && isOwnProfile && (
-          <EditProfileModal
-            isOpen={isEditing}
-            onClose={() => setIsEditing(false)}
-            user={user}
-            onSaved={(updated) => {
-              setUser(prev => ({ ...prev, ...updated }));
-              setCurrentUser(prev => ({ ...prev, ...updated }));
-              if (editData.city || editData.country) {
-                base44.functions.invoke("notifyTerritoryAdmins", {
-                  event_type: "location_updated",
-                  user_email: updated.email,
-                  user_country: updated.country,
-                  user_city: updated.city,
-                }).catch(() => {});
-              }
-            }}
-          />
-        )}
 
         {/* Tabs */}
         <div className="flex border-t border-b mb-2 overflow-x-auto hide-scrollbar mx-4" style={{ borderColor: "#E6ECF5" }}>
@@ -1402,26 +1378,45 @@ export default function Profile() {
         )}
       </div>
 
-      {/* Instagram-style Post Viewer Modal */}
-      <PostViewerModal
-        isOpen={!!viewingDropId}
-        onClose={() => setViewingDropId(null)}
-        drops={activeProfileTab === "saved" ? savedDrops : myDrops}
-        initialDropId={viewingDropId}
-        user={displayUser}
-        currentUser={currentUser}
-        allUsers={allUsersForProfile}
-        likeMutation={profileLikeMutation}
-        handleShare={handleDropShare}
-        userLikes={profileUserLikes}
-        savedDropRecords={profileSavedDrops}
-        leaderAccounts={[...publicLeaderAccounts, ...managedLeaderAccounts]}
-        following={currentUserFollowingEnriched}
-        followMutation={followMutation}
-        commentsByDropId={commentsByDropId}
-      />
       <AppFooter />
     </div>
+
+    {isEditing && isOwnProfile && (
+      <EditProfileModal
+        isOpen={isEditing}
+        onClose={() => setIsEditing(false)}
+        user={user}
+        onSaved={(updated) => {
+          setUser(prev => ({ ...prev, ...updated }));
+          setCurrentUser(prev => ({ ...prev, ...updated }));
+          if (editData.city || editData.country) {
+            base44.functions.invoke("notifyTerritoryAdmins", {
+              event_type: "location_updated",
+              user_email: updated.email,
+              user_country: updated.country,
+              user_city: updated.city,
+            }).catch(() => {});
+          }
+        }}
+      />
+    )}
+    <PostViewerModal
+      isOpen={!!viewingDropId}
+      onClose={() => setViewingDropId(null)}
+      drops={profileViewerDrops}
+      initialDropId={viewingDropId}
+      user={displayUser}
+      currentUser={currentUser}
+      allUsers={allUsersForProfile}
+      likeMutation={profileLikeMutation}
+      handleShare={handleDropShare}
+      userLikes={profileUserLikes}
+      savedDropRecords={profileSavedDrops}
+      leaderAccounts={[...publicLeaderAccounts, ...managedLeaderAccounts]}
+      following={currentUserFollowingEnriched}
+      followMutation={followMutation}
+      commentsByDropId={commentsByDropId}
+    />
     </>
   );
 }
