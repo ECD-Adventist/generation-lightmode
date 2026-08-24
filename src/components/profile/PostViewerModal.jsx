@@ -1,40 +1,49 @@
 import React, { useEffect, useRef } from "react";
 import { X, ArrowLeft } from "lucide-react";
 import DropCard from "@/components/feed/DropCard";
+import useUrlOverlay from "@/hooks/useUrlOverlay";
 
 export default function PostViewerModal({
-  isOpen, onClose, drops, initialDropId,
+  isOpen, onClose, drops, initialDropId, routeReady = true,
   user, currentUser, allUsers,
   likeMutation, handleShare, userLikes, savedDropRecords, leaderAccounts = [], following = [], followMutation, commentsByDropId
 }) {
+  const postRoute = useUrlOverlay("post");
+  const routedDropId = postRoute.value || initialDropId;
+  const routedIsOpen = postRoute.isOpen || isOpen;
+  const closeViewer = postRoute.isOpen ? postRoute.close : onClose;
   const scrollRef = useRef(null);
   const initialRef = useRef(null);
 
   useEffect(() => {
-    if (isOpen && initialDropId && initialRef.current) {
+    if (routedIsOpen && routedDropId && initialRef.current) {
       setTimeout(() => {
         initialRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
       }, 80);
     }
-  }, [isOpen, initialDropId]);
+  }, [routedIsOpen, routedDropId]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (postRoute.value && routeReady && !drops.some(drop => drop.id === postRoute.value)) postRoute.clearInvalid();
+  }, [postRoute.value, postRoute.clearInvalid, routeReady, drops]);
+
+  useEffect(() => {
+    if (routedIsOpen) {
       document.body.style.overflow = "hidden";
       return () => { document.body.style.overflow = ""; };
     }
-  }, [isOpen]);
+  }, [routedIsOpen]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!routedIsOpen) return;
     const handleKey = (e) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") closeViewer();
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [isOpen, onClose]);
+  }, [routedIsOpen, closeViewer]);
 
-  if (!isOpen || drops.length === 0) return null;
+  if (!routedIsOpen || drops.length === 0) return null;
 
   const getUserInfo = (email) => {
     if (currentUser?.email === email) return currentUser;
@@ -59,7 +68,7 @@ export default function PostViewerModal({
       `}</style>
 
       {/* Backdrop */}
-      <div className="absolute inset-0" style={{ background: "rgba(0, 0, 0, 0.7)", backdropFilter: "blur(24px)" }} onClick={onClose} />
+      <div className="absolute inset-0" style={{ background: "rgba(0, 0, 0, 0.7)", backdropFilter: "blur(24px)" }} onClick={closeViewer} />
 
       {/* Modal panel — full height on mobile, centered card on desktop */}
       <div
@@ -77,7 +86,7 @@ export default function PostViewerModal({
           }}
         >
           <button
-            onClick={onClose}
+            onClick={closeViewer}
             className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-black/5"
             style={{ color: "#0B1B3D" }}
           >
@@ -104,7 +113,7 @@ export default function PostViewerModal({
           </div>
 
           <button
-            onClick={onClose}
+            onClick={closeViewer}
             className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/5 md:hidden"
             style={{ color: "#6B7FA0" }}
           >
@@ -118,7 +127,7 @@ export default function PostViewerModal({
             {drops.map((drop) => (
               <div
                 key={drop.id}
-                ref={drop.id === initialDropId ? initialRef : undefined}
+                ref={drop.id === routedDropId ? initialRef : undefined}
               >
                 <DropCard
                   drop={drop}

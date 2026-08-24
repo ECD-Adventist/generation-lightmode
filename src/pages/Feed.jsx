@@ -26,6 +26,7 @@ import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 import OfflineBanner from "@/components/feed/OfflineBanner";
 import StatusComposerModal from "@/components/feed/StatusComposerModal";
 import StatusViewerModal from "@/components/feed/StatusViewerModal";
+import DropViewerModal from "@/components/feed/DropViewerModal";
 import OnboardingModal from "@/components/dashboard/OnboardingModal";
 import ClaimInstitutionModal from "@/components/institution/ClaimInstitutionModal";
 import MyGlowGroupsSidebar from "@/components/feed/MyGlowGroupsSidebar";
@@ -77,8 +78,12 @@ export default function Feed() {
   const setIsStatusModalOpen = (open) => open ? statusComposerOverlay.open("1") : statusComposerOverlay.close();
   const statusOverlay = useUrlOverlay("status");
   const selectedStoryId = statusOverlay.value;
+  const postOverlay = useUrlOverlay("post");
+  const selectedPostId = postOverlay.value;
+  const menuOverlay = useUrlOverlay("menu");
+  const isMobileNavOpen = menuOverlay.value === "1";
+  const setIsMobileNavOpen = (open) => open ? menuOverlay.open("1") : menuOverlay.close();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
   const [isClaimInstitutionOpen, setIsClaimInstitutionOpen] = useState(false);
@@ -150,7 +155,8 @@ export default function Feed() {
 
   useEffect(() => {
     if (statusComposerOverlay.value && statusComposerOverlay.value !== "1") statusComposerOverlay.clearInvalid();
-  }, [statusComposerOverlay.value, statusComposerOverlay.clearInvalid]);
+    if (menuOverlay.value && menuOverlay.value !== "1") menuOverlay.clearInvalid();
+  }, [statusComposerOverlay.value, statusComposerOverlay.clearInvalid, menuOverlay.value, menuOverlay.clearInvalid]);
 
   const isOnline = useNetworkStatus();
 
@@ -165,6 +171,17 @@ export default function Feed() {
   } = useGlowDropsFeed();
 
   const { drops, lastCached, syncing, syncQueue, loadingCached } = useOfflineSync(liveDrops, isOnline);
+  const { data: deepLinkedPost, isFetched: isPostResolved, isError: isPostMissing } = useQuery({
+    queryKey: ["feedPostOverlay", selectedPostId],
+    queryFn: () => base44.entities.GlowDrop.get(selectedPostId),
+    enabled: !!selectedPostId,
+    retry: false,
+  });
+  const selectedPost = drops.find(drop => drop.id === selectedPostId) || deepLinkedPost || null;
+
+  useEffect(() => {
+    if (selectedPostId && isPostResolved && (isPostMissing || !selectedPost)) postOverlay.clearInvalid();
+  }, [selectedPostId, isPostResolved, isPostMissing, selectedPost, postOverlay.clearInvalid]);
 
   // Global user-by-name/email search. Fetches matched users + their recent drops
   // when the local feed cache doesn't already contain them.
@@ -1043,14 +1060,25 @@ export default function Feed() {
              </div>
           </div>
         </div>
-        
-        <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
+      </div>
+
+      <SubmitDropModal isOpen={isDropModalOpen} onClose={() => setIsDropModalOpen(false)} user={user} />
         <StatusComposerModal isOpen={isStatusModalOpen} onClose={() => setIsStatusModalOpen(false)} user={user} />
         <ClaimInstitutionModal isOpen={isClaimInstitutionOpen} onClose={() => setIsClaimInstitutionOpen(false)} user={user} />
+        {selectedPost && (
+          <DropViewerModal
+            drop={selectedPost}
+            drops={drops.some(drop => drop.id === selectedPost.id) ? drops : [selectedPost, ...drops]}
+            user={user}
+            onClose={postOverlay.close}
+            onNavigate={(nextDrop) => postOverlay.replaceValue(nextDrop.id)}
+          />
+        )}
         <StatusViewerModal
           story={selectedStory}
           storyUser={selectedStory ? getUserInfo(selectedStory.user_email) : null}
           isOpen={!!selectedStoryId && !!selectedStory}
+          routeReady={isStoryResolved || !!selectedStory}
           onClose={statusOverlay.close}
           allStories={stories}
           allUsers={users}
@@ -1136,8 +1164,6 @@ export default function Feed() {
             </div>
           </div>
         )}
-
-      </div>
     </div>
   );
 }

@@ -7,10 +7,14 @@ import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
-import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
+import ResponsiveSelect from "@/components/ui/ResponsiveSelect";
 import { AGE_RESTRICTION_MESSAGE, getMinimumBirthDateForAge, isAtLeastAge } from "@/lib/agePolicy";
+import useUrlOverlay from "@/hooks/useUrlOverlay";
 
 export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
+  const editRoute = useUrlOverlay("edit");
+  const routedIsOpen = editRoute.value === "true" || isOpen;
+  const closeEditor = editRoute.isOpen ? editRoute.close : onClose;
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -43,16 +47,20 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   });
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (editRoute.value && editRoute.value !== "true") editRoute.clearInvalid();
+  }, [editRoute.value, editRoute.clearInvalid]);
+
+  useEffect(() => {
+    if (!routedIsOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKeyDown = event => { if (event.key === "Escape" && !cropData) onClose(); };
+    const onKeyDown = event => { if (event.key === "Escape" && !cropData) closeEditor(); };
     window.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [isOpen, cropData, onClose]);
+  }, [routedIsOpen, cropData, closeEditor]);
 
   // Sync when user prop changes (e.g. after an image upload outside modal)
   React.useEffect(() => {
@@ -77,7 +85,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
         social_links: parseSocialLinks(user.social_links),
       });
     }
-  }, [user?.email, isOpen]); // re-sync on open
+  }, [user?.email, routedIsOpen]); // re-sync on open
 
   const set = (field, value) => setEditData(prev => ({ ...prev, [field]: value }));
   const setSocial = (field, value) => setEditData(prev => ({ ...prev, social_links: { ...prev.social_links, [field]: value } }));
@@ -143,7 +151,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
 
       toast.success("Profile saved! ✨");
       onSaved(updated);
-      onClose();
+      closeEditor();
     } catch (err) {
       toast.error(err?.response?.data?.error || err.message || "Failed to save profile");
     } finally {
@@ -151,7 +159,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
     }
   };
 
-  if (!isOpen) return null;
+  if (!routedIsOpen) return null;
 
   return (
     <>
@@ -166,7 +174,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
 
       {/* Overlay */}
       <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={closeEditor} />
 
         {/* Modal */}
         <div className="relative z-10 w-full max-w-lg rounded-3xl shadow-2xl flex flex-col max-h-[92vh]" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
@@ -176,7 +184,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
               <h2 className="text-lg font-black" style={{ fontFamily: "Space Grotesk, sans-serif", color: "#0B1B3D" }}>Edit Profile</h2>
               <p className="text-xs mt-0.5" style={{ color: "#6B7FA0" }}>Changes are saved to your account</p>
             </div>
-            <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center transition" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}>
+            <button onClick={closeEditor} className="w-9 h-9 rounded-full flex items-center justify-center transition" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }}>
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -264,7 +272,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Gender</Label>
-                <BottomSheetSelect
+                <ResponsiveSelect
                   value={editData.gender}
                   onChange={v => set("gender", v)}
                   options={[
@@ -352,7 +360,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
 
           {/* Footer */}
           <div className="px-6 py-4 border-t flex justify-end gap-3 shrink-0" style={{ borderColor: "#E6ECF5" }}>
-            <Button type="button" variant="ghost" onClick={onClose} className="h-11 px-5" style={{ color: "#4A5878" }}>
+            <Button type="button" variant="ghost" onClick={closeEditor} className="h-11 px-5" style={{ color: "#4A5878" }}>
               Cancel
             </Button>
             <Button

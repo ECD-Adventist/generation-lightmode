@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import StoryReactionBar from "./StoryReactionBar";
 import StoryAudio from "./StoryAudio";
 import { getDisplayName } from "@/lib/displayName";
+import useUrlOverlay from "@/hooks/useUrlOverlay";
 
 const themeClasses = {
   ocean: "from-[#00CFFF] to-[#1DA1FF]",
@@ -18,7 +19,10 @@ const themeClasses = {
 
 const STORY_DURATION = 6000; // 6 seconds per story
 
-export default function StatusViewerModal({ story, storyUser, isOpen, onClose, allStories = [], allUsers = [], getUserInfo, currentUser }) {
+export default function StatusViewerModal({ story, storyUser, isOpen, onClose, routeReady = true, allStories = [], allUsers = [], getUserInfo, currentUser }) {
+  const statusRoute = useUrlOverlay("status");
+  const routedIsOpen = statusRoute.isOpen || isOpen;
+  const closeViewer = statusRoute.isOpen ? statusRoute.close : onClose;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -27,11 +31,16 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
   const rafRef = useRef(null);
   const viewedStoriesRef = useRef(new Set());
 
+  useEffect(() => {
+    if (statusRoute.value && routeReady && story?.id !== statusRoute.value && !allStories.some(item => item.id === statusRoute.value)) statusRoute.clearInvalid();
+  }, [statusRoute.value, statusRoute.clearInvalid, routeReady, story?.id, allStories]);
+
   // Build ordered story list from all active (non-expired) stories
   const storyQueue = React.useMemo(() => {
-    if (!story || !allStories.length) return [];
+    if (!story) return [];
     const now = Date.now();
-    const active = allStories.filter(s => s.expires_at && new Date(s.expires_at).getTime() > now);
+    const source = [story, ...allStories.filter(item => item.id !== story.id)];
+    const active = source.filter(s => s.expires_at && new Date(s.expires_at).getTime() > now);
     
     // Group by user
     const byUser = new Map();
@@ -58,13 +67,13 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
 
   // Reset when opened
   useEffect(() => {
-    if (isOpen && storyQueue.length > 0) {
+    if (routedIsOpen && storyQueue.length > 0) {
       const idx = storyQueue.findIndex(s => s.id === story?.id);
       setCurrentIndex(idx >= 0 ? idx : 0);
       setProgress(0);
       setImageLoaded(false);
     }
-  }, [isOpen, story?.id, storyQueue]);
+  }, [routedIsOpen, story?.id, storyQueue]);
 
   // Reset imageLoaded when story changes — preload image before starting timer
   useEffect(() => {
@@ -97,9 +106,9 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
       setProgress(0);
       setImageLoaded(false);
     } else {
-      onClose();
+      closeViewer();
     }
-  }, [currentIndex, storyQueue.length, onClose]);
+  }, [currentIndex, storyQueue.length, closeViewer]);
 
   const goPrev = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -112,16 +121,16 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
 
   // Skip expired stories automatically
   useEffect(() => {
-    if (!isOpen || !currentStory) return;
+    if (!routedIsOpen || !currentStory) return;
     const now = Date.now();
     if (currentStory.expires_at && new Date(currentStory.expires_at).getTime() <= now) {
       goNext();
     }
-  }, [isOpen, currentStory, currentIndex, goNext]);
+  }, [routedIsOpen, currentStory, currentIndex, goNext]);
 
   // Auto-advance timer — clean simple version, starts fresh on each story/load
   useEffect(() => {
-    if (!isOpen || isPaused || !currentStory || !imageLoaded) return;
+    if (!routedIsOpen || isPaused || !currentStory || !imageLoaded) return;
     if (currentStory.expires_at && new Date(currentStory.expires_at).getTime() <= Date.now()) {
       goNext();
       return;
@@ -145,7 +154,7 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [isOpen, isPaused, imageLoaded, currentIndex, goNext]);
+  }, [routedIsOpen, isPaused, imageLoaded, currentIndex, goNext]);
 
   // Touch handling
   const touchStartRef = useRef(null);
@@ -161,20 +170,20 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
 
   // Keyboard navigation
   useEffect(() => {
-    if (!isOpen) return;
+    if (!routedIsOpen) return;
     const handler = (e) => {
       if (e.key === "ArrowRight") goNext();
       else if (e.key === "ArrowLeft") goPrev();
-      else if (e.key === "Escape") onClose();
+      else if (e.key === "Escape") closeViewer();
       else if (e.key === " ") { e.preventDefault(); setIsPaused(p => !p); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [isOpen, goNext, goPrev, onClose]);
+  }, [routedIsOpen, goNext, goPrev, closeViewer]);
 
   // Track view when story changes — dedupe per (story, viewer)
   useEffect(() => {
-    if (!isOpen || !currentStory || !currentUser) return;
+    if (!routedIsOpen || !currentStory || !currentUser) return;
     if (currentStory.user_email === currentUser.email) return;
     if (viewedStoriesRef.current.has(currentStory.id)) return;
 
@@ -193,14 +202,14 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
         }
       } catch (e) { /* ignore */ }
     })();
-  }, [isOpen, currentStory?.id, currentUser?.email]);
+  }, [routedIsOpen, currentStory?.id, currentUser?.email]);
 
   // Reset viewed set when modal closes
   useEffect(() => {
-    if (!isOpen) viewedStoriesRef.current.clear();
-  }, [isOpen]);
+    if (!routedIsOpen) viewedStoriesRef.current.clear();
+  }, [routedIsOpen]);
 
-  if (!isOpen || !currentStory) return null;
+  if (!routedIsOpen || !currentStory) return null;
 
   const postedDate = currentStory.created_date
     ? new Date(currentStory.created_date.endsWith("Z") ? currentStory.created_date : currentStory.created_date + "Z")
@@ -209,7 +218,7 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
   return (
     <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/95" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/95" onClick={closeViewer} />
 
       {/* Story Card */}
       <div
@@ -262,7 +271,7 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
         <div className="absolute top-7 left-3 right-3 flex items-center justify-between z-30">
           <Link
             to={createPageUrl("Profile") + `?user=${encodeURIComponent(currentStory.user_email)}`}
-            onClick={onClose}
+            onClick={closeViewer}
             className="flex items-center gap-2.5 no-underline"
           >
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#00CFFF] to-[#8A5CFF] p-[2px]">
@@ -294,7 +303,7 @@ export default function StatusViewerModal({ story, storyUser, isOpen, onClose, a
             >
               <Share2 className="w-4 h-4" />
             </button>
-            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50 transition">
+            <button onClick={closeViewer} className="w-8 h-8 flex items-center justify-center rounded-full bg-black/30 text-white hover:bg-black/50 transition">
               <X className="w-5 h-5" />
             </button>
           </div>

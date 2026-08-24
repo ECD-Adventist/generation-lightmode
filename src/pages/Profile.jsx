@@ -1402,6 +1402,7 @@ export default function Profile() {
     )}
     <PostViewerModal
       isOpen={!!viewingDropId}
+      routeReady={!isMyDropsLoading && !isSavedRecordsLoading && !isSavedDropsLoading}
       onClose={() => setViewingDropId(null)}
       drops={profileViewerDrops}
       initialDropId={viewingDropId}

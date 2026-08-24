@@ -129,7 +129,7 @@ function MobileDropCard({
   const profileLink = drop.user_email === "system@lightmode.com"
     ? createPageUrl("GenerationLightMode")
     : createPageUrl("Profile") + `?user=${encodeURIComponent(drop.user_email)}`;
-  const postLink = createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`;
+  const postLink = createPageUrl("Feed") + `?post=${encodeURIComponent(drop.id)}`;
 
   const [showComments, setShowComments] = useState(false);
   const [musicEditorOpen, setMusicEditorOpen] = useState(false);

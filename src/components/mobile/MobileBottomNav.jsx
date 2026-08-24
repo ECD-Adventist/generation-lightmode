@@ -16,26 +16,22 @@ export default function MobileBottomNav({ currentPageName }) {
   const location = useLocation();
   const scrollPositions = useRef({});
   const { activeTab, switchTab, targetFor } = useMobileTabNavigation(currentPageName);
+  const scrollKey = activeTab ? `mobile_tab_scroll_${activeTab}` : `mobile_route_scroll_${location.pathname}`;
 
-  // 1. Save scroll position on scroll
+  // Save and restore one independent scroll position per primary tab.
   useEffect(() => {
     const onScroll = () => {
-      scrollPositions.current[location.pathname] = window.scrollY;
-      sessionStorage.setItem(`scroll_pos_${location.pathname}`, window.scrollY.toString());
+      scrollPositions.current[scrollKey] = window.scrollY;
+      sessionStorage.setItem(scrollKey, window.scrollY.toString());
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [location.pathname]);
+  }, [scrollKey]);
 
-  // 2. Restore scroll position on mount/location change
   useEffect(() => {
-    const savedScroll = scrollPositions.current[location.pathname] || sessionStorage.getItem(`scroll_pos_${location.pathname}`);
-    if (savedScroll !== null) {
-      setTimeout(() => {
-        window.scrollTo(0, parseInt(savedScroll, 10));
-      }, 50);
-    }
-  }, [location.pathname]);
+    const savedScroll = scrollPositions.current[scrollKey] ?? sessionStorage.getItem(scrollKey);
+    if (savedScroll !== null) requestAnimationFrame(() => window.scrollTo(0, Number(savedScroll) || 0));
+  }, [scrollKey]);
 
   return (
     <nav
@@ -45,6 +41,7 @@ export default function MobileBottomNav({ currentPageName }) {
         borderTop: "1px solid #1F2937",
       }}
       aria-label="Primary mobile navigation"
+      data-mobile-bottom-nav="primary"
     >
       <div className="flex items-stretch justify-around px-2">
         {tabs.map(({ key, label, icon: Icon, match, isPostButton }) => {

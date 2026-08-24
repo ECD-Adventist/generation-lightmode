@@ -32,6 +32,15 @@ export default function useUrlOverlay(key) {
     });
   }, [key, location, navigate, value]);
 
+  const replaceValue = useCallback((nextValue) => {
+    const params = new URLSearchParams(location.search);
+    params.set(key, String(nextValue));
+    navigate({ pathname: location.pathname, search: `?${params.toString()}`, hash: location.hash }, {
+      replace: true,
+      state: location.state,
+    });
+  }, [key, location, navigate]);
+
   const clearInvalid = useCallback(() => {
     const params = new URLSearchParams(location.search);
     if (!params.has(key)) return;
@@ -43,5 +52,5 @@ export default function useUrlOverlay(key) {
     });
   }, [key, location, navigate]);
 
-  return { value, isOpen: value !== null, open, close, clearInvalid };
+  return { value, isOpen: value !== null, open, close, replaceValue, clearInvalid };
 }
