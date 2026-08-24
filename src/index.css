@@ -39,13 +39,6 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-    --brand-deep: 220 41% 7%;
-    --brand-panel: 221 36% 11%;
-    --brand-cyan: 191 100% 50%;
-    --brand-gold: 49 100% 50%;
-    --brand-violet: 258 100% 68%;
-    --brand-blue: 225 100% 40%;
-    --brand-muted: 220 24% 83%;
   }
 
   .dark {
@@ -81,13 +74,6 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-    --brand-deep: 220 41% 7%;
-    --brand-panel: 221 36% 11%;
-    --brand-cyan: 191 100% 50%;
-    --brand-gold: 49 100% 50%;
-    --brand-violet: 258 100% 68%;
-    --brand-blue: 225 100% 40%;
-    --brand-muted: 220 24% 83%;
   }
 }
 
@@ -142,7 +128,7 @@
 .safe-mt { margin-top: env(safe-area-inset-top); }
 .safe-mb { margin-bottom: env(safe-area-inset-bottom); }
 /* Reserve space for the fixed mobile bottom nav (app-shell pages only) */
-.has-mobile-bottom-nav { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+.has-mobile-bottom-nav { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
 @media (min-width: 768px) {
   .has-mobile-bottom-nav { padding-bottom: 0; }
 }
