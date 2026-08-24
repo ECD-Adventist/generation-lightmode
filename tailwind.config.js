@@ -4,7 +4,11 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
-  		borderRadius: {
+  	boxShadow: {
+  		'floating-nav': '0 12px 32px hsl(var(--brand-blue) / 0.24)',
+  		'floating-action': '0 10px 28px hsl(var(--brand-cyan) / 0.35), 0 0 0 4px hsl(var(--brand-deep))'
+  	},
+  	borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
@@ -43,6 +47,15 @@ module.exports = {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
+  			brand: {
+  				deep: 'hsl(var(--brand-deep))',
+  				panel: 'hsl(var(--brand-panel))',
+  				cyan: 'hsl(var(--brand-cyan))',
+  				gold: 'hsl(var(--brand-gold))',
+  				violet: 'hsl(var(--brand-violet))',
+  				blue: 'hsl(var(--brand-blue))',
+  				muted: 'hsl(var(--brand-muted))'
+  			},
   			chart: {
   				'1': 'hsl(var(--chart-1))',
   				'2': 'hsl(var(--chart-2))',

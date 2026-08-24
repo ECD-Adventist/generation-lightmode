@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Zap, User, Search, MessageCircle, Plus } from "lucide-react";
+import { Newspaper, User, Search, MessageCircle, Power } from "lucide-react";
 
 const tabs = [
-  { key: "Feed", label: "Feed", icon: Zap, match: ["Feed", "GlowFeed", "Post"] },
+  { key: "Feed", label: "Feed", icon: Newspaper, match: ["Feed", "GlowFeed", "Post"] },
   { key: "Discover", label: "Search", icon: Search, match: ["Discover"] },
-  { key: "Post", label: "Drop", icon: Plus, match: [], isPostButton: true },
+  { key: "Post", label: "Drop", icon: Power, match: [], isPostButton: true },
   { key: "Messages", label: "Messages", icon: MessageCircle, match: ["Messages"] },
   { key: "Profile", label: "Profile", icon: User, match: ["Profile"] },
 ];
@@ -35,84 +35,59 @@ export default function MobileBottomNav({ currentPageName }) {
     }
   }, [location.pathname]);
 
+  const renderTab = ({ key, label, icon: Icon, match }) => {
+    const active = match.includes(currentPageName) || location.pathname === `/${key}`;
+    const targetPath = createPageUrl(key);
+    return (
+      <Link
+        key={key}
+        to={targetPath}
+        onClick={(event) => {
+          sessionStorage.setItem("tab_switch", "true");
+          if (location.pathname === targetPath && !location.search) {
+            event.preventDefault();
+            window.location.href = targetPath;
+          }
+        }}
+        className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold ${active ? "text-brand-cyan" : "text-brand-muted"}`}
+        aria-current={active ? "page" : undefined}
+      >
+        <Icon className="h-5 w-5" strokeWidth={active ? 2.6 : 2.1} />
+        <span className="text-[10px] font-bold leading-none tracking-wide">{label}</span>
+      </Link>
+    );
+  };
+
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-[900] safe-pb"
-      style={{
-        background: "#0B0F1A",
-        borderTop: "1px solid #1F2937",
-      }}
+      className="fixed inset-x-3 z-50 md:hidden"
+      style={{ bottom: "calc(12px + env(safe-area-inset-bottom))" }}
       aria-label="Primary mobile navigation"
     >
-      <div className="flex items-stretch justify-around px-2">
-        {tabs.map(({ key, label, icon: Icon, match, isPostButton }) => {
-          if (isPostButton) {
-            return (
-              <Link
-                key={key}
-                to={`${createPageUrl("Feed")}?compose=1`}
-                onClick={(e) => {
-                  sessionStorage.setItem('tab_switch', 'true');
-                  if (currentPageName === "Feed" && location.pathname === createPageUrl("Feed")) {
-                    e.preventDefault();
-                    window.dispatchEvent(new CustomEvent("openDropComposer"));
-                  }
-                }}
-                className="flex-1 flex flex-col items-center justify-end gap-1.5 py-2"
-                style={{ minHeight: 56, textDecoration: "none" }}
-                aria-label="Create post"
-              >
-                <span
-                  className="flex items-center justify-center rounded-full"
-                  style={{
-                    width: 50,
-                    height: 50,
-                    marginTop: -22,
-                    background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 100%)",
-                    boxShadow: "0 6px 22px rgba(255,208,0,0.45), 0 0 18px rgba(0,207,255,0.35), 0 0 0 4px #0B0F1A",
-                  }}
-                >
-                  <Plus className="w-6 h-6" strokeWidth={2.6} style={{ color: "#0B0F1A" }} />
-                </span>
-                <span
-                  className="text-[10px] font-bold tracking-wide"
-                  style={{ fontFamily: "Inter, sans-serif", color: "#00CFFF" }}
-                >
-                  {label}
-                </span>
-              </Link>
-            );
-          }
-          const active = match.includes(currentPageName) || location.pathname === `/${key}`;
-          const targetPath = createPageUrl(key);
-          return (
-            <Link
-              key={key}
-              to={targetPath}
-              onClick={(e) => {
-                sessionStorage.setItem('tab_switch', 'true');
-                if (location.pathname === targetPath && !location.search) {
-                  e.preventDefault();
-                  window.location.href = targetPath;
-                }
-              }}
-              className="flex-1 flex flex-col items-center justify-center gap-1 py-2"
-              style={{
-                minHeight: 56,
-                color: active ? "#00CFFF" : "#8A9BB0",
-                textDecoration: "none",
-              }}
-            >
-              <Icon className="w-5 h-5" style={{ color: "inherit" }} />
-              <span
-                className="text-[10px] font-bold tracking-wide"
-                style={{ fontFamily: "Inter, sans-serif" }}
-              >
-                {label}
-              </span>
-            </Link>
-          );
-        })}
+      <div className="flex items-end gap-2">
+        <div className="flex h-16 min-w-0 flex-1 rounded-full border border-brand-cyan/25 bg-brand-panel/95 px-1 shadow-floating-nav backdrop-blur-xl">
+          {tabs.slice(0, 2).map(renderTab)}
+        </div>
+
+        <Link
+          to={`${createPageUrl("Feed")}?compose=1`}
+          onClick={(event) => {
+            sessionStorage.setItem("tab_switch", "true");
+            if (currentPageName === "Feed" && location.pathname === createPageUrl("Feed")) {
+              event.preventDefault();
+              window.dispatchEvent(new CustomEvent("openDropComposer"));
+            }
+          }}
+          className="flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-full bg-gradient-to-br from-brand-cyan via-brand-blue to-brand-violet text-white shadow-floating-action transition-transform duration-200 active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 focus-visible:ring-offset-brand-deep"
+          aria-label="Create post"
+        >
+          <Power className="h-6 w-6" strokeWidth={2.5} />
+          <span className="text-[10px] font-extrabold leading-none tracking-wide">Drop</span>
+        </Link>
+
+        <div className="flex h-16 min-w-0 flex-1 rounded-full border border-brand-cyan/25 bg-brand-panel/95 px-1 shadow-floating-nav backdrop-blur-xl">
+          {tabs.slice(3).map(renderTab)}
+        </div>
       </div>
     </nav>
   );
