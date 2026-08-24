@@ -62,13 +62,9 @@ export default function MobileFeed({
         .mf-hide-sb { scrollbar-width: none; }
       `}</style>
 
-      {/* HERO HEADER — extends under the status bar / camera notch */}
-      <div className="relative overflow-hidden safe-pt pb-14 px-4" style={{
-        background: "linear-gradient(135deg, #0A2E9F 0%, #0B3FD9 55%, #1563E8 100%)"
-      }}>
-
-        {/* Top bar: logo + actions */}
-        <div className="relative flex items-center gap-2 pt-3">
+      {/* Sticky top controls remain visible when feed scroll is restored. */}
+      <div className="sticky top-0 z-40 safe-pt px-4" style={{ background: "#0A2E9F", boxShadow: "0 4px 16px rgba(5, 26, 85, 0.18)" }}>
+        <div className="flex items-center gap-2 py-3">
           <Link to={createPageUrl("Home")} className="shrink-0">
             <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="" className="h-9 w-auto object-contain" style={{ filter: "brightness(0) invert(1)" }} />
           </Link>
@@ -86,7 +82,12 @@ export default function MobileFeed({
             )}
           </Link>
         </div>
+      </div>
 
+      {/* HERO HEADER */}
+      <div className="relative overflow-hidden pb-14 px-4" style={{
+        background: "linear-gradient(135deg, #0A2E9F 0%, #0B3FD9 55%, #1563E8 100%)"
+      }}>
         {/* Greeting */}
         <div className="relative mt-5">
           <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-white/75">
