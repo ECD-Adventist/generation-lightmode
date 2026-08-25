@@ -233,7 +233,7 @@ function MobileDropCard({
           <button
             onClick={() => followMutation?.mutate(drop.user_email)}
             disabled={followMutation?.isPending}
-            className="absolute top-3 right-3 z-20 h-10 px-3 rounded-full flex items-center gap-1.5 text-[11px] font-black active:scale-95 transition disabled:opacity-60"
+            className={`absolute ${drop.audio_url ? "top-14" : "top-3"} right-3 z-20 h-10 px-3 rounded-full flex items-center gap-1.5 text-[11px] font-black active:scale-95 transition disabled:opacity-60`}
             style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.28)", color: "#FFFFFF" }}
             aria-label={`Follow ${getDisplayName(authorProfile)}`}
           >
@@ -242,6 +242,7 @@ function MobileDropCard({
           </button>
         )}
 
+        <PostAudioTrack postId={drop.id} audioUrl={drop.audio_url} audioTitle={drop.audio_title} />
       </div>
 
       <div className="px-3 pt-3">{actionBar}</div>
@@ -253,8 +254,6 @@ function MobileDropCard({
           <span style={{ color: "#0B3FD9" }}>↻ Reposted by {drop.repost.reposter_name || "a member"}</span> · Originally by {getDisplayName(authorProfile)}
         </div>
       )}
-
-      <PostAudioTrack audioUrl={drop.audio_url} audioTitle={drop.audio_title} />
 
       {showComments && <MobileDropComments drop={drop} user={user} />}
 

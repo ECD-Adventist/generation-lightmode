@@ -1,70 +1,85 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Music, Volume2, VolumeX } from "lucide-react";
-import TrackDetailModal from "@/components/feed/TrackDetailModal";
+import { Volume2, VolumeX } from "lucide-react";
 
-/**
- * Instagram-style sound pill: autoplays (muted) when the post scrolls into view,
- * a single mute/unmute toggle, and a tap on the title opens the track details.
- */
-export default function PostAudioTrack({ audioUrl, audioTitle }) {
+const ACTIVE_AUDIO_EVENT = "generation-lightmode:active-post-audio";
+
+export default function PostAudioTrack({ audioUrl, audioTitle, postId }) {
   const audioRef = useRef(null);
   const wrapRef = useRef(null);
+  const instanceId = useRef(`${postId || "post"}-${Math.random().toString(36).slice(2)}`);
   const [muted, setMuted] = useState(true);
-  const [detailsOpen, setDetailsOpen] = useState(false);
 
   useEffect(() => {
-    const el = wrapRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const audio = audioRef.current;
-        if (!audio) return;
-        if (entry.isIntersecting) {
-          audio.play().catch(() => {});
-        } else {
-          audio.pause();
-        }
-      },
-      { threshold: 0.6 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
+    const stopThisTrack = (event) => {
+      if (event.detail === instanceId.current) return;
+      const audio = audioRef.current;
+      if (!audio) return;
+      audio.pause();
+      audio.muted = true;
+      setMuted(true);
+    };
+    const handleVisibility = () => {
+      if (!document.hidden) return;
+      audioRef.current?.pause();
+      setMuted(true);
+    };
+    window.addEventListener(ACTIVE_AUDIO_EVENT, stopThisTrack);
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      window.removeEventListener(ACTIVE_AUDIO_EVENT, stopThisTrack);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      audioRef.current?.pause();
+    };
   }, []);
+
+  useEffect(() => {
+    const control = wrapRef.current;
+    if (!control) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      if (!entry.isIntersecting) {
+        audio.pause();
+        audio.muted = true;
+        setMuted(true);
+        return;
+      }
+      audio.muted = muted;
+      if (!muted) {
+        window.dispatchEvent(new CustomEvent(ACTIVE_AUDIO_EVENT, { detail: instanceId.current }));
+      }
+      audio.play().catch(() => {});
+    }, { threshold: 0.6 });
+    observer.observe(control);
+    return () => observer.disconnect();
+  }, [muted, audioUrl]);
 
   if (!audioUrl) return null;
 
-  return (
-    <div ref={wrapRef} className="px-3 sm:px-4 pt-3" onClick={(e) => e.stopPropagation()}>
-      <audio ref={audioRef} src={audioUrl} loop muted={muted} playsInline preload="metadata" className="hidden" />
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setDetailsOpen(true)}
-          className="flex-1 min-w-0 flex items-center gap-2 px-3 py-2 rounded-full transition active:scale-[0.98]"
-          style={{ background: "#F0F5FF", border: "1px solid #D6E4FF" }}
-        >
-          <Music className="w-3.5 h-3.5 shrink-0" style={{ color: "#0B3FD9" }} />
-          <span className="text-[12px] font-bold truncate" style={{ color: "#0B3FD9" }}>
-            {audioTitle || "Original audio"}
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setMuted(m => !m)}
-          className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition"
-          style={{ background: "#F0F5FF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}
-          aria-label={muted ? "Unmute sound" : "Mute sound"}
-        >
-          {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-        </button>
-      </div>
+  const toggleSound = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const nextMuted = !muted;
+    audio.muted = nextMuted;
+    setMuted(nextMuted);
+    if (!nextMuted) {
+      window.dispatchEvent(new CustomEvent(ACTIVE_AUDIO_EVENT, { detail: instanceId.current }));
+      audio.play().catch(() => {});
+    }
+  };
 
-      <TrackDetailModal
-        isOpen={detailsOpen}
-        onClose={() => setDetailsOpen(false)}
-        audioUrl={audioUrl}
-        audioTitle={audioTitle}
-      />
+  return (
+    <div ref={wrapRef} className="absolute top-3 right-3 z-40" onClick={(event) => event.stopPropagation()}>
+      <audio ref={audioRef} src={audioUrl} loop muted={muted} playsInline preload="metadata" className="hidden" />
+      <button
+        type="button"
+        onClick={toggleSound}
+        className="w-10 h-10 rounded-full flex items-center justify-center text-white bg-black/65 border border-white/25 shadow-lg backdrop-blur-md active:scale-95 transition"
+        aria-label={muted ? `Unmute ${audioTitle || "post music"}` : `Mute ${audioTitle || "post music"}`}
+        title={audioTitle || "Original audio"}
+      >
+        {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+      </button>
     </div>
   );
 }

@@ -722,6 +722,8 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
           </>
         )}
 
+        <PostAudioTrack postId={drop.id} audioUrl={drop.audio_url} audioTitle={drop.audio_title} />
+
         {likeBurst && (
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30">
             <Heart className="w-20 h-20 sm:w-28 sm:h-28 fill-red-500 text-red-500 drop-shadow-2xl" style={{ animation: "dc-float-up 0.6s ease-out forwards" }} />
@@ -749,8 +751,6 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
           <span>· Originally by {getDisplayName(authorProfile)}</span>
         </div>
       )}
-
-      <PostAudioTrack audioUrl={drop.audio_url} audioTitle={drop.audio_title} />
 
       {/* Verse & Reflection */}
       {(drop.verse || drop.reflection) && (
