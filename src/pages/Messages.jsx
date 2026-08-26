@@ -13,35 +13,16 @@ import GroupChatWindow from "@/components/messages/GroupChatWindow";
 import { isNotificationEnabled } from "@/lib/notifications";
 import { getDisplayName } from "@/lib/displayName";
 import MobileMessagesList from "@/components/messages/MobileMessagesList";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function Messages() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [selectedConversationId, setSelectedConversationId] = useState(null);
   const [selectedGroupId, setSelectedGroupId] = useState(null);
   const [activeTab, setActiveTab] = useState("dms"); // "dms" | "groups"
   const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
   const targetEmail = urlParams.get("user");
-
-  useEffect(() => {
-    base44.auth.isAuthenticated().then((isAuth) => {
-      if (isAuth) base44.auth.me().then(setUser);
-      else base44.auth.redirectToLogin(window.location.pathname + window.location.search);
-    });
-  }, []);
-
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ["allUsers"],
-    queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
-      const data = res.data;
-      if (Array.isArray(data)) return data;
-      if (Array.isArray(data?.users)) return data.users;
-      if (Array.isArray(data?.data)) return data.data;
-      return [];
-    },
-    enabled: !!user,
-  });
 
   const { data: allConversations = [] } = useQuery({
     queryKey: ["directConversations", user?.email],
@@ -70,13 +51,12 @@ export default function Messages() {
 
   const mergedUsers = useMemo(() => {
     const map = new Map();
-    allUsers.forEach(u => map.set(u.email, u));
     conversationUsers.forEach(u => map.set(u.email, u));
     return Array.from(map.values());
-  }, [allUsers, conversationUsers]);
+  }, [conversationUsers]);
 
   const { data: following = [] } = useQuery({
-    queryKey: ["following", user?.id],
+    queryKey: ["messagesViewerFollowingById", user?.id],
     queryFn: () => base44.entities.Follow.filter({ follower_id: user?.id }),
     enabled: !!user?.id,
   });
@@ -117,12 +97,12 @@ export default function Messages() {
       const existing = myGroupJoinRequests.find(r => r.group_id === group.id && ["pending", "approved"].includes(r.status));
       if (existing?.status === "pending") return existing;
       if (existing?.status === "approved") return existing;
-      return await base44.entities.GlowGroupJoinRequest.create({
+      const response = await base44.functions.invoke("requestGroupJoin", {
         group_id: group.id,
-        user_email: user.email,
-        status: "pending",
         message: `I would like to join ${group.name}.`,
       });
+      if (!response.data?.success) throw new Error(response.data?.error || "Could not request access");
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myGroupJoinRequests", user?.email] });
@@ -472,7 +452,7 @@ export default function Messages() {
               <GroupChatWindow
                 group={selectedGroup}
                 currentUser={user}
-                allUsers={allUsers}
+                allUsers={mergedUsers}
                 onBack={() => setSelectedGroupId(null)}
               />
             </div>

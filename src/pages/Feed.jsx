@@ -45,6 +45,7 @@ import ShareFallbackDialog from "@/components/share/ShareFallbackDialog";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import useFeedScrollRestore from "@/hooks/useFeedScrollRestore";
 import useUrlOverlay from "@/hooks/useUrlOverlay";
+import { useAuth } from "@/lib/AuthContext";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
@@ -68,6 +69,7 @@ function SidebarLink({ to, icon, label, active, badge, accent }) {
 
 export default function Feed() {
   const [user, setUser] = useState(null);
+  const { user: authenticatedUser, isLoadingAuth } = useAuth();
   const composeOverlay = useUrlOverlay("compose");
   const isDropModalOpen = composeOverlay.value === "1";
   const setIsDropModalOpen = (open) => open ? composeOverlay.open("1") : composeOverlay.close();
@@ -119,25 +121,10 @@ export default function Feed() {
   useEffect(() => { sessionStorage.setItem("feedSearchQuery", searchQuery); }, [searchQuery]);
 
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        const isAuth = await base44.auth.isAuthenticated();
-        if (isAuth) {
-          try {
-            const me = await base44.auth.me();
-            setUser(me);
-          } catch (e) {
-            console.error("Failed to fetch user:", e);
-          }
-        }
-      } catch (err) {
-        console.error("Auth check failed:", err);
-      } finally {
-        setAuthChecked(true);
-      }
-    }
-    checkAuth();
-  }, []);
+    if (isLoadingAuth) return;
+    setUser(authenticatedUser || null);
+    setAuthChecked(true);
+  }, [authenticatedUser, isLoadingAuth]);
 
   // The composer is URL-backed so Android back dismisses it before leaving Feed.
   useEffect(() => {
@@ -204,7 +191,7 @@ export default function Feed() {
   const { data: users = [] } = useQuery({
     queryKey: ["feedVisibleUsers", authorEmails.join("|")],
     queryFn: async () => {
-      const res = await base44.functions.invoke('listPublicUsers', { emails: authorEmails, limit: 80 });
+      const res = await base44.functions.invoke('listPublicUsers', { emails: authorEmails, limit: 50 });
       return res.data || [];
     },
     enabled: authorEmails.length > 0,
@@ -217,9 +204,9 @@ export default function Feed() {
   const { data: suggestedUsers = [] } = useQuery({
     queryKey: ["feedSuggestedUsers", user?.email],
     queryFn: async () => {
-      const res = await base44.functions.invoke('listPublicUsers', { include_email: true, limit: 30 });
+      const res = await base44.functions.invoke('listPublicUsers', { limit: 30 });
       return (res.data || [])
-        .filter(u => u.email !== user?.email)
+        .filter(u => u.id !== user?.id)
         .slice(0, 8);
     },
     // Deferred — only fetch after first paint to keep initial feed render fast.
@@ -244,7 +231,7 @@ export default function Feed() {
   });
 
   const { data: following = [] } = useQuery({
-    queryKey: ["following", user?.id, user?.email],
+    queryKey: ["feedViewerFollowing", user?.id],
     queryFn: () => fetchAllFollowing(user?.id, user?.email),
     enabled: !!user?.id || !!user?.email
   });
@@ -270,9 +257,10 @@ export default function Feed() {
   }, [selectedStoryId, isStoryResolved, isStoryMissing, selectedStory, statusOverlay.clearInvalid]);
 
   const followMutation = useMutation({
-    mutationFn: async (targetEmail) => {
+    mutationFn: async (target) => {
       if (!user) { requireAuth(); throw new Error("Not logged in"); }
-      const targetUser = [...users, ...suggestedUsers].find(u => u.email === targetEmail);
+      const targetUser = typeof target === "object" ? target : [...users, ...suggestedUsers].find(u => u.email === target);
+      const targetEmail = targetUser?.email || (typeof target === "string" ? target : null);
       if (!targetUser?.id) throw new Error("Could not find that member.");
       const isFollowing = following.some(f => f.following_id === targetUser.id || f.following_email === targetEmail);
       if (isFollowing) {
@@ -296,7 +284,7 @@ export default function Feed() {
       }
     },
     onSuccess: (wasFollowing) => {
-      queryClient.invalidateQueries({ queryKey: ["following", user?.id, user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["feedViewerFollowing", user?.id] });
       if (!wasFollowing) {
         toast.success("Followed! +5 XP ⚡");
       }
@@ -1021,10 +1009,10 @@ export default function Feed() {
             <h3 className="font-black text-xs mb-4 tracking-widest uppercase" style={{ color: "#FF9F1A" }}>People to Connect</h3>
             
             <div className="space-y-4">
-              {suggestedUsers.filter(u => u.email && u.email !== user?.email && !following.some(f => f.following_email === u.email || f.following_id === u.id)).map((u, i) => {
+              {suggestedUsers.filter(u => u.id && u.id !== user?.id && !following.some(f => f.following_id === u.id)).map((u) => {
                 return (
                 <div key={u.id} className="flex items-center gap-2">
-                  <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-2 flex-1 min-w-0 no-underline hover:opacity-80 transition">
+                  <Link to={createPageUrl("Profile") + `?id=${encodeURIComponent(u.id)}`} className="flex items-center gap-2 flex-1 min-w-0 no-underline hover:opacity-80 transition">
                     <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center font-bold text-xs shrink-0" style={{ background: "#E0EAF5", border: "1px solid #E0EAF5" }}>
                        <UserAvatar user={u} className="w-full h-full" />
                     </div>
@@ -1037,7 +1025,7 @@ export default function Feed() {
                     </div>
                   </Link>
                    <button 
-                     onClick={() => followMutation.mutate(u.email)}
+                     onClick={() => followMutation.mutate(u)}
                      className="text-[9px] font-bold px-3 py-1.5 rounded-full transition shrink-0"
                      style={{ border: "1px solid #0B3FD9", color: "#0B3FD9", background: "#FFFFFF" }}
                    >
@@ -1045,7 +1033,7 @@ export default function Feed() {
                    </button>
                 </div>
               )})}
-              {suggestedUsers.filter(u => u.email && u.email !== user?.email).length === 0 && (
+              {suggestedUsers.filter(u => u.id && u.id !== user?.id).length === 0 && (
                 <p className="text-xs text-center py-2" style={{ color: "#8A97B5" }}>No other members yet. Invite friends!</p>
               )}
             </div>

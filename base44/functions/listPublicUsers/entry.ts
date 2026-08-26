@@ -1,30 +1,15 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
-const ADMIN_ROLES = new Set([
-  'admin',
-  'super_admin',
-  'ecd_admin',
-  'country_admin',
-  'union_admin',
-  'conference_field_admin',
-  'church_admin',
-  'moderator',
-]);
-
-const DEFAULT_LIMIT = 50;
-const MAX_LIMIT = 2000;
+const DEFAULT_LIMIT = 40;
+const MAX_PAGE_LIMIT = 50;
+const MAX_EXPLICIT_EMAILS = 200;
 
 function cleanString(value, max = 500) {
-  // Strip anything that isn't a plain string and trim — blocks objects carrying
-  // MongoDB operators ($regex, $ne, etc.) from ever reaching an entity query.
-  if (value === null || value === undefined) return '';
-  if (typeof value === 'object') return '';
+  if (value === null || value === undefined || typeof value === 'object') return '';
   return String(value).trim().slice(0, max);
 }
 
-// Public, PII-free user shape. Never includes email, gender, date_of_birth,
-// status, phone, address, or any other personal data.
 function publicUserShape(user, includeEmail = false) {
   const profilePicture = user.profile_picture || user.profile_picture_url || '';
   const coverImage = user.cover_image || user.cover_picture_url || '';
@@ -52,111 +37,65 @@ function publicUserShape(user, includeEmail = false) {
   };
 }
 
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    const actor = await base44.auth.me();
+    if (!actor) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const rateLimited = await enforceApiRateLimit(base44, req, actor);
     if (rateLimited) return rateLimited;
 
     const validated = await readValidatedJson(req, {
-      limit: { type: 'number', integer: true, min: 1, max: MAX_LIMIT },
+      limit: { type: 'number', integer: true, min: 1, max: MAX_PAGE_LIMIT },
       skip: { type: 'number', integer: true, min: 0, max: 100000 },
-      emails: { type: 'array', maxItems: MAX_LIMIT, items: { type: 'string', maxLength: 254 } },
+      emails: { type: 'array', maxItems: MAX_EXPLICIT_EMAILS, items: { type: 'string', maxLength: 254 } },
+      ids: { type: 'array', maxItems: MAX_EXPLICIT_EMAILS, items: { type: 'string', maxLength: 64 } },
       search: { type: 'string', maxLength: 100 },
       q: { type: 'string', maxLength: 100 },
-      include_count: { type: 'boolean' },
-      include_email: { type: 'boolean' },
     });
     if (validated.response) return validated.response;
     const payload = validated.data;
-
-    const requestedLimit = Number.parseInt(payload.limit, 10);
-    const limit = Math.max(1, Math.min(Number.isFinite(requestedLimit) ? requestedLimit : DEFAULT_LIMIT, MAX_LIMIT));
-    const skip = Math.max(0, Number.parseInt(payload.skip, 10) || 0);
-
+    const limit = Math.min(Math.max(Number(payload.limit) || DEFAULT_LIMIT, 1), MAX_PAGE_LIMIT);
+    const skip = Math.max(Number(payload.skip) || 0, 0);
     const requestedEmails = Array.isArray(payload.emails)
-      ? [...new Set(payload.emails.map((email) => cleanString(email, 200).toLowerCase()).filter(Boolean))].slice(0, MAX_LIMIT)
+      ? [...new Set(payload.emails.map((value) => cleanString(value, 254).toLowerCase()).filter(Boolean))]
       : [];
-
+    const requestedIds = Array.isArray(payload.ids)
+      ? [...new Set(payload.ids.map((value) => cleanString(value, 64)).filter(Boolean))]
+      : [];
     const search = cleanString(payload.search || payload.q || '', 100).toLowerCase();
-    const includeCount = payload.include_count === true;
 
     let users = [];
-    let totalUsers = null;
-
+    let includeEmail = false;
     if (requestedEmails.length > 0) {
-      const batches = await Promise.all(
-        requestedEmails.map((email) => base44.asServiceRole.entities.User.filter({ email }).catch(() => []))
-      );
-      users = batches.flat();
-
-      // Managed leader accounts have no User record — resolve any still-missing
-      // emails from ManagedLeaderAccount so their names and photos display.
-      const foundEmails = new Set(users.map((u) => String(u.email || '').toLowerCase()));
-      const missing = requestedEmails.filter((email) => !foundEmails.has(email));
-      if (missing.length > 0) {
-        const leaderAccounts = await base44.asServiceRole.entities.ManagedLeaderAccount.filter({ active: true }).catch(() => []);
-        const missingSet = new Set(missing);
-        leaderAccounts
-          .filter((a) => missingSet.has(String(a.leader_email || '').toLowerCase()))
-          .forEach((a) => {
-            users.push({
-              id: a.id,
-              email: String(a.leader_email || '').toLowerCase(),
-              full_name: a.leader_name || '',
-              display_name: a.leader_name || '',
-              profile_picture: a.leader_profile_picture_url || '',
-              profile_picture_url: a.leader_profile_picture_url || '',
-              cover_image: a.leader_cover_picture_url || '',
-              country: a.leader_country || '',
-              bio: a.leader_bio || '',
-              badge: a.leader_title || '',
-            });
-          });
-      }
-
-      users = users.slice(0, limit);
-      totalUsers = users.length;
+      includeEmail = true;
+      const batches = await Promise.all(requestedEmails.map((email) =>
+        base44.asServiceRole.entities.User.filter({ email }).catch(() => [])
+      ));
+      users = batches.flat().slice(0, MAX_EXPLICIT_EMAILS);
+    } else if (requestedIds.length > 0) {
+      const batches = await Promise.all(requestedIds.map((id) =>
+        base44.asServiceRole.entities.User.filter({ id }).catch(() => [])
+      ));
+      users = batches.flat().slice(0, MAX_EXPLICIT_EMAILS);
     } else if (search.length >= 2) {
-      const candidates = await base44.asServiceRole.entities.User.list('-created_date', 5000);
-      const filtered = candidates.filter((item) => {
-        const name = `${item.full_name || ''} ${item.display_name || ''}`.toLowerCase();
-        const place = `${item.country || ''} ${item.city || ''}`.toLowerCase();
-        const bio = String(item.bio || '').toLowerCase();
-        return name.includes(search) || place.includes(search) || bio.includes(search);
-      });
-      totalUsers = filtered.length;
-      users = filtered.slice(skip, skip + limit);
-    } else if (includeCount) {
-      const candidates = await base44.asServiceRole.entities.User.list('-created_date', 5000);
-      totalUsers = candidates.length;
-      users = candidates.slice(skip, skip + limit);
+      const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      users = await base44.asServiceRole.entities.User.filter({
+        $or: [
+          { full_name: { $regex: escaped, $options: 'i' } },
+          { display_name: { $regex: escaped, $options: 'i' } },
+          { username: { $regex: escaped, $options: 'i' } },
+          { country: { $regex: escaped, $options: 'i' } },
+          { city: { $regex: escaped, $options: 'i' } },
+        ],
+      }, '-created_date', limit, skip);
     } else {
       users = await base44.asServiceRole.entities.User.list('-created_date', limit, skip);
     }
 
-    // Email is returned only for explicit email-resolution calls used to map known
-    // participants; general lists and searches remain email-free.
-    // Member-directory features (suggestions, connections) need the email to build
-    // profile links and follow targets, so callers can opt in explicitly.
-    // Only admins may receive email addresses via the include_email flag. Explicit
-    // email-resolution calls (requestedEmails) already know the addresses they pass in,
-    // so echoing those back is safe for any authenticated caller.
-    // Member-directory callers (People/Explore, connections, follow targets) opt in
-    // explicitly via include_email — the address is the identifier those flows use to
-    // build profile links. Everything else stays email-free.
-    const includeEmails = requestedEmails.length > 0 || (payload.include_email === true && ADMIN_ROLES.has(user.role));
-    const publicUsers = users.map((item) => publicUserShape(item, includeEmails));
-
-    if (includeCount) {
-      return Response.json({ users: publicUsers, totalUsers: totalUsers ?? publicUsers.length, visibleUsers: publicUsers.length });
-    }
-
-    return Response.json(publicUsers);
+    return Response.json(users.map((item) => publicUserShape(item, includeEmail)));
   } catch (error) {
     console.error('listPublicUsers failed:', error?.message);
     return Response.json({ error: 'Unable to list users' }, { status: 500 });
   }
-});
+}

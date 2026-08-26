@@ -73,18 +73,21 @@ export default function Profile() {
 
   const urlParams = new URLSearchParams(window.location.search);
   const viewUserEmail = urlParams.get("user")?.toLowerCase()?.trim() || null;
+  const viewUserId = urlParams.get("id")?.trim() || null;
+  const hasProfileTarget = !!(viewUserEmail || viewUserId);
 
   const { data: allUsersForProfile = [] } = useQuery({
-    queryKey: ["allUsersForProfile", viewUserEmail || "self"],
+    queryKey: ["publicUserProfileIdentity", { email: viewUserEmail, id: viewUserId }],
     queryFn: async () => {
       // When viewing another user's profile, request them explicitly so they aren't
       // missed due to the default 100-user limit.
-      const params = viewUserEmail ? { emails: [viewUserEmail] } : {};
+      const params = viewUserEmail ? { emails: [viewUserEmail] } : viewUserId ? { ids: [viewUserId] } : {};
       const res = await base44.functions.invoke("listPublicUsers", params);
       const data = Array.isArray(res.data) ? res.data : [];
       return data;
     },
-    enabled: !!currentUser
+    enabled: !!currentUser && hasProfileTarget,
+    staleTime: 1000 * 60 * 5,
   });
 
   const { data: publicLeaderAccounts = [] } = useQuery({
@@ -103,8 +106,8 @@ export default function Profile() {
         if (isAuth) {
           const me = await base44.auth.me();
           setCurrentUser(me);
-          if (viewUserEmail && viewUserEmail !== me.email) {
-            // set later from allUsersForProfile
+          if (hasProfileTarget && viewUserEmail !== me.email && viewUserId !== me.id) {
+            // set later from the targeted public identity query
           } else {
             setUser(me);
             setEditData({
@@ -124,12 +127,12 @@ export default function Profile() {
               postal_code: me.postal_code || ""
             });
           }
-        } else if (!viewUserEmail) {
+        } else if (!hasProfileTarget) {
           base44.auth.redirectToLogin(window.location.pathname + window.location.search);
         }
       } catch (err) {
         console.error("Profile auth check failed:", err);
-        if (!viewUserEmail) {
+        if (!hasProfileTarget) {
           base44.auth.redirectToLogin(window.location.pathname + window.location.search);
         }
       }
@@ -140,10 +143,10 @@ export default function Profile() {
   const allUsersLoaded = useRef(false);
 
   useEffect(() => {
-    if (!viewUserEmail) return;
+    if (!hasProfileTarget) return;
     if (allUsersForProfile.length > 0) allUsersLoaded.current = true;
 
-    if (currentUser && viewUserEmail === currentUser.email) {
+    if (currentUser && (viewUserEmail === currentUser.email || viewUserId === currentUser.id)) {
       setUser(currentUser);
       setEditData({
         full_name: currentUser.full_name || "",
@@ -164,7 +167,7 @@ export default function Profile() {
       return;
     }
 
-    const found = allUsersForProfile.find(u => u.email === viewUserEmail);
+    const found = allUsersForProfile.find(u => viewUserId ? u.id === viewUserId : u.email === viewUserEmail);
     if (found) {
       setUser(found);
       return;
@@ -192,17 +195,17 @@ export default function Profile() {
 
     // If the public users list has loaded but the target wasn't found,
     // create a minimal fallback profile so the page doesn't spin forever.
-    if (allUsersLoaded.current) {
+    if (allUsersLoaded.current && viewUserEmail) {
       setUser({
         email: viewUserEmail,
         full_name: viewUserEmail.split('@')[0] || "User",
         glow_score: 0,
       });
     }
-  }, [viewUserEmail, currentUser, allUsersForProfile, publicLeaderAccounts]);
+  }, [viewUserEmail, viewUserId, hasProfileTarget, currentUser, allUsersForProfile, publicLeaderAccounts]);
 
-  const isOwnProfile = currentUser && (!viewUserEmail || viewUserEmail === currentUser.email);
-  const baseProfileEmail = viewUserEmail || currentUser?.email;
+  const isOwnProfile = currentUser && (!hasProfileTarget || viewUserEmail === currentUser.email || viewUserId === currentUser.id);
+  const baseProfileEmail = viewUserEmail || (!viewUserId ? currentUser?.email : null);
 
   useEffect(() => {
     if (editOverlay.value && editOverlay.value !== "true") editOverlay.clearInvalid();
@@ -279,9 +282,9 @@ export default function Profile() {
   });
 
   const { data: mySupports = [] } = useQuery({
-    queryKey: ["mySupports", profileEmail],
-    queryFn: () => fetchAll(base44.entities.PrayerSupport, { user_email: profileEmail }),
-    enabled: !!profileEmail
+    queryKey: ["profilePrayerSupportsForBadges", profileEmail],
+    queryFn: () => base44.entities.PrayerSupport.filter({ user_email: profileEmail }, "-created_date", 100),
+    enabled: !!profileEmail && activeProfileTab === "badges",
   });
 
   const { data: myFollowing = [], isLoading: isMyFollowingLoading } = useQuery({
@@ -303,19 +306,19 @@ export default function Profile() {
   const { data: myMemberships = [] } = useQuery({
     queryKey: ["myMemberships", profileEmail],
     queryFn: () => fetchAll(base44.entities.GlowGroupMember, { user_email: profileEmail }),
-    enabled: !!profileEmail
+    enabled: !!profileEmail && (activeProfileTab === "missions" || activeProfileTab === "badges"),
   });
 
   const { data: certificates = [] } = useQuery({
     queryKey: ["myCerts", profileEmail],
-    queryFn: () => fetchAll(base44.entities.Certificate, { user_email: profileEmail }),
-    enabled: !!profileEmail
+    queryFn: () => base44.entities.Certificate.filter({ user_email: profileEmail }, "-created_date", 50),
+    enabled: !!profileEmail && activeProfileTab === "badges",
   });
 
   const { data: savedRecords = [], isLoading: isSavedRecordsLoading } = useQuery({
     queryKey: ["mySavedDropsProfile", profileEmail],
     queryFn: () => fetchAll(base44.entities.SavedDrop, { user_email: profileEmail }),
-    enabled: Boolean(profileEmail && isOwnProfile)
+    enabled: Boolean(profileEmail && isOwnProfile && activeProfileTab === "saved"),
   });
 
   // Fetch only the drops that were actually saved (by id) instead of loading
@@ -337,8 +340,8 @@ export default function Profile() {
 
   const { data: challengeSubmissions = [] } = useQuery({
     queryKey: ["myChallengeSubmissions", profileEmail],
-    queryFn: () => fetchAll(base44.entities.ChallengeSubmission, { user_email: profileEmail }, '-created_date'),
-    enabled: !!profileEmail
+    queryFn: () => base44.entities.ChallengeSubmission.filter({ user_email: profileEmail }, '-created_date', 50),
+    enabled: !!profileEmail && (activeProfileTab === "missions" || activeProfileTab === "badges"),
   });
 
   const { data: userInstitutionApps = [] } = useQuery({
@@ -374,13 +377,13 @@ export default function Profile() {
   const { data: profileUserLikes = [] } = useQuery({
     queryKey: ["profileUserLikes", currentUser?.email],
     queryFn: () => fetchAll(base44.entities.GlowDropLike, { user_email: currentUser?.email }),
-    enabled: !!currentUser,
+    enabled: !!currentUser && activeProfileTab === "drops",
   });
 
   const { data: profileSavedDrops = [] } = useQuery({
     queryKey: ["profileSavedDrops", currentUser?.email],
     queryFn: () => fetchAll(base44.entities.SavedDrop, { user_email: currentUser?.email }),
-    enabled: !!currentUser,
+    enabled: !!currentUser && (activeProfileTab === "drops" || activeProfileTab === "saved"),
   });
 
   // Aggregate comment counts for the profile's drops, so each grid tile shows real data.
@@ -393,7 +396,7 @@ export default function Profile() {
       );
       return results.flat();
     },
-    enabled: myDrops.length > 0,
+    enabled: activeProfileTab === "drops" && myDrops.length > 0,
     staleTime: 1000 * 60 * 2,
   });
 
@@ -497,14 +500,14 @@ export default function Profile() {
   const { data: allChallenges = [] } = useQuery({
     queryKey: ["allChallenges"],
     queryFn: () => fetchAll(base44.entities.Challenge, {}),
-    enabled: !!user
+    enabled: !!user && activeProfileTab === "missions",
   });
 
   const hasCheckedCerts = useRef(false);
 
   useEffect(() => {
     async function checkCertificates() {
-      if (!user || !isOwnProfile || hasCheckedCerts.current) return;
+      if (!user || !isOwnProfile || activeProfileTab !== "badges" || hasCheckedCerts.current) return;
       hasCheckedCerts.current = true;
       try {
         const myCerts = await base44.entities.Certificate.filter({ user_email: user.email });
@@ -550,7 +553,7 @@ export default function Profile() {
       }
     }
     checkCertificates();
-  }, [user?.email, isOwnProfile, queryClient]);
+  }, [user?.email, isOwnProfile, activeProfileTab, queryClient]);
 
   const [uploadingImage, setUploadingImage] = useState(false);
   const [cropData, setCropData] = useState(null);
@@ -576,7 +579,7 @@ export default function Profile() {
   ]), [isMyDropsLoading, myDrops.length, challengeSubmissions.length, myMemberships.length, certificates.length]);
 
   const handleShareProfile = async () => {
-    const shareUrl = `${window.location.origin}${createPageUrl("Profile")}?user=${encodeURIComponent(profileEmail)}`;
+    const shareUrl = `${window.location.origin}${createPageUrl("Profile")}${displayUser?.id ? `?id=${encodeURIComponent(displayUser.id)}` : `?user=${encodeURIComponent(profileEmail)}`}`;
     const displayName = getDisplayName(user);
     const shareText = `${displayName} • ${glowRank.name} • ${user.glow_score || 0} Glow Points`;
 

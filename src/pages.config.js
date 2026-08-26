@@ -1,110 +1,41 @@
-/**
- * pages.config.js - Page routing configuration
- * 
- * This file is AUTO-GENERATED. Do not add imports or modify PAGES manually.
- * Pages are auto-registered when you create files in the ./pages/ folder.
- * 
- * THE ONLY EDITABLE VALUE: mainPage
- * This controls which page is the landing page (shown when users visit the app).
- * 
- * Example file structure:
- * 
- *   import HomePage from './pages/HomePage';
- *   import Dashboard from './pages/Dashboard';
- *   import Settings from './pages/Settings';
- *   
- *   export const PAGES = {
- *       "HomePage": HomePage,
- *       "Dashboard": Dashboard,
- *       "Settings": Settings,
- *   }
- *   
- *   export const pagesConfig = {
- *       mainPage: "HomePage",
- *       Pages: PAGES,
- *   };
- * 
- * Example with Layout (wraps all pages):
- *
- *   import Home from './pages/Home';
- *   import Settings from './pages/Settings';
- *   import __Layout from './Layout.jsx';
- *
- *   export const PAGES = {
- *       "Home": Home,
- *       "Settings": Settings,
- *   }
- *
- *   export const pagesConfig = {
- *       mainPage: "Home",
- *       Pages: PAGES,
- *       Layout: __Layout,
- *   };
- *
- * To change the main page from HomePage to Dashboard, use find_replace:
- *   Old: mainPage: "HomePage",
- *   New: mainPage: "Dashboard",
- *
- * The mainPage value must match a key in the PAGES object exactly.
- */
-import About from './pages/About';
-import AdminCenter from './pages/AdminCenter';
-import AdminReports from './pages/AdminReports';
-import Assistant from './pages/Assistant';
-import Challenges from './pages/Challenges';
-import CodesOfTruth from './pages/CodesOfTruth';
-import Dashboard from './pages/Dashboard';
-import FaithQuiz from './pages/FaithQuiz';
-import Feed from './pages/Feed';
-import GlobalReach from './pages/GlobalReach';
-import GlowGroups from './pages/GlowGroups';
-import GroupSession from './pages/GroupSession';
-import Home from './pages/Home';
-import Impact from './pages/Impact';
-import KeepIt100 from './pages/KeepIt100';
-import Live from './pages/Live';
-import Media from './pages/Media';
-import Messages from './pages/Messages';
-import Milestones from './pages/Milestones';
-import Notifications from './pages/Notifications';
-import Post from './pages/Post';
-import PrayerWall from './pages/PrayerWall';
-import Profile from './pages/Profile';
-import Resources from './pages/Resources';
-import Saved from './pages/Saved';
+import { lazy } from 'react';
 import __Layout from './Layout.jsx';
 
+const About = lazy(() => import('./pages/About'));
+const AdminCenter = lazy(() => import('./pages/AdminCenter'));
+const AdminReports = lazy(() => import('./pages/AdminReports'));
+const Assistant = lazy(() => import('./pages/Assistant'));
+const Challenges = lazy(() => import('./pages/Challenges'));
+const CodesOfTruth = lazy(() => import('./pages/CodesOfTruth'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const FaithQuiz = lazy(() => import('./pages/FaithQuiz'));
+const Feed = lazy(() => import('./pages/Feed'));
+const GlobalReach = lazy(() => import('./pages/GlobalReach'));
+const GlowGroups = lazy(() => import('./pages/GlowGroups'));
+const GroupSession = lazy(() => import('./pages/GroupSession'));
+const Home = lazy(() => import('./pages/Home'));
+const Impact = lazy(() => import('./pages/Impact'));
+const KeepIt100 = lazy(() => import('./pages/KeepIt100'));
+const Live = lazy(() => import('./pages/Live'));
+const Media = lazy(() => import('./pages/Media'));
+const Messages = lazy(() => import('./pages/Messages'));
+const Milestones = lazy(() => import('./pages/Milestones'));
+const Notifications = lazy(() => import('./pages/Notifications'));
+const Post = lazy(() => import('./pages/Post'));
+const PrayerWall = lazy(() => import('./pages/PrayerWall'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Resources = lazy(() => import('./pages/Resources'));
+const Saved = lazy(() => import('./pages/Saved'));
 
 export const PAGES = {
-    "About": About,
-    "AdminCenter": AdminCenter,
-    "AdminReports": AdminReports,
-    "Assistant": Assistant,
-    "Challenges": Challenges,
-    "CodesOfTruth": CodesOfTruth,
-    "Dashboard": Dashboard,
-    "FaithQuiz": FaithQuiz,
-    "Feed": Feed,
-    "GlobalReach": GlobalReach,
-    "GlowGroups": GlowGroups,
-    "GroupSession": GroupSession,
-    "Home": Home,
-    "Impact": Impact,
-    "KeepIt100": KeepIt100,
-    "Live": Live,
-    "Media": Media,
-    "Messages": Messages,
-    "Milestones": Milestones,
-    "Notifications": Notifications,
-    "Post": Post,
-    "PrayerWall": PrayerWall,
-    "Profile": Profile,
-    "Resources": Resources,
-    "Saved": Saved,
-}
+  About, AdminCenter, AdminReports, Assistant, Challenges, CodesOfTruth,
+  Dashboard, FaithQuiz, Feed, GlobalReach, GlowGroups, GroupSession, Home,
+  Impact, KeepIt100, Live, Media, Messages, Milestones, Notifications, Post,
+  PrayerWall, Profile, Resources, Saved,
+};
 
 export const pagesConfig = {
-    mainPage: "Home",
-    Pages: PAGES,
-    Layout: __Layout,
+  mainPage: 'Home',
+  Pages: PAGES,
+  Layout: __Layout,
 };

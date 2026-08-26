@@ -41,6 +41,8 @@ export const SUPABASE_TABLE_MAP: Record<string, string> = {
   Notification: 'notifications',
   DirectMessage: 'direct_messages',
   PrayerRequest: 'prayer_requests',
+  GlowGroupJoinRequest: 'glow_group_join_requests',
+  GlowGroupMember: 'glow_group_members',
 };
 
 // Mirror of a Base44 record into Supabase. Never throws — MUST be awaited by callers:

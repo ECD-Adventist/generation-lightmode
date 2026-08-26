@@ -18,6 +18,7 @@ import NotificationOnboardingModal from '@/components/notifications/Notification
 import ReportProblemButton from '@/components/ReportProblemButton';
 import SessionSecurity from '@/components/security/SessionSecurity';
 import SplashScreen from '@/components/SplashScreen';
+import RouteLoadBoundary from '@/components/routing/RouteLoadBoundary';
 
 // Code-split route pages — loaded on demand to reduce initial bundle.
 const LightReflections = lazy(() => import('./pages/LightReflections'));
@@ -44,8 +45,9 @@ const AdminSupabaseMigration = lazy(() => import('./pages/AdminSupabaseMigration
 const ContentHub = lazy(() => import('./pages/ContentHub'));
 
 const RouteFallback = () => (
-  <div className="fixed inset-0 flex items-center justify-center bg-background">
-    <Loader2 className="w-8 h-8 animate-spin text-foreground/60" />
+  <div className="fixed inset-0 flex flex-col items-center justify-center gap-4 bg-background">
+    <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="Generation LightMode" width="200" height="58" className="h-12 w-auto object-contain" />
+    <Loader2 className="w-6 h-6 animate-spin text-foreground/60" aria-label="Loading page" />
   </div>
 );
 
@@ -99,6 +101,7 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <AgeRestrictionGate user={isAuthenticated ? user : null}>
+      <RouteLoadBoundary>
       <Suspense fallback={<RouteFallback />}>
       <Routes>
       <Route path="/" element={<RootRedirect />} />
@@ -141,6 +144,7 @@ const AuthenticatedApp = () => {
       <Route path="*" element={<PageNotFound />} />
     </Routes>
       </Suspense>
+      </RouteLoadBoundary>
     </AgeRestrictionGate>
   );
 };

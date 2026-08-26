@@ -563,7 +563,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
         </div>
 
         {drop.media_url && (
-          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} className="block w-full max-h-[560px] object-cover object-center" loading="lazy" />
+          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} width="720" height="900" loading="lazy" decoding="async" className="block w-full max-h-[560px] object-cover object-center" />
         )}
 
         {!drop.media_url && (

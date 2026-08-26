@@ -9,6 +9,8 @@ import { Send, Paperclip, Users, Crown, ArrowLeft, MoreVertical, Trash2, Smile, 
 import GroupAnalyticsPanel from "@/components/groups/GroupAnalyticsPanel";
 import GroupResourcesTab from "@/components/groups/GroupResourcesTab";
 import GroupManagementPanel, { ROLE_META } from "@/components/groups/GroupManagementPanel";
+import PendingRequestsDrawer from "@/components/groups/PendingRequestsDrawer";
+import useUrlOverlay from "@/hooks/useUrlOverlay";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 const EMOJIS = ["👍","❤️","🙏","🔥","🎉","😊","😂","😢","💯","✨","🕊️","🙌"];
@@ -19,6 +21,7 @@ function formatDayDivider(s) { const d = parseDate(s); if (!d) return ""; if (is
 
 // Build a slug key from a full name for @mention matching: "Jane Doe" -> "jane_doe"
 function slugifyName(name) { return (name || "").trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_.]/g, ""); }
+function normalizeEmail(value) { return String(value || "").trim().toLowerCase(); }
 
 // Extract @mention slugs from a message. Matches @letters/digits/underscore/dots (up to 40 chars).
 function extractMentionSlugs(text) {
@@ -66,6 +69,7 @@ export default function GroupChat() {
   const urlParams = new URLSearchParams(window.location.search);
   const groupId = urlParams.get("id");
   const queryClient = useQueryClient();
+  const requestsOverlay = useUrlOverlay("requests");
 
   const [draft, setDraft] = useState("");
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -125,11 +129,6 @@ export default function GroupChat() {
     enabled: !!groupId,
   });
 
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ["allUsers"],
-    queryFn: async () => { const res = await base44.functions.invoke("listPublicUsers", {}); return res.data; },
-  });
-
   const { data: events = [] } = useQuery({
     queryKey: ["groupEvents", groupId],
     queryFn: () => base44.entities.GlowGroupEvent.filter({ group_id: groupId }, "-date"),
@@ -137,9 +136,29 @@ export default function GroupChat() {
   });
 
   const { data: joinRequests = [] } = useQuery({
-    queryKey: ["groupJoinRequests", groupId],
-    queryFn: () => base44.entities.GlowGroupJoinRequest.filter({ group_id: groupId, status: "pending" }, "-created_date"),
-    enabled: !!groupId,
+    queryKey: ["groupPendingJoinRequestDetails", groupId, currentUser?.role],
+    queryFn: async () => {
+      const response = await base44.functions.invoke("listGroupJoinRequests", { group_ids: [groupId], include_details: true });
+      return response.data?.requests || [];
+    },
+    enabled: !!groupId && !!currentUser,
+    staleTime: 15_000,
+  });
+
+  const participantEmails = useMemo(() => [...new Set([
+    group?.leader_email,
+    ...members.map((member) => member.user_email),
+    ...joinRequests.map((request) => request.user_email),
+  ].map(normalizeEmail).filter(Boolean))], [group?.leader_email, members, joinRequests]);
+
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ["groupParticipantPublicUsersByEmail", groupId, participantEmails.join("|")],
+    queryFn: async () => {
+      const response = await base44.functions.invoke("listPublicUsers", { emails: participantEmails });
+      return Array.isArray(response.data) ? response.data : [];
+    },
+    enabled: participantEmails.length > 0,
+    staleTime: 1000 * 60 * 5,
   });
 
   // Real-time
@@ -151,11 +170,15 @@ export default function GroupChat() {
       }
     });
     const unsubR = base44.entities.GlowGroupMessageReaction.subscribe((event) => {
-      if (event.data?.group_id === groupId) {
-        queryClient.invalidateQueries({ queryKey: ["groupReactions", groupId] });
-      }
+      if (event.data?.group_id === groupId) queryClient.invalidateQueries({ queryKey: ["groupReactions", groupId] });
     });
-    return () => { unsub(); unsubR(); };
+    const unsubRequests = base44.entities.GlowGroupJoinRequest.subscribe((event) => {
+      if (event.data?.group_id === groupId) queryClient.invalidateQueries({ queryKey: ["groupPendingJoinRequestDetails", groupId] });
+    });
+    const unsubMembers = base44.entities.GlowGroupMember.subscribe((event) => {
+      if (event.data?.group_id === groupId) queryClient.invalidateQueries({ queryKey: ["groupMembers", groupId] });
+    });
+    return () => { unsub(); unsubR(); unsubRequests(); unsubMembers(); };
   }, [groupId, queryClient]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages.length]);
@@ -237,7 +260,7 @@ export default function GroupChat() {
       return res.data;
     },
     onSuccess: (data, vars) => {
-      queryClient.invalidateQueries({ queryKey: ["groupJoinRequests", groupId] });
+      queryClient.invalidateQueries({ queryKey: ["groupPendingJoinRequestDetails", groupId] });
       queryClient.invalidateQueries({ queryKey: ["groupMembers", groupId] });
       toast.success(vars.action === "approve" ? "Member approved ✅" : "Request declined");
     },
@@ -246,8 +269,15 @@ export default function GroupChat() {
 
   const getUser = (email) => email === currentUser?.email ? currentUser : allUsers.find(u => u.email === email) || { full_name: email?.split("@")[0] || "Member", email };
 
-  const isMember = useMemo(() => members.some(m => m.user_email === currentUser?.email), [members, currentUser]);
-  const isLeader = group?.leader_email === currentUser?.email;
+  const isMember = useMemo(() => members.some(m => normalizeEmail(m.user_email) === normalizeEmail(currentUser?.email)), [members, currentUser]);
+  const isLeader = normalizeEmail(group?.leader_email) === normalizeEmail(currentUser?.email);
+  const canManageRequests = isLeader || currentUser?.role === "admin" || currentUser?.role === "super_admin";
+  const leaderUserId = allUsers.find((entry) => normalizeEmail(entry.email) === normalizeEmail(group?.leader_email))?.id;
+  const { data: groupFollowers = [] } = useQuery({
+    queryKey: ["groupAccountFollowers", groupId, leaderUserId],
+    queryFn: () => base44.entities.Follow.filter({ following_id: leaderUserId }, "-created_date", 500),
+    enabled: !!leaderUserId,
+  });
 
   const filteredMessages = useMemo(() => {
     if (!searchTerm.trim()) return messages;
@@ -372,7 +402,12 @@ export default function GroupChat() {
                 </div>
               </button>
 
-              <button onClick={() => setShowSearch(v => !v)} className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition backdrop-blur-md" style={{ background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", color: "#FFFFFF" }}>
+              {canManageRequests && (
+                <button onClick={() => requestsOverlay.open("true")} className="relative min-h-11 rounded-full px-3 flex items-center gap-1.5 shrink-0 backdrop-blur-md text-xs font-bold" style={{ background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", color: "#FFFFFF" }} aria-label={`${joinRequests.length} pending requests`}>
+                  <UserPlus className="w-4 h-4" /><span className="hidden sm:inline">Requests</span>{joinRequests.length > 0 && <span className="min-w-5 h-5 px-1 rounded-full flex items-center justify-center bg-amber-400 text-[10px] text-slate-900">{joinRequests.length}</span>}
+                </button>
+              )}
+              <button onClick={() => setShowSearch(v => !v)} className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition backdrop-blur-md" style={{ background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", color: "#FFFFFF" }} aria-label="Search messages">
                 <Search className="w-4 h-4" />
               </button>
               <button onClick={() => setShowInfoPanel(v => !v)} className="lg:hidden w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition backdrop-blur-md" style={{ background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", color: "#FFFFFF" }}>
@@ -675,8 +710,8 @@ export default function GroupChat() {
                   <div className="grid grid-cols-3 gap-2 mt-4">
                     {[
                       { label: "Members", value: members.length, color: "#0B3FD9", bg: "#EEF3FF" },
-                      { label: "Messages", value: messages.length, color: "#CC7A00", bg: "#FFF8E6" },
-                      { label: "Events", value: events.length, color: "#16A34A", bg: "#DCFCE7" },
+                      { label: "Pending", value: joinRequests.length, color: "#CC7A00", bg: "#FFF8E6" },
+                      { label: "Followers", value: groupFollowers.length, color: "#16A34A", bg: "#DCFCE7" },
                     ].map(s => (
                       <div key={s.label} className="rounded-xl p-2.5 text-center" style={{ background: s.bg, border: `1px solid ${s.color}20` }}>
                         <div className="font-black text-lg" style={{ color: s.color }}>{s.value}</div>
@@ -736,7 +771,7 @@ export default function GroupChat() {
               )}
 
               {/* Pending Join Requests — Leader only */}
-              {isLeader && joinRequests.length > 0 && (
+              {canManageRequests && joinRequests.length > 0 && (
                 <div className="px-5 py-4 border-b" style={{ borderColor: "#E6ECF5", background: "#FFF8E6" }}>
                   <div className="text-[11px] font-bold uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: "#CC7A00" }}>
                     <UserPlus className="w-3.5 h-3.5" /> Pending Requests ({joinRequests.length})
@@ -823,6 +858,14 @@ export default function GroupChat() {
         </div>
       </div>
 
+      <PendingRequestsDrawer
+        open={requestsOverlay.value === "true" && canManageRequests}
+        onClose={requestsOverlay.close}
+        requests={joinRequests}
+        getUser={getUser}
+        mutation={decideRequestMutation}
+      />
+
       <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -849,17 +892,9 @@ function JoinRequestBanner({ group, currentUser, groupId, queryClient }) {
 
   const requestMutation = useMutation({
     mutationFn: async () => {
-      await base44.entities.GlowGroupJoinRequest.create({
-        user_email: currentUser.email,
-        group_id: groupId,
-        status: "pending",
-      });
-      await base44.entities.Notification.create({
-        user_email: group.leader_email,
-        type: "system",
-        message: `${currentUser.full_name || "Someone"} requested to join your group "${group.name}".`,
-        link: `/GroupChat?id=${groupId}`,
-      }).catch(() => {});
+      const response = await base44.functions.invoke("requestGroupJoin", { group_id: groupId });
+      if (!response.data?.success) throw new Error(response.data?.error || "Could not send request");
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myRequestForGroup", groupId, currentUser?.email] });

@@ -66,7 +66,7 @@ export default function PinnedLeaderPosts({ leaderAccounts = [] }) {
 
               <div className="flex items-center gap-2.5 mb-3">
                 <div className="w-10 h-10 rounded-full overflow-hidden shrink-0" style={{ border: "2px solid #FFD000", boxShadow: "0 2px 8px rgba(255, 208, 0, 0.3)" }}>
-                  <img src={avatar} alt="" className="w-full h-full object-cover" />
+                  <img src={avatar} alt="" width="40" height="40" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </div>
                 <div className="min-w-0 flex-1 pr-12">
                   <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{leaderName}</div>

@@ -20,9 +20,13 @@ export default function MobileGlowGroups({
   systemUserCount,
   drops,
   following,
+  hasMoreUsers,
+  isLoadingMoreUsers,
+  onLoadMoreUsers,
   realGroups,
   myMemberships,
   myJoinRequests,
+  pendingRequestCounts = {},
   followMutation,
   joinMutation,
   onOpenCreate,
@@ -54,9 +58,9 @@ export default function MobileGlowGroups({
   }, [drops]);
 
   const filteredUsers = useMemo(() => users.filter(u => {
-    if (u.email === user?.email) return false;
+    if (u.id === user?.id) return false;
     if (!q) return true;
-    return [getDisplayName(u), u.full_name, u.display_name, u.email, u.country, u.city, u.bio, u.leader_title]
+    return [getDisplayName(u), u.full_name, u.display_name, u.username, u.country, u.city, u.bio, u.leader_title]
       .some(value => (value || "").toLowerCase().includes(q));
   }), [users, user, q]);
 
@@ -228,7 +232,7 @@ export default function MobileGlowGroups({
                         }}>
                           {!group.profile_picture_url && "✨"}
                         </div>
-                        <div className="font-black text-[11px] truncate font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{group.name}</div>
+                        <div className="min-w-0"><div className="font-black text-[11px] truncate font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{group.name}</div>{pendingRequestCounts[group.id] > 0 && <div className="mt-0.5 text-[9px] font-bold" style={{ color: "#8A5700" }}>{pendingRequestCounts[group.id]} pending</div>}</div>
                       </div>
                     </button>
                   ))}
@@ -341,16 +345,17 @@ export default function MobileGlowGroups({
             </div>
 
             {filteredUsers.length === 0 ? (
-              <EmptyState emoji="🔍" title="No people found" subtitle="Search checks name, display name, email, country, city, and bio" />
+              <EmptyState emoji="🔍" title="No people found" subtitle="Search checks public names and locations" />
             ) : filteredUsers.map(u => {
-              const isFollowing = following.some(f => f.following_email === u.email);
-              const userDrops = dropCountByUser[u.email] || 0;
+              const targetId = String(u.id || "").replace(/^leader_/, "");
+              const isFollowing = following.some(f => f.following_id === targetId);
+              const userDrops = dropCountByUser[u.id] || 0;
               return (
                 <div key={u.id} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}>
-                  <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-3 flex-1 min-w-0 no-underline">
+                  <Link to={createPageUrl("Profile") + (u.is_managed_leader ? `?user=${encodeURIComponent(u.email)}` : `?id=${encodeURIComponent(u.id)}`)} className="flex items-center gap-3 flex-1 min-w-0 no-underline">
                     <div className="w-12 h-12 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9, #FFD000)" }}>
                       <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "2px solid #FFFFFF" }}>
-                        <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                        <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="" width="48" height="48" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -367,7 +372,7 @@ export default function MobileGlowGroups({
                     </div>
                   </Link>
                   <button
-                    onClick={() => followMutation.mutate(u.email)}
+                    onClick={() => followMutation.mutate(u)}
                     className="flex items-center justify-center w-10 h-10 rounded-full transition active:scale-90 shrink-0"
                     style={isFollowing
                       ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }
@@ -379,6 +384,11 @@ export default function MobileGlowGroups({
                 </div>
               );
             })}
+            {hasMoreUsers && (
+              <button type="button" onClick={onLoadMoreUsers} disabled={isLoadingMoreUsers} className="w-full min-h-11 rounded-2xl text-sm font-bold disabled:opacity-60" style={{ background: "#FFFFFF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>
+                {isLoadingMoreUsers ? "Loading…" : "Load More People"}
+              </button>
+            )}
           </div>
         )}
 
@@ -405,8 +415,8 @@ export default function MobileGlowGroups({
                     const isTop = rank === 1;
                     return (
                       <Link
-                        key={u.email}
-                        to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`}
+                        key={u.id}
+                        to={createPageUrl("Profile") + (u.is_managed_leader ? `?user=${encodeURIComponent(u.email)}` : `?id=${encodeURIComponent(u.id)}`)}
                         className="no-underline rounded-2xl p-3 flex flex-col items-center relative overflow-hidden transition active:scale-[0.97]"
                         style={{
                           background: isTop
@@ -420,7 +430,7 @@ export default function MobileGlowGroups({
                         <div className="text-xl mb-1">{medal}</div>
                         <div className="w-12 h-12 rounded-full p-[2px] mb-1.5" style={{ background: isTop ? "#FFFFFF" : "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
                           <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF" }}>
-                            <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                            <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="" width="48" height="48" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                           </div>
                         </div>
                         <div className="text-[11px] font-black text-center truncate w-full font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>
@@ -439,14 +449,15 @@ export default function MobileGlowGroups({
 
             {/* Rest of leaders */}
             {sortedLeaders.slice(3).map((u, index) => {
-              const isFollowing = following.some(f => f.following_email === u.email);
+              const targetId = String(u.id || "").replace(/^leader_/, "");
+              const isFollowing = following.some(f => f.following_id === targetId);
               const position = index + 4;
               return (
                 <div key={u.id} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
                   <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
                     <span className="text-[10px] font-black" style={{ color: "#6B7FA0" }}>{position}</span>
                   </div>
-                  <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-3 flex-1 min-w-0 no-underline">
+                  <Link to={createPageUrl("Profile") + (u.is_managed_leader ? `?user=${encodeURIComponent(u.email)}` : `?id=${encodeURIComponent(u.id)}`)} className="flex items-center gap-3 flex-1 min-w-0 no-underline">
                     <div className="w-10 h-10 rounded-full overflow-hidden shrink-0" style={{ border: "2px solid #E6ECF5" }}>
                       <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                     </div>
@@ -459,9 +470,9 @@ export default function MobileGlowGroups({
                     <Zap className="w-3 h-3" style={{ color: "#CC7A00" }} />
                     <span className="text-[11px] font-black" style={{ color: "#CC7A00" }}>{u.glow_score || 0}</span>
                   </div>
-                  {u.email !== user?.email && (
+                  {u.id !== user?.id && (
                     <button
-                      onClick={() => followMutation.mutate(u.email)}
+                      onClick={() => followMutation.mutate(u)}
                       className="flex items-center justify-center w-8 h-8 rounded-full shrink-0 transition active:scale-90"
                       style={isFollowing
                         ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }

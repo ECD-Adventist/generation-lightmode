@@ -15,6 +15,7 @@ import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileNotifications from "@/components/notifications/MobileNotifications";
 import UserAvatar from "@/components/common/UserAvatar";
+import { useAuth } from "@/lib/AuthContext";
 
 const typeIcon = {
   like: <Heart className="w-4 h-4" style={{ color: "#EF4444" }} />,
@@ -44,7 +45,8 @@ const typeBgStyle = {
 
 export default function Notifications() {
   const isMobile = useIsMobile();
-  const [user, setUser] = useState(null);
+  const { user: authenticatedUser } = useAuth();
+  const [user, setUser] = useState(authenticatedUser || null);
   const [activeCategory, setActiveCategory] = useState("all");
   const [visibleCount, setVisibleCount] = useState(20);
   const queryClient = useQueryClient();
@@ -55,12 +57,7 @@ export default function Notifications() {
     await queryClient.invalidateQueries({ queryKey: ["notifications", user?.id] });
   });
 
-  useEffect(() => {
-    base44.auth.isAuthenticated().then(isAuth => {
-      if (isAuth) base44.auth.me().then(setUser);
-      else base44.auth.redirectToLogin(window.location.pathname);
-    });
-  }, []);
+  useEffect(() => { if (authenticatedUser) setUser(authenticatedUser); }, [authenticatedUser]);
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ["allNotifications", user?.id],
@@ -73,7 +70,7 @@ export default function Notifications() {
   useEffect(() => { setVisibleCount(20); }, [activeCategory]);
 
   const { data: following = [] } = useQuery({
-    queryKey: ["following", user?.email],
+    queryKey: ["notificationViewerLegacyFollowingByEmail", user?.email],
     queryFn: () => base44.entities.Follow.filter({ follower_email: user?.email }),
     enabled: !!user,
   });
@@ -172,7 +169,7 @@ export default function Notifications() {
       return "followed";
     },
     onSuccess: (status) => {
-      queryClient.invalidateQueries({ queryKey: ["following", user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["notificationViewerLegacyFollowingByEmail", user?.email] });
       if (status === "followed") toast.success("Followed back");
     }
   });

@@ -50,7 +50,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
   });
 
   const { data: allUsers = [] } = useQuery({
-    queryKey: ["allUsers"],
+    queryKey: ["dropViewerPublicUsersDefaultPage"],
     queryFn: async () => {
       const res = await base44.functions.invoke("listPublicUsers", {});
       return res.data;

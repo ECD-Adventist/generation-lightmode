@@ -5,13 +5,15 @@ import CreateGroupModal from "@/components/groups/CreateGroupModal";
 import { createPageUrl } from "@/utils";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { Link } from "react-router-dom";
 import { isNotificationEnabled } from "@/lib/notifications";
 import AppFooter from "@/components/AppFooter";
 import MobileGlowGroups from "@/components/groups/MobileGlowGroups";
+import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
+import { useAuth } from "@/lib/AuthContext";
 
 const rankColors = { Champion: "#FFD000", Trendsetter: "#8A5CFF", Warrior: "#1DA1FF", Starter: "#00CFFF" };
 
@@ -19,17 +21,18 @@ export default function GlowGroups() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("groups"); // "people" | "groups" | "leaders"
   const [mobilePeopleSearch, setMobilePeopleSearch] = useState("");
+  const [debouncedPeopleSearch, setDebouncedPeopleSearch] = useState("");
   const [authChecked, setAuthChecked] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { user, isLoadingAuth } = useAuth();
 
   useEffect(() => {
-    base44.auth.isAuthenticated().then(isAuth => {
-      if (!isAuth) base44.auth.redirectToLogin(window.location.pathname);
-      else setAuthChecked(true);
-    });
-  }, []);
+    if (isLoadingAuth) return;
+    if (!user) base44.auth.redirectToLogin(window.location.pathname);
+    else setAuthChecked(true);
+  }, [isLoadingAuth, user]);
 
   // Auto-redirect to dedicated GroupChat page when ?group=<id> is present
   useEffect(() => {
@@ -41,35 +44,37 @@ export default function GlowGroups() {
     }
   }, [authChecked, navigate]);
 
-  const { data: user } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: () => base44.auth.me(),
+  const rawPeopleSearch = ((activeTab === "people" || activeTab === "leaders") ? search : mobilePeopleSearch).trim();
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedPeopleSearch(rawPeopleSearch), 450);
+    return () => window.clearTimeout(timer);
+  }, [rawPeopleSearch]);
+
+  const directorySearch = debouncedPeopleSearch.length >= 2 ? debouncedPeopleSearch : "";
+  const {
+    data: userPages,
+    fetchNextPage: loadMoreUsers,
+    hasNextPage: hasMoreUsers,
+    isFetchingNextPage: isLoadingMoreUsers,
+    isError: usersError,
+  } = useInfiniteQuery({
+    queryKey: ["publicUsersDirectoryPages", { search: directorySearch, pageSize: 40 }],
+    queryFn: async ({ pageParam = 0 }) => {
+      const res = await base44.functions.invoke("listPublicUsers", {
+        limit: 40,
+        skip: pageParam,
+        ...(directorySearch ? { search: directorySearch } : {}),
+      });
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, pages) => lastPage.length === 40 ? pages.length * 40 : undefined,
     enabled: authChecked,
-  });
-
-  const { data: usersPayload = { users: [], totalUsers: 0 }, isError: usersError } = useQuery({
-    queryKey: ["allUsers"],
-    queryFn: async () => {
-      const res = await base44.functions.invoke('listPublicUsers', { include_count: true, include_email: true, limit: 2000 });
-      return res.data;
-    },
-    retry: 2,
-  });
-
-  const regularUsers = Array.isArray(usersPayload) ? usersPayload : (usersPayload.users || []);
-  const systemUserCount = Array.isArray(usersPayload) ? regularUsers.length : (usersPayload.totalUsers || regularUsers.length);
-
-  const peopleServerSearch = ((activeTab === "people" || activeTab === "leaders") ? search : mobilePeopleSearch).trim();
-
-  const { data: searchedRegularUsers = [] } = useQuery({
-    queryKey: ["explorePeopleServerSearch", peopleServerSearch],
-    queryFn: async () => {
-      const res = await base44.functions.invoke('listPublicUsers', { search: peopleServerSearch, include_email: true, limit: 100 });
-      return Array.isArray(res.data) ? res.data : (res.data?.users || []);
-    },
-    enabled: peopleServerSearch.length >= 2,
     staleTime: 1000 * 60 * 5,
   });
+  const regularUsers = useMemo(() => userPages?.pages?.flat() || [], [userPages]);
+  const { data: communitySnapshot } = usePublicCommunitySnapshot();
+  const systemUserCount = communitySnapshot?.totalUsers || regularUsers.length;
 
   // Managed leader accounts — these are NOT in the User entity, so we fetch
   // them separately and merge them into the `users` list so they appear in
@@ -100,12 +105,11 @@ export default function GlowGroups() {
     }));
     // Leaders take precedence over a same-email regular user so the
     // verified-leader identity always wins.
-    const byEmail = new Map();
-    safeRegular.forEach(u => { const k = u.email || u.id; if (k) byEmail.set(k, u); });
-    searchedRegularUsers.forEach(u => { const k = u.email || u.id; if (k) byEmail.set(k, u); });
-    leadersAsUsers.forEach(u => { const k = u.email || u.id; if (k) byEmail.set(k, u); });
-    return Array.from(byEmail.values());
-  }, [regularUsers, searchedRegularUsers, leaderAccounts]);
+    const byId = new Map();
+    safeRegular.forEach(u => { if (u.id) byId.set(u.id, u); });
+    leadersAsUsers.forEach(u => { if (u.id) byId.set(u.id, u); });
+    return Array.from(byId.values());
+  }, [regularUsers, leaderAccounts]);
 
   const { data: drops = [] } = useQuery({
     queryKey: ["glowGroupsDropCounts"],
@@ -113,22 +117,31 @@ export default function GlowGroups() {
   });
 
   const { data: followingRaw = [] } = useQuery({
-    queryKey: ["following", user?.id],
+    queryKey: ["glowGroupsViewerFollowingById", user?.id],
     queryFn: () => base44.entities.Follow.filter({ follower_id: user?.id }),
     enabled: !!user?.id
   });
 
-  // Follow records store user IDs only — resolve emails from the users list
-  // (leader ids are prefixed with "leader_" in that list).
-  const following = useMemo(() => {
-    const emailById = new Map();
-    users.forEach(u => { if (u.id) emailById.set(String(u.id).replace(/^leader_/, ""), u.email); });
-    return followingRaw.map(f => f.following_email ? f : { ...f, following_email: emailById.get(f.following_id) });
-  }, [followingRaw, users]);
+  const following = followingRaw;
 
   const { data: realGroups = [] } = useQuery({
-    queryKey: ["allGroups"],
-    queryFn: () => base44.entities.GlowGroup.list(),
+    queryKey: ["glowGroupDirectoryList"],
+    queryFn: () => base44.entities.GlowGroup.list("-created_date", 200),
+    staleTime: 1000 * 60 * 2,
+  });
+
+  const manageableGroupIds = useMemo(() => {
+    const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+    return realGroups.filter((group) => isAdmin || String(group.leader_email || "").trim().toLowerCase() === String(user?.email || "").trim().toLowerCase()).map((group) => group.id);
+  }, [realGroups, user?.email, user?.role]);
+  const { data: pendingRequestCounts = {} } = useQuery({
+    queryKey: ["leaderPendingGroupRequestCounts", manageableGroupIds.join("|")],
+    queryFn: async () => {
+      const response = await base44.functions.invoke("listGroupJoinRequests", { group_ids: manageableGroupIds, include_details: false });
+      return response.data?.counts || {};
+    },
+    enabled: manageableGroupIds.length > 0,
+    staleTime: 15_000,
   });
 
   const { data: myMemberships = [] } = useQuery({
@@ -144,37 +157,33 @@ export default function GlowGroups() {
   });
 
   const followMutation = useMutation({
-    mutationFn: async (targetEmail) => {
+    mutationFn: async (targetUser) => {
       if (!user) { toast.error("Please log in to follow"); throw new Error("Not logged in"); }
-      const isFollowing = following.some(f => f.following_email === targetEmail);
-      if (isFollowing) {
-        const rec = following.find(f => f.following_email === targetEmail);
-        await base44.entities.Follow.delete(rec.id);
-      } else {
-        const targetUser = users.find(u => u.email === targetEmail);
-        const followingId = targetUser?.id ? String(targetUser.id).replace(/^leader_/, "") : null;
-        if (!followingId) { toast.error("Could not find that member."); throw new Error("Missing target user id"); }
-        const followRec = await base44.entities.Follow.create({
-          follower_id: user.id,
-          following_id: followingId
-        });
-        dualWriteSupabase("follows", followRec);
-        if (isNotificationEnabled(targetUser, "follows")) {
-          const notifRec = await base44.entities.Notification.create({
-            user_email: targetEmail,
-            type: "follow",
-            message: `${user.full_name || 'Someone'} started following you.`,
-            link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
-          });
-          dualWriteSupabase("notifications", notifRec);
-        }
-        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
+      const targetId = String(targetUser?.id || "").replace(/^leader_/, "");
+      if (!targetId) throw new Error("Missing target user id");
+      const existing = following.find(f => f.following_id === targetId);
+      if (existing) {
+        await base44.entities.Follow.delete(existing.id);
+        return "unfollowed";
       }
-      return isFollowing;
+      const followRec = await base44.entities.Follow.create({ follower_id: user.id, following_id: targetId });
+      dualWriteSupabase("follows", followRec);
+      if (!targetUser.is_managed_leader && isNotificationEnabled(targetUser, "follows")) {
+        await base44.functions.invoke("createNotification", {
+          user_id: targetId,
+          type: "follow",
+          reference_id: `follow_${user.id}`,
+          message: `${user.full_name || "Someone"} started following you.`,
+          link: createPageUrl("Profile") + `?id=${encodeURIComponent(user.id)}`,
+        });
+      }
+      await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
+      return "followed";
     },
-    onSuccess: (wasFollowing) => {
-      queryClient.invalidateQueries({ queryKey: ["following", user?.id] });
-      if (!wasFollowing) toast.success("Connected! +5 XP ⚡");
+    onSuccess: (action) => {
+      queryClient.invalidateQueries({ queryKey: ["glowGroupsViewerFollowingById", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["profileFollowers"] });
+      if (action === "followed") toast.success("Connected! +5 XP ⚡");
     }
   });
 
@@ -192,24 +201,12 @@ export default function GlowGroups() {
         await base44.entities.GlowGroupMember.create({ user_email: user.email, group_id: group.id });
         return { action: "joined" };
       }
-      // Already has a pending request?
-      const pending = myJoinRequests.find(r => r.group_id === group.id && r.status === "pending");
-      if (pending) return { action: "already_pending" };
-
-      // Create a join request
-      await base44.entities.GlowGroupJoinRequest.create({
-        user_email: user.email,
-        group_id: group.id,
-        status: "pending",
-      });
-      // Notify leader
-      base44.entities.Notification.create({
-        user_email: group.leader_email,
-        type: "system",
-        message: `${user.full_name || "Someone"} requested to join your group "${group.name}".`,
-        link: `/GroupChat?id=${group.id}`,
-      }).then(n => dualWriteSupabase("notifications", n)).catch(() => {});
-      return { action: "requested" };
+      const response = await base44.functions.invoke("requestGroupJoin", { group_id: group.id });
+      const status = response.data?.status;
+      if (status === "already_member") return { action: "joined" };
+      if (status === "already_pending") return { action: "already_pending" };
+      if (status === "success") return { action: "requested" };
+      throw new Error(response.data?.error || "Could not send request");
     },
     onSuccess: ({ action }) => {
       queryClient.invalidateQueries({ queryKey: ["myMemberships", user?.email] });
@@ -223,9 +220,9 @@ export default function GlowGroups() {
 
   const peopleSearchQuery = search.trim().toLowerCase();
   const filteredUsers = users.filter(u => {
-    if (u.email === user?.email) return false;
+    if (u.id === user?.id) return false;
     if (!peopleSearchQuery) return true;
-    return [u.full_name, u.display_name, u.email, u.country, u.city, u.bio, u.leader_title]
+    return [u.full_name, u.display_name, u.username, u.country, u.city, u.bio, u.leader_title]
       .some(value => (value || "").toLowerCase().includes(peopleSearchQuery));
   });
 
@@ -263,18 +260,22 @@ export default function GlowGroups() {
           systemUserCount={systemUserCount}
           drops={drops}
           following={following}
+          hasMoreUsers={hasMoreUsers}
+          isLoadingMoreUsers={isLoadingMoreUsers}
+          onLoadMoreUsers={() => loadMoreUsers()}
           realGroups={realGroups}
           myMemberships={myMemberships}
           myJoinRequests={myJoinRequests}
+          pendingRequestCounts={pendingRequestCounts}
           followMutation={followMutation}
           joinMutation={joinMutation}
           onOpenCreate={() => setIsCreateOpen(true)}
           onRefresh={async () => {
-            await queryClient.invalidateQueries({ queryKey: ["allGroups"] });
-            await queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+            await queryClient.invalidateQueries({ queryKey: ["glowGroupDirectoryList"] });
+            await queryClient.invalidateQueries({ queryKey: ["publicUsersDirectoryPages"] });
             await queryClient.invalidateQueries({ queryKey: ["myMemberships", user?.email] });
             await queryClient.invalidateQueries({ queryKey: ["myJoinRequests", user?.email] });
-            await queryClient.invalidateQueries({ queryKey: ["following", user?.id] });
+            await queryClient.invalidateQueries({ queryKey: ["glowGroupsViewerFollowingById", user?.id] });
           }}
           onPeopleSearchChange={setMobilePeopleSearch}
         />
@@ -366,11 +367,12 @@ export default function GlowGroups() {
               </div>
             )}
             {filteredUsers.map(u => {
-              const isFollowing = following.some(f => f.following_email === u.email);
-              const userDrops = dropCountByUser[u.email] || 0;
+              const targetId = String(u.id || "").replace(/^leader_/, "");
+              const isFollowing = following.some(f => f.following_id === targetId);
+              const userDrops = dropCountByUser[u.id] || 0;
               return (
                 <div key={u.id} className="flex items-center gap-4 rounded-2xl p-4 transition-all hover:-translate-y-0.5" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}>
-                  <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-4 flex-1 min-w-0 no-underline">
+                  <Link to={createPageUrl("Profile") + (u.is_managed_leader ? `?user=${encodeURIComponent(u.email)}` : `?id=${encodeURIComponent(u.id)}`)} className="flex items-center gap-4 flex-1 min-w-0 no-underline">
                     <div className="w-14 h-14 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
                       <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center font-bold text-lg" style={{ background: "#FFFFFF" }}>
                         <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
@@ -398,10 +400,15 @@ export default function GlowGroups() {
                 </div>
               );
             })}
-          </div>
-        )}
+            {hasMoreUsers && (
+              <button type="button" onClick={() => loadMoreUsers()} disabled={isLoadingMoreUsers} className="w-full min-h-11 rounded-full text-sm font-bold disabled:opacity-60" style={{ background: "#EEF3FF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>
+                {isLoadingMoreUsers ? "Loading…" : "Load More People"}
+              </button>
+            )}
+            </div>
+            )}
 
-        {/* GROUPS TAB */}
+            {/* GROUPS TAB */}
         {activeTab === "groups" && (
           <div className="space-y-4">
             {/* Create Group CTA */}
@@ -440,7 +447,7 @@ export default function GlowGroups() {
                       ✨
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{group.name}</div>
+                      <div className="font-bold text-sm truncate flex items-center gap-2" style={{ color: "#0B1B3D" }}>{group.name}{pendingRequestCounts[group.id] > 0 && <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px]" style={{ background: "#FFF1C2", color: "#8A5700" }}>{pendingRequestCounts[group.id]} pending</span>}</div>
                       <div className="text-xs mt-0.5 flex items-center gap-1" style={{ color: "#6B7FA0" }}>
                         <MapPin className="w-3 h-3" /> {group.country || "Global"}
                       </div>
@@ -504,7 +511,7 @@ export default function GlowGroups() {
                       : <span className="text-sm font-bold" style={{ color: "#8A97B5" }}>#{index + 1}</span>
                     }
                   </div>
-                  <Link to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`} className="flex items-center gap-4 flex-1 min-w-0 no-underline">
+                  <Link to={createPageUrl("Profile") + (u.is_managed_leader ? `?user=${encodeURIComponent(u.email)}` : `?id=${encodeURIComponent(u.id)}`)} className="flex items-center gap-4 flex-1 min-w-0 no-underline">
                     <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center font-bold text-base shrink-0" style={{ border: index < 3 ? "2px solid #FFD000" : "2px solid #E6ECF5", background: "#FFFFFF" }}>
                       <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
                     </div>
@@ -521,7 +528,7 @@ export default function GlowGroups() {
                   </div>
                   {u.email !== user?.email && (
                     <button
-                      onClick={() => followMutation.mutate(u.email)}
+                      onClick={() => followMutation.mutate(u)}
                       className="px-3 py-1.5 rounded-full text-[10px] font-bold transition-all shrink-0"
                       style={isFollowing
                         ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }
