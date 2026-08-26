@@ -33,6 +33,22 @@ export default function InstitutionPageView() {
 
   const page = pages[0];
 
+  const { data: institutionOwner = null } = useQuery({
+    queryKey: ["institutionOwner", page?.owner_email],
+    queryFn: async () => {
+      const response = await base44.functions.invoke("listPublicUsers", { emails: [page.owner_email] });
+      return response.data?.[0] || null;
+    },
+    enabled: !!page?.owner_email,
+  });
+
+  const { data: institutionFollowersLive = [] } = useQuery({
+    queryKey: ["institutionFollowersLive", institutionOwner?.id],
+    queryFn: () => base44.entities.Follow.filter({ following_id: institutionOwner.id }),
+    enabled: !!institutionOwner?.id,
+    refetchOnWindowFocus: true,
+  });
+
   const { data: drops = [] } = useQuery({
     queryKey: ["institutionDrops", page?.owner_email],
     queryFn: () => base44.entities.GlowDrop.filter({ user_email: page?.owner_email, status: "approved" }, "-created_date", 50),
@@ -106,7 +122,7 @@ export default function InstitutionPageView() {
                 {page.verified && <Shield className="w-5 h-5 text-[#00CFFF]" fill="#00CFFF" />}
               </h2>
               <div className="flex items-center gap-4 mt-1 text-sm text-gray-400">
-                <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {page.followers_count || 0} followers</span>
+                <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {institutionFollowersLive.length} followers</span>
                 <span className="flex items-center gap-1"><Grid className="w-3.5 h-3.5" /> {drops.length} posts</span>
               </div>
             </div>

@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { dualDeleteSupabase } from "@/lib/dualDeleteSupabase";
 import { Link } from "react-router-dom";
-import { ArrowLeft, MessageCircle, Users, Home, Zap, Bell, User, Globe } from "lucide-react";
+import { ArrowLeft, MessageCircle, Users, Home, Zap, Bell, User } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
 import ConversationsList from "@/components/messages/ConversationsList";
