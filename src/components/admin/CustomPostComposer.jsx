@@ -10,6 +10,7 @@ import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
+import { sanitizeRichHtml } from "@/lib/sanitizeHtml";
 
 const CATEGORIES = ["Devotional", "Testimony", "Scripture", "Prayer", "Encouragement", "Teaching", "Announcement"];
 const BRAND_EMAIL = "system@lightmode.com";
@@ -90,7 +91,7 @@ export default function CustomPostComposer() {
 
       const basePayload = {
         verse: form.verse || undefined,
-        reflection: form.reflection || undefined,
+        reflection: sanitizeRichHtml(form.reflection) || undefined,
         hashtags: form.hashtags || undefined,
         category: form.category || "Announcement",
         media_url: mediaUrl || undefined,

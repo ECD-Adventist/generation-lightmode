@@ -310,7 +310,7 @@ export default function Messages() {
             <GroupChatWindow
               group={selectedGroup}
               currentUser={user}
-              allUsers={allUsers}
+              allUsers={mergedUsers}
               onBack={() => setSelectedGroupId(null)}
             />
           )}
