@@ -1,0 +1,10 @@
+import React from "react";
+import { ArrowUpRight, Pause, Play, Trash2 } from "lucide-react";
+
+export default function GenLuxKeywordTable({ keywords, canManage, onToggle, onDelete }) {
+  return <section className="adm-card lg:col-span-2"><div className="flex items-center justify-between mb-4"><div><p className="adm-eyebrow">Search visibility</p><h2 className="text-lg font-bold adm-text mt-1">Keyword performance</h2></div></div>
+    <div className="overflow-x-auto adm-scroll"><table className="w-full min-w-[680px] text-sm"><thead><tr className="adm-text-muted text-left text-[10px] uppercase tracking-wider"><th className="pb-3">Keyword</th><th>Results</th><th>New</th><th>Countries</th><th>Visibility</th><th>Trend</th>{canManage && <th />}</tr></thead>
+    <tbody>{keywords.map(k => <tr key={k.id} className="border-t adm-border"><td className="py-3 font-semibold adm-text">{k.term}<span className="ml-2 adm-badge">{k.kind}</span></td><td>{Number(k.total_results || 0).toLocaleString()}</td><td className="adm-text-accent">+{k.new_results || 0}</td><td>{k.country_count || 0}</td><td><span className="adm-badge adm-badge-success">{k.visibility || "Low"}</span></td><td className={(k.trend_percent || 0) >= 0 ? "adm-text-accent" : "adm-text-muted"}><ArrowUpRight size={13} className="inline" /> {k.trend_percent || 0}%</td>{canManage && <td><div className="flex justify-end gap-1"><button className="p-2 adm-text-muted" onClick={() => onToggle(k)} aria-label={k.active ? "Pause keyword" : "Resume keyword"}>{k.active ? <Pause size={14} /> : <Play size={14} />}</button><button className="p-2 adm-text-muted" onClick={() => onDelete(k)} aria-label="Delete keyword"><Trash2 size={14} /></button></div></td>}</tr>)}</tbody></table></div>
+    {!keywords.length && <p className="py-8 text-center text-sm adm-text-muted">No keywords yet. Add a campaign term to begin monitoring.</p>}
+  </section>;
+}

@@ -41,6 +41,7 @@ import AdminStorageDashboardTab from "../components/admin/AdminStorageDashboardT
 import { AdminThemeProvider, useAdminTheme, getAdminTokens } from "../components/admin/AdminThemeContext";
 import AdminThemeToggle from "../components/admin/AdminThemeToggle";
 import MobileAdminShell from "../components/admin/MobileAdminShell";
+import AdminGenLuxMissionIntelligence from "../components/admin/AdminGenLuxMissionIntelligence";
 
 function AdminCenterInner() {
   const [user, setUser] = useState(null);
@@ -182,6 +183,7 @@ function AdminCenterInner() {
       case "badges": return <AdminBadgesTab />;
       case "analytics": return <AdminAnalyticsTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "growth-analytics": return <AdminGrowthAnalyticsTab territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} />;
+      case "genlux-intelligence": return <AdminGenLuxMissionIntelligence user={user} />;
       case "notifications": return <AdminNotificationsTab />;
       case "announcements": return <AdminAnnouncementsTab />;
       case "assistant-training": return <AdminAssistantTrainingTab />;

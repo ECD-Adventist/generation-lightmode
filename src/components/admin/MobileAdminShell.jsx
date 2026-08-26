@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award,
   BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map,
   UserCheck, PieChart, Flag, TrendingUp, Building2, Sparkles, ShieldCheck, FileText,
-  Medal, AlertTriangle, Database, Menu, X, ChevronRight, Search, CalendarDays
+  Medal, AlertTriangle, Database, Menu, X, ChevronRight, Search, CalendarDays, Radar
 } from "lucide-react";
 import AdminThemeToggle from "./AdminThemeToggle";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
@@ -56,6 +56,7 @@ function buildSections({ isSuperAdmin, isRegionalAdmin, canScheduleContent }) {
       items: [
         { id: "analytics", icon: BarChart3, label: "Analytics" },
         { id: "growth-analytics", icon: TrendingUp, label: "Growth Analytics" },
+        { id: "genlux-intelligence", icon: Radar, label: "GenLux Mission Intelligence" },
         { id: "charts", icon: PieChart, label: "Charts Dashboard" },
         ...(!isRegionalAdmin ? [{ id: "storage-dashboard", icon: Database, label: "Storage Dashboard" }] : []),
       ],

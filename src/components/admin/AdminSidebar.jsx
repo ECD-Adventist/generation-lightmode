@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map, UserCheck, PieChart, Flag, TrendingUp, ChevronDown, ChevronRight, Building2, Sparkles, ShieldCheck, FileText, Medal, AlertTriangle, Database, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Users, Zap, Target, Trophy, Globe, Image as ImageIcon, Award, BarChart3, Bell, Settings, MessageSquare, Home, Hash, Brain, Megaphone, Map, UserCheck, PieChart, Flag, TrendingUp, ChevronDown, ChevronRight, Building2, Sparkles, ShieldCheck, FileText, Medal, AlertTriangle, Database, CalendarDays, Radar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
@@ -130,6 +130,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
         <SidebarSection label="Analytics" isDark={isDark}>
           <SidebarItem id="analytics" icon={<BarChart3 size={16} />} label="Analytics" />
           <SidebarItem id="growth-analytics" icon={<TrendingUp size={16} />} label="Growth Analytics" />
+          <SidebarItem id="genlux-intelligence" icon={<Radar size={16} />} label="GenLux Mission Intelligence" />
           <SidebarItem id="charts" icon={<PieChart size={16} />} label="Charts Dashboard" />
           {!isRegionalAdmin && <SidebarItem id="storage-dashboard" icon={<Database size={16} />} label="Storage Dashboard" />}
         </SidebarSection>

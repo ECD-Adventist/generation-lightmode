@@ -1,0 +1,8 @@
+import React from "react";
+import { BrainCircuit, BellRing, Check } from "lucide-react";
+
+export default function GenLuxInsights({ keywords, alerts, canManage, onRead }) {
+  const strongest = [...keywords].sort((a,b) => (b.trend_percent || 0) - (a.trend_percent || 0))[0];
+  return <div className="grid grid-cols-1 lg:grid-cols-2 gap-4"><section className="adm-card"><p className="adm-eyebrow"><BrainCircuit size={13} /> AI insight</p><h2 className="text-lg font-bold adm-text mt-1">Mission signal</h2><p className="mt-4 text-sm leading-6 adm-text-secondary">{strongest?.last_summary || "Run the first web scan to generate a concise intelligence briefing across your monitored campaign terms."}</p>{strongest && <div className="mt-4 adm-badge adm-badge-success">Strongest: {strongest.term} · {strongest.trend_percent || 0}% trend</div>}</section>
+  <section className="adm-card"><p className="adm-eyebrow"><BellRing size={13} /> Real-time alerts</p><h2 className="text-lg font-bold adm-text mt-1 mb-3">Action queue</h2><div className="space-y-2">{alerts.slice(0,5).map(a => <div key={a.id} className="rounded-xl p-3 adm-surface-muted border adm-border"><div className="flex gap-2"><div className="flex-1"><p className="text-sm font-semibold adm-text">{a.title}</p><p className="text-xs adm-text-muted mt-1">{a.message}</p><p className="text-xs adm-text-secondary mt-2">{a.recommendation}</p></div>{canManage && !a.read && <button onClick={() => onRead(a.id)} className="p-2 adm-text-accent" aria-label="Mark alert read"><Check size={15}/></button>}</div></div>)}</div>{!alerts.length && <p className="py-6 text-center text-sm adm-text-muted">No alerts yet.</p>}</section></div>;
+}

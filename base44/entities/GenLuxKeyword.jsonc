@@ -1,0 +1,165 @@
+{
+  "name": "GenLuxKeyword",
+  "type": "object",
+  "properties": {
+    "term": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "keyword",
+        "hashtag",
+        "campaign",
+        "phrase"
+      ],
+      "default": "keyword"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "total_results": {
+      "type": "number",
+      "default": 0
+    },
+    "new_results": {
+      "type": "number",
+      "default": 0
+    },
+    "country_count": {
+      "type": "number",
+      "default": 0
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Very High"
+      ],
+      "default": "Low"
+    },
+    "trend_percent": {
+      "type": "number",
+      "default": 0
+    },
+    "related_terms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "last_summary": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "last_scanned_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "term"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "ecd_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "country_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "union_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "conference_field_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "ecd_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "ecd_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "ecd_admin"
+          }
+        }
+      ]
+    }
+  }
+}
