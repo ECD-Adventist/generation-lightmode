@@ -30,6 +30,27 @@ export default async function(req) {
       return Response.json({ success: true, status: 'already_member', group_id: groupId });
     }
 
+    // Super admins never enter the approval queue. They explicitly join so
+    // "My Groups" remains membership-based, but membership is granted instantly.
+    if (actor.role === 'super_admin') {
+      const staleRequests = await base44.asServiceRole.entities.GlowGroupJoinRequest.filter({ group_id: groupId, user_email: requesterEmail, status: 'pending' });
+      await Promise.all(staleRequests.map(async (item) => {
+        await base44.asServiceRole.entities.GlowGroupJoinRequest.delete(item.id).catch(() => null);
+        await deleteFromSupabase('GlowGroupJoinRequest', item.id);
+      }));
+
+      const membership = await base44.asServiceRole.entities.GlowGroupMember.create({
+        group_id: groupId,
+        user_email: requesterEmail,
+        role: 'member',
+        joined_at: new Date().toISOString(),
+      });
+      const mirrored = await mirrorToSupabase('GlowGroupMember', membership);
+      if (!mirrored) console.error(`[group-join] super-admin membership mirror failed membership=${membership.id}`);
+
+      return Response.json({ success: true, status: 'auto_joined', membership_id: membership.id, group_id: groupId });
+    }
+
     const pending = await base44.asServiceRole.entities.GlowGroupJoinRequest.filter({ group_id: groupId, user_email: requesterEmail, status: 'pending' });
     if (pending.length > 0) {
       return Response.json({ success: true, status: 'already_pending', request_id: pending[0].id, group_id: groupId });

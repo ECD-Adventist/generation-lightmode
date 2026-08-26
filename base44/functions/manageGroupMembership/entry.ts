@@ -1,5 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
-import { mirrorToSupabase } from '../../shared/supabase.ts';
+import { deleteFromSupabase, mirrorToSupabase } from '../../shared/supabase.ts';
+
+const normalizeEmail = (value) => String(value || '').trim().toLowerCase();
 
 async function createMirroredNotification(base44, payload) {
   const created = await base44.asServiceRole.entities.Notification.create(payload);
@@ -29,10 +31,10 @@ Deno.serve(async (req) => {
     const group = groups[0];
     if (!group) return Response.json({ error: 'Group not found' }, { status: 404 });
 
-    const isLeader = group.leader_email === user.email;
-    const isAdmin = user.role === 'admin' || user.role === 'super_admin';
-    if (!isLeader && !isAdmin) {
-      return Response.json({ error: 'Only the group leader can perform this action' }, { status: 403 });
+    const isLeader = normalizeEmail(group.leader_email) === normalizeEmail(user.email);
+    const isSuperAdmin = user.role === 'super_admin';
+    if (!isLeader && !isSuperAdmin) {
+      return Response.json({ error: 'Only the group leader or a super admin can perform this action' }, { status: 403 });
     }
 
     if (action === 'set_role') {
@@ -48,7 +50,8 @@ Deno.serve(async (req) => {
       const membership = memberships[0];
       if (!membership) return Response.json({ error: 'User is not a member of this group' }, { status: 404 });
 
-      await base44.asServiceRole.entities.GlowGroupMember.update(membership.id, { role });
+      const updatedMembership = await base44.asServiceRole.entities.GlowGroupMember.update(membership.id, { role });
+      await mirrorToSupabase('GlowGroupMember', updatedMembership);
 
       await createMirroredNotification(base44, {
         user_email: target_email,
@@ -69,6 +72,7 @@ Deno.serve(async (req) => {
       const memberships = await base44.asServiceRole.entities.GlowGroupMember.filter({ group_id, user_email: target_email });
       for (const m of memberships) {
         await base44.asServiceRole.entities.GlowGroupMember.delete(m.id);
+        await deleteFromSupabase('GlowGroupMember', m.id);
       }
 
       await createMirroredNotification(base44, {
@@ -95,21 +99,24 @@ Deno.serve(async (req) => {
       const previousLeaderEmail = group.leader_email;
 
       // Promote new leader
-      await base44.asServiceRole.entities.GlowGroup.update(group_id, { leader_email: target_email });
+      const updatedGroup = await base44.asServiceRole.entities.GlowGroup.update(group_id, { leader_email: target_email });
+      await mirrorToSupabase('GlowGroup', updatedGroup);
 
       // Ensure new leader's membership role is "member" (leader tracked on group itself)
-      await base44.asServiceRole.entities.GlowGroupMember.update(memberships[0].id, { role: 'member' });
+      const updatedNewLeaderMembership = await base44.asServiceRole.entities.GlowGroupMember.update(memberships[0].id, { role: 'member' });
+      await mirrorToSupabase('GlowGroupMember', updatedNewLeaderMembership);
 
       // Ensure previous leader has a membership record so they remain in the group as a regular member
       if (previousLeaderEmail) {
         const existingPrev = await base44.asServiceRole.entities.GlowGroupMember.filter({ group_id, user_email: previousLeaderEmail });
         if (existingPrev.length === 0) {
-          await base44.asServiceRole.entities.GlowGroupMember.create({
+          const previousLeaderMembership = await base44.asServiceRole.entities.GlowGroupMember.create({
             user_email: previousLeaderEmail,
             group_id,
             joined_at: new Date().toISOString(),
             role: 'moderator',
           });
+          await mirrorToSupabase('GlowGroupMember', previousLeaderMembership);
         }
       }
 
@@ -133,33 +140,59 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'delete_group') {
-      // Cascade-delete related records
-      const [members, messages, events, requests, resources] = await Promise.all([
+      // Full cascade in both Base44 and Supabase. Super admins can execute this
+      // from Group Settings even when they are not the original group leader.
+      const [members, messages, reactions, events, requests, resources, devotionals, sessions, studyPlans] = await Promise.all([
         base44.asServiceRole.entities.GlowGroupMember.filter({ group_id }),
         base44.asServiceRole.entities.GlowGroupMessage.filter({ group_id }),
+        base44.asServiceRole.entities.GlowGroupMessageReaction.filter({ group_id }).catch(() => []),
         base44.asServiceRole.entities.GlowGroupEvent.filter({ group_id }),
         base44.asServiceRole.entities.GlowGroupJoinRequest.filter({ group_id }),
         base44.asServiceRole.entities.GlowGroupResource.filter({ group_id }).catch(() => []),
+        base44.asServiceRole.entities.GroupDevotional.filter({ group_id }).catch(() => []),
+        base44.asServiceRole.entities.GroupSession.filter({ group_id }).catch(() => []),
+        base44.asServiceRole.entities.GroupStudyPlan.filter({ group_id }).catch(() => []),
       ]);
 
-      const memberEmails = [...new Set(members.map(m => m.user_email))];
-
-      await Promise.all([
-        ...members.map(m => base44.asServiceRole.entities.GlowGroupMember.delete(m.id).catch(() => {})),
-        ...messages.map(m => base44.asServiceRole.entities.GlowGroupMessage.delete(m.id).catch(() => {})),
-        ...events.map(e => base44.asServiceRole.entities.GlowGroupEvent.delete(e.id).catch(() => {})),
-        ...requests.map(r => base44.asServiceRole.entities.GlowGroupJoinRequest.delete(r.id).catch(() => {})),
-        ...resources.map(r => base44.asServiceRole.entities.GlowGroupResource.delete(r.id).catch(() => {})),
+      const [eventRsvps, devotionalReads, sessionMessages, sessionSignals] = await Promise.all([
+        Promise.all(events.map(event => base44.asServiceRole.entities.GlowGroupEventRSVP.filter({ event_id: event.id }).catch(() => []))).then(rows => rows.flat()),
+        Promise.all(devotionals.map(item => base44.asServiceRole.entities.GroupDevotionalRead.filter({ devotional_id: item.id }).catch(() => []))).then(rows => rows.flat()),
+        Promise.all(sessions.map(session => base44.asServiceRole.entities.GroupSessionMessage.filter({ session_id: session.id }).catch(() => []))).then(rows => rows.flat()),
+        Promise.all(sessions.map(session => base44.asServiceRole.entities.GroupSessionSignal.filter({ session_id: session.id }).catch(() => []))).then(rows => rows.flat()),
       ]);
 
+      const memberEmails = [...new Set(members.map(m => m.user_email).filter(Boolean))];
+      const deleteMirroredRows = async (entityName, rows) => {
+        for (const row of rows) {
+          await base44.asServiceRole.entities[entityName].delete(row.id).catch(() => null);
+          await deleteFromSupabase(entityName, row.id);
+        }
+      };
+
+      // Delete dependent rows before their parents.
+      await deleteMirroredRows('GlowGroupEventRSVP', eventRsvps);
+      await deleteMirroredRows('GroupDevotionalRead', devotionalReads);
+      await deleteMirroredRows('GroupSessionMessage', sessionMessages);
+      await deleteMirroredRows('GroupSessionSignal', sessionSignals);
+      await deleteMirroredRows('GlowGroupMessageReaction', reactions);
+      await deleteMirroredRows('GlowGroupMessage', messages);
+      await deleteMirroredRows('GlowGroupEvent', events);
+      await deleteMirroredRows('GlowGroupJoinRequest', requests);
+      await deleteMirroredRows('GlowGroupResource', resources);
+      await deleteMirroredRows('GroupDevotional', devotionals);
+      await deleteMirroredRows('GroupSession', sessions);
+      await deleteMirroredRows('GroupStudyPlan', studyPlans);
+      await deleteMirroredRows('GlowGroupMember', members);
       await base44.asServiceRole.entities.GlowGroup.delete(group_id);
+      await deleteFromSupabase('GlowGroup', group_id);
 
-      // Notify former members
+      // Notify former members after deletion.
+      const actorLabel = user.role === 'super_admin' ? 'a super administrator' : 'its leader';
       await Promise.all(memberEmails.map(email =>
         createMirroredNotification(base44, {
           user_email: email,
           type: 'system',
-          message: `The group "${group.name}" was closed by its leader.`,
+          message: `The group "${group.name}" was closed by ${actorLabel}.`,
           link: `/GlowGroups`,
         }).catch(() => {})
       ));
@@ -180,7 +213,8 @@ Deno.serve(async (req) => {
       if (typeof tags === 'string') updates.tags = tags.trim();
       if (Object.keys(updates).length === 0) return Response.json({ error: 'No valid fields to update' }, { status: 400 });
 
-      await base44.asServiceRole.entities.GlowGroup.update(group_id, updates);
+      const updatedGroup = await base44.asServiceRole.entities.GlowGroup.update(group_id, updates);
+      await mirrorToSupabase('GlowGroup', updatedGroup);
       return Response.json({ success: true, updates });
     }
 

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
-import { Shield, Crown, UserX, Trash2, Edit3, ChevronDown, Loader2, X, AlertTriangle, Camera, Image as ImageIcon, Lock, Globe2, Sparkles, Users } from "lucide-react";
+import { Shield, Crown, UserX, Trash2, Edit3, ChevronDown, Loader2, X, AlertTriangle, Camera, Image as ImageIcon, Lock, Globe2, Sparkles } from "lucide-react";
 import ImageCropperModal from "@/components/ui/ImageCropperModal";
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";

@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { format, isToday, isYesterday } from "date-fns";
-import { Send, Paperclip, Users, Crown, ArrowLeft, MoreVertical, Trash2, Smile, Info, Calendar, Image as ImageIcon, X, MessageCircle, Loader2, LogOut, Bell, BellOff, Search, Check, UserPlus, BarChart3, ChevronDown, BookOpen, Shield } from "lucide-react";
+import { Send, Paperclip, Users, Crown, ArrowLeft, MoreVertical, Trash2, Smile, Info, Calendar, X, MessageCircle, Loader2, LogOut, Search, Check, UserPlus, BarChart3, ChevronDown, BookOpen, Shield } from "lucide-react";
 import GroupAnalyticsPanel from "@/components/groups/GroupAnalyticsPanel";
 import GroupResourcesTab from "@/components/groups/GroupResourcesTab";
 import GroupManagementPanel, { ROLE_META } from "@/components/groups/GroupManagementPanel";
@@ -271,7 +271,10 @@ export default function GroupChat() {
 
   const isMember = useMemo(() => members.some(m => normalizeEmail(m.user_email) === normalizeEmail(currentUser?.email)), [members, currentUser]);
   const isLeader = normalizeEmail(group?.leader_email) === normalizeEmail(currentUser?.email);
-  const canManageRequests = isLeader || currentUser?.role === "admin" || currentUser?.role === "super_admin";
+  const isSuperAdmin = currentUser?.role === "super_admin";
+  const canAccessGroup = isMember || isLeader || isSuperAdmin;
+  const canManageGroup = isLeader || isSuperAdmin;
+  const canManageRequests = canManageGroup || currentUser?.role === "admin";
   const leaderUserId = allUsers.find((entry) => normalizeEmail(entry.email) === normalizeEmail(group?.leader_email))?.id;
   const { data: groupFollowers = [] } = useQuery({
     queryKey: ["groupAccountFollowers", groupId, leaderUserId],
@@ -427,7 +430,7 @@ export default function GroupChat() {
           </div>
 
           {activeView === "resources" ? (
-            <GroupResourcesTab group={group} currentUser={currentUser} isLeader={isLeader} />
+            <GroupResourcesTab group={group} currentUser={currentUser} isLeader={canManageGroup} />
           ) : (<>
           {/* Search bar */}
           {showSearch && (
@@ -583,7 +586,7 @@ export default function GroupChat() {
           </div>
 
           {/* Composer */}
-          {isMember ? (
+          {canAccessGroup ? (
             <form onSubmit={(e) => { e.preventDefault(); if (!draft.trim()) return; sendContent(draft); setDraft(""); setMentionQuery(null); }} className="px-3 sm:px-4 py-3 border-t flex items-center gap-2 shrink-0 relative" style={{ borderColor: "#E6ECF5", background: "#FFFFFF" }}>
               {/* @Mention autocomplete — members only */}
               {mentionQuery !== null && mentionCandidates.length > 0 && (
@@ -735,12 +738,12 @@ export default function GroupChat() {
               )}
 
               {/* Analytics — Leader only */}
-              {isLeader && (
+              {canManageGroup && (
                 <div className="border-b" style={{ borderColor: "#E6ECF5" }}>
                   <button onClick={() => setShowAnalytics(v => !v)} className="w-full px-5 py-3 flex items-center justify-between transition" style={{ background: showAnalytics ? "#EEF3FF" : "#FFFFFF" }}>
                     <div className="flex items-center gap-2">
                       <BarChart3 className="w-4 h-4" style={{ color: "#0B3FD9" }} />
-                      <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "#0B3FD9" }}>Leader Analytics</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "#0B3FD9" }}>{isSuperAdmin && !isLeader ? "Super Admin Analytics" : "Leader Analytics"}</span>
                     </div>
                     <ChevronDown className="w-4 h-4 transition-transform" style={{ color: "#0B3FD9", transform: showAnalytics ? "rotate(180deg)" : "none" }} />
                   </button>
@@ -753,12 +756,12 @@ export default function GroupChat() {
               )}
 
               {/* Management — Leader only */}
-              {isLeader && (
+              {canManageGroup && (
                 <div className="border-b" style={{ borderColor: "#E6ECF5" }}>
                   <button onClick={() => setShowManagement(v => !v)} className="w-full px-5 py-3 flex items-center justify-between transition" style={{ background: showManagement ? "#EEF3FF" : "#FFFFFF" }}>
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4" style={{ color: "#0B3FD9" }} />
-                      <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "#0B3FD9" }}>Leader Controls</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "#0B3FD9" }}>{isSuperAdmin && !isLeader ? "Super Admin Controls" : "Leader Controls"}</span>
                     </div>
                     <ChevronDown className="w-4 h-4 transition-transform" style={{ color: "#0B3FD9", transform: showManagement ? "rotate(180deg)" : "none" }} />
                   </button>

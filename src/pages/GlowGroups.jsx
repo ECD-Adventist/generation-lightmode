@@ -203,7 +203,7 @@ export default function GlowGroups() {
       }
       const response = await base44.functions.invoke("requestGroupJoin", { group_id: group.id });
       const status = response.data?.status;
-      if (status === "already_member") return { action: "joined" };
+      if (status === "already_member" || status === "auto_joined") return { action: "joined" };
       if (status === "already_pending") return { action: "already_pending" };
       if (status === "success") return { action: "requested" };
       throw new Error(response.data?.error || "Could not send request");
