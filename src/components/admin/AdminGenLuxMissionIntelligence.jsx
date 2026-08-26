@@ -13,9 +13,10 @@ export default function AdminGenLuxMissionIntelligence({ user }) {
   const queryClient = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
   const canManage = ["admin", "super_admin", "ecd_admin"].includes(user?.role);
-  const { data: keywords = [], isLoading } = useQuery({ queryKey: ["genlux-keywords"], queryFn: () => base44.entities.GenLuxKeyword.list("-updated_date", 100) });
-  const { data: mentions = [] } = useQuery({ queryKey: ["genlux-mentions"], queryFn: () => base44.entities.GenLuxMention.list("-discovered_at", 200) });
-  const { data: alerts = [] } = useQuery({ queryKey: ["genlux-alerts"], queryFn: () => base44.entities.GenLuxAlert.list("-created_date", 100) });
+  const autoRefresh = { refetchInterval: 30000, refetchIntervalInBackground: true };
+  const { data: keywords = [], isLoading } = useQuery({ queryKey: ["genlux-keywords"], queryFn: () => base44.entities.GenLuxKeyword.list("-updated_date", 100), ...autoRefresh });
+  const { data: mentions = [] } = useQuery({ queryKey: ["genlux-mentions"], queryFn: () => base44.entities.GenLuxMention.list("-discovered_at", 200), ...autoRefresh });
+  const { data: alerts = [] } = useQuery({ queryKey: ["genlux-alerts"], queryFn: () => base44.entities.GenLuxAlert.list("-created_date", 100), ...autoRefresh });
   const refresh = () => Promise.all([
     queryClient.invalidateQueries({ queryKey: ["genlux-keywords"] }),
     queryClient.invalidateQueries({ queryKey: ["genlux-mentions"] }),

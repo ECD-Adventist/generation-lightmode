@@ -49,7 +49,7 @@ export default async function(req) {
     for (const keyword of keywords) {
       const intelligence = await base44.asServiceRole.integrations.Core.InvokeLLM({
         model: 'gemini_3_flash', add_context_from_internet: true, response_json_schema: resultSchema,
-        prompt: `Search the current public web for exact and close mentions of "${keyword.term}" related to Generation LightMode, Gen-Lux, Christian youth, faith, digital evangelism, hope, Bible, or prayer. Prioritize newly indexed news, blogs, church websites, publications, public webpages and videos since ${keyword.last_scanned_at || 'the last 30 days'}. Return up to 10 verifiable results with canonical HTTPS URLs. Do not invent sources. Estimate visibility and trend conservatively, identify countries and related terms, and summarize the strongest signal.`
+        prompt: `Run a deep, current public-web scan for exact, partial, translated, abbreviated, hashtag, and contextually related mentions of "${keyword.term}" connected to Generation LightMode, Gen-Lux, Christian youth, faith, digital evangelism, hope, Bible, or prayer. Use multiple search strategies and query variations across news, blogs, church and ministry websites, publications, event pages, public social-profile pages, video platforms, podcasts, PDFs, and other indexed webpages. Search globally with special attention to the 12 East-Central Africa Division nations and English, Swahili, French, and locally indexed language variants. Prioritize newly indexed material since ${keyword.last_scanned_at || 'the last 30 days'}, but include older high-authority sources when newly discovered. Return up to 25 distinct, verifiable results with canonical HTTPS URLs, deduplicated by source and URL. Do not invent sources or URLs. Estimate visibility and trend conservatively, identify countries and emerging related terms, and summarize the strongest signals, growth opportunities, and reputational risks.`
       });
       const existing = await base44.asServiceRole.entities.GenLuxMention.filter({ keyword_id: keyword.id }, '-discovered_at', 500);
       const known = new Set(existing.map((item) => item.fingerprint));
@@ -81,7 +81,7 @@ export default async function(req) {
           keyword_id: keyword.id, mention_id: top.id, alert_type: ['High','Very High'].includes(top.potential_reach) ? 'high_reach' : 'new_mention',
           title: `New ${keyword.term} web mention`, message: `${top.title} — ${top.domain || 'public web'}`,
           recommendation: top.sentiment === 'Positive' ? 'Review and consider sharing this mention through official Gen-Lux channels.' : 'Review the source and assess whether a response is needed.',
-          severity: ['High','Very High'].includes(top.potential_reach) ? 'opportunity' : 'info', read: false, in_app_sent: true, email_sent: true
+          severity: ['High','Very High'].includes(top.potential_reach) ? 'opportunity' : 'info', read: false, in_app_sent: true, email_sent: false
         });
         await mirrorToSupabase('genlux_alerts', alert);
         alertsCreated += 1;
@@ -96,10 +96,6 @@ export default async function(req) {
             description: alert.message, link: '/AdminCenter?tab=genlux-intelligence', read: false
           });
           await mirrorToSupabase('notifications', notification);
-          if (recipient.email) await base44.asServiceRole.integrations.Core.SendEmail({
-            to: recipient.email, subject: `GEN-LUX ALERT: ${alert.title}`,
-            body: `${alert.message}\n\nAI recommendation: ${alert.recommendation}\n\nOpen GenLux Mission Intelligence in the Control Center to review it.`
-          });
         }
       }
     }

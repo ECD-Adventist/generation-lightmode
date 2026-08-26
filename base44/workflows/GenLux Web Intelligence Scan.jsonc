@@ -1,13 +1,13 @@
 {
   "name": "GenLux Web Intelligence Scan",
-  "description": "Scans the public web every six hours for monitored GenLux campaign terms and delivers new-mention alerts.",
+  "description": "Runs a deep public-web scan every 15 minutes for monitored GenLux campaign terms and delivers in-app alerts.",
   "trigger": {
     "condition": null,
     "config": {
       "trigger_type": "scheduled",
       "events": [],
       "schedule_mode": "recurring",
-      "cron_expression": "0 */6 * * *",
+      "cron_expression": "*/15 * * * *",
       "one_time_date": null,
       "timezone": "UTC",
       "interval_value": null,
@@ -35,8 +35,8 @@
           },
           "then": "end",
           "x-base44": {
-            "title": "Scan public web",
-            "description": "Find GenLux mentions"
+            "title": "Deep-scan public web",
+            "description": "Find expanded GenLux mentions"
           }
         }
       }
