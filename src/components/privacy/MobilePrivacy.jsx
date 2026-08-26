@@ -35,7 +35,7 @@ export default function MobilePrivacy({ sections }) {
           How Generation LightMode collects, uses, and protects your personal information.
         </p>
         <p className="text-xs" style={{ color: "#4A5568" }}>
-          Last updated: <strong style={{ color: "#8A9BB0" }}>March 2026</strong>
+          Last updated: <strong style={{ color: "#8A9BB0" }}>26 August 2026</strong> · Effective date: <strong style={{ color: "#8A9BB0" }}>26 August 2026</strong>
         </p>
       </section>
 
@@ -71,8 +71,8 @@ export default function MobilePrivacy({ sections }) {
         <div className="rounded-2xl p-5 text-center" style={{ background: "rgba(0,207,255,0.04)", border: "1px solid rgba(0,207,255,0.15)" }}>
           <Mail className="w-5 h-5 mx-auto mb-2" style={{ color: "#00CFFF" }} />
           <p className="text-xs mb-1" style={{ color: "#8A9BB0" }}>Questions about this policy?</p>
-          <a href="mailto:privacy@generationlightmode.org" className="text-sm font-bold" style={{ color: "#00CFFF" }}>
-            privacy@generationlightmode.org
+          <a href="mailto:info@generationlightmode.org" className="text-sm font-bold" style={{ color: "#00CFFF" }}>
+            info@generationlightmode.org
           </a>
         </div>
       </div>

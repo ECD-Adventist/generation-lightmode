@@ -7,137 +7,120 @@ import MobilePrivacy from "@/components/privacy/MobilePrivacy";
 
 const sections = [
   {
-    title: "1. Introduction",
-    content: `Generation LightMode ("we," "our," or "us") is committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform, including our website, mobile application, and all related services (collectively, the "Platform").
+    title: "1. Who we are and scope",
+    content: `Privacy at a glance. Generation LightMode is a faith-based digital community operated by the Communication & Media Department of the East-Central Africa Division of the Seventh-day Adventist Church. This Policy explains what information we collect, why we use it, when it may be shared, and the choices available to you.
 
-By using the Platform, you agree to the collection and use of information in accordance with this policy. If you do not agree, please do not access or use our services.`
+This Privacy Policy applies to the Generation LightMode Android application (package com.base69a6fca6155ae283f1b55144.app), the Generation LightMode website, and related services, features, communications, and administrative tools (together, the “Service”).
+
+The Android application provides access to the web-based Generation LightMode Service. Information entered or generated through the app may therefore be processed by the same systems used by the website.
+
+For purposes of applicable data-protection law, the East-Central Africa Division of the Seventh-day Adventist Church is the organization responsible for the personal information described in this Policy, unless another church institution clearly identifies itself as responsible for a particular activity.`
   },
   {
-    title: "2. Information We Collect",
-    content: `We collect the following categories of information:
+    title: "2. Information we may collect",
+    content: `We collect information you provide, information created through your use of the Service, and limited technical information needed to operate and secure the Service.
 
-**a) Information You Provide Directly**
-- Full name, email address, and profile details
-- Country of residence and church/ministry affiliation
-- Glow Drops, prayer requests, testimonies, and other user-generated content
-- Messages sent through the platform's communication features
-- Participation in challenges, GlowGroups, and study plans
+**2.1 Information you provide**
+- Account and profile information, such as your name, email address, profile photograph, country, territory, institution, church affiliation, role, and other profile details you choose to provide.
+- Content and communications, including posts, comments, reactions, stories, direct and group messages, prayer requests, challenge submissions, study responses, reports, feedback, and files, photographs, audio, or video you upload.
+- Participation information, such as pledges, GlowGroup membership, event responses, progress, certificates, badges, milestones, saved content, follows, and leaderboard activity.
+- Institution and leadership information submitted for institution pages, account claims, leader accounts, compliance reporting, or administrative access.
+- Support and safety information, including enquiries, complaints, content reports, blocked-user selections, moderation records, and correspondence with us.
 
-**b) Information Collected Automatically**
-- Device information (browser type, operating system, device identifiers)
-- Log data (IP address, access times, pages visited)
-- Usage data (features used, interactions, session duration)
-- Location data (country/region level, based on IP address)
+**2.2 Information collected automatically**
+- Device and technical information, such as device type, operating system, app or browser version, language, IP address, diagnostic logs, crash information, and security events.
+- Usage information, such as pages or features viewed, interactions, session times, referrals, and approximate region inferred from network information.
+- Identifiers and local storage, such as account identifiers, notification tokens, cookies, or similar technologies used to keep you signed in, remember preferences, prevent abuse, and understand Service performance.
 
-**c) Information from Third Parties**
-- If you sign in via a third-party authentication provider, we may receive basic profile information (name, email) from that provider in accordance with their privacy policies.`
+**2.3 Device permissions and optional information**
+The app or website may request access only when a feature needs it. Depending on your device and the features you choose, this may include camera, photos or media, microphone, notifications, or location. You can refuse or withdraw a permission in your device settings, although the related feature may then be unavailable. We do not claim to access a permission that is not requested by the installed version of the app.
+
+Prayer requests, messages, photographs, and other user-generated content may reveal sensitive information, including religious beliefs, health concerns, or personal circumstances. Please share only what you are comfortable providing and use the available audience or privacy controls carefully.`
   },
   {
-    title: "3. How We Use Your Information",
-    content: `We use the information we collect to:
+    title: "3. How we use information",
+    content: `We use information to:
 
-- Provide, operate, and maintain the Platform
-- Personalize your experience and deliver relevant content
-- Send you notifications, updates, and spiritual encouragement via email or push notifications
-- Monitor and analyze usage trends to improve our features
-- Facilitate community features such as GlowGroups, prayer walls, and challenges
-- Award Glow Points, certificates, and recognition milestones
-- Communicate with you about your account, support requests, or platform changes
-- Comply with legal obligations and enforce our Terms of Service
-- Detect and prevent fraudulent, unauthorized, or illegal activity`
+- Provide, personalize, maintain, and improve the Service and its faith, community, learning, media, group, and institution features.
+- Create and manage accounts, authenticate users, maintain profiles, and apply role-based administrative access.
+- Deliver messages, notifications, live sessions, challenges, devotionals, certificates, badges, leaderboards, and other requested features.
+- Display content to the audience selected by the user or reasonably indicated by the feature, such as a public feed, group, institution page, or private conversation.
+- Moderate content, respond to reports, enforce community rules, prevent fraud or abuse, and protect users, the Church, and the Service.
+- Provide support, respond to enquiries, communicate important Service or policy changes, and administer programmes and events.
+- Generate aggregated statistics and analytics about participation, reach, engagement, institutions, territories, and Service performance.
+- Comply with legal obligations, lawful requests, safeguarding duties, and the establishment, exercise, or defence of legal claims.`
   },
   {
-    title: "4. Legal Basis for Processing (GDPR)",
-    content: `If you are located in the European Economic Area (EEA), we process your personal data under the following legal bases:
-
-- **Consent**: Where you have given explicit consent (e.g., signing up, submitting Glow Drops)
-- **Contractual necessity**: To provide the services you have requested
-- **Legitimate interests**: To improve our services, prevent fraud, and ensure platform security
-- **Legal obligation**: Where we are required to process data to comply with applicable law`
+    title: "4. Legal grounds for processing",
+    content: `Where applicable law requires a legal basis, we process information because it is necessary to provide the Service you request; because you have given consent; because we have legitimate interests in operating, securing, improving, and administering the Service; to protect vital interests; or to comply with legal obligations. Where we rely on consent, you may withdraw it at any time, without affecting processing already carried out lawfully.`
   },
   {
-    title: "5. Electronic Communication Consent",
-    content: `By registering on the Platform, you consent to receive electronic communications from Generation LightMode, including:
+    title: "5. How information is shared",
+    content: `We do not sell or rent personal information. We may share information only as reasonably necessary in the following circumstances:
 
-- Platform notifications and activity alerts
-- Weekly devotional and spiritual encouragement emails
-- Challenge updates, milestone recognitions, and community announcements
-- Important service and policy updates
-
-You may opt out of non-essential communications at any time through your account Settings or by clicking the unsubscribe link in any email.`
+- With other users or the public, according to the feature used, your settings, and the audience you select. Public posts, comments, profile details, institution pages, leaderboard activity, and public prayer requests may be visible beyond your immediate group.
+- With authorized church leaders, moderators, institution administrators, and support personnel who need access for administration, safeguarding, reporting, moderation, or support.
+- With service providers that host data, provide authentication, storage, analytics, messaging, notifications, media delivery, security, or technical support, subject to appropriate contractual and confidentiality safeguards.
+- With third-party platforms when you choose to sign in, share content, open an external link, watch embedded media, or use an integrated service. Their own privacy terms apply to their processing.
+- When required by law, court order, lawful authority, or when reasonably necessary to protect rights, safety, security, property, users, or the public.
+- As part of an organizational restructuring or transfer of the Service, provided the recipient continues to protect the information consistently with applicable law.`
   },
   {
-    title: "6. Sharing Your Information",
-    content: `We do not sell your personal data. We may share your information only in the following circumstances:
-
-- **With service providers**: Trusted third-party vendors who assist us in operating the Platform (e.g., hosting, analytics, email delivery), bound by confidentiality agreements
-- **With your GlowGroup members**: Content you post in a GlowGroup is visible to other members of that group
-- **Public profile content**: Your username, profile photo, Glow Drops, and public activity may be visible to other Platform users
-- **Legal requirements**: If required by law, court order, or governmental authority
-- **Business transfers**: In the event of a merger, acquisition, or sale of assets, your information may be transferred as part of that transaction
-- **With your consent**: In any other case where you have given explicit permission`
+    title: "6. International data transfers",
+    content: `Generation LightMode serves users across East-Central Africa and may use service providers or systems located in other countries. Personal information may therefore be processed outside your country. Where required, we use appropriate safeguards for cross-border transfers, such as contractual protections, access controls, security measures, and assessments required by applicable law.`
   },
   {
-    title: "7. Data Retention",
-    content: `We retain your personal data for as long as your account is active or as needed to provide you services. You may request deletion of your account and associated data at any time by contacting us at lightmode@ecd.adventist.org.
-
-Upon account deletion, we will delete or anonymize your personal data within 30 days, except where we are legally required to retain certain information.`
+    title: "7. Data retention",
+    content: `We retain personal information only for as long as reasonably necessary for the purposes described in this Policy, including providing the Service, maintaining community and institutional records, resolving disputes, enforcing agreements, safeguarding users, and meeting legal or audit obligations. Retention periods depend on the type of information, the context in which it was collected, legal requirements, and whether an account or content remains active. We may retain de-identified or aggregated information that no longer identifies you.`
   },
   {
-    title: "8. Data Security",
-    content: `We implement industry-standard security measures to protect your personal information, including:
-
-- Encrypted data transmission (TLS/SSL)
-- Secure cloud infrastructure with access controls
-- Regular security reviews and vulnerability assessments
-
-However, no method of transmission over the internet or electronic storage is 100% secure. While we strive to protect your data, we cannot guarantee absolute security.`
+    title: "8. Security",
+    content: `We use reasonable administrative, technical, and organizational measures designed to protect personal information, including access controls, authentication, role-based permissions, monitoring, backups, and secure service providers where appropriate. No internet transmission or storage system is completely secure, so we cannot guarantee absolute security. Keep your sign-in credentials confidential and notify us promptly if you suspect unauthorized access.`
   },
   {
-    title: "9. Children's Privacy",
-    content: `The Platform is intended for users aged 13 and above. For users under 18, we encourage parental oversight. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has provided us with personal data, please contact us immediately at lightmode@ecd.adventist.org and we will take steps to delete such information.`
-  },
-  {
-    title: "10. Your Rights",
-    content: `Depending on your location, you may have the following rights regarding your personal data:
+    title: "9. Your rights and choices",
+    content: `Subject to applicable law, you may have the right to:
 
-- **Access**: Request a copy of the personal data we hold about you
-- **Correction**: Request correction of inaccurate or incomplete data
-- **Deletion**: Request deletion of your personal data ("right to be forgotten")
-- **Restriction**: Request that we restrict processing of your data
-- **Portability**: Receive your data in a structured, machine-readable format
-- **Objection**: Object to processing based on legitimate interests
-- **Withdraw consent**: Withdraw consent at any time where processing is consent-based
+- Request access to, correction of, or a copy of your personal information.
+- Request deletion, restriction, or objection to certain processing.
+- Withdraw consent where processing is based on consent.
+- Request data portability where applicable.
+- Complain to the relevant data-protection authority.
 
-To exercise any of these rights, contact us at lightmode@ecd.adventist.org. We will respond within 30 days.`
+You may update certain profile information and preferences within the Service. To request account or data deletion, email lightmode@ecd.adventist.org from the email address linked to your account and use the subject “Generation LightMode Data Deletion Request.” We may need to verify your identity. Some information may be retained where required by law, for safety and security, or to preserve records that cannot reasonably be separated from other users’ lawful content; where possible, such information will be restricted or de-identified.`
   },
   {
-    title: "11. Cookies and Tracking Technologies",
-    content: `We use cookies and similar tracking technologies to enhance your experience on the Platform. These may include:
+    title: "10. Children and young people",
+    content: `Generation LightMode serves a faith community that may include young people. Users who are minors under the law of their country should use the Service with the knowledge and involvement of a parent or legal guardian. Where consent of a parent or guardian is legally required, we expect that consent to be obtained before a minor creates an account or submits personal information.
 
-- **Essential cookies**: Required for the Platform to function
-- **Analytics cookies**: Help us understand how users interact with the Platform
-- **Preference cookies**: Remember your settings and preferences
-
-You can control cookie settings through your browser. Disabling certain cookies may affect Platform functionality.`
+We do not knowingly seek to collect a child’s personal information without the authorization required by applicable law. Parents or guardians who believe a child has provided personal information without proper consent may contact us to request review or deletion. We encourage minors not to publish home addresses, phone numbers, school details, precise locations, or other information that could create a safety risk.`
   },
   {
-    title: "12. Third-Party Links",
-    content: `The Platform may contain links to third-party websites or services. We are not responsible for the privacy practices of those sites. We encourage you to review the privacy policies of any third-party sites you visit.`
+    title: "11. User-generated content and community visibility",
+    content: `The Service includes social and community features. Content you post may be copied, reshared, captured, or viewed by others according to the feature and audience. Removing content from your account may not remove copies already shared by others or retained for legitimate safety, moderation, legal, or backup purposes. Use private or limited-audience features for sensitive communications and avoid posting confidential information.`
   },
   {
-    title: "13. Changes to This Policy",
-    content: `We may update this Privacy Policy from time to time. When we do, we will notify you via email or a prominent notice on the Platform. Your continued use of the Platform after changes take effect constitutes your acceptance of the revised policy.`
+    title: "12. Third-party services and external links",
+    content: `The Service may contain links to, embeds from, or sign-in options provided by third parties such as Google, Microsoft, Facebook, Apple, video platforms, mapping services, social networks, or other ministry resources. Generation LightMode does not control those third parties’ privacy practices. Review their privacy notices before providing information or using their services.`
   },
   {
-    title: "14. Contact Us",
-    content: `If you have any questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us:
+    title: "13. Notifications and communications",
+    content: `We may send service, security, account, group, event, programme, or content notifications. You can control push notifications through the Service or your device settings where available. Essential administrative or security messages may still be sent when necessary to operate or protect your account.`
+  },
+  {
+    title: "14. Changes to this Policy",
+    content: `We may update this Privacy Policy as the Service, our practices, or legal requirements change. We will post the revised Policy and update the “Last updated” date. Where changes are material, we may provide additional notice through the Service or other appropriate means. Continued use after the effective date is subject to the revised Policy, to the extent permitted by law.`
+  },
+  {
+    title: "15. Contact us",
+    content: `For privacy questions, rights requests, complaints, or account/data deletion requests, contact:
 
 **Generation LightMode**
-Email: lightmode@ecd.adventist.org
-Website: generationlightmode.org
-
-We are committed to working with you to resolve any privacy concerns promptly and transparently.`
+Communication & Media Department
+East-Central Africa Division of the Seventh-day Adventist Church
+Magadi Road, Ongata Rongai, Nairobi, Kenya
+Email: info@generationlightmode.org
+General office: info@ecd.adventist.org | +254 20 514 4400`
   }
 ];
 
@@ -172,10 +155,10 @@ export default function Privacy() {
           </div>
 
           <p className="glm-body" style={{ fontSize: 15, maxWidth: 680, marginBottom: 12 }}>
-            This policy describes how Generation LightMode collects, uses, and protects your personal information when you use our platform.
+            This policy explains what information Generation LightMode collects, why it is used, when it may be shared, and the choices available to you.
           </p>
           <p style={{ fontSize: 13, color: "#4A5568", fontFamily: "Inter, sans-serif" }}>
-            Last updated: <strong style={{ color: "#8A9BB0" }}>March 2026</strong> &nbsp;·&nbsp; Effective date: <strong style={{ color: "#8A9BB0" }}>March 2026</strong>
+            Last updated: <strong style={{ color: "#8A9BB0" }}>26 August 2026</strong> &nbsp;·&nbsp; Effective date: <strong style={{ color: "#8A9BB0" }}>26 August 2026</strong>
           </p>
         </div>
       </div>
@@ -223,8 +206,8 @@ export default function Privacy() {
         }}>
           <p style={{ fontFamily: "Inter, sans-serif", fontSize: 13, color: "#8A9BB0" }}>
             Questions about this policy? Email us at{" "}
-            <a href="mailto:lightmode@ecd.adventist.org" style={{ color: "#00CFFF" }}>
-              lightmode@ecd.adventist.org
+            <a href="mailto:info@generationlightmode.org" style={{ color: "#00CFFF" }}>
+              info@generationlightmode.org
             </a>
           </p>
         </div>
