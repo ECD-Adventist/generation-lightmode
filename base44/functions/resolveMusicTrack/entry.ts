@@ -1,5 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 
+const APPROVED_MUSIC_DRIVE_ID = "0ABkm6ojo6LD0Uk9PVA";
+
 // Google Drive download links can't be streamed by an <audio> tag (they redirect and
 // require cookies). This copies the Drive file into app storage once, caches the
 // resulting permanent URL, and returns it for playback.
