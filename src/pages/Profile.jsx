@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { dualDeleteSupabase } from "@/lib/dualDeleteSupabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Settings, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Zap, Home, Users, Bell, Globe, Bookmark, Building2, Sparkles, BarChart3 } from "lucide-react";
+import { Loader2, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Zap, Home, Users, Bell, Bookmark, Building2, Sparkles, BarChart3 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import useUrlOverlay from "@/hooks/useUrlOverlay";
@@ -74,7 +74,8 @@ export default function Profile() {
   const urlParams = new URLSearchParams(window.location.search);
   const viewUserEmail = urlParams.get("user")?.toLowerCase()?.trim() || null;
   const viewUserId = urlParams.get("id")?.trim() || null;
-  const hasProfileTarget = !!(viewUserEmail || viewUserId);
+  const viewLeaderId = urlParams.get("leader")?.trim() || null;
+  const hasProfileTarget = !!(viewUserEmail || viewUserId || viewLeaderId);
 
   const { data: allUsersForProfile = [] } = useQuery({
     queryKey: ["publicUserProfileIdentity", { email: viewUserEmail, id: viewUserId }],
@@ -91,12 +92,13 @@ export default function Profile() {
   });
 
   const { data: publicLeaderAccounts = [] } = useQuery({
-    queryKey: ["publicLeaderAccountsForProfile", viewUserEmail],
+    queryKey: ["publicLeaderAccountsForProfile", viewUserEmail, viewLeaderId],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicLeaderAccounts", viewUserEmail ? { emails: [viewUserEmail], limit: 1 } : { limit: 200 });
+      const params = viewUserEmail ? { emails: [viewUserEmail], limit: 1 } : { ids: [viewLeaderId], limit: 1 };
+      const res = await base44.functions.invoke("listPublicLeaderAccounts", params);
       return Array.isArray(res.data) ? res.data : [];
     },
-    enabled: !!viewUserEmail && !!currentUser,
+    enabled: !!(viewUserEmail || viewLeaderId) && !!currentUser,
   });
 
   useEffect(() => {
@@ -138,7 +140,7 @@ export default function Profile() {
       }
     }
     checkAuth();
-  }, [viewUserEmail]);
+  }, [viewUserEmail, viewUserId, viewLeaderId, hasProfileTarget]);
 
   const allUsersLoaded = useRef(false);
 
@@ -173,7 +175,7 @@ export default function Profile() {
       return;
     }
 
-    const leader = publicLeaderAccounts.find(a => a.leader_email === viewUserEmail);
+    const leader = publicLeaderAccounts.find(a => viewLeaderId ? a.id === viewLeaderId : a.leader_email === viewUserEmail);
     if (leader) {
       setUser({
         id: leader.id,
@@ -202,7 +204,7 @@ export default function Profile() {
         glow_score: 0,
       });
     }
-  }, [viewUserEmail, viewUserId, hasProfileTarget, currentUser, allUsersForProfile, publicLeaderAccounts]);
+  }, [viewUserEmail, viewUserId, viewLeaderId, hasProfileTarget, currentUser, allUsersForProfile, publicLeaderAccounts]);
 
   const isOwnProfile = currentUser && (!hasProfileTarget || viewUserEmail === currentUser.email || viewUserId === currentUser.id);
   const baseProfileEmail = viewUserEmail || (!viewUserId ? currentUser?.email : null);

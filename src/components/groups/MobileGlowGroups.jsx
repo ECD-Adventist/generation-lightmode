@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Search, X, Users, Globe, Video, Star, UserPlus, UserCheck,
-  MapPin, Zap, Plus, ChevronRight, Sparkles, Crown, Flame, Lock
+  MapPin, Zap, Plus, ChevronRight, Sparkles, Flame, Lock
 } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
 import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
@@ -72,9 +72,13 @@ export default function MobileGlowGroups({
   const myGroups = useMemo(() => realGroups.filter(g => myGroupIds.has(g.id)), [realGroups, myGroupIds]);
   const discoverGroups = useMemo(() => filteredGroups.filter(g => !myGroupIds.has(g.id)), [filteredGroups, myGroupIds]);
 
-  const sortedLeaders = useMemo(
-    () => [...users].sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0)).slice(0, 50),
-    [users]
+  const lightLeaders = useMemo(
+    () => users
+      .filter((entry) => entry.is_managed_leader)
+      .filter((entry) => !q || [entry.full_name, entry.leader_title, entry.country, entry.bio]
+        .some((value) => String(value || "").toLowerCase().includes(q)))
+      .sort((a, b) => String(a.full_name || "").localeCompare(String(b.full_name || ""))),
+    [users, q]
   );
 
   const tabs = [
@@ -407,90 +411,28 @@ export default function MobileGlowGroups({
           <GroupSessionsPanel user={user} groups={realGroups} memberships={myMemberships} />
         )}
 
-        {/* LEADERS */}
+        {/* LEADERS — verified managed leader accounts only */}
         {activeTab === "leaders" && (
           <div className="space-y-2.5">
-            {/* Podium */}
-            {sortedLeaders.slice(0, 3).length > 0 && (
-              <div className="rounded-[1.5rem] p-4 mb-3 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #FFF8E6 0%, #FFFFFF 100%)", border: "1px solid #FFE4A0", boxShadow: "0 8px 24px rgba(255, 159, 26, 0.15)" }}>
-                <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl opacity-30" style={{ background: "#FFD000" }} />
-                <div className="relative flex items-center gap-1.5 mb-3">
-                  <Crown className="w-3.5 h-3.5" style={{ color: "#CC7A00" }} />
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: "#CC7A00" }}>Top Believers</h3>
-                </div>
-                <div className="relative grid grid-cols-3 gap-2 items-end">
-                  {[sortedLeaders[1], sortedLeaders[0], sortedLeaders[2]].filter(Boolean).map((u, i) => {
-                    const rank = i === 1 ? 1 : i === 0 ? 2 : 3;
-                    const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : "🥉";
-                    const isTop = rank === 1;
-                    return (
-                      <Link
-                        key={u.id}
-                        to={createPageUrl("Profile") + (u.is_managed_leader ? `?user=${encodeURIComponent(u.email)}` : `?id=${encodeURIComponent(u.id)}`)}
-                        className="no-underline rounded-2xl p-3 flex flex-col items-center relative overflow-hidden transition active:scale-[0.97]"
-                        style={{
-                          background: isTop
-                            ? "linear-gradient(145deg, #FFD000 0%, #FF9F1A 100%)"
-                            : "#FFFFFF",
-                          border: isTop ? "none" : "1px solid #E6ECF5",
-                          boxShadow: isTop ? "0 8px 20px rgba(255, 159, 26, 0.4)" : "0 4px 12px rgba(11, 63, 217, 0.06)",
-                          transform: isTop ? "scale(1.08)" : undefined,
-                        }}
-                      >
-                        <div className="text-xl mb-1">{medal}</div>
-                        <div className="w-12 h-12 rounded-full p-[2px] mb-1.5" style={{ background: isTop ? "#FFFFFF" : "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
-                          <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF" }}>
-                            <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="" width="48" height="48" loading="lazy" decoding="async" className="w-full h-full object-cover" />
-                          </div>
-                        </div>
-                        <div className="text-[11px] font-black text-center truncate w-full font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>
-                          {getDisplayName(u)?.split(" ")[0]}
-                        </div>
-                        <div className="flex items-center gap-0.5 mt-1 px-2 py-0.5 rounded-full" style={{ background: isTop ? "rgba(11, 27, 61, 0.15)" : "#EEF3FF" }}>
-                          <Zap className="w-2.5 h-2.5" style={{ color: isTop ? "#0B1B3D" : "#0B3FD9" }} />
-                          <span className="text-[10px] font-black" style={{ color: isTop ? "#0B1B3D" : "#0B3FD9" }}>{u.glow_score || 0}</span>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Rest of leaders */}
-            {sortedLeaders.slice(3).map((u, index) => {
-              const targetId = String(u.id || "").replace(/^leader_/, "");
-              const isFollowing = following.some(f => f.following_id === targetId);
-              const position = index + 4;
+            {lightLeaders.length === 0 && <EmptyState emoji="☆" title="No verified leaders" subtitle="Try a different search" />}
+            {lightLeaders.map((leader) => {
+              const targetId = String(leader.id || "").replace(/^leader_/, "");
+              const isFollowing = following.some((record) => record.following_id === targetId);
               return (
-                <div key={u.id} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
-                    <span className="text-[10px] font-black" style={{ color: "#6B7FA0" }}>{position}</span>
-                  </div>
-                  <Link to={createPageUrl("Profile") + (u.is_managed_leader ? `?user=${encodeURIComponent(u.email)}` : `?id=${encodeURIComponent(u.id)}`)} className="flex items-center gap-3 flex-1 min-w-0 no-underline">
-                    <div className="w-10 h-10 rounded-full overflow-hidden shrink-0" style={{ border: "2px solid #E6ECF5" }}>
-                      <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                <div key={leader.id} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
+                  <Link to={createPageUrl("Profile") + `?leader=${encodeURIComponent(targetId)}`} className="flex items-center gap-3 flex-1 min-w-0 no-underline">
+                    <div className="w-11 h-11 rounded-full overflow-hidden shrink-0" style={{ border: "2px solid #FFD000" }}>
+                      <img src={leader.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt={getDisplayName(leader)} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(u)}</div>
-                      <div className="text-[10px] truncate" style={{ color: "#6B7FA0" }}>{u.country || "Global Believer"}</div>
+                      <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(leader)}</div>
+                      <div className="text-[10px] truncate" style={{ color: "#CC7A00" }}>{leader.leader_title || "Light Leader"}</div>
+                      <div className="text-[10px] truncate" style={{ color: "#6B7FA0" }}>{leader.country || "Global"}</div>
                     </div>
                   </Link>
-                  <div className="flex items-center gap-1 px-2 py-1 rounded-full shrink-0" style={{ background: "#FFF8E6" }}>
-                    <Zap className="w-3 h-3" style={{ color: "#CC7A00" }} />
-                    <span className="text-[11px] font-black" style={{ color: "#CC7A00" }}>{u.glow_score || 0}</span>
-                  </div>
-                  {u.id !== user?.id && (
-                    <button
-                      onClick={() => followMutation.mutate(u)}
-                      className="flex items-center justify-center w-8 h-8 rounded-full shrink-0 transition active:scale-90"
-                      style={isFollowing
-                        ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }
-                        : { background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}
-                    >
-                      {isFollowing ? <UserCheck className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
-                    </button>
-                  )}
+                  <button onClick={() => followMutation.mutate(leader)} className="flex items-center justify-center w-8 h-8 rounded-full shrink-0 transition active:scale-90" style={isFollowing ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" } : { background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }} aria-label={isFollowing ? "Following" : "Connect"}>
+                    {isFollowing ? <UserCheck className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
+                  </button>
                 </div>
               );
             })}

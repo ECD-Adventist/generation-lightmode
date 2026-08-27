@@ -231,7 +231,11 @@ export default function GlowGroups() {
     g.name?.toLowerCase().includes(search.toLowerCase()) || (g.country || "").toLowerCase().includes(search.toLowerCase())
   );
 
-  const sortedLeaders = [...users].sort((a, b) => (b.glow_score || 0) - (a.glow_score || 0)).slice(0, 50);
+  const lightLeaders = users
+    .filter((entry) => entry.is_managed_leader)
+    .filter((entry) => !peopleSearchQuery || [entry.full_name, entry.leader_title, entry.country, entry.bio]
+      .some((value) => String(value || "").toLowerCase().includes(peopleSearchQuery)))
+    .sort((a, b) => String(a.full_name || "").localeCompare(String(b.full_name || "")));
 
   // Get drop count per user
   const dropCountByUser = {};
@@ -502,49 +506,31 @@ export default function GlowGroups() {
           <GroupSessionsPanel user={user} groups={realGroups} memberships={myMemberships} />
         )}
 
-        {/* LIGHT LEADERS TAB */}
+        {/* LIGHT LEADERS TAB — verified managed leader accounts only */}
         {activeTab === "leaders" && (
           <div className="space-y-3">
-            {sortedLeaders.map((u, index) => {
-              const isFollowing = following.some(f => f.following_email === u.email);
-              const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : null;
+            {lightLeaders.length === 0 && (
+              <div className="rounded-2xl p-8 text-center" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#6B7FA0" }}>
+                No verified Light Leaders found.
+              </div>
+            )}
+            {lightLeaders.map((leader) => {
+              const targetId = String(leader.id || "").replace(/^leader_/, "");
+              const isFollowing = following.some((record) => record.following_id === targetId);
               return (
-                <div
-                  key={u.id}
-                  className="flex items-center gap-4 rounded-2xl p-4 transition-all"
-                  style={index === 0
-                    ? { background: "linear-gradient(135deg, #FFF8E6 0%, #FFF0CC 100%)", border: "1px solid #FFE4A0" }
-                    : { background: "#FFFFFF", border: "1px solid #E6ECF5" }}
-                >
-                  <div className="w-8 text-center shrink-0">
-                    {medal
-                      ? <span className="text-xl">{medal}</span>
-                      : <span className="text-sm font-bold" style={{ color: "#8A97B5" }}>#{index + 1}</span>
-                    }
-                  </div>
-                  <Link to={createPageUrl("Profile") + (u.is_managed_leader ? `?user=${encodeURIComponent(u.email)}` : `?id=${encodeURIComponent(u.id)}`)} className="flex items-center gap-4 flex-1 min-w-0 no-underline">
-                    <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center font-bold text-base shrink-0" style={{ border: index < 3 ? "2px solid #FFD000" : "2px solid #E6ECF5", background: "#FFFFFF" }}>
-                      <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+                <div key={leader.id} className="flex items-center gap-4 rounded-2xl p-4" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
+                  <Link to={createPageUrl("Profile") + `?leader=${encodeURIComponent(targetId)}`} className="flex items-center gap-4 flex-1 min-w-0 no-underline">
+                    <div className="w-12 h-12 rounded-full overflow-hidden shrink-0" style={{ border: "2px solid #FFD000", background: "#FFFFFF" }}>
+                      <img src={leader.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt={leader.full_name || "Light Leader"} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>
-                        {u.full_name} {index === 0 && "👑"}
-                      </div>
-                      <div className="text-xs" style={{ color: "#6B7FA0" }}>{u.country || "Global Believer"}</div>
+                      <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{leader.full_name}</div>
+                      <div className="text-xs truncate" style={{ color: "#CC7A00" }}>{leader.leader_title || "Light Leader"}</div>
+                      <div className="text-xs truncate" style={{ color: "#6B7FA0" }}>{leader.country || "Global"}</div>
                     </div>
                   </Link>
-                  <div className="text-right shrink-0 mr-2">
-                    <div className="text-lg font-black" style={{ fontFamily: "Space Grotesk, sans-serif", color: "#CC7A00" }}>{u.glow_score || 0}</div>
-                    <div className="text-[9px] uppercase tracking-widest" style={{ color: "#8A97B5" }}>XP</div>
-                  </div>
-                  {u.email !== user?.email && (
-                    <button
-                      onClick={() => followMutation.mutate(u)}
-                      className="px-3 py-1.5 rounded-full text-[10px] font-bold transition-all shrink-0"
-                      style={isFollowing
-                        ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }
-                        : { border: "1px solid #1FB8FF", color: "#0B3FD9", background: "rgba(31, 184, 255, 0.08)" }}
-                    >
+                  {leader.email !== user?.email && (
+                    <button onClick={() => followMutation.mutate(leader)} className="px-3 py-1.5 rounded-full text-[10px] font-bold transition-all shrink-0" style={isFollowing ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" } : { border: "1px solid #1FB8FF", color: "#0B3FD9", background: "rgba(31, 184, 255, 0.08)" }}>
                       {isFollowing ? "Following" : "Connect"}
                     </button>
                   )}
