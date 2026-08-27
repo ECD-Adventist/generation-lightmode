@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Search, X, Users, Globe, Video, Star, UserPlus, UserCheck,
-  MapPin, Zap, Plus, MessageCircle, ChevronRight, Sparkles, Crown, Flame, Lock
+  MapPin, Zap, Plus, ChevronRight, Sparkles, Crown, Flame, Lock
 } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
 import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
@@ -313,16 +313,26 @@ export default function MobileGlowGroups({
                             <p className="text-sm mt-2.5 line-clamp-2 leading-relaxed" style={{ color: "#4A5878" }}>{group.description}</p>
                           )}
 
-                          <button
-                            onClick={() => joinMutation.mutate(group)}
-                            disabled={hasPending}
-                            className="w-full mt-3 py-2.5 rounded-full text-sm font-black transition active:scale-95 disabled:opacity-70"
-                            style={hasPending
-                              ? { background: "#FFF8E6", border: "1px solid #FFE4A0", color: "#CC7A00" }
-                              : { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.3)" }}
-                          >
-                            {hasPending ? "⏳ Request Pending" : group.privacy === "private" ? "Request to Join" : "Join Group"}
-                          </button>
+                          {user?.role === "super_admin" ? (
+                            <button
+                              onClick={() => navigate(createPageUrl("GroupChat") + `?id=${encodeURIComponent(group.id)}`)}
+                              className="w-full mt-3 py-2.5 rounded-full text-sm font-black transition active:scale-95"
+                              style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.3)" }}
+                            >
+                              View Group
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => joinMutation.mutate(group)}
+                              disabled={hasPending}
+                              className="w-full mt-3 py-2.5 rounded-full text-sm font-black transition active:scale-95 disabled:opacity-70"
+                              style={hasPending
+                                ? { background: "#FFF8E6", border: "1px solid #FFE4A0", color: "#CC7A00" }
+                                : { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.3)" }}
+                            >
+                              {hasPending ? "⏳ Request Pending" : group.privacy === "private" ? "Request to Join" : "Join Group"}
+                            </button>
+                          )}
                         </div>
                       </div>
                     );

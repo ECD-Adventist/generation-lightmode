@@ -27,6 +27,7 @@ export default function GlowGroups() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { user, isLoadingAuth } = useAuth();
+  const isSuperAdmin = user?.role === "super_admin";
 
   useEffect(() => {
     if (isLoadingAuth) return;
@@ -439,9 +440,9 @@ export default function GlowGroups() {
                   {/* Card body opens the group's chat & activities for members/leaders */}
                   <button
                     type="button"
-                    onClick={() => { if (isMember) openGroup(); }}
-                    className={`flex items-center gap-4 flex-1 min-w-0 text-left ${isMember ? "cursor-pointer" : "cursor-default"}`}
-                    title={isMember ? "Open group" : undefined}
+                    onClick={() => { if (isMember || isSuperAdmin) openGroup(); }}
+                    className={`flex items-center gap-4 flex-1 min-w-0 text-left ${isMember || isSuperAdmin ? "cursor-pointer" : "cursor-default"}`}
+                    title={isMember || isSuperAdmin ? "View group" : undefined}
                   >
                     <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0" style={{ background: "linear-gradient(135deg, rgba(31,184,255,0.1), rgba(11,63,217,0.08))", border: "1px solid #D6E4FF" }}>
                       ✨
@@ -468,18 +469,28 @@ export default function GlowGroups() {
                         <span className="hidden sm:inline">Chat</span>
                       </button>
                     )}
-                    <button
-                      onClick={() => joinMutation.mutate(group)}
-                      disabled={hasPending && !isMember}
-                      className="px-4 py-2 rounded-full text-xs font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed"
-                      style={isMember
-                        ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }
-                        : hasPending
-                        ? { background: "#FFF8E6", border: "1px solid #FFE4A0", color: "#CC7A00" }
-                        : { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.25)" }}
-                    >
-                      {isMember ? "Leave" : hasPending ? "Pending" : "Request"}
-                    </button>
+                    {isSuperAdmin && !isMember ? (
+                      <button
+                        onClick={openGroup}
+                        className="px-4 py-2 rounded-full text-xs font-bold transition-all"
+                        style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.25)" }}
+                      >
+                        View
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => joinMutation.mutate(group)}
+                        disabled={hasPending && !isMember}
+                        className="px-4 py-2 rounded-full text-xs font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                        style={isMember
+                          ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }
+                          : hasPending
+                          ? { background: "#FFF8E6", border: "1px solid #FFE4A0", color: "#CC7A00" }
+                          : { background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.25)" }}
+                      >
+                        {isMember ? "Leave" : hasPending ? "Pending" : "Request"}
+                      </button>
+                    )}
                   </div>
                 </div>
               );
