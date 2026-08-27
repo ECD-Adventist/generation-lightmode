@@ -6,7 +6,11 @@ export default function usePublicCommunitySnapshot() {
     queryKey: ["publicCommunitySnapshot"],
     queryFn: async () => {
       const response = await base44.functions.invoke("getPublicCommunitySnapshot", {});
-      return response.data;
+      const data = response?.data;
+      if (!data || data.error || typeof data.totalUsers !== "number" || !Array.isArray(data.countryStats)) {
+        throw new Error(data?.error || "Invalid community snapshot response");
+      }
+      return data;
     },
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
