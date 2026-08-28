@@ -98,7 +98,7 @@ export default function useOfflineSync(liveDrops, isOnline) {
   }, [isOnline, syncQueue]);
 
   return {
-    drops: isOnline && liveDrops?.length > 0 ? liveDrops : cachedDrops,
+    drops: isOnline ? (liveDrops || cachedDrops) : cachedDrops,
     lastCached,
     syncing,
     syncQueue,

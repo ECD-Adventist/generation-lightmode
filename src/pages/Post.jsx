@@ -24,40 +24,37 @@ export default function Post() {
   const dropId = urlParams.get("id");
   const backUser = urlParams.get("user");
 
-  const { data: drops = [], isLoading, isError: postError, refetch: refetchPost } = useQuery({
+  const { data: drops = [], isLoading, isFetching: postFetching, isError: postError, refetch: refetchPost } = useQuery({
     queryKey: ["postDrop", dropId],
     queryFn: async () => [await base44.entities.GlowDrop.get(dropId)],
     enabled: !!dropId,
-    placeholderData: () => {
-      const cachedFeed = queryClient.getQueryData(["allGlowDrops"]);
-      const cachedDrop = cachedFeed?.pages
-        ?.flatMap(page => page?.items || [])
-        .find(item => item?.id === dropId);
-      return cachedDrop ? [cachedDrop] : undefined;
-    },
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const drop = drops[0];
   const authorEmail = drop?.user_email || backUser;
 
-  const { data: allUsers = [] } = useQuery({
+  const { data: allUsers = [], isPending: authorIdentityPending, isFetching: authorIdentityFetching } = useQuery({
     queryKey: ["postAuthorIdentity", authorEmail],
     queryFn: async () => {
       const res = await base44.functions.invoke("listPublicUsers", { emails: [authorEmail], limit: 1 });
       return Array.isArray(res.data) ? res.data : [];
     },
     enabled: !!authorEmail,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
-  const { data: leaderAccounts = [] } = useQuery({
-    queryKey: ["postLeaderAccount", drop?.user_email],
+  const { data: leaderAccounts = [], isPending: leaderIdentityPending, isFetching: leaderIdentityFetching } = useQuery({
+    queryKey: ["postLeaderAccount", authorEmail],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicLeaderAccounts", { emails: [drop.user_email], limit: 1 });
+      const res = await base44.functions.invoke("listPublicLeaderAccounts", { emails: [authorEmail], limit: 1 });
       return Array.isArray(res.data) ? res.data : [];
     },
-    enabled: !!drop?.user_email,
-    staleTime: 1000 * 60 * 5,
+    enabled: !!authorEmail,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const { data: userLikes = [] } = useQuery({
@@ -224,7 +221,11 @@ export default function Post() {
     if (result.status === "failed" || result.status === "unavailable") setShareFallback(share);
   };
 
-  if (isLoading) {
+  const identityResolving = !!authorEmail && (
+    authorIdentityPending || authorIdentityFetching || leaderIdentityPending || leaderIdentityFetching
+  );
+
+  if (isLoading || postFetching || identityResolving) {
     return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
   }
 
