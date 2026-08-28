@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { getStandardPostImageFit } from "@/lib/postImageFit";
 
+export function getNaturalPostMediaStyle(mediaMeta, maxHeight = 720) {
+  if (mediaMeta?.fit !== "contain" || !mediaMeta.width || !mediaMeta.height) return {};
+  const renderedWidth = Math.min(mediaMeta.width, maxHeight * (mediaMeta.width / mediaMeta.height));
+  return { width: `min(100%, ${renderedWidth}px)`, maxHeight };
+}
+
 export default function StandardPostImage({ src, alt = "", className = "", onLoad, onFitChange, style, ...props }) {
   const [imageMeta, setImageMeta] = useState(null);
 
   useEffect(() => {
     setImageMeta(null);
-    onFitChange?.("pending");
-  }, [src, onFitChange]);
+    onFitChange?.("pending", null);
+  }, [src]);
 
   const handleLoad = (event) => {
     const image = event.currentTarget;
@@ -17,7 +23,7 @@ export default function StandardPostImage({ src, alt = "", className = "", onLoa
       height: image.naturalHeight,
     };
     setImageMeta(nextMeta);
-    onFitChange?.(nextMeta.fit);
+    onFitChange?.(nextMeta.fit, nextMeta);
     onLoad?.(event);
   };
 

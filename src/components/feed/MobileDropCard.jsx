@@ -16,7 +16,7 @@ import RepostButton from "@/components/feed/RepostButton";
 import PostMusicEditor from "@/components/feed/PostMusicEditor";
 import PostAudioTrack from "@/components/feed/PostAudioTrack";
 import FeedActionCapsule, { FeedActionItem } from "@/components/feed/FeedActionCapsule";
-import StandardPostImage from "@/components/feed/StandardPostImage";
+import StandardPostImage, { getNaturalPostMediaStyle } from "@/components/feed/StandardPostImage";
 import MobileDropComments from "@/components/feed/MobileDropComments";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
@@ -141,7 +141,8 @@ function MobileDropCard({
   const postLink = createPageUrl("Feed") + `?post=${encodeURIComponent(drop.id)}`;
 
   const [showComments, setShowComments] = useState(false);
-  const [mediaFit, setMediaFit] = useState("pending");
+  const [mediaMeta, setMediaMeta] = useState({ fit: "pending" });
+  const mediaFit = mediaMeta.fit;
   const [musicEditorOpen, setMusicEditorOpen] = useState(false);
   const canEditMusic = user?.email === drop.user_email || isManagerOfLeader;
 
@@ -190,7 +191,7 @@ function MobileDropCard({
           </div>
         </div>
       )}
-      <div className={drop.media_url ? `relative overflow-hidden flex items-center justify-center ${mediaFit === "contain" ? "" : "aspect-[4/5]"}` : "relative rounded-[1.45rem] overflow-hidden aspect-[4/5]"} style={{ maxHeight: 720, background: drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
+      <div className={drop.media_url ? `relative overflow-hidden flex items-center justify-center ${mediaFit === "contain" ? "mx-auto max-w-full" : "w-full aspect-[4/5]"}` : "relative w-full rounded-[1.45rem] overflow-hidden aspect-[4/5]"} style={{ maxHeight: 720, ...(drop.media_url ? getNaturalPostMediaStyle(mediaMeta) : {}), background: drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
         <div
           role="button"
           tabIndex={0}
@@ -204,7 +205,7 @@ function MobileDropCard({
               alt=""
               loading="lazy"
               decoding="async"
-              onFitChange={setMediaFit}
+              onFitChange={(fit, meta) => setMediaMeta(meta || { fit })}
             />
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />

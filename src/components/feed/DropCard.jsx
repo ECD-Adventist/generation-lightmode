@@ -23,7 +23,7 @@ import RepostButton from "@/components/feed/RepostButton";
 import PostMusicEditor from "@/components/feed/PostMusicEditor";
 import PostAudioTrack from "@/components/feed/PostAudioTrack";
 import FeedActionCapsule, { FeedActionItem } from "@/components/feed/FeedActionCapsule";
-import StandardPostImage from "@/components/feed/StandardPostImage";
+import StandardPostImage, { getNaturalPostMediaStyle } from "@/components/feed/StandardPostImage";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
@@ -38,7 +38,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
   const [likeBurst, setLikeBurst] = useState(false);
-  const [mediaFit, setMediaFit] = useState("pending");
+  const [mediaMeta, setMediaMeta] = useState({ fit: "pending" });
+  const mediaFit = mediaMeta.fit;
   const [commentBounce, setCommentBounce] = useState(false);
   const [sharePulse, setSharePulse] = useState(false);
   const [saveBounce, setSaveBounce] = useState(false);
@@ -422,22 +423,23 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       `}</style>
 
       <div
-        className={`relative w-full rounded-xl sm:rounded-[1.5rem] overflow-hidden shadow-inner ${
+        className={`relative rounded-xl sm:rounded-[1.5rem] overflow-hidden shadow-inner ${
           drop.media_url
-            ? `${mediaFit === "contain" ? "max-h-[720px]" : "aspect-[4/5] max-h-[720px]"} flex items-center justify-center bg-[#071A33]`
+            ? `${mediaFit === "contain" ? "mx-auto max-w-full max-h-[720px]" : "w-full aspect-[4/5] max-h-[720px]"} flex items-center justify-center bg-[#071A33]`
             : isKeepIt100 || isCodeOfTruth
-              ? 'aspect-[4/5] flex flex-col justify-center items-center text-center'
-              : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center'
+              ? 'w-full aspect-[4/5] flex flex-col justify-center items-center text-center'
+              : 'w-full min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center'
         }`}
-        style={
-          isKeepIt100
+        style={{
+          ...(drop.media_url ? getNaturalPostMediaStyle(mediaMeta) : {}),
+          ...(isKeepIt100
             ? { backgroundImage: `url(${KEEP_IT_100_BG})`, backgroundSize: "cover", backgroundPosition: "center", backgroundColor: "#0B1733" }
             : isCodeOfTruth
               ? { background: "#000000" }
               : isLeaderContent && !drop.media_url
                 ? { background: "linear-gradient(160deg, #070B18 0%, #0B1B3D 40%, #0B2870 80%, #0B1B3D 100%)" }
-                : { background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" }
-        }
+                : { background: drop.media_url ? "linear-gradient(135deg, #F0FAF3 0%, #E8F5C8 60%, #C8F2D4 100%)" : "linear-gradient(160deg, #F8FAFF 0%, #EEF3FF 30%, #E2EBFF 70%, #D8E4FF 100%)" })
+        }}
         onClick={handlePostSurfaceClick}
       >
         {drop.media_url && (
@@ -565,7 +567,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         </div>
 
         {drop.media_url && (
-          <StandardPostImage src={drop.media_url} alt={drop.verse || "Glow Drop"} width="720" height="900" loading="lazy" decoding="async" onFitChange={setMediaFit} />
+          <StandardPostImage src={drop.media_url} alt={drop.verse || "Glow Drop"} width="720" height="900" loading="lazy" decoding="async" onFitChange={(fit, meta) => setMediaMeta(meta || { fit })} />
         )}
 
         {!drop.media_url && (

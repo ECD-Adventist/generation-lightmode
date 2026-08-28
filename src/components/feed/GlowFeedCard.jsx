@@ -15,11 +15,12 @@ import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import RepostButton from "@/components/feed/RepostButton";
 import useRequireAuth from "@/hooks/useRequireAuth";
-import StandardPostImage from "@/components/feed/StandardPostImage";
+import StandardPostImage, { getNaturalPostMediaStyle } from "@/components/feed/StandardPostImage";
 
 export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = [], guestToken, likeIdentity }) {
   const [showComments, setShowComments] = useState(false);
-  const [mediaFit, setMediaFit] = useState("pending");
+  const [mediaMeta, setMediaMeta] = useState({ fit: "pending" });
+  const mediaFit = mediaMeta.fit;
   const [newComment, setNewComment] = useState("");
   const [shareFallback, setShareFallback] = useState(null);
   const queryClient = useQueryClient();
@@ -133,8 +134,8 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
 
       {/* Media */}
       {drop.media_url && (
-        <div className={`relative overflow-hidden flex items-center justify-center bg-[#071A33] ${mediaFit === "contain" ? "" : "aspect-[4/5]"}`} style={{ maxHeight: 720 }}>
-          <StandardPostImage src={drop.media_url} alt={drop.verse || "Glow Drop"} loading="lazy" onFitChange={setMediaFit} />
+        <div className={`relative overflow-hidden flex items-center justify-center bg-[#071A33] ${mediaFit === "contain" ? "mx-auto max-w-full" : "w-full aspect-[4/5]"}`} style={{ maxHeight: 720, ...getNaturalPostMediaStyle(mediaMeta) }}>
+          <StandardPostImage src={drop.media_url} alt={drop.verse || "Glow Drop"} loading="lazy" onFitChange={(fit, meta) => setMediaMeta(meta || { fit })} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
         </div>
       )}
