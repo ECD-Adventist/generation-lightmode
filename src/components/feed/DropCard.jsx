@@ -287,6 +287,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
 
   const handleSaveClick = (e) => {
     e.stopPropagation();
+    if (!user) { requireAuth(); return; }
     setSaveBounce(true);
     setTimeout(() => setSaveBounce(false), 400);
     toggleSaveMutation.mutate();
@@ -295,7 +296,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
   // Poster-style posts (photos, Keep It 100, Codes of Truth) show the action bar BELOW
   // the artwork so nothing covers it. Other cards keep the floating capsule.
   const showActionBarBelow = !!drop.media_url || isKeepIt100 || isCodeOfTruth;
-  const actionBar = isGuest ? null : (
+  const actionBar = (
     <FeedActionCapsule
       inline={showActionBarBelow}
       more={
@@ -318,7 +319,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
                   {canEditMusic && drop.audio_url && <DropdownMenuItem onClick={(e) => { e.stopPropagation(); base44.entities.GlowDrop.update(drop.id, { audio_url: "", audio_title: "" }).then(() => { queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] }); toast.success("Music removed"); }).catch(() => toast.error("Could not remove music")); }} className="hover:bg-muted cursor-pointer focus:bg-muted">Remove Music</DropdownMenuItem>}
                   <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }} className="text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer focus:bg-red-50 focus:text-red-600">Delete Post</DropdownMenuItem>
                 </>
-              ) : <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if(!user) return toast.error("Please login to report"); const reason = window.prompt("Why are you reporting this content?"); if(reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Content reported to moderators.")); }} className="hover:bg-muted cursor-pointer focus:bg-muted">Report Post</DropdownMenuItem>;
+              ) : <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if (!user) { requireAuth(); return; } const reason = window.prompt("Why are you reporting this content?"); if(reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Content reported to moderators.")); }} className="hover:bg-muted cursor-pointer focus:bg-muted">Report Post</DropdownMenuItem>;
             })()}
           </DropdownMenuContent>
         </DropdownMenu>

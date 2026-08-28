@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Loader2, Send } from "lucide-react";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 /**
  * Inline comment thread for the mobile feed card.
@@ -10,6 +11,7 @@ import { Loader2, Send } from "lucide-react";
  */
 export default function MobileDropComments({ drop, user }) {
   const queryClient = useQueryClient();
+  const requireAuth = useRequireAuth(user);
   const [text, setText] = useState("");
   const [replyToComment, setReplyToComment] = useState(null);
 
@@ -20,7 +22,6 @@ export default function MobileDropComments({ drop, user }) {
 
   const addComment = useMutation({
     mutationFn: async () => {
-      if (!user) { toast.error("Please log in to comment"); return; }
       await base44.functions.invoke("createGlowDropComment", { drop_id: drop.id, content: text.trim(), parent_comment_id: replyToComment?.id || undefined });
     },
     onSuccess: () => {
@@ -52,7 +53,11 @@ export default function MobileDropComments({ drop, user }) {
 
         {replyToComment && <div className="flex items-center justify-between text-[11px]" style={{ color: "#6B7FA0" }}><span>Replying to {replyToComment.user_email?.split("@")[0]}</span><button type="button" onClick={() => setReplyToComment(null)} className="font-black" style={{ color: "#0B3FD9" }}>Cancel</button></div>}
         <form
-          onSubmit={(e) => { e.preventDefault(); if (text.trim()) addComment.mutate(); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!user) { requireAuth(); return; }
+            if (text.trim()) addComment.mutate();
+          }}
           className="flex items-center gap-2"
         >
           <input

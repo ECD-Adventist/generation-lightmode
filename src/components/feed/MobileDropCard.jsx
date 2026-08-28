@@ -17,6 +17,7 @@ import PostMusicEditor from "@/components/feed/PostMusicEditor";
 import PostAudioTrack from "@/components/feed/PostAudioTrack";
 import FeedActionCapsule, { FeedActionItem } from "@/components/feed/FeedActionCapsule";
 import MobileDropComments from "@/components/feed/MobileDropComments";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 /**
  * Lightweight mobile-only DropCard.
@@ -37,6 +38,7 @@ function MobileDropCard({
   followMutation,
 }) {
   const queryClient = useQueryClient();
+  const requireAuth = useRequireAuth(user);
   const navigate = useNavigate();
   const clickTimerRef = useRef(null);
   const userHasLiked = userLikes.some(like => like.drop_id === drop.id);
@@ -71,7 +73,6 @@ function MobileDropCard({
 
   const toggleSaveMutation = useMutation({
     mutationFn: async () => {
-      if (!user) { toast.error("Please log in to save"); return; }
       if (isSaved) {
         await base44.entities.SavedDrop.delete(savedForThisDrop[0].id);
       } else {
@@ -99,6 +100,11 @@ function MobileDropCard({
       toast.error(err?.response?.data?.error || err?.message || "Could not delete post");
     },
   });
+
+  const handleSave = () => {
+    if (!user) { requireAuth(); return; }
+    toggleSaveMutation.mutate();
+  };
 
   const handleLike = () => {
     likeMutation.mutate({
@@ -146,7 +152,7 @@ function MobileDropCard({
             <DropdownMenuItem onClick={() => { navigator.clipboard.writeText(`${window.location.origin}${postLink}`).then(() => toast.success("Link copied")); }}>Copy Link</DropdownMenuItem>
             {canDelete
               ? <DropdownMenuItem className="text-red-500" onClick={() => { if (window.confirm("Delete this post? This cannot be undone.")) deleteDropMutation.mutate(); }}>Delete Post</DropdownMenuItem>
-              : <DropdownMenuItem onClick={() => { if (!user) return toast.error("Please log in to report"); const reason = window.prompt("Why are you reporting this content?"); if (reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Reported")); }}>Report Post</DropdownMenuItem>}
+              : <DropdownMenuItem onClick={() => { if (!user) { requireAuth(); return; } const reason = window.prompt("Why are you reporting this content?"); if (reason) base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason }).then(() => toast.success("Reported")); }}>Report Post</DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
       }
@@ -155,7 +161,7 @@ function MobileDropCard({
       <FeedActionItem icon={<MessageCircle className="w-4 h-4" />} label="Comment" active={showComments} onClick={() => setShowComments(v => !v)} />
       <FeedActionItem icon={<Share2 className="w-4 h-4" />} label="Share" value={drop.shares_count || 0} onClick={(event) => { event.stopPropagation(); handleShare(drop); }} />
       <RepostButton drop={drop} user={user} capsule />
-      <FeedActionItem icon={<Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />} label={isSaved ? "Saved" : "Save"} active={isSaved} onClick={() => toggleSaveMutation.mutate()} />
+      <FeedActionItem icon={<Bookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />} label={isSaved ? "Saved" : "Save"} active={isSaved} onClick={handleSave} />
     </FeedActionCapsule>
   );
 

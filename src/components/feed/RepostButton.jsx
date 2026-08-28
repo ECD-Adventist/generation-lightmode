@@ -3,9 +3,11 @@ import { Repeat2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 export default function RepostButton({ drop, user, compact = false, dark = false, dock = false, capsule = false }) {
   const queryClient = useQueryClient();
+  const requireAuth = useRequireAuth(user);
   const originalId = drop?.repost?.original_post_id || drop?.original_drop_id || drop?.id;
   const { data: records = [] } = useQuery({
     queryKey: ["myReposts", user?.id],
@@ -72,7 +74,7 @@ export default function RepostButton({ drop, user, compact = false, dark = false
 
   const handleClick = (event) => {
     event.stopPropagation();
-    if (!user) { toast.error("Please log in to repost"); return; }
+    if (!user) { requireAuth(); return; }
     mutation.mutate();
   };
 
