@@ -118,7 +118,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
     ...(dropUser || {}),
     email: drop.user_email,
     username: drop.author_username || dropUser?.username || "",
-    full_name: drop.author_name || dropUser?.full_name || drop.user_email?.split("@")[0] || "Glow Believer",
+    full_name: dropUser?.display_name || dropUser?.username || dropUser?.full_name || drop.author_name || drop.user_email?.split("@")[0] || "Glow Believer",
     profile_picture: drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
     profile_picture_url: drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
   };

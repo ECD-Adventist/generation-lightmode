@@ -14,12 +14,13 @@ function publicUserShape(user, includeEmail = false) {
   const profilePicture = user.profile_picture || user.profile_picture_url || '';
   const coverImage = user.cover_image || user.cover_picture_url || '';
   const xpPoints = user.xp_points ?? user.glow_score ?? 0;
+  const canonicalName = user.display_name || user.username || user.full_name || '';
   return {
     id: user.id,
     ...(includeEmail ? { email: user.email || '' } : {}),
     username: user.username || '',
-    display_name: user.display_name || '',
-    full_name: user.full_name || '',
+    display_name: canonicalName,
+    full_name: canonicalName,
     profile_picture: profilePicture,
     profile_picture_url: profilePicture,
     cover_image: coverImage,

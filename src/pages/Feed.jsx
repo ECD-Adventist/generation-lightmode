@@ -217,7 +217,7 @@ export default function Feed() {
   // and to authorize managers to delete posts under their leader's identity.
   // Deferred: not critical to the very first post render.
   const { data: leaderAccounts = [] } = useQuery({
-    queryKey: ["allLeaderAccounts"],
+    queryKey: ["allLeaderAccounts", authorEmails.slice(0, 100).join("|")],
     queryFn: async () => {
       const res = await base44.functions.invoke("listPublicLeaderAccounts", { emails: authorEmails.slice(0, 100), limit: 100 });
       return Array.isArray(res.data) ? res.data : [];

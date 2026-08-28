@@ -66,7 +66,13 @@ Deno.serve(async (req) => {
 
     const customUpdate = {};
     if (username !== null) customUpdate.username = username.replace(/^@+/, '').slice(0, 40);
-    if (display_name !== null) customUpdate.display_name = display_name.slice(0, 120);
+    if (display_name !== null) {
+      const canonicalName = display_name.slice(0, 120);
+      customUpdate.display_name = canonicalName;
+      // Keep the built-in name synchronized so legacy and third-party surfaces
+      // that only understand full_name show the user's chosen name immediately.
+      customUpdate.full_name = canonicalName;
+    }
     if (has('country')) customUpdate.country = normalizeCountryName(clean(body.country));
     if (has('location')) customUpdate.location = clean(body.location) || '';
     if (has('bio')) customUpdate.bio = (clean(body.bio) || '').slice(0, 1200);

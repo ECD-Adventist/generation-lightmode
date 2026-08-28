@@ -19,6 +19,9 @@ export default function MobileGlowGroups({
   user,
   users,
   systemUserCount,
+  usersInitialLoading = false,
+  userCountLoading = false,
+  usersError = false,
   drops,
   following,
   hasMoreUsers,
@@ -347,10 +350,16 @@ export default function MobileGlowGroups({
                 <Users className="w-3.5 h-3.5" style={{ color: "#0B3FD9" }} />
                 <h3 className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: "#0B3FD9" }}>People</h3>
               </div>
-              <span className="text-[10px] font-bold" style={{ color: "#8A97B5" }}>{filteredUsers.length} shown · {systemUserCount || users.length} total</span>
+              <span className="text-[10px] font-bold" style={{ color: "#8A97B5" }}>{usersInitialLoading ? 'Loading…' : `${filteredUsers.length} shown`} · {userCountLoading ? '—' : (systemUserCount || users.length)} total</span>
             </div>
 
-            {filteredUsers.length === 0 ? (
+            {usersInitialLoading ? (
+              <div className="space-y-2.5" aria-label="Loading people">
+                {[0, 1, 2].map(item => <div key={item} className="h-[74px] rounded-2xl animate-pulse" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }} />)}
+              </div>
+            ) : usersError ? (
+              <EmptyState emoji="⚠" title="People could not load" subtitle="Pull down to retry" />
+            ) : filteredUsers.length === 0 ? (
               <EmptyState emoji="🔍" title="No people found" subtitle="Search checks public names and locations" />
             ) : filteredUsers.map(u => {
               const targetId = String(u.id || "").replace(/^leader_/, "");

@@ -1,9 +1,10 @@
 import React from "react";
+import { getDisplayName } from "@/lib/displayName";
 
 export const getAvatarUrl = (user) => user?.author_avatar || user?.profile_picture || user?.profile_picture_url || user?.leader_profile_picture_url || "";
 
 export const getInitials = (user) => {
-  const source = user?.username || user?.display_name || user?.full_name || user?.author_name || user?.email || "?";
+  const source = getDisplayName(user);
   return source.trim().charAt(0).toUpperCase() || "?";
 };
 

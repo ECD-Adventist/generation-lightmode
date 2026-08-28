@@ -10,6 +10,8 @@ import ImageCropperModal from "@/components/ui/ImageCropperModal";
 import ResponsiveSelect from "@/components/ui/ResponsiveSelect";
 import { AGE_RESTRICTION_MESSAGE, getMinimumBirthDateForAge, isAtLeastAge } from "@/lib/agePolicy";
 import useUrlOverlay from "@/hooks/useUrlOverlay";
+import { updateCachedUserIdentity } from "@/lib/displayName";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   const editRoute = useUrlOverlay("edit");
@@ -17,6 +19,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   const closeEditor = editRoute.isOpen ? editRoute.close : onClose;
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
+  const { refreshUser } = useAuth();
   const [uploadingImage, setUploadingImage] = useState(false);
   const [cropData, setCropData] = useState(null);
   const profileInputRef = useRef(null);
@@ -142,12 +145,21 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
       if (!res.data?.success) throw new Error(res.data?.error || "Save failed");
 
       // Re-fetch the fresh user record from the server (source of truth)
-      const updated = await base44.auth.me();
+      const updated = await refreshUser();
+
+      // Update visible identity caches immediately, then revalidate from the server.
+      updateCachedUserIdentity(queryClient, updated);
 
       // Invalidate caches so Profile page + public user lists re-fetch fresh data
       queryClient.invalidateQueries({ queryKey: ["allUsersForProfile"] });
       queryClient.invalidateQueries({ queryKey: ["allUsers"] });
       queryClient.invalidateQueries({ queryKey: ["overviewPublicUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["publicUsersDirectoryPages"] });
+      queryClient.invalidateQueries({ queryKey: ["feedVisibleUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["feedSuggestedUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["publicUserProfileIdentity"] });
+      queryClient.invalidateQueries({ queryKey: ["postAuthorIdentity"] });
+      queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
 
       toast.success("Profile saved! ✨");
       onSaved(updated);

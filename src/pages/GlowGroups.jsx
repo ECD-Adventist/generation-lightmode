@@ -15,6 +15,7 @@ import AppFooter from "@/components/AppFooter";
 import MobileGlowGroups from "@/components/groups/MobileGlowGroups";
 import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
 import { useAuth } from "@/lib/AuthContext";
+import { getDisplayName } from "@/lib/displayName";
 
 const rankColors = { Champion: "#FFD000", Trendsetter: "#8A5CFF", Warrior: "#1DA1FF", Starter: "#00CFFF" };
 
@@ -59,6 +60,8 @@ export default function GlowGroups() {
     hasNextPage: hasMoreUsers,
     isFetchingNextPage: isLoadingMoreUsers,
     isError: usersError,
+    isPending: usersPending,
+    refetch: refetchUsers,
   } = useInfiniteQuery({
     queryKey: ["publicUsersDirectoryPages", { search: directorySearch, pageSize: 40 }],
     queryFn: async ({ pageParam = 0 }) => {
@@ -73,9 +76,12 @@ export default function GlowGroups() {
     getNextPageParam: (lastPage, pages) => lastPage.length === 40 ? pages.length * 40 : undefined,
     enabled: authChecked,
     staleTime: 1000 * 60 * 5,
+    placeholderData: previous => previous,
   });
   const regularUsers = useMemo(() => userPages?.pages?.flat() || [], [userPages]);
-  const { data: communitySnapshot } = usePublicCommunitySnapshot();
+  const { data: communitySnapshot, isPlaceholderData: isSnapshotPlaceholder, isPending: snapshotPending } = usePublicCommunitySnapshot();
+  const usersInitialLoading = usersPending && regularUsers.length === 0;
+  const userCountLoading = (snapshotPending || isSnapshotPlaceholder) && !communitySnapshot?.totalUsers;
   const systemUserCount = communitySnapshot?.totalUsers || regularUsers.length;
 
   // Managed leader accounts — these are NOT in the User entity, so we fetch
@@ -258,6 +264,9 @@ export default function GlowGroups() {
           user={user}
           users={users}
           systemUserCount={systemUserCount}
+          usersInitialLoading={usersInitialLoading}
+          userCountLoading={userCountLoading}
+          usersError={usersError}
           drops={drops}
           following={following}
           hasMoreUsers={hasMoreUsers}
@@ -357,16 +366,27 @@ export default function GlowGroups() {
           <div className="space-y-3">
             <div className="rounded-2xl px-4 py-3 flex items-center justify-between" style={{ background: "#EEF3FF", border: "1px solid #D6E4FF", color: "#0B3FD9" }}>
               <span className="text-sm font-bold">Users in system</span>
-              <span className="text-lg font-black" style={{ fontFamily: "Space Grotesk, sans-serif" }}>{systemUserCount}</span>
+              <span className="text-lg font-black" style={{ fontFamily: "Space Grotesk, sans-serif" }}>{userCountLoading ? "—" : systemUserCount}</span>
             </div>
-            {filteredUsers.length === 0 && (
+            {usersInitialLoading && (
+              <div className="space-y-3" aria-label="Loading people">
+                {[0, 1, 2].map(item => <div key={item} className="h-20 rounded-2xl animate-pulse" style={{ background: "#EEF3FF", border: "1px solid #D6E4FF" }} />)}
+              </div>
+            )}
+            {!usersInitialLoading && usersError && (
+              <div className="text-center py-20" style={{ color: "#8A97B5" }}>
+                <p className="font-bold" style={{ color: "#0B1B3D" }}>People could not load.</p>
+                <button type="button" onClick={() => refetchUsers()} className="mt-3 min-h-11 rounded-full px-5 text-sm font-bold text-white" style={{ background: "#0B3FD9" }}>Try Again</button>
+              </div>
+            )}
+            {!usersInitialLoading && !usersError && filteredUsers.length === 0 && (
               <div className="text-center py-20" style={{ color: "#8A97B5" }}>
                 <div className="text-4xl mb-3">🔍</div>
                 <p>No people found.</p>
                 <p className="text-xs mt-2">Search now checks name, display name, email, country, city, and bio.</p>
               </div>
             )}
-            {filteredUsers.map(u => {
+            {!usersInitialLoading && !usersError && filteredUsers.map(u => {
               const targetId = String(u.id || "").replace(/^leader_/, "");
               const isFollowing = following.some(f => f.following_id === targetId);
               const userDrops = dropCountByUser[u.id] || 0;
@@ -379,7 +399,7 @@ export default function GlowGroups() {
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{u.full_name}</div>
+                      <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(u)}</div>
                       <div className="text-xs mt-0.5 flex items-center gap-2" style={{ color: "#6B7FA0" }}>
                         {u.country && <><MapPin className="w-3 h-3 inline" /> {u.country}</>}
                         {u.country && <span>·</span>}

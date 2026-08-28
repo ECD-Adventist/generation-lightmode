@@ -38,9 +38,11 @@ Deno.serve(async (req) => {
 
     const allUsers = await base44.asServiceRole.entities.User.list('-created_date', limit, skip);
 
-    const adminUsers = allUsers.map(u => ({
+    const adminUsers = allUsers.map(u => {
+      const canonicalName = u.display_name || u.username || u.full_name || '';
+      return {
       id: u.id,
-      full_name: u.full_name,
+      full_name: canonicalName,
       // Users can change display_name / username after signing up — return both so
       // the Admin Center shows their current chosen name, not just the signup name.
       display_name: u.display_name,
@@ -69,7 +71,8 @@ Deno.serve(async (req) => {
       territory_countries: u.territory_countries,
       territory_status: u.territory_status,
       territory_level: u.territory_level,
-    }));
+      };
+    });
 
     await logAdminAction(base44, req, caller, 'users', 'list', `Returned ${adminUsers.length} users`);
     return Response.json(adminUsers);

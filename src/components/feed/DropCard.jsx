@@ -51,7 +51,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     ...(dropUser || {}),
     email: drop.user_email,
     username: drop.author_username || dropUser?.username || "",
-    full_name: leaderForDrop?.leader_name || drop.author_name || dropUser?.full_name || drop.user_email?.split('@')[0] || "Glow Believer",
+    full_name: leaderForDrop?.leader_name || dropUser?.display_name || dropUser?.username || dropUser?.full_name || drop.author_name || drop.user_email?.split('@')[0] || "Glow Believer",
     profile_picture: leaderForDrop?.leader_profile_picture_url || drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
     profile_picture_url: leaderForDrop?.leader_profile_picture_url || drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
     country: leaderForDrop?.leader_country || dropUser?.country,

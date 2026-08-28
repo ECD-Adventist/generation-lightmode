@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -12,9 +12,10 @@ import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
 import { tryNativeShare } from "@/lib/shareActions";
 import ShareFallbackDialog from "@/components/share/ShareFallbackDialog";
 import DropCard from "@/components/feed/DropCard";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function Post() {
-  const [currentUser, setCurrentUser] = useState(null);
+  const { user: currentUser } = useAuth();
   const [shareFallback, setShareFallback] = useState(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -23,27 +24,30 @@ export default function Post() {
   const dropId = urlParams.get("id");
   const backUser = urlParams.get("user");
 
-  useEffect(() => {
-    base44.auth.isAuthenticated().then((isAuth) => {
-      if (isAuth) base44.auth.me().then(setCurrentUser);
-    });
-  }, []);
-
-  const { data: drops = [], isLoading } = useQuery({
+  const { data: drops = [], isLoading, isError: postError, refetch: refetchPost } = useQuery({
     queryKey: ["postDrop", dropId],
-    queryFn: () => base44.entities.GlowDrop.filter({ id: dropId }),
+    queryFn: async () => [await base44.entities.GlowDrop.get(dropId)],
     enabled: !!dropId,
+    placeholderData: () => {
+      const cachedFeed = queryClient.getQueryData(["allGlowDrops"]);
+      const cachedDrop = cachedFeed?.pages
+        ?.flatMap(page => page?.items || [])
+        .find(item => item?.id === dropId);
+      return cachedDrop ? [cachedDrop] : undefined;
+    },
   });
 
   const drop = drops[0];
+  const authorEmail = drop?.user_email || backUser;
 
   const { data: allUsers = [] } = useQuery({
-    queryKey: ["allUsers"],
+    queryKey: ["postAuthorIdentity", authorEmail],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
+      const res = await base44.functions.invoke("listPublicUsers", { emails: [authorEmail], limit: 1 });
       return Array.isArray(res.data) ? res.data : [];
     },
-    enabled: !!currentUser,
+    enabled: !!authorEmail,
+    staleTime: 1000 * 60 * 5,
   });
 
   const { data: leaderAccounts = [] } = useQuery({
@@ -220,8 +224,17 @@ export default function Post() {
     if (result.status === "failed" || result.status === "unavailable") setShareFallback(share);
   };
 
-  if (isLoading || !drop) {
+  if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
+  }
+
+  if (postError || !drop) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 px-4 text-center" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
+        <p className="font-bold">This post could not be loaded.</p>
+        <button type="button" onClick={() => refetchPost()} className="min-h-11 rounded-full px-5 text-sm font-bold text-white" style={{ background: "#0B3FD9" }}>Try Again</button>
+      </div>
+    );
   }
 
   return (

@@ -48,12 +48,19 @@ export default function DropViewerModal({ drop, drops, user, likeMutation, userL
     enabled: !!drop.id
   });
 
+  const visibleIdentityEmails = React.useMemo(() => Array.from(new Set([
+    drop.user_email,
+    ...comments.map(comment => comment.user_email),
+  ].filter(Boolean))).slice(0, 50), [drop.user_email, comments]);
+
   const { data: allUsers = [] } = useQuery({
-    queryKey: ["dropViewerPublicUsersDefaultPage"],
+    queryKey: ["dropViewerPublicUsers", visibleIdentityEmails.join("|")],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
-      return res.data;
-    }
+      const res = await base44.functions.invoke("listPublicUsers", { emails: visibleIdentityEmails, limit: 50 });
+      return Array.isArray(res.data) ? res.data : [];
+    },
+    enabled: visibleIdentityEmails.length > 0,
+    staleTime: 1000 * 60 * 5,
   });
 
   const { data: savedDrops = [] } = useQuery({
