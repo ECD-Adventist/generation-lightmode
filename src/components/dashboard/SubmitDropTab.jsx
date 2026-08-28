@@ -120,14 +120,14 @@ export default function SubmitDropTab({ user }) {
           </div>
 
           <div className="space-y-2">
-            <Label className="font-semibold uppercase tracking-wider text-xs ml-1" style={labelStyle}>Supporting Evidence (Optional)</Label>
-            <p className="text-xs ml-1 mb-2" style={labelStyle}>Screenshots are supporting evidence only. Displayed likes, views, shares, and saves do not earn XP until verified account and post-link checks are available.</p>
+            <Label className="font-semibold uppercase tracking-wider text-xs ml-1" style={labelStyle}>Post Image / Supporting Evidence (Optional)</Label>
+            <p className="text-xs ml-1 mb-2" style={labelStyle}>Screenshots may be attached as supporting evidence only. Displayed likes, views, shares, and saves do not earn XP; external participation will be graded only after verified account and post-link checks are introduced.</p>
             <Input type="file" accept="image/*" onChange={e => setFile(e.target.files[0])} className="text-sm h-auto px-3 py-3 rounded-xl border-dashed border-2 cursor-pointer transition-colors file:rounded-lg file:px-4 file:py-2 file:mr-4 file:font-bold file:cursor-pointer" style={{ background: "#F6F8FC", border: "2px dashed #D6E4FF", color: "#0B1B3D" }} />
           </div>
 
           <Button type="submit" disabled={loading} className="w-full h-14 mt-4 text-lg font-bold font-['Space_Grotesk'] rounded-xl border-none transition-all hover:scale-[1.02]" style={{ background: "linear-gradient(90deg, #1FB8FF 0%, #0B3FD9 100%)", color: "#FFFFFF", boxShadow: "0 4px 14px rgba(11, 63, 217, 0.3)" }}>
             {loading ? (
-              <><Loader2 className="w-5 h-5 animate-spin mr-2" />Posting</>
+              <><Loader2 className="w-5 h-5 animate-spin mr-2" />Posting...</>
             ) : (
               <><span className="mr-2">⚡</span> Post Glow Drop</>
             )}
