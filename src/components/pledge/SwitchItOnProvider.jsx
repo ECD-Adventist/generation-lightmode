@@ -13,7 +13,7 @@ export function SwitchItOnProvider({ children }) {
     setDestination(dest);
     const isAuth = await base44.auth.isAuthenticated();
     if (!isAuth) {
-      base44.auth.redirectToLogin(createPageUrl(dest));
+      window.location.href = createPageUrl(dest);
       return;
     }
     try {
@@ -50,7 +50,7 @@ export function useSwitchItOn() {
       trigger: async (dest = "Feed") => {
         const isAuth = await base44.auth.isAuthenticated();
         if (!isAuth) {
-          base44.auth.redirectToLogin(createPageUrl(dest));
+          window.location.href = createPageUrl(dest);
           return;
         }
         try {

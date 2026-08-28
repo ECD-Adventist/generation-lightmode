@@ -12,7 +12,7 @@ import { createPageUrl } from "@/utils";
 export async function handleSwitchItOn({ openPledgeModal, destination = "Feed" } = {}) {
   const isAuth = await base44.auth.isAuthenticated();
   if (!isAuth) {
-    base44.auth.redirectToLogin(createPageUrl(destination));
+    window.location.href = createPageUrl(destination);
     return;
   }
   const me = await base44.auth.me();
