@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
 import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
+import LightLeadersBoard from "@/components/groups/LightLeadersBoard";
 import usePullToRefresh from "@/hooks/usePullToRefresh";
 import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 
@@ -71,15 +72,6 @@ export default function MobileGlowGroups({
   const myGroupIds = useMemo(() => new Set(myMemberships.map(m => m.group_id)), [myMemberships]);
   const myGroups = useMemo(() => realGroups.filter(g => myGroupIds.has(g.id)), [realGroups, myGroupIds]);
   const discoverGroups = useMemo(() => filteredGroups.filter(g => !myGroupIds.has(g.id)), [filteredGroups, myGroupIds]);
-
-  const lightLeaders = useMemo(
-    () => users
-      .filter((entry) => entry.is_managed_leader)
-      .filter((entry) => !q || [entry.full_name, entry.leader_title, entry.country, entry.bio]
-        .some((value) => String(value || "").toLowerCase().includes(q)))
-      .sort((a, b) => String(a.full_name || "").localeCompare(String(b.full_name || ""))),
-    [users, q]
-  );
 
   const tabs = [
     { id: "groups", label: "Groups", icon: Globe },
@@ -411,32 +403,9 @@ export default function MobileGlowGroups({
           <GroupSessionsPanel user={user} groups={realGroups} memberships={myMemberships} />
         )}
 
-        {/* LEADERS — verified managed leader accounts only */}
+        {/* LEADERS — XP rankings by category */}
         {activeTab === "leaders" && (
-          <div className="space-y-2.5">
-            {lightLeaders.length === 0 && <EmptyState emoji="☆" title="No verified leaders" subtitle="Try a different search" />}
-            {lightLeaders.map((leader) => {
-              const targetId = String(leader.id || "").replace(/^leader_/, "");
-              const isFollowing = following.some((record) => record.following_id === targetId);
-              return (
-                <div key={leader.id} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
-                  <Link to={createPageUrl("Profile") + `?leader=${encodeURIComponent(targetId)}`} className="flex items-center gap-3 flex-1 min-w-0 no-underline">
-                    <div className="w-11 h-11 rounded-full overflow-hidden shrink-0" style={{ border: "2px solid #FFD000" }}>
-                      <img src={leader.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt={getDisplayName(leader)} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{getDisplayName(leader)}</div>
-                      <div className="text-[10px] truncate" style={{ color: "#CC7A00" }}>{leader.leader_title || "Light Leader"}</div>
-                      <div className="text-[10px] truncate" style={{ color: "#6B7FA0" }}>{leader.country || "Global"}</div>
-                    </div>
-                  </Link>
-                  <button onClick={() => followMutation.mutate(leader)} className="flex items-center justify-center w-8 h-8 rounded-full shrink-0 transition active:scale-90" style={isFollowing ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" } : { background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }} aria-label={isFollowing ? "Following" : "Connect"}>
-                    {isFollowing ? <UserCheck className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+          <LightLeadersBoard currentUser={user} following={following} followMutation={followMutation} searchQuery={search} />
         )}
       </div>
     </div>

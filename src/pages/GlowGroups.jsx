@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Users, MapPin, Search, UserPlus, UserCheck, Star, Zap, Globe, Plus, ChevronRight, Home, Bell, User, Video, Loader2, MessageCircle } from "lucide-react";
 import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
+import LightLeadersBoard from "@/components/groups/LightLeadersBoard";
 import CreateGroupModal from "@/components/groups/CreateGroupModal";
 import { createPageUrl } from "@/utils";
 import { useNavigate } from "react-router-dom";
@@ -230,12 +231,6 @@ export default function GlowGroups() {
   const filteredGroups = realGroups.filter(g =>
     g.name?.toLowerCase().includes(search.toLowerCase()) || (g.country || "").toLowerCase().includes(search.toLowerCase())
   );
-
-  const lightLeaders = users
-    .filter((entry) => entry.is_managed_leader)
-    .filter((entry) => !peopleSearchQuery || [entry.full_name, entry.leader_title, entry.country, entry.bio]
-      .some((value) => String(value || "").toLowerCase().includes(peopleSearchQuery)))
-    .sort((a, b) => String(a.full_name || "").localeCompare(String(b.full_name || "")));
 
   // Get drop count per user
   const dropCountByUser = {};
@@ -506,38 +501,9 @@ export default function GlowGroups() {
           <GroupSessionsPanel user={user} groups={realGroups} memberships={myMemberships} />
         )}
 
-        {/* LIGHT LEADERS TAB — verified managed leader accounts only */}
+        {/* LIGHT LEADERS TAB — XP rankings by category */}
         {activeTab === "leaders" && (
-          <div className="space-y-3">
-            {lightLeaders.length === 0 && (
-              <div className="rounded-2xl p-8 text-center" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#6B7FA0" }}>
-                No verified Light Leaders found.
-              </div>
-            )}
-            {lightLeaders.map((leader) => {
-              const targetId = String(leader.id || "").replace(/^leader_/, "");
-              const isFollowing = following.some((record) => record.following_id === targetId);
-              return (
-                <div key={leader.id} className="flex items-center gap-4 rounded-2xl p-4" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
-                  <Link to={createPageUrl("Profile") + `?leader=${encodeURIComponent(targetId)}`} className="flex items-center gap-4 flex-1 min-w-0 no-underline">
-                    <div className="w-12 h-12 rounded-full overflow-hidden shrink-0" style={{ border: "2px solid #FFD000", background: "#FFFFFF" }}>
-                      <img src={leader.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt={leader.full_name || "Light Leader"} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-bold text-sm truncate" style={{ color: "#0B1B3D" }}>{leader.full_name}</div>
-                      <div className="text-xs truncate" style={{ color: "#CC7A00" }}>{leader.leader_title || "Light Leader"}</div>
-                      <div className="text-xs truncate" style={{ color: "#6B7FA0" }}>{leader.country || "Global"}</div>
-                    </div>
-                  </Link>
-                  {leader.email !== user?.email && (
-                    <button onClick={() => followMutation.mutate(leader)} className="px-3 py-1.5 rounded-full text-[10px] font-bold transition-all shrink-0" style={isFollowing ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" } : { border: "1px solid #1FB8FF", color: "#0B3FD9", background: "rgba(31, 184, 255, 0.08)" }}>
-                      {isFollowing ? "Following" : "Connect"}
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          <LightLeadersBoard currentUser={user} following={following} followMutation={followMutation} searchQuery={search} />
         )}
       </div>
       <CreateGroupModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} user={user} />
