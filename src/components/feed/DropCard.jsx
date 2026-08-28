@@ -43,13 +43,16 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   const queryClient = useQueryClient();
 
   const userHasLiked = userLikes.some(like => like.drop_id === drop.id);
+  // Managed leader records are authoritative for leader names, titles, and portraits.
+  const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
   const authorProfile = {
     ...(dropUser || {}),
     email: drop.user_email,
     username: drop.author_username || dropUser?.username || "",
-    full_name: drop.author_name || dropUser?.full_name || drop.user_email?.split('@')[0] || "Glow Believer",
-    profile_picture: drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
-    profile_picture_url: drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
+    full_name: leaderForDrop?.leader_name || drop.author_name || dropUser?.full_name || drop.user_email?.split('@')[0] || "Glow Believer",
+    profile_picture: leaderForDrop?.leader_profile_picture_url || drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
+    profile_picture_url: leaderForDrop?.leader_profile_picture_url || drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
+    country: leaderForDrop?.leader_country || dropUser?.country,
     drop_count: dropUser?.drop_count || 0
   };
   const postLink = createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email || authorProfile.email || "")}`;
@@ -63,8 +66,6 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   const isSuperCreator = (authorProfile.drop_count || 0) >= 9;
   const users = allUsers;
 
-  // Leader posts (created via "Post as leader") get a distinct premium treatment.
-  const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
   const isFollowingAuthor = following.some(f => f.following_email === drop.user_email);
   const canFollowAuthor = !!user && user.email !== drop.user_email && typeof followMutation?.mutate === "function";
 
