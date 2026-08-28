@@ -37,7 +37,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
         drop_id: drop.id,
         author_email: drop.user_email,
         author_name: authorProfile.full_name,
-        action: "toggle",
+        action: userHasLiked ? "unlike" : "like",
         ...(!currentUser ? { visitor_token: guestToken } : {}),
       });
       if (!currentUser) {
@@ -215,7 +215,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
         {/* Actions */}
         <div className="flex items-center gap-4 pt-1 border-t border-white/5">
           <button
-            onClick={() => likeMutation.mutate()}
+            onClick={() => { if (!likeMutation.isPending) likeMutation.mutate(); }}
             className="flex items-center gap-1.5 text-xs font-bold transition-all hover:scale-105"
           >
             <Heart className={`w-4 h-4 transition-all ${userHasLiked ? "text-red-500 fill-red-500" : "text-gray-400 hover:text-red-400"}`} />

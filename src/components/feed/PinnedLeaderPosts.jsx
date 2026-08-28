@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Pin } from "lucide-react";
@@ -20,12 +20,23 @@ export default function PinnedLeaderPosts({ leaderAccounts = [] }) {
     refetchOnWindowFocus: false,
   });
 
+  const pinnedEmails = useMemo(() => Array.from(new Set(pinnedDrops.map((drop) => drop.user_email).filter(Boolean))), [pinnedDrops]);
+  const { data: pinnedLeaders = [] } = useQuery({
+    queryKey: ["pinnedLeaderAccounts", pinnedEmails.join("|")],
+    queryFn: async () => {
+      const response = await base44.functions.invoke("listPublicLeaderAccounts", { emails: pinnedEmails, limit: Math.max(1, pinnedEmails.length) });
+      return Array.isArray(response.data) ? response.data : [];
+    },
+    enabled: pinnedEmails.length > 0,
+    staleTime: 1000 * 60 * 5,
+  });
+
   if (isLoading || pinnedDrops.length === 0) return null;
 
   const resolveLeader = (email) => {
     if (!email) return null;
-    // Match by leader_email, or by manager_emails if the drop was created by a manager
-    return leaderAccounts.find(a => a.leader_email === email || (a.manager_emails || []).includes(email));
+    return pinnedLeaders.find((account) => account.leader_email === email)
+      || leaderAccounts.find((account) => account.leader_email === email);
   };
 
   return (

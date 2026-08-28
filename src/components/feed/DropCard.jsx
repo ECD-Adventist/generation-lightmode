@@ -244,9 +244,10 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   });
 
   const triggerLike = () => {
+    if (likeMutation.isPending) return;
     setLikeBurst(true);
     setTimeout(() => setLikeBurst(false), 600);
-    likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: getDisplayName(authorProfile) });
+    likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: getDisplayName(authorProfile), action: userHasLiked ? "unlike" : "like" });
   };
 
   const handlePostSurfaceClick = () => {

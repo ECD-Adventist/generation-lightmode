@@ -40,6 +40,7 @@ import ShareFallbackDialog from "@/components/share/ShareFallbackDialog";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import useFeedScrollRestore from "@/hooks/useFeedScrollRestore";
 import useUrlOverlay from "@/hooks/useUrlOverlay";
+import { fetchAllUserGlowDropLikes } from "@/lib/glowDropLikes";
 import { useAuth } from "@/lib/AuthContext";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
@@ -218,10 +219,10 @@ export default function Feed() {
   const { data: leaderAccounts = [] } = useQuery({
     queryKey: ["allLeaderAccounts"],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicLeaderAccounts", { limit: 200 });
+      const res = await base44.functions.invoke("listPublicLeaderAccounts", { emails: authorEmails.slice(0, 100), limit: 100 });
       return Array.isArray(res.data) ? res.data : [];
     },
-    enabled: deferredReady,
+    enabled: deferredReady && authorEmails.length > 0,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -295,7 +296,7 @@ export default function Feed() {
   const likeIdentity = user?.email || "guest";
   const { data: userLikes = [] } = useQuery({
     queryKey: ["userLikes", likeIdentity],
-    queryFn: () => user ? base44.entities.GlowDropLike.filter({ user_email: user.email }, "-created_date", 500) : JSON.parse(localStorage.getItem("lightmode_guest_likes") || "[]").map(drop_id => ({ drop_id })),
+    queryFn: () => user ? fetchAllUserGlowDropLikes(base44.entities.GlowDropLike, user.email) : JSON.parse(localStorage.getItem("lightmode_guest_likes") || "[]").map(drop_id => ({ drop_id })),
     staleTime: 1000 * 60 * 2,
   });
 
@@ -320,12 +321,12 @@ export default function Feed() {
   };
 
   const likeMutation = useMutation({
-    mutationFn: async ({ id, likes, authorEmail, authorName, action = 'like' }) => {
+    mutationFn: async ({ id, authorEmail, authorName, action }) => {
       const payload = {
         drop_id: id,
         author_email: authorEmail,
         author_name: authorName,
-        action: 'toggle',
+        action,
         ...(!user ? { visitor_token: guestToken } : {})
       };
       if (!isOnline || !navigator.onLine) {

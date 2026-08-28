@@ -121,10 +121,12 @@ export default function DropViewerModal({ drop, drops, user, likeMutation, userL
   };
 
   const triggerLike = () => {
-    likeMutation?.mutate({
+    if (!likeMutation || likeMutation.isPending) return;
+    likeMutation.mutate({
       id: drop.id,
       authorEmail: drop.user_email,
       authorName: drop.author_name || drop.author_username || "Glow Believer",
+      action: liked ? "unlike" : "like",
     });
   };
 
@@ -215,7 +217,7 @@ export default function DropViewerModal({ drop, drops, user, likeMutation, userL
           style={{ minHeight: 280 }}>
 
           {drop.media_url ? (
-            <img src={drop.media_url} alt="Drop" className="w-full h-full object-contain max-h-[92vh]" />
+            <img src={drop.media_url} alt="Drop" className="w-full h-full object-contain max-h-[560px]" />
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="w-full max-w-[520px] aspect-[4/5]" />
           ) : isCodeOfTruth ? (

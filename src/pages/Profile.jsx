@@ -411,10 +411,10 @@ export default function Profile() {
   const savedDropIdSet = useMemo(() => new Set(profileSavedDrops.map(s => s.drop_id)), [profileSavedDrops]);
 
   const profileLikeMutation = useMutation({
-    mutationFn: async ({ id, authorEmail, authorName }) => {
+    mutationFn: async ({ id, authorEmail, authorName, action }) => {
       if (!currentUser) { toast.error("Please log in to like"); return; }
       const response = await base44.functions.invoke('handleLikeDrop', {
-        drop_id: id, author_email: authorEmail, author_name: authorName, action: 'toggle'
+        drop_id: id, author_email: authorEmail, author_name: authorName, action
       });
       toast.success(response.data.action === 'unlike' ? "❤️ Unliked!" : "❤️ Liked!");
       return response.data;

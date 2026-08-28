@@ -8,6 +8,7 @@ import GlowFeedCard from "@/components/feed/GlowFeedCard";
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 import usePullToRefresh from "@/hooks/usePullToRefresh";
 import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
+import { fetchAllUserGlowDropLikes } from "@/lib/glowDropLikes";
 
 const fetchAll = async (entity, query = {}, sort = null) => {
   let allRecords = [];
@@ -84,7 +85,7 @@ export default function GlowFeed() {
   const { data: userLikes = [] } = useQuery({
     queryKey: ["glowFeedLikes", likeIdentity],
     queryFn: () => currentUser
-      ? fetchAll(base44.entities.GlowDropLike, { user_email: currentUser.email })
+      ? fetchAllUserGlowDropLikes(base44.entities.GlowDropLike, currentUser.email)
       : JSON.parse(localStorage.getItem("lightmode_guest_likes") || "[]").map(drop_id => ({ drop_id })),
     staleTime: 1000 * 60 * 2,
   });

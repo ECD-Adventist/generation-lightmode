@@ -107,10 +107,12 @@ function MobileDropCard({
   };
 
   const handleLike = () => {
+    if (likeMutation.isPending) return;
     likeMutation.mutate({
       id: drop.id,
       authorEmail: drop.user_email,
       authorName: getDisplayName(authorProfile),
+      action: userHasLiked ? "unlike" : "like",
     });
   };
 
@@ -200,7 +202,7 @@ function MobileDropCard({
               alt=""
               loading="lazy"
               decoding="async"
-              className="relative block w-full max-h-[520px] object-cover object-center"
+              className="relative block w-full max-h-[560px] object-cover object-center"
             />
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />

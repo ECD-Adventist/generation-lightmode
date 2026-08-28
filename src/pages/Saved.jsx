@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { fetchAllUserGlowDropLikes } from "@/lib/glowDropLikes";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Home, Bookmark, ArrowLeft } from "lucide-react";
+import { Loader2, Bookmark, ArrowLeft } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -50,14 +51,14 @@ export default function Saved() {
 
   const { data: userLikes = [] } = useQuery({
     queryKey: ["userLikes", user?.email],
-    queryFn: () => base44.entities.GlowDropLike.filter({ user_email: user?.email }),
+    queryFn: () => fetchAllUserGlowDropLikes(base44.entities.GlowDropLike, user?.email),
     enabled: !!user,
   });
 
   const likeMutation = useMutation({
-    mutationFn: async ({ id, authorEmail, authorName }) => {
+    mutationFn: async ({ id, authorEmail, authorName, action }) => {
       if (!user) { toast.error("Please log in to like"); return; }
-      const response = await base44.functions.invoke('handleLikeDrop', { drop_id: id, author_email: authorEmail, author_name: authorName, action: 'toggle' });
+      const response = await base44.functions.invoke('handleLikeDrop', { drop_id: id, author_email: authorEmail, author_name: authorName, action });
       toast.success(response.data.action === 'unlike' ? "❤️ Unliked!" : "❤️ Liked!");
       return response.data;
     },

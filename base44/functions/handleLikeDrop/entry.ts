@@ -14,17 +14,20 @@ export default async function(req) {
       drop_id: { type: 'string', required: true, maxLength: 64 },
       author_email: { type: 'string', maxLength: 254 },
       author_name: { type: 'string', maxLength: 120 },
-      action: { type: 'string', enum: ['toggle'] },
+      action: { type: 'string', enum: ['like', 'unlike', 'toggle'] },
       visitor_token: { type: 'string', minLength: 32, maxLength: 128 },
     });
     if (validated.response) return validated.response;
     const { drop_id, visitor_token } = validated.data;
+    const requestedAction = validated.data.action || 'toggle';
     if (!user && !visitor_token) return Response.json({ error: 'Visitor token required' }, { status: 400 });
     const visitorHash = !user ? await crypto.subtle.digest('SHA-256', new TextEncoder().encode(visitor_token)).then(b => Array.from(new Uint8Array(b), x => x.toString(16).padStart(2, '0')).join('')) : '';
     const likeEntity = user ? base44.entities.GlowDropLike : base44.asServiceRole.entities.AnonymousGlowDropLike;
     const existingLikes = await likeEntity.filter(user ? { drop_id, user_email: user.email } : { drop_id, visitor_hash: visitorHash });
 
     const hasLiked = existingLikes.length > 0;
+    // Legacy queued `toggle` requests are treated as idempotent Likes so a retry can never remove a Like.
+    const shouldLike = requestedAction !== 'unlike';
 
     // Use service role to read/update the drop
     const drop = await base44.asServiceRole.entities.GlowDrop.get(drop_id).catch(() => null);
@@ -36,18 +39,30 @@ export default async function(req) {
     // Fetch the real author from the drop record — never trust client-supplied author
     const authorEmail = drop.user_email;
 
-    if (hasLiked) {
-      await likeEntity.delete(existingLikes[0].id);
-      const newCount = Math.max(0, (drop.likes_count || 1) - 1);
-      await base44.asServiceRole.entities.GlowDrop.update(drop_id, { likes_count: newCount });
+    if (!shouldLike) {
+      if (hasLiked) {
+        await Promise.all(existingLikes.map((like) => likeEntity.delete(like.id).catch(() => {})));
+        const newCount = Math.max(0, Number(drop.likes_count || 0) - 1);
+        await base44.asServiceRole.entities.GlowDrop.update(drop_id, { likes_count: newCount });
+        return Response.json({ success: true, action: 'unlike', likes_count: newCount });
+      }
+      return Response.json({ success: true, action: 'unlike', likes_count: Number(drop.likes_count || 0) });
+    }
 
-      return Response.json({ success: true, action: 'unlike', likes_count: newCount });
-    } else {
-      await likeEntity.create(user ? { drop_id, user_email: user.email } : { drop_id, visitor_hash: visitorHash });
-      const newCount = (drop.likes_count || 0) + 1;
-      await base44.asServiceRole.entities.GlowDrop.update(drop_id, { likes_count: newCount });
-      
-      if (!user) return Response.json({ success: true, action: 'like', likes_count: newCount });
+    if (hasLiked) {
+      // Explicit Like is idempotent. Clean up any legacy duplicate rows without
+      // toggling the user's intended state or changing the public count.
+      await Promise.all(existingLikes.slice(1).map((like) => likeEntity.delete(like.id).catch(() => {})));
+      return Response.json({ success: true, action: 'like', likes_count: Number(drop.likes_count || 0) });
+    }
+
+    await likeEntity.create(user ? { drop_id, user_email: user.email } : { drop_id, visitor_hash: visitorHash });
+    const duplicateCheck = await likeEntity.filter(user ? { drop_id, user_email: user.email } : { drop_id, visitor_hash: visitorHash });
+    await Promise.all(duplicateCheck.slice(1).map((like) => likeEntity.delete(like.id).catch(() => {})));
+    const newCount = Number(drop.likes_count || 0) + 1;
+    await base44.asServiceRole.entities.GlowDrop.update(drop_id, { likes_count: newCount });
+
+    if (!user) return Response.json({ success: true, action: 'like', likes_count: newCount });
 
       // Update Daily Challenge: Spread the Light
       const todayStr = new Date().toISOString().split('T')[0];
@@ -77,7 +92,6 @@ export default async function(req) {
       }
 
       return Response.json({ success: true, action: 'like', likes_count: newCount });
-    }
   } catch (error) {
     console.error('Like error:', error);
     return Response.json({ error: error.message }, { status: 500 });
