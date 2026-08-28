@@ -1,15 +1,17 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 // Role hierarchy — higher index = more privileged
 const ROLE_HIERARCHY = [
   "user", "missionary", "GlowGroup Leader", "moderator",
-  "church_admin", "conference_field_admin", "union_admin",
-  "country_admin", "ecd_admin", "admin", "super_admin"
+  "church_officer", "church_admin",
+  "conference_field_officer", "conference_field_admin",
+  "union_officer", "union_admin", "country_admin",
+  "ecd_officer", "ecd_admin", "admin", "super_admin"
 ];
 
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const caller = await base44.auth.me();
@@ -70,4 +72,4 @@ Deno.serve(async (req) => {
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}
