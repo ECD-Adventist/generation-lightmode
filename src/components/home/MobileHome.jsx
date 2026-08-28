@@ -7,7 +7,8 @@ import { base44 } from "@/api/base44Client";
 import DailyDropsSection from "@/components/home/DailyDropsSection";
 import LightModeQuotientQuiz from "@/components/home/LightModeQuotientQuiz";
 import MobileSiteFooter from "@/components/site/MobileSiteFooter";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, CircleMarker, Popup } from "react-leaflet";
+import LocalWorldBasemap from "@/components/maps/LocalWorldBasemap";
 import { countryCoordinates } from "@/lib/countryCoordinates";
 import "leaflet/dist/leaflet.css";
 
@@ -441,7 +442,6 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
         <style>{`
           .mh-map-wrap .leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 8px; }
           .mh-map-wrap .leaflet-popup-tip { background: #121826; border: 1px solid rgba(0,207,255,0.4); }
-          .mh-map-wrap .leaflet-control-attribution { display: none !important; }
         `}</style>
 
         <div className="text-center mb-5 px-5">
@@ -475,7 +475,7 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
         {/* Interactive Leaflet map */}
         <div className="mh-map-wrap relative" style={{ height: "60vh", minHeight: 400, width: "100%", background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.15)", borderBottom: "1px solid rgba(0,207,255,0.15)" }}>
           <MapContainer center={[5, 30]} zoom={3} scrollWheelZoom={false} zoomControl={false} style={{ height: "100%", width: "100%", background: "#0B0F1A" }}>
-            <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png" attribution="&copy; CartoDB" />
+            <LocalWorldBasemap variant="dark" />
             {liveCountries.filter(loc => countryCoordinates[loc.country]).flatMap((loc, i) => {
               const coordinates = countryCoordinates[loc.country];
               const color = i % 3 === 0 ? "#00CFFF" : i % 3 === 1 ? "#FFD000" : "#8A5CFF";

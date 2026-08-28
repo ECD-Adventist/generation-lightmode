@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { MapContainer, TileLayer, CircleMarker, Popup, Marker } from "react-leaflet";
+import { MapContainer, CircleMarker, Popup, Marker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import LocalWorldBasemap from "@/components/maps/LocalWorldBasemap";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { useNavigate } from "react-router-dom";
@@ -312,10 +313,7 @@ export default function GlobalReach() {
           {/* Map */}
           <div className="rounded-3xl overflow-hidden" style={{ height: "65vh", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
             <MapContainer center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>
-              <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
-                attribution='&copy; OpenStreetMap &copy; CARTO'
-              />
+              <LocalWorldBasemap variant="light" />
 
               {/* WARRIORS MODE: density circles */}
               {mapMode === "warriors" && warriorClusters.map(cluster => {

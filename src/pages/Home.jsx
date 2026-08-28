@@ -9,8 +9,9 @@ import { useAppLanguage } from "../components/i18n/useAppLanguage";
 import DailyDropsSection from "../components/home/DailyDropsSection";
 import LightModeQuotientQuiz from "../components/home/LightModeQuotientQuiz";
 import { useSwitchItOn } from "../components/pledge/SwitchItOnProvider";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import LocalWorldBasemap from "@/components/maps/LocalWorldBasemap";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileHome from "../components/home/MobileHome";
 
@@ -518,7 +519,6 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
         <style>{`
           .leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 8px; }
           .leaflet-popup-tip { background: #121826; border: 1px solid rgba(0,207,255,0.4); }
-          .leaflet-control-attribution { display: none !important; }
         `}</style>
 
         <div style={{ position: "relative", zIndex: 10 }}>
@@ -553,7 +553,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
           </div>
           <div style={{ height: "85vh", minHeight: 550, width: "100%", background: "#080C14" }}>
             <MapContainer center={[5, 30]} zoom={3} scrollWheelZoom={false} zoomControl={false} style={{ height: "100%", width: "100%", background: "#0B0F1A" }}>
-              <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png" attribution='&copy; CartoDB' />
+              <LocalWorldBasemap variant="dark" />
               {liveCountries.filter(loc => countryCoordinates[loc.country]).flatMap((loc, i) => {
                 const coordinates = countryCoordinates[loc.country];
                 const color = i % 3 === 0 ? "#00CFFF" : i % 3 === 1 ? "#FFD000" : "#8A5CFF";

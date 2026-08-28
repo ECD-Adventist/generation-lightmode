@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, CircleMarker, Popup } from "react-leaflet";
+import LocalWorldBasemap from "@/components/maps/LocalWorldBasemap";
 import "leaflet/dist/leaflet.css";
 import { AlertCircle, Globe, RefreshCw, X } from "lucide-react";
 import { countryCoordinates } from "@/lib/countryCoordinates";
@@ -78,9 +79,9 @@ export default function DashboardMapHero({ userCountry }) {
       </div>
 
       <div className="relative rounded-[1.75rem] overflow-hidden" style={{ height: "400px", background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
-        <style>{`.leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 12px; } .leaflet-popup-tip { background: #FFFFFF; border: 1px solid #E6ECF5; } .leaflet-control-attribution { display: none !important; }`}</style>
+        <style>{`.leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 12px; } .leaflet-popup-tip { background: #FFFFFF; border: 1px solid #E6ECF5; }`}</style>
         <MapContainer center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>
-          <TileLayer url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png" attribution="&copy; CARTO" />
+          <LocalWorldBasemap variant="light" />
           {countryClusters.map((cluster) => {
             const radius = Math.max(10, Math.min(45, Math.sqrt(cluster.count) * 5));
             const isLocal = cluster.country === userCountry;

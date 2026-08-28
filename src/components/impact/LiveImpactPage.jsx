@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, CircleMarker, Popup } from "react-leaflet";
+import LocalWorldBasemap from "@/components/maps/LocalWorldBasemap";
 import "leaflet/dist/leaflet.css";
 import { Globe, Users, Zap, MapPin, Target } from "lucide-react";
 import { createPageUrl } from "@/utils";
@@ -62,7 +63,7 @@ export default function LiveImpactPage() {
           <p className="glm-body" style={{ fontSize: 17, marginBottom: 48 }}>Circle size reflects real activity based on members, groups, and drops.</p>
           <div style={{ height: "550px", width: "100%", borderRadius: "24px", overflow: "hidden", marginBottom: "40px", background: "#080C14", boxShadow: "0 0 40px rgba(0,207,255,0.15)", border: "1px solid rgba(0,207,255,0.3)" }}>
             <MapContainer center={[5, 25]} zoom={3} scrollWheelZoom={false} zoomControl={false} style={{ height: "100%", width: "100%", background: "#0B0F1A" }}>
-              <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png" attribution='&copy; CartoDB' />
+              <LocalWorldBasemap variant="dark" />
               {countryStats.map((country) => {
                 const coords = countryCoordinates[country.country] || countryCoordinates.Global;
                 const radius = Math.max(8, Math.min(32, country.users * 2 + country.groups * 3 + country.drops));

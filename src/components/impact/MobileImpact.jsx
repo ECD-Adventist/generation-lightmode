@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, CircleMarker, Popup } from "react-leaflet";
+import LocalWorldBasemap from "@/components/maps/LocalWorldBasemap";
 import "leaflet/dist/leaflet.css";
 import { Users, Globe, MapPin, Target, Menu, X, Bell, Zap, ArrowRight, Heart, TrendingUp } from "lucide-react";
 import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
@@ -41,7 +42,6 @@ export default function MobileImpact() {
         @keyframes mi-float { 0%,100% { transform: translateY(0); opacity: 0.2 } 50% { transform: translateY(-18px); opacity: 0.4 } }
         .mi-map-wrap .leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 8px; }
         .mi-map-wrap .leaflet-popup-tip { background: #121826; border: 1px solid rgba(0,207,255,0.4); }
-        .mi-map-wrap .leaflet-control-attribution { display: none !important; }
       `}</style>
 
       {/* TOP BAR */}
@@ -112,7 +112,7 @@ export default function MobileImpact() {
         </div>
         <div className="mi-map-wrap relative" style={{ height: "55vh", minHeight: 380, width: "100%", background: "#080C14", borderTop: "1px solid rgba(0,207,255,0.15)", borderBottom: "1px solid rgba(0,207,255,0.15)" }}>
           <MapContainer center={[5, 25]} zoom={3} scrollWheelZoom={false} zoomControl={false} style={{ height: "100%", width: "100%", background: "#0B0F1A" }}>
-            <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png" attribution="&copy; CartoDB" />
+            <LocalWorldBasemap variant="dark" />
             {countryStats.map((country) => {
               const coords = countryCoordinates[country.country] || countryCoordinates.Global;
               const radius = Math.max(8, Math.min(32, country.users * 2 + country.groups * 3 + country.drops));
