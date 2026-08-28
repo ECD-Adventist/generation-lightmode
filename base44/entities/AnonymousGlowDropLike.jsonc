@@ -1,0 +1,10 @@
+{
+  "name": "AnonymousGlowDropLike",
+  "type": "object",
+  "properties": {
+    "drop_id": { "type": "string" },
+    "visitor_hash": { "type": "string", "description": "One-way SHA-256 hash of an anonymous browser token" }
+  },
+  "required": ["drop_id", "visitor_hash"],
+  "rls": { "create": false, "read": false, "update": false, "delete": false }
+}

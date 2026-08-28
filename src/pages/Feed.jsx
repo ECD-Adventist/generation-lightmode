@@ -2,17 +2,12 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchAllFollowers, fetchAllFollowing } from "@/lib/follows";
-import { Loader2, Heart, MessageCircle, Share2, MoreHorizontal, Bell, Plus, Home, Search as SearchIcon, SquarePlus, PlaySquare, Globe, MessageSquare, Settings, Zap, Menu, ChevronDown, ChevronUp, Compass, LayoutDashboard, User, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera, X, Flame } from "lucide-react";
+import { fetchAllFollowing } from "@/lib/follows";
+import { Loader2, Heart, MessageCircle, Bell, Plus, Home, Search as SearchIcon, Globe, Settings, Zap, Menu, Compass, LayoutDashboard, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera, X } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
-import { formatDistanceToNow } from "date-fns";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import DropCard from "@/components/feed/DropCard";
 import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import DailyChallenges from "@/components/feed/DailyChallenges";
 import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
@@ -291,12 +286,16 @@ export default function Feed() {
     }
   });
 
-  // Recent 500 likes/saves are enough to mark visible feed posts — avoids
-  // unbounded pagination for very active users.
+  const guestToken = useMemo(() => {
+    if (user || typeof window === "undefined") return "";
+    let token = localStorage.getItem("lightmode_guest_like_token");
+    if (!token) { token = crypto.randomUUID() + crypto.randomUUID(); localStorage.setItem("lightmode_guest_like_token", token); }
+    return token;
+  }, [user]);
+  const likeIdentity = user?.email || "guest";
   const { data: userLikes = [] } = useQuery({
-    queryKey: ["userLikes", user?.email],
-    queryFn: () => base44.entities.GlowDropLike.filter({ user_email: user?.email }, "-created_date", 500),
-    enabled: !!user,
+    queryKey: ["userLikes", likeIdentity],
+    queryFn: () => user ? base44.entities.GlowDropLike.filter({ user_email: user.email }, "-created_date", 500) : JSON.parse(localStorage.getItem("lightmode_guest_likes") || "[]").map(drop_id => ({ drop_id })),
     staleTime: 1000 * 60 * 2,
   });
 
@@ -322,12 +321,12 @@ export default function Feed() {
 
   const likeMutation = useMutation({
     mutationFn: async ({ id, likes, authorEmail, authorName, action = 'like' }) => {
-      if (!user) { requireAuth(); return; }
       const payload = {
         drop_id: id,
         author_email: authorEmail,
         author_name: authorName,
-        action: 'toggle'
+        action: 'toggle',
+        ...(!user ? { visitor_token: guestToken } : {})
       };
       if (!isOnline || !navigator.onLine) {
         await queueOfflineAction("likeDrop", payload);
@@ -338,31 +337,36 @@ export default function Feed() {
       if (!response.data.success) {
         throw new Error(response.data.error || 'Failed to ' + action + ' drop');
       }
+      if (!user) {
+        const likes = new Set(JSON.parse(localStorage.getItem("lightmode_guest_likes") || "[]"));
+        response.data.action === "unlike" ? likes.delete(id) : likes.add(id);
+        localStorage.setItem("lightmode_guest_likes", JSON.stringify([...likes]));
+      }
       toast.success(response.data.action === 'unlike' ? "❤️ Unliked!" : "❤️ Liked!");
       return response.data;
     },
     onMutate: async ({ id }) => {
       await queryClient.cancelQueries({ queryKey: ["allGlowDrops"] });
-      await queryClient.cancelQueries({ queryKey: ["userLikes", user?.email] });
+      await queryClient.cancelQueries({ queryKey: ["userLikes", likeIdentity] });
       const prevDrops = queryClient.getQueryData(["allGlowDrops"]);
-      const prevLikes = queryClient.getQueryData(["userLikes", user?.email]) || [];
+      const prevLikes = queryClient.getQueryData(["userLikes", likeIdentity]) || [];
       const alreadyLiked = prevLikes.some(like => like.drop_id === id);
       if (alreadyLiked) {
         updateDropsCache(d => d.id === id ? { ...d, likes_count: Math.max(0, (d.likes_count || 1) - 1) } : d);
-        queryClient.setQueryData(["userLikes", user?.email], old => (old || []).filter(like => like.drop_id !== id));
+        queryClient.setQueryData(["userLikes", likeIdentity], old => (old || []).filter(like => like.drop_id !== id));
       } else {
         updateDropsCache(d => d.id === id ? { ...d, likes_count: (d.likes_count || 0) + 1 } : d);
-        queryClient.setQueryData(["userLikes", user?.email], old => [...(old || []), { drop_id: id, user_email: user?.email }]);
+        queryClient.setQueryData(["userLikes", likeIdentity], old => [...(old || []), { drop_id: id, user_email: user?.email }]);
       }
       return { prevDrops, prevLikes };
     },
     onError: (err, vars, context) => {
       if (context?.prevDrops) queryClient.setQueryData(["allGlowDrops"], context.prevDrops);
-      if (context?.prevLikes) queryClient.setQueryData(["userLikes", user?.email], context.prevLikes);
+      if (context?.prevLikes) queryClient.setQueryData(["userLikes", likeIdentity], context.prevLikes);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
-      queryClient.invalidateQueries({ queryKey: ["userLikes", user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["userLikes", likeIdentity] });
     }
   });
 

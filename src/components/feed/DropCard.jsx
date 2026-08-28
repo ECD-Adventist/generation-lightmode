@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { isNotificationEnabled } from "@/lib/notifications";
 import ReadMoreText from "@/components/feed/ReadMoreText";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
@@ -17,10 +16,9 @@ import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
 import { getDisplayName } from "@/lib/displayName";
 import { useIsMobile } from "@/hooks/use-mobile";
 import CountryFlag from "@/components/common/CountryFlag";
-import KeepIt100Poster, { KEEP_IT_100_BACKGROUND_URL } from "@/components/keep-it-100/KeepIt100Poster";
+import { KEEP_IT_100_BACKGROUND_URL } from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import useRequireAuth from "@/hooks/useRequireAuth";
-import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 import RepostButton from "@/components/feed/RepostButton";
 import PostMusicEditor from "@/components/feed/PostMusicEditor";
 import PostAudioTrack from "@/components/feed/PostAudioTrack";
@@ -246,7 +244,6 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
   });
 
   const triggerLike = () => {
-    if (!user) { requireAuth(); return; }
     setLikeBurst(true);
     setTimeout(() => setLikeBurst(false), 600);
     likeMutation.mutate({ id: drop.id, authorEmail: drop.user_email, authorName: getDisplayName(authorProfile) });
@@ -491,7 +488,7 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
                         height="36"
                         loading="eager"
                         decoding="async"
-                        fetchpriority="high"
+                        fetchPriority="high"
                         className="w-full h-full object-cover"
                       />
                     </div>

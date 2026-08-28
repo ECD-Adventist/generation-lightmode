@@ -7,9 +7,6 @@ export default async function(req) {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     const rateLimited = await enforceApiRateLimit(base44, req, user);
     if (rateLimited) return rateLimited;
 
@@ -18,15 +15,14 @@ export default async function(req) {
       author_email: { type: 'string', maxLength: 254 },
       author_name: { type: 'string', maxLength: 120 },
       action: { type: 'string', enum: ['toggle'] },
+      visitor_token: { type: 'string', minLength: 32, maxLength: 128 },
     });
     if (validated.response) return validated.response;
-    const { drop_id } = validated.data;
-
-    // Check if user already liked this drop
-    const existingLikes = await base44.entities.GlowDropLike.filter({
-      drop_id,
-      user_email: user.email
-    });
+    const { drop_id, visitor_token } = validated.data;
+    if (!user && !visitor_token) return Response.json({ error: 'Visitor token required' }, { status: 400 });
+    const visitorHash = !user ? await crypto.subtle.digest('SHA-256', new TextEncoder().encode(visitor_token)).then(b => Array.from(new Uint8Array(b), x => x.toString(16).padStart(2, '0')).join('')) : '';
+    const likeEntity = user ? base44.entities.GlowDropLike : base44.asServiceRole.entities.AnonymousGlowDropLike;
+    const existingLikes = await likeEntity.filter(user ? { drop_id, user_email: user.email } : { drop_id, visitor_hash: visitorHash });
 
     const hasLiked = existingLikes.length > 0;
 
@@ -41,16 +37,18 @@ export default async function(req) {
     const authorEmail = drop.user_email;
 
     if (hasLiked) {
-      await base44.entities.GlowDropLike.delete(existingLikes[0].id);
+      await likeEntity.delete(existingLikes[0].id);
       const newCount = Math.max(0, (drop.likes_count || 1) - 1);
       await base44.asServiceRole.entities.GlowDrop.update(drop_id, { likes_count: newCount });
 
       return Response.json({ success: true, action: 'unlike', likes_count: newCount });
     } else {
-      await base44.entities.GlowDropLike.create({ drop_id, user_email: user.email });
+      await likeEntity.create(user ? { drop_id, user_email: user.email } : { drop_id, visitor_hash: visitorHash });
       const newCount = (drop.likes_count || 0) + 1;
       await base44.asServiceRole.entities.GlowDrop.update(drop_id, { likes_count: newCount });
       
+      if (!user) return Response.json({ success: true, action: 'like', likes_count: newCount });
+
       // Update Daily Challenge: Spread the Light
       const todayStr = new Date().toISOString().split('T')[0];
       const todayChallenges = await base44.asServiceRole.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: todayStr });
