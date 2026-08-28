@@ -40,8 +40,7 @@ function publicUserShape(user, includeEmail = false) {
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    const actor = await base44.auth.me();
-    if (!actor) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const actor = await base44.auth.me().catch(() => null);
     const rateLimited = await enforceApiRateLimit(base44, req, actor);
     if (rateLimited) return rateLimited;
 
@@ -57,13 +56,24 @@ export default async function(req) {
     const payload = validated.data;
     const limit = Math.min(Math.max(Number(payload.limit) || DEFAULT_LIMIT, 1), MAX_PAGE_LIMIT);
     const skip = Math.max(Number(payload.skip) || 0, 0);
-    const requestedEmails = Array.isArray(payload.emails)
+    let requestedEmails = Array.isArray(payload.emails)
       ? [...new Set(payload.emails.map((value) => cleanString(value, 254).toLowerCase()).filter(Boolean))]
       : [];
     const requestedIds = Array.isArray(payload.ids)
       ? [...new Set(payload.ids.map((value) => cleanString(value, 64)).filter(Boolean))]
       : [];
     const search = cleanString(payload.search || payload.q || '', 100).toLowerCase();
+
+    if (!actor && requestedEmails.length > 0) {
+      const publicAuthorChecks = await Promise.all(requestedEmails.map(async (email) => {
+        const [drops, stories] = await Promise.all([
+          base44.asServiceRole.entities.GlowDrop.filter({ user_email: email }, '-created_date', 1).catch(() => []),
+          base44.asServiceRole.entities.Story.filter({ user_email: email }, '-created_date', 1).catch(() => []),
+        ]);
+        return drops.length > 0 || stories.length > 0 ? email : null;
+      }));
+      requestedEmails = publicAuthorChecks.filter(Boolean);
+    }
 
     let users = [];
     let includeEmail = false;

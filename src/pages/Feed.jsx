@@ -205,7 +205,7 @@ export default function Feed() {
         .slice(0, 8);
     },
     // Deferred — only fetch after first paint to keep initial feed render fast.
-    enabled: !!user?.email && deferredReady,
+    enabled: deferredReady,
     staleTime: 1000 * 60 * 15,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
@@ -236,7 +236,7 @@ export default function Feed() {
   const { data: stories = [] } = useQuery({
     queryKey: ["activeStories"],
     queryFn: () => base44.entities.Story.list("-created_date", 100),
-    enabled: !!user && deferredReady
+    enabled: deferredReady
   });
 
   const { data: deepLinkedStory, isFetched: isStoryResolved, isError: isStoryMissing } = useQuery({
@@ -657,17 +657,13 @@ export default function Feed() {
              <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
              <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
              <SidebarLink to={createPageUrl("Discover")} icon={<Compass className="w-[18px] h-[18px]" />} label="Discover" />
-             {!isGuest && (
-               <>
-                 <SidebarLink to={createPageUrl("Notifications")} icon={<Bell className="w-[18px] h-[18px]" />} label="Notifications" badge={notifications.length > 0 ? notifications.length : null} />
-                 <SidebarLink to={createPageUrl("Dashboard")} icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
-                 <SidebarLink to={createPageUrl("Profile")} icon={
-                   <div className="w-[18px] h-[18px] rounded-full overflow-hidden shrink-0" style={{ border: "1px solid #D5E3F0" }}>
-                     <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
-                   </div>
-                 } label="Profile" />
-               </>
-             )}
+             <SidebarLink to={createPageUrl("Notifications")} icon={<Bell className="w-[18px] h-[18px]" />} label="Notifications" badge={notifications.length > 0 ? notifications.length : null} />
+             <SidebarLink to={createPageUrl("Dashboard")} icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
+             <SidebarLink to={createPageUrl("Profile")} icon={
+               <div className="w-[18px] h-[18px] rounded-full overflow-hidden shrink-0" style={{ border: "1px solid #D5E3F0" }}>
+                 <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
+               </div>
+             } label="Profile" />
 
              <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mt-5 mb-2" style={{ color: "#90A4AE" }}>Tools</p>
 
@@ -729,15 +725,13 @@ export default function Feed() {
              )}
            </nav>
            
-           {!isGuest && (
-             <button
+           <button
                 onClick={() => requireAuth(() => setIsDropModalOpen(true))}
                 className="mt-6 shrink-0 flex items-center justify-center gap-2 font-black rounded-full w-full py-3.5 text-sm transition-all hover:opacity-90 hover:shadow-lg"
                 style={{ background: "linear-gradient(90deg, #FFC107 0%, #FF9800 100%)", color: "#0D1B3D", boxShadow: "0 4px 14px rgba(255, 152, 0, 0.35)" }}
               >
                 <Plus className="w-4 h-4" /> NEW DROP
               </button>
-           )}
         </div>
 
         {/* Center Feed */}
@@ -756,9 +750,7 @@ export default function Feed() {
               />
             </div>
             <div className="flex gap-3 items-center shrink-0">
-              {!isGuest && (
-                <>
-                  <Link to={createPageUrl("Notifications")} className="relative shrink-0" style={{ color: "#0B1B3D" }}>
+              <Link to={createPageUrl("Notifications")} className="relative shrink-0" style={{ color: "#0B1B3D" }}>
                     <Heart className="w-5 h-5 sm:w-6 sm:h-6" />
                     {notifications.length > 0 && (
                       <span className="absolute top-0 right-0 w-2 h-2 rounded-full" style={{ background: "#FF9F1A" }}></span>
@@ -767,8 +759,6 @@ export default function Feed() {
                   <Link to={createPageUrl("Messages")} className="shrink-0" style={{ color: "#0B1B3D" }}>
                     <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                   </Link>
-                </>
-              )}
               <button onClick={() => setIsMobileNavOpen(true)} className="transition shrink-0" style={{ color: "#4A5878" }}>
                 <Menu className="w-6 h-6" />
               </button>
@@ -827,7 +817,6 @@ export default function Feed() {
 
           {/* Stories / Status Row */}
           <div className="flex gap-3 sm:gap-4 px-3 sm:px-4 mb-6 sm:mb-5 overflow-x-auto hide-scrollbar pb-2 shrink-0 items-start">
-            {!isGuest && (
             <button
               onClick={() => requireAuth(() => setIsStatusModalOpen(true))}
               className="flex flex-col items-center gap-2 cursor-pointer flex-shrink-0"
@@ -840,7 +829,6 @@ export default function Feed() {
                </div>
                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "#1E5AFF" }}>ADD STATUS</span>
             </button>
-            )}
 
             {activeStories.map((story) => {
               const storyUser = getUserInfo(story.user_email);
@@ -880,7 +868,7 @@ export default function Feed() {
           </div>
 
           <div className="flex gap-2 sm:gap-3 px-3 sm:px-4 mb-5 sm:mb-6 overflow-x-auto hide-scrollbar shrink-0">
-            {!isGuest && <button onClick={() => requireAuth(() => setIsDropModalOpen(true))} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#2979FF", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(41, 121, 255, 0.3)" }}><Plus className="w-4 h-4" />Post</button>}
+            <button onClick={() => requireAuth(() => setIsDropModalOpen(true))} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap flex items-center gap-1.5" style={{ background: "#2979FF", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(41, 121, 255, 0.3)" }}><Plus className="w-4 h-4" />Post</button>
             {isGuest ? (
               <button onClick={() => requireAuth()} className="px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap" style={{ background: "#FFFFFF", border: "1px solid #E0E4EB", color: "#263238" }}>Messages</button>
             ) : (
@@ -1092,17 +1080,13 @@ export default function Feed() {
                 <SidebarLink to={createPageUrl("Feed")} icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
                 <SidebarLink to={createPageUrl("GlowGroups")} icon={<Globe className="w-[18px] h-[18px]" />} label="Explore" />
                 <SidebarLink to={createPageUrl("Discover")} icon={<Compass className="w-[18px] h-[18px]" />} label="Discover" />
-                {!isGuest && (
-                  <>
-                    <SidebarLink to={createPageUrl("Notifications")} icon={<Bell className="w-[18px] h-[18px]" />} label="Notifications" badge={notifications.length > 0 ? notifications.length : null} />
-                    <SidebarLink to={createPageUrl("Dashboard")} icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
-                    <SidebarLink to={createPageUrl("Profile")} icon={
-                      <div className="w-[18px] h-[18px] rounded-full overflow-hidden shrink-0" style={{ border: "1px solid #D5E3F0" }}>
-                        <UserAvatar user={user} className="w-full h-full" />
-                      </div>
-                    } label="Profile" />
-                  </>
-                )}
+                <SidebarLink to={createPageUrl("Notifications")} icon={<Bell className="w-[18px] h-[18px]" />} label="Notifications" badge={notifications.length > 0 ? notifications.length : null} />
+                <SidebarLink to={createPageUrl("Dashboard")} icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
+                <SidebarLink to={createPageUrl("Profile")} icon={
+                  <div className="w-[18px] h-[18px] rounded-full overflow-hidden shrink-0" style={{ border: "1px solid #D5E3F0" }}>
+                    <UserAvatar user={user} className="w-full h-full" />
+                  </div>
+                } label="Profile" />
 
                 <p className="text-[10px] font-bold uppercase tracking-[0.15em] px-3 mt-5 mb-2" style={{ color: "#90A4AE" }}>Tools</p>
                 <SidebarLink to={createPageUrl("Assistant")} icon={<Bot className="w-[18px] h-[18px]" />} label="AI Assistant" accent />

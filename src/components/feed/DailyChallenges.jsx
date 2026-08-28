@@ -1,11 +1,9 @@
-import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { toast } from "sonner";
-import { CheckCircle2, Circle, Flame, Target } from "lucide-react";
+import { CheckCircle2, Target } from "lucide-react";
 
 export default function DailyChallenges({ user }) {
-  const queryClient = useQueryClient();
   const today = new Date().toISOString().split('T')[0];
 
   const { data: progress = [], isLoading } = useQuery({
@@ -20,22 +18,8 @@ export default function DailyChallenges({ user }) {
     { id: "like_drops", title: "Spread the Light", description: "Like a GlowDrop", xp: 5 }
   ];
 
-  const claimMutation = useMutation({
-    mutationFn: async (challenge) => {
-      await base44.entities.UserDailyChallenge.create({
-        user_email: user.email,
-        date_string: today,
-        challenge_id: challenge.id
-      });
-      await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + challenge.xp });
-    },
-    onSuccess: (_, challenge) => {
-      queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });
-      toast.success(`Challenge Completed! +${challenge.xp} XP ⚡`);
-    }
-  });
 
-  if (!user) return null;
+
 
   return (
     <div className="rounded-[24px] p-5 mb-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #FFF8E0 0%, #FFF0C0 100%)", border: "1px solid #FFD000", boxShadow: "0 4px 16px rgba(255, 208, 0, 0.15)" }}>
