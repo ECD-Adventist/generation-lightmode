@@ -23,6 +23,7 @@ import RepostButton from "@/components/feed/RepostButton";
 import PostMusicEditor from "@/components/feed/PostMusicEditor";
 import PostAudioTrack from "@/components/feed/PostAudioTrack";
 import FeedActionCapsule, { FeedActionItem } from "@/components/feed/FeedActionCapsule";
+import StandardPostImage from "@/components/feed/StandardPostImage";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
@@ -563,7 +564,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         </div>
 
         {drop.media_url && (
-          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} width="720" height="900" loading="lazy" decoding="async" className="block w-full h-full object-contain object-center" />
+          <StandardPostImage src={drop.media_url} alt={drop.verse || "Glow Drop"} width="720" height="900" loading="lazy" decoding="async" />
         )}
 
         {!drop.media_url && (

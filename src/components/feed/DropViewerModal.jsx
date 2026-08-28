@@ -9,6 +9,7 @@ import { createPageUrl } from "@/utils";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import StandardPostImage from "@/components/feed/StandardPostImage";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -218,7 +219,7 @@ export default function DropViewerModal({ drop, drops, user, likeMutation, userL
 
           {drop.media_url ? (
             <div className="w-full aspect-[4/5] max-h-[720px] flex items-center justify-center overflow-hidden bg-[#071A33]">
-              <img src={drop.media_url} alt="Drop" className="block w-full h-full object-contain object-center" />
+              <StandardPostImage src={drop.media_url} alt="Drop" />
             </div>
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="w-full max-w-[520px] aspect-[4/5]" />

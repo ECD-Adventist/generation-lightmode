@@ -16,6 +16,7 @@ import RepostButton from "@/components/feed/RepostButton";
 import PostMusicEditor from "@/components/feed/PostMusicEditor";
 import PostAudioTrack from "@/components/feed/PostAudioTrack";
 import FeedActionCapsule, { FeedActionItem } from "@/components/feed/FeedActionCapsule";
+import StandardPostImage from "@/components/feed/StandardPostImage";
 import MobileDropComments from "@/components/feed/MobileDropComments";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
@@ -197,12 +198,11 @@ function MobileDropCard({
           className="absolute inset-0 block no-underline cursor-pointer touch-manipulation"
         >
           {drop.media_url ? (
-            <img
+            <StandardPostImage
               src={drop.media_url}
               alt=""
               loading="lazy"
               decoding="async"
-              className="block w-full h-full object-contain object-center"
             />
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />

@@ -15,6 +15,7 @@ import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import RepostButton from "@/components/feed/RepostButton";
 import useRequireAuth from "@/hooks/useRequireAuth";
+import StandardPostImage from "@/components/feed/StandardPostImage";
 
 export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = [], guestToken, likeIdentity }) {
   const [showComments, setShowComments] = useState(false);
@@ -132,7 +133,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
       {/* Media */}
       {drop.media_url && (
         <div className="relative aspect-[4/5] overflow-hidden flex items-center justify-center bg-[#071A33]" style={{ maxHeight: 720 }}>
-          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} loading="lazy" className="w-full h-full object-contain" style={{ maxHeight: 720 }} />
+          <StandardPostImage src={drop.media_url} alt={drop.verse || "Glow Drop"} loading="lazy" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
         </div>
       )}
