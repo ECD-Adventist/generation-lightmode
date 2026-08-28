@@ -1,0 +1,41 @@
+{
+  "name": "Follow All Leaders on Signup",
+  "description": "Makes each newly registered user follow every active leader account exactly once.",
+  "trigger": {
+    "config": {
+      "trigger_type": "app_user_auth",
+      "events": [
+        "signup"
+      ]
+    },
+    "condition": null
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "follow_all_leaders_on_signup",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "follow_leaders": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "followAllLeadersOnSignup",
+            "args": {
+              "user_id": "${ .trigger.user_id }",
+              "email": "${ .trigger.email }",
+              "auth_method": "${ .trigger.auth_method }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Follow every leader",
+            "description": "Adds missing leader follows"
+          }
+        }
+      }
+    ]
+  }
+}

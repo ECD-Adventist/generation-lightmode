@@ -35,6 +35,7 @@ export default function MobileProfile({
   userInstitutionApps = [],
   isLeader = false,
   leaderTitle,
+  hasAdministratorLight = false,
   onEditLeader,
 }) {
   const profileInputRef = useRef(null);
@@ -164,18 +165,19 @@ export default function MobileProfile({
             <button
               type="button"
               onClick={() => setViewerImage({ url: user.profile_picture_url || defaultAvatar, alt: "Profile photo" })}
-              className="relative w-20 h-20 rounded-full p-[3px] active:scale-95 transition"
+              className="relative w-20 h-20 rounded-full p-[3px] overflow-hidden active:scale-95 transition"
               style={{
-                background: isLeader
-                  ? "linear-gradient(135deg, #0080FE 0%, #0040A0 50%, #FFD000 100%)"
+                background: (isLeader || hasAdministratorLight)
+                  ? "#060912"
                   : "linear-gradient(135deg, #1FB8FF, #0B3FD9, #FFD000)",
                 boxShadow: isLeader
                   ? "0 10px 28px rgba(0, 128, 254, 0.4), 0 0 0 1px rgba(255, 208, 0, 0.3)"
                   : "0 10px 28px rgba(11, 63, 217, 0.35)",
               }}
             >
-              <div className="w-full h-full rounded-full overflow-hidden relative" style={{ background: "#FFFFFF", border: "3px solid #FFFFFF" }}>
-                <img src={user.profile_picture_url || defaultAvatar} className="w-full h-full object-cover" />
+              {(isLeader || hasAdministratorLight) && <div style={{ position: "absolute", top: "50%", left: "50%", width: "300%", height: "300%", background: "conic-gradient(from 0deg, transparent 55%, #4DA8FF 70%, #0080FE 82%, #FFD000 93%, transparent 100%)", animation: "mp-spin-border 4s linear infinite", zIndex: 0 }} />}
+              <div className="z-10 w-full h-full rounded-full overflow-hidden relative" style={{ background: "#FFFFFF", border: "3px solid #FFFFFF" }}>
+                <img src={user.profile_picture_url || defaultAvatar} alt={`${displayName} profile`} className="w-full h-full object-cover" />
               </div>
               {isLeader && (
                 <span className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full flex items-center justify-center shadow-lg"

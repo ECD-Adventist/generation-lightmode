@@ -252,6 +252,11 @@ export default function Profile() {
   // Is the displayed profile a leader account? (either switched into leader view,
   // or viewing a profile that resolves to a managed leader)
   const isLeaderAccountProfile = isViewingLeader || !!displayUser?.is_managed_leader;
+  const hasAdministratorLight = [
+    "admin", "super_admin", "ecd_admin", "ecd_officer", "country_admin",
+    "union_admin", "union_officer", "conference_field_admin",
+    "conference_field_officer", "church_admin", "church_officer"
+  ].includes(displayUser?.role);
 
   const { data: myDrops = [], isLoading: isMyDropsLoading } = useQuery({
     queryKey: ["myGlowDropsProfile", displayUser?.id, profileEmail, isLeaderAccountProfile],
@@ -811,6 +816,7 @@ export default function Profile() {
           certificates={isLeaderProfile ? [] : certificates}
           isLeader={isLeaderProfile}
           leaderTitle={leaderTitle}
+          hasAdministratorLight={hasAdministratorLight}
           onEditProfile={() => setIsEditing(true)}
           onEditLeader={() => setIsEditingLeader(true)}
           onShareProfile={handleShareProfile}
@@ -1046,10 +1052,11 @@ export default function Profile() {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-5 mb-6 pb-6 relative z-10 px-4 border-b -mt-14 md:-mt-14" style={{ borderColor: "#E6ECF5" }}>
               <div
                 className={`w-32 h-32 rounded-full p-1 flex-shrink-0 overflow-hidden group relative ${canEditAny ? 'cursor-pointer' : ''}`}
-                style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", boxShadow: "0 8px 28px rgba(11, 63, 217, 0.25)" }}
+                style={{ background: hasAdministratorLight ? "#060912" : "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)", boxShadow: "0 8px 28px rgba(11, 63, 217, 0.25)" }}
                 onClick={() => canEditAny && profileInputRef.current?.click()}
               >
-                <div className="w-full h-full rounded-full flex items-center justify-center overflow-hidden" style={{ background: "#FFFFFF", border: "4px solid #FFFFFF" }}>
+                {hasAdministratorLight && <div style={{ position: "absolute", top: "50%", left: "50%", width: "300%", height: "300%", background: "conic-gradient(from 0deg, transparent 55%, #4DA8FF 70%, #0080FE 82%, #FFD000 93%, transparent 100%)", animation: "profile-spin-border 4s linear infinite", zIndex: 0 }} />}
+                <div className="relative z-10 w-full h-full rounded-full flex items-center justify-center overflow-hidden" style={{ background: "#FFFFFF", border: "4px solid #FFFFFF" }}>
                   <img src={displayUser.profile_picture || displayUser.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="Profile" className="w-full h-full object-cover" />
                   {canEditAny && (
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10" style={{ background: "rgba(11, 27, 61, 0.5)" }}>
