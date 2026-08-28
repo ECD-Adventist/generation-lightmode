@@ -9,7 +9,7 @@ import { createPageUrl } from "@/utils";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import useRequireAuth from "@/hooks/useRequireAuth";
-import StandardPostImage, { getNaturalPostMediaStyle } from "@/components/feed/StandardPostImage";
+import StandardPostImage from "@/components/feed/StandardPostImage";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,8 +21,7 @@ export default function DropViewerModal({ drop, drops, user, likeMutation, userL
   const [newComment, setNewComment] = useState("");
   const [replyToComment, setReplyToComment] = useState(null);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
-  const [mediaMeta, setMediaMeta] = useState({ fit: "pending" });
-  const mediaFit = mediaMeta.fit;
+  const [mediaFit, setMediaFit] = useState("pending");
   const queryClient = useQueryClient();
   const requireAuth = useRequireAuth(user);
   const commentsEndRef = useRef(null);
@@ -220,8 +219,8 @@ export default function DropViewerModal({ drop, drops, user, likeMutation, userL
           style={{ minHeight: drop.media_url ? undefined : 280 }}>
 
           {drop.media_url ? (
-            <div className={`${mediaFit === "contain" ? "mx-auto max-w-full" : "w-full aspect-[4/5]"} max-h-[720px] flex items-center justify-center overflow-hidden bg-[#071A33]`} style={getNaturalPostMediaStyle(mediaMeta)}>
-              <StandardPostImage src={drop.media_url} alt="Drop" onFitChange={(fit, meta) => setMediaMeta(meta || { fit })} />
+            <div className={`w-full max-h-[720px] flex items-center justify-center overflow-hidden bg-[#071A33] ${mediaFit === "contain" ? "" : "aspect-[4/5]"}`}>
+              <StandardPostImage src={drop.media_url} alt="Drop" onFitChange={setMediaFit} />
             </div>
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="w-full max-w-[520px] aspect-[4/5]" />
