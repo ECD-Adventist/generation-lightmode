@@ -27,7 +27,8 @@ export default async function(req) {
     const base44 = createClientFromRequest(req);
     if (!await authorizeSchedulerOrAdmin(base44, req)) return Response.json({ error: 'Forbidden' }, { status: 403 });
     const validated = await readValidatedJson(req, {
-      keyword_id: { type: 'string', maxLength: 64 }, scheduler_token: { type: 'string', maxLength: 500 }, dry_run: { type: 'boolean' }
+      keyword_id: { type: 'string', maxLength: 64 }, scheduler_token: { type: 'string', maxLength: 500 },
+      dry_run: { type: 'boolean' }, keyword_limit: { type: 'integer', minimum: 1, maximum: 3 }
     });
     if (validated.response) return validated.response;
 
@@ -41,16 +42,28 @@ export default async function(req) {
       }
     }
     if (validated.data.keyword_id) keywords = keywords.filter((item) => item.id === validated.data.keyword_id);
+    if (!validated.data.keyword_id && validated.data.keyword_limit && keywords.length > validated.data.keyword_limit) {
+      const slot = Math.floor(Date.now() / 900000) % keywords.length;
+      keywords = [...keywords.slice(slot), ...keywords.slice(0, slot)].slice(0, validated.data.keyword_limit);
+    }
     if (validated.data.dry_run) return Response.json({ success: true, dry_run: true, keywords: keywords.length });
 
     const now = new Date().toISOString();
     let discovered = 0;
     let alertsCreated = 0;
+    const scanErrors = [];
     for (const keyword of keywords) {
-      const intelligence = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        model: 'gemini_3_flash', add_context_from_internet: true, response_json_schema: resultSchema,
-        prompt: `Run a deep, current public-web scan for exact, partial, translated, abbreviated, hashtag, and contextually related mentions of "${keyword.term}" connected to Generation LightMode, Gen-Lux, Christian youth, faith, digital evangelism, hope, Bible, or prayer. Use multiple search strategies and query variations across news, blogs, church and ministry websites, publications, event pages, public social-profile pages, video platforms, podcasts, PDFs, and other indexed webpages. Search globally with special attention to the 12 East-Central Africa Division nations and English, Swahili, French, and locally indexed language variants. Prioritize newly indexed material since ${keyword.last_scanned_at || 'the last 30 days'}, but include older high-authority sources when newly discovered. Return up to 25 distinct, verifiable results with canonical HTTPS URLs, deduplicated by source and URL. Do not invent sources or URLs. Estimate visibility and trend conservatively, identify countries and emerging related terms, and summarize the strongest signals, growth opportunities, and reputational risks.`
-      });
+      let intelligence;
+      try {
+        intelligence = await base44.asServiceRole.integrations.Core.InvokeLLM({
+          model: 'gemini_3_flash', add_context_from_internet: true, response_json_schema: resultSchema,
+          prompt: `Search the current public web for verifiable exact, partial, translated, abbreviated, hashtag, and contextually related mentions of "${keyword.term}" connected to Generation LightMode, Gen-Lux, Christian youth, faith, digital evangelism, hope, Bible, or prayer. Check news, blogs, church and ministry websites, publications, event pages, public social pages, video platforms, podcasts, and indexed PDFs. Search globally, prioritizing the 12 East-Central Africa Division nations and English, Swahili, and French results since ${keyword.last_scanned_at || 'the last 30 days'}. Return up to 12 distinct results with real canonical HTTPS URLs only; never invent a source or URL. Conservatively estimate visibility and trend, identify countries and related terms, and summarize key opportunities or reputational risks.`
+        });
+      } catch (error) {
+        console.warn('[genlux-scan:keyword-skipped]', keyword.id, error?.message);
+        scanErrors.push({ keyword_id: keyword.id, keyword: keyword.term, reason: 'Public-web search timed out; it will be retried on a later run.' });
+        continue;
+      }
       const existing = await base44.asServiceRole.entities.GenLuxMention.filter({ keyword_id: keyword.id }, '-discovered_at', 500);
       const known = new Set(existing.map((item) => item.fingerprint));
       const freshPayloads = (intelligence.results || []).filter((item) => item.url?.startsWith('https://')).map((item) => ({
@@ -99,7 +112,15 @@ export default async function(req) {
         }
       }
     }
-    return Response.json({ success: true, keywordsScanned: keywords.length, discovered, alertsCreated });
+    return Response.json({
+      success: scanErrors.length === 0,
+      partial: scanErrors.length > 0,
+      keywordsScanned: keywords.length - scanErrors.length,
+      keywordsAttempted: keywords.length,
+      discovered,
+      alertsCreated,
+      scanErrors
+    });
   } catch (error) {
     console.error('[genlux-scan:error]', error?.message);
     return Response.json({ error: error.message }, { status: 500 });

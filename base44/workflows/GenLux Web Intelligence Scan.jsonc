@@ -22,7 +22,7 @@
     "document": {
       "dsl": "1.0.0",
       "name": "genlux_web_intelligence_scan",
-      "version": "1.0",
+      "version": "1.1",
       "namespace": "base44"
     },
     "do": [
@@ -31,12 +31,14 @@
           "call": "invoke_backend_function",
           "with": {
             "function_name": "scanGenLuxWeb",
-            "args": {}
+            "args": {
+              "keyword_limit": 1
+            }
           },
           "then": "end",
           "x-base44": {
             "title": "Deep-scan public web",
-            "description": "Find expanded GenLux mentions"
+            "description": "Scan one rotating GenLux term"
           }
         }
       }
