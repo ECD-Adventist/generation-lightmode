@@ -271,7 +271,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
               <Button
                 type="submit"
                 size="sm"
-                disabled={!newComment.trim() || commentMutation.isPending || !currentUser}
+                disabled={!newComment.trim() || commentMutation.isPending}
                 className="h-9 rounded-full bg-[#00CFFF] text-black font-bold text-xs px-4"
               >
                 {commentMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : "Post"}
