@@ -215,12 +215,10 @@ export default function DropViewerModal({ drop, drops, user, likeMutation, userL
         {/* LEFT — Full Image / Content */}
         <div className="md:w-[55%] flex-shrink-0 relative bg-[#F6F8FC] flex items-center justify-center overflow-hidden"
           onDoubleClick={handleDoubleTap}
-          style={{ minHeight: 280 }}>
+          style={{ minHeight: drop.media_url ? undefined : 280 }}>
 
           {drop.media_url ? (
-            <div className="w-full aspect-[4/5] max-h-[720px] flex items-center justify-center overflow-hidden bg-[#071A33]">
-              <StandardPostImage src={drop.media_url} alt="Drop" />
-            </div>
+            <StandardPostImage src={drop.media_url} alt="Drop" />
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="w-full max-w-[520px] aspect-[4/5]" />
           ) : isCodeOfTruth ? (

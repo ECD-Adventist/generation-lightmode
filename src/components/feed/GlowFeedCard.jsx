@@ -132,7 +132,7 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
 
       {/* Media */}
       {drop.media_url && (
-        <div className="relative aspect-[4/5] overflow-hidden flex items-center justify-center bg-[#071A33]" style={{ maxHeight: 720 }}>
+        <div className="relative overflow-hidden flex items-center justify-center bg-[#071A33]">
           <StandardPostImage src={drop.media_url} alt={drop.verse || "Glow Drop"} loading="lazy" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
         </div>

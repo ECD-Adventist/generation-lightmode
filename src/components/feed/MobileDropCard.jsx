@@ -189,13 +189,16 @@ function MobileDropCard({
           </div>
         </div>
       )}
-      <div className={drop.media_url ? "relative overflow-hidden" : "relative rounded-[1.45rem] overflow-hidden"} style={{ aspectRatio: "4 / 5", maxHeight: 720, background: drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
+      <div
+        className={drop.media_url ? "relative overflow-hidden" : "relative rounded-[1.45rem] overflow-hidden aspect-[4/5]"}
+        style={{ maxHeight: 720, background: drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}
+      >
         <div
           role="button"
           tabIndex={0}
           onClick={handlePostSurfaceClick}
           onKeyDown={(e) => { if (e.key === "Enter") navigate(postLink); }}
-          className="absolute inset-0 block no-underline cursor-pointer touch-manipulation"
+          className={`${drop.media_url ? "relative" : "absolute inset-0"} block no-underline cursor-pointer touch-manipulation`}
         >
           {drop.media_url ? (
             <StandardPostImage
