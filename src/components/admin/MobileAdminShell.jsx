@@ -185,7 +185,7 @@ export default function MobileAdminShell({ user, activeTab, setActiveTab, isSupe
                 <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-bold truncate" style={{ color: t.textPrimary }}>{user?.full_name || "Admin"}</p>
+                <p className="text-sm font-bold truncate" style={{ color: t.textPrimary }}>{user?.display_name || user?.username || user?.full_name || "Admin"}</p>
                 <p className="text-[10px] uppercase tracking-widest font-bold truncate" style={{ color: t.textMuted }}>{user?.role?.replace(/_/g, " ")}</p>
               </div>
             </div>

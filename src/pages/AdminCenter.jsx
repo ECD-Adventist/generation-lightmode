@@ -236,7 +236,7 @@ function AdminCenterInner() {
                   <img src={user.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover rounded-xl" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold" style={{ color: t.textPrimary }}>{user?.full_name || "Admin"}</p>
+                  <p className="text-sm font-bold" style={{ color: t.textPrimary }}>{user?.display_name || user?.username || user?.full_name || "Admin"}</p>
                   <p className="text-[10px] uppercase tracking-widest font-bold" style={{ color: t.textMuted }}>{user?.role?.replace(/_/g, " ")}</p>
                 </div>
               </div>
