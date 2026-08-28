@@ -297,10 +297,15 @@ export default function Profile() {
     refetchOnWindowFocus: true,
   });
 
+  // When a manager switches into leader view, displayUser keeps the manager's own
+  // user id — so followers must be counted against the ManagedLeaderAccount id,
+  // which is what the auto-follow automation writes into Follow.following_id.
+  const followersTargetId = isViewingLeader ? activeLeaderAccount.id : displayUser?.id;
+
   const { data: myFollowers = [], isLoading: isMyFollowersLoading } = useQuery({
-    queryKey: ["myFollowers", displayUser?.id, profileEmail],
-    queryFn: () => fetchAllFollowers(displayUser?.id, profileEmail),
-    enabled: !!displayUser?.id || !!profileEmail,
+    queryKey: ["myFollowers", followersTargetId, profileEmail],
+    queryFn: () => fetchAllFollowers(followersTargetId, profileEmail),
+    enabled: !!followersTargetId || !!profileEmail,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
   });
