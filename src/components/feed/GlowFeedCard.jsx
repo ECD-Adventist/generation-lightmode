@@ -19,6 +19,7 @@ import StandardPostImage from "@/components/feed/StandardPostImage";
 
 export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = [], guestToken, likeIdentity }) {
   const [showComments, setShowComments] = useState(false);
+  const [mediaFit, setMediaFit] = useState("pending");
   const [newComment, setNewComment] = useState("");
   const [shareFallback, setShareFallback] = useState(null);
   const queryClient = useQueryClient();
@@ -132,8 +133,8 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
 
       {/* Media */}
       {drop.media_url && (
-        <div className="relative aspect-[4/5] overflow-hidden flex items-center justify-center bg-[#071A33]" style={{ maxHeight: 720 }}>
-          <StandardPostImage src={drop.media_url} alt={drop.verse || "Glow Drop"} loading="lazy" />
+        <div className={`relative overflow-hidden flex items-center justify-center bg-[#071A33] ${mediaFit === "contain" ? "" : "aspect-[4/5]"}`} style={{ maxHeight: 720 }}>
+          <StandardPostImage src={drop.media_url} alt={drop.verse || "Glow Drop"} loading="lazy" onFitChange={setMediaFit} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
         </div>
       )}

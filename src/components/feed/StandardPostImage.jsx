@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { getStandardPostImageFit } from "@/lib/postImageFit";
 
-export default function StandardPostImage({ src, alt = "", className = "", onLoad, ...props }) {
+export default function StandardPostImage({ src, alt = "", className = "", onLoad, onFitChange, ...props }) {
   const [fit, setFit] = useState("contain");
 
   useEffect(() => {
     setFit("contain");
-  }, [src]);
+    onFitChange?.("pending");
+  }, [src, onFitChange]);
 
   const handleLoad = (event) => {
     const image = event.currentTarget;
-    setFit(getStandardPostImageFit(image.naturalWidth, image.naturalHeight));
+    const nextFit = getStandardPostImageFit(image.naturalWidth, image.naturalHeight);
+    setFit(nextFit);
+    onFitChange?.(nextFit);
     onLoad?.(event);
   };
 
@@ -20,7 +23,7 @@ export default function StandardPostImage({ src, alt = "", className = "", onLoa
       src={src}
       alt={alt}
       onLoad={handleLoad}
-      className={`block w-full h-full object-center ${fit === "cover" ? "object-cover" : "object-contain"} ${className}`.trim()}
+      className={`block object-center ${fit === "cover" ? "w-full h-full object-cover" : "max-w-full w-auto h-auto max-h-[720px] object-contain"} ${className}`.trim()}
     />
   );
 }

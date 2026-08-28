@@ -141,6 +141,7 @@ function MobileDropCard({
   const postLink = createPageUrl("Feed") + `?post=${encodeURIComponent(drop.id)}`;
 
   const [showComments, setShowComments] = useState(false);
+  const [mediaFit, setMediaFit] = useState("pending");
   const [musicEditorOpen, setMusicEditorOpen] = useState(false);
   const canEditMusic = user?.email === drop.user_email || isManagerOfLeader;
 
@@ -189,13 +190,13 @@ function MobileDropCard({
           </div>
         </div>
       )}
-      <div className={drop.media_url ? "relative overflow-hidden" : "relative rounded-[1.45rem] overflow-hidden"} style={{ aspectRatio: "4 / 5", maxHeight: 720, background: drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
+      <div className={drop.media_url ? `relative overflow-hidden flex items-center justify-center ${mediaFit === "contain" ? "" : "aspect-[4/5]"}` : "relative rounded-[1.45rem] overflow-hidden aspect-[4/5]"} style={{ maxHeight: 720, background: drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
         <div
           role="button"
           tabIndex={0}
           onClick={handlePostSurfaceClick}
           onKeyDown={(e) => { if (e.key === "Enter") navigate(postLink); }}
-          className="absolute inset-0 block no-underline cursor-pointer touch-manipulation"
+          className={`${mediaFit === "contain" ? "relative" : "absolute inset-0"} block no-underline cursor-pointer touch-manipulation`}
         >
           {drop.media_url ? (
             <StandardPostImage
@@ -203,6 +204,7 @@ function MobileDropCard({
               alt=""
               loading="lazy"
               decoding="async"
+              onFitChange={setMediaFit}
             />
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />

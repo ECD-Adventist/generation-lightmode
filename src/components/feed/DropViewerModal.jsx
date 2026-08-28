@@ -21,6 +21,7 @@ export default function DropViewerModal({ drop, drops, user, likeMutation, userL
   const [newComment, setNewComment] = useState("");
   const [replyToComment, setReplyToComment] = useState(null);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
+  const [mediaFit, setMediaFit] = useState("pending");
   const queryClient = useQueryClient();
   const requireAuth = useRequireAuth(user);
   const commentsEndRef = useRef(null);
@@ -218,8 +219,8 @@ export default function DropViewerModal({ drop, drops, user, likeMutation, userL
           style={{ minHeight: 280 }}>
 
           {drop.media_url ? (
-            <div className="w-full aspect-[4/5] max-h-[720px] flex items-center justify-center overflow-hidden bg-[#071A33]">
-              <StandardPostImage src={drop.media_url} alt="Drop" />
+            <div className={`w-full max-h-[720px] flex items-center justify-center overflow-hidden bg-[#071A33] ${mediaFit === "contain" ? "" : "aspect-[4/5]"}`}>
+              <StandardPostImage src={drop.media_url} alt="Drop" onFitChange={setMediaFit} />
             </div>
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="w-full max-w-[520px] aspect-[4/5]" />
