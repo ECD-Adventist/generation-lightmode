@@ -2,9 +2,30 @@ import React from "react";
 
 export default class RouteLoadBoundary extends React.Component {
   state = { error: null };
+  retryTimer = null;
 
   static getDerivedStateFromError(error) {
     return { error };
+  }
+
+  componentDidMount() {
+    const retryKey = `route-module-retry:${window.location.pathname}`;
+    this.retryTimer = window.setTimeout(() => sessionStorage.removeItem(retryKey), 10000);
+  }
+
+  componentDidCatch(error) {
+    const isModuleFetchError = /Failed to fetch dynamically imported module|Importing a module script failed|Load failed/i.test(error?.message || "");
+    if (!isModuleFetchError) return;
+
+    const retryKey = `route-module-retry:${window.location.pathname}`;
+    if (!sessionStorage.getItem(retryKey)) {
+      sessionStorage.setItem(retryKey, "1");
+      window.location.reload();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.retryTimer) window.clearTimeout(this.retryTimer);
   }
 
   render() {
