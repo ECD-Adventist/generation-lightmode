@@ -50,7 +50,7 @@ function AdminCenterInner() {
   const t = getAdminTokens(theme);
 
   const urlParams = new URLSearchParams(window.location.search);
-  const REGIONAL_ROLES = ["church_admin", "conference_field_admin", "union_admin", "country_admin", "ecd_admin"];
+  const REGIONAL_ROLES = ["church_admin", "church_officer", "conference_field_admin", "conference_field_officer", "union_admin", "union_officer", "country_admin", "ecd_admin", "ecd_officer"];
   const initialTab = urlParams.get("tab") || "dashboard";
   const [activeTab, setActiveTab] = useState(initialTab);
 
@@ -89,7 +89,7 @@ function AdminCenterInner() {
 
   if (loading) return <div className="min-h-screen flex items-center justify-center" style={{ background: t.appBg }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: t.accent }} /></div>;
 
-  const ADMIN_ROLES = ["admin", "super_admin", "ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin"];
+  const ADMIN_ROLES = ["admin", "super_admin", "ecd_admin", "ecd_officer", "country_admin", "union_admin", "union_officer", "conference_field_admin", "conference_field_officer", "church_admin", "church_officer"];
   const MODERATOR_ROLES = ["moderator"];
   const LEADER_ROLES = ["GlowGroup Leader"];
   const MISSIONARY_ROLES = ["missionary"];
@@ -98,7 +98,7 @@ function AdminCenterInner() {
   const isModerator = MODERATOR_ROLES.includes(user?.role);
   const isLeader = LEADER_ROLES.includes(user?.role);
   const isMissionary = MISSIONARY_ROLES.includes(user?.role);
-  const isRegionalAdmin = ["ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin"].includes(user?.role);
+  const isRegionalAdmin = ["ecd_admin", "ecd_officer", "country_admin", "union_admin", "union_officer", "conference_field_admin", "conference_field_officer", "church_admin", "church_officer"].includes(user?.role);
 
   if (!loading && (!user || (!isAdmin && !isModerator && !isLeader && !isMissionary))) {
     return (

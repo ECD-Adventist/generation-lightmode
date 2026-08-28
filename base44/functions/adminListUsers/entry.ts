@@ -15,8 +15,9 @@ Deno.serve(async (req) => {
     if (rateLimited) return rateLimited;
 
     const ADMIN_ROLES = [
-      'admin', 'super_admin', 'ecd_admin', 'country_admin',
-      'union_admin', 'conference_field_admin', 'church_admin', 'moderator'
+      'admin', 'super_admin', 'ecd_admin', 'ecd_officer', 'country_admin',
+      'union_admin', 'union_officer', 'conference_field_admin', 'conference_field_officer',
+      'church_admin', 'church_officer', 'moderator'
     ];
     if (!ADMIN_ROLES.includes(caller.role)) {
       await logPermissionDenied(base44, req, caller, 'users', 'list');

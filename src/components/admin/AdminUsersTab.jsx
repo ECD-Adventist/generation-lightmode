@@ -58,6 +58,11 @@ function roleColor(role, isDark) {
     case "conference_field_admin":
     case "church_admin":
       return isDark ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-red-100 text-red-700 border-red-200";
+    case "ecd_officer":
+    case "union_officer":
+    case "conference_field_officer":
+    case "church_officer":
+      return isDark ? "bg-blue-500/20 text-blue-400 border-blue-500/30" : "bg-blue-100 text-blue-700 border-blue-200";
     case "moderator": return isDark ? "bg-orange-500/20 text-orange-400 border-orange-500/30" : "bg-orange-100 text-orange-700 border-orange-200";
     case "missionary": return isDark ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-green-100 text-green-700 border-green-200";
     case "GlowGroup Leader": return isDark ? "bg-[#00CFFF]/20 text-[#00CFFF] border-[#00CFFF]/30" : "bg-blue-100 text-blue-700 border-blue-200";
@@ -94,7 +99,7 @@ function EditRoleModal({ targetUser, allRoles, onClose, onSave, t, isDark }) {
                 : { background: "transparent", borderColor: t.border, color: t.textSecondary }}
             >
               <Shield size={14} />
-              <span>{r === "ecd_admin" ? "ECD Admin" : r.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</span>
+              <span>{r === "ecd_admin" ? "ECD Admin" : r === "ecd_officer" ? "ECD Officer" : r === "conference_field_officer" ? "Conference/Field Officer" : r === "conference_field_admin" ? "Conference/Field Admin" : r.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</span>
               {role === r && <Check size={14} className="ml-auto" />}
             </button>
           ))}
@@ -184,8 +189,9 @@ export default function AdminUsersTab({ user: currentAdmin }) {
   });
 
   const ROLE_ORDER = [
-    "super_admin", "admin", "ecd_admin", "country_admin", "union_admin",
-    "conference_field_admin", "church_admin", "moderator", "missionary",
+    "super_admin", "admin", "ecd_admin", "ecd_officer", "country_admin",
+    "union_admin", "union_officer", "conference_field_admin", "conference_field_officer",
+    "church_admin", "church_officer", "moderator", "missionary",
     "GlowGroup Leader", "user"
   ];
 
@@ -834,7 +840,7 @@ export default function AdminUsersTab({ user: currentAdmin }) {
                       <td className="p-4">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold border ${roleColor(u.role, isDark)}`}>
                           {(u.role === "super_admin" || String(u.role).includes("admin")) && <Shield size={10} />}
-                          {u.role === "ecd_admin" ? "ECD Admin" : (u.role || "user").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                          {u.role === "ecd_admin" ? "ECD Admin" : u.role === "ecd_officer" ? "ECD Officer" : u.role === "conference_field_officer" ? "Conference/Field Officer" : u.role === "conference_field_admin" ? "Conference/Field Admin" : (u.role || "user").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
                         </span>
                       </td>
                       <td className="p-4">

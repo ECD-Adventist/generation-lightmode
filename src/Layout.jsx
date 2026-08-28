@@ -468,7 +468,7 @@ export default function Layout({ children, currentPageName }) {
                       ))}
 
                       {/* Admin links — only for admin role */}
-                      {(userRole === "admin" || userRole === "super_admin" || ["ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin", "moderator"].includes(userRole)) && (
+                      {(userRole === "admin" || userRole === "super_admin" || ["ecd_admin", "ecd_officer", "country_admin", "union_admin", "union_officer", "conference_field_admin", "conference_field_officer", "church_admin", "church_officer", "moderator"].includes(userRole)) && (
                         <>
                           <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "6px 4px" }} />
                           <div style={{ padding: "6px 10px 4px", fontSize: 10, color: "#FFD000", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Admin Panel</div>
@@ -608,7 +608,7 @@ export default function Layout({ children, currentPageName }) {
                   </div>
 
                   {/* Admin Panel */}
-                  {(userRole === "admin" || userRole === "super_admin" || ["ecd_admin", "country_admin", "union_admin", "conference_field_admin", "church_admin", "moderator"].includes(userRole)) && (
+                  {(userRole === "admin" || userRole === "super_admin" || ["ecd_admin", "ecd_officer", "country_admin", "union_admin", "union_officer", "conference_field_admin", "conference_field_officer", "church_admin", "church_officer", "moderator"].includes(userRole)) && (
                     <div className="mb-6">
                       <p style={{ color: "#FFDB58", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", margin: "0 0 8px 8px" }}>ADMIN PANEL</p>
                       <div className="flex flex-col">
