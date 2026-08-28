@@ -242,14 +242,14 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
             {/* Username */}
             <div>
               <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Username <span className="text-red-400">*</span></Label>
-              <Input required value={editData.username} onChange={e => set("username", e.target.value.replace(/\s+/g, "").replace(/^@+/, ""))} placeholder="johndoe" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
+              <Input required value={editData.username} onChange={e => set("username", e.target.value.replace(/\s+/g, "").replace(/^@+/, ""))} placeholder="lightwarior" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
               <p className="text-[11px] mt-1.5" style={{ color: "#8A97B5" }}>This handle is shown instead of your email.</p>
             </div>
 
             {/* Display Name */}
             <div>
               <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Display Name</Label>
-              <Input value={editData.display_name} onChange={e => set("display_name", e.target.value)} placeholder="John Doe" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
+              <Input value={editData.display_name} onChange={e => set("display_name", e.target.value)} placeholder="Light Warior" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
             </div>
 
             {/* Bio */}
