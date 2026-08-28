@@ -47,11 +47,12 @@ export default function Post() {
   });
 
   const { data: leaderAccounts = [] } = useQuery({
-    queryKey: ["allLeaderAccounts"],
+    queryKey: ["postLeaderAccount", drop?.user_email],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicLeaderAccounts", { limit: 200 });
+      const res = await base44.functions.invoke("listPublicLeaderAccounts", { emails: [drop.user_email], limit: 1 });
       return Array.isArray(res.data) ? res.data : [];
     },
+    enabled: !!drop?.user_email,
     staleTime: 1000 * 60 * 5,
   });
 

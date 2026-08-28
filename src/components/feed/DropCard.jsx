@@ -421,7 +421,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       <div
         className={`relative w-full rounded-xl sm:rounded-[1.5rem] overflow-hidden shadow-inner ${
           drop.media_url
-            ? ''
+            ? 'aspect-[4/5] max-h-[720px] flex items-center justify-center bg-[#071A33]'
             : isKeepIt100 || isCodeOfTruth
               ? 'aspect-[4/5] flex flex-col justify-center items-center text-center'
               : 'min-h-[360px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-center items-center text-center'
@@ -562,7 +562,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
         </div>
 
         {drop.media_url && (
-          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} width="720" height="900" loading="lazy" decoding="async" className="block w-full max-h-[560px] object-cover object-center" />
+          <img src={drop.media_url} alt={drop.verse || "Glow Drop"} width="720" height="900" loading="lazy" decoding="async" className="block w-full h-full object-contain object-center" />
         )}
 
         {!drop.media_url && (

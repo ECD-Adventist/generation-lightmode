@@ -188,13 +188,13 @@ function MobileDropCard({
           </div>
         </div>
       )}
-      <div className={drop.media_url ? "relative overflow-hidden" : "relative rounded-[1.45rem] overflow-hidden"} style={{ aspectRatio: drop.media_url ? "auto" : "4 / 5", background: drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
+      <div className={drop.media_url ? "relative overflow-hidden" : "relative rounded-[1.45rem] overflow-hidden"} style={{ aspectRatio: "4 / 5", maxHeight: 720, background: drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
         <div
           role="button"
           tabIndex={0}
           onClick={handlePostSurfaceClick}
           onKeyDown={(e) => { if (e.key === "Enter") navigate(postLink); }}
-          className={drop.media_url ? "relative block no-underline cursor-pointer touch-manipulation" : "absolute inset-0 block no-underline cursor-pointer touch-manipulation"}
+          className="absolute inset-0 block no-underline cursor-pointer touch-manipulation"
         >
           {drop.media_url ? (
             <img
@@ -202,7 +202,7 @@ function MobileDropCard({
               alt=""
               loading="lazy"
               decoding="async"
-              className="relative block w-full max-h-[560px] object-cover object-center"
+              className="block w-full h-full object-contain object-center"
             />
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />

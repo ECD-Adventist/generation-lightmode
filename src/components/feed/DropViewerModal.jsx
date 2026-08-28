@@ -217,7 +217,7 @@ export default function DropViewerModal({ drop, drops, user, likeMutation, userL
           style={{ minHeight: 280 }}>
 
           {drop.media_url ? (
-            <img src={drop.media_url} alt="Drop" className="w-full h-full object-contain max-h-[560px]" />
+            <img src={drop.media_url} alt="Drop" className="w-full h-full object-contain max-h-[720px]" />
           ) : isKeepIt100 ? (
             <KeepIt100Poster text={drop.reflection} verse={drop.verse} className="w-full max-w-[520px] aspect-[4/5]" />
           ) : isCodeOfTruth ? (
