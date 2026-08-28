@@ -42,6 +42,8 @@ import { AdminThemeProvider, useAdminTheme, getAdminTokens } from "../components
 import AdminThemeToggle from "../components/admin/AdminThemeToggle";
 import MobileAdminShell from "../components/admin/MobileAdminShell";
 import AdminGenLuxMissionIntelligence from "../components/admin/AdminGenLuxMissionIntelligence";
+import AdminReadOnlyBanner from "../components/admin/AdminReadOnlyBanner";
+import { isReadOnlyAdminRole } from "@/lib/adminRoles";
 
 function AdminCenterInner() {
   const [user, setUser] = useState(null);
@@ -160,12 +162,14 @@ function AdminCenterInner() {
   const isSuperAdmin = user.role === "super_admin";
   const canScheduleContent = ["admin", "super_admin", "ecd_admin"].includes(user.role);
   const hasApprovedTerritory = !isRegionalAdmin || user?.territory_status === "approved";
+  // Officers see their territory's data but must not be offered write controls.
+  const isOfficerReadOnly = isReadOnlyAdminRole(user.role);
 
   const renderTab = () => {
     switch (activeTab) {
       case "territory": return <AdminTerritorySetupTab user={user} />;
       case "dashboard": return <AdminDashboardTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
-      case "users": return <AdminUsersTab user={user} />;
+      case "users": return <AdminUsersTab user={user} readOnly={isOfficerReadOnly} />;
       case "groups": return <AdminGlowGroupsTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "drops": return <AdminGlowDropsTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "challenges": return <AdminChallengesTab />;
@@ -215,6 +219,7 @@ function AdminCenterInner() {
     <>
     {/* Mobile admin shell — dedicated drawer-based navigation */}
     <MobileAdminShell user={user} activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} isRegionalAdmin={isRegionalAdmin} canScheduleContent={canScheduleContent}>
+      {isOfficerReadOnly && <AdminReadOnlyBanner role={user.role} t={t} />}
       {renderTab()}
     </MobileAdminShell>
 
@@ -255,6 +260,7 @@ function AdminCenterInner() {
 
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-7xl mx-auto pb-20 md:pb-0">
+            {isOfficerReadOnly && <AdminReadOnlyBanner role={user.role} t={t} />}
             {renderTab()}
           </div>
         </div>

@@ -134,7 +134,7 @@ function SortableTh({ label, sortKey, currentSort, onSort, t, align = "left", cl
   );
 }
 
-export default function AdminUsersTab({ user: currentAdmin }) {
+export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
@@ -223,6 +223,8 @@ export default function AdminUsersTab({ user: currentAdmin }) {
     const filtered = users.filter(u => {
       const matchesSearch = !search ||
         u.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+        u.display_name?.toLowerCase().includes(search.toLowerCase()) ||
+        u.username?.toLowerCase().includes(search.toLowerCase()) ||
         u.email?.toLowerCase().includes(search.toLowerCase()) ||
         u.country?.toLowerCase().includes(search.toLowerCase());
 
@@ -253,7 +255,7 @@ export default function AdminUsersTab({ user: currentAdmin }) {
       if (key === "age") { av = calcAge(a.date_of_birth); bv = calcAge(b.date_of_birth); }
       if (key === "engagement") { av = computeEngagementScore(a); bv = computeEngagementScore(b); }
       if (key === "completeness") { av = computeProfileCompleteness(a).score; bv = computeProfileCompleteness(b).score; }
-      if (key === "full_name") { av = (a.full_name || "").toLowerCase(); bv = (b.full_name || "").toLowerCase(); }
+      if (key === "full_name") { av = (a.display_name || a.username || a.full_name || "").toLowerCase(); bv = (b.display_name || b.username || b.full_name || "").toLowerCase(); }
       if (av == null) av = dir === "asc" ? Infinity : -Infinity;
       if (bv == null) bv = dir === "asc" ? Infinity : -Infinity;
       if (key === "created_date" || key === "updated_date") { av = new Date(av || 0).getTime(); bv = new Date(bv || 0).getTime(); }
@@ -536,13 +538,15 @@ export default function AdminUsersTab({ user: currentAdmin }) {
           >
             <Download size={13} /> Export CSV
           </button>
-          <button
-            onClick={() => setInviteOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-white transition"
-            style={{ background: t.accent, border: "none", boxShadow: t.shadow }}
-          >
-            <UserPlus size={13} /> Invite User
-          </button>
+          {!readOnly && (
+            <button
+              onClick={() => setInviteOpen(true)}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-white transition"
+              style={{ background: t.accent, border: "none", boxShadow: t.shadow }}
+            >
+              <UserPlus size={13} /> Invite User
+            </button>
+          )}
         </div>
       </div>
 
@@ -721,6 +725,7 @@ export default function AdminUsersTab({ user: currentAdmin }) {
 
         </div>
 
+        {!readOnly && (
         <BulkActionsBar
           selectedCount={selectedUsers.size}
           selectedUsers={selectedUserObjects}
@@ -736,6 +741,7 @@ export default function AdminUsersTab({ user: currentAdmin }) {
           onClear={() => setSelectedUsers(new Set())}
           t={t}
         />
+        )}
       </div>
       )}
 
@@ -812,7 +818,7 @@ export default function AdminUsersTab({ user: currentAdmin }) {
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <p className="font-bold text-sm hover:underline" style={{ color: t.textPrimary }}>{u.full_name || 'Unknown'}</p>
+                              <p className="font-bold text-sm hover:underline" style={{ color: t.textPrimary }}>{u.display_name || u.username || u.full_name || 'Unknown'}</p>
                               <VerificationBadges user={u} />
                               {duplicateSuspects.has(u.email) && (
                                 <DuplicateRowBadge
@@ -881,10 +887,12 @@ export default function AdminUsersTab({ user: currentAdmin }) {
                         <button onClick={() => setDetailUser(u)} className="p-2 transition rounded-lg mr-1 hover:opacity-70" title="View Details" style={{ color: t.textSecondary, background: t.surfaceMuted }}>
                           <Edit2 size={16} />
                         </button>
+                        {!readOnly && (
                         <button onClick={() => setQuickMenuUser(quickMenuUser?.email === u.email ? null : u)} className="p-2 transition rounded-lg hover:opacity-70" title="More actions" style={{ color: t.textSecondary, background: t.surfaceMuted }}>
                           <MoreVertical size={16} />
                         </button>
-                        {quickMenuUser?.email === u.email && (
+                        )}
+                        {!readOnly && quickMenuUser?.email === u.email && (
                           <UserQuickActionsMenu
                             targetUser={u}
                             onClose={() => setQuickMenuUser(null)}

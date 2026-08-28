@@ -41,6 +41,10 @@ Deno.serve(async (req) => {
     const adminUsers = allUsers.map(u => ({
       id: u.id,
       full_name: u.full_name,
+      // Users can change display_name / username after signing up — return both so
+      // the Admin Center shows their current chosen name, not just the signup name.
+      display_name: u.display_name,
+      username: u.username,
       email: u.email,
       role: u.role || 'user',
       status: u.status || 'active',
