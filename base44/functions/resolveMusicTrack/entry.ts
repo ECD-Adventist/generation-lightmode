@@ -29,19 +29,21 @@ export default async function (req) {
     if (!metadataRes.ok) return Response.json({ error: "Track is not available" }, { status: 404 });
 
     const metadata = await metadataRes.json();
-    const isApprovedTrack = metadata.driveId === APPROVED_MUSIC_DRIVE_ID
+    const approvedTrackId = String(metadata.id || "");
+    const isApprovedTrack = approvedTrackId === fileId
+      && metadata.driveId === APPROVED_MUSIC_DRIVE_ID
       && metadata.trashed !== true
       && String(metadata.mimeType || "").startsWith("audio/");
     if (!isApprovedTrack) return Response.json({ error: "Track is not in the approved music library" }, { status: 403 });
 
     const name = String(metadata.name || payload.name || "Track").replace(/\.[^.]+$/, "").slice(0, 200);
-    const existing = await base44.asServiceRole.entities.MusicTrack.filter({ drive_file_id: fileId });
+    const existing = await base44.asServiceRole.entities.MusicTrack.filter({ drive_file_id: approvedTrackId });
     if (existing.length > 0 && existing[0].file_url) {
       return Response.json({ file_url: existing[0].file_url, name: existing[0].name || name });
     }
 
     const driveRes = await fetch(
-      `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media&supportsAllDrives=true`,
+      `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(approvedTrackId)}?alt=media&supportsAllDrives=true`,
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
 
@@ -54,7 +56,7 @@ export default async function (req) {
     const file = new File([blob], `${name}.mp3`, { type: blob.type || "audio/mpeg" });
     const { file_url } = await base44.asServiceRole.integrations.Core.UploadFile({ file });
 
-    await base44.asServiceRole.entities.MusicTrack.create({ drive_file_id: fileId, name, file_url });
+    await base44.asServiceRole.entities.MusicTrack.create({ drive_file_id: approvedTrackId, name, file_url });
 
     return Response.json({ file_url, name });
   } catch (error) {
