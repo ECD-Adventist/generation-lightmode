@@ -3,12 +3,12 @@ import { X, Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, Bookmark, M
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { formatDistanceToNow } from "date-fns";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
+import useRequireAuth from "@/hooks/useRequireAuth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,21 +16,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function DropViewerModal({ drop, drops, user, onClose, onNavigate }) {
+export default function DropViewerModal({ drop, drops, user, likeMutation, userLikes = [], onClose, onNavigate }) {
   const [newComment, setNewComment] = useState("");
   const [replyToComment, setReplyToComment] = useState(null);
-  const [liked, setLiked] = useState(false);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
   const queryClient = useQueryClient();
+  const requireAuth = useRequireAuth(user);
   const commentsEndRef = useRef(null);
   const inputRef = useRef(null);
 
   const currentIndex = drops?.findIndex(d => d.id === drop.id) ?? -1;
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex < (drops?.length ?? 0) - 1;
-
-  // Reset liked state when drop changes
-  useEffect(() => { setLiked(false); }, [drop.id]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -64,23 +61,12 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
   });
 
   const isSaved = savedDrops.length > 0;
+  const liked = userLikes.some(like => like.drop_id === drop.id);
 
   const getCommentUser = (email) => {
     if (user?.email === email) return user;
     return allUsers.find(u => u.email === email) || { full_name: "Glow Believer" };
   };
-
-  const likeMutation = useMutation({
-    mutationFn: async () => {
-      if (!user) { toast.error("Please log in"); return; }
-      const response = await base44.functions.invoke("handleLikeDrop", { drop_id: drop.id, action: "toggle" });
-      setLiked(response.data.action === "like");
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["myGlowDropsProfile"] });
-      queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
-    }
-  });
 
   const commentMutation = useMutation({
     mutationFn: async (content) => {
@@ -134,17 +120,28 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
     }
   };
 
+  const triggerLike = () => {
+    likeMutation?.mutate({
+      id: drop.id,
+      authorEmail: drop.user_email,
+      authorName: drop.author_name || drop.author_username || "Glow Believer",
+    });
+  };
+
   const handleDoubleTap = () => {
     setShowHeartAnim(true);
-    likeMutation.mutate();
+    triggerLike();
     setTimeout(() => setShowHeartAnim(false), 800);
   };
 
   const submitComment = (e) => {
     e.preventDefault();
-    if (!newComment.trim() || !user) return;
+    if (!user) { requireAuth(); return; }
+    if (!newComment.trim()) return;
     commentMutation.mutate(newComment);
   };
+
+  const handleSave = () => requireAuth(() => toggleSaveMutation.mutate());
 
   const isOwner = user?.email === drop.user_email;
   const dropAuthor = getCommentUser(drop.user_email);
@@ -273,14 +270,14 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                     <Trash2 className="w-4 h-4" /> Delete Post
                   </DropdownMenuItem>
                 )}
-                {!isOwner && user && (
-                  <DropdownMenuItem onSelect={() => {
+                {!isOwner && (
+                  <DropdownMenuItem onSelect={() => requireAuth(() => {
                     const reason = window.prompt("Why are you reporting this content?");
                     if (reason) {
                       base44.entities.ReportedDrop.create({ drop_id: drop.id, reporter_email: user.email, reason })
                         .then(() => toast.success("Reported to moderators."));
                     }
-                  }} className="hover:bg-[#F0F4FA] cursor-pointer gap-2">
+                  })} className="hover:bg-[#F0F4FA] cursor-pointer gap-2">
                     <Flag className="w-4 h-4" /> Report Post
                   </DropdownMenuItem>
                 )}
@@ -293,11 +290,9 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                 <DropdownMenuItem onSelect={handleShare} className="hover:bg-[#F0F4FA] cursor-pointer gap-2">
                   <Share2 className="w-4 h-4" /> Share
                 </DropdownMenuItem>
-                {user && (
-                  <DropdownMenuItem onSelect={() => toggleSaveMutation.mutate()} className="hover:bg-[#F0F4FA] cursor-pointer gap-2">
-                    <Bookmark className="w-4 h-4" /> {isSaved ? "Unsave" : "Save"}
-                  </DropdownMenuItem>
-                )}
+                <DropdownMenuItem onSelect={handleSave} className="hover:bg-[#F0F4FA] cursor-pointer gap-2">
+                  <Bookmark className="w-4 h-4" /> {isSaved ? "Unsave" : "Save"}
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -333,7 +328,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
               const cu = getCommentUser(c.user_email);
               const isCommentOwner = user?.email === c.user_email;
               const canDelete = isCommentOwner || isOwner;
-              const canReport = user && !isCommentOwner;
+              const canReport = !isCommentOwner;
               return (
                 <div key={c.id} className="flex gap-3 group/c">
                   <div className="w-7 h-7 rounded-full shrink-0 overflow-hidden mt-0.5">
@@ -348,7 +343,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                       <span className="text-[11px] text-[#8A97B5]">
                         {c.created_date ? formatDistanceToNow(new Date(c.created_date), { addSuffix: true }) : ""}
                       </span>
-                      {user && !isCommentOwner && <button onClick={() => setReplyToComment(c)} className="text-[11px] font-semibold text-[#0B3FD9]">Reply</button>}
+                      {!isCommentOwner && <button onClick={() => requireAuth(() => setReplyToComment(c))} className="text-[11px] font-semibold text-[#0B3FD9]">Reply</button>}
                       {canDelete && (
                         <button onClick={() => deleteCommentMutation.mutate(c.id)}
                           className="text-[11px] text-[#8A97B5] hover:text-red-500 opacity-0 group-hover/c:opacity-100 transition font-semibold">
@@ -356,13 +351,13 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                         </button>
                       )}
                       {canReport && (
-                        <button onClick={() => {
+                        <button onClick={() => requireAuth(() => {
                           const reason = window.prompt("Why are you reporting this comment?");
                           if (reason) {
                             base44.entities.ReportedComment.create({ comment_id: c.id, reporter_email: user.email, reason })
                               .then(() => toast.success("Comment reported to moderators."));
                           }
-                        }}
+                        })}
                           className="text-[11px] text-[#8A97B5] hover:text-red-500 opacity-0 group-hover/c:opacity-100 transition font-semibold">
                           Report
                         </button>
@@ -379,7 +374,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
           <div className="border-t border-[#E6ECF5] px-4 py-2.5 shrink-0">
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-4">
-                <button onClick={() => likeMutation.mutate()} className="hover:scale-110 transition-transform active:scale-95">
+                <button onClick={triggerLike} className="hover:scale-110 transition-transform active:scale-95">
                   <Heart className={`w-6 h-6 transition-colors ${liked || (drop.likes_count || 0) > 0 ? "text-red-500 fill-red-500" : "text-[#0B1B3D] hover:text-[#4A5878]"}`} />
                 </button>
                 <button onClick={() => inputRef.current?.focus()} className="hover:scale-110 transition-transform">
@@ -389,7 +384,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                   <Send className="w-6 h-6 text-[#0B1B3D] hover:text-[#4A5878]" />
                 </button>
               </div>
-              <button onClick={() => user && toggleSaveMutation.mutate()} className="hover:scale-110 transition-transform">
+              <button onClick={handleSave} className="hover:scale-110 transition-transform">
                 <Bookmark className={`w-6 h-6 transition-colors ${isSaved ? "text-[#0B1B3D] fill-[#0B1B3D]" : "text-[#0B1B3D] hover:text-[#4A5878]"}`} />
               </button>
             </div>
@@ -400,8 +395,7 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
           </div>
 
           {/* Comment Input */}
-          {user && (
-            <form onSubmit={submitComment} className="border-t border-[#E6ECF5] px-4 py-3 flex items-center gap-2 shrink-0">
+          <form onSubmit={submitComment} className="border-t border-[#E6ECF5] px-4 py-3 flex items-center gap-2 shrink-0">
               {replyToComment && <button type="button" onClick={() => setReplyToComment(null)} className="text-[10px] font-bold text-[#0B3FD9]">Cancel reply</button>}
               <div className="w-7 h-7 rounded-full shrink-0 overflow-hidden">
                 <img src={user?.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
@@ -410,14 +404,13 @@ export default function DropViewerModal({ drop, drops, user, onClose, onNavigate
                 ref={inputRef}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Add a comment..."
+                placeholder={user ? "Add a comment..." : "Sign in to comment..."}
                 className="flex-1 bg-transparent text-[#0B1B3D] text-sm h-9 focus:outline-none placeholder:text-[#8A97B5]"
               />
               <button type="submit" disabled={!newComment.trim()} className="text-[#0B3FD9] font-bold text-sm disabled:opacity-30 hover:text-[#1FB8FF] transition">
                 Post
               </button>
             </form>
-          )}
         </div>
       </div>
     </div>

@@ -14,12 +14,14 @@ import { Button } from "@/components/ui/button";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import RepostButton from "@/components/feed/RepostButton";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
-export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = [] }) {
+export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = [], guestToken, likeIdentity }) {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [shareFallback, setShareFallback] = useState(null);
   const queryClient = useQueryClient();
+  const requireAuth = useRequireAuth(currentUser);
 
   const userHasLiked = userLikes.some(like => like.drop_id === drop.id);
 
@@ -31,20 +33,25 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
 
   const likeMutation = useMutation({
     mutationFn: async () => {
-      if (!currentUser) {
-        base44.auth.redirectToLogin(window.location.pathname);
-        return;
-      }
-      await base44.functions.invoke("handleLikeDrop", {
+      const response = await base44.functions.invoke("handleLikeDrop", {
         drop_id: drop.id,
         author_email: drop.user_email,
         author_name: authorProfile.full_name,
         action: "toggle",
+        ...(!currentUser ? { visitor_token: guestToken } : {}),
       });
+      if (!currentUser) {
+        const likes = new Set(JSON.parse(localStorage.getItem("lightmode_guest_likes") || "[]"));
+        response.data.action === "unlike" ? likes.delete(drop.id) : likes.add(drop.id);
+        localStorage.setItem("lightmode_guest_likes", JSON.stringify([...likes]));
+      }
+      return response.data;
     },
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["glowFeed"] });
+      await queryClient.cancelQueries({ queryKey: ["glowFeedLikes", likeIdentity] });
       const prev = queryClient.getQueryData(["glowFeed"]);
+      const prevLikes = queryClient.getQueryData(["glowFeedLikes", likeIdentity]) || [];
       queryClient.setQueryData(["glowFeed"], (old = []) =>
         old.map(d =>
           d.id === drop.id
@@ -52,20 +59,23 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
             : d
         )
       );
-      return { prev };
+      queryClient.setQueryData(["glowFeedLikes", likeIdentity], userHasLiked
+        ? prevLikes.filter(like => like.drop_id !== drop.id)
+        : [...prevLikes, { drop_id: drop.id }]);
+      return { prev, prevLikes };
     },
     onError: (_e, _v, ctx) => {
       if (ctx?.prev) queryClient.setQueryData(["glowFeed"], ctx.prev);
+      if (ctx?.prevLikes) queryClient.setQueryData(["glowFeedLikes", likeIdentity], ctx.prevLikes);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["glowFeed"] });
-      queryClient.invalidateQueries({ queryKey: ["glowFeedLikes"] });
+      queryClient.invalidateQueries({ queryKey: ["glowFeedLikes", likeIdentity] });
     },
   });
 
   const commentMutation = useMutation({
     mutationFn: async (content) => {
-      if (!currentUser) { base44.auth.redirectToLogin(window.location.pathname); return; }
       if (!content.trim()) return;
       await base44.entities.GlowDropComment.create({ drop_id: drop.id, user_email: currentUser.email, content: content.trim() });
       if (drop.user_email !== currentUser.email) {
@@ -83,6 +93,12 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
       toast.success("Comment posted! ✨");
     },
   });
+
+  const submitComment = (event) => {
+    event.preventDefault();
+    if (!currentUser) { requireAuth(); return; }
+    if (newComment.trim()) commentMutation.mutate(newComment);
+  };
 
   const handleShare = async () => {
     if (!drop?.id) return toast.error("This post is no longer available");
@@ -243,14 +259,13 @@ export default function GlowFeedCard({ drop, currentUser, dropUser, userLikes = 
               ))}
             </div>
             <form
-              onSubmit={e => { e.preventDefault(); if (newComment.trim()) commentMutation.mutate(newComment); }}
+              onSubmit={submitComment}
               className="flex gap-2"
             >
               <Input
                 value={newComment}
                 onChange={e => setNewComment(e.target.value)}
-                placeholder={currentUser ? "Add a comment…" : "Log in to comment"}
-                disabled={!currentUser}
+                placeholder={currentUser ? "Add a comment…" : "Sign in to comment…"}
                 className="bg-[#0B0F1A] border-white/10 text-white h-9 text-xs rounded-full"
               />
               <Button

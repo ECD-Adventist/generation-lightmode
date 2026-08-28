@@ -24,7 +24,7 @@ import PostMusicEditor from "@/components/feed/PostMusicEditor";
 import PostAudioTrack from "@/components/feed/PostAudioTrack";
 import FeedActionCapsule, { FeedActionItem } from "@/components/feed/FeedActionCapsule";
 
-export default function DropCard({ drop, user, isGuest = false, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
+export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const requireAuth = useRequireAuth(user);
@@ -728,18 +728,10 @@ export default function DropCard({ drop, user, isGuest = false, dropUser, likeMu
           </div>
         )}
 
-        {!isGuest && !showActionBarBelow && actionBar}
-        {isGuest && (
-          <div className="absolute left-0 right-0 bottom-0 z-30 flex flex-row items-center justify-center gap-3 px-4 py-3" style={{ background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 100%)" }}>
-            <button type="button" onClick={handleShareClick} className="w-11 h-11 rounded-full flex items-center justify-center bg-white border border-[#D6E4FF] shadow-lg" aria-label="Share post">
-              <Share2 className="w-5 h-5 text-[#0B3FD9]" />
-            </button>
-            <RepostButton drop={drop} user={user} />
-          </div>
-        )}
+        {!showActionBarBelow && actionBar}
       </div>
 
-      {!isGuest && showActionBarBelow && <div className="pt-2.5">{actionBar}</div>}
+      {showActionBarBelow && <div className="pt-2.5">{actionBar}</div>}
 
       <PostMusicEditor drop={drop} isOpen={musicEditorOpen} onClose={() => setMusicEditorOpen(false)} />
 

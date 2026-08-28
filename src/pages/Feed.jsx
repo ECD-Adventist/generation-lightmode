@@ -1050,6 +1050,8 @@ export default function Feed() {
             drop={selectedPost}
             drops={drops.some(drop => drop.id === selectedPost.id) ? drops : [selectedPost, ...drops]}
             user={user}
+            likeMutation={likeMutation}
+            userLikes={userLikes}
             onClose={postOverlay.close}
             onNavigate={(nextDrop) => postOverlay.replaceValue(nextDrop.id)}
           />

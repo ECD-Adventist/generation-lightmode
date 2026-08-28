@@ -70,10 +70,22 @@ export default function GlowFeed() {
     refetchOnWindowFocus: false,
   });
 
+
+  const guestToken = useMemo(() => {
+    if (currentUser || typeof window === "undefined") return "";
+    let token = localStorage.getItem("lightmode_guest_like_token");
+    if (!token) {
+      token = crypto.randomUUID() + crypto.randomUUID();
+      localStorage.setItem("lightmode_guest_like_token", token);
+    }
+    return token;
+  }, [currentUser]);
+  const likeIdentity = currentUser?.email || "guest";
   const { data: userLikes = [] } = useQuery({
-    queryKey: ["glowFeedLikes"],
-    queryFn: () => fetchAll(base44.entities.GlowDropLike, { user_email: currentUser?.email }),
-    enabled: !!currentUser,
+    queryKey: ["glowFeedLikes", likeIdentity],
+    queryFn: () => currentUser
+      ? fetchAll(base44.entities.GlowDropLike, { user_email: currentUser.email })
+      : JSON.parse(localStorage.getItem("lightmode_guest_likes") || "[]").map(drop_id => ({ drop_id })),
     staleTime: 1000 * 60 * 2,
   });
 
@@ -276,6 +288,8 @@ export default function GlowFeed() {
                     currentUser={currentUser}
                     dropUser={getUserInfo(drop.user_email)}
                     userLikes={userLikes}
+                    guestToken={guestToken}
+                    likeIdentity={likeIdentity}
                   />
                 </div>
               ))}
