@@ -1,50 +1,47 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { inferCountryFromLocation } from '../../shared/territoryNames.ts';
 
-function normalizeCountry(country) {
-  if (!country) return country;
-  let normalized = country.trim().replace(/\s+/g, " ");
-
-  const aliases = {
-    "République Démocratique du Congo": "Democratic Republic of the Congo",
-    "Republique Democratique du Congo": "Democratic Republic of the Congo",
-    "Rep. Dem. du Congo": "Democratic Republic of the Congo",
-    "RDC": "Democratic Republic of the Congo",
-    "DRC": "Democratic Republic of the Congo",
-    "Congo DR": "Democratic Republic of the Congo",
-    "Congo, Democratic Republic": "Democratic Republic of the Congo",
-    "Tanzanie": "Tanzania",
-    "United Republic of Tanzania": "Tanzania",
-    "Ouganda": "Uganda",
-    "Kenia": "Kenya",
-    "Ethiopie": "Ethiopia",
-    "Éthiopie": "Ethiopia",
-  };
-
-  return aliases[normalized] || normalized;
-}
-
-Deno.serve(async (req) => {
-  const base44 = createClientFromRequest(req);
-  const user = await base44.auth.me();
-
-  if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
-    return Response.json({ error: 'Admin access required' }, { status: 403 });
-  }
-
-  const users = await base44.asServiceRole.entities.User.list('-created_date', 10000);
-  let updatedCount = 0;
-  const changes = [];
-
-  for (const u of users) {
-    if (!u.country) continue;
-    const original = u.country;
-    const normalized = normalizeCountry(original);
-    if (normalized !== original) {
-      await base44.asServiceRole.entities.User.update(u.id, { country: normalized });
-      updatedCount++;
-      changes.push({ email: u.email, from: original, to: normalized });
+export default async function(req) {
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+    if (!user || !['admin', 'super_admin'].includes(user.role)) {
+      return Response.json({ error: 'Admin access required' }, { status: 403 });
     }
-  }
 
-  return Response.json({ success: true, total_scanned: users.length, updated: updatedCount, changes });
-});
+    const users = [];
+    let skip = 0;
+    while (true) {
+      const batch = await base44.asServiceRole.entities.User.list('-created_date', 500, skip);
+      users.push(...batch);
+      if (batch.length < 500) break;
+      skip += 500;
+    }
+
+    const updates = [];
+    const changes = [];
+    for (const account of users) {
+      const original = String(account.country || '').trim();
+      const normalized = inferCountryFromLocation(account);
+      if (normalized && normalized !== original) {
+        updates.push({ id: account.id, country: normalized });
+        changes.push({ from: original || 'Unassigned', to: normalized });
+      }
+    }
+
+    await Promise.all(updates.map(({ id, ...fields }) =>
+      base44.asServiceRole.entities.User.update(id, fields)
+    ));
+
+    return Response.json({
+      success: true,
+      total_scanned: users.length,
+      updated: updates.length,
+      unresolved: users.filter((account) => !inferCountryFromLocation(account)).length,
+      changes,
+    });
+  } catch (error) {
+    console.error('normalizeCountries failed:', error?.message);
+    return Response.json({ error: 'Unable to normalize countries' }, { status: 500 });
+  }
+}

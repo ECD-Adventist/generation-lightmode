@@ -173,8 +173,12 @@ export default function AdminTerritoryAssignTab() {
     setAutoAssigning(true);
     try {
       const res = await base44.functions.invoke("autoAssignTerritories", {});
-      toast.success(`Auto-assigned ${res.data?.assigned || 0} user(s) based on postal/city data.`);
+      const assigned = res.data?.assigned || 0;
+      const unresolved = res.data?.unresolved || 0;
+      toast.success(`Assigned ${assigned} user(s) from stored location data. ${unresolved} still have no usable location.`);
       queryClient.invalidateQueries({ queryKey: ["assign_tab_users"] });
+      queryClient.invalidateQueries({ queryKey: ["territory_map_users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin_users_countries"] });
     } catch {
       toast.error("Auto-assign failed");
     } finally {

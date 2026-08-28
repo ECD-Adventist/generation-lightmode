@@ -28,6 +28,8 @@ export default function AdminCountriesTab({ user, territoryRestricted, territory
       } else {
         toast.success(`Merged ${updated} user record(s). Refreshing...`);
         queryClient.invalidateQueries({ queryKey: ["admin_users_countries"] });
+        queryClient.invalidateQueries({ queryKey: ["territory_map_users"] });
+        queryClient.invalidateQueries({ queryKey: ["assign_tab_users"] });
         queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
         queryClient.invalidateQueries({ queryKey: ["analytics_users"] });
       }
@@ -90,7 +92,7 @@ export default function AdminCountriesTab({ user, territoryRestricted, territory
     return Object.values(map)
       .map(c => ({ ...c, score: c.users * 10 + c.totalXP + c.drops * 2 + c.groups * 5 }))
       .sort((a, b) => b.score - a.score);
-  }, [scopedUsers, drops, scopedGroups]);
+  }, [scopedUsers, scopedDrops, scopedGroups]);
 
   const maxScore = countryStats[0]?.score || 1;
   const totalUsers = scopedUsers.length;

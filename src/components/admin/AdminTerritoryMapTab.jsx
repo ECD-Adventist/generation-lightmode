@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Users, MapPin, Building2, ChevronDown, ChevronRight, Search, Zap } from "lucide-react";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
+import { getUserCountry } from "@/lib/countryUtils";
 
 const ROLE_LABELS = {
   church_admin: "Church",
@@ -51,14 +52,14 @@ export default function AdminTerritoryMapTab({ currentUser }) {
   const grouped = useMemo(() => {
     const map = {};
     filtered.forEach(u => {
-      const key = (groupBy === "country" ? u.country : groupBy === "city" ? u.city : u.postal_code) || "Unassigned";
+      const key = (groupBy === "country" ? getUserCountry(u) : groupBy === "city" ? u.city : u.postal_code) || "Unassigned";
       if (!map[key]) map[key] = [];
       map[key].push(u);
     });
     return Object.entries(map).sort((a, b) => b[1].length - a[1].length);
   }, [filtered, groupBy]);
 
-  const totalWithAddress = users.filter(u => u.city && u.postal_code).length;
+  const totalWithAddress = users.filter(u => getUserCountry(u)).length;
   const totalUsers = users.length;
 
   const toggle = (key) => setExpanded(prev => ({ ...prev, [key]: !prev[key] }));

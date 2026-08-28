@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { normalizeCountryName } from '../../shared/territoryNames.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -66,7 +67,7 @@ Deno.serve(async (req) => {
     const customUpdate = {};
     if (username !== null) customUpdate.username = username.replace(/^@+/, '').slice(0, 40);
     if (display_name !== null) customUpdate.display_name = display_name.slice(0, 120);
-    if (has('country')) customUpdate.country = clean(body.country) || '';
+    if (has('country')) customUpdate.country = normalizeCountryName(clean(body.country));
     if (has('location')) customUpdate.location = clean(body.location) || '';
     if (has('bio')) customUpdate.bio = (clean(body.bio) || '').slice(0, 1200);
     if (website_url !== null) customUpdate.website_url = website_url;

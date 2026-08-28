@@ -1,33 +1,39 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { inferCountryFromLocation } from '../../shared/territoryNames.ts';
 
-// Simple heuristic: group users by country → assign territory_name = "country territory"
-// and set territory_status = "pending" if unset, so admins can review and approve.
-Deno.serve(async (req) => {
-  const base44 = createClientFromRequest(req);
-  const user = await base44.auth.me();
-
-  // Only super_admin and admin can run bulk territory assignment — church_admin scope is too destructive
-  const ADMIN_ROLES = ["admin", "super_admin"];
-  if (!user || !ADMIN_ROLES.includes(user.role)) {
-    return Response.json({ error: "Forbidden: only super_admin or admin can run bulk territory assignment" }, { status: 403 });
-  }
-
-  const allUsers = await base44.asServiceRole.entities.User.list();
-  let assigned = 0;
-
-  for (const u of allUsers) {
-    // Only auto-assign users who have location data but no territory_name yet
-    if (!u.territory_name && u.city && u.postal_code && u.country) {
-      const territoryName = `${u.city}, ${u.country}`;
-      await base44.asServiceRole.entities.User.update(u.id, {
-        territory_name: territoryName,
-        territory_level: "church", // default lowest level — admins can update
-        territory_countries: u.country,
-        territory_status: "pending",
-      });
-      assigned++;
+export default async function(req) {
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+    if (!user || !['admin', 'super_admin'].includes(user.role)) {
+      return Response.json({ error: 'Forbidden: only super_admin or admin can run bulk territory assignment' }, { status: 403 });
     }
-  }
 
-  return Response.json({ success: true, assigned });
-});
+    const users = [];
+    let skip = 0;
+    while (true) {
+      const batch = await base44.asServiceRole.entities.User.list('-created_date', 500, skip);
+      users.push(...batch);
+      if (batch.length < 500) break;
+      skip += 500;
+    }
+
+    const updates = users
+      .map((account) => ({ account, country: inferCountryFromLocation(account) }))
+      .filter(({ account, country }) => country && country !== String(account.country || '').trim())
+      .map(({ account, country }) => ({ id: account.id, country }));
+
+    await Promise.all(updates.map(({ id, ...fields }) =>
+      base44.asServiceRole.entities.User.update(id, fields)
+    ));
+
+    return Response.json({
+      success: true,
+      assigned: updates.length,
+      unresolved: users.filter((account) => !inferCountryFromLocation(account)).length,
+    });
+  } catch (error) {
+    console.error('autoAssignTerritories failed:', error?.message);
+    return Response.json({ error: 'Unable to auto-assign territories' }, { status: 500 });
+  }
+}

@@ -1,8 +1,9 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { secrets } from 'base44:runtime';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 import { logAdminAction, logPermissionDenied, logSecurityEvent } from '../../shared/securityEvents.ts';
 
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -11,44 +12,38 @@ Deno.serve(async (req) => {
     if (rateLimited) return rateLimited;
     const validated = await readValidatedJson(req, {}, { allowEmpty: true });
     if (validated.response) return validated.response;
-    if (user.role !== 'admin' && user.role !== 'super_admin') {
+    if (!['admin', 'super_admin'].includes(user.role)) {
       await logPermissionDenied(base44, req, user, 'supabase_storage_stats', 'read');
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const accessToken = Deno.env.get('SUPABASE_ACCESS_TOKEN');
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    if (!accessToken || !serviceRoleKey) {
-      return Response.json({ error: 'Supabase credentials are not configured' }, { status: 500 });
+    const { accessToken } = await base44.asServiceRole.connectors.getConnection('supabase');
+    const headers = { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' };
+    const projectsResponse = await fetch('https://api.supabase.com/v1/projects', { headers });
+    if (!projectsResponse.ok) {
+      return Response.json({ error: 'Unable to access the connected Supabase project' }, { status: 502 });
     }
 
-    const projectRef = (Deno.env.get('SUPABASE_URL') || '').match(/([a-z0-9]+)\.supabase\.co/)?.[1];
-    if (!projectRef) {
-      return Response.json({ error: 'SUPABASE_URL is not configured' }, { status: 500 });
-    }
-    const endpoint = `https://api.supabase.com/v1/projects/${projectRef}/database/query`;
-    const backupsEndpoint = `https://api.supabase.com/v1/projects/${projectRef}/database/backups`;
-    const headers = {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    };
-    const tableSql = `SELECT table_name, pg_size_pretty(pg_total_relation_size(quote_ident(table_name)::text)) AS size, pg_total_relation_size(quote_ident(table_name)::text) AS bytes, (xpath('/row/c/text()', query_to_xml(format('SELECT COUNT(*) AS c FROM public.%I', table_name), false, true, '')))[1]::text::int AS row_count FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' ORDER BY bytes DESC`;
+    const projects = await projectsResponse.json();
+    const configuredRef = String(secrets.get('SUPABASE_URL') || '').match(/https?:\/\/([a-z0-9]+)\.supabase\.co/i)?.[1];
+    const projectList = Array.isArray(projects) ? projects : [];
+    const project = projectList.find((item) => item.ref === configuredRef)
+      || (projectList.length === 1 ? projectList[0] : null);
+    if (!project?.ref) return Response.json({ error: 'Connected Supabase project could not be identified' }, { status: 502 });
+
+    const endpoint = `https://api.supabase.com/v1/projects/${project.ref}/database/query/read-only`;
+    const backupsEndpoint = `https://api.supabase.com/v1/projects/${project.ref}/database/backups`;
+    const tableSql = `SELECT table_name, pg_size_pretty(pg_total_relation_size(format('%I.%I', table_schema, table_name))) AS size, pg_total_relation_size(format('%I.%I', table_schema, table_name)) AS bytes, (xpath('/row/c/text()', query_to_xml(format('SELECT COUNT(*) AS c FROM %I.%I', table_schema, table_name), false, true, '')))[1]::text::bigint AS row_count FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' ORDER BY bytes DESC`;
     const totalSql = `SELECT pg_size_pretty(pg_database_size(current_database())) AS total_db_size, pg_database_size(current_database()) AS total_bytes`;
-
-    /*
-     * Backup health policy: Supabase manages the actual backup schedule. This
-     * admin health check should run at least daily; it reads the latest backup
-     * timestamp and alerts ADMIN_EMAIL once per 24-hour stale period.
-     */
     const [tablesResponse, totalResponse, backupsResponse] = await Promise.all([
       fetch(endpoint, { method: 'POST', headers, body: JSON.stringify({ query: tableSql }) }),
       fetch(endpoint, { method: 'POST', headers, body: JSON.stringify({ query: totalSql }) }),
-      fetch(backupsEndpoint, { headers: { Authorization: `Bearer ${accessToken}` } }),
+      fetch(backupsEndpoint, { headers }),
     ]);
-
     if (!tablesResponse.ok || !totalResponse.ok) {
       const details = !tablesResponse.ok ? await tablesResponse.text() : await totalResponse.text();
-      return Response.json({ error: `Supabase query failed: ${details}` }, { status: 502 });
+      console.error('Supabase storage query failed:', details);
+      return Response.json({ error: 'Unable to query Supabase storage statistics' }, { status: 502 });
     }
 
     const tablesResult = await tablesResponse.json();
@@ -60,10 +55,11 @@ Deno.serve(async (req) => {
       row_count: Number(table.row_count || 0),
     }));
     const total = Array.isArray(totalResult) ? totalResult[0] : null;
+
     let latestBackupAt = null;
     if (backupsResponse.ok) {
-      const backupPayload = await backupsResponse.json();
-      const backups = Array.isArray(backupPayload) ? backupPayload : (backupPayload.backups || []);
+      const payload = await backupsResponse.json();
+      const backups = Array.isArray(payload) ? payload : (payload.backups || []);
       latestBackupAt = backups
         .map((backup) => backup.inserted_at || backup.created_at || backup.completed_at)
         .filter(Boolean)
@@ -76,7 +72,7 @@ Deno.serve(async (req) => {
       const recentAlerts = await base44.asServiceRole.entities.SecurityEvent.filter({ event_type: 'backup_health_alert' }, '-created_date', 5).catch(() => []);
       const alertedRecently = recentAlerts.some((event) => Date.now() - new Date(event.occurred_at || event.created_date).getTime() < 86_400_000);
       if (!alertedRecently) {
-        const adminEmail = Deno.env.get('ADMIN_EMAIL');
+        const adminEmail = secrets.get('ADMIN_EMAIL');
         if (adminEmail) {
           await base44.asServiceRole.integrations.Core.SendEmail({
             to: adminEmail,
@@ -93,8 +89,8 @@ Deno.serve(async (req) => {
         });
       }
     }
-    await logAdminAction(base44, req, user, 'supabase_storage_stats', 'read');
 
+    await logAdminAction(base44, req, user, 'supabase_storage_stats', 'read');
     return Response.json({
       total_size: total?.total_db_size || '0 bytes',
       total_bytes: Number(total?.total_bytes || 0),
@@ -109,6 +105,7 @@ Deno.serve(async (req) => {
       tables,
     });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('getSupabaseStorageStats failed:', error?.message);
+    return Response.json({ error: 'Unable to load storage statistics' }, { status: 500 });
   }
-});
+}

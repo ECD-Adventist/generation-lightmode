@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
       if (email) territoryByEmail.set(email, territory);
       const entry = ensure(territory);
       entry.total_users += 1;
-      entry.total_glow_score += u.xp_points ?? u.glow_score ?? 0;
+      entry.total_glow_score += u.glow_score ?? u.xp_points ?? 0;
     });
 
     const territoryFor = (email) => territoryByEmail.get(String(email || '').toLowerCase()) || 'Unspecified';

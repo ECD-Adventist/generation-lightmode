@@ -16,6 +16,7 @@ const COUNTRY_ALIASES = {
   "drc": "Democratic Republic of the Congo",
   "rdc": "Democratic Republic of the Congo",
   "dr congo": "Democratic Republic of the Congo",
+  "rd congo": "Democratic Republic of the Congo",
   "congo dr": "Democratic Republic of the Congo",
   "congo, democratic republic": "Democratic Republic of the Congo",
   "république démocratique du congo": "Democratic Republic of the Congo",
