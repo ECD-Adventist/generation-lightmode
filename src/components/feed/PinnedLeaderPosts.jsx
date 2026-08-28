@@ -21,7 +21,7 @@ export default function PinnedLeaderPosts({ leaderAccounts = [] }) {
   });
 
   const pinnedEmails = useMemo(() => Array.from(new Set(pinnedDrops.map((drop) => drop.user_email).filter(Boolean))), [pinnedDrops]);
-  const { data: pinnedLeaders = [] } = useQuery({
+  const { data: pinnedLeaders = [], isLoading: isLoadingPinnedLeaders } = useQuery({
     queryKey: ["pinnedLeaderAccounts", pinnedEmails.join("|")],
     queryFn: async () => {
       const response = await base44.functions.invoke("listPublicLeaderAccounts", { emails: pinnedEmails, limit: Math.max(1, pinnedEmails.length) });
@@ -31,7 +31,7 @@ export default function PinnedLeaderPosts({ leaderAccounts = [] }) {
     staleTime: 1000 * 60 * 5,
   });
 
-  if (isLoading || pinnedDrops.length === 0) return null;
+  if (isLoading || isLoadingPinnedLeaders || pinnedDrops.length === 0) return null;
 
   const resolveLeader = (email) => {
     if (!email) return null;
