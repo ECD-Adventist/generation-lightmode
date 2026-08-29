@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Zap, User, Search, MessageCircle, Plus } from "lucide-react";
@@ -33,10 +34,18 @@ export default function MobileBottomNav({ currentPageName }) {
     if (savedScroll !== null) requestAnimationFrame(() => window.scrollTo(0, Number(savedScroll) || 0));
   }, [scrollKey]);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-[900] safe-pb"
+      className="md:hidden z-[900]"
       style={{
+        position: "fixed",
+        bottom: 0,
+        insetInline: 0,
+        width: "100%",
+        maxWidth: "100vw",
+        paddingBottom: "env(safe-area-inset-bottom)",
         background: "#0B0F1A",
         borderTop: "1px solid #1F2937",
       }}
@@ -110,6 +119,7 @@ export default function MobileBottomNav({ currentPageName }) {
           );
         })}
       </div>
-    </nav>
+    </nav>,
+    document.body
   );
 }
