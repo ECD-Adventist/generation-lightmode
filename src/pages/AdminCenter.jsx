@@ -177,16 +177,16 @@ function AdminCenterInner() {
     }
     switch (activeTab) {
       case "territory": return <AdminTerritorySetupTab user={user} />;
-      case "dashboard": return <AdminDashboardTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "dashboard": return <AdminDashboardTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryRegions={user?.territory_regions} territoryApproved={hasApprovedTerritory} />;
       case "users": return <AdminUsersTab user={user} readOnly={isOfficerReadOnly} />;
-      case "groups": return <AdminGlowGroupsTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
-      case "drops": return <AdminGlowDropsTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "groups": return <AdminGlowGroupsTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryRegions={user?.territory_regions} territoryApproved={hasApprovedTerritory} />;
+      case "drops": return <AdminGlowDropsTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryRegions={user?.territory_regions} territoryApproved={hasApprovedTerritory} />;
       case "challenges": return <AdminChallengesTab />;
       case "leaderboards": return <AdminLeaderboardsTab />;
-      case "countries": return <AdminCountriesTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
-      case "territory-map": return <AdminTerritoryMapTab currentUser={user} />;
+      case "countries": return <AdminCountriesTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryRegions={user?.territory_regions} territoryApproved={hasApprovedTerritory} />;
+      case "territory-map": return <AdminTerritoryMapTab currentUser={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryRegions={user?.territory_regions} territoryApproved={hasApprovedTerritory} />;
       case "territory-assign": return <AdminTerritoryAssignTab />;
-      case "charts": return <AdminChartsTab territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "charts": return <AdminChartsTab territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryRegions={user?.territory_regions} territoryApproved={hasApprovedTerritory} />;
       case "territory-challenges": return <AdminTerritoryChallengesTab currentUser={user} />;
       case "activity": return <AdminActivityFeedTab currentUser={user} />;
       case "codes": return <AdminCodesTab sourceFilter="codes_of_truth" title="Codes of Truth" />;
@@ -194,8 +194,8 @@ function AdminCenterInner() {
       case "media": return <AdminMediaTab />;
       case "content-schedule": return canScheduleContent ? <AdminContentScheduleTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin or ECD Admin access required to schedule content.</div>;
       case "badges": return <AdminBadgesTab />;
-      case "analytics": return <AdminAnalyticsTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
-      case "growth-analytics": return <AdminGrowthAnalyticsTab territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} />;
+      case "analytics": return <AdminAnalyticsTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryRegions={user?.territory_regions} territoryApproved={hasApprovedTerritory} />;
+      case "growth-analytics": return <AdminGrowthAnalyticsTab territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryRegions={user?.territory_regions} />;
       case "genlux-intelligence": return <AdminGenLuxMissionIntelligence user={user} />;
       case "notifications": return <AdminNotificationsTab />;
       case "announcements": return <AdminAnnouncementsTab />;

@@ -8,9 +8,11 @@ import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import GlowGroupsStats from "./groups/GlowGroupsStats";
 import GlowGroupsToolbar from "./groups/GlowGroupsToolbar";
 import GlowGroupsTable from "./groups/GlowGroupsTable";
+import GroupDetailDrawer from "./groups/GroupDetailDrawer";
 import { computeGroupActivity } from "./groups/groupActivity";
+import { buildTerritoryScope, scopeGroups } from "@/lib/territoryScope";
 
-export default function AdminGlowGroupsTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
+export default function AdminGlowGroupsTab({ user, territoryRestricted, territoryCountries, territoryRegions, territoryApproved }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
@@ -38,12 +40,14 @@ export default function AdminGlowGroupsTab({ user, territoryRestricted, territor
   const [filterActivity, setFilterActivity] = useState("all");
   const [filterPrivacy, setFilterPrivacy] = useState("all");
   const [sort, setSort] = useState({ key: "activityScore", dir: "desc" });
+  const [detailGroup, setDetailGroup] = useState(null);
 
-  // Territory scoping
-  const allowedCountries = (territoryCountries || "").split(",").map(s => s.trim()).filter(Boolean);
-  const scopedGroups = territoryRestricted && territoryApproved
-    ? groups.filter(g => allowedCountries.includes(g.country))
-    : groups;
+  // Territory scoping — honours both chosen countries and chosen regions.
+  const scope = useMemo(
+    () => buildTerritoryScope({ territoryRestricted, territoryApproved, territoryCountries, territoryRegions }),
+    [territoryRestricted, territoryApproved, territoryCountries, territoryRegions]
+  );
+  const scopedGroups = useMemo(() => scopeGroups(scope, groups), [scope, groups]);
 
   // Build lookup maps once
   const { memberCountByGroup, lastMessageByGroup } = useMemo(() => {
@@ -160,8 +164,8 @@ export default function AdminGlowGroupsTab({ user, territoryRestricted, territor
   };
 
   const handleViewGroup = (g) => {
-    // Deep-link into the group chat page
-    window.open(`${createPageUrl("GroupChat")}?groupId=${g.id}`, "_blank");
+    // Open details in a right-side drawer instead of a new browser tab.
+    setDetailGroup(g);
   };
 
   const handleMessageLeader = (g) => {
@@ -223,6 +227,10 @@ export default function AdminGlowGroupsTab({ user, territoryRestricted, territor
         isDark={isDark}
         t={t}
       />
+
+      {detailGroup && (
+        <GroupDetailDrawer group={detailGroup} onClose={() => setDetailGroup(null)} t={t} isDark={isDark} />
+      )}
     </div>
   );
 }
