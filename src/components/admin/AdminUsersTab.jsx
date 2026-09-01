@@ -464,6 +464,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
           onSendNotification={() => setNotifyingUser(detailUser)}
           onSuspendToggle={() => setSuspendingUser({ user: detailUser, action: detailUser.status === "suspended" ? "activate" : "suspend" })}
           onDelete={() => setDeletingUser(detailUser)}
+          readOnly={readOnly}
           t={t}
         />
       )}

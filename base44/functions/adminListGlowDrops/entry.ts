@@ -9,7 +9,12 @@ const ALLOWED_ROLES = new Set([
   'country_admin',
   'union_admin',
   'conference_field_admin',
-  'church_admin'
+  'church_admin',
+  // Officers may view moderation data; all mutation endpoints remain admin-only.
+  'ecd_officer',
+  'union_officer',
+  'conference_field_officer',
+  'church_officer'
 ]);
 
 Deno.serve(async (req) => {

@@ -133,7 +133,7 @@ function AuditLogTab({ data, t }) {
   );
 }
 
-export default function UserDetailDrawer({ targetUser, onClose, onEditRole, onSendNotification, onSuspendToggle, onDelete, t }) {
+export default function UserDetailDrawer({ targetUser, onClose, onEditRole, onSendNotification, onSuspendToggle, onDelete, t, readOnly = false }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("overview");
@@ -195,7 +195,8 @@ export default function UserDetailDrawer({ targetUser, onClose, onEditRole, onSe
             <p className="text-xs" style={{ color: t.textMuted }}>{targetUser.email}</p>
           </div>
 
-          {/* Quick actions row */}
+          {/* Quick actions row — hidden for view-only officer roles */}
+          {!readOnly && (
           <div className="flex gap-2 mt-4 flex-wrap">
             <button onClick={onEditRole} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold border transition" style={{ borderColor: t.border, color: t.textSecondary, background: "transparent" }}>
               <Edit2 size={12} /> Role
@@ -210,6 +211,7 @@ export default function UserDetailDrawer({ targetUser, onClose, onEditRole, onSe
               <Trash2 size={12} /> Remove
             </button>
           </div>
+          )}
 
           {/* Tabs */}
           <div className="flex gap-1 mt-5 border-b" style={{ borderColor: t.border }}>

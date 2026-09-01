@@ -42,7 +42,6 @@ import { AdminThemeProvider, useAdminTheme, getAdminTokens } from "../components
 import AdminThemeToggle from "../components/admin/AdminThemeToggle";
 import MobileAdminShell from "../components/admin/MobileAdminShell";
 import AdminGenLuxMissionIntelligence from "../components/admin/AdminGenLuxMissionIntelligence";
-import AdminReadOnlyBanner from "../components/admin/AdminReadOnlyBanner";
 import AdminReadOnlyScope from "../components/admin/AdminReadOnlyScope";
 import { isReadOnlyAdminRole } from "@/lib/adminRoles";
 
@@ -224,7 +223,6 @@ function AdminCenterInner() {
     <>
     {/* Mobile admin shell — dedicated drawer-based navigation */}
     <MobileAdminShell user={user} activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={canViewAll} isRegionalAdmin={territoryScoped} canScheduleContent={canScheduleContent}>
-      {isOfficerReadOnly && <AdminReadOnlyBanner role={user.role} t={t} />}
       <AdminReadOnlyScope enabled={isOfficerReadOnly && activeTab !== "territory"}>{renderTab()}</AdminReadOnlyScope>
     </MobileAdminShell>
 
@@ -265,7 +263,6 @@ function AdminCenterInner() {
 
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-7xl mx-auto pb-20 md:pb-0">
-            {isOfficerReadOnly && <AdminReadOnlyBanner role={user.role} t={t} />}
             <AdminReadOnlyScope enabled={isOfficerReadOnly && activeTab !== "territory"}>{renderTab()}</AdminReadOnlyScope>
           </div>
         </div>

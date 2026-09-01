@@ -14,7 +14,9 @@ Deno.serve(async (req) => {
 
     const ADMIN_ROLES = [
       'admin', 'super_admin', 'ecd_admin', 'country_admin',
-      'union_admin', 'conference_field_admin', 'church_admin', 'moderator'
+      'union_admin', 'conference_field_admin', 'church_admin', 'moderator',
+      // Officer roles get read-only detail access — all write endpoints stay admin-only.
+      'ecd_officer', 'union_officer', 'conference_field_officer', 'church_officer'
     ];
     if (!ADMIN_ROLES.includes(caller.role)) {
       await logPermissionDenied(base44, req, caller, 'user_detail', 'read');
