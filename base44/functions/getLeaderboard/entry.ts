@@ -23,7 +23,6 @@ function publicEntry(user) {
   const picture = user.profile_picture || user.profile_picture_url || '';
   return {
     id: user.id,
-    email: user.email || '',
     username: user.username || '',
     display_name: user.display_name || '',
     full_name: user.full_name || '',
@@ -95,7 +94,7 @@ export default async function(req) {
       })
       .sort((a, b) => b.value - a.value || (b.glow_score || 0) - (a.glow_score || 0));
 
-    const myIndex = ranked.findIndex((entry) => String(entry.email).toLowerCase() === String(me.email || '').toLowerCase());
+    const myIndex = ranked.findIndex((entry) => entry.id === me.id);
     const tierCounts = { Seed: 0, Spark: 0, Flame: 0, Beacon: 0, Radiance: 0 };
     allUsers.forEach((u) => {
       const score = u.xp_points ?? u.glow_score ?? 0;

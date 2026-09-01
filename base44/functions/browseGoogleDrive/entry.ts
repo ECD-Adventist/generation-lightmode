@@ -20,7 +20,10 @@ export default async function(req) {
     let payload = {};
     try { payload = await req.json(); } catch (_e) { payload = {}; }
 
-    const folderId = String(payload.folder_id || SHARED_DRIVE_ID).slice(0, 100);
+    const folderId = String(payload.folder_id || SHARED_DRIVE_ID).trim().slice(0, 100);
+    if (!/^[A-Za-z0-9_-]{10,100}$/.test(folderId)) {
+      return Response.json({ error: "Invalid folder_id" }, { status: 400 });
+    }
     const search = String(payload.search || "").trim().slice(0, 100).replace(/'/g, "");
 
     const clauses = ["trashed = false"];

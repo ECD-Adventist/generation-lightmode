@@ -8,12 +8,20 @@ function normalizeEmail(value) {
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
+    let caller = null;
+    try { caller = await base44.auth.me(); } catch (_error) { caller = null; }
+    if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
     const payload = await req.json();
     const userId = String(payload?.user_id || '').trim();
     const email = normalizeEmail(payload?.email);
     const dryRun = payload?.dry_run === true;
 
     if (!userId) return Response.json({ error: 'user_id is required' }, { status: 400 });
+    const isAdmin = caller.role === 'admin' || caller.role === 'super_admin';
+    if (caller.id !== userId && !isAdmin) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const signupUser = await base44.asServiceRole.entities.User.get(userId);
     if (!signupUser || (email && normalizeEmail(signupUser.email) !== email)) {
