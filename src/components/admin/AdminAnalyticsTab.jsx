@@ -7,6 +7,7 @@ import {
 import { Users, Zap, Globe, MessageSquare, Heart, Target, TrendingUp, TrendingDown, Activity, UserCheck } from "lucide-react";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import { getUserCountry } from "@/lib/countryUtils";
+import { buildTerritoryScope, scopeUsers, scopeGroups, scopeDropsByAuthor } from "@/lib/territoryScope";
 
 function StatCard({ label, value, sub, icon, color, trend, trendValue, t }) {
   const isUp = trend === "up";
@@ -55,7 +56,7 @@ const CustomTooltip = ({ active, payload, label, t }) => {
   );
 };
 
-export default function AdminAnalyticsTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
+export default function AdminAnalyticsTab({ user, territoryRestricted, territoryCountries, territoryRegions, territoryApproved }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
@@ -101,22 +102,10 @@ export default function AdminAnalyticsTab({ user, territoryRestricted, territory
     queryFn: () => base44.entities.Follow.list("-created_date", 10000),
   });
 
-  const allowedCountries = (territoryCountries || "").split(",").map(item => getUserCountry({ country: item })).filter(Boolean);
-
-  const scopedUsers = territoryRestricted && territoryApproved
-    ? users.filter(entry => allowedCountries.includes(getUserCountry(entry)))
-    : users;
-
-  const scopedDrops = territoryRestricted && territoryApproved
-    ? drops.filter(drop => {
-        const owner = users.find(entry => entry.email === drop.user_email);
-        return owner && allowedCountries.includes(getUserCountry(owner));
-      })
-    : drops;
-
-  const scopedGroups = territoryRestricted && territoryApproved
-    ? groups.filter(group => allowedCountries.includes(getUserCountry(group)))
-    : groups;
+  const scope = buildTerritoryScope({ territoryRestricted, territoryApproved, territoryCountries, territoryRegions });
+  const scopedUsers = scopeUsers(scope, users);
+  const scopedDrops = scopeDropsByAuthor(scope, drops, users);
+  const scopedGroups = scopeGroups(scope, groups, new Map(users.map(u => [u.email, u])));
 
   const registrationsChart = useMemo(() => {
     const days = dateRange === "7d" ? 7 : dateRange === "14d" ? 14 : 30;

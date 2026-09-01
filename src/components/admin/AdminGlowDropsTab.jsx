@@ -10,8 +10,9 @@ import AdminGlowDropGridCard from "./drops/AdminGlowDropGridCard";
 import BulkActionsBar from "./drops/BulkActionsBar";
 import DropPreviewModal from "./drops/DropPreviewModal";
 import LightBoostersManager from "./drops/LightBoostersManager";
+import { buildTerritoryScope, scopeDropsByAuthor } from "@/lib/territoryScope";
 
-export default function AdminGlowDropsTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
+export default function AdminGlowDropsTab({ user, territoryRestricted, territoryCountries, territoryRegions, territoryApproved }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
@@ -35,16 +36,24 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
     },
   });
 
-  const allowedCountries = (territoryCountries || "").split(",").map(item => item.trim()).filter(Boolean);
+  // Territory scoping — drops inherit their author's country/region, so the
+  // author directory is needed to resolve scope.
+  const scope = useMemo(
+    () => buildTerritoryScope({ territoryRestricted, territoryApproved, territoryCountries, territoryRegions }),
+    [territoryRestricted, territoryApproved, territoryCountries, territoryRegions]
+  );
 
-  // Territory scoping
-  const scopedDrops = useMemo(() => {
-    if (!(territoryRestricted && territoryApproved)) return drops;
-    return drops.filter(d => {
-      const ownerCountry = user?.countryMap?.[d.user_email];
-      return !ownerCountry || allowedCountries.includes(ownerCountry);
-    });
-  }, [drops, territoryRestricted, territoryApproved, user, allowedCountries]);
+  const { data: scopeUsers = [] } = useQuery({
+    queryKey: ["admin_drops_scope_users"],
+    queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []),
+    enabled: scope.active,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const scopedDrops = useMemo(
+    () => scopeDropsByAuthor(scope, drops, scopeUsers),
+    [scope, drops, scopeUsers]
+  );
 
   // Counts per tab
   const counts = useMemo(() => {

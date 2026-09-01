@@ -8,6 +8,7 @@ import { Users, Zap, TrendingUp, Globe } from "lucide-react";
 import { format, subDays, eachDayOfInterval, startOfDay } from "date-fns";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import { getUserCountry, normalizeCountryName } from "@/lib/countryUtils";
+import { buildTerritoryScope, scopeUsers } from "@/lib/territoryScope";
 
 const CustomTooltip = ({ active, payload, label, t }) => {
   if (!active || !payload?.length) return null;
@@ -42,11 +43,8 @@ export default function AdminChartsTab({ territoryRestricted, territoryCountries
     queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000),
   });
 
-  const allowedCountries = (territoryCountries || "").split(",").map(normalizeCountryName).filter(Boolean);
-
-  const users = territoryRestricted && territoryApproved
-    ? rawUsers.filter(u => allowedCountries.includes(getUserCountry(u)))
-    : rawUsers;
+  const scope = buildTerritoryScope({ territoryRestricted, territoryApproved, territoryCountries, territoryRegions });
+  const users = scopeUsers(scope, rawUsers);
 
   const registrationData = useMemo(() => {
     const days = eachDayOfInterval({ start: subDays(new Date(), 29), end: new Date() });

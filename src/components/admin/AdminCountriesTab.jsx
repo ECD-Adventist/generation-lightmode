@@ -6,10 +6,11 @@ import { toast } from "sonner";
 import CountriesWorldMap from "./CountriesWorldMap";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import { getUserCountry, normalizeCountryName } from "@/lib/countryUtils";
+import { buildTerritoryScope, scopeUsers, scopeGroups } from "@/lib/territoryScope";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
-export default function AdminCountriesTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
+export default function AdminCountriesTab({ user, territoryRestricted, territoryCountries, territoryRegions, territoryApproved }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
@@ -53,15 +54,9 @@ export default function AdminCountriesTab({ user, territoryRestricted, territory
     queryFn: () => base44.entities.GlowGroup.list("-created_date", 10000),
   });
 
-  const allowedCountries = (territoryCountries || "").split(",").map(normalizeCountryName).filter(Boolean);
-
-  const scopedUsers = territoryRestricted && territoryApproved
-    ? users.filter(entry => allowedCountries.includes(getUserCountry(entry)))
-    : users;
-
-  const scopedGroups = territoryRestricted && territoryApproved
-    ? groups.filter(group => allowedCountries.includes(normalizeCountryName(group.country)))
-    : groups;
+  const scope = buildTerritoryScope({ territoryRestricted, territoryApproved, territoryCountries, territoryRegions });
+  const scopedUsers = scopeUsers(scope, users);
+  const scopedGroups = scopeGroups(scope, groups, new Map(users.map(u => [u.email, u])));
 
   const scopedDrops = territoryRestricted && territoryApproved
     ? drops.filter(drop => {

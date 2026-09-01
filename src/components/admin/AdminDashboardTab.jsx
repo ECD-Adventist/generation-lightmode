@@ -12,21 +12,23 @@ import { LeadingCountriesPanel, ChallengeImpactPanel, CommunityPulsePanel } from
 import GlobalReachMap from "./dashboard/GlobalReachMap";
 import LiveOverviewPanel from "./dashboard/LiveOverviewPanel";
 import { getUserCountry, normalizeCountryName } from "@/lib/countryUtils";
+import { buildTerritoryScope, scopeUsers, scopeGroups, scopeDropsByAuthor } from "@/lib/territoryScope";
 
-export default function AdminDashboardTab({ user, territoryRestricted, territoryCountries, territoryApproved }) {
+export default function AdminDashboardTab({ user, territoryRestricted, territoryCountries, territoryRegions, territoryApproved }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
 
-  const allowedCountries = (territoryCountries || "").split(",").map(normalizeCountryName).filter(Boolean);
+  const scope = buildTerritoryScope({ territoryRestricted, territoryApproved, territoryCountries, territoryRegions });
   const { data: users = [] } = useQuery({ queryKey: ["admin_users_full"], queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []) });
   const { data: drops = [] } = useQuery({ queryKey: ["admin_drops"], queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000) });
   const { data: groups = [] } = useQuery({ queryKey: ["admin_groups"], queryFn: () => base44.entities.GlowGroup.list("-created_date", 10000) });
   const { data: challenges = [] } = useQuery({ queryKey: ["admin_challenges"], queryFn: () => base44.entities.Challenge.list("-created_date", 10000) });
 
-  const scopedUsers = territoryRestricted && territoryApproved ? users.filter(u => allowedCountries.includes(getUserCountry(u))) : users;
-  const scopedDrops = territoryRestricted && territoryApproved ? drops.filter(d => { const o = users.find(u => u.email === d.user_email); return o && allowedCountries.includes(getUserCountry(o)); }) : drops;
-  const scopedGroups = territoryRestricted && territoryApproved ? groups.filter(g => allowedCountries.includes(getUserCountry(g))) : groups;
+  const usersByEmail = new Map(users.map(u => [u.email, u]));
+  const scopedUsers = scopeUsers(scope, users);
+  const scopedDrops = scopeDropsByAuthor(scope, drops, users);
+  const scopedGroups = scopeGroups(scope, groups, usersByEmail);
 
   const pendingDrops = scopedDrops.filter(d => d.status === "pending").length;
   const pendingTerritories = scopedUsers.filter(u => u.territory_status === "pending").length;

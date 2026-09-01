@@ -7,6 +7,7 @@ import {
 import { Globe, Users, TrendingUp, Zap, MapPin, CheckCircle, Activity } from "lucide-react";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import { getUserCountry } from "@/lib/countryUtils";
+import { buildTerritoryScope, scopeUsers } from "@/lib/territoryScope";
 
 const COLORS = ["#00CFFF", "#8A5CFF", "#FFD000", "#10B981", "#F43F5E", "#F97316", "#EC4899", "#6366F1", "#14B8A6", "#EAB308"];
 
@@ -37,7 +38,7 @@ function StatCard({ label, value, icon, color, sub, t }) {
   );
 }
 
-export default function AdminGrowthAnalyticsTab({ territoryRestricted, territoryCountries }) {
+export default function AdminGrowthAnalyticsTab({ territoryRestricted, territoryCountries, territoryRegions }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
@@ -71,9 +72,9 @@ export default function AdminGrowthAnalyticsTab({ territoryRestricted, territory
 
   const users = useMemo(() => {
     if (!territoryRestricted || !territoryCountries) return allUsers;
-    const allowed = territoryCountries.split(",").map(c => getUserCountry({ country: c }).toLowerCase()).filter(Boolean);
-    return allUsers.filter(u => allowed.includes(getUserCountry(u).toLowerCase()));
-  }, [allUsers, territoryRestricted, territoryCountries]);
+    const scope = buildTerritoryScope({ territoryRestricted, territoryApproved: true, territoryCountries, territoryRegions });
+    return scopeUsers(scope, allUsers);
+  }, [allUsers, territoryRestricted, territoryCountries, territoryRegions]);
 
   const profileFields = ["bio", "country", "city", "profile_picture_url", "gender", "date_of_birth"];
   const profileStats = useMemo(() => {
