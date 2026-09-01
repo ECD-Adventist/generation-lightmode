@@ -7,7 +7,9 @@ import {
 import { Users, Zap, Globe, MessageSquare, Heart, Target, TrendingUp, TrendingDown, Activity, UserCheck } from "lucide-react";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import { getUserCountry } from "@/lib/countryUtils";
-import { buildTerritoryScope, scopeUsers, scopeGroups, scopeDropsByAuthor } from "@/lib/territoryScope";
+import * as territoryScope from "@/lib/territoryScope";
+
+const { buildTerritoryScope, scopeUsers, scopeGroups, scopeDropsByAuthor } = territoryScope;
 
 function StatCard({ label, value, sub, icon, color, trend, trendValue, t }) {
   const isUp = trend === "up";

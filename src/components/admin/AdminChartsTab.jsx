@@ -7,7 +7,7 @@ import {
 import { Users, Zap, TrendingUp, Globe } from "lucide-react";
 import { format, subDays, eachDayOfInterval, startOfDay } from "date-fns";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
-import { getUserCountry, normalizeCountryName } from "@/lib/countryUtils";
+import { getUserCountry } from "@/lib/countryUtils";
 import { buildTerritoryScope, scopeUsers } from "@/lib/territoryScope";
 
 const CustomTooltip = ({ active, payload, label, t }) => {
@@ -22,7 +22,7 @@ const CustomTooltip = ({ active, payload, label, t }) => {
   );
 };
 
-export default function AdminChartsTab({ territoryRestricted, territoryCountries, territoryApproved }) {
+export default function AdminChartsTab({ territoryRestricted, territoryCountries, territoryRegions, territoryApproved }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";

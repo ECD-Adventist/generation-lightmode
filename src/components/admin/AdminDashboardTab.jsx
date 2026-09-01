@@ -11,7 +11,7 @@ import { EngagementPanel, TopPerformersPanel, RecentActivityPanel } from "./dash
 import { LeadingCountriesPanel, ChallengeImpactPanel, CommunityPulsePanel } from "./dashboard/DashboardExtras";
 import GlobalReachMap from "./dashboard/GlobalReachMap";
 import LiveOverviewPanel from "./dashboard/LiveOverviewPanel";
-import { getUserCountry, normalizeCountryName } from "@/lib/countryUtils";
+import { getUserCountry } from "@/lib/countryUtils";
 import { buildTerritoryScope, scopeUsers, scopeGroups, scopeDropsByAuthor } from "@/lib/territoryScope";
 
 export default function AdminDashboardTab({ user, territoryRestricted, territoryCountries, territoryRegions, territoryApproved }) {

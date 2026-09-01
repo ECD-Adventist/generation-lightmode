@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Users, MapPin, Building2, ChevronDown, ChevronRight, Search, Zap } from "lucide-react";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import { getUserCountry } from "@/lib/countryUtils";
+import { buildTerritoryScope, scopeUsers } from "@/lib/territoryScope";
 
 const ROLE_LABELS = {
   church_admin: "Church",
@@ -23,7 +24,7 @@ const getLevelColors = (isDark) => ({
   ecd_admin: isDark ? "#f97316" : "#ea580c",
 });
 
-export default function AdminTerritoryMapTab({ currentUser }) {
+export default function AdminTerritoryMapTab({ currentUser, territoryRestricted, territoryCountries, territoryRegions, territoryApproved }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
@@ -33,10 +34,17 @@ export default function AdminTerritoryMapTab({ currentUser }) {
   const [groupBy, setGroupBy] = useState("country");
   const [expanded, setExpanded] = useState({});
 
-  const { data: users = [], isLoading } = useQuery({
+  const { data: allUsers = [], isLoading } = useQuery({
     queryKey: ["territory_map_users"],
     queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []),
   });
+
+  // Only show the countries/regions this admin selected in Territory Setup.
+  const scope = useMemo(
+    () => buildTerritoryScope({ territoryRestricted, territoryApproved, territoryCountries, territoryRegions }),
+    [territoryRestricted, territoryApproved, territoryCountries, territoryRegions]
+  );
+  const users = useMemo(() => scopeUsers(scope, allUsers), [scope, allUsers]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -64,11 +72,24 @@ export default function AdminTerritoryMapTab({ currentUser }) {
 
   const toggle = (key) => setExpanded(prev => ({ ...prev, [key]: !prev[key] }));
 
+  if (territoryRestricted && !territoryApproved) {
+    return (
+      <div className="border rounded-2xl p-6 text-sm" style={{ background: t.surface, borderColor: t.border, color: t.textSecondary }}>
+        Please confirm your territory first (Territory Setup — select your countries and regions) to see your territory map.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold font-['Space_Grotesk']" style={{ color: t.textPrimary }}>🗺️ Territory Distribution Map</h1>
         <p className="mt-1 text-sm" style={{ color: t.textSecondary }}>User density across territories based on city, country & postal code data.</p>
+        {scope.active && (
+          <p className="mt-2 text-xs inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border" style={{ background: t.accentSoft, borderColor: t.borderStrong, color: t.accent }}>
+            <MapPin size={11} /> Your territory: {scope.summary || "not set"}
+          </p>
+        )}
       </div>
 
       {/* Summary Cards */}

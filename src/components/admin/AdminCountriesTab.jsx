@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import CountriesWorldMap from "./CountriesWorldMap";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import { getUserCountry, normalizeCountryName } from "@/lib/countryUtils";
-import { buildTerritoryScope, scopeUsers, scopeGroups } from "@/lib/territoryScope";
+import { buildTerritoryScope, scopeUsers, scopeGroups, scopeDropsByAuthor } from "@/lib/territoryScope";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
@@ -58,12 +58,7 @@ export default function AdminCountriesTab({ user, territoryRestricted, territory
   const scopedUsers = scopeUsers(scope, users);
   const scopedGroups = scopeGroups(scope, groups, new Map(users.map(u => [u.email, u])));
 
-  const scopedDrops = territoryRestricted && territoryApproved
-    ? drops.filter(drop => {
-        const owner = users.find(entry => entry.email === drop.user_email);
-        return owner && allowedCountries.includes(getUserCountry(owner));
-      })
-    : drops;
+  const scopedDrops = scopeDropsByAuthor(scope, drops, users);
 
   const countryStats = useMemo(() => {
     const map = {};
