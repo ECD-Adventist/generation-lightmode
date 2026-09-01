@@ -1,11 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Loader2, Bell, Shield, LogOut, ChevronRight, Globe, BookOpen, Trash2 } from "lucide-react";
+import { Loader2, Bell, Shield, LogOut, ChevronRight, Globe, BookOpen, Trash2, Palette } from "lucide-react";
 import MobilePageHeader from "@/components/mobile/MobilePageHeader";
+import { useTheme } from "@/components/theme/ThemeProvider";
 import { getDisplayName } from "@/lib/displayName";
 
 export default function MobileSettings({ user, prefs, togglePref, savePrefs, displayName, setDisplayName, saveDisplayName, savingName, saving, handleLogout, handleDeleteAccount, notifKeys }) {
+  const { theme, setTheme } = useTheme();
+
   return (
     <div className="min-h-screen pb-24 font-['Inter']" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
       <MobilePageHeader title="Settings" subtitle="Preferences & account" showBack />
@@ -40,6 +43,32 @@ export default function MobileSettings({ user, prefs, togglePref, savePrefs, dis
           <Link to={createPageUrl("Profile")} className="flex items-center justify-between py-2.5 px-3 rounded-xl text-sm font-bold" style={{ background: "#EEF3FF", color: "#0B3FD9" }}>
             Edit full profile <ChevronRight className="w-4 h-4" />
           </Link>
+        </div>
+
+        {/* Theme override */}
+        <div className="rounded-2xl p-4" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5" }}>
+          <h2 className="text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: "#0B3FD9" }}>
+            <Palette className="w-3 h-3" /> Theme Override
+          </h2>
+          <div className="grid grid-cols-3 gap-2" role="group" aria-label="Theme override">
+            {["system", "light", "dark"].map((mode) => {
+              const active = theme === mode;
+              return (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setTheme(mode)}
+                  aria-pressed={active}
+                  className="min-h-11 rounded-xl text-sm font-bold capitalize transition"
+                  style={active
+                    ? { background: "#0B3FD9", color: "#FFFFFF" }
+                    : { background: "#F6F8FC", color: "#6B7FA0", border: "1px solid #E0EAF5" }}
+                >
+                  {mode}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Notifications */}

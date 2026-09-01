@@ -17,6 +17,8 @@ const navLinks = [
   { key: "assistant", page: "Assistant" },
 ];
 
+const rootBottomTabPaths = new Set(["/Feed", "/GlowGroups", "/Messages", "/Notifications", "/Dashboard"]);
+
 const appShellPages = ["Feed","Dashboard","Profile","Notifications","Saved","GlowGroups","GroupChat","AdminCenter","AdminReports","Messages","PrayerWall","Live","Milestones","GlobalReach","GroupSession","DailyDevotion","Discover","Leaderboard","DailyTruthFeed","InstitutionPage","InstitutionDashboard","InstitutionControlCenter","Settings","Post","GlowFeed","GenerationLightMode","LightReflections","FaithQuiz","TerritoryPhotos"];
 
 export default function Layout({ children, currentPageName }) {
@@ -45,6 +47,7 @@ export default function Layout({ children, currentPageName }) {
   const { t, isRTL } = useAppLanguage("layout");
   const { trigger: triggerSwitchOn } = useSwitchItOn();
   const location = useLocation();
+  const previousPathnameRef = useRef(location.pathname);
   const queryClient = useQueryClient();
   const [userEmail, setUserEmail] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -87,6 +90,17 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   useEffect(() => {
+    const previousPathname = previousPathnameRef.current;
+    const isRootTabTransition = previousPathname !== location.pathname
+      && rootBottomTabPaths.has(previousPathname)
+      && rootBottomTabPaths.has(location.pathname);
+    previousPathnameRef.current = location.pathname;
+
+    if (isRootTabTransition) {
+      sessionStorage.removeItem('tab_switch');
+      return;
+    }
+
     if (sessionStorage.getItem('tab_switch')) {
       sessionStorage.removeItem('tab_switch');
       return;
