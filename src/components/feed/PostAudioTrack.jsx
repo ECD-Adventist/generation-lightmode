@@ -74,7 +74,7 @@ export default function PostAudioTrack({ audioUrl, audioTitle, postId }) {
       <button
         type="button"
         onClick={toggleSound}
-        className="w-11 h-11 md:w-10 md:h-10 rounded-full flex items-center justify-center text-white bg-black/65 border border-white/25 shadow-lg backdrop-blur-md active:scale-95 transition"
+        className="w-10 h-10 rounded-full flex items-center justify-center text-white bg-black/65 border border-white/25 shadow-lg backdrop-blur-md active:scale-95 transition"
         aria-label={muted ? `Unmute ${audioTitle || "post music"}` : `Mute ${audioTitle || "post music"}`}
         title={audioTitle || "Original audio"}
       >
