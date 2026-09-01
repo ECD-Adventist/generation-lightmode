@@ -113,6 +113,29 @@
     "territory_name": {
       "type": "string"
     },
+    "territory_level": {
+      "type": "string",
+      "description": "Territory scope level: ecd, country, union, conference_field, or church."
+    },
+    "territory_countries": {
+      "type": "string",
+      "description": "Comma-separated list of country names this leader/officer covers."
+    },
+    "territory_regions": {
+      "type": "string",
+      "description": "JSON map of country name to selected regions. Empty region list means the entire country."
+    },
+    "territory_map_url": {
+      "type": "string",
+      "description": "Optional uploaded territory map image URL."
+    },
+    "territory_extraction_notes": {
+      "type": "string"
+    },
+    "territory_status": {
+      "type": "string",
+      "description": "Territory confirmation status: not_submitted, pending_review, approved, or rejected."
+    },
     "glow_score": {
       "type": "number",
       "default": 0

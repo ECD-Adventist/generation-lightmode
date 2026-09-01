@@ -183,7 +183,7 @@ export default function AdminGlowGroupsTab({ user, territoryRestricted, territor
   if (territoryRestricted && !territoryApproved) {
     return (
       <div className="border rounded-2xl p-6 text-sm" style={{ background: t.surface, borderColor: t.border, color: t.textSecondary }}>
-        Please confirm your territory map first to manage groups in your region.
+        Please confirm your territory first (Territory Setup — select your countries) to manage groups in your region.
       </div>
     );
   }

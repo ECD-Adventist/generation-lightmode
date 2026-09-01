@@ -67,7 +67,7 @@ function AdminCenterInner() {
         }
         const me = await base44.auth.me();
         setUser(me);
-        if (!urlParams.get("tab") && REGIONAL_ROLES.includes(me?.role)) {
+        if (!urlParams.get("tab") && me?.role !== "ecd_officer" && REGIONAL_ROLES.includes(me?.role)) {
           setActiveTab("territory-map");
         }
       } catch {
@@ -161,24 +161,28 @@ function AdminCenterInner() {
   if (!user || !isAdmin) return null;
 
   const isSuperAdmin = user.role === "super_admin";
-  const canScheduleContent = ["admin", "super_admin", "ecd_admin"].includes(user.role);
-  const hasApprovedTerritory = !isRegionalAdmin || user?.territory_status === "approved";
+  // ECD Officers get division-wide (whole app) visibility like super admins — read-only enforced below.
+  const isEcdOfficer = user.role === "ecd_officer";
+  const canViewAll = isSuperAdmin || isEcdOfficer;
+  const territoryScoped = isRegionalAdmin && !isEcdOfficer;
+  const canScheduleContent = ["admin", "super_admin", "ecd_admin", "ecd_officer"].includes(user.role);
+  const hasApprovedTerritory = !territoryScoped || user?.territory_status === "approved";
   // Officers see their territory's data but must not be offered write controls.
   const isOfficerReadOnly = isReadOnlyAdminRole(user.role);
 
   const renderTab = () => {
     switch (activeTab) {
       case "territory": return <AdminTerritorySetupTab user={user} />;
-      case "dashboard": return <AdminDashboardTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "dashboard": return <AdminDashboardTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "users": return <AdminUsersTab user={user} readOnly={isOfficerReadOnly} />;
-      case "groups": return <AdminGlowGroupsTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
-      case "drops": return <AdminGlowDropsTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "groups": return <AdminGlowGroupsTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "drops": return <AdminGlowDropsTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "challenges": return <AdminChallengesTab />;
       case "leaderboards": return <AdminLeaderboardsTab />;
-      case "countries": return <AdminCountriesTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "countries": return <AdminCountriesTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "territory-map": return <AdminTerritoryMapTab currentUser={user} />;
       case "territory-assign": return <AdminTerritoryAssignTab />;
-      case "charts": return <AdminChartsTab territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "charts": return <AdminChartsTab territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
       case "territory-challenges": return <AdminTerritoryChallengesTab currentUser={user} />;
       case "activity": return <AdminActivityFeedTab currentUser={user} />;
       case "codes": return <AdminCodesTab sourceFilter="codes_of_truth" title="Codes of Truth" />;
@@ -186,22 +190,22 @@ function AdminCenterInner() {
       case "media": return <AdminMediaTab />;
       case "content-schedule": return canScheduleContent ? <AdminContentScheduleTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin or ECD Admin access required to schedule content.</div>;
       case "badges": return <AdminBadgesTab />;
-      case "analytics": return <AdminAnalyticsTab user={user} territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
-      case "growth-analytics": return <AdminGrowthAnalyticsTab territoryRestricted={isRegionalAdmin} territoryCountries={user?.territory_countries} />;
+      case "analytics": return <AdminAnalyticsTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
+      case "growth-analytics": return <AdminGrowthAnalyticsTab territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} />;
       case "genlux-intelligence": return <AdminGenLuxMissionIntelligence user={user} />;
       case "notifications": return <AdminNotificationsTab />;
       case "announcements": return <AdminAnnouncementsTab />;
       case "assistant-training": return <AdminAssistantTrainingTab />;
       case "comments": return <AdminCommentsTab />;
-      case "institutions": return isSuperAdmin ? <AdminInstitutionTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view institution applications.</div>;
-      case "custom-posts": return isSuperAdmin ? <AdminCustomPostTab user={user} /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to create custom posts.</div>;
-      case "settings": return isSuperAdmin ? <AdminSettingsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view system settings.</div>;
-      case "permissions": return isSuperAdmin ? <AdminPermissionMatrixTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to manage permissions.</div>;
-      case "audit-logs": return isSuperAdmin ? <AdminAuditLogsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view audit logs.</div>;
-      case "leader-accounts": return isSuperAdmin ? <AdminLeaderAccountsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to manage administrator accounts.</div>;
-      case "leader-posts": return isSuperAdmin ? <AdminLeaderPostsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to manage leader posts.</div>;
+      case "institutions": return canViewAll ? <AdminInstitutionTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view institution applications.</div>;
+      case "custom-posts": return canViewAll ? <AdminCustomPostTab user={user} /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to create custom posts.</div>;
+      case "settings": return canViewAll ? <AdminSettingsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view system settings.</div>;
+      case "permissions": return canViewAll ? <AdminPermissionMatrixTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to manage permissions.</div>;
+      case "audit-logs": return canViewAll ? <AdminAuditLogsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to view audit logs.</div>;
+      case "leader-accounts": return canViewAll ? <AdminLeaderAccountsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to manage administrator accounts.</div>;
+      case "leader-posts": return canViewAll ? <AdminLeaderPostsTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to manage leader posts.</div>;
       case "supabase-export": return isSuperAdmin ? <AdminSupabaseExportTab /> : <div className="p-8 text-red-400 text-center font-bold">Super Admin access required to export migration data.</div>;
-      case "storage-dashboard": return ["admin", "super_admin"].includes(user.role) ? <AdminStorageDashboardTab /> : <div className="p-8 text-red-400 text-center font-bold">Global admin access required to view storage statistics.</div>;
+      case "storage-dashboard": return ["admin", "super_admin", "ecd_officer"].includes(user.role) ? <AdminStorageDashboardTab /> : <div className="p-8 text-red-400 text-center font-bold">Global admin access required to view storage statistics.</div>;
       case "global-leaderboards": return <AdminGlobalLeaderboardsTab />;
       case "territory-alerts": return <AdminTerritoryAlertsTab currentUser={user} />;
       default: return <AdminDashboardTab />;
@@ -219,14 +223,14 @@ function AdminCenterInner() {
   return (
     <>
     {/* Mobile admin shell — dedicated drawer-based navigation */}
-    <MobileAdminShell user={user} activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} isRegionalAdmin={isRegionalAdmin} canScheduleContent={canScheduleContent}>
+    <MobileAdminShell user={user} activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={canViewAll} isRegionalAdmin={territoryScoped} canScheduleContent={canScheduleContent}>
       {isOfficerReadOnly && <AdminReadOnlyBanner role={user.role} t={t} />}
-      <AdminReadOnlyScope enabled={isOfficerReadOnly}>{renderTab()}</AdminReadOnlyScope>
+      <AdminReadOnlyScope enabled={isOfficerReadOnly && activeTab !== "territory"}>{renderTab()}</AdminReadOnlyScope>
     </MobileAdminShell>
 
     {/* Desktop layout */}
     <div className="hidden md:flex md:flex-row" style={{ minHeight: "100vh", background: t.appBg, color: t.textPrimary }}>
-      <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={isSuperAdmin} isRegionalAdmin={isRegionalAdmin} canScheduleContent={canScheduleContent} />
+      <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={canViewAll} isRegionalAdmin={territoryScoped} canScheduleContent={canScheduleContent} />
       <div className="flex-1 flex flex-col h-screen overflow-hidden" style={{ background: contentBg }}>
         {/* Top Nav Bar */}
         <div className="sticky top-0 z-50 backdrop-blur-2xl shrink-0 hidden md:block" style={{ background: topBarBg, borderBottom: `1px solid ${t.border}` }}>
@@ -262,7 +266,7 @@ function AdminCenterInner() {
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-7xl mx-auto pb-20 md:pb-0">
             {isOfficerReadOnly && <AdminReadOnlyBanner role={user.role} t={t} />}
-            <AdminReadOnlyScope enabled={isOfficerReadOnly}>{renderTab()}</AdminReadOnlyScope>
+            <AdminReadOnlyScope enabled={isOfficerReadOnly && activeTab !== "territory"}>{renderTab()}</AdminReadOnlyScope>
           </div>
         </div>
       </div>

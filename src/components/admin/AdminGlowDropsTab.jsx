@@ -191,7 +191,7 @@ export default function AdminGlowDropsTab({ user, territoryRestricted, territory
   if (territoryRestricted && !territoryApproved) {
     return (
       <div className="border rounded-2xl p-6 text-sm" style={{ background: t.surface, borderColor: t.border, color: t.textSecondary }}>
-        Please confirm your territory map first to review drops in your region.
+        Please confirm your territory first (Territory Setup — select your countries) to review drops in your region.
       </div>
     );
   }

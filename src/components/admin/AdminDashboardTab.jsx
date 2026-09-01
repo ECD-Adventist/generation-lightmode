@@ -86,7 +86,7 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
   ];
 
   if (territoryRestricted && !territoryApproved) {
-    return <div className="rounded-2xl p-6 text-sm border" style={{ background: t.surface, borderColor: t.border, color: t.textSecondary }}>Please confirm your territory map first.</div>;
+    return <div className="rounded-2xl p-6 text-sm border" style={{ background: t.surface, borderColor: t.border, color: t.textSecondary }}>Please confirm your territory first (Territory Setup — select your countries).</div>;
   }
 
   return (

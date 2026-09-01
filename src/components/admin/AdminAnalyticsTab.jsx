@@ -248,7 +248,7 @@ export default function AdminAnalyticsTab({ user, territoryRestricted, territory
   const approvedDrops = scopedDrops.filter(d => d.status === "approved").length;
 
   if (territoryRestricted && !territoryApproved) {
-    return <div className="border rounded-2xl p-6 text-sm" style={{ background: t.surface, borderColor: t.border, color: t.textSecondary }}>Please confirm your territory map first to unlock analytics for your region.</div>;
+    return <div className="border rounded-2xl p-6 text-sm" style={{ background: t.surface, borderColor: t.border, color: t.textSecondary }}>Please confirm your territory first (Territory Setup — select your countries) to unlock analytics for your region.</div>;
   }
 
   const chartAxisColor = isDark ? "#6b7280" : "#8A97B5";
