@@ -14,7 +14,13 @@ const LOGO_GOLD = "https://media.base44.com/images/public/69a6fca6155ae283f1b551
 const LOGO_BLUE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/ce3018808_LOGO-LANDSCAPE-BLUE.png";
 
 // Build the grouped nav config. Mirrors AdminSidebar but tuned for mobile.
-function buildSections({ isSuperAdmin, isRegionalAdmin, canScheduleContent }) {
+function buildSections({ isSuperAdmin, isRegionalAdmin, canScheduleContent, hiddenTabs = [] }) {
+  return buildAllSections({ isSuperAdmin, isRegionalAdmin, canScheduleContent })
+    .map(section => ({ ...section, items: section.items.filter(item => !hiddenTabs.includes(item.id)) }))
+    .filter(section => section.items.length > 0);
+}
+
+function buildAllSections({ isSuperAdmin, isRegionalAdmin, canScheduleContent }) {
   return [
     {
       label: "Overview",
@@ -95,14 +101,14 @@ function buildSections({ isSuperAdmin, isRegionalAdmin, canScheduleContent }) {
   ];
 }
 
-export default function MobileAdminShell({ user, activeTab, setActiveTab, isSuperAdmin, isRegionalAdmin, canScheduleContent, children }) {
+export default function MobileAdminShell({ user, activeTab, setActiveTab, isSuperAdmin, isRegionalAdmin, canScheduleContent, hiddenTabs = [], children }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [query, setQuery] = useState("");
 
-  const sections = buildSections({ isSuperAdmin, isRegionalAdmin, canScheduleContent });
+  const sections = buildSections({ isSuperAdmin, isRegionalAdmin, canScheduleContent, hiddenTabs });
   const allItems = sections.flatMap(s => s.items);
   const activeItem = allItems.find(i => i.id === activeTab);
 

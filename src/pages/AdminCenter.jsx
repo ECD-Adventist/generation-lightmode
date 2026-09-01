@@ -44,6 +44,7 @@ import MobileAdminShell from "../components/admin/MobileAdminShell";
 import AdminGenLuxMissionIntelligence from "../components/admin/AdminGenLuxMissionIntelligence";
 import AdminReadOnlyScope from "../components/admin/AdminReadOnlyScope";
 import { isReadOnlyAdminRole } from "@/lib/adminRoles";
+import { OFFICER_HIDDEN_TABS } from "@/lib/adminMenuAccess";
 
 function AdminCenterInner() {
   const [user, setUser] = useState(null);
@@ -168,8 +169,12 @@ function AdminCenterInner() {
   const hasApprovedTerritory = !territoryScoped || user?.territory_status === "approved";
   // Officers see their territory's data but must not be offered write controls.
   const isOfficerReadOnly = isReadOnlyAdminRole(user.role);
+  const hiddenTabs = isOfficerReadOnly ? OFFICER_HIDDEN_TABS : [];
 
   const renderTab = () => {
+    if (hiddenTabs.includes(activeTab)) {
+      return <div className="p-8 text-center font-bold" style={{ color: t.textMuted }}>This panel isn't available for officer accounts.</div>;
+    }
     switch (activeTab) {
       case "territory": return <AdminTerritorySetupTab user={user} />;
       case "dashboard": return <AdminDashboardTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryApproved={hasApprovedTerritory} />;
@@ -222,13 +227,13 @@ function AdminCenterInner() {
   return (
     <>
     {/* Mobile admin shell — dedicated drawer-based navigation */}
-    <MobileAdminShell user={user} activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={canViewAll} isRegionalAdmin={territoryScoped} canScheduleContent={canScheduleContent}>
+    <MobileAdminShell user={user} activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={canViewAll} isRegionalAdmin={territoryScoped} canScheduleContent={canScheduleContent} hiddenTabs={hiddenTabs}>
       <AdminReadOnlyScope enabled={isOfficerReadOnly && activeTab !== "territory"}>{renderTab()}</AdminReadOnlyScope>
     </MobileAdminShell>
 
     {/* Desktop layout */}
     <div className="hidden md:flex md:flex-row" style={{ minHeight: "100vh", background: t.appBg, color: t.textPrimary }}>
-      <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={canViewAll} isRegionalAdmin={territoryScoped} canScheduleContent={canScheduleContent} />
+      <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={canViewAll} isRegionalAdmin={territoryScoped} canScheduleContent={canScheduleContent} hiddenTabs={hiddenTabs} />
       <div className="flex-1 flex flex-col h-screen overflow-hidden" style={{ background: contentBg }}>
         {/* Top Nav Bar */}
         <div className="sticky top-0 z-50 backdrop-blur-2xl shrink-0 hidden md:block" style={{ background: topBarBg, borderBottom: `1px solid ${t.border}` }}>

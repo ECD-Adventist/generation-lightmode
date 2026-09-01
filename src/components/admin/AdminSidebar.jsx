@@ -33,7 +33,7 @@ function SidebarGroup({ label, icon, children, isDark, defaultOpen = false }) {
   );
 }
 
-export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, isRegionalAdmin, canScheduleContent }) {
+export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, isRegionalAdmin, canScheduleContent, hiddenTabs = [] }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
@@ -41,6 +41,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
   const logoUrl = isDark ? LOGO_GOLD : LOGO_BLUE;
 
   const SidebarItem = ({ id, icon, label }) => {
+    if (hiddenTabs.includes(id)) return null;
     const active = activeTab === id;
     return (
       <button
