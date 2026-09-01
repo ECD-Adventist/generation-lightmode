@@ -17,7 +17,7 @@ export default function AgeRestrictionGate({ user, children }) {
         <a href={`mailto:${PRIVACY_CONTACT_EMAIL}`} className="block w-full rounded-full py-3 text-sm font-black no-underline mb-3" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}>
           Contact Privacy Team
         </a>
-        <button onClick={() => base44.auth.logout()} className="w-full rounded-full py-3 text-sm font-bold" style={{ background: "#F6F8FC", color: "#4A5878", border: "1px solid #E6ECF5" }}>
+        <button type="button" onClick={() => base44.auth.logout("/Home")} className="w-full rounded-full py-3 text-sm font-bold" style={{ background: "#F6F8FC", color: "#4A5878", border: "1px solid #E6ECF5" }}>
           Sign out
         </button>
       </div>
