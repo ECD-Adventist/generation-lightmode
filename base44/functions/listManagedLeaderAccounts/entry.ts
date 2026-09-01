@@ -1,7 +1,16 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 
-const ADMIN_ROLES = new Set(['admin', 'super_admin']);
+// Officers may view administrator accounts read-only; updates go through
+// updateManagedLeaderAccount, which stays restricted to admins.
+const ADMIN_ROLES = new Set([
+  'admin',
+  'super_admin',
+  'ecd_officer',
+  'union_officer',
+  'conference_field_officer',
+  'church_officer',
+]);
 
 function privateLeader(account) {
   return {

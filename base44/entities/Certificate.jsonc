@@ -26,7 +26,41 @@
       }
     },
     "read": {
-      "data.user_email": "{{user.email}}"
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "ecd_officer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "union_officer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "conference_field_officer"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "church_officer"
+          }
+        }
+      ]
     },
     "update": {
       "user_condition": {

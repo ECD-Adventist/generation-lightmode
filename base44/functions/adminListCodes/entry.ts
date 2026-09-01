@@ -9,7 +9,12 @@ const ALLOWED_ROLES = new Set([
   'country_admin',
   'union_admin',
   'conference_field_admin',
-  'church_admin'
+  'church_admin',
+  // Officers get read access to content panels; all mutations stay admin-only.
+  'ecd_officer',
+  'union_officer',
+  'conference_field_officer',
+  'church_officer'
 ]);
 
 Deno.serve(async (req) => {
