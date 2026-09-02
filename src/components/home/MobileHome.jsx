@@ -11,6 +11,10 @@ import { MapContainer, CircleMarker, Popup } from "react-leaflet";
 import LocalWorldBasemap from "@/components/maps/LocalWorldBasemap";
 import { countryCoordinates } from "@/lib/countryCoordinates";
 import "leaflet/dist/leaflet.css";
+import GlowGroupMockup from "@/components/home/GlowGroupMockup";
+import ProductShowcase from "@/components/home/ProductShowcase";
+import AtmosphericBleed from "@/components/home/AtmosphericBleed";
+import { HERO_BACKDROP, CONGREGATION_BLEED, CANDLELIGHT_BLEED } from "@/components/home/homeAssets";
 
 /**
  * Mobile-only landing page — LightMode branded.
@@ -64,6 +68,11 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
         @keyframes mh-shimmer { 0% { transform: translateX(-100%) skewX(-20deg); } 100% { transform: translateX(200%) skewX(-20deg); } }
         .mh-hide-sb::-webkit-scrollbar { display: none; }
         .mh-hide-sb { scrollbar-width: none; }
+        @keyframes mh-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+        .mh-rise { animation: mh-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+        .mh-rise-2 { animation-delay: 0.12s; }
+        .mh-rise-3 { animation-delay: 0.24s; }
+        @media (prefers-reduced-motion: reduce) { .mh-rise { animation: none; } }
       `}</style>
 
       {/* ═══════ TOP BAR — transparent over hero, glassy on scroll ═══════ */}
@@ -216,27 +225,31 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
         </div>
       )}
 
-      {/* ═══════ HERO — image extends behind top bar ═══════ */}
-      <section className="relative min-h-[100dvh] flex flex-col justify-end overflow-hidden">
+      {/* ═══════ HERO — atmospheric backdrop + floating product ═══════ */}
+      <section className="relative min-h-[100dvh] flex flex-col overflow-hidden" style={{ paddingTop: "calc(env(safe-area-inset-top) + 104px)" }}>
         <img
-          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2"
-          alt="Generation LightMode Youth"
+          src={HERO_BACKDROP}
+          alt=""
           loading="eager"
           decoding="async"
           fetchpriority="high"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "center center", imageRendering: "high-quality" }}
+          className="absolute inset-x-0 bottom-0 w-full object-cover pointer-events-none"
+          style={{
+            height: "72%", objectPosition: "center bottom",
+            WebkitMaskImage: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.6) 35%, #000 65%)",
+            maskImage: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.6) 35%, #000 65%)",
+          }}
         />
-        {/* Very subtle top wash — keeps logo readable without darkening image */}
-        <div className="absolute inset-x-0 top-0 h-[90px] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0.35) 0%, rgba(11,15,26,0) 100%)" }} />
-        {/* Bottom gradient — only enough to keep text legible near the bottom */}
-        <div className="absolute inset-x-0 bottom-0 h-[50%] pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(11,15,26,0) 0%, rgba(11,15,26,0.55) 55%, rgba(11,15,26,0.96) 100%)" }} />
-        {/* Warm vignette */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 110%, rgba(255,165,0,0.18) 0%, transparent 55%)" }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, #0B0F1A 0%, rgba(11,15,26,0.7) 24%, rgba(11,15,26,0.15) 55%, rgba(11,15,26,0.6) 100%)" }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 20%, rgba(0,207,255,0.12) 0%, transparent 55%)" }} />
 
-        {/* Content — bottom anchored, compact so hero image remains dominant */}
-        <div className="relative z-10 px-5 pb-7 safe-pb">
-          <h1 className="font-['Space_Grotesk'] font-black text-[30px] leading-[1.08] tracking-tight mb-3">
+        <div className="relative z-10 px-5 text-center">
+          <div className="mh-rise inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-5" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(12px)" }}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#FFD000", boxShadow: "0 0 8px #FFD000" }} />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.08em]" style={{ color: "#E8EEF8" }}>{t("slogan")}</span>
+          </div>
+
+          <h1 className="mh-rise mh-rise-2 font-['Space_Grotesk'] font-black text-[36px] leading-[1.02] tracking-[-0.03em] mb-3.5">
             {t("heroTitleBefore")}{" "}
             <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 55%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               {t("heroTitleHighlight")}
@@ -244,25 +257,34 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
             {" "}{t("heroTitleAfter")}
           </h1>
 
-          <p className="text-[13px] leading-relaxed mb-4" style={{ color: "#E0E8F0" }}>
+          <p className="mh-rise mh-rise-2 text-[14px] leading-relaxed mb-6 mx-auto" style={{ color: "#C8D0E0", maxWidth: 320 }}>
             Join 10M+ believers turning hidden faith into visible light.
           </p>
 
-          {/* Primary CTA */}
           <button
             onClick={() => triggerSwitchOn("Feed")}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-[15px] font-['Space_Grotesk'] mb-2.5 active:scale-[0.98] transition relative overflow-hidden"
-            style={{ background: "linear-gradient(135deg, #FFD000, #FFA500)", color: "#0B0F1A", boxShadow: "0 10px 36px rgba(255,208,0,0.45), 0 4px 16px rgba(0,0,0,0.4)" }}
+            className="mh-rise mh-rise-3 w-full flex items-center justify-center gap-2 py-3.5 rounded-full font-black text-[15px] font-['Space_Grotesk'] active:scale-[0.98] transition relative overflow-hidden"
+            style={{ background: "linear-gradient(135deg, #FFD000, #FFA500)", color: "#0B0F1A", boxShadow: "0 10px 36px rgba(255,208,0,0.4), 0 4px 16px rgba(0,0,0,0.4)" }}
           >
             <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: "40%", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)", animation: "mh-shimmer 3s infinite ease-in-out" }} />
             <Zap className="w-4 h-4 relative" /> <span className="relative">{t("switchOn") || "Switch It On"}</span>
           </button>
 
+          <div className="mh-rise mh-rise-3 flex items-center justify-center gap-5 mt-4">
+            <button onClick={() => { const el = document.getElementById("mh-quiz"); if (el) el.scrollIntoView({ behavior: "smooth" }); }} className="text-[13px] font-medium active:opacity-70" style={{ color: "#C8D0E0", background: "none", border: "none" }}>✨ Take the quiz</button>
+            <span className="w-px h-3.5" style={{ background: "rgba(255,255,255,0.15)" }} />
+            <button onClick={() => { const el = document.getElementById("mh-vision"); if (el) el.scrollIntoView({ behavior: "smooth" }); }} className="text-[13px] font-medium inline-flex items-center gap-1.5 active:opacity-70" style={{ color: "#C8D0E0", background: "none", border: "none" }}><Play className="w-3 h-3" fill="currentColor" /> {t("watchVideo") || "Watch the vision"}</button>
+          </div>
+        </div>
+
+        {/* Floating compact product mockup — clipped by the section edge */}
+        <div className="mh-rise mh-rise-3 relative z-10 px-4 mt-10" style={{ marginBottom: -40 }}>
+          <GlowGroupMockup compact memberCount={totalMembers} onJoin={() => triggerSwitchOn("Feed")} />
         </div>
       </section>
 
       {/* ═══════ WHY LIGHTMODE EXISTS ═══════ */}
-      <section className="relative overflow-hidden py-14 px-5" style={{ background: "radial-gradient(ellipse at 20% 30%, #1A1208 0%, #0B0F1A 55%)" }}>
+      <section className="relative overflow-hidden pt-20 pb-16 px-5" style={{ background: "radial-gradient(ellipse at 20% 30%, #1A1208 0%, #0B0F1A 55%)" }}>
         <div className="absolute -top-20 -left-10 w-64 h-64 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(255,208,0,0.15)", animation: "mh-float 10s ease-in-out infinite" }} />
         <div className="absolute -bottom-20 -right-10 w-72 h-72 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(0,207,255,0.12)", animation: "mh-float 12s ease-in-out infinite 2s" }} />
 
@@ -284,6 +306,11 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
               {t("whySubtitle")}
             </p>
           )}
+
+          {/* Tabbed product showcase — swipe the tabs */}
+          <div className="mb-12 -mx-1">
+            <ProductShowcase compact />
+          </div>
 
           {/* Insight cards — stacked, thumb-scrollable */}
           <div className="space-y-4 mb-6">
@@ -379,8 +406,10 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
         </div>
       </section>
 
+      <AtmosphericBleed src={CONGREGATION_BLEED} height={260} tint="rgba(255,208,0,0.08)" />
+
       {/* ═══════ GALLERY ═══════ */}
-      <section className="py-10" style={{ background: "#080C14" }}>
+      <section className="pt-2 pb-12" style={{ background: "#0B0F1A" }}>
         <div className="text-center mb-5 px-5">
           <p className="text-[10px] font-black uppercase tracking-[0.15em] font-['Space_Grotesk']" style={{ color: "#8A9BB0" }}>The Movement in Action</p>
         </div>
@@ -529,6 +558,8 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
 
       {/* ═══════ DAILY DROPS ═══════ */}
       <DailyDropsSection />
+
+      <AtmosphericBleed src={CANDLELIGHT_BLEED} height={240} tint="rgba(255,165,0,0.10)" />
 
       {/* ═══════ PLEDGE CTA ═══════ */}
       <section className="relative overflow-hidden py-14 px-5">

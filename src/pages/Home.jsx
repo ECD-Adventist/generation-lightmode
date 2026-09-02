@@ -3,7 +3,7 @@ import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
 import { countryCoordinates } from "@/lib/countryCoordinates";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Globe, Users, Star, ChevronDown, Play, X, ArrowRight, Zap } from "lucide-react";
+import { Globe, Users, Star, Play, X, ArrowRight, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { useAppLanguage } from "../components/i18n/useAppLanguage";
 import DailyDropsSection from "../components/home/DailyDropsSection";
@@ -14,6 +14,10 @@ import "leaflet/dist/leaflet.css";
 import LocalWorldBasemap from "@/components/maps/LocalWorldBasemap";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileHome from "../components/home/MobileHome";
+import GlowGroupMockup from "../components/home/GlowGroupMockup";
+import ProductShowcase from "../components/home/ProductShowcase";
+import AtmosphericBleed from "../components/home/AtmosphericBleed";
+import { HERO_BACKDROP, CONGREGATION_BLEED, CANDLELIGHT_BLEED } from "../components/home/homeAssets";
 
 const galleryImages1 = [
   "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/5b3a8e4c8_4V5A9468.jpg",
@@ -127,102 +131,95 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
 
   return (
     <div dir={isRTL ? "rtl" : "ltr"} style={{ background: "#0B0F1A" }}>
+      <style>{`
+        @keyframes home-rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+        .home-rise { animation: home-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+        .home-rise-2 { animation-delay: 0.15s; }
+        .home-rise-3 { animation-delay: 0.3s; }
+        .home-quiet-link { color: #C8D0E0; background: none; border: none; cursor: pointer; font-family: Inter, sans-serif; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; padding: 8px 4px; transition: color 0.2s; }
+        .home-quiet-link:hover { color: #00CFFF; }
+        .home-cta:focus-visible, .home-quiet-link:focus-visible, .home-mockup button:focus-visible, [role="tab"]:focus-visible { outline: 2px solid #00CFFF; outline-offset: 3px; }
+        @media (prefers-reduced-motion: reduce) { .home-rise { animation: none; } }
+      `}</style>
 
-      {/* ═══════════════════════════════════════ HERO ═══════════════════════════════════════ */}
+      {/* ═══════════════════════════════════════ HERO — atmospheric backdrop + floating product ═══════════════════════════════════════ */}
       <section style={{
         minHeight: "100vh", position: "relative", overflow: "hidden",
-        display: "flex", flexDirection: "column", justifyContent: "flex-end",
+        display: "flex", flexDirection: "column", alignItems: "center",
+        paddingTop: "clamp(130px, 15vh, 190px)",
       }}>
-        {/* Full-bleed hero image — static, contained */}
+        {/* Photographic backdrop — hills at pre-dawn, masked so it dissolves upward into the canvas */}
         <img
-          src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2"
-          alt="Generation LightMode Youth"
+          src={HERO_BACKDROP}
+          alt=""
           loading="eager"
           decoding="async"
           fetchpriority="high"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", pointerEvents: "none", background: "#0B0F1A", imageRendering: "high-quality" }}
+          style={{
+            position: "absolute", left: 0, right: 0, bottom: 0, width: "100%", height: "78%", objectFit: "cover", objectPosition: "center bottom", pointerEvents: "none",
+            WebkitMaskImage: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 32%, #000 62%)",
+            maskImage: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 32%, #000 62%)",
+          }}
         />
-        {/* Warm light wash layered over hero */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 55%, rgba(255,190,80,0.18) 0%, rgba(255,140,0,0.05) 40%, transparent 70%)", opacity: 0.5, mixBlendMode: "screen" }} />
-        {/* Branded gradient — dark at top (for navbar visibility) + bottom (for text) with subtle cyan/gold tint */}
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: "linear-gradient(180deg, rgba(11,15,26,0.85) 0%, rgba(11,15,26,0.45) 14%, rgba(11,15,26,0.0) 30%, rgba(11,15,26,0.0) 55%, rgba(11,15,26,0.75) 82%, rgba(11,15,26,0.98) 100%)",
-        }} />
-        {/* Warm golden side vignette matching hero image tonality */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 110%, rgba(255,208,0,0.10) 0%, transparent 55%)" }} />
-        {/* Cyan top accent tint to enhance navbar */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 180, pointerEvents: "none", background: "linear-gradient(180deg, rgba(0,207,255,0.08) 0%, transparent 100%)" }} />
+        {/* Scrims — dark at top for the navbar, soft in the middle, dark at the bottom for the product frame */}
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "linear-gradient(180deg, #0B0F1A 0%, rgba(11,15,26,0.7) 22%, rgba(11,15,26,0.05) 55%, rgba(11,15,26,0.45) 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 18%, rgba(0,207,255,0.10) 0%, transparent 50%)" }} />
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 100%, rgba(255,208,0,0.10) 0%, transparent 50%)" }} />
 
-        {/* Hero Content — bottom-left anchored, smart editorial layout */}
-        <div style={{ position: "relative", zIndex: 2, padding: "0 clamp(20px, 6vw, 80px) clamp(40px, 6vw, 64px)", maxWidth: 1200, width: "100%", margin: "0 auto" }}>
-          <div style={{ maxWidth: 620 }}>
-            {/* Headline — smaller, refined */}
-            <h1 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(22px, 3.2vw, 40px)", lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 16, color: "#FFFFFF", textShadow: "0 2px 20px rgba(0,0,0,0.7)" }}>
-              {t("heroTitleBefore")}{" "}
-              <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-                {t("heroTitleHighlight")}
-              </span>
-              {" "}{t("heroTitleAfter")}
-            </h1>
+        {/* Hero copy — centered, one primary action */}
+        <div style={{ position: "relative", zIndex: 2, textAlign: "center", maxWidth: 880, padding: "0 clamp(20px, 5vw, 48px)" }}>
+          <div className="home-rise" style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 999, padding: "8px 18px", backdropFilter: "blur(14px)", marginBottom: 28 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFD000", boxShadow: "0 0 10px #FFD000", display: "inline-block" }} />
+            <span style={{ color: "#E8EEF8", fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", fontFamily: "Inter, sans-serif", textTransform: "uppercase" }}>{t("slogan")}</span>
+          </div>
 
-            {/* Subtitle */}
-            <p style={{ color: "#E0E8F0", fontSize: "clamp(13px, 1.4vw, 15px)", fontFamily: "Inter, sans-serif", lineHeight: 1.6, marginBottom: 22, textShadow: "0 2px 10px rgba(0,0,0,0.7)", maxWidth: 560 }}>
-              Join 10M+ believers turning hidden faith into visible light — across the nations of the East-Central Africa Division.
-            </p>
+          <h1 className="home-rise home-rise-2" style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(40px, 5.6vw, 76px)", lineHeight: 1.02, letterSpacing: "-0.035em", marginBottom: 22, color: "#FFFFFF" }}>
+            {t("heroTitleBefore")}{" "}
+            <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              {t("heroTitleHighlight")}
+            </span>
+            {" "}{t("heroTitleAfter")}
+          </h1>
 
-            {/* CTAs */}
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 24 }}>
-              <button onClick={() => triggerSwitchOn("Feed")} style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                background: "linear-gradient(135deg, #FFD000, #FFA500)",
-                color: "#0B0F1A", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
-                fontSize: 14, padding: "12px 24px", borderRadius: 999, border: "none", cursor: "pointer",
-                boxShadow: "0 0 30px rgba(255,208,0,0.4), 0 4px 20px rgba(0,0,0,0.3)",
-                transition: "all 0.3s",
-              }}
-                onMouseOver={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 0 50px rgba(255,208,0,0.6), 0 8px 30px rgba(0,0,0,0.3)"; }}
-                onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 0 30px rgba(255,208,0,0.4), 0 4px 20px rgba(0,0,0,0.3)"; }}
-              >
-                <Zap size={14} /> {t("switchOn")}
+          <p className="home-rise home-rise-2" style={{ color: "#C8D0E0", fontSize: "clamp(15px, 1.3vw, 18px)", fontFamily: "Inter, sans-serif", lineHeight: 1.65, maxWidth: 560, margin: "0 auto 34px" }}>
+            Join 10M+ believers turning hidden faith into visible light — across the nations of the East-Central Africa Division.
+          </p>
+
+          <div className="home-rise home-rise-3" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            <button className="home-cta" onClick={() => triggerSwitchOn("Feed")} style={{
+              display: "inline-flex", alignItems: "center", gap: 10,
+              background: "linear-gradient(135deg, #FFD000, #FFA500)",
+              color: "#0B0F1A", fontFamily: "Space Grotesk, sans-serif", fontWeight: 800,
+              fontSize: 15, padding: "16px 36px", borderRadius: 999, border: "none", cursor: "pointer",
+              boxShadow: "0 0 40px rgba(255,208,0,0.35), 0 10px 30px rgba(0,0,0,0.4)",
+              transition: "all 0.3s",
+            }}
+              onMouseOver={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 0 60px rgba(255,208,0,0.55), 0 14px 40px rgba(0,0,0,0.4)"; }}
+              onMouseOut={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 0 40px rgba(255,208,0,0.35), 0 10px 30px rgba(0,0,0,0.4)"; }}
+            >
+              <Zap size={16} /> {t("switchOn")}
+            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 22, flexWrap: "wrap", justifyContent: "center" }}>
+              <button className="home-quiet-link" onClick={() => { const el = document.getElementById('quiz'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}>
+                ✨ Take the quiz
               </button>
-              <button onClick={() => { const el = document.getElementById('quiz'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}
-                style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.08)", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 700, fontSize: 14, padding: "11px 22px", borderRadius: 999, border: "1px solid rgba(0,207,255,0.4)", cursor: "pointer", backdropFilter: "blur(10px)", transition: "all 0.3s" }}
-                onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.18)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.7)"; }}
-                onMouseOut={e => { e.currentTarget.style.background = "rgba(0,207,255,0.08)"; e.currentTarget.style.borderColor = "rgba(0,207,255,0.4)"; }}
-              >
-                ✨ Take The Quiz
-              </button>
-              <button onClick={() => { const el = document.getElementById('vision-video-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}
-                style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.04)", color: "#FFFFFF", fontFamily: "Space Grotesk, sans-serif", fontWeight: 600, fontSize: 14, padding: "11px 22px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.15)", cursor: "pointer", backdropFilter: "blur(10px)", transition: "all 0.3s" }}
-                onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
-                onMouseOut={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
-              >
-                <Play size={13} fill="currentColor" /> {t("watchVideo")}
+              <span style={{ width: 1, height: 14, background: "rgba(255,255,255,0.15)" }} />
+              <button className="home-quiet-link" onClick={() => { const el = document.getElementById('vision-video-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}>
+                <Play size={12} fill="currentColor" /> {t("watchVideo")}
               </button>
             </div>
-
-            {/* Slogan + Verse as small footer row — subtle, does not cover faces */}
-            <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", paddingTop: 14, borderTop: "1px solid rgba(255,208,0,0.18)" }}>
-              <span style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, color: "#FFD000", fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", textShadow: "0 0 15px rgba(255,208,0,0.5)" }}>
-                {t("slogan")}
-              </span>
-              <span style={{ opacity: 0.3, color: "#FFD000" }}>•</span>
-              <span style={{ fontFamily: "Inter, sans-serif", fontStyle: "italic", color: "rgba(200,208,224,0.85)", fontSize: 12, textShadow: "0 2px 10px rgba(0,0,0,0.7)" }}>
-                {t("verse")}
-              </span>
-            </div>
+            <p style={{ fontFamily: "Inter, sans-serif", fontStyle: "italic", color: "rgba(200,208,224,0.6)", fontSize: 13, margin: "6px 0 0" }}>{t("verse")}</p>
           </div>
         </div>
 
-        {/* Scroll hint */}
-        <div style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", animation: "float 2.5s ease-in-out infinite", zIndex: 2, opacity: 0.5 }}>
-          <ChevronDown size={24} color="#00CFFF" />
+        {/* Floating product mockup — clipped by the section edge, Fora-style */}
+        <div className="home-rise home-rise-3" style={{ position: "relative", zIndex: 2, width: "min(1040px, 92vw)", marginTop: "clamp(56px, 7vw, 88px)", marginBottom: -70 }}>
+          <GlowGroupMockup memberCount={snapshot?.totalUsers} onJoin={() => triggerSwitchOn("Feed")} />
         </div>
       </section>
 
       {/* ═══════════════════ WHY LIGHTMODE EXISTS — editorial dark + warm gold ═══════════════════ */}
-      <section style={{ position: "relative", overflow: "hidden", padding: "clamp(90px, 11vw, 140px) clamp(20px, 6vw, 80px)", background: "radial-gradient(ellipse at 20% 30%, #1A1208 0%, #0B0F1A 55%, #080C14 100%)" }}>
+      <section style={{ position: "relative", overflow: "hidden", padding: "clamp(110px, 13vw, 170px) clamp(20px, 6vw, 80px) clamp(100px, 12vw, 150px)", background: "radial-gradient(ellipse at 20% 30%, #1A1208 0%, #0B0F1A 55%, #080C14 100%)" }}>
         {/* Lightbulb pattern background — fading */}
         <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/8f9bf2363_lightbulb-seamless-pattern-background-light-bulb-motif-wallpaper-idea-thinking-creative-electric-energy-solution-vector.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.06, pointerEvents: "none", mixBlendMode: "screen" }} />
         {/* Warm gold ambient blobs matching hero tone */}
@@ -250,12 +247,17 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
 
           {/* Subtitle */}
           {t("whySubtitle") && (
-            <p style={{ color: "#FFD000", fontSize: "clamp(15px, 1.6vw, 18px)", fontFamily: "Inter, sans-serif", fontStyle: "italic", textAlign: "center", marginBottom: 54, letterSpacing: "0.02em", textShadow: "0 0 20px rgba(255,208,0,0.25)" }}>
+            <p style={{ color: "#FFD000", fontSize: "clamp(15px, 1.6vw, 18px)", fontFamily: "Inter, sans-serif", fontStyle: "italic", textAlign: "center", marginBottom: 64, letterSpacing: "0.02em", textShadow: "0 0 20px rgba(255,208,0,0.25)" }}>
               {t("whySubtitle")}
             </p>
           )}
 
-          {/* 3-card insight grid — premium editorial */}
+          {/* Tabbed product showcase — one platform, four ways to shine */}
+          <div style={{ marginBottom: "clamp(72px, 8vw, 110px)" }}>
+            <ProductShowcase />
+          </div>
+
+          {/* 3-card insight grid — supporting narrative row */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24, marginBottom: 54 }}>
             {[
               { num: "01", title: "The New Mission Field", text: t("whyText1"), accent: "#FFD000", img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c98eb0914_generated_image.png" },
@@ -268,7 +270,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
                 overflow: "hidden",
                 transition: "transform 0.4s ease, box-shadow 0.4s ease",
                 cursor: "default",
-                minHeight: 420,
+                minHeight: 380,
                 display: "flex",
                 flexDirection: "column",
               }}
@@ -446,8 +448,11 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
         </div>
       </section>
 
+      {/* Photographic bleed — congregation at dusk dissolving into the canvas */}
+      <AtmosphericBleed src={CONGREGATION_BLEED} height={460} tint="rgba(255,208,0,0.08)" />
+
       {/* ═══════════════════ GALLERY — scrolling strips ═══════════════════ */}
-      <div style={{ background: "#080C14", padding: "48px 0", overflow: "hidden" }}>
+      <div style={{ background: "#0B0F1A", padding: "24px 0 72px", overflow: "hidden" }}>
         <div style={{ textAlign: "center", marginBottom: 36, padding: "0 24px" }}>
           <p style={{ color: "#8A9BB0", fontSize: 11, fontWeight: 800, letterSpacing: "0.15em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>The Movement in Action</p>
         </div>
@@ -595,7 +600,8 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
       {/* ═══════════════════ DAILY TRUTH DROPS ═══════════════════ */}
       <DailyDropsSection />
 
-      <div className="section-divider" />
+      {/* Photographic bleed — candlelight before the pledge */}
+      <AtmosphericBleed src={CANDLELIGHT_BLEED} height={400} tint="rgba(255,165,0,0.10)" />
 
       {/* ═══════════════════ PLEDGE CTA — immersive ═══════════════════ */}
       <section id="join" style={{ position: "relative", overflow: "hidden", padding: "clamp(80px, 12vw, 140px) clamp(20px, 6vw, 60px)" }}>
