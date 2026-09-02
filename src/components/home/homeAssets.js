@@ -1,5 +1,6 @@
 // Atmospheric photographic backdrops used across the homepage (dark-cinematic restyle).
-export const HERO_BACKDROP = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/d5ed0fddc_generated_image.png";
+export const HERO_BACKDROP = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/d7702ee74_generated_image.png";
+export const MOVEMENT_VISUAL = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/40ae441c8_generated_image.png";
 export const CONGREGATION_BLEED = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/0a71c9837_generated_image.png";
 export const CANDLELIGHT_BLEED = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/1ae5e4019_generated_image.png";
 

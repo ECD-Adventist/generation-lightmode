@@ -14,7 +14,7 @@ import "leaflet/dist/leaflet.css";
 import LocalWorldBasemap from "@/components/maps/LocalWorldBasemap";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileHome from "../components/home/MobileHome";
-import GlowGroupMockup from "../components/home/GlowGroupMockup";
+import MovementVisual from "../components/home/MovementVisual";
 import ProductShowcase from "../components/home/ProductShowcase";
 import AtmosphericBleed from "../components/home/AtmosphericBleed";
 import { HERO_BACKDROP, CONGREGATION_BLEED, CANDLELIGHT_BLEED } from "../components/home/homeAssets";
@@ -170,7 +170,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
         display: "flex", flexDirection: "column", alignItems: "center",
         paddingTop: "clamp(130px, 15vh, 190px)",
       }}>
-        {/* Photographic backdrop — hills at pre-dawn, masked so it dissolves upward into the canvas; parallax layer 0 */}
+        {/* Photographic backdrop — night sky with a golden shaft of light on the horizon, masked so it dissolves upward into the canvas; parallax layer 0 */}
         <motion.img
           src={HERO_BACKDROP}
           alt=""
@@ -179,9 +179,9 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
           fetchpriority="high"
           style={{
             y: bgY, scale: bgScale, transformOrigin: "center bottom",
-            position: "absolute", left: 0, right: 0, bottom: 0, width: "100%", height: "78%", objectFit: "cover", objectPosition: "center bottom", pointerEvents: "none",
-            WebkitMaskImage: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 32%, #000 62%)",
-            maskImage: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 32%, #000 62%)",
+            position: "absolute", left: 0, right: 0, bottom: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 70%", pointerEvents: "none",
+            WebkitMaskImage: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.8) 40%, #000 70%)",
+            maskImage: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.8) 40%, #000 70%)",
           }}
         />
         {/* Scrims — dark at top for the navbar, soft in the middle, dark at the bottom for the product frame */}
@@ -242,7 +242,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
             transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
             <motion.div style={{ y: mockY, scale: mockScale, rotateX: mockRotate, transformOrigin: "center top", transformStyle: "preserve-3d" }}>
-              <GlowGroupMockup memberCount={snapshot?.totalUsers} onJoin={() => triggerSwitchOn("Feed")} />
+              <MovementVisual memberCount={snapshot?.totalUsers} onJoin={() => triggerSwitchOn("Feed")} />
             </motion.div>
           </motion.div>
         </div>

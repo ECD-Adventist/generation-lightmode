@@ -11,7 +11,7 @@ import { MapContainer, CircleMarker, Popup } from "react-leaflet";
 import LocalWorldBasemap from "@/components/maps/LocalWorldBasemap";
 import { countryCoordinates } from "@/lib/countryCoordinates";
 import "leaflet/dist/leaflet.css";
-import GlowGroupMockup from "@/components/home/GlowGroupMockup";
+import MovementVisual from "@/components/home/MovementVisual";
 import ProductShowcase from "@/components/home/ProductShowcase";
 import AtmosphericBleed from "@/components/home/AtmosphericBleed";
 import { HERO_BACKDROP, CONGREGATION_BLEED, CANDLELIGHT_BLEED } from "@/components/home/homeAssets";
@@ -82,12 +82,12 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
           background: scrolled ? "rgba(11,15,26,0.78)" : "transparent",
           backdropFilter: scrolled ? "blur(16px) saturate(1.4)" : "none",
           WebkitBackdropFilter: scrolled ? "blur(16px) saturate(1.4)" : "none",
-          borderBottom: scrolled ? "1px solid rgba(0,207,255,0.12)" : "1px solid transparent",
+          borderBottom: scrolled ? "1px solid rgba(255,208,0,0.14)" : "1px solid transparent",
         }}
       >
         <div className="flex items-center justify-between px-4 py-2.5">
           <Link to={createPageUrl("Home")} className="flex items-center">
-            <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="LightMode" style={{ height: 36, filter: "drop-shadow(0 0 8px rgba(0,207,255,0.5))" }} />
+            <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png" alt="LightMode" style={{ height: 36, filter: "drop-shadow(0 0 10px rgba(255,208,0,0.4))" }} />
           </Link>
           <div className="flex items-center gap-2">
             {userEmail && (
@@ -95,7 +95,7 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
                 <Bell className="w-4 h-4" />
               </Link>
             )}
-            <button onClick={() => setMenuOpen(true)} className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95" style={{ background: "rgba(0,207,255,0.12)", border: "1px solid rgba(0,207,255,0.3)", color: "#00CFFF" }}>
+            <button onClick={() => setMenuOpen(true)} className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95" style={{ background: "rgba(255,208,0,0.12)", border: "1px solid rgba(255,208,0,0.35)", color: "#FFD000", backdropFilter: "blur(12px)" }}>
               <Menu className="w-4 h-4" />
             </button>
           </div>
@@ -112,11 +112,14 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
             paddingTop: "env(safe-area-inset-top)",
           }}
         >
-          <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(0,207,255,0.08) 0%, transparent 100%)" }} />
+          <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(255,208,0,0.08) 0%, transparent 100%)" }} />
 
           <div className="relative z-10 px-5 pt-6 pb-8">
             <div className="flex items-center justify-between mb-8">
-              <p style={{ color: "#00CFFF", fontSize: 12, fontWeight: 900, letterSpacing: "0.2em", margin: 0 }}>MENU</p>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFD000", boxShadow: "0 0 10px #FFD000", display: "inline-block" }} />
+                <p style={{ color: "#FFD000", fontSize: 11, fontWeight: 800, letterSpacing: "0.2em", margin: 0, fontFamily: "Space Grotesk, sans-serif" }}>MENU</p>
+              </div>
               <button
                 onClick={() => setMenuOpen(false)}
                 className="w-10 h-10 rounded-2xl flex items-center justify-center transition hover:bg-white/20 active:scale-90"
@@ -211,11 +214,12 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
             ) : (
               <button
                 onClick={() => { setMenuOpen(false); triggerSwitchOn("Feed"); }}
-                className="w-full rounded-full py-3.5 font-bold flex items-center justify-center gap-2 transition"
+                className="w-full rounded-full py-3.5 font-bold flex items-center justify-center gap-2 transition font-['Space_Grotesk']"
                 style={{
-                  background: "#FFD000",
+                  background: "linear-gradient(135deg, #FFD000, #FFA500)",
                   color: "#0B0F1A",
                   fontSize: 15,
+                  boxShadow: "0 10px 36px rgba(255,208,0,0.4)",
                 }}
               >
                 <Zap size={18} /> Switch It On
@@ -235,9 +239,9 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
           fetchpriority="high"
           className="absolute inset-x-0 bottom-0 w-full object-cover pointer-events-none"
           style={{
-            height: "72%", objectPosition: "center bottom",
-            WebkitMaskImage: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.6) 35%, #000 65%)",
-            maskImage: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.6) 35%, #000 65%)",
+            height: "100%", objectPosition: "center 70%",
+            WebkitMaskImage: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.8) 40%, #000 70%)",
+            maskImage: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.8) 40%, #000 70%)",
           }}
         />
         <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, #0B0F1A 0%, rgba(11,15,26,0.7) 24%, rgba(11,15,26,0.15) 55%, rgba(11,15,26,0.6) 100%)" }} />
@@ -279,7 +283,7 @@ export default function MobileHome({ t, triggerSwitchOn, liveCountries, snapshot
 
         {/* Floating compact product mockup — clipped by the section edge */}
         <div className="mh-rise mh-rise-3 relative z-10 px-4 mt-10" style={{ marginBottom: -40 }}>
-          <GlowGroupMockup compact memberCount={totalMembers} onJoin={() => triggerSwitchOn("Feed")} />
+          <MovementVisual compact memberCount={totalMembers} onJoin={() => triggerSwitchOn("Feed")} />
         </div>
       </section>
 

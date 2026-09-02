@@ -309,12 +309,12 @@ export default function Layout({ children, currentPageName }) {
             <img
               src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png"
               alt="Generation LightMode"
-              style={{ height: 56, width: "auto", objectFit: "contain", filter: "drop-shadow(0 0 12px rgba(0,207,255,0.6))" }}
+              style={{ height: 56, width: "auto", objectFit: "contain", filter: "drop-shadow(0 0 14px rgba(255,208,0,0.45))" }}
             />
           </Link>
 
           {/* Desktop Nav — glassy pill group */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "rgba(11,15,26,0.35)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 999, boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }} className="desktop-nav">
+          <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 6px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 999, backdropFilter: "blur(14px)", boxShadow: "0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)" }} className="desktop-nav">
             {navLinks.map(link => {
               const isActive = currentPageName === link.page;
               return (
@@ -322,19 +322,20 @@ export default function Layout({ children, currentPageName }) {
                   key={link.page}
                   to={createPageUrl(link.page)}
                   style={{
-                    padding: "8px 16px",
+                    padding: "9px 18px",
                     borderRadius: 999,
-                    fontFamily: "Inter, sans-serif",
-                    fontWeight: 600,
+                    fontFamily: "Space Grotesk, sans-serif",
+                    fontWeight: 700,
                     fontSize: 14,
+                    letterSpacing: "-0.01em",
                     color: isActive ? "#0B0F1A" : "#E0E8F0",
-                    background: isActive ? "linear-gradient(135deg, #00CFFF, #8A5CFF)" : "transparent",
+                    background: isActive ? "linear-gradient(135deg, #FFD000, #FFA500)" : "transparent",
                     textDecoration: "none",
-                    transition: "all 0.2s",
-                    boxShadow: isActive ? "0 0 20px rgba(0,207,255,0.4)" : "none",
+                    transition: "all 0.25s",
+                    boxShadow: isActive ? "0 0 24px rgba(255,208,0,0.4)" : "none",
                     whiteSpace: "nowrap",
                   }}
-                  onMouseOver={e => { if (!isActive) { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#00CFFF"; } }}
+                  onMouseOver={e => { if (!isActive) { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#FFD000"; } }}
                   onMouseOut={e => { if (!isActive) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#E0E8F0"; } }}
                 >
                   {t(link.key) || link.page}
@@ -349,22 +350,23 @@ export default function Layout({ children, currentPageName }) {
               <Link to={createPageUrl("Resources")}
                 style={{
                   display: "flex", alignItems: "center", gap: 4,
-                  padding: "8px 16px",
+                  padding: "9px 18px",
                   borderRadius: 999,
-                  fontFamily: "Inter, sans-serif",
-                  fontWeight: 600,
+                  fontFamily: "Space Grotesk, sans-serif",
+                  fontWeight: 700,
                   fontSize: 14,
-                  color: ["Media","Resources"].includes(currentPageName) ? "#00CFFF" : "#E0E8F0",
-                  background: ["Media","Resources"].includes(currentPageName) ? "rgba(0,207,255,0.1)" : "transparent",
+                  letterSpacing: "-0.01em",
+                  color: ["Media","Resources"].includes(currentPageName) ? "#FFD000" : "#E0E8F0",
+                  background: ["Media","Resources"].includes(currentPageName) ? "rgba(255,208,0,0.1)" : "transparent",
                   textDecoration: "none",
-                  transition: "all 0.2s",
+                  transition: "all 0.25s",
                   whiteSpace: "nowrap",
                 }}
-                onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#00CFFF"; }}
+                onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#FFD000"; }}
                 onMouseOut={e => {
                   const active = ["Media","Resources"].includes(currentPageName);
-                  e.currentTarget.style.background = active ? "rgba(0,207,255,0.1)" : "transparent";
-                  e.currentTarget.style.color = active ? "#00CFFF" : "#E0E8F0";
+                  e.currentTarget.style.background = active ? "rgba(255,208,0,0.1)" : "transparent";
+                  e.currentTarget.style.color = active ? "#FFD000" : "#E0E8F0";
                 }}
               >
                 {t("resources")} <span style={{ fontSize: 9, opacity: 0.7 }}>▾</span>
@@ -376,30 +378,30 @@ export default function Layout({ children, currentPageName }) {
                 }}>
                   <div style={{
                     background: "rgba(18,24,38,0.98)", backdropFilter: "blur(20px)",
-                    border: "1px solid rgba(0,207,255,0.2)", borderRadius: 14,
-                    padding: "8px", minWidth: 200,
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+                    border: "1px solid rgba(255,208,0,0.22)", borderRadius: 16,
+                    padding: "8px", minWidth: 220,
+                    boxShadow: "0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)",
                   }}>
                     <Link to={createPageUrl("KeepIt100")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
-                      onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
+                      onMouseOver={e => { e.currentTarget.style.background = "rgba(255,208,0,0.1)"; e.currentTarget.style.color = "#FFD000"; }}
                       onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
                     >
                       💯 Keep It 100
                     </Link>
                     <Link to={createPageUrl("CodesOfTruth")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
-                      onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
+                      onMouseOver={e => { e.currentTarget.style.background = "rgba(255,208,0,0.1)"; e.currentTarget.style.color = "#FFD000"; }}
                       onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
                     >
                       🔐 Codes of Truth
                     </Link>
                     <Link to={createPageUrl("Resources")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
-                      onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
+                      onMouseOver={e => { e.currentTarget.style.background = "rgba(255,208,0,0.1)"; e.currentTarget.style.color = "#FFD000"; }}
                       onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
                     >
                       🌍 Other Resources
                     </Link>
                     <Link to="/ContentHub" style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
-                      onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.1)"; e.currentTarget.style.color = "#00CFFF"; }}
+                      onMouseOver={e => { e.currentTarget.style.background = "rgba(255,208,0,0.1)"; e.currentTarget.style.color = "#FFD000"; }}
                       onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
                     >
                       🎬 All Things New
@@ -447,9 +449,9 @@ export default function Layout({ children, currentPageName }) {
                     <div style={{
                       position: "absolute", top: "calc(100% + 10px)", right: 0,
                       background: "rgba(18,24,38,0.98)", backdropFilter: "blur(20px)",
-                      border: "1px solid rgba(0,207,255,0.2)", borderRadius: 14,
+                      border: "1px solid rgba(255,208,0,0.22)", borderRadius: 16,
                       padding: "8px", minWidth: 220, zIndex: 3000,
-                      boxShadow: "0 8px 40px rgba(0,0,0,0.6)",
+                      boxShadow: "0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)",
                     }}>
                       {/* Profile & Feed */}
                       <div style={{ padding: "6px 10px 4px", fontSize: 10, color: "#8A9BB0", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>My Account</div>
@@ -460,7 +462,7 @@ export default function Layout({ children, currentPageName }) {
                       ].map(item => (
                         <Link key={item.page} to={createPageUrl(item.page)} onClick={() => setProfileMenuOpen(false)}
                           style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, color: "#C8D0E0", textDecoration: "none", fontFamily: "Inter, sans-serif", fontSize: 14, transition: "all 0.15s" }}
-                          onMouseOver={e => { e.currentTarget.style.background = "rgba(0,207,255,0.08)"; e.currentTarget.style.color = "#fff"; }}
+                          onMouseOver={e => { e.currentTarget.style.background = "rgba(255,208,0,0.08)"; e.currentTarget.style.color = "#fff"; }}
                           onMouseOut={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#C8D0E0"; }}
                         >
                           <span style={{ color: "#00CFFF" }}>{item.icon}</span> {item.label}
@@ -526,13 +528,14 @@ export default function Layout({ children, currentPageName }) {
             }}
           >
             {/* Gradient accent veil */}
-            <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(0,207,255,0.08) 0%, transparent 100%)" }} />
+            <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(255,208,0,0.08) 0%, transparent 100%)" }} />
 
             <div className="relative z-10 px-5 pt-6 pb-8">
               {/* Header */}
               <div className="flex items-center justify-between mb-8">
-                <div>
-                  <p style={{ color: "#00CFFF", fontSize: 12, fontWeight: 900, letterSpacing: "0.2em" }}>MENU</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFD000", boxShadow: "0 0 10px #FFD000", display: "inline-block" }} />
+                  <p style={{ color: "#FFD000", fontSize: 11, fontWeight: 800, letterSpacing: "0.2em", fontFamily: "Space Grotesk, sans-serif" }}>MENU</p>
                 </div>
                 <button
                   onClick={() => setMenuOpen(false)}
@@ -637,9 +640,11 @@ export default function Layout({ children, currentPageName }) {
                   onClick={() => { setMenuOpen(false); triggerSwitchOn("Feed"); }}
                   className="w-full rounded-full py-3.5 font-bold flex items-center justify-center gap-2 transition"
                   style={{
-                    background: "#FFD000",
+                    background: "linear-gradient(135deg, #FFD000, #FFA500)",
                     color: "#0B0F1A",
                     fontSize: 15,
+                    fontFamily: "Space Grotesk, sans-serif",
+                    boxShadow: "0 10px 36px rgba(255,208,0,0.4)",
                   }}
                 >
                   <Zap size={18} /> Switch It On
