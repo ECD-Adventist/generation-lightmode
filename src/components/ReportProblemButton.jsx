@@ -64,7 +64,8 @@ export default function ReportProblemButton() {
         title="Report a problem"
         aria-label="Report a problem"
         onClick={() => setOpen(true)}
-        className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-[4000] flex h-9 w-9 items-center justify-center rounded-full border border-slate-300/60 bg-slate-100/70 text-slate-500 shadow-sm backdrop-blur transition hover:bg-slate-200/90 hover:text-slate-700 md:bottom-4"
+        className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom))] right-4 z-[4000] flex h-10 w-10 items-center justify-center rounded-full border transition active:scale-95 md:bottom-4 md:h-9 md:w-9 md:border-slate-300/60 md:bg-slate-100/70 md:text-slate-500 md:shadow-sm md:hover:bg-slate-200/90 md:hover:text-slate-700"
+        style={{ background: "rgba(18,26,43,0.88)", borderColor: "rgba(255,255,255,0.10)", color: "#FFD000", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 10px 26px rgba(0,0,0,0.45)" }}
       >
         <Flag className="h-4 w-4" />
       </button>

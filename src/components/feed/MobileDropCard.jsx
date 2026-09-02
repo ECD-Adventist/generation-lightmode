@@ -1,7 +1,7 @@
 import React, { memo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, UserPlus } from "lucide-react";
+import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, UserPlus, Repeat2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -21,11 +21,35 @@ import MobileDropComments from "@/components/feed/MobileDropComments";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
 /**
- * Lightweight mobile-only DropCard.
- * - No heavy gradients, animations, or hover cards.
- * - Lazy-loads images and renders a simplified post layout.
- * - Reuses the same mutation signatures as DropCard so behavior is identical.
+ * Mobile-only DropCard — LightMode brand (dark navy + gold).
+ *
+ * Card anatomy follows the "image-filled card" pattern Mobbin documents for
+ * social feeds: large 4:5 thumbnail, author row above the media, one row of
+ * actions, caption block below. No repeated CTA buttons inside the card
+ * (Follow appears only when relevant). Behaviour and mutation signatures are
+ * identical to the previous version.
  */
+
+const C = {
+  canvas: "#0B0F1A",
+  surface: "#121A2B",
+  surface2: "#18223A",
+  line: "rgba(255,255,255,0.08)",
+  text: "#F4F7FB",
+  muted: "#8A9BB0",
+  gold: "#FFD000",
+  goldGrad: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)",
+  cyanGrad: "linear-gradient(135deg, #00CFFF 0%, #8A5CFF 100%)",
+};
+
+const DEFAULT_AVATAR = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
+
+function timeAgo(createdDate) {
+  if (!createdDate) return "";
+  const iso = createdDate.endsWith("Z") ? createdDate : createdDate + "Z";
+  return formatDistanceToNow(new Date(iso), { addSuffix: true });
+}
+
 function MobileDropCard({
   drop,
   user,
@@ -60,7 +84,6 @@ function MobileDropCard({
     /codes?\s*of\s*truth|codes?oftruth/i.test(drop.hashtags || "")
   );
   const usesDesignedPoster = isKeepIt100 || isCodeOfTruth;
-  const hasDarkActionBackdrop = Boolean(drop.media_url || usesDesignedPoster);
   const isFollowingAuthor = following.some(follow =>
     follow.following_id === dropUser?.id || follow.following_email === drop.user_email
   );
@@ -117,10 +140,16 @@ function MobileDropCard({
     });
   };
 
+  const [likeBurst, setLikeBurst] = useState(false);
   const handlePostSurfaceClick = () => {
     if (clickTimerRef.current) {
+      // double-tap → like (with a brief heart burst, Instagram-style)
       clearTimeout(clickTimerRef.current);
       clickTimerRef.current = null;
+      if (!userHasLiked) {
+        setLikeBurst(true);
+        setTimeout(() => setLikeBurst(false), 650);
+      }
       handleLike();
       return;
     }
@@ -145,12 +174,61 @@ function MobileDropCard({
   const [musicEditorOpen, setMusicEditorOpen] = useState(false);
   const canEditMusic = user?.email === drop.user_email || isManagerOfLeader;
 
+  const authorRow = (
+    <div className="flex items-center justify-between gap-3 px-3.5 pt-3 pb-3">
+      <Link to={profileLink} className="flex min-w-0 items-center no-underline">
+        <div className="shrink-0 w-10 h-10 rounded-full p-[2px] mr-2.5" style={{ background: isLeaderPost ? C.goldGrad : C.cyanGrad }}>
+          <img
+            src={avatarThumb(authorProfile.profile_picture) || DEFAULT_AVATAR}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full rounded-full object-cover"
+            style={{ background: C.surface2, border: `2px solid ${C.surface}` }}
+          />
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-1 text-[13.5px] font-bold leading-tight" style={{ color: C.text }}>
+            <span className="truncate">{getDisplayName(authorProfile)}</span>
+            {isLeaderPost && (
+              <span className="shrink-0 inline-flex items-center justify-center w-[15px] h-[15px] rounded-full" style={{ background: C.gold }} aria-label="Leader">
+                <svg viewBox="0 0 12 12" width="9" height="9" aria-hidden="true"><path d="M2.5 6.4l2.2 2.1L9.6 3.6" fill="none" stroke="#0B0F1A" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </span>
+            )}
+            <CountryFlag country={authorProfile.country} size="xs" />
+          </div>
+          <div className="text-[11px] mt-0.5 truncate" style={{ color: C.muted }}>
+            {authorProfile.username ? `@${authorProfile.username} · ` : ""}{timeAgo(drop.created_date)}
+          </div>
+        </div>
+      </Link>
+      <div className="flex shrink-0 items-center gap-1.5">
+        {canFollowAuthor && (
+          <button
+            type="button"
+            onClick={() => followMutation?.mutate(drop.user_email)}
+            disabled={followMutation?.isPending}
+            className="h-8 px-3 rounded-full inline-flex items-center gap-1 text-[11px] font-black active:scale-95 transition disabled:opacity-60"
+            style={{ background: "rgba(255,208,0,0.12)", color: C.gold, border: "1px solid rgba(255,208,0,0.35)" }}
+            aria-label={`Follow ${getDisplayName(authorProfile)}`}
+          >
+            <UserPlus className="w-3.5 h-3.5" /> Follow
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
   const actionBar = (
     <FeedActionCapsule
       inline
       more={
         <DropdownMenu>
-          <DropdownMenuTrigger asChild><button className="w-[44px] h-[44px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF]" aria-label="Post options"><MoreHorizontal className="w-4 h-4" /></button></DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>
+            <button type="button" className="w-[44px] h-[44px] rounded-full flex items-center justify-center bg-[#08111F] border border-white/10 text-[#18C8FF]" aria-label="Post options">
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
+          </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
             {canEditMusic && <DropdownMenuItem onClick={() => setMusicEditorOpen(true)}>{drop.audio_url ? "Change Music" : "Add Music"}</DropdownMenuItem>}
             <DropdownMenuItem onClick={() => { navigator.clipboard.writeText(`${window.location.origin}${postLink}`).then(() => toast.success("Link copied")); }}>Copy Link</DropdownMenuItem>
@@ -169,28 +247,31 @@ function MobileDropCard({
     </FeedActionCapsule>
   );
 
+  const mediaBackground = drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(160deg, #18223A 0%, #0F1626 100%)";
+
   return (
     <article
-      className="relative rounded-[1.5rem] mb-5 overflow-hidden"
-      style={{ background: "#FFFFFF", border: "1px solid #D6E4FF", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.10)" }}
+      className="relative rounded-[22px] mb-4 overflow-hidden"
+      style={{ background: C.surface, border: `1px solid ${C.line}`, boxShadow: "0 14px 34px rgba(0,0,0,0.38)" }}
     >
-      {drop.media_url && (
-        <div className="flex items-center justify-between gap-3 px-4 pt-3 pb-3">
-          <Link to={profileLink} className="flex min-w-0 items-center no-underline">
-            <div className="shrink-0 w-10 h-10 rounded-full p-[2px] mr-2.5" style={{ background: isLeaderPost ? "linear-gradient(135deg, #FFD000, #FF9F1A)" : "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
-              <img src={avatarThumb(authorProfile.profile_picture) || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="" className="w-full h-full rounded-full object-cover bg-white" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1 text-[13px] font-black" style={{ color: "#0B1B3D" }}><span className="truncate">{getDisplayName(authorProfile)}</span><CountryFlag country={authorProfile.country} size="xs" /></div>
-              <div className="text-[10px]" style={{ color: "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</div>
-            </div>
-          </Link>
-          <div className="flex shrink-0 items-center gap-1.5">
-            {canFollowAuthor && <button onClick={() => followMutation?.mutate(drop.user_email)} className="rounded-full px-3 py-2 text-[10px] font-black text-white" style={{ background: "#0B3FD9" }}>Follow</button>}
-          </div>
+      <style>{`
+        @keyframes mdc-like-burst { 0% { transform: scale(0.4); opacity: 0 } 30% { transform: scale(1.15); opacity: 1 } 100% { transform: scale(1); opacity: 0 } }
+      `}</style>
+
+      {drop.repost && (
+        <div className="flex items-center gap-1.5 px-4 pt-3 -mb-1 text-[11px] font-semibold" style={{ color: C.muted }}>
+          <Repeat2 className="w-3.5 h-3.5" style={{ color: C.gold }} />
+          <span className="truncate">Reposted by <span style={{ color: C.text }}>{drop.repost.reposter_name || "a member"}</span></span>
         </div>
       )}
-      <div className={drop.media_url ? `relative w-full overflow-hidden flex items-center justify-center ${mediaFit === "contain" ? "" : "aspect-[4/5]"}` : "relative w-full rounded-[1.45rem] overflow-hidden aspect-[4/5]"} style={{ maxHeight: 720, background: drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
+
+      {authorRow}
+
+      {/* MEDIA / POSTER */}
+      <div
+        className={drop.media_url ? `relative w-full overflow-hidden flex items-center justify-center ${mediaFit === "contain" ? "" : "aspect-[4/5]"}` : "relative w-full overflow-hidden aspect-[4/5]"}
+        style={{ maxHeight: 720, background: mediaBackground }}
+      >
         <div
           role="button"
           tabIndex={0}
@@ -211,45 +292,32 @@ function MobileDropCard({
           ) : isCodeOfTruth ? (
             <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
           ) : (
-            <div className="absolute inset-0 px-6 pt-20 pb-24 flex flex-col items-center justify-center text-center" style={{ background: "linear-gradient(135deg, #EEF5FF 0%, #DCE8FF 100%)" }}>
-              {drop.verse && (
-                <p className="text-[20px] font-black leading-tight mb-4 line-clamp-7" style={{ color: "#62A4FF", fontFamily: "Space Grotesk, Inter, sans-serif" }}>
-                  {drop.verse}
-                </p>
-              )}
-              {reflectionText ? (
-                <p className="text-[14px] italic leading-snug line-clamp-6" style={{ color: "#344B73" }}>
-                  “{reflectionText.length > 220 ? reflectionText.slice(0, 220) + "…" : reflectionText}”
-                </p>
-              ) : !drop.verse ? (
-                <p className="text-[15px] italic" style={{ color: "#8A97B5" }}>Tap to view post</p>
-              ) : null}
-              <div className="mt-6 w-16 h-1 rounded-full" style={{ background: "linear-gradient(90deg, #0B3FD9, #1FB8FF)" }} />
+            <div className="absolute inset-0 px-7 py-10 flex flex-col items-center justify-center text-center">
+              <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(255,208,0,0.18), rgba(255,208,0,0) 70%)" }} />
+              <div className="absolute -bottom-20 -left-16 w-56 h-56 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(0,207,255,0.14), rgba(0,207,255,0) 70%)" }} />
+              <div className="relative">
+                <div className="mx-auto mb-5 w-10 h-[3px] rounded-full" style={{ background: C.goldGrad }} />
+                {drop.verse && (
+                  <p className="text-[22px] font-black leading-[1.2] mb-4 line-clamp-7" style={{ color: C.gold, fontFamily: "Space Grotesk, Inter, sans-serif" }}>
+                    {drop.verse}
+                  </p>
+                )}
+                {reflectionText ? (
+                  <p className="text-[15px] leading-relaxed line-clamp-6" style={{ color: C.text }}>
+                    “{reflectionText.length > 220 ? reflectionText.slice(0, 220) + "…" : reflectionText}”
+                  </p>
+                ) : !drop.verse ? (
+                  <p className="text-[15px] italic" style={{ color: C.muted }}>Tap to view post</p>
+                ) : null}
+              </div>
             </div>
           )}
         </div>
 
-        {!drop.media_url && <Link to={profileLink} className="absolute top-3 left-3 z-20 flex items-center rounded-full pr-4 py-1 pl-1 no-underline" style={{ background: "rgba(255,255,255,0.96)", border: "1px solid #E6ECF5", boxShadow: "0 4px 14px rgba(11, 27, 61, 0.12)" }}>
-          <div className="shrink-0 w-9 h-9 rounded-full p-[2px] mr-2" style={{ background: isLeaderPost ? "linear-gradient(135deg, #FFD000, #FF9F1A)" : "linear-gradient(135deg, #1FB8FF, #0B3FD9)" }}>
-            <img src={avatarThumb(authorProfile.profile_picture) || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="" loading="lazy" decoding="async" className="w-full h-full rounded-full object-cover bg-white" />
+        {likeBurst && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+            <Heart className="w-24 h-24" style={{ color: C.gold, fill: C.gold, filter: "drop-shadow(0 8px 24px rgba(255,208,0,0.55))", animation: "mdc-like-burst 650ms cubic-bezier(0.22,1,0.36,1) forwards" }} />
           </div>
-          <div className="min-w-0 max-w-[150px]">
-            <div className="flex items-center gap-1 text-[12px] font-black" style={{ color: "#0B1B3D" }}><span className="truncate">{getDisplayName(authorProfile)}</span><CountryFlag country={authorProfile.country} size="xs" /></div>
-            <div className="text-[10px] truncate" style={{ color: "#4A5878" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</div>
-          </div>
-        </Link>}
-
-        {!drop.media_url && canFollowAuthor && (
-          <button
-            onClick={() => followMutation?.mutate(drop.user_email)}
-            disabled={followMutation?.isPending}
-            className={`absolute ${drop.audio_url ? "top-14" : "top-3"} right-3 z-20 h-10 px-3 rounded-full flex items-center gap-1.5 text-[11px] font-black active:scale-95 transition disabled:opacity-60`}
-            style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9)", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.28)", color: "#FFFFFF" }}
-            aria-label={`Follow ${getDisplayName(authorProfile)}`}
-          >
-            <UserPlus className="w-4 h-4" />
-            Follow
-          </button>
         )}
 
         <PostAudioTrack postId={drop.id} audioUrl={drop.audio_url} audioTitle={drop.audio_title} />
@@ -259,33 +327,30 @@ function MobileDropCard({
 
       <PostMusicEditor drop={drop} isOpen={musicEditorOpen} onClose={() => setMusicEditorOpen(false)} />
 
-      {drop.repost && (
-        <div className="px-3 pt-3 text-[11px] font-semibold" style={{ color: "#6B7FA0" }}>
-          <span style={{ color: "#0B3FD9" }}>↻ Reposted by {drop.repost.reposter_name || "a member"}</span> · Originally by {getDisplayName(authorProfile)}
-        </div>
-      )}
-
       {showComments && <MobileDropComments drop={drop} user={user} />}
 
+      {/* CAPTION */}
       {(drop.verse || reflectionText || drop.category || drop.hashtags) && (
-        <div className="px-4 py-4" style={{ background: "#F8FAFC" }}>
+        <div className="px-4 pt-3 pb-4">
           {drop.verse && (
-            <Link to={postLink} className="block text-[15px] font-black mb-1.5 no-underline" style={{ color: "#0B1B3D" }}>{drop.verse}</Link>
+            <Link to={postLink} className="block text-[15px] font-black leading-snug mb-1.5 no-underline" style={{ color: C.text, fontFamily: "Space Grotesk, Inter, sans-serif" }}>{drop.verse}</Link>
           )}
           {reflectionText && (
-            <p className="text-[13px] leading-relaxed line-clamp-3" style={{ color: "#5A6B85" }}>
-              {drop.category === "Keep It 100" ? "📌 " : ""}{reflectionText}
+            <p className="text-[13.5px] leading-relaxed line-clamp-3" style={{ color: "#C8D0E0" }}>
+              {reflectionText}
             </p>
           )}
-          {drop.category && (
-            <div className="mt-3">
-              <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide" style={{ background: "#EAF5FF", border: "1px solid #B8E5FF", color: "#004CFF" }}>
-                {drop.category}
-              </span>
+          {(drop.category || drop.hashtags) && (
+            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+              {drop.category && (
+                <span className="inline-flex h-6 items-center px-2.5 rounded-full text-[10px] font-black uppercase tracking-wide" style={{ background: "rgba(255,208,0,0.12)", border: "1px solid rgba(255,208,0,0.30)", color: C.gold }}>
+                  {drop.category}
+                </span>
+              )}
+              {drop.hashtags && (
+                <span className="text-[12px] font-semibold leading-relaxed" style={{ color: "#00CFFF" }}>{drop.hashtags}</span>
+              )}
             </div>
-          )}
-          {drop.hashtags && (
-            <div className="mt-3 text-[12px] font-semibold leading-relaxed" style={{ color: "#004CFF" }}>{drop.hashtags}</div>
           )}
         </div>
       )}

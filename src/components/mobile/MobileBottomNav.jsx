@@ -5,6 +5,14 @@ import { createPageUrl } from "@/utils";
 import { Zap, User, Search, MessageCircle, Plus } from "lucide-react";
 import useMobileTabNavigation from "@/hooks/useMobileTabNavigation";
 
+/**
+ * Primary mobile tab bar — LightMode brand.
+ *
+ * Pattern: "floating tab bar with a protruded key action at the centre"
+ * (Mobbin, Tab Bar UI — variants 3 & 4). Five destinations, icon + label,
+ * gold selected state, glass surface, respects the iOS home indicator.
+ */
+
 const tabs = [
   { key: "Feed", label: "Feed", icon: Zap, match: ["Feed", "GlowFeed", "Post"] },
   { key: "Discover", label: "Search", icon: Search, match: ["Discover"] },
@@ -12,6 +20,10 @@ const tabs = [
   { key: "Messages", label: "Messages", icon: MessageCircle, match: ["Messages"] },
   { key: "Profile", label: "Profile", icon: User, match: ["Profile"] },
 ];
+
+const GOLD = "#FFD000";
+const CANVAS = "#0B0F1A";
+const MUTED = "#8A9BB0";
 
 export default function MobileBottomNav({ currentPageName }) {
   const location = useLocation();
@@ -45,14 +57,29 @@ export default function MobileBottomNav({ currentPageName }) {
         insetInline: 0,
         width: "100%",
         maxWidth: "100vw",
-        paddingBottom: "env(safe-area-inset-bottom)",
-        background: "#0B0F1A",
-        borderTop: "1px solid #1F2937",
+        padding: "0 12px calc(env(safe-area-inset-bottom, 0px) + 10px)",
+        pointerEvents: "none",
       }}
       aria-label="Primary mobile navigation"
       data-mobile-bottom-nav="primary"
     >
-      <div className="flex items-stretch justify-around px-2">
+      <style>{`
+        @keyframes mbn-dot { from { transform: scaleX(0); opacity: 0 } to { transform: scaleX(1); opacity: 1 } }
+      `}</style>
+      <div
+        className="relative mx-auto flex items-stretch justify-around"
+        style={{
+          maxWidth: 520,
+          height: 64,
+          borderRadius: 999,
+          background: "rgba(18,26,43,0.88)",
+          backdropFilter: "blur(22px)",
+          WebkitBackdropFilter: "blur(22px)",
+          border: "1px solid rgba(255,255,255,0.10)",
+          boxShadow: "0 18px 44px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06)",
+          pointerEvents: "auto",
+        }}
+      >
         {tabs.map(({ key, label, icon: Icon, match, isPostButton }) => {
           if (isPostButton) {
             return (
@@ -60,32 +87,29 @@ export default function MobileBottomNav({ currentPageName }) {
                 key={key}
                 to={`${createPageUrl("Feed")}?compose=1`}
                 onClick={(e) => {
-                  sessionStorage.setItem('tab_switch', 'true');
+                  sessionStorage.setItem("tab_switch", "true");
                   if (currentPageName === "Feed" && location.pathname === createPageUrl("Feed")) {
                     e.preventDefault();
                     window.dispatchEvent(new CustomEvent("openDropComposer"));
                   }
                 }}
-                className="flex-1 flex flex-col items-center justify-end gap-1.5 py-2"
-                style={{ minHeight: 56, textDecoration: "none" }}
-                aria-label="Create post"
+                className="flex-1 flex flex-col items-center justify-end gap-1 pb-1.5"
+                style={{ textDecoration: "none" }}
+                aria-label="Create a drop"
               >
                 <span
-                  className="flex items-center justify-center rounded-full"
+                  className="flex items-center justify-center rounded-full active:scale-95 transition"
                   style={{
-                    width: 50,
-                    height: 50,
-                    marginTop: -22,
-                    background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 100%)",
-                    boxShadow: "0 6px 22px rgba(255,208,0,0.45), 0 0 18px rgba(0,207,255,0.35), 0 0 0 4px #0B0F1A",
+                    width: 54,
+                    height: 54,
+                    marginTop: -24,
+                    background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)",
+                    boxShadow: `0 10px 26px rgba(255,208,0,0.42), 0 0 0 5px ${CANVAS}`,
                   }}
                 >
-                  <Plus className="w-6 h-6" strokeWidth={2.6} style={{ color: "#0B0F1A" }} />
+                  <Plus className="w-6 h-6" strokeWidth={2.75} style={{ color: CANVAS }} />
                 </span>
-                <span
-                  className="text-[10px] font-bold tracking-wide"
-                  style={{ fontFamily: "Inter, sans-serif", color: "#00CFFF" }}
-                >
+                <span className="text-[10px] font-bold tracking-wide" style={{ fontFamily: "Inter, sans-serif", color: GOLD }}>
                   {label}
                 </span>
               </Link>
@@ -101,18 +125,18 @@ export default function MobileBottomNav({ currentPageName }) {
                 e.preventDefault();
                 switchTab(key);
               }}
-              className="flex-1 flex flex-col items-center justify-center gap-1 py-2"
-              style={{
-                minHeight: 56,
-                color: active ? "#00CFFF" : "#8A9BB0",
-                textDecoration: "none",
-              }}
+              className="relative flex-1 flex flex-col items-center justify-center gap-1"
+              style={{ minHeight: 56, color: active ? GOLD : MUTED, textDecoration: "none" }}
+              aria-current={active ? "page" : undefined}
             >
-              <Icon className="w-5 h-5" style={{ color: "inherit" }} />
-              <span
-                className="text-[10px] font-bold tracking-wide"
-                style={{ fontFamily: "Inter, sans-serif" }}
-              >
+              {active && (
+                <span
+                  className="absolute top-1.5 h-[3px] w-5 rounded-full"
+                  style={{ background: GOLD, boxShadow: `0 0 10px ${GOLD}`, animation: "mbn-dot 220ms cubic-bezier(0.22,1,0.36,1)" }}
+                />
+              )}
+              <Icon className="w-[22px] h-[22px]" strokeWidth={active ? 2.5 : 2} style={{ color: "inherit", fill: active && key === "Feed" ? GOLD : "none" }} />
+              <span className="text-[10px] font-bold tracking-wide" style={{ fontFamily: "Inter, sans-serif" }}>
                 {label}
               </span>
             </Link>

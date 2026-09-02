@@ -128,7 +128,7 @@
 .safe-mt { margin-top: env(safe-area-inset-top); }
 .safe-mb { margin-bottom: env(safe-area-inset-bottom); }
 /* Reserve space for the fixed mobile bottom nav (app-shell pages only) */
-.has-mobile-bottom-nav { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+.has-mobile-bottom-nav { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
 @media (min-width: 768px) {
   .has-mobile-bottom-nav { padding-bottom: 0; }
 }

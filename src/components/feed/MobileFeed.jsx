@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Bell, Plus, Sparkles, Flame, Zap } from "lucide-react";
+import { Bell, Plus, Sparkles, Flame, Zap, Search, X, LayoutGrid, Users, Heart, BookOpen, Megaphone } from "lucide-react";
 import MobileFeedDropList from "@/components/feed/MobileFeedDropList";
 import MobileDropCardSkeleton from "@/components/feed/MobileDropCardSkeleton";
 import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
@@ -9,13 +9,67 @@ import UserAvatar from "@/components/common/UserAvatar";
 import { getDisplayName } from "@/lib/displayName";
 
 /**
- * Mobile-only Feed shell — LightMode branded (premium redesign).
- * Renders hero, compose prompt, stories row, filter pills, and the drops list.
- * All mutations/state come from parent (Feed.jsx).
+ * Mobile-only Feed shell — LightMode brand (dark navy + gold).
+ *
+ * Layout follows the patterns Mobbin documents for social feeds on iOS:
+ *  - compact glass top bar (logo + 2–3 icon actions, unread dot on Bell)
+ *  - greeting hero with a single accent colour (gold) on a dark canvas
+ *  - compose prompt as a filled card, one primary action
+ *  - stories row with gradient rings, "Your Story" first
+ *  - filled filter chips with leading icons; selected chip uses the accent colour
+ *  - image-filled post cards (see MobileDropCard)
+ *
+ * All mutations/state come from parent (Feed.jsx). Props are unchanged.
  */
+
+const LOGO_GOLD = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png";
+
+export const MF = {
+  canvas: "#0B0F1A",
+  surface: "#121A2B",
+  surface2: "#18223A",
+  line: "rgba(255,255,255,0.08)",
+  text: "#F4F7FB",
+  muted: "#8A9BB0",
+  gold: "#FFD000",
+  orange: "#FF9F1A",
+  cyan: "#00CFFF",
+  violet: "#8A5CFF",
+  goldGrad: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)",
+  ringGrad: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 45%, #00CFFF 100%)",
+};
+
+const FILTERS = [
+  { key: "All", icon: LayoutGrid },
+  { key: "Following", icon: Users },
+  { key: "Most Liked", icon: Heart },
+  { key: "Devotional", icon: BookOpen },
+  { key: "Testimony", icon: Megaphone },
+];
+
+function IconAction({ to, label, children, dot = false }) {
+  return (
+    <Link
+      to={to}
+      aria-label={label}
+      title={label}
+      className="relative w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition"
+      style={{ background: "rgba(255,255,255,0.06)", color: MF.text, border: `1px solid ${MF.line}` }}
+    >
+      {children}
+      {dot && (
+        <span className="absolute top-2 right-2 w-2 h-2 rounded-full" style={{ background: MF.gold, boxShadow: `0 0 0 2px ${MF.canvas}, 0 0 10px ${MF.gold}` }} />
+      )}
+    </Link>
+  );
+}
+
 export default function MobileFeed({
   user,
+  isGuest = false,
   notifications,
+  searchQuery = "",
+  onSearch,
   activeFilter,
   onFilterChange,
   stories,
@@ -44,125 +98,154 @@ export default function MobileFeed({
   isRefreshing = false,
   pullThreshold = 70,
 }) {
-  const filters = ["All", "Following", "Most Liked", "Devotional", "Testimony"];
-  const greeting = new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening";
-  const firstName = getDisplayName(user).split(" ")[0] || "Friend";
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const firstName = user ? (getDisplayName(user).split(" ")[0] || "Friend") : "Friend";
+  const [searchOpen, setSearchOpen] = React.useState(Boolean(searchQuery));
+  const liveStories = Array.isArray(stories) ? stories : [];
 
   return (
-    <div className="min-h-full font-['Inter']" style={{ background: "linear-gradient(180deg, #F6F8FC 0%, #EEF3FF 40%, #E2EBFF 100%)", color: "#0B1B3D" }}>
+    <div className="relative min-h-full font-['Inter']" style={{ background: MF.canvas, color: MF.text, overflowX: "clip" }}>
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} threshold={pullThreshold} />
       <style>{`
-        @keyframes mf-float { 0%,100% { transform: translateY(0) scale(1); opacity: 0.22 } 50% { transform: translateY(-18px) scale(1.08); opacity: 0.42 } }
-        @keyframes mf-shimmer {
-          0% { transform: translateX(-150%) skewX(-20deg); }
-          100% { transform: translateX(260%) skewX(-20deg); }
-        }
-        @keyframes mf-pulse-dot { 0%,100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.4); opacity: 0.6 } }
         .mf-hide-sb::-webkit-scrollbar { display: none; }
         .mf-hide-sb { scrollbar-width: none; }
+        @keyframes mf-pulse-dot { 0%,100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.5); opacity: .55 } }
       `}</style>
 
-      {/* Sticky top controls remain visible when feed scroll is restored. */}
-      <div className="sticky top-0 z-40 safe-pt px-4" style={{ background: "#0A2E9F", boxShadow: "0 4px 16px rgba(5, 26, 85, 0.18)" }}>
-        <div className="flex items-center gap-2 py-3">
-          <Link to={createPageUrl("Home")} className="shrink-0">
-            <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png" alt="" className="h-9 w-auto object-contain" style={{ filter: "brightness(0) invert(1)" }} />
-          </Link>
-          <div className="flex-1" />
-          <Link to={createPageUrl("DailyTruthFeed")} className="w-9 h-9 rounded-xl flex items-center justify-center backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(255,255,255,0.18)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.22)" }} title="Daily">
-            <Flame className="w-4 h-4" />
-          </Link>
-          <Link to={createPageUrl("Dashboard")} className="w-9 h-9 rounded-xl flex items-center justify-center backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(255,255,255,0.18)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.22)" }} title="Me">
-            <Zap className="w-4 h-4" />
-          </Link>
-          <Link to={createPageUrl("Notifications")} className="relative w-9 h-9 rounded-xl flex items-center justify-center backdrop-blur-md active:scale-95 transition" style={{ background: "rgba(255,255,255,0.18)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.22)" }}>
-            <Bell className="w-4 h-4" />
-            {notifications?.length > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "#FFD000", boxShadow: "0 0 8px #FFD000" }} />
-            )}
-          </Link>
+      {/* TOP BAR — compact glass, logo left, icon actions right */}
+      <div
+        className="sticky top-0 z-40 safe-pt px-4"
+        style={{ background: "rgba(11,15,26,0.86)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", borderBottom: `1px solid ${MF.line}` }}
+      >
+        <div className="flex items-center gap-2 h-14">
+          {searchOpen ? (
+            <div className="flex-1 flex items-center gap-2 h-10 px-3 rounded-full" style={{ background: MF.surface, border: `1px solid ${MF.line}` }}>
+              <Search className="w-4 h-4 shrink-0" style={{ color: MF.muted }} />
+              <input
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => onSearch?.(e.target.value)}
+                placeholder="Search people, verses, drops"
+                className="flex-1 min-w-0 bg-transparent outline-none text-[14px] placeholder:text-[#5C6B82]"
+                style={{ color: MF.text }}
+              />
+              <button
+                type="button"
+                aria-label="Close search"
+                onClick={() => { onSearch?.(""); setSearchOpen(false); }}
+                className="w-7 h-7 rounded-full flex items-center justify-center"
+                style={{ background: "rgba(255,255,255,0.08)", color: MF.text }}
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link to={createPageUrl("Home")} className="shrink-0 flex items-center" aria-label="Generation LightMode home">
+                <img src={LOGO_GOLD} alt="Generation LightMode" className="h-7 w-auto object-contain" />
+              </Link>
+              <div className="flex-1" />
+              <button
+                type="button"
+                aria-label="Search"
+                onClick={() => setSearchOpen(true)}
+                className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition"
+                style={{ background: "rgba(255,255,255,0.06)", color: MF.text, border: `1px solid ${MF.line}` }}
+              >
+                <Search className="w-[18px] h-[18px]" />
+              </button>
+              <IconAction to={createPageUrl("DailyTruthFeed")} label="Daily Truth"><Flame className="w-[18px] h-[18px]" /></IconAction>
+              <IconAction to={createPageUrl("Notifications")} label="Notifications" dot={notifications?.length > 0}><Bell className="w-[18px] h-[18px]" /></IconAction>
+            </>
+          )}
         </div>
       </div>
 
-      {/* HERO HEADER */}
-      <div className="relative overflow-hidden pb-14 px-4" style={{
-        background: "linear-gradient(135deg, #0A2E9F 0%, #0B3FD9 55%, #1563E8 100%)"
-      }}>
-        {/* Greeting */}
-        <div className="relative mt-5">
-          <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.22em] text-white/75">
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#FFD000", animation: "mf-pulse-dot 2s ease-in-out infinite" }} />
+      {/* HERO — greeting, single gold accent */}
+      <div className="relative px-4 pt-5 pb-4">
+        <div className="relative">
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: MF.muted }}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: MF.gold, animation: "mf-pulse-dot 2.2s ease-in-out infinite" }} />
             {greeting}
           </div>
-          <h1 className="text-[26px] font-black font-['Space_Grotesk'] text-white leading-tight truncate mt-1">
-            Hey, {firstName} <span style={{ color: "#FFD000" }}>⚡</span>
+          <h1 className="mt-1 text-[28px] leading-[1.1] font-black font-['Space_Grotesk'] truncate" style={{ color: MF.text }}>
+            Hey, <span style={{ background: MF.goldGrad, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>{firstName}</span>
+            <Zap className="inline-block w-5 h-5 ml-1.5 -mt-1" style={{ color: MF.gold, fill: MF.gold }} />
           </h1>
-          <div className="text-sm text-white/80 mt-1 font-semibold">Your light is needed today.</div>
+          <p className="mt-1 text-[14px] font-medium" style={{ color: MF.muted }}>Your light is needed today.</p>
         </div>
       </div>
 
-      {/* COMPOSE PROMPT — floating card over hero */}
-      <div className="px-3 -mt-9 relative z-10 mb-4">
+      {/* COMPOSE PROMPT — filled card, one primary action */}
+      <div className="px-4 mb-5">
         <button
+          type="button"
           onClick={onOpenDropModal}
-          className="w-full rounded-[1.25rem] p-3 flex items-center gap-2.5 active:scale-[0.99] transition text-left"
-          style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 10px 28px rgba(11, 63, 217, 0.15)" }}
+          className="w-full rounded-[22px] p-2.5 pl-3 flex items-center gap-3 active:scale-[0.99] transition text-left"
+          style={{ background: MF.surface, border: `1px solid ${MF.line}`, boxShadow: "0 12px 32px rgba(0,0,0,0.35)" }}
         >
-          <div className="flex-1 text-sm font-semibold py-2.5 px-4 rounded-full truncate" style={{ background: "#F6F8FC", color: "#6B7FA0", border: "1px solid #E6ECF5" }}>
-            Share a light drop, {firstName}…
+          <div className="shrink-0 w-10 h-10 rounded-full overflow-hidden" style={{ border: `2px solid ${MF.surface2}` }}>
+            <UserAvatar user={user} className="w-full h-full" />
           </div>
-          <div className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 4px 12px rgba(255, 159, 26, 0.4)" }}>
+          <div className="flex-1 min-w-0 text-[14px] font-semibold truncate" style={{ color: MF.muted }}>
+            {isGuest ? "Sign in to share your light…" : `Share a light drop, ${firstName}…`}
+          </div>
+          <div
+            className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center"
+            style={{ background: MF.goldGrad, color: MF.canvas, boxShadow: "0 8px 20px rgba(255,208,0,0.35)" }}
+          >
             <Plus className="w-5 h-5" strokeWidth={3} />
           </div>
         </button>
       </div>
 
       {/* STORIES */}
-      <div className="px-3 mb-4">
-        <div className="flex items-center justify-between mb-2.5 px-1">
+      <div className="mb-5">
+        <div className="flex items-center justify-between mb-3 px-4">
           <div className="flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" style={{ color: "#0B3FD9" }} />
-            <h3 className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: "#0B3FD9" }}>Statuses</h3>
+            <Sparkles className="w-3.5 h-3.5" style={{ color: MF.gold }} />
+            <h3 className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: MF.text }}>Statuses</h3>
           </div>
-          <span className="text-[10px] font-bold" style={{ color: "#8A97B5" }}>{stories.length} live</span>
+          <span className="text-[11px] font-bold" style={{ color: MF.muted }}>{liveStories.length} live</span>
         </div>
-        <div className="flex gap-3 overflow-x-auto mf-hide-sb pb-1">
+        <div className="flex gap-3.5 overflow-x-auto mf-hide-sb px-4 pb-1">
           {/* Add status */}
-          <button onClick={onOpenStatusComposer} className="flex flex-col items-center gap-1.5 shrink-0 active:scale-95 transition">
-            <div className="relative w-[68px] h-[68px] rounded-full p-[2.5px]" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9, #FFD000)" }}>
-              <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center" style={{ background: "#FFFFFF", border: "2.5px solid #FFFFFF" }}>
+          <button type="button" onClick={onOpenStatusComposer} className="flex flex-col items-center gap-1.5 shrink-0 active:scale-95 transition">
+            <div className="relative w-[68px] h-[68px] rounded-full p-[2px]" style={{ background: "rgba(255,255,255,0.10)" }}>
+              <div className="w-full h-full rounded-full overflow-hidden" style={{ background: MF.surface, border: `3px solid ${MF.canvas}` }}>
                 <UserAvatar user={user} className="w-full h-full" />
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "#FFD000", border: "2.5px solid #F6F8FC", boxShadow: "0 2px 6px rgba(255, 159, 26, 0.5)" }}>
-                <Plus className="w-3.5 h-3.5" style={{ color: "#0B1B3D" }} strokeWidth={3} />
+              <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full flex items-center justify-center" style={{ background: MF.gold, border: `2.5px solid ${MF.canvas}` }}>
+                <Plus className="w-3.5 h-3.5" style={{ color: MF.canvas }} strokeWidth={3} />
               </div>
             </div>
-            <span className="text-[10px] font-black" style={{ color: "#0B3FD9" }}>Your Story</span>
+            <span className="text-[10px] font-bold" style={{ color: MF.text }}>Your Story</span>
           </button>
 
-          {stories.slice(0, 8).map(story => {
+          {liveStories.slice(0, 10).map(story => {
             const storyUser = getUserInfo(story.user_email);
-            const theme = story.background_theme === "violet" ? "from-[#8A5CFF] to-[#3B1E70]"
-              : story.background_theme === "sunrise" ? "from-[#FFD60A] to-[#F97316]"
-              : story.background_theme === "midnight" ? "from-[#121826] to-[#0B0F1A]"
-              : "from-[#00CFFF] to-[#1DA1FF]";
+            const theme = story.background_theme === "violet" ? "linear-gradient(135deg,#8A5CFF,#3B1E70)"
+              : story.background_theme === "sunrise" ? "linear-gradient(135deg,#FFD60A,#F97316)"
+              : story.background_theme === "midnight" ? "linear-gradient(135deg,#1F2A44,#0B0F1A)"
+              : "linear-gradient(135deg,#00CFFF,#1DA1FF)";
+            const isMine = storyUser?.email === user?.email;
             return (
-              <button key={story.id} onClick={() => onOpenStatus(story)} className="flex flex-col items-center gap-1.5 shrink-0 active:scale-95 transition">
-                <div className="relative w-[68px] h-[68px] rounded-full p-[2.5px]" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9, #FFD000)" }}>
-                  <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "2.5px solid #FFFFFF" }}>
+              <button key={story.id} type="button" onClick={() => onOpenStatus(story)} className="flex flex-col items-center gap-1.5 shrink-0 active:scale-95 transition">
+                <div className="relative w-[68px] h-[68px] rounded-full p-[2px]" style={{ background: MF.ringGrad }}>
+                  <div className="w-full h-full rounded-full overflow-hidden" style={{ background: MF.surface, border: `3px solid ${MF.canvas}` }}>
                     {story.story_type === "image" && story.media_url ? (
-                      <img src={story.media_url} className="w-full h-full object-cover" loading="lazy" />
+                      <img src={story.media_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     ) : (
-                      <div className={`w-full h-full bg-gradient-to-br ${theme} flex items-center justify-center text-white font-black text-lg`}>Aa</div>
+                      <div className="w-full h-full flex items-center justify-center text-white font-black text-lg" style={{ background: theme }}>Aa</div>
                     )}
                   </div>
-                  {/* mini avatar badge for author */}
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full overflow-hidden" style={{ border: "2.5px solid #F6F8FC", background: "#FFFFFF" }}>
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full overflow-hidden" style={{ border: `2.5px solid ${MF.canvas}`, background: MF.surface }}>
                     <UserAvatar user={storyUser} className="w-full h-full" />
                   </div>
                 </div>
-                <span className="text-[10px] font-bold truncate w-[68px] text-center" style={{ color: "#0B1B3D" }}>
-                  {storyUser?.email === user?.email ? "You" : getDisplayName(storyUser).split(" ")[0] || "User"}
+                <span className="text-[10px] font-bold truncate w-[68px] text-center" style={{ color: isMine ? MF.gold : MF.text }}>
+                  {isMine ? "You" : getDisplayName(storyUser).split(" ")[0] || "User"}
                 </span>
               </button>
             );
@@ -170,21 +253,28 @@ export default function MobileFeed({
         </div>
       </div>
 
-      {/* FILTER PILLS — refined glass sticky (no blur for perf) */}
-      <div className="sticky top-0 z-30 px-3 py-2.5 mb-3" style={{ background: "#F6F8FC", borderBottom: "1px solid rgba(214, 228, 255, 0.7)" }}>
-        <div className="flex items-center gap-1.5 overflow-x-auto mf-hide-sb">
-          {filters.map(f => {
-            const isActive = activeFilter === f;
+      {/* FILTER CHIPS — filled, leading icon, gold selected state; sticky under the top bar */}
+      <div
+        className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-30 py-2.5 mb-2"
+        style={{ background: "rgba(11,15,26,0.92)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", borderBottom: `1px solid ${MF.line}` }}
+      >
+        <div className="flex items-center gap-2 overflow-x-auto mf-hide-sb px-4" role="tablist" aria-label="Feed filters">
+          {FILTERS.map(({ key, icon: Icon }) => {
+            const isActive = activeFilter === key;
             return (
               <button
-                key={f}
-                onClick={() => onFilterChange(f)}
-                className="px-4 py-2 rounded-full text-[11px] font-black whitespace-nowrap transition active:scale-95"
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => onFilterChange(key)}
+                className="h-9 pl-3 pr-3.5 rounded-full inline-flex items-center gap-1.5 text-[12px] font-bold whitespace-nowrap transition active:scale-95"
                 style={isActive
-                  ? { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.35)" }
-                  : { background: "#FFFFFF", color: "#4A5878", border: "1px solid #E6ECF5", boxShadow: "0 2px 6px rgba(11, 63, 217, 0.04)" }}
+                  ? { background: MF.gold, color: MF.canvas, boxShadow: "0 6px 18px rgba(255,208,0,0.30)" }
+                  : { background: MF.surface, color: MF.text, border: `1px solid ${MF.line}` }}
               >
-                {f}
+                <Icon className="w-3.5 h-3.5" strokeWidth={2.5} style={isActive && key === "Most Liked" ? { fill: MF.canvas } : undefined} />
+                {key}
               </button>
             );
           })}
@@ -192,7 +282,7 @@ export default function MobileFeed({
       </div>
 
       {/* FEED */}
-      <div className="px-3 pb-24 space-y-4">
+      <div className="px-3 pb-28 pt-2 space-y-4">
         {isLoading && drops.length === 0 ? (
           <>
             <MobileDropCardSkeleton />
@@ -200,22 +290,29 @@ export default function MobileFeed({
             <MobileDropCardSkeleton />
           </>
         ) : isError && filteredDrops.length === 0 ? (
-          <div className="py-16 text-center rounded-[1.5rem]" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
-            <div className="text-3xl mb-2">↻</div>
-            <p className="text-sm" style={{ color: "#4A5878" }}>We're refreshing the feed.</p>
-            <button onClick={onRefetch} className="mt-3 px-5 py-2 rounded-full text-xs font-black" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11, 63, 217, 0.3)" }}>
-              Refresh
+          <div className="py-14 px-6 text-center rounded-[22px]" style={{ background: MF.surface, border: `1px dashed ${MF.line}` }}>
+            <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-3" style={{ background: "rgba(255,208,0,0.12)", color: MF.gold }}>
+              <Zap className="w-5 h-5" />
+            </div>
+            <p className="text-[15px] font-black font-['Space_Grotesk']" style={{ color: MF.text }}>Feed took a breath</p>
+            <p className="text-[13px] mt-1" style={{ color: MF.muted }}>We couldn't load new drops just now.</p>
+            <button type="button" onClick={onRefetch} className="mt-4 h-11 px-6 rounded-full text-[13px] font-black active:scale-95 transition" style={{ background: MF.goldGrad, color: MF.canvas }}>
+              Try again
             </button>
           </div>
         ) : filteredDrops.length === 0 ? (
-          <div className="py-16 text-center rounded-[1.5rem] relative overflow-hidden" style={{ background: "#FFFFFF", border: "1px dashed #D6E4FF" }}>
-            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl opacity-30" style={{ background: "#FFD000" }} />
+          <div className="py-14 px-6 text-center rounded-[22px] relative overflow-hidden" style={{ background: MF.surface, border: `1px dashed ${MF.line}` }}>
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(255,208,0,0.25), rgba(255,208,0,0) 70%)" }} />
             <div className="relative">
-              <div className="text-4xl mb-2">✨</div>
-              <p className="text-sm font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>No Drops yet</p>
-              <p className="text-xs mt-1 px-6" style={{ color: "#8A97B5" }}>Be the first to share your light!</p>
-              <button onClick={onOpenDropModal} className="mt-4 px-6 py-2.5 rounded-full text-xs font-black active:scale-95 transition" style={{ background: "linear-gradient(90deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 6px 16px rgba(255, 208, 0, 0.45)" }}>
-                ⚡ Share your Drop
+              <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-3" style={{ background: "rgba(255,208,0,0.12)", color: MF.gold }}>
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <p className="text-[15px] font-black font-['Space_Grotesk']" style={{ color: MF.text }}>No drops here yet</p>
+              <p className="text-[13px] mt-1" style={{ color: MF.muted }}>
+                {activeFilter === "Following" ? "Follow a few believers to fill this space." : "Be the first to share your light."}
+              </p>
+              <button type="button" onClick={onOpenDropModal} className="mt-4 h-11 px-6 rounded-full inline-flex items-center gap-2 text-[13px] font-black active:scale-95 transition" style={{ background: MF.goldGrad, color: MF.canvas, boxShadow: "0 8px 22px rgba(255,208,0,0.35)" }}>
+                <Zap className="w-4 h-4" style={{ fill: MF.canvas }} /> Share your Drop
               </button>
             </div>
           </div>
@@ -236,11 +333,10 @@ export default function MobileFeed({
             isLoadingMore={isLoadingMore}
             onLoadMore={onLoadMore}
             footerClassName="pt-5 pb-2 text-center text-[11px] font-black uppercase tracking-wider"
-            footerStyle={{ color: "#8A97B5" }}
+            footerStyle={{ color: MF.muted }}
           />
         )}
       </div>
-
     </div>
   );
 }

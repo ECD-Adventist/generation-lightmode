@@ -597,7 +597,7 @@ export default function Feed() {
       {/* MOBILE: branded redesign */}
       <div
         ref={mobileScrollRef}
-        className="lg:hidden flex-1 min-h-0 overflow-y-auto overscroll-y-contain"
+        className="lg:hidden relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-y-contain"
       >
         <MobileFeed
           pullDistance={mobilePull.pullDistance}
