@@ -18,6 +18,15 @@ import GlowGroupMockup from "../components/home/GlowGroupMockup";
 import ProductShowcase from "../components/home/ProductShowcase";
 import AtmosphericBleed from "../components/home/AtmosphericBleed";
 import { HERO_BACKDROP, CONGREGATION_BLEED, CANDLELIGHT_BLEED } from "../components/home/homeAssets";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import Reveal from "../components/home/motion/Reveal";
+import TextReveal from "../components/home/motion/TextReveal";
+import ParallaxLayer from "../components/home/motion/ParallaxLayer";
+import ScrollProgress from "../components/home/motion/ScrollProgress";
+
+const HERO_GRADIENT = "linear-gradient(135deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)";
+const WHY_GRADIENT = "linear-gradient(90deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)";
+const GOLD_CYAN = "linear-gradient(90deg, #FFD000, #00CFFF)";
 
 const galleryImages1 = [
   "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/5b3a8e4c8_4V5A9468.jpg",
@@ -119,6 +128,18 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
   const [statsVisible, setStatsVisible] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
 
+  // Scroll-driven hero: backdrop sinks slowly, copy lifts and fades, product frame floats up and flattens from a 3D tilt.
+  const heroRef = useRef(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress: heroP } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const r = (a, b) => (reduce ? [a, a] : [a, b]);
+  const bgY = useTransform(heroP, [0, 1], r(0, 180));
+  const bgScale = useTransform(heroP, [0, 1], r(1, 1.08));
+  const copyY = useTransform(heroP, [0, 1], r(0, -90));
+  const copyOpacity = useTransform(heroP, [0, 0.55], r(1, 0));
+  const mockY = useTransform(heroP, [0, 1], r(0, -140));
+  const mockScale = useTransform(heroP, [0, 0.6], r(1, 1.03));
+  const mockRotate = useTransform(heroP, [0, 0.5], r(10, 0));
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -131,6 +152,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
 
   return (
     <div dir={isRTL ? "rtl" : "ltr"} style={{ background: "#0B0F1A" }}>
+      <ScrollProgress />
       <style>{`
         @keyframes home-rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
         .home-rise { animation: home-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
@@ -143,19 +165,20 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
       `}</style>
 
       {/* ═══════════════════════════════════════ HERO — atmospheric backdrop + floating product ═══════════════════════════════════════ */}
-      <section style={{
+      <section ref={heroRef} style={{
         minHeight: "100vh", position: "relative", overflow: "hidden",
         display: "flex", flexDirection: "column", alignItems: "center",
         paddingTop: "clamp(130px, 15vh, 190px)",
       }}>
-        {/* Photographic backdrop — hills at pre-dawn, masked so it dissolves upward into the canvas */}
-        <img
+        {/* Photographic backdrop — hills at pre-dawn, masked so it dissolves upward into the canvas; parallax layer 0 */}
+        <motion.img
           src={HERO_BACKDROP}
           alt=""
           loading="eager"
           decoding="async"
           fetchpriority="high"
           style={{
+            y: bgY, scale: bgScale, transformOrigin: "center bottom",
             position: "absolute", left: 0, right: 0, bottom: 0, width: "100%", height: "78%", objectFit: "cover", objectPosition: "center bottom", pointerEvents: "none",
             WebkitMaskImage: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 32%, #000 62%)",
             maskImage: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 32%, #000 62%)",
@@ -167,19 +190,18 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
         <div style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "radial-gradient(ellipse at 50% 100%, rgba(255,208,0,0.10) 0%, transparent 50%)" }} />
 
         {/* Hero copy — centered, one primary action */}
-        <div style={{ position: "relative", zIndex: 2, textAlign: "center", maxWidth: 880, padding: "0 clamp(20px, 5vw, 48px)" }}>
+        <motion.div style={{ y: copyY, opacity: copyOpacity, position: "relative", zIndex: 2, textAlign: "center", maxWidth: 880, padding: "0 clamp(20px, 5vw, 48px)" }}>
           <div className="home-rise" style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 999, padding: "8px 18px", backdropFilter: "blur(14px)", marginBottom: 28 }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFD000", boxShadow: "0 0 10px #FFD000", display: "inline-block" }} />
             <span style={{ color: "#E8EEF8", fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", fontFamily: "Inter, sans-serif", textTransform: "uppercase" }}>{t("slogan")}</span>
           </div>
 
-          <h1 className="home-rise home-rise-2" style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(40px, 5.6vw, 76px)", lineHeight: 1.02, letterSpacing: "-0.035em", marginBottom: 22, color: "#FFFFFF" }}>
-            {t("heroTitleBefore")}{" "}
-            <span style={{ background: "linear-gradient(135deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              {t("heroTitleHighlight")}
-            </span>
-            {" "}{t("heroTitleAfter")}
-          </h1>
+          <TextReveal
+            as="h1"
+            delay={0.15}
+            segments={[{ text: t("heroTitleBefore") }, { text: t("heroTitleHighlight"), gradient: HERO_GRADIENT }, { text: t("heroTitleAfter") }]}
+            style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(40px, 5.6vw, 76px)", lineHeight: 1.02, letterSpacing: "-0.035em", marginBottom: 22, color: "#FFFFFF" }}
+          />
 
           <p className="home-rise home-rise-2" style={{ color: "#C8D0E0", fontSize: "clamp(15px, 1.3vw, 18px)", fontFamily: "Inter, sans-serif", lineHeight: 1.65, maxWidth: 560, margin: "0 auto 34px" }}>
             Join 10M+ believers turning hidden faith into visible light — across the nations of the East-Central Africa Division.
@@ -210,11 +232,19 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
             </div>
             <p style={{ fontFamily: "Inter, sans-serif", fontStyle: "italic", color: "rgba(200,208,224,0.6)", fontSize: 13, margin: "6px 0 0" }}>{t("verse")}</p>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Floating product mockup — clipped by the section edge, Fora-style */}
-        <div className="home-rise home-rise-3" style={{ position: "relative", zIndex: 2, width: "min(1040px, 92vw)", marginTop: "clamp(56px, 7vw, 88px)", marginBottom: -70 }}>
-          <GlowGroupMockup memberCount={snapshot?.totalUsers} onJoin={() => triggerSwitchOn("Feed")} />
+        {/* Floating product mockup — enters from below on a 3D tilt, then flattens and floats up as you scroll (layer 2) */}
+        <div style={{ position: "relative", zIndex: 2, width: "min(1040px, 92vw)", marginTop: "clamp(56px, 7vw, 88px)", marginBottom: -70, perspective: 1600 }}>
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 90 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <motion.div style={{ y: mockY, scale: mockScale, rotateX: mockRotate, transformOrigin: "center top", transformStyle: "preserve-3d" }}>
+              <GlowGroupMockup memberCount={snapshot?.totalUsers} onJoin={() => triggerSwitchOn("Feed")} />
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -223,49 +253,51 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
         {/* Lightbulb pattern background — fading */}
         <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/8f9bf2363_lightbulb-seamless-pattern-background-light-bulb-motif-wallpaper-idea-thinking-creative-electric-energy-solution-vector.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.06, pointerEvents: "none", mixBlendMode: "screen" }} />
         {/* Warm gold ambient blobs matching hero tone */}
-        <div style={{ position: "absolute", top: "-10%", left: "-5%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,165,0,0.12), transparent 65%)", pointerEvents: "none", filter: "blur(40px)" }} />
-        <div style={{ position: "absolute", bottom: "-15%", right: "-10%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,208,0,0.08), transparent 65%)", pointerEvents: "none", filter: "blur(50px)" }} />
+        <ParallaxLayer range={140} style={{ position: "absolute", top: "-10%", left: "-5%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,165,0,0.12), transparent 65%)", pointerEvents: "none", filter: "blur(40px)" }} />
+        <ParallaxLayer range={-110} style={{ position: "absolute", bottom: "-15%", right: "-10%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,208,0,0.08), transparent 65%)", pointerEvents: "none", filter: "blur(50px)" }} />
         {/* Edge fade overlay so pattern dissolves at edges */}
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 30%, #0B0F1A 75%)", pointerEvents: "none" }} />
 
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1080, margin: "0 auto" }}>
           {/* Eyebrow */}
-          <div style={{ textAlign: "center", marginBottom: 36 }}>
+          <Reveal style={{ textAlign: "center", marginBottom: 36 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.28)", borderRadius: 999, padding: "7px 18px", backdropFilter: "blur(10px)" }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFD000", boxShadow: "0 0 10px #FFD000", display: "inline-block" }} />
               <span style={{ color: "#FFD000", fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>Why It Matters</span>
             </div>
-          </div>
+          </Reveal>
 
-          {/* Big centered headline */}
-          <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(40px, 6vw, 76px)", lineHeight: 1, letterSpacing: "-0.035em", color: "#FFFFFF", marginBottom: 18, textAlign: "center" }}>
-            {t("whyTitleBefore")}{" "}
-            <span style={{ background: "linear-gradient(90deg, #FFD000 0%, #00CFFF 60%, #8A5CFF 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              {t("whyTitleHighlight")}
-            </span>
-          </h2>
+          {/* Big centered headline — word reveal */}
+          <TextReveal
+            segments={[{ text: t("whyTitleBefore") }, { text: t("whyTitleHighlight"), gradient: WHY_GRADIENT }]}
+            style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(40px, 6vw, 76px)", lineHeight: 1, letterSpacing: "-0.035em", color: "#FFFFFF", marginBottom: 18, textAlign: "center" }}
+          />
 
           {/* Subtitle */}
           {t("whySubtitle") && (
-            <p style={{ color: "#FFD000", fontSize: "clamp(15px, 1.6vw, 18px)", fontFamily: "Inter, sans-serif", fontStyle: "italic", textAlign: "center", marginBottom: 64, letterSpacing: "0.02em", textShadow: "0 0 20px rgba(255,208,0,0.25)" }}>
-              {t("whySubtitle")}
-            </p>
+            <Reveal delay={0.25}>
+              <p style={{ color: "#FFD000", fontSize: "clamp(15px, 1.6vw, 18px)", fontFamily: "Inter, sans-serif", fontStyle: "italic", textAlign: "center", marginBottom: 64, letterSpacing: "0.02em", textShadow: "0 0 20px rgba(255,208,0,0.25)" }}>
+                {t("whySubtitle")}
+              </p>
+            </Reveal>
           )}
 
           {/* Tabbed product showcase — one platform, four ways to shine */}
-          <div style={{ marginBottom: "clamp(72px, 8vw, 110px)" }}>
+          <Reveal y={56} duration={1.1} style={{ marginBottom: "clamp(72px, 8vw, 110px)" }}>
             <ProductShowcase />
-          </div>
+          </Reveal>
 
-          {/* 3-card insight grid — supporting narrative row */}
+          {/* 3-card insight grid — supporting narrative row, staggered reveal */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24, marginBottom: 54 }}>
             {[
               { num: "01", title: "The New Mission Field", text: t("whyText1"), accent: "#FFD000", img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c98eb0914_generated_image.png" },
               { num: "02", title: "A Generation Online", text: t("whyText2"), accent: "#00CFFF", img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/0b76b2e6f_generated_image.png" },
               { num: "03", title: "A Bold Response", text: t("whyText3"), accent: "#8A5CFF", emphasis: true, img: "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/e9655d83e_generated_image.png" },
-            ].map((item) => (
-              <div key={item.num} style={{
+            ].map((item, i) => (
+              <Reveal key={item.num} delay={i * 0.14} y={48} style={{ display: "flex" }}>
+              <div style={{
                 position: "relative",
+                flex: 1,
                 borderRadius: 24,
                 overflow: "hidden",
                 transition: "transform 0.4s ease, box-shadow 0.4s ease",
@@ -329,11 +361,12 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
                   </p>
                 </div>
               </div>
+              </Reveal>
             ))}
           </div>
 
           {/* CTA */}
-          <div style={{ textAlign: "center" }}>
+          <Reveal delay={0.2} style={{ textAlign: "center" }}>
             <Link to={createPageUrl("About")} style={{
               display: "inline-flex", alignItems: "center", gap: 10,
               color: "#0B0F1A",
@@ -349,16 +382,18 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
             >
               {t("learnMore")} <ArrowRight size={15} />
             </Link>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* ═══════════════════ VISION / PR. BLASIOUS — split layout, face visible ═══════════════════ */}
       <section id="vision-video-section" style={{ position: "relative", minHeight: "95vh", overflow: "hidden", background: "linear-gradient(180deg, #0B0F1A 0%, #120A05 50%, #0B0F1A 100%)" }}>
         {/* Background image — full bleed but heavily pushed right so text side stays clean */}
-        <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/809a08e85_PrBlasiousRuguri-Onthecoach.png"
-          alt="Pr. Blasious Ruguri" loading="lazy"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+        <ParallaxLayer range={70} scaleRange={[1.06, 1]} style={{ position: "absolute", inset: -70 }}>
+          <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/809a08e85_PrBlasiousRuguri-Onthecoach.png"
+            alt="Pr. Blasious Ruguri" loading="lazy"
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+        </ParallaxLayer>
         {/* Left-to-right dark-to-transparent gradient so left column is readable AND the subject's face (center) stays fully visible */}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(11,15,26,0.96) 0%, rgba(11,15,26,0.88) 22%, rgba(11,15,26,0.3) 42%, rgba(11,15,26,0) 58%, rgba(11,15,26,0.1) 100%)" }} />
         {/* Warm lamp-light vignette on the right side */}
@@ -368,7 +403,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
 
         <div style={{ position: "relative", zIndex: 2, maxWidth: 1280, margin: "0 auto", padding: "clamp(60px, 8vw, 110px) clamp(24px, 5vw, 70px)", display: "grid", gridTemplateColumns: "minmax(320px, 1fr) 1fr", gap: 40, alignItems: "center", minHeight: "95vh" }} className="vision-grid">
           {/* Left column — text block */}
-          <div style={{ maxWidth: 520 }}>
+          <Reveal y={44} duration={1} style={{ maxWidth: 520 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.1)", border: "1px solid rgba(0,207,255,0.3)", borderRadius: 999, padding: "6px 16px", marginBottom: 22, backdropFilter: "blur(10px)" }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#00CFFF", boxShadow: "0 0 8px #00CFFF", display: "inline-block" }} />
               <span style={{ color: "#00CFFF", fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>A Word From The Division President</span>
@@ -411,7 +446,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
                 {t("readMore")} <ArrowRight size={13} />
               </Link>
             </div>
-          </div>
+          </Reveal>
 
           {/* Right column — intentionally empty to preserve view of the subject */}
           <div />
@@ -429,21 +464,28 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
         {/* Background texture */}
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 0%, rgba(0,207,255,0.06) 0%, transparent 60%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
-          <div style={{ textAlign: "center", marginBottom: 60 }}>
+          <Reveal style={{ textAlign: "center", marginBottom: 60 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(0,207,255,0.08)", border: "1px solid rgba(0,207,255,0.2)", borderRadius: 999, padding: "6px 16px", marginBottom: 20 }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#FFD000", boxShadow: "0 0 8px #FFD000", display: "inline-block", animation: "pulse 2s ease-in-out infinite" }} />
               <span style={{ color: "#FFD000", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>Our Vision</span>
             </div>
-            <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(30px, 4vw, 52px)", letterSpacing: "-0.02em", color: "#FFFFFF", marginBottom: 12 }}>
-              The Goal We're Chasing
-            </h2>
+            <TextReveal
+              segments={[{ text: "The Goal We're Chasing" }]}
+              style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(30px, 4vw, 52px)", letterSpacing: "-0.02em", color: "#FFFFFF", marginBottom: 12 }}
+            />
             <p style={{ color: "#8A9BB0", fontSize: 16, fontFamily: "Inter, sans-serif", maxWidth: 500, margin: "0 auto" }}>The bold targets driving Generation LightMode across the East-Central Africa Division.</p>
-          </div>
+          </Reveal>
           <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
-            <StatCard value={1000000} suffix="+" label="Youth to Mobilize (Goal)" icon={Users} color="#00CFFF" started={statsVisible} />
-            <StatCard value={10000000} suffix="+" label="Peers to Reach (Goal)" icon={Users} color="#FFD000" started={statsVisible} />
-            <StatCard value={12} suffix="" label="ECD Nations" icon={Globe} color="#8A5CFF" started={statsVisible} />
-            <StatCard value={500} suffix="+" label="GlowGroups Target" icon={Star} color="#1DA1FF" started={statsVisible} />
+            {[
+              { value: 1000000, suffix: "+", label: "Youth to Mobilize (Goal)", icon: Users, color: "#00CFFF" },
+              { value: 10000000, suffix: "+", label: "Peers to Reach (Goal)", icon: Users, color: "#FFD000" },
+              { value: 12, suffix: "", label: "ECD Nations", icon: Globe, color: "#8A5CFF" },
+              { value: 500, suffix: "+", label: "GlowGroups Target", icon: Star, color: "#1DA1FF" },
+            ].map((s, i) => (
+              <Reveal key={s.label} delay={i * 0.12} y={40} style={{ flex: "1 1 200px", display: "flex" }}>
+                <StatCard {...s} started={statsVisible} />
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
@@ -453,9 +495,9 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
 
       {/* ═══════════════════ GALLERY — scrolling strips ═══════════════════ */}
       <div style={{ background: "#0B0F1A", padding: "24px 0 72px", overflow: "hidden" }}>
-        <div style={{ textAlign: "center", marginBottom: 36, padding: "0 24px" }}>
+        <Reveal style={{ textAlign: "center", marginBottom: 36, padding: "0 24px" }}>
           <p style={{ color: "#8A9BB0", fontSize: 11, fontWeight: 800, letterSpacing: "0.15em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>The Movement in Action</p>
-        </div>
+        </Reveal>
         <ScrollingGallery images={galleryImages1} direction="left" speed="160s" />
         <div style={{ height: 14 }} />
         <ScrollingGallery images={galleryImages2} direction="right" speed="180s" />
@@ -468,17 +510,18 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 30%, #0D1220 75%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 100%, rgba(138,92,255,0.06) 0%, transparent 60%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
-          <div style={{ textAlign: "center", marginBottom: 60 }}>
+          <Reveal style={{ textAlign: "center", marginBottom: 60 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,208,0,0.08)", border: "1px solid rgba(255,208,0,0.25)", borderRadius: 999, padding: "6px 16px", marginBottom: 20 }}>
               <span style={{ color: "#FFD000", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", fontFamily: "Space Grotesk, sans-serif", textTransform: "uppercase" }}>Recognition System</span>
             </div>
-            <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(30px, 4vw, 52px)", letterSpacing: "-0.02em", background: "linear-gradient(90deg, #FFD000, #00CFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", marginBottom: 14 }}>
-              The 4 Glow Pins
-            </h2>
+            <TextReveal
+              segments={[{ text: "The 4 Glow Pins", gradient: GOLD_CYAN }]}
+              style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(30px, 4vw, 52px)", letterSpacing: "-0.02em", marginBottom: 14 }}
+            />
             <p style={{ color: "#8A9BB0", fontSize: 16, fontFamily: "Inter, sans-serif", maxWidth: 580, margin: "0 auto" }}>
               Just as Pathfinders earn honors and Literature Evangelists receive pins, LightMode missionaries are celebrated for their faith in action.
             </p>
-          </div>
+          </Reveal>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 18 }}>
             {[
               { tier: "Bronze", label: "Starter Missionary", icon: "🥉", color: "#C77A2B", glow: "rgba(199,122,43,0.22)", milestone: "First 30 Glow Drops", requirement: "Complete the LightMode Pledge + post your first 30 Glow Drops" },
@@ -486,7 +529,8 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
               { tier: "Gold", label: "Multiplying Missionary", icon: "🥇", color: "#FFD000", glow: "rgba(255,208,0,0.22)", milestone: "Recruit 5 + GlowGroup", requirement: "Recruit 5 new youth + start or strengthen a GlowGroup" },
               { tier: "Platinum", label: "Ambassador Missionary", icon: "💎", color: "#A8C0FF", glow: "rgba(168,192,255,0.15)", milestone: "Mentor · Lead · Report", requirement: "Mentor others + lead a LightMode Challenge + submit Glow Logs" },
             ].map((item, idx) => (
-              <div key={item.tier} style={{
+              <Reveal key={item.tier} delay={idx * 0.1} y={44}>
+              <div style={{
                 background: "#0D1220",
                 border: `1px solid ${item.color}35`, borderRadius: 20, padding: "32px 22px",
                 textAlign: "center", position: "relative", overflow: "hidden",
@@ -511,6 +555,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
                   <div style={{ width: "50%", margin: "18px auto 0", height: 1, background: `linear-gradient(90deg, transparent, ${item.color}40, transparent)` }} />
                 </div>
               </div>
+              </Reveal>
             ))}
           </div>
           <p style={{ textAlign: "center", marginTop: 36, color: "#4A5568", fontSize: 13, fontFamily: "Inter, sans-serif", maxWidth: 520, margin: "36px auto 0" }}>
@@ -606,24 +651,28 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
       {/* ═══════════════════ PLEDGE CTA — immersive ═══════════════════ */}
       <section id="join" style={{ position: "relative", overflow: "hidden", padding: "clamp(80px, 12vw, 140px) clamp(20px, 6vw, 60px)" }}>
         {/* Hero-tone warm background — pledge imagery */}
-        <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", filter: "brightness(0.35) saturate(1.2)" }} />
+        <ParallaxLayer range={80} scaleRange={[1.08, 1]} style={{ position: "absolute", inset: -80 }}>
+          <img src="https://media.base44.com/images/public/69a6fca6155ae283f1b55144/72c5abed3_ChatGPTImageApr15202603_10_56PM.png" alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", filter: "brightness(0.35) saturate(1.2)" }} />
+        </ParallaxLayer>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(11,15,26,0.92) 0%, rgba(26,18,8,0.7) 40%, rgba(11,15,26,0.85) 80%, rgba(11,15,26,0.98) 100%)" }} />
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 60%, rgba(255,165,0,0.12) 0%, transparent 55%)" }} />
 
         <div style={{ position: "relative", zIndex: 1, maxWidth: 780, margin: "0 auto", textAlign: "center" }}>
-          <div style={{ fontSize: 56, marginBottom: 20, filter: "drop-shadow(0 0 20px rgba(255,208,0,0.5))" }}>✋</div>
-          <h2 style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(32px, 5vw, 60px)", letterSpacing: "-0.03em", color: "#FFFFFF", marginBottom: 20 }}>
-            {t("pledgeTitle").split(" ").slice(0, -1).join(" ")}{" "}
-            <span style={{ background: "linear-gradient(90deg, #FFD000, #00CFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              {t("pledgeTitle").split(" ").slice(-1)}
-            </span>
-          </h2>
-          <p style={{ color: "#C8D0E0", fontSize: 17, fontFamily: "Inter, sans-serif", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 48px" }}>
-            {t("pledgeText")}
-          </p>
+          <Reveal>
+            <div style={{ fontSize: 56, marginBottom: 20, filter: "drop-shadow(0 0 20px rgba(255,208,0,0.5))" }}>✋</div>
+          </Reveal>
+          <TextReveal
+            segments={[{ text: t("pledgeTitle").split(" ").slice(0, -1).join(" ") }, { text: t("pledgeTitle").split(" ").slice(-1).join(" "), gradient: GOLD_CYAN }]}
+            style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: 800, fontSize: "clamp(32px, 5vw, 60px)", letterSpacing: "-0.03em", color: "#FFFFFF", marginBottom: 20 }}
+          />
+          <Reveal delay={0.2}>
+            <p style={{ color: "#C8D0E0", fontSize: 17, fontFamily: "Inter, sans-serif", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 48px" }}>
+              {t("pledgeText")}
+            </p>
+          </Reveal>
 
           {/* Pledge items — clean card style */}
-          <div style={{ background: "rgba(18,24,38,0.6)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 20, padding: "32px", marginBottom: 40, textAlign: "left" }}>
+          <Reveal y={50} duration={1.1} style={{ background: "rgba(18,24,38,0.6)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 20, padding: "32px", marginBottom: 40, textAlign: "left" }}>
             <p style={{ fontSize: 15, color: "#C8D0E0", marginBottom: 20, fontStyle: "italic", fontFamily: "Inter, sans-serif" }}>"As a member of Generation LightMode, I pledge to:</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
@@ -644,8 +693,9 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
             <p style={{ fontSize: 15, color: "#FFD000", marginTop: 24, fontWeight: 700, fontFamily: "Space Grotesk, sans-serif", textAlign: "center", textShadow: "0 0 15px rgba(255,208,0,0.4)" }}>
               My light will not dim. My faith will not fade. I am Generation LightMode."
             </p>
-          </div>
+          </Reveal>
 
+          <Reveal delay={0.15}>
           <button onClick={() => triggerSwitchOn("Feed")} style={{
             display: "inline-flex", alignItems: "center", gap: 10,
             background: "linear-gradient(135deg, #FFD000, #FFA500)",
@@ -660,6 +710,7 @@ function DesktopHome({ t, isRTL, triggerSwitchOn, liveCountries, snapshot }) {
             <Zap size={20} /> {t("signPledge")}
           </button>
           <p style={{ color: "#4A5568", fontSize: 13, marginTop: 16, fontFamily: "Inter, sans-serif" }}>{t("freeToJoin")}</p>
+          </Reveal>
         </div>
       </section>
 
