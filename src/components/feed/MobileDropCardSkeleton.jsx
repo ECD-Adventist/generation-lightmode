@@ -1,20 +1,20 @@
 import React from "react";
 
 /**
- * Skeleton card matching MobileDropCard's footprint on the dark canvas
+ * Skeleton card matching MobileDropCard's footprint on the light canvas
  * (author row + 4:5 media + action capsule). Pure CSS shimmer.
  */
 export default function MobileDropCardSkeleton() {
   return (
     <article
       className="relative rounded-[22px] overflow-hidden mb-4"
-      style={{ background: "#121A2B", border: "1px solid rgba(255,255,255,0.08)" }}
+      style={{ background: "#FFFFFF", border: "1px solid #E2EAF5" }}
       aria-hidden="true"
     >
       <style>{`
         @keyframes mdc-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         .mdc-shimmer {
-          background: linear-gradient(90deg, #18223A 0%, #22304D 50%, #18223A 100%);
+          background: linear-gradient(90deg, #EEF3FA 0%, #F7F9FD 50%, #EEF3FA 100%);
           background-size: 200% 100%;
           animation: mdc-shimmer 1.4s ease-in-out infinite;
         }

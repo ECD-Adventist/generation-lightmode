@@ -10,7 +10,7 @@ import useMobileTabNavigation from "@/hooks/useMobileTabNavigation";
  *
  * Pattern: "floating tab bar with a protruded key action at the centre"
  * (Mobbin, Tab Bar UI — variants 3 & 4). Five destinations, icon + label,
- * gold selected state, glass surface, respects the iOS home indicator.
+ * gold indicator on the selected tab, light glass surface, respects the iOS home indicator.
  */
 
 const tabs = [
@@ -22,8 +22,10 @@ const tabs = [
 ];
 
 const GOLD = "#FFD000";
-const CANVAS = "#0B0F1A";
-const MUTED = "#8A9BB0";
+const INK = "#0B1B3D";
+const CANVAS = "#F6F8FC";
+const MUTED = "#8A97B5";
+const ACTIVE = "#0B3FD9";
 
 export default function MobileBottomNav({ currentPageName }) {
   const location = useLocation();
@@ -72,11 +74,11 @@ export default function MobileBottomNav({ currentPageName }) {
           maxWidth: 520,
           height: 64,
           borderRadius: 999,
-          background: "rgba(18,26,43,0.88)",
+          background: "rgba(255,255,255,0.92)",
           backdropFilter: "blur(22px)",
           WebkitBackdropFilter: "blur(22px)",
-          border: "1px solid rgba(255,255,255,0.10)",
-          boxShadow: "0 18px 44px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06)",
+          border: "1px solid #E2EAF5",
+          boxShadow: "0 16px 40px rgba(11,27,61,0.18), inset 0 1px 0 rgba(255,255,255,0.9)",
           pointerEvents: "auto",
         }}
       >
@@ -104,12 +106,12 @@ export default function MobileBottomNav({ currentPageName }) {
                     height: 54,
                     marginTop: -24,
                     background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)",
-                    boxShadow: `0 10px 26px rgba(255,208,0,0.42), 0 0 0 5px ${CANVAS}`,
+                    boxShadow: `0 10px 26px rgba(255,159,26,0.45), 0 0 0 5px ${CANVAS}`,
                   }}
                 >
-                  <Plus className="w-6 h-6" strokeWidth={2.75} style={{ color: CANVAS }} />
+                  <Plus className="w-6 h-6" strokeWidth={2.75} style={{ color: INK }} />
                 </span>
-                <span className="text-[10px] font-bold tracking-wide" style={{ fontFamily: "Inter, sans-serif", color: GOLD }}>
+                <span className="text-[10px] font-bold tracking-wide" style={{ fontFamily: "Inter, sans-serif", color: INK }}>
                   {label}
                 </span>
               </Link>
@@ -126,16 +128,16 @@ export default function MobileBottomNav({ currentPageName }) {
                 switchTab(key);
               }}
               className="relative flex-1 flex flex-col items-center justify-center gap-1"
-              style={{ minHeight: 56, color: active ? GOLD : MUTED, textDecoration: "none" }}
+              style={{ minHeight: 56, color: active ? ACTIVE : MUTED, textDecoration: "none" }}
               aria-current={active ? "page" : undefined}
             >
               {active && (
                 <span
                   className="absolute top-1.5 h-[3px] w-5 rounded-full"
-                  style={{ background: GOLD, boxShadow: `0 0 10px ${GOLD}`, animation: "mbn-dot 220ms cubic-bezier(0.22,1,0.36,1)" }}
+                  style={{ background: GOLD, animation: "mbn-dot 220ms cubic-bezier(0.22,1,0.36,1)" }}
                 />
               )}
-              <Icon className="w-[22px] h-[22px]" strokeWidth={active ? 2.5 : 2} style={{ color: "inherit", fill: active && key === "Feed" ? GOLD : "none" }} />
+              <Icon className="w-[22px] h-[22px]" strokeWidth={active ? 2.5 : 2} style={{ color: "inherit", fill: active && key === "Feed" ? ACTIVE : "none" }} />
               <span className="text-[10px] font-bold tracking-wide" style={{ fontFamily: "Inter, sans-serif" }}>
                 {label}
               </span>

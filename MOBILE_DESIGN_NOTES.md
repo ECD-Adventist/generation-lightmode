@@ -1,4 +1,4 @@
-# Mobile app design notes — LightMode feed (dark navy + gold)
+# Mobile app design notes — LightMode feed (light canvas + gold)
 
 Scope: the mobile-only shell of the Feed (`src/components/feed/MobileFeed.jsx`,
 `MobileDropCard.jsx`, `MobileDropCardSkeleton.jsx`) plus the shared mobile chrome
@@ -19,8 +19,8 @@ What the latest iOS apps have in common, and where it landed:
 | Depop / Zip: greeting ("Hey Sam!", "Hi there,") with a one-line prompt under it | Hero greeting + "Your light is needed today." |
 | Zip: row of round brand icons with labels under the hero ("Shop top brands") | Quick-actions row: Daily Drops, Prayer Wall, Live, Challenges |
 | Tubi: horizontal "Recommended" rail with section heading and chevron | Trending vibes rail (ranked hashtag chips with counts, "See all") |
-| Tubi: dark canvas, content chips at the top, one saturated accent | Dark navy canvas, sticky filter chips, gold accent |
-| Apple Watch: floating segmented bottom bar on a dark canvas | Floating glass tab bar |
+| Tubi: content chips at the top, one saturated accent | Sticky filter chips, gold accent |
+| Apple Watch: floating segmented bottom bar | Floating glass tab bar |
 | Depop / Zip: 5-item tab bar with a centre create action | Tab bar with protruded gold Drop button |
 | Instagram-style "Suggested for you" cards injected in-feed | People to connect rail after the second post |
 
@@ -33,20 +33,31 @@ Glossary guidance that was applied:
 | Chips: filled chips, selected state uses the app accent, **leading icons help users scan a row of chips** | Feed filter row — filled chips with icons, gold selected chip, sticky under the top bar |
 | Bottom sheets / share sheets for contextual actions | Already present via `FeedActionCapsule` + share flow; kept |
 | Launch screen: instant, replaced quickly by first screen | `index.html` static logo splash → `SplashScreen.jsx` |
-| Skeleton screens for loading states | `MobileDropCardSkeleton` — matches the card footprint on the dark canvas |
+| Skeleton screens for loading states | `MobileDropCardSkeleton` — matches the card footprint |
+
+## Theme rule
+
+The **app stays light** ("LightMode" is the product idea); the marketing **website may use the dark**
+navy theme. The mobile shell therefore uses a light canvas with white cards and gold as the single
+key-action colour; royal blue carries links, hashtags and the active tab. The launch splash stays
+dark navy because it is brand, not content.
+
+The stories row has no "Statuses" heading — the rings speak for themselves and the vertical space
+is kept for content.
 
 ## Design tokens (mobile shell)
 
 | Token | Value | Use |
 | --- | --- | --- |
-| canvas | `#0B0F1A` | page background, tab bar ring |
-| surface | `#121A2B` | cards, compose prompt, unselected chips |
-| surface-2 | `#18223A` | skeleton shimmer, avatar wells |
-| line | `rgba(255,255,255,0.08)` | hairline borders |
-| text | `#F4F7FB` | primary text |
-| muted | `#8A9BB0` | secondary text, inactive tabs |
-| gold | `#FFD000` → `#FF9F1A` | the single accent: selected chip, active tab, primary buttons, leader ring |
-| cyan / violet | `#00CFFF` / `#8A5CFF` | hashtags, non-leader avatar ring |
+| canvas | `#F6F8FC` | page background |
+| surface | `#FFFFFF` | cards, compose prompt, unselected chips, tab bar |
+| surface-2 | `#EEF3FF` | avatar wells, secondary chips |
+| line | `#E2EAF5` | hairline borders |
+| text / ink | `#0B1B3D` | primary text, text on gold |
+| muted | `#6B7FA0` | secondary text, inactive tabs |
+| gold | `#FFD000` → `#FF9F1A` | the key action: selected chip, Drop button, primary buttons, leader ring, tab indicator |
+| gold-deep | `#B88A00` | gold as text or icon on white |
+| blue | `#0B3FD9` | links, hashtags, verse text, active tab |
 
 Type: Space Grotesk for headings and verse text, Inter for everything else.
 Radii: 22px cards, full pills for chips, buttons and the tab bar.

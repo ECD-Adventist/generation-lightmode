@@ -27,9 +27,9 @@ export default function PullToRefreshIndicator({ pullDistance, isRefreshing, thr
       <div
         className="mb-2 w-9 h-9 rounded-full flex items-center justify-center"
         style={{
-          background: "#121A2B",
-          border: "1px solid rgba(255,255,255,0.10)",
-          boxShadow: "0 8px 22px rgba(0,0,0,0.45)",
+          background: "#FFFFFF",
+          border: "1px solid #E2EAF5",
+          boxShadow: "0 8px 22px rgba(11,27,61,0.14)",
           transform: isRefreshing ? "none" : `scale(${0.6 + progress * 0.4}) rotate(${progress * 180}deg)`,
           opacity: isRefreshing ? 1 : 0.35 + progress * 0.65,
           animation: isRefreshing ? "ptr-pulse 900ms ease-in-out infinite" : "none",
@@ -38,7 +38,7 @@ export default function PullToRefreshIndicator({ pullDistance, isRefreshing, thr
         <Zap
           className="w-4 h-4"
           style={{
-            color: "#FFD000",
+            color: "#E0A800",
             fill: ready || isRefreshing ? "#FFD000" : "transparent",
             animation: isRefreshing ? "ptr-spin 900ms linear infinite" : "none",
           }}

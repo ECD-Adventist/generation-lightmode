@@ -21,7 +21,7 @@ import MobileDropComments from "@/components/feed/MobileDropComments";
 import useRequireAuth from "@/hooks/useRequireAuth";
 
 /**
- * Mobile-only DropCard — LightMode brand (dark navy + gold).
+ * Mobile-only DropCard — LightMode brand (light canvas + gold).
  *
  * Card anatomy follows the "image-filled card" pattern Mobbin documents for
  * social feeds: large 4:5 thumbnail, author row above the media, one row of
@@ -31,13 +31,15 @@ import useRequireAuth from "@/hooks/useRequireAuth";
  */
 
 const C = {
-  canvas: "#0B0F1A",
-  surface: "#121A2B",
-  surface2: "#18223A",
-  line: "rgba(255,255,255,0.08)",
-  text: "#F4F7FB",
-  muted: "#8A9BB0",
+  canvas: "#F6F8FC",
+  surface: "#FFFFFF",
+  surface2: "#EEF3FF",
+  line: "#E2EAF5",
+  text: "#0B1B3D",
+  muted: "#6B7FA0",
   gold: "#FFD000",
+  goldDeep: "#B88A00",
+  blue: "#0B3FD9",
   goldGrad: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)",
   cyanGrad: "linear-gradient(135deg, #00CFFF 0%, #8A5CFF 100%)",
 };
@@ -209,7 +211,7 @@ function MobileDropCard({
             onClick={() => followMutation?.mutate(drop.user_email)}
             disabled={followMutation?.isPending}
             className="h-8 px-3 rounded-full inline-flex items-center gap-1 text-[11px] font-black active:scale-95 transition disabled:opacity-60"
-            style={{ background: "rgba(255,208,0,0.12)", color: C.gold, border: "1px solid rgba(255,208,0,0.35)" }}
+            style={{ background: "rgba(255,208,0,0.18)", color: C.goldDeep, border: "1px solid rgba(255,208,0,0.45)" }}
             aria-label={`Follow ${getDisplayName(authorProfile)}`}
           >
             <UserPlus className="w-3.5 h-3.5" /> Follow
@@ -247,12 +249,12 @@ function MobileDropCard({
     </FeedActionCapsule>
   );
 
-  const mediaBackground = drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(160deg, #18223A 0%, #0F1626 100%)";
+  const mediaBackground = drop.media_url ? "#071A33" : usesDesignedPoster ? "#050814" : "linear-gradient(160deg, #EEF5FF 0%, #DCE8FF 100%)";
 
   return (
     <article
       className="relative rounded-[22px] mb-4 overflow-hidden"
-      style={{ background: C.surface, border: `1px solid ${C.line}`, boxShadow: "0 14px 34px rgba(0,0,0,0.38)" }}
+      style={{ background: C.surface, border: `1px solid ${C.line}`, boxShadow: "0 10px 28px rgba(11,63,217,0.10)" }}
     >
       <style>{`
         @keyframes mdc-like-burst { 0% { transform: scale(0.4); opacity: 0 } 30% { transform: scale(1.15); opacity: 1 } 100% { transform: scale(1); opacity: 0 } }
@@ -260,7 +262,7 @@ function MobileDropCard({
 
       {drop.repost && (
         <div className="flex items-center gap-1.5 px-4 pt-3 -mb-1 text-[11px] font-semibold" style={{ color: C.muted }}>
-          <Repeat2 className="w-3.5 h-3.5" style={{ color: C.gold }} />
+          <Repeat2 className="w-3.5 h-3.5" style={{ color: C.blue }} />
           <span className="truncate">Reposted by <span style={{ color: C.text }}>{drop.repost.reposter_name || "a member"}</span></span>
         </div>
       )}
@@ -293,17 +295,17 @@ function MobileDropCard({
             <CodesOfTruthPoster text={drop.reflection} verse={drop.verse} className="absolute inset-0 w-full h-full" />
           ) : (
             <div className="absolute inset-0 px-7 py-10 flex flex-col items-center justify-center text-center">
-              <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(255,208,0,0.18), rgba(255,208,0,0) 70%)" }} />
-              <div className="absolute -bottom-20 -left-16 w-56 h-56 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(0,207,255,0.14), rgba(0,207,255,0) 70%)" }} />
+              <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(255,208,0,0.28), rgba(255,208,0,0) 70%)" }} />
+              <div className="absolute -bottom-20 -left-16 w-56 h-56 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(31,184,255,0.22), rgba(31,184,255,0) 70%)" }} />
               <div className="relative">
                 <div className="mx-auto mb-5 w-10 h-[3px] rounded-full" style={{ background: C.goldGrad }} />
                 {drop.verse && (
-                  <p className="text-[22px] font-black leading-[1.2] mb-4 line-clamp-7" style={{ color: C.gold, fontFamily: "Space Grotesk, Inter, sans-serif" }}>
+                  <p className="text-[22px] font-black leading-[1.2] mb-4 line-clamp-7" style={{ color: C.blue, fontFamily: "Space Grotesk, Inter, sans-serif" }}>
                     {drop.verse}
                   </p>
                 )}
                 {reflectionText ? (
-                  <p className="text-[15px] leading-relaxed line-clamp-6" style={{ color: C.text }}>
+                  <p className="text-[15px] leading-relaxed line-clamp-6" style={{ color: "#344B73" }}>
                     “{reflectionText.length > 220 ? reflectionText.slice(0, 220) + "…" : reflectionText}”
                   </p>
                 ) : !drop.verse ? (
@@ -336,19 +338,19 @@ function MobileDropCard({
             <Link to={postLink} className="block text-[15px] font-black leading-snug mb-1.5 no-underline" style={{ color: C.text, fontFamily: "Space Grotesk, Inter, sans-serif" }}>{drop.verse}</Link>
           )}
           {reflectionText && (
-            <p className="text-[13.5px] leading-relaxed line-clamp-3" style={{ color: "#C8D0E0" }}>
+            <p className="text-[13.5px] leading-relaxed line-clamp-3" style={{ color: "#44536E" }}>
               {reflectionText}
             </p>
           )}
           {(drop.category || drop.hashtags) && (
             <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
               {drop.category && (
-                <span className="inline-flex h-6 items-center px-2.5 rounded-full text-[10px] font-black uppercase tracking-wide" style={{ background: "rgba(255,208,0,0.12)", border: "1px solid rgba(255,208,0,0.30)", color: C.gold }}>
+                <span className="inline-flex h-6 items-center px-2.5 rounded-full text-[10px] font-black uppercase tracking-wide" style={{ background: "rgba(255,208,0,0.18)", border: "1px solid rgba(255,208,0,0.45)", color: C.goldDeep }}>
                   {drop.category}
                 </span>
               )}
               {drop.hashtags && (
-                <span className="text-[12px] font-semibold leading-relaxed" style={{ color: "#00CFFF" }}>{drop.hashtags}</span>
+                <span className="text-[12px] font-semibold leading-relaxed" style={{ color: C.blue }}>{drop.hashtags}</span>
               )}
             </div>
           )}
