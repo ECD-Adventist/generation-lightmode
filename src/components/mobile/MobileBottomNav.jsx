@@ -23,7 +23,6 @@ const tabs = [
 
 const GOLD = "#FFD000";
 const INK = "#0B1B3D";
-const CANVAS = "#F6F8FC";
 const MUTED = "rgba(255,255,255,0.72)";
 const ACTIVE = "#FFD000";
 
@@ -68,20 +67,25 @@ export default function MobileBottomNav({ currentPageName }) {
       <style>{`
         @keyframes mbn-dot { from { transform: scaleX(0); opacity: 0 } to { transform: scaleX(1); opacity: 1 } }
       `}</style>
-      <div
-        className="relative mx-auto flex items-stretch justify-around"
-        style={{
-          maxWidth: 520,
-          height: 64,
-          borderRadius: 999,
-          background: "linear-gradient(135deg, rgba(10,46,159,0.96) 0%, rgba(11,63,217,0.96) 65%, rgba(21,99,232,0.96) 100%)",
-          backdropFilter: "blur(22px)",
-          WebkitBackdropFilter: "blur(22px)",
-          border: "1px solid rgba(255,255,255,0.14)",
-          boxShadow: "0 16px 40px rgba(10,46,159,0.35), inset 0 1px 0 rgba(255,255,255,0.18)",
-          pointerEvents: "auto",
-        }}
-      >
+      <div className="relative mx-auto" style={{ maxWidth: 520, height: 64, pointerEvents: "auto" }}>
+        {/* Pill surface — same sky→royal blue as the Explore / Messages / Profile pills, translucent,
+            with a circular gap cut around the protruding Drop button. Kept as a separate layer so the
+            mask never clips the button itself. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0"
+          style={{
+            borderRadius: 999,
+            background: "linear-gradient(90deg, rgba(31,184,255,0.80) 0%, rgba(11,63,217,0.84) 100%)",
+            backdropFilter: "blur(22px) saturate(1.2)",
+            WebkitBackdropFilter: "blur(22px) saturate(1.2)",
+            border: "1px solid rgba(255,255,255,0.22)",
+            boxShadow: "0 16px 40px rgba(11,63,217,0.30), inset 0 1px 0 rgba(255,255,255,0.25)",
+            WebkitMaskImage: "radial-gradient(circle at 50% 3px, transparent 33px, #000 34px)",
+            maskImage: "radial-gradient(circle at 50% 3px, transparent 33px, #000 34px)",
+          }}
+        />
+        <div className="relative flex items-stretch justify-around h-full">
         {tabs.map(({ key, label, icon: Icon, match, isPostButton }) => {
           if (isPostButton) {
             return (
@@ -106,7 +110,7 @@ export default function MobileBottomNav({ currentPageName }) {
                     height: 54,
                     marginTop: -24,
                     background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)",
-                    boxShadow: `0 10px 26px rgba(255,159,26,0.45), 0 0 0 5px ${CANVAS}`,
+                    boxShadow: "0 10px 26px rgba(255,159,26,0.45)",
                   }}
                 >
                   <Plus className="w-6 h-6" strokeWidth={2.75} style={{ color: INK }} />
@@ -144,6 +148,7 @@ export default function MobileBottomNav({ currentPageName }) {
             </Link>
           );
         })}
+        </div>
       </div>
     </nav>,
     document.body

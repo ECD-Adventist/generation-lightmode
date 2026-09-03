@@ -24,7 +24,6 @@ import { getDisplayName } from "@/lib/displayName";
  */
 
 const LOGO_GOLD = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png";
-const LOGO_BLUE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png";
 // Same artwork as the Home hero — used as the background of the feed's top section.
 const HERO_IMAGE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2";
 
@@ -111,20 +110,18 @@ function SuggestedPeopleRail({ people, user, following, followMutation }) {
   );
 }
 
-function IconAction({ to, label, children, dot = false, scrolled = false }) {
+function IconAction({ to, label, children, dot = false }) {
   return (
     <Link
       to={to}
       aria-label={label}
       title={label}
       className="relative w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition"
-      style={scrolled
-        ? { background: "#FFFFFF", color: MF.blue, border: "1px solid #E0EAF5", boxShadow: "0 2px 6px rgba(11,63,217,0.06)" }
-        : { background: "rgba(255,255,255,0.16)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.28)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}
+      style={{ background: "rgba(255,255,255,0.18)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.30)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}
     >
       {children}
       {dot && (
-        <span className="absolute top-2 right-2 w-2 h-2 rounded-full" style={{ background: MF.gold, boxShadow: `0 0 0 2px ${scrolled ? "#FFFFFF" : "rgba(6,11,24,0.6)"}` }} />
+        <span className="absolute top-2 right-2 w-2 h-2 rounded-full" style={{ background: MF.gold, boxShadow: "0 0 0 2px rgba(10,46,159,0.7)" }} />
       )}
     </Link>
   );
@@ -200,33 +197,33 @@ export default function MobileFeed({
       <div
         aria-hidden="true"
         className="absolute inset-x-0 top-0 pointer-events-none"
-        style={{ height: "calc(env(safe-area-inset-top, 0px) + 336px)", background: "#0B1226", zIndex: 0 }}
+        style={{ height: "calc(env(safe-area-inset-top, 0px) + 336px)", background: "#0A2E9F", zIndex: 0 }}
       >
         <img
           src={HERO_IMAGE}
           alt=""
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "center 30%", filter: "grayscale(85%) contrast(1.12) brightness(0.9)" }}
+          style={{ objectPosition: "center 30%", filter: "grayscale(70%) contrast(1.1) brightness(0.95)" }}
         />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(6,11,24,0.55) 0%, rgba(6,11,24,0.25) 45%, rgba(6,11,24,0.05) 100%)" }} />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(6,11,24,0.55) 0%, rgba(6,11,24,0.30) 40%, rgba(246,248,252,0.30) 66%, rgba(246,248,252,0.90) 84%, #F6F8FC 96%)" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(10,46,159,0.62) 0%, rgba(11,63,217,0.32) 45%, rgba(11,63,217,0.08) 100%)" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,46,159,0.66) 0%, rgba(11,63,217,0.38) 40%, rgba(246,248,252,0.30) 66%, rgba(246,248,252,0.90) 84%, #F6F8FC 96%)" }} />
       </div>
 
-      {/* TOP BAR — transparent over the artwork; light glass (like the other tabs) once scrolled */}
+      {/* TOP BAR — transparent over the artwork; the brand blue (same sky→royal gradient as the other tabs) once scrolled */}
       <div
         className="sticky top-0 z-40 safe-pt px-4"
         style={scrolled
-          ? { background: "rgba(246,248,252,0.92)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", borderBottom: "1px solid #E2E8F0", transition: "background 220ms ease, border-color 220ms ease" }
-          : { background: "transparent", borderBottom: "1px solid transparent", transition: "background 220ms ease, border-color 220ms ease" }}
+          ? { background: "linear-gradient(90deg, rgba(31,184,255,0.92) 0%, rgba(11,63,217,0.94) 100%)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", borderBottom: "1px solid rgba(255,255,255,0.14)", boxShadow: "0 4px 16px rgba(11,63,217,0.22)", transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease" }
+          : { background: "transparent", borderBottom: "1px solid transparent", transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease" }}
       >
         <div className="flex items-center gap-2 h-14">
           <Link to={createPageUrl("Home")} className="shrink-0 flex items-center" aria-label="Generation LightMode home">
-            <img src={scrolled ? LOGO_BLUE : LOGO_GOLD} alt="Generation LightMode" className="h-7 w-auto object-contain" />
+            <img src={LOGO_GOLD} alt="Generation LightMode" className="h-7 w-auto object-contain" />
           </Link>
           <div className="flex-1" />
-          <IconAction to={createPageUrl("Dashboard")} label="Dashboard" scrolled={scrolled}><LayoutDashboard className="w-[18px] h-[18px]" /></IconAction>
-          <IconAction to={createPageUrl("Notifications")} label="Notifications" dot={notifications?.length > 0} scrolled={scrolled}><Bell className="w-[18px] h-[18px]" /></IconAction>
+          <IconAction to={createPageUrl("Dashboard")} label="Dashboard"><LayoutDashboard className="w-[18px] h-[18px]" /></IconAction>
+          <IconAction to={createPageUrl("Notifications")} label="Notifications" dot={notifications?.length > 0}><Bell className="w-[18px] h-[18px]" /></IconAction>
         </div>
       </div>
 
@@ -237,11 +234,11 @@ export default function MobileFeed({
           <span className="w-1.5 h-1.5 rounded-full" style={{ background: MF.gold, animation: "mf-pulse-dot 2.2s ease-in-out infinite" }} />
           {greeting}
         </div>
-        <h1 className="mt-1 text-[28px] leading-[1.1] font-black font-['Space_Grotesk'] truncate" style={{ color: "#FFFFFF", textShadow: "0 2px 14px rgba(6,11,24,0.55)" }}>
+        <h1 className="mt-1 text-[28px] leading-[1.1] font-black font-['Space_Grotesk'] truncate" style={{ color: "#FFFFFF", textShadow: "0 2px 14px rgba(10,46,159,0.55)" }}>
           Hey, <span style={{ color: MF.gold }}>{firstName}</span>
           <Zap className="inline-block w-5 h-5 ml-1.5 -mt-1" style={{ color: MF.gold, fill: MF.gold }} />
         </h1>
-        <p className="mt-1 text-[14px] font-semibold" style={{ color: "rgba(255,255,255,0.88)", textShadow: "0 1px 10px rgba(6,11,24,0.55)" }}>Your light is needed today.</p>
+        <p className="mt-1 text-[14px] font-semibold" style={{ color: "rgba(255,255,255,0.88)", textShadow: "0 1px 10px rgba(10,46,159,0.55)" }}>Your light is needed today.</p>
       </div>
 
       {/* COMPOSE PROMPT — sits on the fade between artwork and canvas */}
