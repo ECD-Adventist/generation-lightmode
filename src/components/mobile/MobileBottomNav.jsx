@@ -86,8 +86,8 @@ export default function MobileBottomNav({ currentPageName }) {
             WebkitBackdropFilter: "blur(22px) saturate(1.2)",
             border: "1px solid rgba(255,255,255,0.22)",
             boxShadow: "0 16px 40px rgba(11,63,217,0.30), inset 0 1px 0 rgba(255,255,255,0.25)",
-            WebkitMaskImage: "radial-gradient(circle at 50% 3px, transparent 31px, #000 32px)",
-            maskImage: "radial-gradient(circle at 50% 3px, transparent 31px, #000 32px)",
+            WebkitMaskImage: "radial-gradient(circle at 50% 3px, transparent 29.5px, #000 30.5px)",
+            maskImage: "radial-gradient(circle at 50% 3px, transparent 29.5px, #000 30.5px)",
           }}
         />
         <div className="relative flex items-stretch justify-around h-full">
