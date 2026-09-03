@@ -57,8 +57,8 @@ Blue follows the other tabs: active chips, the #1 trending badge and Connect but
 labels are `#0B3FD9`; wells are `rgba(31,184,255,0.08)` with `#B8E5FF` borders; the floating tab
 bar is the same sky→royal gradient at ~80% opacity over a blur, with white labels, a gold active
 state and a circular gap masked out of the pill around the protruding Drop button, which sits in
-a full rotating light ring — mostly the nav's royal blue with a sky-blue sweep and a gold
-highlight travelling round it (the profile-cover light, tuned to the nav). The bottom tab
+a single soft royal-blue light that sweeps around it (a blurred one-colour conic, no ring or
+hard edge, so the button floats rather than sitting in a cage). The bottom tab
 is labelled Explore.
 
 The stories row has no "Statuses" heading — the rings speak for themselves and the vertical space

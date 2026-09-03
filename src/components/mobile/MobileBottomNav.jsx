@@ -109,27 +109,27 @@ export default function MobileBottomNav({ currentPageName }) {
                 style={{ textDecoration: "none" }}
                 aria-label="Create a drop"
               >
-                {/* Seat: a rotating light ring (same conic light as the profile covers) around the gold button */}
+                {/* Seat: a single soft blue light sweeping around the gold button — no ring, no hard edge */}
                 <span
-                  className="mbn-press relative flex items-center justify-center rounded-full overflow-hidden"
-                  style={{ width: 64, height: 64, marginTop: -29, background: "#0B3FD9", boxShadow: "0 10px 26px rgba(11,63,217,0.35), 0 6px 18px rgba(255,159,26,0.30)" }}
+                  className="mbn-press relative flex items-center justify-center rounded-full"
+                  style={{ width: 66, height: 66, marginTop: -30 }}
                 >
-                  {/* Full ring: mostly the nav's royal blue, with a sky-blue sweep and a gold highlight travelling round it */}
                   <span
                     aria-hidden="true"
                     className="mbn-light absolute rounded-full"
                     style={{
                       top: "50%",
                       left: "50%",
-                      width: "200%",
-                      height: "200%",
-                      background: "conic-gradient(from 0deg, #0B3FD9 0%, #0B3FD9 42%, #1FB8FF 62%, #FFD000 78%, #1FB8FF 88%, #0B3FD9 100%)",
-                      animation: "mbn-spin-light 4s linear infinite",
+                      width: 66,
+                      height: 66,
+                      background: "conic-gradient(from 0deg, rgba(11,63,217,0) 0%, rgba(11,63,217,0) 50%, rgba(11,63,217,0.95) 78%, rgba(11,63,217,0) 100%)",
+                      filter: "blur(5px)",
+                      animation: "mbn-spin-light 3.2s linear infinite",
                     }}
                   />
                   <span
                     className="relative flex items-center justify-center rounded-full"
-                    style={{ width: 54, height: 54, background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)", border: "2px solid rgba(255,255,255,0.9)" }}
+                    style={{ width: 54, height: 54, background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)", boxShadow: "0 8px 22px rgba(255,159,26,0.35)" }}
                   >
                     <Plus className="w-6 h-6" strokeWidth={2.75} style={{ color: INK }} />
                   </span>
