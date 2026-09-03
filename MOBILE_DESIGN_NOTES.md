@@ -42,9 +42,19 @@ navy theme. The mobile shell therefore uses a light canvas with white cards and 
 key-action colour; royal blue carries links, hashtags and the active tab. The launch splash stays
 dark navy because it is brand, not content.
 
-Blue is the second brand colour and carries the chrome: the top bar and the hero band (the Home
-hero artwork sits behind the greeting under a royal-blue wash), the floating tab bar, section
-headings, unselected chips and links. The top-right actions are Search, Dashboard and Notifications.
+The Home hero artwork starts at the very top of the screen, behind the status bar and the
+navigation bar, treated like the Control Center dashboard (85% grayscale, navy tint) and fades
+smoothly into the light canvas just above the quick-action tiles. The navigation bar is
+transparent over the artwork and becomes the same light glass the Explore, Messages and Profile
+tabs use once the feed scrolls (an IntersectionObserver sentinel in the hero drives this).
+
+The top-right actions are Dashboard and Notifications only; search lives on the Explore tab, and
+a trending-chip search shows as a dismissible pill above the filter chips.
+
+Blue follows the other tabs: active chips, the #1 trending badge and Connect buttons use the
+`#1FB8FF → #0B3FD9` gradient with white text; headings, links, unselected chips and quick-action
+labels are `#0B3FD9`; wells are `rgba(31,184,255,0.08)` with `#B8E5FF` borders; the floating tab
+bar is royal blue with white labels and a gold active state. The bottom tab is labelled Explore.
 
 The stories row has no "Statuses" heading — the rings speak for themselves and the vertical space
 is kept for content.

@@ -15,7 +15,7 @@ import useMobileTabNavigation from "@/hooks/useMobileTabNavigation";
 
 const tabs = [
   { key: "Feed", label: "Feed", icon: Zap, match: ["Feed", "GlowFeed", "Post"] },
-  { key: "Discover", label: "Search", icon: Search, match: ["Discover"] },
+  { key: "Discover", label: "Explore", icon: Search, match: ["Discover"] },
   { key: "Post", label: "Drop", icon: Plus, match: [], isPostButton: true },
   { key: "Messages", label: "Messages", icon: MessageCircle, match: ["Messages"] },
   { key: "Profile", label: "Profile", icon: User, match: ["Profile"] },
