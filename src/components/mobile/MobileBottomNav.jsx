@@ -87,8 +87,8 @@ export default function MobileBottomNav({ currentPageName }) {
             WebkitBackdropFilter: "blur(22px) saturate(1.2)",
             border: "1px solid rgba(255,255,255,0.22)",
             boxShadow: "0 16px 40px rgba(11,63,217,0.30), inset 0 1px 0 rgba(255,255,255,0.25)",
-            WebkitMaskImage: "radial-gradient(circle at 50% 3px, transparent 38px, #000 39px)",
-            maskImage: "radial-gradient(circle at 50% 3px, transparent 38px, #000 39px)",
+            WebkitMaskImage: "radial-gradient(circle at 50% 3px, transparent 31px, #000 32px)",
+            maskImage: "radial-gradient(circle at 50% 3px, transparent 31px, #000 32px)",
           }}
         />
         <div className="relative flex items-stretch justify-around h-full">
@@ -109,10 +109,10 @@ export default function MobileBottomNav({ currentPageName }) {
                 style={{ textDecoration: "none" }}
                 aria-label="Create a drop"
               >
-                {/* Seat: a single soft blue light sweeping around the gold button — no ring, no hard edge */}
+                {/* Seat: a thin gold strobe sweeping tight around the button; the pill's gap sits just outside it */}
                 <span
                   className="mbn-press relative flex items-center justify-center rounded-full"
-                  style={{ width: 66, height: 66, marginTop: -30 }}
+                  style={{ width: 60, height: 60, marginTop: -27 }}
                 >
                   <span
                     aria-hidden="true"
@@ -120,11 +120,11 @@ export default function MobileBottomNav({ currentPageName }) {
                     style={{
                       top: "50%",
                       left: "50%",
-                      width: 66,
-                      height: 66,
-                      background: "conic-gradient(from 0deg, rgba(11,63,217,0) 0%, rgba(11,63,217,0) 50%, rgba(11,63,217,0.95) 78%, rgba(11,63,217,0) 100%)",
-                      filter: "blur(5px)",
-                      animation: "mbn-spin-light 3.2s linear infinite",
+                      width: 60,
+                      height: 60,
+                      background: "conic-gradient(from 0deg, rgba(255,208,0,0) 0%, rgba(255,208,0,0) 48%, #FFD000 70%, #FF9F1A 84%, rgba(255,159,26,0) 100%)",
+                      filter: "blur(1.5px)",
+                      animation: "mbn-spin-light 3s linear infinite",
                     }}
                   />
                   <span
