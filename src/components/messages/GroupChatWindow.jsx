@@ -250,7 +250,7 @@ export default function GroupChatWindow({ group, currentUser, allUsers, onBack }
                         <div className="mt-2">
                           <a
                             href={msg.file_url}
-                            target="_blank"
+                            target="_blank" rel="noopener noreferrer"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold"
                             style={

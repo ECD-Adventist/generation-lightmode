@@ -163,7 +163,7 @@ function DesktopOnboardingModal({ isOpen, onCompleted }) {
               </div>
               <div className="rounded-xl p-4 bg-[#F6F8FC] border border-[#E6ECF5]">
                 <p className="text-sm font-bold mb-1 text-[#0B1B3D]">Privacy Policy</p>
-                <p className="text-xs mb-3 leading-relaxed text-[#6B7FA0]">I have read and agreed with the <Link to="/Privacy" target="_blank" className="font-bold underline text-blue-600">Privacy Policy</Link> of Generation LightMode.</p>
+                <p className="text-xs mb-3 leading-relaxed text-[#6B7FA0]">I have read and agreed with the <Link to="/Privacy" target="_blank" rel="noopener noreferrer" className="font-bold underline text-blue-600">Privacy Policy</Link> of Generation LightMode.</p>
                 <label className="flex items-center gap-3 cursor-pointer" onClick={() => setConsent2(!consent2)}>
                   <div className="w-5 h-5 rounded flex items-center justify-center shrink-0 transition-all" style={consent2 ? { background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", border: "none" } : { border: "2px solid #C0C8D8" }}>
                     {consent2 && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}

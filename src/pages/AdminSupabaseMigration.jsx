@@ -205,7 +205,7 @@ export default function AdminSupabaseMigration() {
             <ol className="space-y-3 text-sm text-gray-300">
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-bold">1</span>
-                <span>Open your <a href={tableStatus?.supabase_url ? `${tableStatus.supabase_url}/project/_/sql/new` : "https://supabase.com/dashboard"} target="_blank" rel="noreferrer" className="text-cyan-400 underline">Supabase SQL Editor</a></span>
+                <span>Open your <a href={tableStatus?.supabase_url ? `${tableStatus.supabase_url}/project/_/sql/new` : "https://supabase.com/dashboard"} target="_blank" rel="noreferrer noopener noreferrer" className="text-cyan-400 underline">Supabase SQL Editor</a></span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-bold">2</span>

@@ -28,22 +28,24 @@ export default function PrayerWall() {
   // Fetch window grows with the visible count so "Load More" keeps pulling
   // older requests from the server instead of capping at a fixed 100.
   const fetchLimit = visibleCount + 10;
-  const { data: requests = [] } = useQuery({
-    queryKey: ["prayerRequests", fetchLimit],
-    queryFn: () => base44.entities.PrayerRequest.list("-created_date", fetchLimit),
+  // Prayers and their comments come from the backend, which strips author identities
+  // from anonymous entries and never exposes Base44's created_by fields.
+  const { data: wall = { requests: [], comments: [] } } = useQuery({
+    queryKey: ["prayerWall", fetchLimit],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("listPrayerRequests", { limit: fetchLimit });
+      return res?.data || { requests: [], comments: [] };
+    },
     enabled: !!user,
     placeholderData: (prev) => prev,
+    refetchInterval: 60 * 1000,
   });
+  const requests = wall.requests || [];
+  const comments = wall.comments || [];
 
   const { data: supports = [] } = useQuery({
     queryKey: ["prayerSupports"],
     queryFn: () => base44.entities.PrayerSupport.list("-created_date", 500),
-    enabled: !!user,
-  });
-
-  const { data: comments = [] } = useQuery({
-    queryKey: ["prayerComments"],
-    queryFn: () => base44.entities.PrayerComment.list("-created_date", 500),
     enabled: !!user,
   });
 
@@ -58,9 +60,9 @@ export default function PrayerWall() {
 
   useEffect(() => {
     if (!user) return;
-    const unsubRequests = base44.entities.PrayerRequest.subscribe(() => queryClient.invalidateQueries({ queryKey: ["prayerRequests"] }));
+    const unsubRequests = base44.entities.PrayerRequest.subscribe(() => queryClient.invalidateQueries({ queryKey: ["prayerWall"] }));
     const unsubSupports = base44.entities.PrayerSupport.subscribe(() => queryClient.invalidateQueries({ queryKey: ["prayerSupports"] }));
-    const unsubComments = base44.entities.PrayerComment.subscribe(() => queryClient.invalidateQueries({ queryKey: ["prayerComments"] }));
+    const unsubComments = base44.entities.PrayerComment.subscribe(() => queryClient.invalidateQueries({ queryKey: ["prayerWall"] }));
     return () => {
       unsubRequests();
       unsubSupports();
@@ -80,7 +82,7 @@ export default function PrayerWall() {
       setContent("");
       setCategory("Other");
       setIsAnonymous(false);
-      queryClient.invalidateQueries({ queryKey: ["prayerRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["prayerWall"] });
     },
   });
 
@@ -100,7 +102,7 @@ export default function PrayerWall() {
         is_anonymous: anonymous,
       });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["prayerComments"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["prayerWall"] }),
   });
 
   const getName = (email) => getDisplayName(allUsers.find((entry) => entry.email === email) || { email });
@@ -188,13 +190,13 @@ export default function PrayerWall() {
             const requestSupports = supports.filter((support) => support.request_id === request.id);
             const requestComments = comments
               .filter((comment) => comment.request_id === request.id)
-              .map((comment) => ({ ...comment, authorName: getName(comment.user_email) }));
+              .map((comment) => ({ ...comment, authorName: comment.author_name || getName(comment.user_email) }));
 
             return (
               <PrayerRequestCard
                 key={request.id}
                 request={request}
-                requesterName={getName(request.user_email)}
+                requesterName={request.requester_name || getName(request.user_email)}
                 supportCount={requestSupports.length}
                 hasPrayed={requestSupports.some((support) => support.user_email === user.email)}
                 comments={requestComments}

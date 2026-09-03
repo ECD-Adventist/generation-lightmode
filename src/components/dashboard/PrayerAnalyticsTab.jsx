@@ -5,7 +5,10 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { format, parseISO } from "date-fns";
 
 export default function PrayerAnalyticsTab() {
-  const { data: requests = [] } = useQuery({ queryKey: ["prayerRequests"], queryFn: () => base44.entities.PrayerRequest.list() });
+  const { data: requests = [] } = useQuery({
+    queryKey: ["prayerWallAnalytics"],
+    queryFn: async () => (await base44.functions.invoke("listPrayerRequests", { limit: 300, include_comments: false }))?.data?.requests || [],
+  });
   const { data: supports = [] } = useQuery({ queryKey: ["prayerSupports"], queryFn: () => base44.entities.PrayerSupport.list() });
 
   const categoryData = useMemo(() => {

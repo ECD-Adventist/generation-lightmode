@@ -173,7 +173,7 @@ export default function MobileOnboardingSheet({ isOpen, onCompleted }) {
             </ConsentCard>
             <ConsentCard checked={consent2} onToggle={() => setConsent2(!consent2)} icon={Lock} title="Privacy Policy">
               I have read and agreed with the{" "}
-              <Link to="/Privacy" target="_blank" className="font-bold underline" style={{ color: "#0B3FD9" }} onClick={(e) => e.stopPropagation()}>
+              <Link to="/Privacy" target="_blank" rel="noopener noreferrer" className="font-bold underline" style={{ color: "#0B3FD9" }} onClick={(e) => e.stopPropagation()}>
                 Privacy Policy
               </Link>{" "}
               of Generation LightMode.

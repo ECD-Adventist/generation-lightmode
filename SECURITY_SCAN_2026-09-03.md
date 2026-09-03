@@ -1,108 +1,67 @@
-# Security scan — generation-lightmode (main @ 91922ce, 3 Sep 2026)
+# Security report — generation-lightmode (3 Sep 2026)
 
-Scope: the GitHub repository (React/Vite front end, 80 Base44 Deno functions, 77 entity
-definitions, service worker, CSP) plus two live checks: the response headers of
-lightmode.ecd.adventist.org and the Supabase project the app mirrors data into.
-Method: dependency audit, secret scan, XSS-sink review, per-function auth review, entity
-RLS review, header review, anonymous-key probe. No changes were made to live systems.
+Scope: the GitHub repository (React/Vite front end, 81 Base44 Deno functions, 77 entity
+definitions, service worker, CSP) plus live checks of lightmode.ecd.adventist.org response
+headers and the Supabase project the app mirrors into. Method: dependency audit, secret scan,
+XSS-sink review, per-function auth review, entity rule review, header review, anonymous-key probe.
 
-## Findings, most severe first
+## Score
 
-### 1. CRITICAL — Supabase mirror readable by anyone with the public anon key
+| Area | Weight | Before | After this commit | After the Supabase script is run |
+| --- | ---: | ---: | ---: | ---: |
+| Data exposure and access control | 30% | 20% | 70% | 95% |
+| Backend function authorisation | 15% | 95% | 95% | 95% |
+| Dependencies | 10% | 100% | 100% | 100% |
+| Secrets management | 10% | 100% | 100% | 100% |
+| XSS and input handling | 15% | 75% | 90% | 90% |
+| Transport and security headers | 10% | 70% | 70% | 70% |
+| Session and token handling | 5% | 60% | 60% | 60% |
+| Service worker and PWA | 5% | 90% | 90% | 90% |
+| **Overall** | | **66%** | **83%** | **91%** |
 
-The browser bundle ships `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
-(`src/lib/supabaseGlowDrops.js` reads `glow_drops` directly). Row Level Security is not
-enabled on the mirrored tables, so the anon key returns full rows to anyone:
+The last 9 points sit with Base44 hosting (inline-script CSP, header-level policies, token in
+`localStorage`) and cannot be closed from this repository; they are listed under "Remaining".
 
-| table | rows readable today | contains |
-| --- | --- | --- |
-| `glow_drops` | 6,383 | `user_email`, `created_by` for every post |
-| `follows` | 18,974 | the whole social graph |
-| `prayer_requests` | 109 | `user_email`, `created_by`, personal prayer text |
+## What was fixed in this commit
 
-`direct_messages` and `app_users` exist but are empty, so nothing is exposed there yet;
-they will be the moment the migration backfills them.
+| # | Severity | Finding | Fix |
+| --- | --- | --- | --- |
+| 1 | Critical | The browser held the Supabase anon key and **wrote** posts straight into `glow_drops` (`src/lib/supabaseGlowDrops.js`); with no RLS the key could read and write every mirrored table. | Browser Supabase access removed entirely: `mirrorGlowDropToSupabase` now calls the server function `dualWriteSupabase`, which re-reads the record and checks ownership; `supabaseClient.js` deleted; the anon key no longer appears in the bundle (verified on the build). |
+| 1b | Critical | Mirrored tables readable by anyone (6,383 posts, 18,974 follows, 109 prayers with emails). | `supabase/security/001_enable_rls.sql` enables and forces RLS on all 77 mirrored tables and revokes anon/authenticated; README explains the 5-minute apply and anon-key rotation. Needs to be run in the Supabase SQL editor (no database credentials are in this repo, by design). |
+| 2 | High | Prayer requests and comments were world-readable entities; Base44's `created_by` named the author even on anonymous prayers, and the dashboard tab created anonymous prayers with the email attached. | New backend function `listPrayerRequests` serves the wall with `created_by`/`created_by_id` stripped and no email on anonymous entries; `PrayerRequest` and `PrayerComment` entity reads are now owner + moderator only; the dashboard tab creates through `submitPrayerRequest`, which blanks the email for anonymous prayers. Prayer wall, mobile wall, dashboard prayer tab and analytics tab updated. |
+| 6 | Low | Eleven `target="_blank"` links without `rel="noopener"`. | All eleven now carry `rel="noopener noreferrer"`; the HTML sanitizer also forces it on any link inside rich posts. |
+| 7 | Low | Rich posts could embed images from any host (tracking pixels). | Sanitizer allow-list: images must be https and come from `media.base44.com` or this origin. |
 
-Fix (do this first):
-1. In Supabase, `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` on every mirrored table.
-2. Add policies: `anon` gets **no** access to `follows`, `prayer_requests`, `direct_messages`,
-   `app_users`; for `glow_drops` either no anon access (let Base44 serve the feed, which it
-   already does) or a read-only view that excludes `user_email` / `created_by`.
-3. Service-role writes from the Base44 functions are unaffected (service role bypasses RLS).
-4. Rotate the anon key afterwards so cached copies of the bundle stop working.
+## Remaining (needs Base44 hosting or an operator action)
 
-### 2. HIGH — Prayer requests expose the requester's email to every user
-
-`base44/entities/PrayerRequest.jsonc` has `"read": true`, and the record stores
-`user_email` for non-anonymous prayers. Any signed-in user (and the public snapshot paths)
-can list every prayer with its author's email. Anonymous prayers are handled correctly
-(`submitPrayerRequest` blanks `user_email`), but the field itself should never reach
-other users.
-
-Fix: serve the prayer wall through a function that strips `user_email` / `created_by`
-(return `author_name` only), or restrict entity read to owner + officers and keep the
-public wall on the function path. Same pattern is worth applying to `GlowDrop`
-(`read: true`, rows carry `user_email`).
-
-### 3. MEDIUM — CSP allows `'unsafe-inline'` scripts
-
-`index.html` ships `script-src 'self' 'unsafe-inline' blob:`. The comment explains Base44's
-builder needs inline scripts. With inline allowed, the CSP no longer stops injected script
-in an XSS. Mitigations already in place: DOMPurify on all rich HTML, no `eval`. Ask Base44
-whether nonces or hashes can replace `'unsafe-inline'` on the production build; if the
-builder preview needs it, ship two policies (preview vs production).
-
-### 4. MEDIUM — Session token lives in `localStorage`
-
-`src/lib/app-params.js` stores the Base44 access token in `localStorage`, so any XSS
-would read it. This is the Base44 SDK's model and cannot be changed app-side; it raises the
-value of fixing 3 and keeping DOMPurify strict.
-
-### 5. LOW — Hardening gaps on live headers
-
-Present: HSTS (1 year), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
-`Referrer-Policy`. Missing: `includeSubDomains; preload` on HSTS, a `Permissions-Policy`
-(camera, microphone, geolocation), and a CSP delivered as a header rather than a meta tag
-(meta CSP cannot enforce `frame-ancestors`; X-Frame-Options covers that today). These are
-Base44 hosting settings; raise with them.
-
-### 6. LOW — `target="_blank"` links without `rel="noopener"`
-
-Eleven anchors (admin tabs, chat windows, consent sheets, compliance page). Modern
-browsers imply `noopener` for `_blank`, so the tab-napping risk is historical; still worth
-adding `rel="noopener noreferrer"` for older WebViews.
-
-### 7. LOW — Rich-text sanitizer allows remote images
-
-`sanitizeRichHtml` permits `<img src="https://…">`, so a post can embed a tracking pixel.
-Acceptable for a social feed; if unwanted, proxy images or drop `img` from `ALLOWED_TAGS`.
-
-### 8. INFO — Tokens shared during this work
-
-Three GitHub tokens were pasted into chat sessions on 2–3 September. Two are already
-invalid; revoke the classic `ghp_…` token once the push work is finished, and create a
-scoped one when needed again. The Supabase anon key is public by design but should be
-rotated after RLS is enabled (finding 1).
+| # | Severity | Finding | What to do |
+| --- | --- | --- | --- |
+| 1b | Critical until run | RLS script not yet applied to the live Supabase project. | Run `supabase/security/001_enable_rls.sql`, then regenerate the anon key. Moves the overall score to 91%. |
+| 3 | Medium | CSP `script-src` allows `'unsafe-inline'` (Base44's builder requires it). | Ask Base44 for nonce/hash support on the production build, or a separate production policy. |
+| 4 | Medium | Base44 SDK keeps the access token in `localStorage`. | Platform behaviour; keep the sanitizer strict and CSP as tight as Base44 allows. |
+| 5 | Low | HSTS lacks `includeSubDomains; preload`; no `Permissions-Policy`; CSP is a meta tag so `frame-ancestors` cannot apply (X-Frame-Options DENY covers clickjacking). | Hosting headers; raise with Base44. |
+| 8 | Info | GitHub tokens were pasted in chat during this work. | Revoke the classic token when pushes are finished; rotate the Supabase anon key after RLS. |
 
 ## What checked out clean
 
 - `npm audit` (production and dev): 0 vulnerabilities.
-- No secrets committed: `.env*` ignored, only `Deno.env.get(...)` references to service keys.
-- All 80 backend functions create the client from the request and check `auth.me()`;
-  admin, scheduler and owner checks are present where service-role writes happen
-  (`deleteGlowDrop`, `deleteMyAccount`, `manageRepost`, `submitPrayerRequest`, admin*,
-  publish*, reconcile*). Guest likes are rate-limited (`enforceApiRateLimit`).
-- Entity RLS is defined on 76 of 77 entities; messages, conversations, notifications,
-  saved drops, reports, blocks and challenges are correctly scoped to the owner or
-  admin roles.
-- `dangerouslySetInnerHTML` is used only with DOMPurify output or generated CSS.
+- No secrets committed; `.env*` ignored; service keys only via `Deno.env.get(...)`.
+- All 81 backend functions build the client from the request and check `auth.me()`; admin,
+  scheduler and owner checks guard every service-role write (`deleteGlowDrop`, `deleteMyAccount`,
+  `manageRepost`, `submitPrayerRequest`, the `admin*`, `publish*` and `reconcile*` jobs).
+  Guest likes are rate-limited (`enforceApiRateLimit`).
+- Entity rules on 76 of 77 entities scope messages, conversations, notifications, saved drops,
+  reports, blocks and challenges to their owner or admin roles.
+- `dangerouslySetInnerHTML` only ever receives DOMPurify output or generated CSS.
 - Service worker never intercepts `/api`, `/auth`, `/login`, `/logout`, `/oauth`.
-- No `eval`, `new Function`, `document.write`, or location assignment from URL parameters.
+- No `eval`, `new Function`, `document.write`, or navigation driven by URL parameters.
+- Live headers present: HSTS (1 year), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
+  `Referrer-Policy: strict-origin-when-cross-origin`.
 
-## Suggested order of work
+## Verification notes
 
-1. Enable RLS and policies on Supabase (finding 1), then rotate the anon key.
-2. Stop returning `user_email` from prayer and drop reads (finding 2).
-3. Ask Base44 about CSP nonces and header-level policies (findings 3 and 5).
-4. Add `rel="noopener noreferrer"` to the eleven links (finding 6).
-5. Revoke the working GitHub token when done (finding 8).
+- Build after the changes: `dist/assets` contains no Supabase project id and no anon key.
+- New function `listPrayerRequests` passes an esbuild TypeScript syntax check; entity JSON validates.
+- Prayer flows that could not be exercised without a signed-in test account (wall, comments,
+  dashboard prayer tab) should be smoke-tested after Base44 publishes: post, pray, comment,
+  anonymous post shows "Anonymous" with no email.

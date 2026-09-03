@@ -84,7 +84,7 @@ export default function ConsentModal({ isOpen, onAccepted }) {
               I have read and agreed with the{" "}
               <Link
                 to="/Privacy"
-                target="_blank"
+                target="_blank" rel="noopener noreferrer"
                 rel="noopener noreferrer"
                 className="text-[#00CFFF] underline hover:text-[#00CFFF]/80"
               >

@@ -331,7 +331,7 @@ export default function ComplianceReporting() {
                       <a
                         key={i}
                         href={url}
-                        target="_blank"
+                        target="_blank" rel="noopener noreferrer"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 text-[#00CFFF] hover:underline text-xs"
                       >

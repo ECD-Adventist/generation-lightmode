@@ -65,12 +65,12 @@ export default function MobilePrayerWall({
               const reqSupports = supports.filter((s) => s.request_id === request.id);
               const reqComments = comments
                 .filter((c) => c.request_id === request.id)
-                .map((c) => ({ ...c, authorName: getName(c.user_email) }));
+                .map((c) => ({ ...c, authorName: c.author_name || getName(c.user_email) }));
               return (
                 <PrayerRequestCard
                   key={request.id}
                   request={request}
-                  requesterName={getName(request.user_email)}
+                  requesterName={request.requester_name || getName(request.user_email)}
                   supportCount={reqSupports.length}
                   hasPrayed={reqSupports.some((s) => s.user_email === user.email)}
                   comments={reqComments}

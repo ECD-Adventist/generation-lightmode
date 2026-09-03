@@ -21,6 +21,27 @@ const CONFIG = {
   ADD_ATTR: ["target"],
 };
 
+// Images may only come from our own media host or this origin — blocks tracking pixels
+// and off-site content hidden inside rich posts. Links are also forced to open safely.
+const ALLOWED_IMAGE_HOSTS = ["media.base44.com"];
+DOMPurify.addHook("uponSanitizeAttribute", (node, data) => {
+  if (node.tagName === "IMG" && data.attrName === "src") {
+    try {
+      const url = new URL(data.attrValue, window.location.origin);
+      const sameOrigin = url.origin === window.location.origin;
+      const allowedHost = ALLOWED_IMAGE_HOSTS.includes(url.hostname);
+      if (!(url.protocol === "https:" && (sameOrigin || allowedHost))) data.keepAttr = false;
+    } catch {
+      data.keepAttr = false;
+    }
+  }
+});
+DOMPurify.addHook("afterSanitizeAttributes", (node) => {
+  if (node.tagName === "A" && node.getAttribute("target") === "_blank") {
+    node.setAttribute("rel", "noopener noreferrer");
+  }
+});
+
 export function sanitizeRichHtml(dirty) {
   if (!dirty) return "";
   return DOMPurify.sanitize(dirty, CONFIG);

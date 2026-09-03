@@ -180,7 +180,7 @@ export default function AdminLeaderPostsTab() {
                 <div className="flex items-center gap-2 shrink-0 relative z-10">
                   <Link
                     to={`${createPageUrl("Post")}?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
-                    target="_blank"
+                    target="_blank" rel="noopener noreferrer"
                     className={`w-9 h-9 rounded-lg flex items-center justify-center transition hover:opacity-80`}
                     style={{ background: t.accentSoft, color: t.accent, border: `1px solid ${isDark ? t.border : t.borderStrong}` }}
                     title="Open post"

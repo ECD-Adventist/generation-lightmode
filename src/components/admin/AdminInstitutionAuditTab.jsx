@@ -141,7 +141,7 @@ export default function AdminInstitutionAuditTab() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 lg:justify-end">
-                  <a href={`/Profile?user=${encodeURIComponent(row.email)}`} target="_blank" rel="noreferrer" className="adm-btn-secondary">
+                  <a href={`/Profile?user=${encodeURIComponent(row.email)}`} target="_blank" rel="noreferrer noopener noreferrer" className="adm-btn-secondary">
                     <ExternalLink className="w-3.5 h-3.5" /> View Profile
                   </a>
                   <Button

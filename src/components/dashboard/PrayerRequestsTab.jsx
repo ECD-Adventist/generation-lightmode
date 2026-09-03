@@ -14,7 +14,10 @@ export default function PrayerRequestsTab({ user }) {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: requests = [] } = useQuery({ queryKey: ["prayerRequests"], queryFn: () => base44.entities.PrayerRequest.list('-created_date') });
+  const { data: requests = [] } = useQuery({
+    queryKey: ["prayerWallDashboard"],
+    queryFn: async () => (await base44.functions.invoke("listPrayerRequests", { limit: 100, include_comments: false }))?.data?.requests || [],
+  });
   const { data: supports = [] } = useQuery({ queryKey: ["prayerSupports"], queryFn: () => base44.entities.PrayerSupport.list() });
   const { data: users = [] } = useQuery({ queryKey: ["allUsers"], queryFn: () => base44.entities.User.list() });
 
@@ -22,10 +25,11 @@ export default function PrayerRequestsTab({ user }) {
     e.preventDefault();
     if (!content.trim()) return;
     try {
-      await base44.entities.PrayerRequest.create({ user_email: user.email, content, category, is_anonymous: isAnonymous, answered: false });
+      // Server-side create: anonymous prayers are stored without the author's email.
+      await base44.functions.invoke("submitPrayerRequest", { content, category, is_anonymous: isAnonymous });
       setContent(""); setCategory("Other"); setIsAnonymous(false);
       toast.success("Prayer request posted!");
-      queryClient.invalidateQueries({ queryKey: ["prayerRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["prayerWallDashboard"] });
     } catch (err) { toast.error("Failed to post"); }
   };
 
@@ -48,7 +52,7 @@ export default function PrayerRequestsTab({ user }) {
     try {
       await base44.entities.PrayerRequest.update(id, { answered: true });
       toast.success("Marked as answered!");
-      queryClient.invalidateQueries({ queryKey: ["prayerRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["prayerWallDashboard"] });
     } catch (err) { toast.error("Failed to update"); }
   };
 
