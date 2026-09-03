@@ -42,6 +42,10 @@ navy theme. The mobile shell therefore uses a light canvas with white cards and 
 key-action colour; royal blue carries links, hashtags and the active tab. The launch splash stays
 dark navy because it is brand, not content.
 
+Blue is the second brand colour and carries the chrome: the top bar and the hero band (the Home
+hero artwork sits behind the greeting under a royal-blue wash), the floating tab bar, section
+headings, unselected chips and links. The top-right actions are Search, Dashboard and Notifications.
+
 The stories row has no "Statuses" heading — the rings speak for themselves and the vertical space
 is kept for content.
 
@@ -57,7 +61,7 @@ is kept for content.
 | muted | `#6B7FA0` | secondary text, inactive tabs |
 | gold | `#FFD000` → `#FF9F1A` | the key action: selected chip, Drop button, primary buttons, leader ring, tab indicator |
 | gold-deep | `#B88A00` | gold as text or icon on white |
-| blue | `#0B3FD9` | links, hashtags, verse text, active tab |
+| blue | `#0B3FD9` / `#0A2E9F` | top bar, hero wash, tab bar, headings, unselected chips, links, hashtags, verse text |
 
 Type: Space Grotesk for headings and verse text, Inter for everything else.
 Radii: 22px cards, full pills for chips, buttons and the tab bar.

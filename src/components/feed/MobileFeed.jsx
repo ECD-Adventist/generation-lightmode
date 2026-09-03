@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Bell, Plus, Sparkles, Flame, Zap, Search, X, LayoutGrid, Users, Heart, BookOpen, Megaphone, HandHeart, Radio, Trophy, ChevronRight, TrendingUp, UserPlus } from "lucide-react";
+import { Bell, Plus, Sparkles, Flame, Zap, Search, X, LayoutGrid, LayoutDashboard, Users, Heart, BookOpen, Megaphone, HandHeart, Radio, Trophy, ChevronRight, TrendingUp, UserPlus } from "lucide-react";
 import CountryFlag from "@/components/common/CountryFlag";
 import MobileFeedDropList from "@/components/feed/MobileFeedDropList";
 import MobileDropCardSkeleton from "@/components/feed/MobileDropCardSkeleton";
@@ -23,7 +23,9 @@ import { getDisplayName } from "@/lib/displayName";
  * All mutations/state come from parent (Feed.jsx). Props are unchanged.
  */
 
-const LOGO_BLUE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/b1d36c3f0_LOGO-LANDSCAPE-BLUE.png";
+const LOGO_GOLD = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/2e403078b_LOGO-LANDSCAPE-GOLD_WEB.png";
+// Same artwork as the Home hero — used as the background of the feed's top section.
+const HERO_IMAGE = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2";
 
 // Light theme — the app keeps "light mode"; the marketing site may use dark.
 export const MF = {
@@ -38,6 +40,8 @@ export const MF = {
   goldDeep: "#B88A00",
   orange: "#FF9F1A",
   blue: "#0B3FD9",
+  blueDeep: "#0A2E9F",
+  blueGrad: "linear-gradient(135deg, #0A2E9F 0%, #0B3FD9 60%, #1563E8 100%)",
   cyan: "#0B3FD9",
   violet: "#8A5CFF",
   goldGrad: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)",
@@ -67,10 +71,10 @@ function SuggestedPeopleRail({ people, user, following, followMutation }) {
     <section className="rounded-[22px] py-4" style={{ background: MF.surface, border: `1px solid ${MF.line}` }} aria-label="People to connect">
       <div className="flex items-center justify-between mb-3 px-4">
         <div className="flex items-center gap-1.5">
-          <UserPlus className="w-3.5 h-3.5" style={{ color: MF.goldDeep }} />
-          <h3 className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: MF.text }}>People to connect</h3>
+          <UserPlus className="w-3.5 h-3.5" style={{ color: MF.blue }} />
+          <h3 className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: MF.blue }}>People to connect</h3>
         </div>
-        <Link to={createPageUrl("Discover")} className="flex items-center gap-0.5 text-[11px] font-bold no-underline" style={{ color: MF.muted }}>
+        <Link to={createPageUrl("Discover")} className="flex items-center gap-0.5 text-[11px] font-bold no-underline" style={{ color: MF.blue }}>
           See all <ChevronRight className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -112,11 +116,11 @@ function IconAction({ to, label, children, dot = false }) {
       aria-label={label}
       title={label}
       className="relative w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition"
-      style={{ background: MF.surface, color: MF.text, border: `1px solid ${MF.line}`, boxShadow: "0 2px 6px rgba(11,27,61,0.05)" }}
+      style={{ background: "rgba(255,255,255,0.16)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.22)" }}
     >
       {children}
       {dot && (
-        <span className="absolute top-2 right-2 w-2 h-2 rounded-full" style={{ background: MF.orange, boxShadow: `0 0 0 2px ${MF.surface}` }} />
+        <span className="absolute top-2 right-2 w-2 h-2 rounded-full" style={{ background: MF.gold, boxShadow: `0 0 0 2px ${MF.blueDeep}, 0 0 8px ${MF.gold}` }} />
       )}
     </Link>
   );
@@ -177,26 +181,26 @@ export default function MobileFeed({
       {/* TOP BAR — compact glass, logo left, icon actions right */}
       <div
         className="sticky top-0 z-40 safe-pt px-4"
-        style={{ background: "rgba(246,248,252,0.9)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", borderBottom: `1px solid ${MF.line}` }}
+        style={{ background: "rgba(10,46,159,0.92)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", borderBottom: "1px solid rgba(255,255,255,0.10)", boxShadow: "0 4px 16px rgba(5,26,85,0.18)" }}
       >
         <div className="flex items-center gap-2 h-14">
           {searchOpen ? (
-            <div className="flex-1 flex items-center gap-2 h-10 px-3 rounded-full" style={{ background: MF.surface, border: `1px solid ${MF.line}` }}>
-              <Search className="w-4 h-4 shrink-0" style={{ color: MF.muted }} />
+            <div className="flex-1 flex items-center gap-2 h-10 px-3 rounded-full" style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)" }}>
+              <Search className="w-4 h-4 shrink-0" style={{ color: "rgba(255,255,255,0.75)" }} />
               <input
                 autoFocus
                 value={searchQuery}
                 onChange={(e) => onSearch?.(e.target.value)}
                 placeholder="Search people, verses, drops"
-                className="flex-1 min-w-0 bg-transparent outline-none text-[14px] placeholder:text-[#8A97B5]"
-                style={{ color: MF.text }}
+                className="flex-1 min-w-0 bg-transparent outline-none text-[14px] placeholder:text-white/60"
+                style={{ color: "#FFFFFF" }}
               />
               <button
                 type="button"
                 aria-label="Close search"
                 onClick={() => { onSearch?.(""); setSearchOpen(false); }}
                 className="w-7 h-7 rounded-full flex items-center justify-center"
-                style={{ background: MF.surface2, color: MF.text }}
+                style={{ background: "rgba(255,255,255,0.2)", color: "#FFFFFF" }}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -204,7 +208,7 @@ export default function MobileFeed({
           ) : (
             <>
               <Link to={createPageUrl("Home")} className="shrink-0 flex items-center" aria-label="Generation LightMode home">
-                <img src={LOGO_BLUE} alt="Generation LightMode" className="h-7 w-auto object-contain" />
+                <img src={LOGO_GOLD} alt="Generation LightMode" className="h-7 w-auto object-contain" />
               </Link>
               <div className="flex-1" />
               <button
@@ -212,39 +216,49 @@ export default function MobileFeed({
                 aria-label="Search"
                 onClick={() => setSearchOpen(true)}
                 className="w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition"
-                style={{ background: MF.surface, color: MF.text, border: `1px solid ${MF.line}`, boxShadow: "0 2px 6px rgba(11,27,61,0.05)" }}
+                style={{ background: "rgba(255,255,255,0.16)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.22)" }}
               >
                 <Search className="w-[18px] h-[18px]" />
               </button>
-              <IconAction to={createPageUrl("DailyTruthFeed")} label="Daily Truth"><Flame className="w-[18px] h-[18px]" /></IconAction>
+              <IconAction to={createPageUrl("Dashboard")} label="Dashboard"><LayoutDashboard className="w-[18px] h-[18px]" /></IconAction>
               <IconAction to={createPageUrl("Notifications")} label="Notifications" dot={notifications?.length > 0}><Bell className="w-[18px] h-[18px]" /></IconAction>
             </>
           )}
         </div>
       </div>
 
-      {/* HERO — greeting, single gold accent */}
-      <div className="relative px-4 pt-5 pb-4">
+      {/* HERO — the Home hero artwork as background, blue wash, white text, gold name */}
+      <div className="relative overflow-hidden px-4 pt-6 pb-16" style={{ background: MF.blueDeep }}>
+        <img
+          src={HERO_IMAGE}
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          style={{ objectPosition: "center 32%" }}
+        />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(10,46,159,0.82) 0%, rgba(11,63,217,0.55) 45%, rgba(11,63,217,0.35) 75%, rgba(246,248,252,0) 100%)" }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(90deg, rgba(10,46,159,0.55) 0%, rgba(10,46,159,0) 60%)" }} />
         <div className="relative">
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: MF.muted }}>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: "rgba(255,255,255,0.8)" }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: MF.gold, animation: "mf-pulse-dot 2.2s ease-in-out infinite" }} />
             {greeting}
           </div>
-          <h1 className="mt-1 text-[28px] leading-[1.1] font-black font-['Space_Grotesk'] truncate" style={{ color: MF.text }}>
-            Hey, <span style={{ background: MF.goldTextGrad, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>{firstName}</span>
+          <h1 className="mt-1 text-[28px] leading-[1.1] font-black font-['Space_Grotesk'] truncate" style={{ color: "#FFFFFF", textShadow: "0 2px 12px rgba(5,26,85,0.45)" }}>
+            Hey, <span style={{ color: MF.gold }}>{firstName}</span>
             <Zap className="inline-block w-5 h-5 ml-1.5 -mt-1" style={{ color: MF.gold, fill: MF.gold }} />
           </h1>
-          <p className="mt-1 text-[14px] font-medium" style={{ color: MF.muted }}>Your light is needed today.</p>
+          <p className="mt-1 text-[14px] font-semibold" style={{ color: "rgba(255,255,255,0.85)", textShadow: "0 1px 8px rgba(5,26,85,0.45)" }}>Your light is needed today.</p>
         </div>
       </div>
 
-      {/* COMPOSE PROMPT — filled card, one primary action */}
-      <div className="px-4 mb-5">
+      {/* COMPOSE PROMPT — floats over the bottom edge of the hero image */}
+      <div className="px-4 -mt-9 relative z-10 mb-5">
         <button
           type="button"
           onClick={onOpenDropModal}
           className="w-full rounded-[22px] p-2.5 pl-3 flex items-center gap-3 active:scale-[0.99] transition text-left"
-          style={{ background: MF.surface, border: `1px solid ${MF.line}`, boxShadow: "0 10px 28px rgba(11,63,217,0.10)" }}
+          style={{ background: MF.surface, border: `1px solid ${MF.line}`, boxShadow: "0 12px 32px rgba(11,63,217,0.18)" }}
         >
           <div className="shrink-0 w-10 h-10 rounded-full overflow-hidden" style={{ border: `2px solid ${MF.surface2}` }}>
             <UserAvatar user={user} className="w-full h-full" />
@@ -274,7 +288,7 @@ export default function MobileFeed({
               <span className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: `${tint}1F`, color: tint }}>
                 <Icon className="w-[18px] h-[18px]" strokeWidth={2.25} />
               </span>
-              <span className="text-[11px] font-bold" style={{ color: MF.text }}>{label}</span>
+              <span className="text-[11px] font-bold" style={{ color: MF.blueDeep }}>{label}</span>
             </Link>
           ))}
         </div>
@@ -285,10 +299,10 @@ export default function MobileFeed({
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2.5 px-4">
             <div className="flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5" style={{ color: MF.cyan }} />
-              <h3 className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: MF.text }}>Trending vibes</h3>
+              <TrendingUp className="w-3.5 h-3.5" style={{ color: MF.blue }} />
+              <h3 className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: MF.blue }}>Trending vibes</h3>
             </div>
-            <button type="button" onClick={() => onOpenTopic?.(trendingTopics[0].tag)} className="flex items-center gap-0.5 text-[11px] font-bold" style={{ color: MF.muted }} aria-label="See trending drops">
+            <button type="button" onClick={() => onOpenTopic?.(trendingTopics[0].tag)} className="flex items-center gap-0.5 text-[11px] font-bold" style={{ color: MF.blue }} aria-label="See trending drops">
               See all <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -323,7 +337,7 @@ export default function MobileFeed({
                 <Plus className="w-3.5 h-3.5" style={{ color: MF.ink }} strokeWidth={3} />
               </div>
             </div>
-            <span className="text-[10px] font-bold" style={{ color: MF.text }}>Your Story</span>
+            <span className="text-[10px] font-bold" style={{ color: MF.blue }}>Your Story</span>
           </button>
 
           {liveStories.slice(0, 10).map(story => {
@@ -374,7 +388,7 @@ export default function MobileFeed({
                 className="h-9 pl-3 pr-3.5 rounded-full inline-flex items-center gap-1.5 text-[12px] font-bold whitespace-nowrap transition active:scale-95"
                 style={isActive
                   ? { background: MF.gold, color: MF.ink, boxShadow: "0 6px 18px rgba(255,208,0,0.35)" }
-                  : { background: MF.surface, color: MF.text, border: `1px solid ${MF.line}` }}
+                  : { background: MF.surface, color: MF.blue, border: "1px solid #D6E4FF" }}
               >
                 <Icon className="w-3.5 h-3.5" strokeWidth={2.5} style={isActive && key === "Most Liked" ? { fill: MF.ink } : undefined} />
                 {key}

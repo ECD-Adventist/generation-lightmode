@@ -10,7 +10,7 @@ import useMobileTabNavigation from "@/hooks/useMobileTabNavigation";
  *
  * Pattern: "floating tab bar with a protruded key action at the centre"
  * (Mobbin, Tab Bar UI — variants 3 & 4). Five destinations, icon + label,
- * gold indicator on the selected tab, light glass surface, respects the iOS home indicator.
+ * royal-blue pill, white labels, gold selected state, respects the iOS home indicator.
  */
 
 const tabs = [
@@ -24,8 +24,8 @@ const tabs = [
 const GOLD = "#FFD000";
 const INK = "#0B1B3D";
 const CANVAS = "#F6F8FC";
-const MUTED = "#8A97B5";
-const ACTIVE = "#0B3FD9";
+const MUTED = "rgba(255,255,255,0.72)";
+const ACTIVE = "#FFD000";
 
 export default function MobileBottomNav({ currentPageName }) {
   const location = useLocation();
@@ -74,11 +74,11 @@ export default function MobileBottomNav({ currentPageName }) {
           maxWidth: 520,
           height: 64,
           borderRadius: 999,
-          background: "rgba(255,255,255,0.92)",
+          background: "linear-gradient(135deg, rgba(10,46,159,0.96) 0%, rgba(11,63,217,0.96) 65%, rgba(21,99,232,0.96) 100%)",
           backdropFilter: "blur(22px)",
           WebkitBackdropFilter: "blur(22px)",
-          border: "1px solid #E2EAF5",
-          boxShadow: "0 16px 40px rgba(11,27,61,0.18), inset 0 1px 0 rgba(255,255,255,0.9)",
+          border: "1px solid rgba(255,255,255,0.14)",
+          boxShadow: "0 16px 40px rgba(10,46,159,0.35), inset 0 1px 0 rgba(255,255,255,0.18)",
           pointerEvents: "auto",
         }}
       >
@@ -111,7 +111,7 @@ export default function MobileBottomNav({ currentPageName }) {
                 >
                   <Plus className="w-6 h-6" strokeWidth={2.75} style={{ color: INK }} />
                 </span>
-                <span className="text-[10px] font-bold tracking-wide" style={{ fontFamily: "Inter, sans-serif", color: INK }}>
+                <span className="text-[10px] font-bold tracking-wide" style={{ fontFamily: "Inter, sans-serif", color: "#FFFFFF" }}>
                   {label}
                 </span>
               </Link>
