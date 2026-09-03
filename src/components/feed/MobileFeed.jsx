@@ -98,7 +98,7 @@ function SuggestedPeopleRail({ people, user, following, followMutation }) {
               type="button"
               onClick={() => (user ? followMutation?.mutate(u) : null)}
               disabled={followMutation?.isPending}
-              className="mt-2.5 h-8 w-full rounded-full text-[11px] font-black active:scale-95 transition disabled:opacity-60"
+              className="mf-press mt-2.5 h-8 w-full rounded-full text-[11px] font-black disabled:opacity-60"
               style={{ background: MF.blueGradTab, color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11,63,217,0.28)" }}
             >
               Connect
@@ -110,13 +110,41 @@ function SuggestedPeopleRail({ people, user, following, followMutation }) {
   );
 }
 
+/**
+ * Time-of-day greeting in the user's own time zone.
+ * Uses the profile's time zone when the account has one, otherwise the device's zone
+ * (Intl resolvedOptions), and re-evaluates every minute so a long-lived session never
+ * gets stuck on "Good morning".
+ */
+function useGreeting(user) {
+  const compute = React.useCallback(() => {
+    const zone = user?.timezone || user?.time_zone || undefined;
+    let hour = new Date().getHours();
+    try {
+      const parts = new Intl.DateTimeFormat("en-US", { hour: "numeric", hour12: false, timeZone: zone }).formatToParts(new Date());
+      const h = Number(parts.find(part => part.type === "hour")?.value);
+      if (!Number.isNaN(h)) hour = h % 24;
+    } catch { /* unknown zone string → device time */ }
+    return hour < 5 ? "Good night" : hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  }, [user?.timezone, user?.time_zone]);
+  const [greeting, setGreeting] = React.useState(compute);
+  React.useEffect(() => {
+    setGreeting(compute());
+    const id = setInterval(() => setGreeting(compute()), 60 * 1000);
+    const onVisible = () => { if (document.visibilityState === "visible") setGreeting(compute()); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => { clearInterval(id); document.removeEventListener("visibilitychange", onVisible); };
+  }, [compute]);
+  return greeting;
+}
+
 function IconAction({ to, label, children, dot = false }) {
   return (
     <Link
       to={to}
       aria-label={label}
       title={label}
-      className="relative w-10 h-10 rounded-full flex items-center justify-center active:scale-95 transition"
+      className="mf-press relative w-10 h-10 rounded-full flex items-center justify-center"
       style={{ background: "rgba(255,255,255,0.18)", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.30)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}
     >
       {children}
@@ -164,8 +192,7 @@ export default function MobileFeed({
   isRefreshing = false,
   pullThreshold = 70,
 }) {
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const greeting = useGreeting(user);
   const firstName = user ? (getDisplayName(user).split(" ")[0] || "Friend") : "Friend";
   const liveStories = Array.isArray(stories) ? stories : [];
 
@@ -189,6 +216,11 @@ export default function MobileFeed({
         .mf-hide-sb::-webkit-scrollbar { display: none; }
         .mf-hide-sb { scrollbar-width: none; }
         @keyframes mf-pulse-dot { 0%,100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.5); opacity: .55 } }
+        @keyframes mf-pop { 0% { transform: scale(0.92) } 60% { transform: scale(1.04) } 100% { transform: scale(1) } }
+        .mf-pop { animation: mf-pop 260ms cubic-bezier(0.22,1,0.36,1); }
+        .mf-press { transition: transform 160ms cubic-bezier(0.2,0.8,0.2,1), box-shadow 160ms ease, background-color 160ms ease; -webkit-tap-highlight-color: transparent; }
+        .mf-press:active { transform: scale(0.94); }
+        @media (prefers-reduced-motion: reduce) { .mf-pop { animation: none; } .mf-press:active { transform: none; } }
       `}</style>
 
       {/* HERO ARTWORK — starts at the very top of the screen, behind the status bar and the
@@ -210,12 +242,22 @@ export default function MobileFeed({
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,46,159,0.66) 0%, rgba(11,63,217,0.38) 40%, rgba(246,248,252,0.30) 66%, rgba(246,248,252,0.90) 84%, #F6F8FC 96%)" }} />
       </div>
 
-      {/* TOP BAR — transparent over the artwork; a solid brand blue (no gradient) once scrolled */}
+      {/* TOP BAR — transparent over the artwork at rest. Once scrolled it carries the very same top
+          slice of the artwork (same crop and position as at rest) under the brand-blue wash, so the
+          bar reads as a continuation of the hero rather than a flat colour. */}
       <div
         className="sticky top-0 z-40 safe-pt px-4"
         style={scrolled
-          ? { background: MF.blue, borderBottom: "1px solid rgba(255,255,255,0.14)", boxShadow: "0 4px 16px rgba(11,63,217,0.22)", transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease" }
-          : { background: "transparent", borderBottom: "1px solid transparent", transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease" }}
+          ? {
+              backgroundImage: `linear-gradient(180deg, rgba(10,46,159,0.78) 0%, rgba(11,63,217,0.86) 100%), url(${HERO_IMAGE})`,
+              backgroundSize: "auto, cover",
+              backgroundPosition: "center, center 30%",
+              backgroundRepeat: "no-repeat",
+              borderBottom: "1px solid rgba(255,255,255,0.14)",
+              boxShadow: "0 4px 16px rgba(11,63,217,0.22)",
+              transition: "box-shadow 220ms ease, border-color 220ms ease",
+            }
+          : { background: "transparent", borderBottom: "1px solid transparent", transition: "box-shadow 220ms ease, border-color 220ms ease" }}
       >
         <div className="flex items-center gap-2 h-14">
           <Link to={createPageUrl("Home")} className="shrink-0 flex items-center" aria-label="Generation LightMode home">
@@ -246,7 +288,7 @@ export default function MobileFeed({
         <button
           type="button"
           onClick={onOpenDropModal}
-          className="w-full rounded-[22px] p-2.5 pl-3 flex items-center gap-3 active:scale-[0.99] transition text-left"
+          className="mf-press w-full rounded-[22px] p-2.5 pl-3 flex items-center gap-3 text-left"
           style={{ background: MF.surface, border: `1px solid ${MF.line}`, boxShadow: "0 12px 32px rgba(11,63,217,0.16)" }}
         >
           <div className="shrink-0 w-10 h-10 rounded-full overflow-hidden" style={{ border: `2px solid ${MF.surface2}` }}>
@@ -271,7 +313,7 @@ export default function MobileFeed({
             <Link
               key={key}
               to={createPageUrl(page)}
-              className="flex flex-col items-center gap-1.5 py-2.5 rounded-2xl active:scale-95 transition no-underline"
+              className="mf-press flex flex-col items-center gap-1.5 py-2.5 rounded-2xl no-underline"
               style={{ background: MF.surface, border: `1px solid ${MF.line}`, boxShadow: "0 2px 8px rgba(11,63,217,0.05)" }}
             >
               <span className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: `${tint}1F`, color: tint }}>
@@ -301,7 +343,7 @@ export default function MobileFeed({
                 key={topic.tag}
                 type="button"
                 onClick={() => onOpenTopic?.(topic.tag)}
-                className="shrink-0 h-10 pl-1.5 pr-3.5 rounded-full inline-flex items-center gap-2 active:scale-95 transition"
+                className="mf-press shrink-0 h-10 pl-1.5 pr-3.5 rounded-full inline-flex items-center gap-2"
                 style={{ background: MF.surface, border: "1px solid #D6E4FF" }}
               >
                 <span className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black" style={idx === 0 ? { background: MF.blueGradTab, color: "#FFFFFF" } : { background: "rgba(31,184,255,0.10)", color: MF.blue }}>{idx + 1}</span>
@@ -317,7 +359,7 @@ export default function MobileFeed({
       <div className="mb-4">
         <div className="flex gap-3.5 overflow-x-auto mf-hide-sb px-4 pb-1">
           {/* Add status */}
-          <button type="button" onClick={onOpenStatusComposer} className="flex flex-col items-center gap-1.5 shrink-0 active:scale-95 transition">
+          <button type="button" onClick={onOpenStatusComposer} className="mf-press flex flex-col items-center gap-1.5 shrink-0">
             <div className="relative w-[68px] h-[68px] rounded-full p-[2px]" style={{ background: "#D6E4FF" }}>
               <div className="w-full h-full rounded-full overflow-hidden" style={{ background: MF.surface, border: `3px solid ${MF.canvas}` }}>
                 <UserAvatar user={user} className="w-full h-full" />
@@ -337,7 +379,7 @@ export default function MobileFeed({
               : "linear-gradient(135deg,#00CFFF,#1DA1FF)";
             const isMine = storyUser?.email === user?.email;
             return (
-              <button key={story.id} type="button" onClick={() => onOpenStatus(story)} className="flex flex-col items-center gap-1.5 shrink-0 active:scale-95 transition">
+              <button key={story.id} type="button" onClick={() => onOpenStatus(story)} className="mf-press flex flex-col items-center gap-1.5 shrink-0">
                 <div className="relative w-[68px] h-[68px] rounded-full p-[2px]" style={{ background: MF.ringGrad }}>
                   <div className="w-full h-full rounded-full overflow-hidden" style={{ background: MF.surface, border: `3px solid ${MF.canvas}` }}>
                     {story.story_type === "image" && story.media_url ? (
@@ -372,12 +414,13 @@ export default function MobileFeed({
         </div>
       )}
 
-      {/* FILTER CHIPS — filled, leading icon, gold selected state; sticky under the top bar */}
+      {/* FILTER CHIPS — segmented pills with an icon well; the selected pill pops in with the brand
+          gradient. Sticky under the top bar. */}
       <div
         className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-30 py-2.5 mb-2"
         style={{ background: "rgba(246,248,252,0.94)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", borderBottom: `1px solid ${MF.line}` }}
       >
-        <div className="flex items-center gap-2 overflow-x-auto mf-hide-sb px-4" role="tablist" aria-label="Feed filters">
+        <div className="flex items-center gap-2 overflow-x-auto mf-hide-sb px-4 py-0.5" role="tablist" aria-label="Feed filters">
           {FILTERS.map(({ key, icon: Icon }) => {
             const isActive = activeFilter === key;
             return (
@@ -387,12 +430,17 @@ export default function MobileFeed({
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => onFilterChange(key)}
-                className="h-9 pl-3 pr-3.5 rounded-full inline-flex items-center gap-1.5 text-[12px] font-bold whitespace-nowrap transition active:scale-95"
+                className={`mf-press h-10 pl-1.5 pr-4 rounded-full inline-flex items-center gap-2 text-[13px] font-bold whitespace-nowrap ${isActive ? "mf-pop" : ""}`}
                 style={isActive
-                  ? { background: MF.blueGradTab, color: "#FFFFFF", boxShadow: "0 4px 12px rgba(11,63,217,0.35)" }
-                  : { background: MF.surface, color: MF.blue, border: "1px solid #D6E4FF" }}
+                  ? { background: MF.blueGradTab, color: "#FFFFFF", boxShadow: "0 6px 16px rgba(11,63,217,0.32)", border: "1px solid transparent" }
+                  : { background: MF.surface, color: MF.blue, border: "1px solid #D6E4FF", boxShadow: "0 1px 3px rgba(11,63,217,0.06)" }}
               >
-                <Icon className="w-3.5 h-3.5" strokeWidth={2.5} style={isActive && key === "Most Liked" ? { fill: "#FFFFFF" } : undefined} />
+                <span
+                  className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+                  style={isActive ? { background: "rgba(255,255,255,0.22)" } : { background: "rgba(31,184,255,0.12)" }}
+                >
+                  <Icon className="w-[15px] h-[15px]" strokeWidth={2.5} style={isActive && key === "Most Liked" ? { fill: "#FFFFFF" } : undefined} />
+                </span>
                 {key}
               </button>
             );
@@ -415,7 +463,7 @@ export default function MobileFeed({
             </div>
             <p className="text-[15px] font-black font-['Space_Grotesk']" style={{ color: MF.text }}>Feed took a breath</p>
             <p className="text-[13px] mt-1" style={{ color: MF.muted }}>We couldn't load new drops just now.</p>
-            <button type="button" onClick={onRefetch} className="mt-4 h-11 px-6 rounded-full text-[13px] font-black active:scale-95 transition" style={{ background: MF.goldGrad, color: MF.ink }}>
+            <button type="button" onClick={onRefetch} className="mf-press mt-4 h-11 px-6 rounded-full text-[13px] font-black" style={{ background: MF.goldGrad, color: MF.ink }}>
               Try again
             </button>
           </div>
@@ -430,7 +478,7 @@ export default function MobileFeed({
               <p className="text-[13px] mt-1" style={{ color: MF.muted }}>
                 {activeFilter === "Following" ? "Follow a few believers to fill this space." : "Be the first to share your light."}
               </p>
-              <button type="button" onClick={onOpenDropModal} className="mt-4 h-11 px-6 rounded-full inline-flex items-center gap-2 text-[13px] font-black active:scale-95 transition" style={{ background: MF.goldGrad, color: MF.ink, boxShadow: "0 8px 22px rgba(255,208,0,0.35)" }}>
+              <button type="button" onClick={onOpenDropModal} className="mf-press mt-4 h-11 px-6 rounded-full inline-flex items-center gap-2 text-[13px] font-black" style={{ background: MF.goldGrad, color: MF.ink, boxShadow: "0 8px 22px rgba(255,208,0,0.35)" }}>
                 <Zap className="w-4 h-4" style={{ fill: MF.ink }} /> Share your Drop
               </button>
             </div>

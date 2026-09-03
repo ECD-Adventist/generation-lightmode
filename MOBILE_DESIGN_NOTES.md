@@ -45,8 +45,9 @@ dark navy because it is brand, not content.
 The Home hero artwork starts at the very top of the screen, behind the status bar and the
 navigation bar, treated like the Control Center dashboard (70% grayscale) under a royal-blue wash (no black
 tones) and fades smoothly into the light canvas just above the quick-action tiles. The navigation
-bar is transparent over the artwork and becomes a solid brand blue `#0B3FD9` (no gradient) once
-the feed scrolls (an IntersectionObserver sentinel in the hero drives this); logo and icons stay the same.
+bar is transparent over the artwork and, once the feed scrolls, carries the very same top slice of
+the artwork (same crop and position) under a brand-blue wash so it reads as a continuation of the
+hero (an IntersectionObserver sentinel in the hero drives this); logo and icons stay the same.
 
 The top-right actions are Dashboard and Notifications only; search lives on the Explore tab, and
 a trending-chip search shows as a dismissible pill above the filter chips.
@@ -56,7 +57,8 @@ Blue follows the other tabs: active chips, the #1 trending badge and Connect but
 labels are `#0B3FD9`; wells are `rgba(31,184,255,0.08)` with `#B8E5FF` borders; the floating tab
 bar is the same sky→royal gradient at ~80% opacity over a blur, with white labels, a gold active
 state and a circular gap masked out of the pill around the protruding Drop button, which sits in
-a rotating conic light ring (the same sky→royal→gold light used on profile covers). The bottom tab
+a full rotating light ring — mostly the nav's royal blue with a sky-blue sweep and a gold
+highlight travelling round it (the profile-cover light, tuned to the nav). The bottom tab
 is labelled Explore.
 
 The stories row has no "Statuses" heading — the rings speak for themselves and the vertical space
@@ -81,6 +83,14 @@ Radii: 22px cards, full pills for chips, buttons and the tab bar.
 Tap targets: 40–44pt minimum on every icon button.
 
 ## Interaction details
+
+- Every tappable control uses the `mf-press` / `mbn-press` press animation (scale to 0.94 on touch).
+  The selected filter chip pops in (`mf-pop`), and the selected tab icon bounces once. All of it
+  is disabled under `prefers-reduced-motion`.
+- Filter chips are segmented pills with an icon well; the selected pill uses the brand gradient.
+- The greeting is computed in the user's own time zone (profile `timezone` when present, otherwise
+  the device zone via Intl) and re-evaluated every minute and on tab focus, so a long-lived session
+  never sticks on "Good morning". Bands: night < 5, morning < 12, afternoon < 17, evening.
 
 - Double-tap on a post's media likes it and shows a gold heart burst (single tap opens the post).
 - Pull-to-refresh shows a gold lightning bolt that fills as you pull and spins while refreshing.

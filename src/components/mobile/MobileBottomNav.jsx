@@ -67,7 +67,11 @@ export default function MobileBottomNav({ currentPageName }) {
       <style>{`
         @keyframes mbn-dot { from { transform: scaleX(0); opacity: 0 } to { transform: scaleX(1); opacity: 1 } }
         @keyframes mbn-spin-light { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-        @media (prefers-reduced-motion: reduce) { .mbn-light { animation: none !important; } }
+        @keyframes mbn-bounce { 0% { transform: translateY(0) scale(1) } 35% { transform: translateY(-4px) scale(1.12) } 70% { transform: translateY(1px) scale(0.98) } 100% { transform: translateY(0) scale(1) } }
+        .mbn-press { transition: transform 160ms cubic-bezier(0.2,0.8,0.2,1); -webkit-tap-highlight-color: transparent; }
+        .mbn-press:active { transform: scale(0.92); }
+        .mbn-active-icon { animation: mbn-bounce 420ms cubic-bezier(0.22,1,0.36,1); }
+        @media (prefers-reduced-motion: reduce) { .mbn-light, .mbn-active-icon { animation: none !important; } .mbn-press:active { transform: none; } }
       `}</style>
       <div className="relative mx-auto" style={{ maxWidth: 520, height: 64, pointerEvents: "auto" }}>
         {/* Pill surface — same sky→royal blue as the Explore / Messages / Profile pills, translucent,
@@ -83,8 +87,8 @@ export default function MobileBottomNav({ currentPageName }) {
             WebkitBackdropFilter: "blur(22px) saturate(1.2)",
             border: "1px solid rgba(255,255,255,0.22)",
             boxShadow: "0 16px 40px rgba(11,63,217,0.30), inset 0 1px 0 rgba(255,255,255,0.25)",
-            WebkitMaskImage: "radial-gradient(circle at 50% 3px, transparent 37px, #000 38px)",
-            maskImage: "radial-gradient(circle at 50% 3px, transparent 37px, #000 38px)",
+            WebkitMaskImage: "radial-gradient(circle at 50% 3px, transparent 38px, #000 39px)",
+            maskImage: "radial-gradient(circle at 50% 3px, transparent 38px, #000 39px)",
           }}
         />
         <div className="relative flex items-stretch justify-around h-full">
@@ -107,24 +111,25 @@ export default function MobileBottomNav({ currentPageName }) {
               >
                 {/* Seat: a rotating light ring (same conic light as the profile covers) around the gold button */}
                 <span
-                  className="relative flex items-center justify-center rounded-full overflow-hidden active:scale-95 transition"
-                  style={{ width: 62, height: 62, marginTop: -28, background: "#0B3FD9", boxShadow: "0 10px 26px rgba(255,159,26,0.40)" }}
+                  className="mbn-press relative flex items-center justify-center rounded-full overflow-hidden"
+                  style={{ width: 64, height: 64, marginTop: -29, background: "#0B3FD9", boxShadow: "0 10px 26px rgba(11,63,217,0.35), 0 6px 18px rgba(255,159,26,0.30)" }}
                 >
+                  {/* Full ring: mostly the nav's royal blue, with a sky-blue sweep and a gold highlight travelling round it */}
                   <span
                     aria-hidden="true"
                     className="mbn-light absolute rounded-full"
                     style={{
                       top: "50%",
                       left: "50%",
-                      width: "220%",
-                      height: "220%",
-                      background: "conic-gradient(from 0deg, transparent 60%, #1FB8FF 78%, #0B3FD9 90%, #FFD000 100%)",
+                      width: "200%",
+                      height: "200%",
+                      background: "conic-gradient(from 0deg, #0B3FD9 0%, #0B3FD9 42%, #1FB8FF 62%, #FFD000 78%, #1FB8FF 88%, #0B3FD9 100%)",
                       animation: "mbn-spin-light 4s linear infinite",
                     }}
                   />
                   <span
                     className="relative flex items-center justify-center rounded-full"
-                    style={{ width: 54, height: 54, background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)", border: "2px solid rgba(255,255,255,0.85)" }}
+                    style={{ width: 54, height: 54, background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)", border: "2px solid rgba(255,255,255,0.9)" }}
                   >
                     <Plus className="w-6 h-6" strokeWidth={2.75} style={{ color: INK }} />
                   </span>
@@ -145,7 +150,7 @@ export default function MobileBottomNav({ currentPageName }) {
                 e.preventDefault();
                 switchTab(key);
               }}
-              className="relative flex-1 flex flex-col items-center justify-center gap-1"
+              className="mbn-press relative flex-1 flex flex-col items-center justify-center gap-1"
               style={{ minHeight: 56, color: active ? ACTIVE : MUTED, textDecoration: "none" }}
               aria-current={active ? "page" : undefined}
             >
@@ -155,7 +160,7 @@ export default function MobileBottomNav({ currentPageName }) {
                   style={{ background: GOLD, animation: "mbn-dot 220ms cubic-bezier(0.22,1,0.36,1)" }}
                 />
               )}
-              <Icon className="w-[22px] h-[22px]" strokeWidth={active ? 2.5 : 2} style={{ color: "inherit", fill: active && key === "Feed" ? ACTIVE : "none" }} />
+              <Icon key={active ? "on" : "off"} className={`w-[22px] h-[22px] ${active ? "mbn-active-icon" : ""}`} strokeWidth={active ? 2.5 : 2} style={{ color: "inherit", fill: active && key === "Feed" ? ACTIVE : "none" }} />
               <span className="text-[10px] font-bold tracking-wide" style={{ fontFamily: "Inter, sans-serif" }}>
                 {label}
               </span>
