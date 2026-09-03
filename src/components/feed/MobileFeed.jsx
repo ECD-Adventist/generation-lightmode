@@ -242,23 +242,29 @@ export default function MobileFeed({
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,46,159,0.66) 0%, rgba(11,63,217,0.38) 40%, rgba(246,248,252,0.30) 66%, rgba(246,248,252,0.90) 84%, #F6F8FC 96%)" }} />
       </div>
 
-      {/* TOP BAR — transparent over the artwork at rest. Once scrolled it carries the very same top
-          slice of the artwork (same crop and position as at rest) under the brand-blue wash, so the
-          bar reads as a continuation of the hero rather than a flat colour. */}
+      {/* TOP BAR — transparent over the artwork at rest. Once scrolled it shows the very same top
+          slice of the artwork: identical scale (image height = artwork height), position (top),
+          tone (same grayscale) and wash, so the bar is pixel-continuous with the hero scrolling
+          beneath it rather than a re-cropped copy. */}
       <div
-        className="sticky top-0 z-40 safe-pt px-4"
-        style={scrolled
-          ? {
-              backgroundImage: `linear-gradient(180deg, rgba(10,46,159,0.78) 0%, rgba(11,63,217,0.86) 100%), url(${HERO_IMAGE})`,
-              backgroundSize: "auto, cover",
-              backgroundPosition: "center, center 30%",
-              backgroundRepeat: "no-repeat",
-              borderBottom: "1px solid rgba(255,255,255,0.14)",
-              boxShadow: "0 4px 16px rgba(11,63,217,0.22)",
-              transition: "box-shadow 220ms ease, border-color 220ms ease",
-            }
-          : { background: "transparent", borderBottom: "1px solid transparent", transition: "box-shadow 220ms ease, border-color 220ms ease" }}
+        className="sticky top-0 z-40 safe-pt px-4 overflow-hidden"
+        style={{ borderBottom: scrolled ? "1px solid rgba(255,255,255,0.14)" : "1px solid transparent", boxShadow: scrolled ? "0 4px 16px rgba(11,63,217,0.22)" : "none", transition: "box-shadow 220ms ease, border-color 220ms ease" }}
       >
+        <div aria-hidden="true" className="absolute inset-0 -z-10 pointer-events-none" style={{ opacity: scrolled ? 1 : 0, transition: "opacity 180ms ease" }}>
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url(${HERO_IMAGE})`,
+              backgroundSize: "auto calc(env(safe-area-inset-top, 0px) + 336px)",
+              backgroundPosition: "center top",
+              backgroundRepeat: "no-repeat",
+              backgroundColor: "#0A2E9F",
+              filter: "grayscale(70%) contrast(1.1) brightness(0.95)",
+            }}
+          />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(10,46,159,0.62) 0%, rgba(11,63,217,0.32) 45%, rgba(11,63,217,0.08) 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "rgba(10,46,159,0.66)" }} />
+        </div>
         <div className="flex items-center gap-2 h-14">
           <Link to={createPageUrl("Home")} className="shrink-0 flex items-center" aria-label="Generation LightMode home">
             <img src={LOGO_GOLD} alt="Generation LightMode" className="h-7 w-auto object-contain" />

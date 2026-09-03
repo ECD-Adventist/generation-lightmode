@@ -45,9 +45,10 @@ dark navy because it is brand, not content.
 The Home hero artwork starts at the very top of the screen, behind the status bar and the
 navigation bar, treated like the Control Center dashboard (70% grayscale) under a royal-blue wash (no black
 tones) and fades smoothly into the light canvas just above the quick-action tiles. The navigation
-bar is transparent over the artwork and, once the feed scrolls, carries the very same top slice of
-the artwork (same crop and position) under a brand-blue wash so it reads as a continuation of the
-hero (an IntersectionObserver sentinel in the hero drives this); logo and icons stay the same.
+bar is transparent over the artwork and, once the feed scrolls, shows the very same top slice of
+the artwork — identical scale (image height equals the artwork height), top position, grayscale and
+wash — so it is pixel-continuous with the hero scrolling beneath it (an IntersectionObserver
+sentinel in the hero drives this); logo and icons stay the same.
 
 The top-right actions are Dashboard and Notifications only; search lives on the Explore tab, and
 a trending-chip search shows as a dismissible pill above the filter chips.
@@ -57,8 +58,9 @@ Blue follows the other tabs: active chips, the #1 trending badge and Connect but
 labels are `#0B3FD9`; wells are `rgba(31,184,255,0.08)` with `#B8E5FF` borders; the floating tab
 bar is the same sky→royal gradient at ~80% opacity over a blur, with white labels, a gold active
 state and a circular gap masked out of the pill around the protruding Drop button, which sits in
-a thin gold strobe that sweeps tight around it (a gold conic, lightly blurred), with the pill's
-gap sitting just outside the strobe so the space between bar and button stays small. The bottom tab is labelled Explore.
+a thin static gold light around its whole edge (a gold ring, lightly blurred, no motion), with
+the pill's gap sitting just outside it so the space between bar and button stays small. The seat is
+absolutely positioned so its centre coincides with the gap's centre. The bottom tab is labelled Explore.
 
 The stories row has no "Statuses" heading — the rings speak for themselves and the vertical space
 is kept for content.

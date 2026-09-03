@@ -66,12 +66,11 @@ export default function MobileBottomNav({ currentPageName }) {
     >
       <style>{`
         @keyframes mbn-dot { from { transform: scaleX(0); opacity: 0 } to { transform: scaleX(1); opacity: 1 } }
-        @keyframes mbn-spin-light { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
         @keyframes mbn-bounce { 0% { transform: translateY(0) scale(1) } 35% { transform: translateY(-4px) scale(1.12) } 70% { transform: translateY(1px) scale(0.98) } 100% { transform: translateY(0) scale(1) } }
         .mbn-press { transition: transform 160ms cubic-bezier(0.2,0.8,0.2,1); -webkit-tap-highlight-color: transparent; }
         .mbn-press:active { transform: scale(0.92); }
         .mbn-active-icon { animation: mbn-bounce 420ms cubic-bezier(0.22,1,0.36,1); }
-        @media (prefers-reduced-motion: reduce) { .mbn-light, .mbn-active-icon { animation: none !important; } .mbn-press:active { transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .mbn-active-icon { animation: none !important; } .mbn-press:active { transform: none; } }
       `}</style>
       <div className="relative mx-auto" style={{ maxWidth: 520, height: 64, pointerEvents: "auto" }}>
         {/* Pill surface — same sky→royal blue as the Explore / Messages / Profile pills, translucent,
@@ -105,14 +104,15 @@ export default function MobileBottomNav({ currentPageName }) {
                     window.dispatchEvent(new CustomEvent("openDropComposer"));
                   }
                 }}
-                className="flex-1 flex flex-col items-center justify-end gap-1 pb-1.5"
-                style={{ textDecoration: "none" }}
+                className="relative flex-1"
+                style={{ textDecoration: "none", minHeight: 64 }}
                 aria-label="Create a drop"
               >
-                {/* Seat: a thin gold strobe sweeping tight around the button; the pill's gap sits just outside it */}
+                {/* Seat: a static gold light around the whole button, positioned absolutely so its centre
+                    (50%, 3px from the pill top) is exactly the centre of the gap masked out of the pill. */}
                 <span
-                  className="mbn-press relative flex items-center justify-center rounded-full"
-                  style={{ width: 60, height: 60, marginTop: -27 }}
+                  className="mbn-press absolute flex items-center justify-center rounded-full"
+                  style={{ width: 60, height: 60, top: -27, left: "50%", marginLeft: -30 }}
                 >
                   <span
                     aria-hidden="true"
@@ -120,11 +120,12 @@ export default function MobileBottomNav({ currentPageName }) {
                     style={{
                       top: "50%",
                       left: "50%",
+                      transform: "translate(-50%, -50%)",
                       width: 60,
                       height: 60,
-                      background: "conic-gradient(from 0deg, rgba(255,208,0,0) 0%, rgba(255,208,0,0) 48%, #FFD000 70%, #FF9F1A 84%, rgba(255,159,26,0) 100%)",
+                      background: "radial-gradient(circle, rgba(255,208,0,0) 0%, rgba(255,208,0,0) 42%, #FFD000 47%, #FF9F1A 50%, rgba(255,159,26,0) 50%)",
                       filter: "blur(1.5px)",
-                      animation: "mbn-spin-light 3s linear infinite",
+                      boxShadow: "0 0 14px 2px rgba(255,208,0,0.55)",
                     }}
                   />
                   <span
@@ -134,7 +135,7 @@ export default function MobileBottomNav({ currentPageName }) {
                     <Plus className="w-6 h-6" strokeWidth={2.75} style={{ color: INK }} />
                   </span>
                 </span>
-                <span className="text-[10px] font-bold tracking-wide" style={{ fontFamily: "Inter, sans-serif", color: "#FFFFFF" }}>
+                <span className="absolute left-0 right-0 text-center text-[10px] font-bold tracking-wide" style={{ bottom: 7, fontFamily: "Inter, sans-serif", color: "#FFFFFF" }}>
                   {label}
                 </span>
               </Link>
