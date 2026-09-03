@@ -56,9 +56,8 @@ Blue follows the other tabs: active chips, the #1 trending badge and Connect but
 `#1FB8FF → #0B3FD9` gradient with white text; headings, links, unselected chips and quick-action
 labels are `#0B3FD9`; wells are `rgba(31,184,255,0.08)` with `#B8E5FF` borders; the floating tab
 bar is the same sky→royal gradient at ~80% opacity over a blur, with white labels, a gold active
-state and a circular gap masked out of the pill around the protruding Drop button, which sits in
-a thin gold-gradient light that sweeps tight around it, with a faint royal-blue glow further out
-(no ring or hard edge; the pill's gap is 4px). The bottom tab
+state and the Drop button centred in the pill (icon only, no label) inside a circular gap that
+clears just its thin gold-gradient sweeping light, with a faint royal-blue glow further out. The bottom tab
 is labelled Explore.
 
 The stories row has no "Statuses" heading — the rings speak for themselves and the vertical space

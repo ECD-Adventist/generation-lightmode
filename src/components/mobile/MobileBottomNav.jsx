@@ -75,8 +75,8 @@ export default function MobileBottomNav({ currentPageName }) {
       `}</style>
       <div className="relative mx-auto" style={{ maxWidth: 520, height: 64, pointerEvents: "auto" }}>
         {/* Pill surface — same sky→royal blue as the Explore / Messages / Profile pills, translucent,
-            with a circular gap cut around the protruding Drop button. Kept as a separate layer so the
-            mask never clips the button itself. */}
+            with a circular gap cut out of the centre that clears only the Drop button and its light.
+            Kept as a separate layer so the mask never clips the button itself. */}
         <div
           aria-hidden="true"
           className="absolute inset-0"
@@ -87,8 +87,8 @@ export default function MobileBottomNav({ currentPageName }) {
             WebkitBackdropFilter: "blur(22px) saturate(1.2)",
             border: "1px solid rgba(255,255,255,0.22)",
             boxShadow: "0 16px 40px rgba(11,63,217,0.30), inset 0 1px 0 rgba(255,255,255,0.25)",
-            WebkitMaskImage: "radial-gradient(circle at 50% 3px, transparent 31px, #000 32px)",
-            maskImage: "radial-gradient(circle at 50% 3px, transparent 31px, #000 32px)",
+            WebkitMaskImage: "radial-gradient(circle at 50% 50%, transparent 30px, #000 31px)",
+            maskImage: "radial-gradient(circle at 50% 50%, transparent 30px, #000 31px)",
           }}
         />
         <div className="relative flex items-stretch justify-around h-full">
@@ -105,14 +105,15 @@ export default function MobileBottomNav({ currentPageName }) {
                     window.dispatchEvent(new CustomEvent("openDropComposer"));
                   }
                 }}
-                className="flex-1 flex flex-col items-center justify-end gap-1 pb-1.5"
+                className="flex-1 flex items-center justify-center"
                 style={{ textDecoration: "none" }}
                 aria-label="Create a drop"
+                title="Drop"
               >
                 {/* Seat: a thin gold-gradient light sweeping tight around the button, with a faint blue glow further out */}
                 <span
                   className="mbn-press relative flex items-center justify-center rounded-full"
-                  style={{ width: 60, height: 60, marginTop: -27, boxShadow: "0 0 22px 6px rgba(11,63,217,0.28)" }}
+                  style={{ width: 60, height: 60, boxShadow: "0 0 22px 6px rgba(11,63,217,0.28)" }}
                 >
                   <span
                     aria-hidden="true"
@@ -134,9 +135,7 @@ export default function MobileBottomNav({ currentPageName }) {
                     <Plus className="w-6 h-6" strokeWidth={2.75} style={{ color: INK }} />
                   </span>
                 </span>
-                <span className="text-[10px] font-bold tracking-wide" style={{ fontFamily: "Inter, sans-serif", color: "#FFFFFF" }}>
-                  {label}
-                </span>
+                <span className="sr-only">{label}</span>
               </Link>
             );
           }
