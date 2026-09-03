@@ -66,6 +66,8 @@ export default function MobileBottomNav({ currentPageName }) {
     >
       <style>{`
         @keyframes mbn-dot { from { transform: scaleX(0); opacity: 0 } to { transform: scaleX(1); opacity: 1 } }
+        @keyframes mbn-spin-light { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) { .mbn-light { animation: none !important; } }
       `}</style>
       <div className="relative mx-auto" style={{ maxWidth: 520, height: 64, pointerEvents: "auto" }}>
         {/* Pill surface — same sky→royal blue as the Explore / Messages / Profile pills, translucent,
@@ -81,8 +83,8 @@ export default function MobileBottomNav({ currentPageName }) {
             WebkitBackdropFilter: "blur(22px) saturate(1.2)",
             border: "1px solid rgba(255,255,255,0.22)",
             boxShadow: "0 16px 40px rgba(11,63,217,0.30), inset 0 1px 0 rgba(255,255,255,0.25)",
-            WebkitMaskImage: "radial-gradient(circle at 50% 3px, transparent 33px, #000 34px)",
-            maskImage: "radial-gradient(circle at 50% 3px, transparent 33px, #000 34px)",
+            WebkitMaskImage: "radial-gradient(circle at 50% 3px, transparent 37px, #000 38px)",
+            maskImage: "radial-gradient(circle at 50% 3px, transparent 37px, #000 38px)",
           }}
         />
         <div className="relative flex items-stretch justify-around h-full">
@@ -103,17 +105,29 @@ export default function MobileBottomNav({ currentPageName }) {
                 style={{ textDecoration: "none" }}
                 aria-label="Create a drop"
               >
+                {/* Seat: a rotating light ring (same conic light as the profile covers) around the gold button */}
                 <span
-                  className="flex items-center justify-center rounded-full active:scale-95 transition"
-                  style={{
-                    width: 54,
-                    height: 54,
-                    marginTop: -24,
-                    background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)",
-                    boxShadow: "0 10px 26px rgba(255,159,26,0.45)",
-                  }}
+                  className="relative flex items-center justify-center rounded-full overflow-hidden active:scale-95 transition"
+                  style={{ width: 62, height: 62, marginTop: -28, background: "#0B3FD9", boxShadow: "0 10px 26px rgba(255,159,26,0.40)" }}
                 >
-                  <Plus className="w-6 h-6" strokeWidth={2.75} style={{ color: INK }} />
+                  <span
+                    aria-hidden="true"
+                    className="mbn-light absolute rounded-full"
+                    style={{
+                      top: "50%",
+                      left: "50%",
+                      width: "220%",
+                      height: "220%",
+                      background: "conic-gradient(from 0deg, transparent 60%, #1FB8FF 78%, #0B3FD9 90%, #FFD000 100%)",
+                      animation: "mbn-spin-light 4s linear infinite",
+                    }}
+                  />
+                  <span
+                    className="relative flex items-center justify-center rounded-full"
+                    style={{ width: 54, height: 54, background: "linear-gradient(135deg, #FFD000 0%, #FF9F1A 100%)", border: "2px solid rgba(255,255,255,0.85)" }}
+                  >
+                    <Plus className="w-6 h-6" strokeWidth={2.75} style={{ color: INK }} />
+                  </span>
                 </span>
                 <span className="text-[10px] font-bold tracking-wide" style={{ fontFamily: "Inter, sans-serif", color: "#FFFFFF" }}>
                   {label}

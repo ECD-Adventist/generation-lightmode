@@ -210,11 +210,11 @@ export default function MobileFeed({
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(10,46,159,0.66) 0%, rgba(11,63,217,0.38) 40%, rgba(246,248,252,0.30) 66%, rgba(246,248,252,0.90) 84%, #F6F8FC 96%)" }} />
       </div>
 
-      {/* TOP BAR — transparent over the artwork; the brand blue (same sky→royal gradient as the other tabs) once scrolled */}
+      {/* TOP BAR — transparent over the artwork; a solid brand blue (no gradient) once scrolled */}
       <div
         className="sticky top-0 z-40 safe-pt px-4"
         style={scrolled
-          ? { background: "linear-gradient(90deg, rgba(31,184,255,0.92) 0%, rgba(11,63,217,0.94) 100%)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", borderBottom: "1px solid rgba(255,255,255,0.14)", boxShadow: "0 4px 16px rgba(11,63,217,0.22)", transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease" }
+          ? { background: MF.blue, borderBottom: "1px solid rgba(255,255,255,0.14)", boxShadow: "0 4px 16px rgba(11,63,217,0.22)", transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease" }
           : { background: "transparent", borderBottom: "1px solid transparent", transition: "background 220ms ease, border-color 220ms ease, box-shadow 220ms ease" }}
       >
         <div className="flex items-center gap-2 h-14">
