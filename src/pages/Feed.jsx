@@ -615,6 +615,9 @@ export default function Feed() {
           onOpenStatus={(story) => statusOverlay.open(story.id)}
           onOpenStatusComposer={() => requireAuth(() => setIsStatusModalOpen(true))}
           onOpenDropModal={() => requireAuth(() => setIsDropModalOpen(true))}
+          trendingTopics={trendingTopics}
+          onOpenTopic={(tag) => { setSearchQuery(tag); setActiveFilter("All"); }}
+          suggestedUsers={suggestedUsers}
           filteredDrops={filteredDrops}
           displayCount={displayCount}
           drops={drops}

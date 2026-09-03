@@ -7,8 +7,24 @@ floating `ReportProblemButton`. Desktop layout and all data/mutation code are un
 
 ## Reference: patterns taken from Mobbin
 
-Mobbin's screen library needs a login, so the public pattern guides were used
-(mobbin.com/glossary). What was applied:
+Two sources: the public pattern guides (mobbin.com/glossary) and the **Latest iOS apps**
+view at mobbin.com/discover/apps/ios/latest (read through the signed-in Chrome window;
+free plan shows the four newest apps: Depop, Tubi, Apple Watch, Zip, plus Instacart,
+Genie, Etsy, Hulu in the header row).
+
+What the latest iOS apps have in common, and where it landed:
+
+| Seen on Mobbin (Latest iOS) | Where it landed |
+| --- | --- |
+| Depop / Zip: greeting ("Hey Sam!", "Hi there,") with a one-line prompt under it | Hero greeting + "Your light is needed today." |
+| Zip: row of round brand icons with labels under the hero ("Shop top brands") | Quick-actions row: Daily Drops, Prayer Wall, Live, Challenges |
+| Tubi: horizontal "Recommended" rail with section heading and chevron | Trending vibes rail (ranked hashtag chips with counts, "See all") |
+| Tubi: dark canvas, content chips at the top, one saturated accent | Dark navy canvas, sticky filter chips, gold accent |
+| Apple Watch: floating segmented bottom bar on a dark canvas | Floating glass tab bar |
+| Depop / Zip: 5-item tab bar with a centre create action | Tab bar with protruded gold Drop button |
+| Instagram-style "Suggested for you" cards injected in-feed | People to connect rail after the second post |
+
+Glossary guidance that was applied:
 
 | Mobbin guidance | Where it landed |
 | --- | --- |

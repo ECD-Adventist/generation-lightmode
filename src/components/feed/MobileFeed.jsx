@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Bell, Plus, Sparkles, Flame, Zap, Search, X, LayoutGrid, Users, Heart, BookOpen, Megaphone } from "lucide-react";
+import { Bell, Plus, Sparkles, Flame, Zap, Search, X, LayoutGrid, Users, Heart, BookOpen, Megaphone, HandHeart, Radio, Trophy, ChevronRight, TrendingUp, UserPlus } from "lucide-react";
+import CountryFlag from "@/components/common/CountryFlag";
 import MobileFeedDropList from "@/components/feed/MobileFeedDropList";
 import MobileDropCardSkeleton from "@/components/feed/MobileDropCardSkeleton";
 import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
@@ -47,6 +48,58 @@ const FILTERS = [
   { key: "Testimony", icon: Megaphone },
 ];
 
+const QUICK_ACTIONS = [
+  { key: "daily", label: "Daily Drops", icon: Flame, page: "DailyTruthFeed", tint: "#FF9F1A" },
+  { key: "prayer", label: "Prayer Wall", icon: HandHeart, page: "PrayerWall", tint: "#FFD000" },
+  { key: "live", label: "Live", icon: Radio, page: "Live", tint: "#00CFFF" },
+  { key: "challenges", label: "Challenges", icon: Trophy, page: "Challenges", tint: "#8A5CFF" },
+];
+
+function SuggestedPeopleRail({ people, user, following, followMutation }) {
+  const candidates = people.filter(u => u.id && u.id !== user?.id && !following.some(f => f.following_id === u.id || f.following_email === u.email));
+  if (candidates.length === 0) return null;
+  return (
+    <section className="rounded-[22px] py-4" style={{ background: MF.surface, border: `1px solid ${MF.line}` }} aria-label="People to connect">
+      <div className="flex items-center justify-between mb-3 px-4">
+        <div className="flex items-center gap-1.5">
+          <UserPlus className="w-3.5 h-3.5" style={{ color: MF.gold }} />
+          <h3 className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: MF.text }}>People to connect</h3>
+        </div>
+        <Link to={createPageUrl("Discover")} className="flex items-center gap-0.5 text-[11px] font-bold no-underline" style={{ color: MF.muted }}>
+          See all <ChevronRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+      <div className="flex gap-2.5 overflow-x-auto mf-hide-sb px-4">
+        {candidates.slice(0, 8).map(u => (
+          <div key={u.id} className="shrink-0 w-[132px] rounded-2xl p-3 flex flex-col items-center text-center" style={{ background: MF.surface2, border: `1px solid ${MF.line}` }}>
+            <Link to={createPageUrl("Profile") + `?id=${encodeURIComponent(u.id)}`} className="no-underline flex flex-col items-center">
+              <div className="w-14 h-14 rounded-full p-[2px]" style={{ background: MF.ringGrad }}>
+                <div className="w-full h-full rounded-full overflow-hidden" style={{ border: `2px solid ${MF.surface2}` }}>
+                  <UserAvatar user={u} className="w-full h-full" />
+                </div>
+              </div>
+              <div className="mt-2 w-full text-[12px] font-bold truncate flex items-center justify-center gap-1" style={{ color: MF.text }}>
+                <span className="truncate">{getDisplayName(u)}</span>
+                <CountryFlag country={u.country} size="xs" />
+              </div>
+              <div className="text-[10px] truncate w-full" style={{ color: MF.muted }}>{u.country || "Global Believer"}</div>
+            </Link>
+            <button
+              type="button"
+              onClick={() => (user ? followMutation?.mutate(u) : null)}
+              disabled={followMutation?.isPending}
+              className="mt-2.5 h-8 w-full rounded-full text-[11px] font-black active:scale-95 transition disabled:opacity-60"
+              style={{ background: MF.gold, color: MF.canvas }}
+            >
+              Connect
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function IconAction({ to, label, children, dot = false }) {
   return (
     <Link
@@ -77,6 +130,9 @@ export default function MobileFeed({
   onOpenStatus,
   onOpenStatusComposer,
   onOpenDropModal,
+  trendingTopics = [],
+  onOpenTopic,
+  suggestedUsers = [],
   filteredDrops,
   displayCount,
   drops,
@@ -199,6 +255,55 @@ export default function MobileFeed({
           </div>
         </button>
       </div>
+
+      {/* QUICK ACTIONS — round icon + label row (pattern: Depop / Zip "top brands" rows on Mobbin) */}
+      <div className="px-4 mb-5">
+        <div className="grid grid-cols-4 gap-2">
+          {QUICK_ACTIONS.map(({ key, label, icon: Icon, page, tint }) => (
+            <Link
+              key={key}
+              to={createPageUrl(page)}
+              className="flex flex-col items-center gap-1.5 py-2.5 rounded-2xl active:scale-95 transition no-underline"
+              style={{ background: MF.surface, border: `1px solid ${MF.line}` }}
+            >
+              <span className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: `${tint}1F`, color: tint }}>
+                <Icon className="w-[18px] h-[18px]" strokeWidth={2.25} />
+              </span>
+              <span className="text-[11px] font-bold" style={{ color: MF.text }}>{label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* TRENDING — horizontal rail with heading + chevron (pattern: Tubi "Recommended" rail on Mobbin) */}
+      {trendingTopics.length > 0 && (
+        <div className="mb-5">
+          <div className="flex items-center justify-between mb-2.5 px-4">
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="w-3.5 h-3.5" style={{ color: MF.cyan }} />
+              <h3 className="text-[11px] font-black uppercase tracking-[0.18em]" style={{ color: MF.text }}>Trending vibes</h3>
+            </div>
+            <button type="button" onClick={() => onOpenTopic?.(trendingTopics[0].tag)} className="flex items-center gap-0.5 text-[11px] font-bold" style={{ color: MF.muted }} aria-label="See trending drops">
+              See all <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <div className="flex gap-2 overflow-x-auto mf-hide-sb px-4 pb-1">
+            {trendingTopics.map((topic, idx) => (
+              <button
+                key={topic.tag}
+                type="button"
+                onClick={() => onOpenTopic?.(topic.tag)}
+                className="shrink-0 h-10 pl-1.5 pr-3.5 rounded-full inline-flex items-center gap-2 active:scale-95 transition"
+                style={{ background: MF.surface, border: `1px solid ${MF.line}` }}
+              >
+                <span className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black" style={idx === 0 ? { background: MF.goldGrad, color: MF.canvas } : { background: MF.surface2, color: MF.cyan }}>{idx + 1}</span>
+                <span className="text-[12.5px] font-bold" style={{ color: MF.cyan }}>{topic.tag}</span>
+                <span className="text-[11px] font-semibold" style={{ color: MF.muted }}>{topic.count}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* STORIES */}
       <div className="mb-5">
@@ -334,6 +439,8 @@ export default function MobileFeed({
             onLoadMore={onLoadMore}
             footerClassName="pt-5 pb-2 text-center text-[11px] font-black uppercase tracking-wider"
             footerStyle={{ color: MF.muted }}
+            midFeedSlot={<SuggestedPeopleRail people={suggestedUsers} user={user} following={following} followMutation={followMutation} />}
+            midFeedIndex={2}
           />
         )}
       </div>

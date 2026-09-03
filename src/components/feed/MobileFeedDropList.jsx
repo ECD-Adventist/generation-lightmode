@@ -25,6 +25,8 @@ function MobileFeedDropList({
   isLoadingMore,
   footerClassName = "py-4 text-center text-[11px] font-black uppercase tracking-wider",
   footerStyle = { color: "#8A97B5" },
+  midFeedSlot = null,
+  midFeedIndex = 2,
 }) {
   const sentinelRef = useRef(null);
 
@@ -49,9 +51,10 @@ function MobileFeedDropList({
 
   return (
     <>
-      {visibleDrops.map(drop => (
+      {visibleDrops.map((drop, index) => (
+        <React.Fragment key={drop.feed_item_id || drop.id}>
+        {midFeedSlot && index === midFeedIndex && visibleDrops.length > midFeedIndex && midFeedSlot}
         <MobileDropCard
-          key={drop.feed_item_id || drop.id}
           drop={drop}
           user={user}
           dropUser={getUserInfo(drop.user_email)}
@@ -63,7 +66,9 @@ function MobileFeedDropList({
           following={following}
           followMutation={followMutation}
         />
+        </React.Fragment>
       ))}
+      {midFeedSlot && visibleDrops.length > 0 && visibleDrops.length <= midFeedIndex && midFeedSlot}
       {isLoadingMore && (
         <>
           <MobileDropCardSkeleton />
