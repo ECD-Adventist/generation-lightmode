@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
-import { XP_RULES, MILESTONE_REWARDS, QUIZ_MAX_XP, fetchAllRows, writeTotal } from '../../shared/xp.ts';
+import { XP_RULES, MILESTONE_REWARDS, QUIZ_MAX_XP, fetchAllRows } from '../../shared/xp.ts';
 
 // Admin-only. Rebuilds every user's XP ledger from VERIFIED activity records and
 // overwrites glow_score with the ledger total. Defaults to dry_run so nothing is
@@ -18,8 +18,17 @@ const DAILY = { share_verse: XP_RULES.daily_share_verse, like_drops: XP_RULES.da
 function buildEvents(user, data) {
   const email = user.email;
   const events = [];
+  // Field lengths must respect the XpEvent schema, or the batch write is rejected.
   const push = (source, reference_id, amount, note) => {
-    if (amount > 0) events.push({ user_email: email, user_id: user.id, source, reference_id, amount, note });
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    events.push({
+      user_email: email,
+      user_id: user.id,
+      source: String(source).slice(0, 60),
+      reference_id: String(reference_id).slice(0, 200),
+      amount,
+      note: String(note || '').slice(0, 300),
+    });
   };
   (data.drops.get(email) || []).forEach((drop) => {
     if (!drop.original_drop_id) push('post_drop', `post_${drop.id}`, XP_RULES.post_drop, 'Posted a Glow Drop');
@@ -76,29 +85,36 @@ export default async function(req) {
     const validated = await readValidatedJson(req, {
       dry_run: { type: 'boolean' },
       skip: { type: 'number', integer: true, min: 0, max: 100000 },
-      limit: { type: 'number', integer: true, min: 1, max: 500 },
+      limit: { type: 'number', integer: true, min: 1, max: 100 },
       user_email: { type: 'string', maxLength: 320 },
     }, { allowEmpty: true });
     if (validated.response) return validated.response;
     const dryRun = validated.data.dry_run !== false;
     const skip = validated.data.skip || 0;
-    const limit = validated.data.limit || 200;
+    const limit = validated.data.limit || 50;
     const svc = base44.asServiceRole.entities;
 
-    const users = validated.data.user_email
+    const rawUsers = validated.data.user_email
       ? await svc.User.filter({ email: validated.data.user_email }, '-created_date', 1)
       : await svc.User.list('created_date', limit, skip);
+    // A record without an email or id must never reach deleteMany — an undefined
+    // filter value would match far more than the intended user.
+    const users = rawUsers.filter((u) => u?.email && u?.id);
     if (!users.length) return Response.json({ success: true, dry_run: dryRun, processed: 0, has_more: false, changes: [] });
 
     const emails = new Set(users.map((u) => u.email));
-    const [drops, daily, devotions, submissions, milestones, challenges] = await Promise.all([
+    const [drops, daily, devotions, submissions, milestones, challenges, existingEvents, existingTotals] = await Promise.all([
       fetchAllRows(svc.GlowDrop, {}, 60000),
       fetchAllRows(svc.UserDailyChallenge, {}, 60000),
       fetchAllRows(svc.DevotionEntry, {}, 20000),
       fetchAllRows(svc.ChallengeSubmission, {}, 20000),
       fetchAllRows(svc.UserMilestone, {}, 20000),
       fetchAllRows(svc.Challenge, {}, 5000),
+      dryRun ? Promise.resolve([]) : fetchAllRows(svc.XpEvent, {}, 60000),
+      dryRun ? Promise.resolve([]) : fetchAllRows(svc.XpTotal, {}, 60000),
     ]);
+    const hadEvents = new Set(existingEvents.filter((e) => emails.has(e.user_email)).map((e) => e.user_email));
+    const totalIdByEmail = new Map(existingTotals.map((t) => [t.user_email, t.id]));
     const data = {
       drops: groupBy(drops.filter((d) => emails.has(d.user_email)), 'user_email'),
       daily: groupBy(daily.filter((d) => emails.has(d.user_email)), 'user_email'),
@@ -109,15 +125,37 @@ export default async function(req) {
     };
 
     const changes = [];
+    const now = new Date().toISOString();
+    const allEvents = [];
+    const totalCreates = [];
+    const totalUpdates = [];
+    const userUpdates = [];
     for (const user of users) {
       const events = buildEvents(user, data);
       const verified = events.reduce((sum, e) => sum + e.amount, 0);
       const before = Number(user.glow_score) || 0;
       changes.push({ user_id: user.id, name: user.display_name || user.full_name || user.username || '', country: user.country || '', before, after: verified, delta: verified - before, events: events.length });
       if (dryRun) continue;
-      await svc.XpEvent.deleteMany({ user_email: user.email });
-      for (let i = 0; i < events.length; i += 500) await svc.XpEvent.bulkCreate(events.slice(i, i + 500));
-      await writeTotal(base44, user, verified);
+      // Clear only where a ledger already exists, then rebuild it from verified activity.
+      if (hadEvents.has(user.email)) await svc.XpEvent.deleteMany({ user_email: user.email });
+      allEvents.push(...events);
+      const totalId = totalIdByEmail.get(user.email);
+      // Only track a total row when there is something to track, or one already exists.
+      if (verified > 0 || totalId) {
+        const totalPayload = { user_email: user.email, user_id: user.id || '', total: verified, synced_at: now };
+        if (totalId) totalUpdates.push({ id: totalId, payload: totalPayload });
+        else totalCreates.push(totalPayload);
+      }
+      if (before !== verified) userUpdates.push({ id: user.id, glow_score: verified });
+    }
+
+    if (!dryRun) {
+      // Ledger rows are safe to bulk-write; totals and user scores are written
+      // individually because the bulk endpoints reject these payloads.
+      for (let i = 0; i < allEvents.length; i += 500) await svc.XpEvent.bulkCreate(allEvents.slice(i, i + 500));
+      for (const payload of totalCreates) await svc.XpTotal.create(payload);
+      for (const row of totalUpdates) await svc.XpTotal.update(row.id, row.payload);
+      for (const row of userUpdates) await svc.User.update(row.id, { glow_score: row.glow_score });
     }
 
     if (!dryRun) {
@@ -130,13 +168,20 @@ export default async function(req) {
       dry_run: dryRun,
       processed: users.length,
       skip,
-      has_more: !validated.data.user_email && users.length === limit,
+      has_more: !validated.data.user_email && rawUsers.length === limit,
+      skipped_invalid: rawUsers.length - users.length,
       changed: changes.filter((c) => c.delta !== 0).length,
       largest_reductions: [...changes].sort((a, b) => a.delta - b.delta).slice(0, 10),
       changes: changes.length <= 50 ? changes : undefined,
     });
   } catch (error) {
-    console.error('recomputeXpLedger failed:', error?.message);
-    return Response.json({ error: 'Unable to recompute XP ledger' }, { status: 500 });
+    let detail;
+    try {
+      detail = JSON.stringify(error, Object.getOwnPropertyNames(error || {})).slice(0, 1500);
+    } catch {
+      detail = error?.message || 'unknown error';
+    }
+    console.error('recomputeXpLedger failed:', detail);
+    return Response.json({ error: 'Unable to recompute XP ledger', detail }, { status: 500 });
   }
 }
