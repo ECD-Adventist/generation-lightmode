@@ -56,46 +56,48 @@ export default function FaithQuiz() {
     [starsByLevel]
   );
 
-  const finishLevel = (finalScore) => {
-    setScore(finalScore);
+  const [earnedXp, setEarnedXp] = useState(0);
+
+  // Answers are graded by the server, which also decides XP, stars and unlocks.
+  // The client only shows the result — it can no longer write its own score.
+  const finishLevel = async (finalAnswers) => {
+    const localScore = finalAnswers.filter(a => a.correct).length;
+    setScore(localScore);
+    setEarnedXp(0);
     setScreen("result");
 
-    const stars = starsForScore(finalScore, activeLevel);
-    const didPass = finalScore >= activeLevel.passScore;
-    const previousStars = Number(starsByLevel[String(activeLevel.level)] || 0);
-    const improved = stars > previousStars;
-    const nextLevel = didPass && activeLevel.level === unlockedLevel && activeLevel.level < TOTAL_LEVELS
-      ? activeLevel.level + 1
-      : unlockedLevel;
+    if (!user) {
+      setJustUnlocked(false);
+      return;
+    }
 
-    setJustUnlocked(nextLevel > unlockedLevel);
-
-    const nextStars = improved
-      ? { ...starsByLevel, [String(activeLevel.level)]: stars }
-      : starsByLevel;
-
-    setStarsByLevel(nextStars);
-    setUnlockedLevel(nextLevel);
-
-    if (!user) return;
-
-    const earnedXP = finalScore * activeLevel.xpPerQuestion;
-    const updates = {
-      glow_score: (user.glow_score || 0) + earnedXP,
-      quiz_level: nextLevel,
-      quiz_stars: JSON.stringify(nextStars),
-    };
-    // Leaderboard score only grows on a genuine personal best for the level.
-    if (improved) updates.quiz_score = (user.quiz_score || 0) + earnedXP;
-
-    base44.auth.updateMe(updates).then(() => {
-      setUser(prev => ({ ...prev, ...updates }));
+    try {
+      const res = await base44.functions.invoke("submitQuizLevel", {
+        level: activeLevel.level,
+        answers: finalAnswers.map(a => a.selected),
+      });
+      const data = res.data || {};
+      setScore(data.score ?? localScore);
+      setEarnedXp(data.xp_earned || 0);
+      setStarsByLevel(data.quiz_stars || starsByLevel);
+      setUnlockedLevel(data.unlocked_level || unlockedLevel);
+      setJustUnlocked(!!data.just_unlocked);
+      setUser(prev => ({
+        ...prev,
+        glow_score: data.glow_score ?? prev?.glow_score,
+        quiz_level: data.unlocked_level,
+        quiz_stars: JSON.stringify(data.quiz_stars || {}),
+        quiz_score: data.quiz_score,
+      }));
       queryClient.invalidateQueries({ queryKey: ["quizLeaderboard"] });
-    });
 
-    if (stars === 3) toast.success(`🏆 Perfect! Level ${activeLevel.level} mastered · +${earnedXP} XP`);
-    else if (didPass) toast.success(`⚡ Level ${activeLevel.level} cleared · +${earnedXP} XP`);
-    else toast.error(`Score ${activeLevel.passScore}+ to clear Level ${activeLevel.level}. Try again!`);
+      const xpNote = data.xp_earned > 0 ? ` · +${data.xp_earned} XP` : " · personal best already recorded";
+      if (data.stars === 3) toast.success(`🏆 Perfect! Level ${activeLevel.level} mastered${xpNote}`);
+      else if (data.passed) toast.success(`⚡ Level ${activeLevel.level} cleared${xpNote}`);
+      else toast.error(`Score ${activeLevel.passScore}+ to clear Level ${activeLevel.level}. Try again!`);
+    } catch (err) {
+      toast.error(err?.response?.data?.error || "Could not save your quiz result. Please try again.");
+    }
   };
 
   const handleAnswer = (idx) => {
@@ -103,13 +105,13 @@ export default function FaithQuiz() {
     setSelected(idx);
     const isCorrect = idx === question.correct;
     setTimeout(() => {
-      const newAnswers = [...answers, { qId: question.id, correct: isCorrect }];
+      const newAnswers = [...answers, { qId: question.id, correct: isCorrect, selected: idx }];
       setAnswers(newAnswers);
       if (currentQ + 1 < questions.length) {
         setCurrentQ(currentQ + 1);
         setSelected(null);
       } else {
-        finishLevel(newAnswers.filter(a => a.correct).length);
+        finishLevel(newAnswers);
       }
     }, 900);
   };
@@ -341,7 +343,7 @@ export default function FaithQuiz() {
                   <div style={{ fontSize: 10, color: "#6B7FA0", fontWeight: 800, textTransform: "uppercase" }}>Correct</div>
                 </div>
                 <div style={{ background: "rgba(255,208,0,0.08)", border: "1px solid #FFE4A0", borderRadius: 14, padding: "14px 22px" }}>
-                  <div style={{ fontSize: 26, fontWeight: 900, color: "#CC7A00", fontFamily: "Space Grotesk, sans-serif" }}>+{score * activeLevel.xpPerQuestion}</div>
+                  <div style={{ fontSize: 26, fontWeight: 900, color: "#CC7A00", fontFamily: "Space Grotesk, sans-serif" }}>+{earnedXp}</div>
                   <div style={{ fontSize: 10, color: "#6B7FA0", fontWeight: 800, textTransform: "uppercase" }}>XP Earned</div>
                 </div>
                 <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 14, padding: "14px 22px" }}>

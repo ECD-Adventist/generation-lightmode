@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Target, Star } from "lucide-react";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
+import { awardXp } from "@/lib/xp";
 
 export default function ChallengesTab({ user }) {
   const [activeTab, setActiveTab] = useState("active");
@@ -27,8 +28,9 @@ export default function ChallengesTab({ user }) {
         submission_url: `${window.location.origin}${createPageUrl("Challenges")}?challenge=${challenge.id}`,
         points_awarded: challenge.points_reward
       });
-      await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + challenge.points_reward });
-      toast.success(`Joined challenge! +${challenge.points_reward} Points`);
+      // Server verifies the submission and awards the challenge reward once.
+      const xp = await awardXp("challenge", { challenge_id: challenge.id });
+      toast.success(xp.awarded > 0 ? `Joined challenge! +${xp.awarded} Points` : "Joined challenge!");
       refetch();
     } catch (err) {
       toast.error("Error joining challenge");

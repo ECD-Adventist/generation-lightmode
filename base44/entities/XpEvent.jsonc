@@ -1,0 +1,71 @@
+{
+  "name": "XpEvent",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "maxLength": 320
+    },
+    "user_id": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "source": {
+      "type": "string",
+      "maxLength": 60,
+      "description": "Verified XP source, e.g. post_drop, daily_share_verse, quiz_l3, devotion_day"
+    },
+    "reference_id": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Idempotency key \u2014 one award per (user, reference_id)"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "note": {
+      "type": "string",
+      "maxLength": 300
+    }
+  },
+  "required": [
+    "user_email",
+    "source",
+    "reference_id",
+    "amount"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    }
+  }
+}

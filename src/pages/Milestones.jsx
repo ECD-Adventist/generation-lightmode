@@ -8,6 +8,7 @@ import { Home, Zap, Globe, Bell, User } from "lucide-react";
 import LifetimeAchievementBoard from "@/components/milestones/LifetimeAchievementBoard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileMilestones from "@/components/milestones/MobileMilestones";
+import { awardXp } from "@/lib/xp";
 
 export default function Milestones() {
   const isMobile = useIsMobile();
@@ -141,22 +142,16 @@ export default function Milestones() {
     if (newlyCompleted.length === 0) return;
 
     setIsAwarding(true);
-    const totalXp = newlyCompleted.reduce((sum, milestone) => sum + milestone.rewardXp, 0);
 
+    // The server re-checks each milestone against real activity, records it, and awards XP once.
     Promise.all([
-      base44.entities.UserMilestone.bulkCreate(newlyCompleted.map((milestone) => ({
-        user_email: user.email,
-        milestone_key: milestone.key,
-        title: milestone.title,
-        reward_xp: milestone.rewardXp,
-      }))),
+      ...newlyCompleted.map((milestone) => awardXp("milestone", { milestone_key: milestone.key }).catch(() => null)),
       ...newlyCompleted.map((milestone) => base44.entities.Notification.create({
         user_email: user.email,
         type: "milestone",
         message: `Milestone unlocked: ${milestone.title} (+${milestone.rewardXp} XP)`,
         link: createPageUrl("Milestones"),
       })),
-      base44.auth.updateMe({ glow_score: (user.glow_score || 0) + totalXp }),
     ]).then(async () => {
       const updatedUser = await base44.auth.me();
       setUser(updatedUser);

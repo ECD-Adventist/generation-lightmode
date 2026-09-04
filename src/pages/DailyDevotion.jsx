@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import DevotionDayCard from "@/components/devotion/DevotionDayCard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileDailyDevotion from "@/components/devotion/MobileDailyDevotion";
+import { awardXp } from "@/lib/xp";
 
 const PLANS = [
   {
@@ -109,11 +110,12 @@ export default function DailyDevotion() {
           date_string: new Date().toISOString().split("T")[0],
         });
       }
-      await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 10 });
+      // Server verifies the completed entry and awards +10 once per plan day.
+      return awardXp("devotion_day", { plan_id: planId, day_number: dayNumber });
     },
-    onSuccess: () => {
+    onSuccess: (xp) => {
       queryClient.invalidateQueries({ queryKey: ["devotionEntries", user?.email] });
-      toast.success("Day completed! +10 XP ⚡");
+      toast.success(xp?.awarded > 0 ? `Day completed! +${xp.awarded} XP ⚡` : "Day completed! ⚡");
       setActiveDayIndex(null);
     },
   });

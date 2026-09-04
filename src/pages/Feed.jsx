@@ -42,6 +42,7 @@ import useFeedScrollRestore from "@/hooks/useFeedScrollRestore";
 import useUrlOverlay from "@/hooks/useUrlOverlay";
 import { fetchAllUserGlowDropLikes } from "@/lib/glowDropLikes";
 import { useAuth } from "@/lib/AuthContext";
+import { awardXp } from "@/lib/xp";
 
 function SidebarLink({ to, icon, label, active, badge, accent }) {
   return (
@@ -275,14 +276,15 @@ export default function Feed() {
             link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
           });
         }
-        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
-        return false;
+        // Server verifies the follow record and awards +5 once per person followed.
+        const xp = await awardXp("follow", { following_id: targetUser.id }).catch(() => ({ awarded: 0 }));
+        return { wasFollowing: false, awarded: xp.awarded || 0 };
       }
     },
-    onSuccess: (wasFollowing) => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["feedViewerFollowing", user?.id] });
-      if (!wasFollowing) {
-        toast.success("Followed! +5 XP ⚡");
+      if (result && result.wasFollowing === false) {
+        toast.success(result.awarded > 0 ? `Followed! +${result.awarded} XP ⚡` : "Followed!");
       }
     }
   });

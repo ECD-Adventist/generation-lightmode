@@ -24,6 +24,7 @@ import PostMusicEditor from "@/components/feed/PostMusicEditor";
 import PostAudioTrack from "@/components/feed/PostAudioTrack";
 import FeedActionCapsule, { FeedActionItem } from "@/components/feed/FeedActionCapsule";
 import StandardPostImage from "@/components/feed/StandardPostImage";
+import { awardXp } from "@/lib/xp";
 
 export default function DropCard({ drop, user, dropUser, likeMutation, handleShare, userLikes = [], allUsers = [], savedDropRecords = [], leaderAccounts = [], following = [], followMutation, commentsCount = 0 }) {
   const isMobile = useIsMobile();
@@ -140,8 +141,9 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
       const todayChallenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: todayStr });
       if (!todayChallenges.some(c => c.challenge_id === 'comment')) {
         await base44.entities.UserDailyChallenge.create({ user_email: user.email, date_string: todayStr, challenge_id: 'comment' });
-        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
       }
+      // Server verifies the comment exists and awards the daily +5 once.
+      await awardXp("comment", { drop_id: drop.id }).catch(() => null);
 
     },
     onMutate: async (content) => {

@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { createNotificationIdempotent } from '../../shared/notifications.ts';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
+import { XP_RULES, awardXp } from '../../shared/xp.ts';
 
 export default async function(req) {
   try {
@@ -69,8 +70,9 @@ export default async function(req) {
       const todayChallenges = await base44.asServiceRole.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: todayStr });
       if (!todayChallenges.some(c => c.challenge_id === 'like_drops')) {
         await base44.asServiceRole.entities.UserDailyChallenge.create({ user_email: user.email, date_string: todayStr, challenge_id: 'like_drops' });
-        await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
       }
+      // XP is ledger-based and idempotent per day — never written from the client.
+      await awardXp(base44, user, { source: 'daily_like_drops', reference_id: `daily_like_drops_${todayStr}`, amount: XP_RULES.daily_like_drops, note: 'Daily challenge: like a drop' });
 
       // Notify the real author and await the dual-write so serverless completion cannot cancel it.
       if (authorEmail && authorEmail !== user.email) {

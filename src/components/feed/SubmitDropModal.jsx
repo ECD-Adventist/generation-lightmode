@@ -16,6 +16,7 @@ import { queueDropForSync } from "@/lib/offlineCache";
 import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
 import BottomSheetSelect from "@/components/ui/BottomSheetSelect";
 import { getDisplayName } from "@/lib/displayName";
+import { awardXp } from "@/lib/xp";
 
 const categories = ["Devotional", "Testimony", "Encouragement", "Worship", "Prayer"];
 const limitToNineLines = (value) => value.split("\n").slice(0, 9).join("\n");
@@ -325,14 +326,16 @@ RULES:
       queryClient.setQueryData(["allGlowDrops"], old => prependToInfinite(old, tempDrop));
       queryClient.setQueryData(["glowFeed"], old => prependToInfinite(old, tempDrop));
 
+      let createdDropId = null;
       try {
-        await base44.functions.invoke('createGlowDrop', {
+        const createRes = await base44.functions.invoke('createGlowDrop', {
           ...formData,
           media_url: uploadedMediaUrl,
           audio_url: audioUrl || undefined,
           audio_title: audioTitle || undefined,
           post_as_leader_id: postAsLeaderId || undefined,
         });
+        createdDropId = createRes.data?.id || null;
       } catch (invokeErr) {
         // Backend rate-limits must still surface to the user — don't silently fall back.
         const sd = invokeErr?.response?.data;
@@ -355,19 +358,20 @@ RULES:
           status: "approved",
         });
         mirrorGlowDropToSupabase(newDrop, user);
+        createdDropId = newDrop.id;
       }
 
       const today = new Date().toISOString().split('T')[0];
       const challenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: today });
-      let challengeBonus = 0;
       if (!challenges.some(c => c.challenge_id === 'share_verse')) {
         await base44.entities.UserDailyChallenge.create({ user_email: user.email, date_string: today, challenge_id: 'share_verse' });
-        challengeBonus = 10;
       }
 
       const streakUser = await updatePostingStreak(base44, user);
       await updateFaithStreak(base44, streakUser);
-      await base44.auth.updateMe({ glow_score: (streakUser.glow_score || user.glow_score || 0) + 5 + challengeBonus });
+      // XP is verified and awarded by the server (post +5, first post of the day +10).
+      const xp = createdDropId ? await awardXp("post_drop", { drop_id: createdDropId }).catch(() => ({ awarded: 0 })) : { awarded: 0 };
+      const earnedXp = xp.awarded || 0;
 
       base44.entities.Follow.filter({ following_email: user.email }).then(followers => {
         followers.forEach(f => {
@@ -382,7 +386,7 @@ RULES:
 
       setUploadProgress(100);
       setUploadStage("Done");
-      toast.success(`Glow Drop posted! +${5 + challengeBonus} XP ⚡`);
+      toast.success(earnedXp > 0 ? `Glow Drop posted! +${earnedXp} XP ⚡` : "Glow Drop posted! ⚡");
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
       queryClient.invalidateQueries({ queryKey: ["dailyChallenges"] });
       queryClient.invalidateQueries({ queryKey: ["myGlowDropsProfile"] });

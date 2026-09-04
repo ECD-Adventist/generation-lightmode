@@ -1,0 +1,45 @@
+{
+  "name": "XpTotal",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "maxLength": 320
+    },
+    "user_id": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "total": {
+      "type": "number",
+      "default": 0,
+      "description": "Server-verified XP total (sum of XpEvent ledger). Source of truth for rankings."
+    },
+    "synced_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_email",
+    "total"
+  ],
+  "rls": {
+    "read": true,
+    "create": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    }
+  }
+}

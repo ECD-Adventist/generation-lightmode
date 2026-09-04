@@ -16,6 +16,7 @@ import MobileGlowGroups from "@/components/groups/MobileGlowGroups";
 import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
 import { useAuth } from "@/lib/AuthContext";
 import { getDisplayName } from "@/lib/displayName";
+import { awardXp } from "@/lib/xp";
 
 const rankColors = { Champion: "#FFD000", Trendsetter: "#8A5CFF", Warrior: "#1DA1FF", Starter: "#00CFFF" };
 
@@ -185,13 +186,15 @@ export default function GlowGroups() {
           link: createPageUrl("Profile") + `?id=${encodeURIComponent(user.id)}`,
         });
       }
-      await base44.auth.updateMe({ glow_score: (user.glow_score || 0) + 5 });
-      return "followed";
+      // Server verifies the follow record and awards +5 once per person followed.
+      const xp = await awardXp("follow", { following_id: targetId }).catch(() => ({ awarded: 0 }));
+      return xp.awarded > 0 ? `followed:${xp.awarded}` : "followed";
     },
     onSuccess: (action) => {
       queryClient.invalidateQueries({ queryKey: ["glowGroupsViewerFollowingById", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["profileFollowers"] });
-      if (action === "followed") toast.success("Connected! +5 XP ⚡");
+      if (action === "followed") toast.success("Connected!");
+      else if (String(action).startsWith("followed:")) toast.success(`Connected! +${action.split(":")[1]} XP ⚡`);
     }
   });
 

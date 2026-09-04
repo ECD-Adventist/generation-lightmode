@@ -9,6 +9,7 @@ import { Loader2, Sparkles } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { updatePostingStreak, updateFaithStreak } from "@/lib/gamification";
 import { mirrorGlowDropToSupabase } from "@/lib/supabaseGlowDrops";
+import { awardXp } from "@/lib/xp";
 
 export default function SubmitDropTab({ user }) {
   const [loading, setLoading] = useState(false);
@@ -41,7 +42,6 @@ export default function SubmitDropTab({ user }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const finalScore = 5;
     let uploadedMediaUrl = null;
 
     try {
@@ -54,18 +54,15 @@ export default function SubmitDropTab({ user }) {
       mirrorGlowDropToSupabase(newDrop, user);
       const today = new Date().toISOString().split('T')[0];
       const challenges = await base44.entities.UserDailyChallenge.filter({ user_email: user.email, date_string: today });
-      let challengeBonus = 0;
-      let challengeMsg = "";
       if (!challenges.some(c => c.challenge_id === 'share_verse')) {
         await base44.entities.UserDailyChallenge.create({ user_email: user.email, date_string: today, challenge_id: 'share_verse' });
-        challengeBonus = 10;
-        challengeMsg = " + Challenge Completed! +10 XP ⚡";
       }
 
       const streakUser = await updatePostingStreak(base44, user);
       await updateFaithStreak(base44, streakUser);
-      await base44.auth.updateMe({ glow_score: (streakUser.glow_score || user.glow_score || 0) + finalScore + challengeBonus });
-      toast.success(`Glow Drop submitted! +${finalScore} XP earned!${challengeMsg}`);
+      // XP is verified and awarded by the server (post +5, first post of the day +10).
+      const xp = await awardXp("post_drop", { drop_id: newDrop.id }).catch(() => ({ awarded: 0 }));
+      toast.success(xp.awarded > 0 ? `Glow Drop submitted! +${xp.awarded} XP earned!` : "Glow Drop submitted!");
 
       setFormData({ verse: "", reflection: "", hashtags: "", category: "Devotional" });
       setFile(null);

@@ -19,7 +19,7 @@ async function fetchAll(entity, sort) {
   return out;
 }
 
-function publicEntry(user) {
+function publicEntry(user, verifiedXp) {
   const picture = user.profile_picture || user.profile_picture_url || '';
   return {
     id: user.id,
@@ -30,8 +30,8 @@ function publicEntry(user) {
     profile_picture_url: picture,
     country: user.country || '',
     city: user.city || '',
-    glow_score: user.xp_points ?? user.glow_score ?? 0,
-    xp_points: user.xp_points ?? user.glow_score ?? 0,
+    glow_score: verifiedXp,
+    xp_points: verifiedXp,
     faith_streak_count: user.faith_streak_count || 0,
   };
 }
@@ -59,7 +59,14 @@ export default async function(req) {
     const city = typeof payload.city === 'string' ? payload.city.trim().toLowerCase() : '';
 
     // Full user base — leaderboards must rank everyone, not a recent slice.
-    const allUsers = await fetchAll(base44.asServiceRole.entities.User, '-created_date');
+    // XP comes from the server-verified ledger totals (XpTotal), never from the
+    // client-writable profile field, so tampered scores cannot reach the rankings.
+    const [allUsers, xpTotals] = await Promise.all([
+      fetchAll(base44.asServiceRole.entities.User, '-created_date'),
+      fetchAll(base44.asServiceRole.entities.XpTotal, '-created_date'),
+    ]);
+    const verifiedByEmail = new Map(xpTotals.map((t) => [String(t.user_email || '').toLowerCase(), Number(t.total) || 0]));
+    const verifiedXp = (u) => verifiedByEmail.get(String(u.email || '').toLowerCase()) || 0;
 
     let scoped = allUsers;
     if (country) scoped = scoped.filter((u) => String(u.country || '').toLowerCase() === country);
@@ -87,17 +94,15 @@ export default async function(req) {
     const ranked = scoped
       .map((u) => {
         const email = String(u.email || '').toLowerCase();
-        const value = metric === 'glow'
-          ? (u.xp_points ?? u.glow_score ?? 0)
-          : (valueByEmail.get(email) || 0);
-        return { ...publicEntry(u), value };
+        const value = metric === 'glow' ? verifiedXp(u) : (valueByEmail.get(email) || 0);
+        return { ...publicEntry(u, verifiedXp(u)), value };
       })
       .sort((a, b) => b.value - a.value || (b.glow_score || 0) - (a.glow_score || 0));
 
     const myIndex = ranked.findIndex((entry) => entry.id === me.id);
     const tierCounts = { Seed: 0, Spark: 0, Flame: 0, Beacon: 0, Radiance: 0 };
     allUsers.forEach((u) => {
-      const score = u.xp_points ?? u.glow_score ?? 0;
+      const score = verifiedXp(u);
       const tier = score >= 5000 ? 'Radiance' : score >= 1000 ? 'Beacon' : score >= 500 ? 'Flame' : score >= 100 ? 'Spark' : 'Seed';
       tierCounts[tier] += 1;
     });
