@@ -1,9 +1,9 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
 
 // Admin-only endpoint that returns the full user list including real roles + status.
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const caller = await base44.auth.me();
@@ -54,6 +54,11 @@ Deno.serve(async (req) => {
       suspended_at: u.suspended_at,
       profile_picture_url: u.profile_picture_url,
       country: u.country,
+      provisional_country: u.provisional_country,
+      assignment_status: u.assignment_status || 'unassigned',
+      assignment_source: u.assignment_source,
+      assignment_confidence: u.assignment_confidence,
+      confirmed_at: u.confirmed_at,
       location: u.location,
       city: u.city,
       address: u.address,
@@ -79,4 +84,4 @@ Deno.serve(async (req) => {
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}

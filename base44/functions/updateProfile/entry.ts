@@ -1,8 +1,8 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
-import { normalizeCountryName } from '../../shared/territoryNames.ts';
+import { validatedRegistrationCountry } from '../../shared/registrationCountries.ts';
 
-Deno.serve(async (req) => {
+export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -28,6 +28,7 @@ Deno.serve(async (req) => {
       address: { type: 'string', maxLength: 300 },
       postal_code: { type: 'string', maxLength: 30 },
       social_links: { type: 'string', maxLength: 2000 },
+      privacy_consent_given: { type: 'boolean' },
     });
     if (validated.response) return validated.response;
     const body = validated.data;
@@ -69,11 +70,17 @@ Deno.serve(async (req) => {
     if (display_name !== null) {
       const canonicalName = display_name.slice(0, 120);
       customUpdate.display_name = canonicalName;
-      // Keep the built-in name synchronized so legacy and third-party surfaces
-      // that only understand full_name show the user's chosen name immediately.
-      customUpdate.full_name = canonicalName;
     }
-    if (has('country')) customUpdate.country = normalizeCountryName(clean(body.country));
+    if (has('country')) {
+      const country = validatedRegistrationCountry(clean(body.country));
+      if (!country) return Response.json({ error: 'Select a supported registration country' }, { status: 400 });
+      customUpdate.country = country;
+      customUpdate.provisional_country = '';
+      customUpdate.assignment_status = 'confirmed';
+      customUpdate.assignment_source = user.country ? 'profile_update' : 'registration';
+      customUpdate.assignment_confidence = 'high';
+      customUpdate.confirmed_at = new Date().toISOString();
+    }
     if (has('location')) customUpdate.location = clean(body.location) || '';
     if (has('bio')) customUpdate.bio = (clean(body.bio) || '').slice(0, 1200);
     if (website_url !== null) customUpdate.website_url = website_url;
@@ -100,6 +107,7 @@ Deno.serve(async (req) => {
     if (has('address')) customUpdate.address = clean(body.address) || '';
     if (has('postal_code')) customUpdate.postal_code = clean(body.postal_code) || '';
     if (has('social_links')) customUpdate.social_links = clean(body.social_links) || '';
+    if (has('privacy_consent_given')) customUpdate.privacy_consent_given = body.privacy_consent_given;
 
     if (Object.keys(customUpdate).length > 0) await base44.auth.updateMe(customUpdate);
 
@@ -107,4 +115,4 @@ Deno.serve(async (req) => {
   } catch (error) {
     return Response.json({ error: 'Unable to update profile' }, { status: 500 });
   }
-});
+}

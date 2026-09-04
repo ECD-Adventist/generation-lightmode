@@ -85,6 +85,42 @@
     "country": {
       "type": "string"
     },
+    "provisional_country": {
+      "type": "string",
+      "description": "Strong-evidence country candidate awaiting administrator confirmation."
+    },
+    "assignment_status": {
+      "type": "string",
+      "enum": [
+        "unassigned",
+        "provisional",
+        "confirmed"
+      ],
+      "default": "unassigned"
+    },
+    "assignment_source": {
+      "type": "string",
+      "enum": [
+        "registration",
+        "profile_update",
+        "admin_assignment",
+        "legacy_profile",
+        "verified_provisional",
+        "manual_import"
+      ]
+    },
+    "assignment_confidence": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "confirmed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "city": {
       "type": "string"
     },
