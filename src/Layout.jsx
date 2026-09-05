@@ -23,6 +23,10 @@ export default function Layout({ children, currentPageName }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const isAppShellPage = appShellPages.includes(currentPageName);
   const isLegalPage = ["Privacy", "Terms", "CommunityGuidelines"].includes(currentPageName);
+  // Admin / management consoles have their own navigation and full-height panels,
+  // so the floating tab bar is hidden there.
+  const noBottomNavPages = ["AdminCenter", "AdminReports", "InstitutionControlCenter", "InstitutionDashboard"];
+  const showMobileBottomNav = (appShellPages.includes(currentPageName) || currentPageName === "ContentHub") && !noBottomNavPages.includes(currentPageName);
   const usesDarkPublicHeader = !isAppShellPage;
   const isMobileViewport = useIsMobile();
   // On mobile, these pages render their own full-bleed mobile shell (with their own nav + footer).
@@ -652,12 +656,12 @@ export default function Layout({ children, currentPageName }) {
       )}
 
       {/* Page Content */}
-      <main className={`${isAppShellPage || currentPageName === "Home" || isLegalPage || hideDesktopChrome ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"} ${(isAppShellPage || currentPageName === "ContentHub") ? "has-mobile-bottom-nav" : ""}`}>
+      <main className={`${isAppShellPage || currentPageName === "Home" || isLegalPage || hideDesktopChrome ? "pt-0" : "pt-[70px] md:pt-[72px] lg:pt-[82px]"} ${showMobileBottomNav ? "has-mobile-bottom-nav" : ""}`}>
         {children}
       </main>
 
       {/* Mobile bottom nav — app-shell pages only */}
-      {(isAppShellPage || currentPageName === "ContentHub") && <MobileBottomNav currentPageName={currentPageName} />}
+      {showMobileBottomNav && <MobileBottomNav currentPageName={currentPageName} />}
 
       {/* FOOTER — public-site only */}
       {!isAppShellPage && !hideDesktopChrome ? (
