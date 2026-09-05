@@ -6,7 +6,7 @@
 // renders a blank page (the app has no /auth/login route, and a stale asset
 // hash leaves #root empty). Same applies to /api/*.
 
-const CACHE_NAME = "lightmode-shell-v4";
+const CACHE_NAME = "lightmode-shell-v5";
 const SHELL_URL = "/";
 
 // Paths the service worker must stay completely out of.
