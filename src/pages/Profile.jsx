@@ -84,6 +84,9 @@ export default function Profile() {
   const viewUserId = readParam("id");
   const viewLeaderId = readParam("leader");
   const hasProfileTarget = !!(viewUserEmail || viewUserId || viewLeaderId);
+  // A link that carried a target param but no usable value (e.g. "?user=" or
+  // "?user=undefined") must NOT silently show the signed-in user's own profile.
+  const hasBrokenProfileTarget = !hasProfileTarget && ["user", "id", "leader"].some(key => urlParams.has(key));
 
   const { data: allUsersForProfile = [], isFetched: profileIdentityFetched } = useQuery({
     queryKey: ["publicUserProfileIdentity", { email: viewUserEmail, id: viewUserId }],
@@ -118,6 +121,8 @@ export default function Profile() {
           setCurrentUser(me);
           if (hasProfileTarget && viewUserEmail !== me.email && viewUserId !== me.id) {
             // set later from the targeted public identity query
+          } else if (hasBrokenProfileTarget) {
+            setUser({ not_found: true, full_name: "Profile unavailable", glow_score: 0 });
           } else {
             setUser(me);
             setEditData({
@@ -148,7 +153,7 @@ export default function Profile() {
       }
     }
     checkAuth();
-  }, [viewUserEmail, viewUserId, viewLeaderId, hasProfileTarget]);
+  }, [viewUserEmail, viewUserId, viewLeaderId, hasProfileTarget, hasBrokenProfileTarget]);
 
   // A disabled identity query never "fetches", so treat it as answered.
   const identityResolved = (profileIdentityFetched || !(!!currentUser && hasProfileTarget))

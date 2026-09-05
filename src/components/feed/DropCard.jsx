@@ -13,6 +13,7 @@ import ReadMoreText from "@/components/feed/ReadMoreText";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { sanitizeRichHtml, containsHtml } from "@/lib/sanitizeHtml";
 import ProfileHoverSummary from "@/components/feed/ProfileHoverSummary";
+import { profileUrl } from "@/lib/profileLink";
 import { getDisplayName } from "@/lib/displayName";
 import { useIsMobile } from "@/hooks/use-mobile";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -476,9 +477,15 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
         <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20" onClick={(e) => e.stopPropagation()}>
           {(() => {
+            // Never build a blank "?user=" link — an empty target silently resolves
+            // to the signed-in user's own profile.
+            const authorLink = drop.user_email === "system@lightmode.com"
+              ? createPageUrl("GenerationLightMode")
+              : profileUrl({ id: authorProfile.id, email: authorProfile.email || drop.user_email });
+            const AuthorWrapper = authorLink ? Link : "div";
             const authorChip = (
-              <Link
-                to={drop.user_email === "system@lightmode.com" ? createPageUrl("GenerationLightMode") : createPageUrl("Profile") + `?user=${encodeURIComponent(authorProfile.email || "")}`}
+              <AuthorWrapper
+                {...(authorLink ? { to: authorLink } : {})}
                 className="inline-flex items-center gap-2 backdrop-blur-md rounded-full pr-2.5 sm:pr-3.5 pl-1 py-1 cursor-pointer transition no-underline max-w-[calc(100vw-1.5rem)] sm:max-w-none"
                 style={{
                   background: (drop.media_url || isLeaderContent) ? "rgba(0,0,0,0.4)" : "#FFFFFF",
@@ -542,7 +549,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
                   </span>
                   <span className={`text-[9px] sm:text-[10px] font-medium leading-none whitespace-nowrap ${(drop.media_url || isLeaderContent) ? "text-white/80" : ""}`} style={(drop.media_url || isLeaderContent) ? {} : { color: "#6B7FA0" }}>{drop.created_date ? formatDistanceToNow(new Date(drop.created_date.endsWith('Z') ? drop.created_date : drop.created_date + 'Z'), { addSuffix: true }) : ''}</span>
                 </div>
-              </Link>
+              </AuthorWrapper>
             );
 
             // Mobile / system account: no hover card (hover-on-tap on touch devices reveals an

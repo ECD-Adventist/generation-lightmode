@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { profileUrl } from "@/lib/profileLink";
 
 const FILTERS = [
   { id: "all", label: "All", icon: Search },
@@ -116,7 +117,7 @@ export default function GlobalSearchBar({ onClose }) {
                       {results.users.map(u => (
                         <Link
                           key={u.id}
-                          to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`}
+                          to={profileUrl(u) || createPageUrl("Feed")}
                           onClick={onClose}
                           className="flex items-center gap-3 px-2 py-2.5 rounded-xl transition no-underline hover:bg-[#F6F8FC]"
                         >
