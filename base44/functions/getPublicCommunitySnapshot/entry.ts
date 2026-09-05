@@ -6,14 +6,8 @@ const PAGE_SIZE = 500;
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    // This endpoint is a public read-only snapshot loaded by every dashboard view.
-    // If the rate-limit ledger itself errors, serve the data instead of failing the page.
-    try {
-      const rateLimited = await enforceApiRateLimit(base44, req);
-      if (rateLimited) return rateLimited;
-    } catch (rateLimitError) {
-      console.error('getPublicCommunitySnapshot: rate limit ledger unavailable:', rateLimitError?.message);
-    }
+    const rateLimited = await enforceApiRateLimit(base44, req);
+    if (rateLimited) return rateLimited;
     const svc = base44.asServiceRole;
 
     // Read every database page so map totals stay accurate as the community grows.

@@ -37,8 +37,8 @@ export default async function(req) {
       return Response.json({ complete: Boolean(country && city), country, city, countries: REGISTRATION_COUNTRIES });
     }
 
-    // Profile reads above use only the authenticated user; reserve the database
-    // rate-limit ledger for mutations so checking location does not write records.
+    // Profile reads above use only the authenticated user; reserve the rate-limit
+    // ledger for mutations so checking location does not write records.
     const rateLimited = await enforceApiRateLimit(base44, req, user);
     if (rateLimited) return rateLimited;
 

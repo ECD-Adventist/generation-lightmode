@@ -12,7 +12,19 @@ async function sha256(value) {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
+// Never let the rate-limit bookkeeping itself break a request. Under heavy traffic
+// the counter reads/writes can be rejected by the database; when that happens we log
+// and allow the request through. Real limit breaches still return 429 below.
 export async function enforceApiRateLimit(base44, req, user = null) {
+  try {
+    return await applyApiRateLimit(base44, req, user);
+  } catch (error) {
+    console.error('enforceApiRateLimit: ledger unavailable, allowing request:', error?.message);
+    return null;
+  }
+}
+
+async function applyApiRateLimit(base44, req, user = null) {
   const forwarded = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
   const ip = forwarded || req.headers.get('cf-connecting-ip') || req.headers.get('x-real-ip') || 'unknown';
   const identity = user?.id ? `user:${user.id}` : `ip:${ip}`;
