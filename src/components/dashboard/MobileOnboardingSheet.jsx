@@ -151,8 +151,28 @@ export default function MobileOnboardingSheet({ isOpen, onCompleted }) {
     </button>
   );
 
+  const footer = (
+    <div className="px-5 pt-3 pb-4 border-t" style={{ borderColor: "#E6ECF5", background: "#FFFFFF" }}>
+      {step === 0 && (
+        <button type="button" onClick={handleConsentNext} disabled={!consent1 || !consent2} className="w-full h-14 rounded-full font-black text-[15px] flex items-center justify-center gap-2 font-['Space_Grotesk'] active:scale-[0.98] transition disabled:cursor-not-allowed" style={{ background: (consent1 && consent2) ? "linear-gradient(90deg, #1FB8FF, #0B3FD9)" : "#E6ECF5", color: (consent1 && consent2) ? "#FFFFFF" : "#8A97B5", boxShadow: (consent1 && consent2) ? "0 8px 24px rgba(11, 63, 217, 0.35)" : "none" }}>
+          Agree & Continue <ChevronRight className="w-4 h-4" />
+        </button>
+      )}
+      {step === 1 && (
+        <button type="button" onClick={handleProfileNext} className="w-full h-14 rounded-full font-black text-[15px] flex items-center justify-center gap-2 font-['Space_Grotesk'] active:scale-[0.98] transition" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.35)" }}>
+          Next <ChevronRight className="w-4 h-4" />
+        </button>
+      )}
+      {step === 2 && (
+        <button type="button" onClick={handleFinish} disabled={saving || uploadingPic} className="w-full h-14 rounded-full font-black text-[15px] flex items-center justify-center gap-2 font-['Space_Grotesk'] active:scale-[0.98] transition disabled:opacity-50" style={{ background: "linear-gradient(90deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 8px 24px rgba(255, 159, 26, 0.4)" }}>
+          {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</> : "Enter LightMode ⚡"}
+        </button>
+      )}
+    </div>
+  );
+
   return (
-    <MobileBottomSheet isOpen={isOpen} onClose={() => {}} dismissible={false} header={header} maxHeight="94dvh">
+    <MobileBottomSheet isOpen={isOpen} onClose={() => {}} dismissible={false} header={header} footer={footer} portal maxHeight="94dvh">
       <div className="px-5 py-4 space-y-3">
         {step === 0 && (
           <>
@@ -254,23 +274,6 @@ export default function MobileOnboardingSheet({ isOpen, onCompleted }) {
         )}
       </div>
 
-      <div className="px-5 pt-3 pb-4 border-t" style={{ borderColor: "#E6ECF5", background: "#FFFFFF" }}>
-        {step === 0 && (
-          <button onClick={handleConsentNext} disabled={!consent1 || !consent2} className="w-full h-14 rounded-full font-black text-[15px] flex items-center justify-center gap-2 font-['Space_Grotesk'] active:scale-[0.98] transition disabled:cursor-not-allowed" style={{ background: (consent1 && consent2) ? "linear-gradient(90deg, #1FB8FF, #0B3FD9)" : "#E6ECF5", color: (consent1 && consent2) ? "#FFFFFF" : "#8A97B5", boxShadow: (consent1 && consent2) ? "0 8px 24px rgba(11, 63, 217, 0.35)" : "none" }}>
-            Agree & Continue <ChevronRight className="w-4 h-4" />
-          </button>
-        )}
-        {step === 1 && (
-          <button onClick={handleProfileNext} className="w-full h-14 rounded-full font-black text-[15px] flex items-center justify-center gap-2 font-['Space_Grotesk'] active:scale-[0.98] transition" style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.35)" }}>
-            Next <ChevronRight className="w-4 h-4" />
-          </button>
-        )}
-        {step === 2 && (
-          <button onClick={handleFinish} disabled={saving || uploadingPic} className="w-full h-14 rounded-full font-black text-[15px] flex items-center justify-center gap-2 font-['Space_Grotesk'] active:scale-[0.98] transition disabled:opacity-50" style={{ background: "linear-gradient(90deg, #FFD000, #FF9F1A)", color: "#0B1B3D", boxShadow: "0 8px 24px rgba(255, 159, 26, 0.4)" }}>
-            {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</> : "Enter LightMode ⚡"}
-          </button>
-        )}
-      </div>
     </MobileBottomSheet>
   );
 }

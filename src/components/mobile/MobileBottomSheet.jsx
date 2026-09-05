@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 /**
@@ -11,6 +12,8 @@ export default function MobileBottomSheet({
   dismissible = true,
   children,
   header, // optional node rendered above children
+  footer, // optional actions kept outside the scrolling content
+  portal = false,
   maxHeight = "92dvh",
 }) {
   useEffect(() => {
@@ -22,7 +25,7 @@ export default function MobileBottomSheet({
 
   if (!isOpen) return null;
 
-  return (
+  const sheet = (
     <div
       className="fixed inset-0 z-[9999] flex items-end font-['Inter']"
       style={{ background: "rgba(11, 27, 61, 0.55)", backdropFilter: "blur(12px)" }}
@@ -60,12 +63,14 @@ export default function MobileBottomSheet({
           </button>
         )}
 
-        {header}
+        {footer ? <div className="shrink-0">{header}</div> : header}
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           {children}
         </div>
+        {footer && <div className="shrink-0">{footer}</div>}
       </div>
     </div>
   );
+  return portal ? createPortal(sheet, document.body) : sheet;
 }
