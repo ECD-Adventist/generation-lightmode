@@ -37,6 +37,8 @@ import CohortRetentionGrid from "./users/CohortRetentionGrid";
 import UsersHeatmap from "./users/UsersHeatmap";
 import ViewModeToggle from "./users/ViewModeToggle";
 import { detectDuplicates, buildDuplicateSuspectSet, computeProfileCompleteness } from "./users/userAnalytics";
+import useAdminDirectory from "@/components/admin/data/useAdminDirectory";
+import AdminReadStatus from "@/components/admin/data/AdminReadStatus";
 
 function calcAge(dob) {
   if (!dob) return null;
@@ -180,22 +182,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
 
   const queryClient = useQueryClient();
 
-  const { data: users = [], isLoading, isError, refetch } = useQuery({
-    queryKey: ["admin_users_full", currentAdmin?.id, "complete"],
-    queryFn: async () => {
-      const records = new Map();
-      for (let skip = 0; ; skip += 1000) {
-        const res = await base44.functions.invoke("adminListUsers", { limit: 1000, skip });
-        if (!Array.isArray(res.data)) throw new Error("Unable to load the user directory");
-        res.data.forEach(record => records.set(record.id, record));
-        if (res.data.length < 1000) break;
-      }
-      return [...records.values()];
-    },
-    staleTime: 60_000,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-  });
+  const { users, isLoading, isError, isFetching, complete, readAt, refetch } = useAdminDirectory(currentAdmin);
 
   const ROLE_ORDER = [
     "super_admin", "admin", "ecd_admin", "ecd_officer", "country_admin",
@@ -290,7 +277,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
   );
 
   // Phase 3 — duplicate detection (computed once, reused for inline badges and panel)
-  const duplicateGroups = useMemo(() => detectDuplicates(users), [users]);
+  const duplicateGroups = useMemo(() => complete ? detectDuplicates(users) : [], [users, complete]);
   const duplicateSuspects = useMemo(() => buildDuplicateSuspectSet(duplicateGroups), [duplicateGroups]);
 
   // Lookup severity for a single user row
@@ -514,7 +501,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
         />
       )}
 
-      {isError && <div role="alert" className="rounded-xl border border-destructive p-4 text-destructive">The complete directory could not load. <button onClick={() => refetch()} className="underline font-bold">Retry</button></div>}
+      <AdminReadStatus t={t} loading={isFetching} error={isError} readAt={readAt} onRefresh={refetch} message={complete ? 'Complete directory · direct database reads' : `${users.length.toLocaleString()} members loaded · remaining records are loading; filters and totals are not complete yet`} />
       {/* ── Header ─────────────────────────────── */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
@@ -525,6 +512,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
           <ViewModeToggle mode={viewMode} onChange={setViewMode} t={t} />
           <button
             onClick={() => setDuplicatePanelOpen(true)}
+            disabled={!complete}
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold border transition relative"
             style={{
               borderColor: duplicateGroups.length > 0 ? "#ef4444" : t.border,
@@ -544,6 +532,8 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
           <FilterPresets currentFilters={currentFilters} onApply={applyPreset} t={t} isDark={isDark} />
           <button
             onClick={handleExportCsv}
+            disabled={!complete}
+            title={complete ? 'Export all matching members' : 'Waiting for the complete directory'}
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold border transition"
             style={{ borderColor: t.border, color: t.textSecondary, background: t.surface }}
           >
@@ -572,7 +562,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
       )}
 
       {/* ── Incomplete banner ─────────────────── */}
-      {incompleteCount > 0 && (
+      {complete && incompleteCount > 0 && (
         <div className="rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style={{ background: isDark ? "rgba(255,208,0,0.1)" : "#FFF8E6", border: "1px solid rgba(255,208,0,0.3)" }}>
           <div className="flex items-center gap-3">
             <AlertCircle className="text-[#FFD000] w-5 h-5 shrink-0" />
@@ -618,7 +608,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
             </div>
             <div>
               <p className="text-xs" style={{ color: t.textSecondary }}>{s.label}</p>
-              <p className="font-bold text-lg leading-tight" style={{ color: t.textPrimary }}>{isLoading || isError ? "—" : s.value}</p>
+              <p className="font-bold text-lg leading-tight" style={{ color: t.textPrimary }}>{!complete ? "—" : s.value}</p>
             </div>
           </div>
         ))}
@@ -730,7 +720,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs" style={{ color: t.textSecondary }}>
-            {isLoading ? "Loading the complete directory…" : isError ? "Directory unavailable" : <>Showing <span className="font-bold" style={{ color: t.textPrimary }}>{filteredUsers.length}</span> of {users.length} users</>}
+            {isLoading ? "Loading members…" : <>{complete ? 'Showing' : 'Matches in loaded records:'} <span className="font-bold" style={{ color: t.textPrimary }}>{filteredUsers.length}</span> of {users.length} {complete ? 'users' : 'loaded users (not the full directory)'}</>}
             {selectedUsers.size > 0 && <span className="ml-2 font-bold" style={{ color: t.accent }}>· {selectedUsers.size} selected</span>}
           </p>
 
@@ -757,7 +747,8 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
       )}
 
       {/* ── Heatmap view ─────────────────────── */}
-      {viewMode === "heatmap" && (
+      {viewMode !== "table" && !complete && <p role="status" style={{ color: t.textSecondary }}>This view will appear when the complete directory has loaded.</p>}
+      {viewMode === "heatmap" && complete && (
         <UsersHeatmap
           users={users}
           onCountryClick={(country) => {
@@ -769,7 +760,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
       )}
 
       {/* ── Cohorts view ─────────────────────── */}
-      {viewMode === "cohorts" && (
+      {viewMode === "cohorts" && complete && (
         <CohortRetentionGrid users={users} t={t} />
       )}
 
@@ -781,7 +772,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
             <thead>
               <tr className="border-b" style={{ borderColor: t.border, background: isDark ? "rgba(255,255,255,0.02)" : "rgba(11,27,61,0.02)" }}>
                 <th className="p-4">
-                  <button onClick={toggleSelectAll} className="transition hover:opacity-70" style={{ color: t.textMuted }}>
+                  <button onClick={toggleSelectAll} disabled={!complete} title={complete ? 'Select all matching members' : 'Waiting for the complete directory'} className="transition hover:opacity-70" style={{ color: t.textMuted }}>
                     {selectedUsers.size === filteredUsers.length && filteredUsers.length > 0
                       ? <CheckSquare size={16} style={{ color: t.accent }} />
                       : <Square size={16} />}
@@ -806,7 +797,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
               {isLoading ? (
                 <tr><td colSpan="14" className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto" style={{ color: t.accent }} /></td></tr>
               ) : filteredUsers.length === 0 ? (
-                <tr><td colSpan="14" className="p-8 text-center" style={{ color: t.textMuted }}>No users match your filters.</td></tr>
+                <tr><td colSpan="14" className="p-8 text-center" style={{ color: t.textMuted }}>{isError ? 'Member loading was interrupted. Use Retry above.' : !complete ? 'Searching loaded records while the rest of the directory loads…' : 'No users match your filters.'}</td></tr>
               ) : (
                 pagedUsers.map(u => {
                   const age = calcAge(u.date_of_birth);

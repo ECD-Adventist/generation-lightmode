@@ -13,22 +13,21 @@ import GlobalReachMap from "./dashboard/GlobalReachMap";
 import LiveOverviewPanel from "./dashboard/LiveOverviewPanel";
 import { getUserCountry } from "@/lib/countryUtils";
 import { buildTerritoryScope, scopeUsers, scopeGroups, scopeDropsByAuthor } from "@/lib/territoryScope";
+import useAdminDashboardData from "@/components/admin/data/useAdminDashboardData";
+import AdminReadStatus from "@/components/admin/data/AdminReadStatus";
 
 export default function AdminDashboardTab({ user, territoryRestricted, territoryCountries, territoryRegions, territoryApproved }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
 
-  const scope = buildTerritoryScope({ territoryRestricted, territoryApproved, territoryCountries, territoryRegions });
-  const { data: users = [] } = useQuery({ queryKey: ["admin_users_full"], queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []) });
-  const { data: drops = [] } = useQuery({ queryKey: ["admin_drops"], queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000) });
-  const { data: groups = [] } = useQuery({ queryKey: ["admin_groups"], queryFn: () => base44.entities.GlowGroup.list("-created_date", 10000) });
-  const { data: challenges = [] } = useQuery({ queryKey: ["admin_challenges"], queryFn: () => base44.entities.Challenge.list("-created_date", 10000) });
-
-  const usersByEmail = new Map(users.map(u => [u.email, u]));
-  const scopedUsers = scopeUsers(scope, users);
-  const scopedDrops = scopeDropsByAuthor(scope, drops, users);
-  const scopedGroups = scopeGroups(scope, groups, usersByEmail);
+  const scope = useMemo(() => buildTerritoryScope({ territoryRestricted, territoryApproved, territoryCountries, territoryRegions }), [territoryRestricted, territoryApproved, territoryCountries, territoryRegions]);
+  const database = useAdminDashboardData(user, !territoryRestricted || territoryApproved);
+  const { users, drops, groups, challenges } = database;
+  const usersByEmail = useMemo(() => new Map(users.map(u => [u.email, u])), [users]);
+  const scopedUsers = useMemo(() => scopeUsers(scope, users), [scope, users]);
+  const scopedDrops = useMemo(() => scopeDropsByAuthor(scope, drops, users), [scope, drops, users]);
+  const scopedGroups = useMemo(() => scopeGroups(scope, groups, usersByEmail), [scope, groups, usersByEmail]);
 
   const pendingDrops = scopedDrops.filter(d => d.status === "pending").length;
   const pendingTerritories = scopedUsers.filter(u => u.territory_status === "pending").length;
@@ -63,18 +62,18 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
   const topPerformers = useMemo(() => {
     const map = {};
     scopedDrops.forEach(d => { if (!d.user_email) return; if (!map[d.user_email]) map[d.user_email] = { email: d.user_email, drops: 0, likes: 0 }; map[d.user_email].drops++; map[d.user_email].likes += d.likes_count || 0; });
-    return Object.values(map).sort((a, b) => b.likes - a.likes).slice(0, 5).map(p => { const u = users.find(u => u.email === p.email); return { ...p, name: u?.full_name || p.email?.split("@")[0], avatar: u?.profile_picture_url }; });
+    return Object.values(map).sort((a, b) => b.likes - a.likes).slice(0, 5).map(p => { const u = usersByEmail.get(p.email); return { ...p, name: u?.full_name || p.email?.split("@")[0], avatar: u?.profile_picture_url }; });
   }, [scopedDrops, users]);
 
   const recentActivity = useMemo(() => {
     return [...scopedDrops].sort((a, b) => new Date(b.created_date) - new Date(a.created_date)).slice(0, 6).map(d => {
-      const u = users.find(u => u.email === d.user_email);
+      const u = usersByEmail.get(d.user_email);
       return { id: d.id, user: u?.full_name || d.user_email?.split("@")[0], avatar: u?.profile_picture_url, verse: d.verse, time: d.created_date, likes: d.likes_count || 0, status: d.status };
     });
   }, [scopedDrops, users]);
 
   const stats = [
-    { label: "Users", value: scopedUsers.length, icon: Users, color: isDark ? "#00CFFF" : "#0B3FD9", to: `${createPageUrl("AdminCenter")}?tab=users` },
+    { label: "Users", value: scopedUsers.length, sparkline: growthData.map(month => month.users), icon: Users, color: isDark ? "#00CFFF" : "#0B3FD9", to: `${createPageUrl("AdminCenter")}?tab=users` },
     { label: "Drops", value: scopedDrops.length, icon: Zap, color: isDark ? "#FFD000" : "#d97706", trend: `${recentDrops} this wk`, to: `${createPageUrl("AdminCenter")}?tab=drops` },
     { label: "Groups", value: scopedGroups.length, icon: Activity, color: isDark ? "#8A5CFF" : "#7e22ce", to: `${createPageUrl("AdminCenter")}?tab=groups` },
     { label: "Challenges", value: challenges.filter(c => c.active).length, icon: Target, color: isDark ? "#ef4444" : "#dc2626", to: `${createPageUrl("AdminCenter")}?tab=challenges` },
@@ -91,8 +90,10 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
     return <div className="rounded-2xl p-6 text-sm border" style={{ background: t.surface, borderColor: t.border, color: t.textSecondary }}>Please confirm your territory first (Territory Setup — select your countries).</div>;
   }
 
+  if (!database.ready) return <AdminReadStatus t={t} loading={database.isFetching} error={database.isError} onRefresh={database.refetch} message="Reading complete database totals…" />;
   return (
     <div className="space-y-5 pb-12">
+      <AdminReadStatus t={t} loading={database.isFetching} error={database.isError} readAt={database.readAt} onRefresh={database.refetch} />
       <DashboardHero user={user} pendingDrops={pendingDrops} pendingTerritories={pendingTerritories} t={t} isDark={isDark} />
       <DashboardStats stats={stats} t={t} isDark={isDark} />
       <DashboardCharts growthData={growthData} dropsData={dropsData} scopedUsers={scopedUsers.length} recentDrops={recentDrops} t={t} isDark={isDark} />
@@ -110,10 +111,10 @@ export default function AdminDashboardTab({ user, territoryRestricted, territory
         <LeadingCountriesPanel users={scopedUsers} drops={scopedDrops} t={t} isDark={isDark} />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChallengeImpactPanel t={t} isDark={isDark} />
+        <ChallengeImpactPanel challenges={challenges} t={t} isDark={isDark} />
         <CommunityPulsePanel scopedGroups={scopedGroups} t={t} isDark={isDark} />
       </div>
-      <LiveOverviewPanel t={t} isDark={isDark} />
+      <LiveOverviewPanel databaseDrops={drops} databaseUsers={users} t={t} isDark={isDark} />
     </div>
   );
 }

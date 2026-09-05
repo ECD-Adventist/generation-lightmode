@@ -45,6 +45,7 @@ import AdminGenLuxMissionIntelligence from "../components/admin/AdminGenLuxMissi
 import AdminReadOnlyScope from "../components/admin/AdminReadOnlyScope";
 import { isReadOnlyAdminRole } from "@/lib/adminRoles";
 import { OFFICER_HIDDEN_TABS } from "@/lib/adminMenuAccess";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function AdminCenterInner() {
   const [user, setUser] = useState(null);
@@ -56,6 +57,8 @@ function AdminCenterInner() {
   const REGIONAL_ROLES = ["church_admin", "church_officer", "conference_field_admin", "conference_field_officer", "union_admin", "union_officer", "country_admin", "ecd_admin", "ecd_officer"];
   const initialTab = urlParams.get("tab") || "dashboard";
   const [activeTab, setActiveTab] = useState(initialTab);
+  const isMobile = useIsMobile();
+  const singleDataScreen = ["dashboard", "users"].includes(activeTab);
 
   useEffect(() => {
     async function checkAuth() {
@@ -212,7 +215,7 @@ function AdminCenterInner() {
       case "storage-dashboard": return ["admin", "super_admin", "ecd_officer"].includes(user.role) ? <AdminStorageDashboardTab /> : <div className="p-8 text-red-400 text-center font-bold">Global admin access required to view storage statistics.</div>;
       case "global-leaderboards": return <AdminGlobalLeaderboardsTab />;
       case "territory-alerts": return <AdminTerritoryAlertsTab currentUser={user} />;
-      default: return <AdminDashboardTab />;
+      default: return <AdminDashboardTab user={user} territoryRestricted={territoryScoped} territoryCountries={user?.territory_countries} territoryRegions={user?.territory_regions} territoryApproved={hasApprovedTerritory} />;
     }
   };
 
@@ -228,7 +231,7 @@ function AdminCenterInner() {
     <>
     {/* Mobile admin shell — dedicated drawer-based navigation */}
     <MobileAdminShell user={user} activeTab={activeTab} setActiveTab={handleTabChange} isSuperAdmin={canViewAll} isRegionalAdmin={territoryScoped} canScheduleContent={canScheduleContent} hiddenTabs={hiddenTabs}>
-      <AdminReadOnlyScope enabled={isOfficerReadOnly && activeTab !== "territory"}>{renderTab()}</AdminReadOnlyScope>
+      <AdminReadOnlyScope enabled={isOfficerReadOnly && activeTab !== "territory"}>{(!singleDataScreen || isMobile) && renderTab()}</AdminReadOnlyScope>
     </MobileAdminShell>
 
     {/* Desktop layout */}
@@ -268,7 +271,7 @@ function AdminCenterInner() {
 
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-7xl mx-auto pb-20 md:pb-0">
-            <AdminReadOnlyScope enabled={isOfficerReadOnly && activeTab !== "territory"}>{renderTab()}</AdminReadOnlyScope>
+            <AdminReadOnlyScope enabled={isOfficerReadOnly && activeTab !== "territory"}>{(!singleDataScreen || !isMobile) && renderTab()}</AdminReadOnlyScope>
           </div>
         </div>
       </div>

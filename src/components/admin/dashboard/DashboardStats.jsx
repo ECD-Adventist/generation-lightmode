@@ -38,13 +38,12 @@ function ProgressRing({ percent, color, size = 44, strokeWidth = 3.5, delay = 0 
 }
 
 /* ─── Inline Sparkline (trace animation + pulsing endpoint) ─────────────── */
-function Sparkline({ color, delay = 0 }) {
+function Sparkline({ color, points, delay = 0 }) {
   const pathRef = React.useRef(null);
   const [length, setLength] = React.useState(0);
   const [drawn, setDrawn] = React.useState(false);
 
-  // Deterministic but playful pseudo-trend
-  const points = [6, 10, 8, 14, 12, 18, 16, 22, 20, 26];
+  // The hero trend is the actual six-month registration series.
   const max = Math.max(...points);
   const min = Math.min(...points);
   const w = 100, h = 28;
@@ -63,7 +62,7 @@ function Sparkline({ color, delay = 0 }) {
       const timer = setTimeout(() => setDrawn(true), delay + 50);
       return () => clearTimeout(timer);
     }
-  }, [delay]);
+  }, [delay, path]);
 
   const gradId = `sp-${color.replace("#", "")}`;
 
@@ -173,15 +172,15 @@ export default function DashboardStats({ stats, t, isDark }) {
                 {/* Big animated number */}
                 <p className={`${isHero ? "text-[34px]" : "text-[26px]"} font-black font-['Space_Grotesk'] leading-none tracking-tight`} style={{ color: t.textPrimary }}>
                   {typeof s.value === "number"
-                    ? <AnimatedNumber value={s.value} duration={1600} decimals={s.decimals || 0} suffix={s.suffix || ""} />
+                    ? `${s.value.toLocaleString(undefined, { minimumFractionDigits: s.decimals || 0, maximumFractionDigits: s.decimals || 0 })}${s.suffix || ''}`
                     : s.value}
                 </p>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] mt-1.5" style={{ color: t.textMuted }}>{s.label}</p>
 
                 {/* Sparkline on hero card only */}
-                {isHero && (
+                {isHero && s.sparkline?.length > 1 && (
                   <div className="mt-3 opacity-80">
-                    <Sparkline color={s.color} delay={delay + 300} />
+                    <Sparkline color={s.color} points={s.sparkline} delay={delay + 300} />
                   </div>
                 )}
               </div>

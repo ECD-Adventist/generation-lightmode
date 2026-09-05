@@ -4,6 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { Crown, Target, HandHeart, Users2, MessageCircle, Flame, CheckCircle2, Zap } from "lucide-react";
 import { AnimatedNumber } from "./useCountUp";
 import { getUserCountry } from "@/lib/countryUtils";
+import readAdminRecords from "@/components/admin/data/readAdminRecords";
+import AdminReadStatus from "@/components/admin/data/AdminReadStatus";
 
 /* ─── Shared PanelShell (kept local so this file stays independent) ──── */
 function PanelShell({ title, subtitle, icon: Icon, iconColor, t, isDark, children, delay = 0, badge = null }) {
@@ -76,8 +78,9 @@ export function LeadingCountriesPanel({ users, drops, t, isDark }) {
       map[country].users++;
       map[country].emails.add(u.email);
     });
+    const byEmail = new Map(users.map(u => [u.email, u]));
     drops.forEach(d => {
-      const owner = users.find(u => u.email === d.user_email);
+      const owner = byEmail.get(d.user_email);
       const country = getUserCountry(owner);
       if (country && map[country]) map[country].drops++;
     });
@@ -134,11 +137,11 @@ export function LeadingCountriesPanel({ users, drops, t, isDark }) {
 }
 
 /* ─── Challenge Impact ─────────────────────────────────────────────────── */
-export function ChallengeImpactPanel({ t, isDark }) {
+export function ChallengeImpactPanel({ challenges = [], t, isDark }) {
   const accentColor = isDark ? "#8A5CFF" : "#7e22ce";
 
-  const { data: challenges = [] } = useQuery({ queryKey: ["dx_challenges"], queryFn: () => base44.entities.Challenge.list("-created_date", 10000) });
-  const { data: submissions = [] } = useQuery({ queryKey: ["dx_submissions"], queryFn: () => base44.entities.ChallengeSubmission.list("-created_date", 10000) });
+  const submissionsQuery = useQuery({ queryKey: ['adminDashboardSubmissionsDatabase'], queryFn: () => readAdminRecords('ChallengeSubmission'), staleTime: 60_000, refetchInterval: 60_000, refetchOnWindowFocus: false });
+  const submissions = submissionsQuery.data || [];
 
   const stats = useMemo(() => {
     const active = challenges.filter(c => c.active);
@@ -153,7 +156,7 @@ export function ChallengeImpactPanel({ t, isDark }) {
   }, [challenges, submissions]);
 
   const maxSubs = Math.max(...stats.topChallenges.map(c => c.subCount), 1);
-
+  if (!submissionsQuery.data || submissionsQuery.isError) return <AdminReadStatus t={t} loading={submissionsQuery.isFetching} error={submissionsQuery.isError} onRefresh={() => submissionsQuery.refetch()} message="Reading challenge participation…" />;
   return (
     <PanelShell title="Challenge Impact" subtitle="Missions driving the movement" icon={Target} iconColor={accentColor} t={t} isDark={isDark} delay={240}
       badge={<><AnimatedNumber value={stats.activeCount} duration={1200} /> active</>}>
@@ -215,8 +218,10 @@ export function ChallengeImpactPanel({ t, isDark }) {
 export function CommunityPulsePanel({ scopedGroups, t, isDark }) {
   const accentColor = isDark ? "#f43f5e" : "#e11d48";
 
-  const { data: prayers = [] } = useQuery({ queryKey: ["dx_prayers"], queryFn: () => base44.entities.PrayerRequest.list("-created_date", 10000) });
-  const { data: groupMembers = [] } = useQuery({ queryKey: ["dx_groupMembers"], queryFn: () => base44.entities.GlowGroupMember.list("-created_date", 10000) });
+  const prayersQuery = useQuery({ queryKey: ['adminDashboardPrayersDatabase'], queryFn: () => readAdminRecords('PrayerRequest'), staleTime: 60_000, refetchInterval: 60_000, refetchOnWindowFocus: false });
+  const membersQuery = useQuery({ queryKey: ['adminDashboardMembersDatabase'], queryFn: () => readAdminRecords('GlowGroupMember'), staleTime: 60_000, refetchInterval: 60_000, refetchOnWindowFocus: false });
+  const prayers = prayersQuery.data || [];
+  const groupMembers = membersQuery.data || [];
 
   const stats = useMemo(() => {
     const answered = prayers.filter(p => p.answered).length;
@@ -251,6 +256,7 @@ export function CommunityPulsePanel({ scopedGroups, t, isDark }) {
     Other: isDark ? "#8A5CFF" : "#7e22ce",
   };
 
+  if (!prayersQuery.data || !membersQuery.data || prayersQuery.isError || membersQuery.isError) return <AdminReadStatus t={t} loading={prayersQuery.isFetching || membersQuery.isFetching} error={prayersQuery.isError || membersQuery.isError} onRefresh={() => { prayersQuery.refetch(); membersQuery.refetch(); }} message="Reading prayers and group membership…" />;
   return (
     <PanelShell title="Community Pulse" subtitle="Prayers & groups activity" icon={HandHeart} iconColor={accentColor} t={t} isDark={isDark} delay={360}
       badge={<><AnimatedNumber value={stats.totalPrayers} duration={1400} /> prayers</>}>

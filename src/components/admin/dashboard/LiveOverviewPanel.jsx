@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Activity, Users, TrendingUp, Flame, Radio, Zap } from "lucide-react";
+import { useQuery } from '@tanstack/react-query';
+import AdminReadStatus from '@/components/admin/data/AdminReadStatus';
 
 /**
  * LiveOverviewPanel
@@ -10,50 +12,51 @@ import { Activity, Users, TrendingUp, Flame, Radio, Zap } from "lucide-react";
  *  - Recent growth spike (new users in last 15 min vs previous 15 min)
  *  - Trending content categories (from last 50 drops)
  */
-export default function LiveOverviewPanel({ t, isDark }) {
-  const [drops, setDrops] = useState([]);
+export default function LiveOverviewPanel({ databaseDrops = [], databaseUsers = [], t, isDark }) {
+  const [drops, setDrops] = useState(databaseDrops);
   const [likes, setLikes] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState(databaseUsers);
   const [pulse, setPulse] = useState(0); // triggers re-calc every 30s
   const [lastEvent, setLastEvent] = useState(null);
   const mountedRef = useRef(true);
 
-  // Initial load
-  useEffect(() => {
-    mountedRef.current = true;
-    (async () => {
-      const [d, l, u] = await Promise.all([
-        base44.entities.GlowDrop.list("-created_date", 200).catch(() => []),
-        base44.entities.GlowDropLike.list("-created_date", 300).catch(() => []),
-        base44.entities.User.list("-created_date", 200).catch(() => []),
-      ]);
-      if (!mountedRef.current) return;
-      setDrops(d);
-      setLikes(l);
-      setUsers(u);
-    })();
-    return () => { mountedRef.current = false; };
-  }, []);
+  // Reuse the complete database reads from the dashboard instead of capped samples.
+  useEffect(() => { setDrops(databaseDrops); }, [databaseDrops]);
+  useEffect(() => { setUsers(databaseUsers); }, [databaseUsers]);
+  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
+  const likesQuery = useQuery({
+    queryKey: ['adminDashboardRecentLikesDatabase'],
+    queryFn: async () => {
+      const rows = [];
+      const since = new Date(Date.now() - 5 * 60_000).toISOString();
+      for (let skip = 0; ; skip += 1000) {
+        const page = await base44.entities.GlowDropLike.filter({ created_date: { $gte: since } }, '-created_date', 1000, skip, ['id', 'user_email', 'created_date']);
+        rows.push(...page);
+        if (page.length < 1000) return rows;
+      }
+    }, staleTime: 30_000, refetchInterval: 30_000, refetchOnWindowFocus: false,
+  });
+  useEffect(() => { if (likesQuery.data) setLikes(likesQuery.data); }, [likesQuery.data]);
 
   // Real-time subscriptions
   useEffect(() => {
     const unsubDrops = base44.entities.GlowDrop.subscribe((ev) => {
       if (!mountedRef.current) return;
       setLastEvent({ type: "drop", at: Date.now() });
-      if (ev.type === "create") setDrops(prev => [ev.data, ...prev].slice(0, 200));
+      if (ev.type === "create") setDrops(prev => [ev.data, ...prev.filter(d => d.id !== ev.id)]);
       else if (ev.type === "update") setDrops(prev => prev.map(d => d.id === ev.id ? ev.data : d));
       else if (ev.type === "delete") setDrops(prev => prev.filter(d => d.id !== ev.id));
     });
     const unsubLikes = base44.entities.GlowDropLike.subscribe((ev) => {
       if (!mountedRef.current) return;
       setLastEvent({ type: "like", at: Date.now() });
-      if (ev.type === "create") setLikes(prev => [ev.data, ...prev].slice(0, 300));
+      if (ev.type === "create") setLikes(prev => [ev.data, ...prev.filter(l => l.id !== ev.id)]);
       else if (ev.type === "delete") setLikes(prev => prev.filter(l => l.id !== ev.id));
     });
     const unsubUsers = base44.entities.User.subscribe((ev) => {
       if (!mountedRef.current) return;
       setLastEvent({ type: "user", at: Date.now() });
-      if (ev.type === "create") setUsers(prev => [ev.data, ...prev].slice(0, 200));
+      if (ev.type === "create") setUsers(prev => [ev.data, ...prev.filter(u => u.id !== ev.id)]);
       else if (ev.type === "update") setUsers(prev => prev.map(u => u.id === ev.id ? ev.data : u));
     });
     return () => { unsubDrops?.(); unsubLikes?.(); unsubUsers?.(); };
@@ -72,8 +75,8 @@ export default function LiveOverviewPanel({ t, isDark }) {
 
     // Concurrent active users = unique user_emails from drops+likes in last 5 min
     const activeSet = new Set();
-    drops.forEach(d => { if (d.created_date && now - new Date(d.created_date) <= FIVE_MIN) activeSet.add(d.user_email); });
-    likes.forEach(l => { if (l.created_date && now - new Date(l.created_date) <= FIVE_MIN) activeSet.add(l.user_email); });
+    drops.forEach(d => { if (d.user_email && d.created_date && now - new Date(d.created_date) <= FIVE_MIN) activeSet.add(d.user_email); });
+    likes.forEach(l => { if (l.user_email && l.created_date && now - new Date(l.created_date) <= FIVE_MIN) activeSet.add(l.user_email); });
     const activeNow = activeSet.size;
 
     // Growth spike: new users in last 15 min vs previous 15 min
@@ -100,6 +103,7 @@ export default function LiveOverviewPanel({ t, isDark }) {
   }, [drops, likes, users, pulse]);
 
   const liveJustNow = lastEvent && (Date.now() - lastEvent.at < 4000);
+  if (!likesQuery.data || likesQuery.isError) return <AdminReadStatus t={t} loading={likesQuery.isFetching} error={likesQuery.isError} onRefresh={() => likesQuery.refetch()} message="Reading live engagement…" />;
 
   const cardStyle = { background: t.surface, border: `1px solid ${t.border}`, borderRadius: 20 };
 
@@ -142,7 +146,7 @@ export default function LiveOverviewPanel({ t, isDark }) {
             <span className="font-black text-3xl" style={{ color: t.textPrimary }}>{metrics.activeNow}</span>
             <span className="text-xs font-semibold" style={{ color: t.textSecondary }}>active</span>
           </div>
-          <p className="text-[11px] mt-1" style={{ color: t.textMuted }}>Concurrent users</p>
+          <p className="text-[11px] mt-1" style={{ color: t.textMuted }}>Members posting or liking</p>
         </div>
 
         {/* Growth spike */}
