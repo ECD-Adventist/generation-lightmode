@@ -52,6 +52,9 @@ export default async function(req) {
       ids: { type: 'array', maxItems: MAX_EXPLICIT_EMAILS, items: { type: 'string', maxLength: 64 } },
       search: { type: 'string', maxLength: 100 },
       q: { type: 'string', maxLength: 100 },
+      // Signed-in members may request emails so the app can link people to their
+      // profiles and match post authors. Guests never receive emails.
+      include_email: { type: 'boolean' },
     });
     if (validated.response) return validated.response;
     const payload = validated.data;
@@ -77,7 +80,7 @@ export default async function(req) {
     }
 
     let users = [];
-    let includeEmail = false;
+    let includeEmail = payload.include_email === true && !!actor;
     if (requestedEmails.length > 0) {
       includeEmail = true;
       const batches = await Promise.all(requestedEmails.map((email) =>

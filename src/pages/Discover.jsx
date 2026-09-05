@@ -13,6 +13,7 @@ import MobileDiscover from "@/components/discover/MobileDiscover";
 import MusicLibraryCard from "@/components/discover/MusicLibraryCard";
 import MusicPickerModal from "@/components/feed/MusicPickerModal";
 import useUrlOverlay from "@/hooks/useUrlOverlay";
+import { profileUrl } from "@/lib/profileLink";
 
 const fetchAll = async (entity, query = {}, sort = null) => {
   let allRecords = [];
@@ -57,8 +58,8 @@ export default function Discover() {
   const { data: allUsers = [] } = useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", { include_email: true, limit: 2000 });
-      return res.data;
+      const res = await base44.functions.invoke("listPublicUsers", { include_email: true, limit: 50 });
+      return Array.isArray(res.data) ? res.data : [];
     },
   });
 
@@ -232,7 +233,7 @@ export default function Discover() {
               <h3 className="font-black text-xs mb-4 tracking-widest uppercase flex items-center gap-2" style={{ color: "#CC7A00" }}><Flame className="w-4 h-4" /> Top Glow Creators</h3>
               <div className="space-y-4">
                 {topCreators.map((creator, i) => (
-                  <Link key={creator.email} to={createPageUrl("Profile") + `?user=${encodeURIComponent(creator.email)}`} className="flex items-center gap-3 no-underline group">
+                  <Link key={creator.email} to={profileUrl(creator) || createPageUrl("Discover")} className="flex items-center gap-3 no-underline group">
                     <span className="text-sm font-black w-5 text-center" style={{ color: i === 0 ? "#CC7A00" : i === 1 ? "#8A97B5" : i === 2 ? "#CD7F32" : "#8A97B5" }}>
                       {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
                     </span>

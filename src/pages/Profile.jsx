@@ -72,12 +72,20 @@ export default function Profile() {
   const coverInputRef = useRef(null);
 
   const urlParams = new URLSearchParams(window.location.search);
-  const viewUserEmail = urlParams.get("user")?.toLowerCase()?.trim() || null;
-  const viewUserId = urlParams.get("id")?.trim() || null;
-  const viewLeaderId = urlParams.get("leader")?.trim() || null;
+  // Older links (and any link built from an incomplete record) can carry the
+  // literal text "undefined"/"null". Treat those as "no target" so the page
+  // falls back to the signed-in profile instead of loading forever.
+  const readParam = (key) => {
+    const raw = urlParams.get(key)?.trim();
+    if (!raw || raw === "undefined" || raw === "null") return null;
+    return raw;
+  };
+  const viewUserEmail = readParam("user")?.toLowerCase() || null;
+  const viewUserId = readParam("id");
+  const viewLeaderId = readParam("leader");
   const hasProfileTarget = !!(viewUserEmail || viewUserId || viewLeaderId);
 
-  const { data: allUsersForProfile = [] } = useQuery({
+  const { data: allUsersForProfile = [], isFetched: profileIdentityFetched } = useQuery({
     queryKey: ["publicUserProfileIdentity", { email: viewUserEmail, id: viewUserId }],
     queryFn: async () => {
       // When viewing another user's profile, request them explicitly so they aren't
@@ -91,7 +99,7 @@ export default function Profile() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const { data: publicLeaderAccounts = [] } = useQuery({
+  const { data: publicLeaderAccounts = [], isFetched: leaderIdentityFetched } = useQuery({
     queryKey: ["publicLeaderAccountsForProfile", viewUserEmail, viewLeaderId],
     queryFn: async () => {
       const params = viewUserEmail ? { emails: [viewUserEmail], limit: 1 } : { ids: [viewLeaderId], limit: 1 };
@@ -142,11 +150,12 @@ export default function Profile() {
     checkAuth();
   }, [viewUserEmail, viewUserId, viewLeaderId, hasProfileTarget]);
 
-  const allUsersLoaded = useRef(false);
+  // A disabled identity query never "fetches", so treat it as answered.
+  const identityResolved = (profileIdentityFetched || !(!!currentUser && hasProfileTarget))
+    && (leaderIdentityFetched || !((viewUserEmail || viewLeaderId) && !!currentUser));
 
   useEffect(() => {
     if (!hasProfileTarget) return;
-    if (allUsersForProfile.length > 0) allUsersLoaded.current = true;
 
     if (currentUser && (viewUserEmail === currentUser.email || viewUserId === currentUser.id)) {
       setUser(currentUser);
@@ -195,16 +204,14 @@ export default function Profile() {
       return;
     }
 
-    // If the public users list has loaded but the target wasn't found,
-    // create a minimal fallback profile so the page doesn't spin forever.
-    if (allUsersLoaded.current && viewUserEmail) {
-      setUser({
-        email: viewUserEmail,
-        full_name: viewUserEmail.split('@')[0] || "User",
-        glow_score: 0,
-      });
+    // Both identity lookups have answered and the target still wasn't found —
+    // show a minimal profile (or a clear "not found" state) instead of spinning.
+    if (currentUser && identityResolved) {
+      setUser(viewUserEmail
+        ? { email: viewUserEmail, full_name: viewUserEmail.split('@')[0] || "User", glow_score: 0 }
+        : { not_found: true, full_name: "Profile unavailable", glow_score: 0 });
     }
-  }, [viewUserEmail, viewUserId, viewLeaderId, hasProfileTarget, currentUser, allUsersForProfile, publicLeaderAccounts]);
+  }, [viewUserEmail, viewUserId, viewLeaderId, hasProfileTarget, currentUser, allUsersForProfile, publicLeaderAccounts, identityResolved]);
 
   const isOwnProfile = currentUser && (!hasProfileTarget || viewUserEmail === currentUser.email || viewUserId === currentUser.id);
   const baseProfileEmail = viewUserEmail || (!viewUserId ? currentUser?.email : null);

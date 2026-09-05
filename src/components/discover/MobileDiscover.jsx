@@ -6,6 +6,8 @@ import { getDisplayName } from "@/lib/displayName";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
 import MusicLibraryCard from "@/components/discover/MusicLibraryCard";
+import useAccountSearch from "@/hooks/useAccountSearch";
+import { profileUrl } from "@/lib/profileLink";
 
 const PROFILE_POST_BG = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2";
 
@@ -35,17 +37,13 @@ export default function MobileDiscover({
     );
   }, [drops, topLikedDrops, q]);
 
+  // People search runs on the server, so members outside the locally loaded
+  // page are still findable and always carry an id we can link to.
+  const { accounts: searchedAccounts } = useAccountSearch(search);
   const filteredAccounts = useMemo(() => {
     if (!q) return [];
-    return allUsers
-      .filter(u =>
-        (u.display_name || "").toLowerCase().includes(q) ||
-        (u.full_name || "").toLowerCase().includes(q) ||
-        (u.email || "").toLowerCase().includes(q) ||
-        (u.country || "").toLowerCase().includes(q)
-      )
-      .slice(0, 30);
-  }, [allUsers, q]);
+    return searchedAccounts.filter(u => u.id || u.email).slice(0, 30);
+  }, [searchedAccounts, q]);
 
   const filteredTags = useMemo(() => {
     if (!q) return trendingTags;
@@ -149,7 +147,7 @@ export default function MobileDiscover({
               <div className="space-y-4">
                 {filteredAccounts.slice(0, 3).length > 0 && (
                   <Section title="People" icon={<Sparkles className="w-3.5 h-3.5" />}>
-                    {filteredAccounts.slice(0, 3).map(u => <AccountRow key={u.email} u={u} />)}
+                    {filteredAccounts.slice(0, 3).map(u => <AccountRow key={u.id || u.email} u={u} />)}
                   </Section>
                 )}
                 {filteredTags.slice(0, 3).length > 0 && (
@@ -170,7 +168,7 @@ export default function MobileDiscover({
 
             {tab === "accounts" && (
               <div className="space-y-1 pt-1">
-                {filteredAccounts.length === 0 ? <EmptyState q={search} type="accounts" /> : filteredAccounts.map(u => <AccountRow key={u.email} u={u} />)}
+                {filteredAccounts.length === 0 ? <EmptyState q={search} type="accounts" /> : filteredAccounts.map(u => <AccountRow key={u.id || u.email} u={u} />)}
               </div>
             )}
 
@@ -198,7 +196,7 @@ function IdleView({ topCreators, topLikedDrops }) {
               {topCreators.map((c, i) => (
                 <Link
                   key={c.email}
-                  to={createPageUrl("Profile") + `?user=${encodeURIComponent(c.email)}`}
+                  to={profileUrl(c) || createPageUrl("Discover")}
                   className="shrink-0 snap-start no-underline relative overflow-hidden rounded-2xl p-3 flex flex-col items-center gap-2 transition active:scale-[0.97]"
                   style={{
                     width: 112,
@@ -334,9 +332,11 @@ function DropGrid({ drops }) {
 }
 
 function AccountRow({ u }) {
+  const to = profileUrl(u);
+  if (!to) return null;
   return (
     <Link
-      to={createPageUrl("Profile") + `?user=${encodeURIComponent(u.email)}`}
+      to={to}
       className="flex items-center gap-3 px-3 py-2.5 rounded-2xl no-underline active:scale-[0.98] transition"
       style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}
     >
