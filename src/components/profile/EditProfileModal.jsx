@@ -12,6 +12,7 @@ import { AGE_RESTRICTION_MESSAGE, getMinimumBirthDateForAge, isAtLeastAge } from
 import useUrlOverlay from "@/hooks/useUrlOverlay";
 import { updateCachedUserIdentity } from "@/lib/displayName";
 import { useAuth } from "@/lib/AuthContext";
+import { REGISTRATION_COUNTRIES, validatedRegistrationCountry } from "@/../base44/shared/registrationCountries.ts";
 
 export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   const editRoute = useUrlOverlay("edit");
@@ -32,7 +33,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
   const [editData, setEditData] = useState({
     username: user?.username || "",
     display_name: user?.display_name || user?.full_name || "",
-    country: user?.country || "",
+    country: validatedRegistrationCountry(user?.country),
     location: user?.location || "",
     bio: user?.bio || "",
     website_url: user?.website_url || "",
@@ -71,7 +72,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
       setEditData({
         username: user.username || "",
         display_name: user.display_name || user.full_name || "",
-        country: user.country || "",
+        country: validatedRegistrationCountry(user.country),
         location: user.location || "",
         bio: user.bio || "",
         website_url: user.website_url || "",
@@ -131,6 +132,10 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
       toast.error(AGE_RESTRICTION_MESSAGE);
       return;
     }
+    if (!validatedRegistrationCountry(editData.country) || !editData.city.trim()) {
+      toast.error("Select your country and enter your city / town.");
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -160,6 +165,8 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
       queryClient.invalidateQueries({ queryKey: ["publicUserProfileIdentity"] });
       queryClient.invalidateQueries({ queryKey: ["postAuthorIdentity"] });
       queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
+      queryClient.invalidateQueries({ queryKey: ["publicCommunitySnapshot"] });
+      queryClient.invalidateQueries({ queryKey: ["location-completion"] });
 
       toast.success("Profile saved! ✨");
       onSaved(updated);
@@ -314,7 +321,10 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Country</Label>
-                <Input value={editData.country} onChange={e => set("country", e.target.value)} placeholder="e.g. Kenya" className="h-11 rounded-xl" style={{ background: "#F6F8FC", border: "1px solid #E0EAF5", color: "#0B1B3D" }} />
+                <select aria-label="Country" required autoComplete="country-name" value={editData.country} onChange={e => set("country", e.target.value)} className="w-full h-11 rounded-xl border border-input bg-background text-foreground px-3 text-base focus-visible:ring-2 focus-visible:ring-ring">
+                  <option value="" disabled>Select your country</option>
+                  {REGISTRATION_COUNTRIES.map(country => <option key={country} value={country}>{country}</option>)}
+                </select>
               </div>
               <div>
                 <Label className="text-[10px] uppercase tracking-wider mb-1.5 block" style={{ color: "#6B7FA0" }}>Phone</Label>

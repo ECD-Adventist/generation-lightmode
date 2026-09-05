@@ -5,6 +5,8 @@ import "leaflet/dist/leaflet.css";
 import { AlertCircle, Globe, RefreshCw, X } from "lucide-react";
 import { countryCoordinates } from "@/lib/countryCoordinates";
 import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
+import { validatedRegistrationCountry } from "@/../base44/shared/registrationCountries.ts";
+import MapCoverageNotice from "@/components/dashboard/MapCoverageNotice";
 
 export default function DashboardMapHero({ userCountry }) {
   const [activePanel, setActivePanel] = useState(null);
@@ -14,26 +16,31 @@ export default function DashboardMapHero({ userCountry }) {
 
   const countryClusters = useMemo(() => {
     const stats = Array.isArray(snapshot?.countryStats) ? snapshot.countryStats : [];
-    return stats
-      .filter((entry) => entry?.country && Number(entry.users || 0) > 0)
-      .map((entry) => ({
-        country: entry.country,
-        coords: countryCoordinates[entry.country] || countryCoordinates.Global,
-        count: Number(entry.users || 0),
-        groups: Number(entry.groups || 0),
-        drops: Number(entry.drops || 0),
-      }))
-      .sort((a, b) => b.count - a.count);
+    const countries = new Map();
+    stats.forEach(entry => {
+      const country = validatedRegistrationCountry(entry?.country);
+      if (!country || Number(entry.users || 0) <= 0) return;
+      const cluster = countries.get(country) || { country, coords: countryCoordinates[country], count: 0, groups: 0, drops: 0 };
+      cluster.count += Number(entry.users || 0);
+      cluster.groups += Number(entry.groups || 0);
+      cluster.drops += Number(entry.drops || 0);
+      countries.set(country, cluster);
+    });
+    return [...countries.values()].sort((a, b) => b.count - a.count);
   }, [snapshot?.countryStats]);
 
   const totalRegisteredUsers = Number(snapshot?.totalUsers || 0);
-  const totalMappedUsers = countryClusters.reduce((sum, cluster) => sum + cluster.count, 0);
+  const mappedClusters = countryClusters.filter(cluster => Array.isArray(cluster.coords));
+  const totalMappedUsers = mappedClusters.reduce((sum, cluster) => sum + cluster.count, 0);
+  const usersWithCountry = countryClusters.reduce((sum, cluster) => sum + cluster.count, 0);
+  const awaitingCountry = Math.max(0, totalRegisteredUsers - usersWithCountry);
+  const unmapped = Math.max(0, usersWithCountry - totalMappedUsers);
   const totalCountries = countryClusters.length;
   const topCountry = countryClusters[0];
 
   const panelClusters = activePanel === "topRegion"
     ? (topCountry ? [topCountry] : [])
-    : countryClusters;
+    : activePanel === "mapped" ? mappedClusters : countryClusters;
   const panelTitle = activePanel === "registered"
     ? "Registered users by nation"
     : activePanel === "mapped"
@@ -84,13 +91,14 @@ export default function DashboardMapHero({ userCountry }) {
         ))}
       </div>
 
+      {hasSnapshot && !isLoading && (awaitingCountry > 0 || unmapped > 0) && <MapCoverageNotice total={totalRegisteredUsers} mapped={totalMappedUsers} awaitingCountry={awaitingCountry} unmapped={unmapped} />}
       <div className="relative rounded-[1.75rem] overflow-hidden" style={{ height: "400px", background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
         <style>{`.leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 12px; } .leaflet-popup-tip { background: #FFFFFF; border: 1px solid #E6ECF5; }`}</style>
         <MapContainer className="isolate z-0" center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>
           <LocalWorldBasemap variant="light" />
-          {countryClusters.map((cluster) => {
+          {mappedClusters.map((cluster) => {
             const radius = Math.max(10, Math.min(45, Math.sqrt(cluster.count) * 5));
-            const isLocal = cluster.country === userCountry;
+            const isLocal = cluster.country === validatedRegistrationCountry(userCountry);
             return (
               <CircleMarker key={cluster.country} center={cluster.coords} radius={radius} pathOptions={{ color: isLocal ? "#CC7A00" : "#0B3FD9", fillColor: isLocal ? "#FFD000" : "#1FB8FF", fillOpacity: isLocal ? 0.35 : 0.2, weight: isLocal ? 2 : 1.5 }}>
                 <Popup>
@@ -118,6 +126,7 @@ export default function DashboardMapHero({ userCountry }) {
               <button onClick={() => setActivePanel(null)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "#F6F8FC", color: "#0B1B3D" }}><X className="w-4 h-4" /></button>
             </div>
             <div className="overflow-y-auto p-4 space-y-2" style={{ maxHeight: "calc(80vh - 82px)" }}>
+              {activePanel === "registered" && <MapCoverageNotice total={totalRegisteredUsers} mapped={totalMappedUsers} awaitingCountry={awaitingCountry} unmapped={unmapped} />}
               {panelClusters.length === 0 && <p className="text-sm text-center py-8" style={{ color: "#6B7FA0" }}>No country data has been recorded yet.</p>}
               {panelClusters.map((cluster) => (
                 <div key={cluster.country} className="w-full flex items-center justify-between gap-4 rounded-2xl px-4 py-3" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>

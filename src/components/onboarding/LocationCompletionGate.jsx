@@ -13,7 +13,7 @@ export default function LocationCompletionGate({ children }) {
   const exempt = ["/privacy", "/terms", "/communityguidelines"].includes(pathname.toLowerCase());
   // The authenticated profile already comes from the backend. Do not make a
   // second request a prerequisite for access when its location is complete.
-  const hasSavedLocation = Boolean(String(user?.country || "").trim() && String(user?.city || "").trim());
+  const hasSavedLocation = Boolean(validatedRegistrationCountry(user?.country) && String(user?.city || "").trim());
   const location = useQuery({
     queryKey: ["location-completion", user?.id, user?.country, user?.city],
     queryFn: async () => (await base44.functions.invoke("updateProfile", { location_options: true })).data,
@@ -27,6 +27,7 @@ export default function LocationCompletionGate({ children }) {
   const onSaved = async () => {
     await refreshUser();
     await queryClient.invalidateQueries({ queryKey: ["location-completion", user.id] });
+    await queryClient.invalidateQueries({ queryKey: ["publicCommunitySnapshot"] });
   };
   // Keep country selection available immediately, even if the profile check fails.
   // These are the same country options used by backend validation.

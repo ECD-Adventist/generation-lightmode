@@ -2,6 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { enforceApiRateLimit } from '../../shared/apiSecurity.ts';
 import { waitUntil } from 'base44:runtime';
 import { resolveReportingCountry } from '../../shared/countryResolution.ts';
+import { validatedRegistrationCountry } from '../../shared/registrationCountries.ts';
 
 const PAGE_SIZE = 5000;
 const CACHE_TTL_MS = 5 * 60_000;
@@ -51,7 +52,7 @@ async function buildSnapshot(svc) {
     // Ambiguous and missing locations remain in global totals without a guessed country.
     const normalizeCountry = resolveReportingCountry;
 
-    const userCountryByEmail = new Map(users.map((user) => [user.email, normalizeCountry(user.country)]));
+    const userCountryByEmail = new Map(users.map((user) => [user.email, validatedRegistrationCountry(user.country)]));
 
     const countryStatsMap = new Map();
     const ensureCountry = (countryName) => {
@@ -63,7 +64,7 @@ async function buildSnapshot(svc) {
     };
 
     users.forEach((user) => {
-      const country = normalizeCountry(user.country);
+      const country = validatedRegistrationCountry(user.country);
       if (country) ensureCountry(country).users += 1;
     });
 

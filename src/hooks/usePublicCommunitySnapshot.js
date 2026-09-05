@@ -18,7 +18,9 @@ export default function usePublicCommunitySnapshot() {
     initialDataUpdatedAt: () => Date.parse(readCommunitySnapshot()?.generated_at || '') || 0,
     staleTime: 1000 * 60,
     gcTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
+    refetchInterval: 5 * 60_000,
+    refetchIntervalInBackground: false,
     retry: 1,
     retryDelay: (attempt, error) => error?.response?.status === 429 ? 60_000 : 1000,
     placeholderData: {

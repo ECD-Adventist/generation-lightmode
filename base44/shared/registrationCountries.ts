@@ -16,11 +16,10 @@ export const REGISTRATION_COUNTRIES = [
   'Andorra','Antigua and Barbuda','Armenia','Azerbaijan','Bahamas','Bahrain','Barbados','Belarus','Belize','Bhutan','Bosnia and Herzegovina','Brunei','Bulgaria','Cabo Verde','Comoros','Costa Rica','Croatia','Cyprus','Czechia','Djibouti','Dominica','Dominican Republic','El Salvador','Equatorial Guinea','Estonia','Eswatini','Fiji','Gambia','Georgia','Greece','Grenada','Guinea-Bissau','Guyana','Iceland','Ireland','Kiribati','Kosovo','Kuwait','Kyrgyzstan','Laos','Latvia','Lebanon','Liechtenstein','Lithuania','Luxembourg','Maldives','Malta','Marshall Islands','Mauritius','Micronesia','Moldova','Monaco','Mongolia','Montenegro','Nauru','Nepal','North Macedonia','Oman','Palau','Palestine','Qatar','Romania','Russia','Saint Kitts and Nevis','Saint Lucia','Saint Vincent and the Grenadines','Samoa','San Marino','Sao Tome and Principe','Serbia','Seychelles','Singapore','Slovakia','Slovenia','Solomon Islands','Suriname','Taiwan','Tajikistan','Timor-Leste','Tonga','Trinidad and Tobago','Turkmenistan','Tuvalu','United Arab Emirates','Uzbekistan','Vanuatu','Vatican City',
 ].sort((a, b) => a.localeCompare(b));
 
-const ALLOWED = new Set(REGISTRATION_COUNTRIES);
+const CANONICAL = new Map(REGISTRATION_COUNTRIES.map(country => [country.toLowerCase(), country]));
 
 export function validatedRegistrationCountry(value: unknown): string {
-  const country = normalizeCountryName(value);
-  return ALLOWED.has(country) ? country : '';
+  return CANONICAL.get(normalizeCountryName(value).toLowerCase()) || '';
 }
 
 export function isRegistrationCountry(value: unknown): boolean {
