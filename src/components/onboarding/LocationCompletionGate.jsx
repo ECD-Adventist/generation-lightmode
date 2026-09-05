@@ -1,10 +1,9 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { REGISTRATION_COUNTRIES, validatedRegistrationCountry } from "@/../base44/shared/registrationCountries.ts";
 import { useAuth } from "@/lib/AuthContext";
 import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
 import LocationCompletionForm from "@/components/onboarding/LocationCompletionForm";
 
 export default function LocationCompletionGate({ children }) {
@@ -24,13 +23,17 @@ export default function LocationCompletionGate({ children }) {
     refetchOnWindowFocus: false,
   });
   if (!isAuthenticated || !user || exempt || hasSavedLocation) return children;
-  if (location.isPending || location.isError) return <main className="min-h-dvh bg-background text-foreground flex flex-col items-center justify-center gap-4 p-6 text-center" aria-live="polite">
-    {location.isPending ? <><Loader2 className="h-6 w-6 animate-spin" /><p>Checking your profile…</p></> : <><p>We couldn’t check your location. Please try again.</p><Button onClick={() => location.refetch()} disabled={location.isFetching}>Try again</Button><Button variant="ghost" onClick={() => base44.auth.logout("/Home")}>Sign out</Button></>}
-  </main>;
   if (location.data?.complete) return children;
   const onSaved = async () => {
     await refreshUser();
     await queryClient.invalidateQueries({ queryKey: ["location-completion", user.id] });
   };
-  return <LocationCompletionForm key={user.id} location={location.data} onSaved={onSaved} />;
+  // Keep country selection available immediately, even if the profile check fails.
+  // These are the same country options used by backend validation.
+  const formLocation = location.data || {
+    country: validatedRegistrationCountry(user.country),
+    city: user.city || "",
+    countries: REGISTRATION_COUNTRIES,
+  };
+  return <LocationCompletionForm key={user.id} location={formLocation} onSaved={onSaved} />;
 }
