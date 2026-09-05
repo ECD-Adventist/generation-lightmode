@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Upload, Link2, CheckCircle2, AlertCircle, HardDrive, Trash2 } from "lucide-react";
+import { Loader2, Upload, Link2, CheckCircle2, AlertCircle, HardDrive, Trash2, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import DrivePickerModal from "./DrivePickerModal";
 import { CONTENT_TYPES, CONTENT_LANGUAGES, CONTENT_CATEGORIES, categoryMeta } from "@/components/content-hub/contentConstants";
@@ -13,7 +13,7 @@ function extractDriveId(link) {
   return m ? m[1] : null;
 }
 
-const emptyForm = { title: "", description: "", content_type: "video", category: "evangelistic_videos", language: "English", drive_link: "", thumbnail_url: "", date: "", time: "09:00" };
+const emptyForm = { title: "", description: "", content_type: "video", category: "evangelistic_videos", language: "English", drive_link: "", mobile_drive_link: "", thumbnail_url: "", date: "", time: "09:00" };
 
 export default function ContentFormModal({ open, onClose, onSaved, item, defaultDate }) {
   const [form, setForm] = useState(emptyForm);
@@ -21,6 +21,7 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
   const [deleting, setDeleting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [mobilePickerOpen, setMobilePickerOpen] = useState(false);
   const [thumbnailSuggestion, setThumbnailSuggestion] = useState("");
   const fileRef = useRef(null);
 
@@ -34,7 +35,8 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
         content_type: item.content_type || "video",
         category: item.category || CONTENT_CATEGORIES.find(c => c.type === (item.content_type || "video"))?.id || "evangelistic_videos",
         language: item.language || "English",
-        drive_link: item.drive_link || "", thumbnail_url: item.thumbnail_url || "",
+        drive_link: item.drive_link || "", mobile_drive_link: item.mobile_drive_link || "",
+        thumbnail_url: item.thumbnail_url || "",
         date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
         time: `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
       });
@@ -45,6 +47,9 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
 
   const set = (key, value) => setForm(f => ({ ...f, [key]: value }));
   const driveId = extractDriveId(form.drive_link);
+  const mobileDriveId = extractDriveId(form.mobile_drive_link);
+  // Posters are resized by Google automatically, so a manual copy is only needed for video.
+  const autoResizes = form.content_type === "poster";
 
   const handleDrivePick = (file) => {
     const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim();
@@ -103,6 +108,7 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
         category: form.category,
         language: form.language,
         drive_link: form.drive_link.trim(),
+        mobile_drive_link: form.mobile_drive_link.trim(),
         thumbnail_url: form.thumbnail_url,
         scheduled_at: new Date(`${form.date}T${form.time}`).toISOString(),
       };
@@ -183,6 +189,27 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
           </div>
 
           <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-bold text-white/60 flex items-center gap-1.5"><Smartphone size={12} /> Mobile Version (optional)</label>
+              <button type="button" onClick={() => setMobilePickerOpen(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition active:scale-95"
+                style={{ background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.35)", color: "#10B981" }}>
+                <HardDrive size={11} /> Browse Drive
+              </button>
+            </div>
+            <input className={inputCls} value={form.mobile_drive_link} onChange={e => set("mobile_drive_link", e.target.value)} placeholder="Compressed copy for phone users" />
+            {form.mobile_drive_link
+              ? (mobileDriveId
+                  ? <p className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1"><CheckCircle2 size={11} /> Offered as the lighter download when it's smaller than the original</p>
+                  : <p className="text-[11px] text-red-400 mt-1 flex items-center gap-1"><AlertCircle size={11} /> Could not find a file ID in this link</p>)
+              : <p className="text-[10px] text-white/40 mt-1">
+                  {autoResizes
+                    ? "Not needed for posters — a phone-sized image is generated automatically."
+                    : "Upload a compressed copy to Drive and select it here to give phone users a lighter download."}
+                </p>}
+          </div>
+
+          <div>
             <label className="text-xs font-bold text-white/60 mb-1 block">Thumbnail</label>
             {thumbnailSuggestion && !form.thumbnail_url && (
               <div className="mb-3 rounded-xl p-3 bg-cyan-400/5 border border-cyan-400/20">
@@ -241,6 +268,9 @@ export default function ContentFormModal({ open, onClose, onSaved, item, default
           </div>
         </div>
         <DrivePickerModal open={pickerOpen} onClose={() => setPickerOpen(false)} onPick={handleDrivePick} />
+        {/* Picking the mobile copy only sets its link — the item's own details stay untouched. */}
+        <DrivePickerModal open={mobilePickerOpen} onClose={() => setMobilePickerOpen(false)}
+          onPick={(file) => { set("mobile_drive_link", file.link); toast.success(`Mobile version set to "${file.name}"`); }} />
       </DialogContent>
     </Dialog>
   );

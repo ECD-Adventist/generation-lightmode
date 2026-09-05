@@ -36,6 +36,7 @@ export default async function(req) {
       category: data.category || undefined,
       language: data.language,
       drive_link: data.drive_link,
+      mobile_drive_link: data.mobile_drive_link || '',
       thumbnail_url: data.thumbnail_url || '',
       scheduled_at: data.scheduled_at
     };

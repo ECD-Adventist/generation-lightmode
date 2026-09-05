@@ -4,12 +4,45 @@ import { extractDriveFileId, toDirectDownloadUrl } from '../../shared/driveLinks
 const VALID_ACTIONS = ["view", "download", "share"];
 const VALID_PLATFORMS = ["whatsapp", "facebook", "youtube", "instagram", "tiktok", "x", "telegram", "copy_link", "native", "Base 1_feed", ""];
 
+// Longest edge, in pixels, of the automatically generated phone-sized image.
+const MOBILE_IMAGE_PX = 1280;
+
+const isImageItem = (item) => item.content_type === "poster";
+
+async function driveMeta(fileId, accessToken) {
+  const res = await fetch(
+    `https://www.googleapis.com/drive/v3/files/${fileId}?fields=size,mimeType,name,thumbnailLink&supportsAllDrives=true`,
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+  if (!res.ok) return null;
+  return await res.json();
+}
+
+// Google serves resized copies of an image through its thumbnail URL, which lets
+// posters offer a light mobile download without anyone uploading a second file.
+function resizedImageUrl(thumbnailLink, px) {
+  if (!thumbnailLink) return null;
+  return thumbnailLink.replace(/=[sw]\d+(-[a-z]+)?$/i, `=s${px}`);
+}
+
+async function urlByteSize(url) {
+  try {
+    const res = await fetch(url, { method: "HEAD" });
+    if (!res.ok) return 0;
+    return Number(res.headers.get("Content-Length")) || 0;
+  } catch (_e) {
+    return 0;
+  }
+}
+
 // Records a download or share for a content item and returns the direct
 // download URL (downloads only). Enforces the scheduled unlock time.
 //
-// Also supports { meta: true } — a cheap Drive metadata lookup that returns the
-// file's real byte size so the app can show accurate download/loading progress
-// instead of an indefinite spinner.
+// Supports { meta: true } — a Drive metadata lookup returning the real byte size
+// of every download option so the app can show accurate sizes and progress.
+//
+// Supports { variant: "mobile" } — serves the lighter copy: an admin-uploaded
+// compressed file when one exists, or a Google-resized image for posters.
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -20,6 +53,7 @@ export default async function(req) {
     const contentId = String(payload.content_id || "").slice(0, 64);
     const action = String(payload.action || "");
     const platform = String(payload.platform || "").slice(0, 30);
+    const wantsMobile = payload.variant === "mobile";
     const streamMedia = payload.stream === true && VALID_ACTIONS.includes(action);
     const metaOnly = payload.meta === true;
     const recordEngagement = payload.record !== false && !metaOnly;
@@ -39,35 +73,80 @@ export default async function(req) {
       return Response.json({ error: "This content is not unlocked yet" }, { status: 403 });
     }
 
-    // Metadata lookup — used by the app to size its progress bar before the
-    // (potentially large) media transfer begins. No engagement is recorded.
+    const originalId = extractDriveFileId(item.drive_link);
+    if (!originalId) return Response.json({ error: "Invalid Drive file" }, { status: 400 });
+    const mobileId = item.mobile_drive_link ? extractDriveFileId(item.mobile_drive_link) : null;
+
+    // Metadata lookup — lists every available download option with its true size.
+    // No engagement is recorded.
     if (metaOnly) {
-      const fileId = extractDriveFileId(item.drive_link);
-      if (!fileId) return Response.json({ error: "Invalid Drive file" }, { status: 400 });
       const { accessToken } = await base44.asServiceRole.connectors.getConnection("googledrive");
-      const metaRes = await fetch(
-        `https://www.googleapis.com/drive/v3/files/${fileId}?fields=size,mimeType,name&supportsAllDrives=true`,
-        { headers: { Authorization: `Bearer ${accessToken}` } }
-      );
-      if (!metaRes.ok) return Response.json({ error: "File details unavailable" }, { status: metaRes.status });
-      const meta = await metaRes.json();
+      const [original, mobile] = await Promise.all([
+        driveMeta(originalId, accessToken),
+        mobileId ? driveMeta(mobileId, accessToken) : Promise.resolve(null)
+      ]);
+      if (!original) return Response.json({ error: "File details unavailable" }, { status: 502 });
+
+      const variants = [];
+      if (mobile) {
+        // An admin uploaded a compressed copy — only offer it when it is genuinely smaller.
+        const mobileSize = Number(mobile.size) || 0;
+        const originalSize = Number(original.size) || 0;
+        if (mobileSize > 0 && (originalSize === 0 || mobileSize < originalSize)) {
+          variants.push({ id: "mobile", label: "Mobile", size: mobileSize, source: "compressed_upload", available: true });
+        }
+      } else if (isImageItem(item)) {
+        const resized = resizedImageUrl(original.thumbnailLink, MOBILE_IMAGE_PX);
+        const size = resized ? await urlByteSize(resized) : 0;
+        if (size > 0 && size < (Number(original.size) || Infinity)) {
+          variants.push({ id: "mobile", label: "Phone size", size, source: "auto_resized", available: true });
+        }
+      }
+      variants.push({
+        id: "original",
+        label: "Original",
+        size: Number(original.size) || 0,
+        source: "original",
+        available: true
+      });
+
       return Response.json({
         ok: true,
-        size: Number(meta.size) || 0,
-        mime_type: meta.mimeType || "",
-        file_name: meta.name || item.title || ""
+        size: Number(original.size) || 0,
+        mime_type: original.mimeType || "",
+        file_name: original.name || item.title || "",
+        variants
       });
     }
 
     let driveResponse = null;
+    let mobileFileName = "";
     if (streamMedia) {
-      const fileId = extractDriveFileId(item.drive_link);
-      if (!fileId) return Response.json({ error: "Invalid Drive file" }, { status: 400 });
-
       const { accessToken } = await base44.asServiceRole.connectors.getConnection("googledrive");
-      driveResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&supportsAllDrives=true`, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+
+      if (wantsMobile && mobileId) {
+        // Admin-supplied compressed file.
+        driveResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${mobileId}?alt=media&supportsAllDrives=true`, {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+      } else if (wantsMobile && isImageItem(item)) {
+        // Google-resized copy of the poster.
+        const original = await driveMeta(originalId, accessToken);
+        const resized = resizedImageUrl(original?.thumbnailLink, MOBILE_IMAGE_PX);
+        if (resized) {
+          driveResponse = await fetch(resized);
+          const base = (original?.name || item.title || "poster").replace(/\.[^.]+$/, "");
+          mobileFileName = `${base} (mobile).jpg`;
+        }
+      }
+
+      // No lighter copy available (or it failed) — fall back to the original file.
+      if (!driveResponse || !driveResponse.ok) {
+        driveResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${originalId}?alt=media&supportsAllDrives=true`, {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        mobileFileName = "";
+      }
       if (!driveResponse.ok) {
         return Response.json({ error: "The file could not be downloaded" }, { status: driveResponse.status });
       }
@@ -96,7 +175,13 @@ export default async function(req) {
     if (streamMedia && driveResponse) {
       const headers = new Headers();
       headers.set("Content-Type", driveResponse.headers.get("Content-Type") || "application/octet-stream");
-      headers.set("Content-Disposition", driveResponse.headers.get("Content-Disposition") || `attachment; filename="${item.title.replace(/["\\]/g, "_")}"`);
+      const fallbackName = mobileFileName || item.title.replace(/["\\]/g, "_");
+      headers.set(
+        "Content-Disposition",
+        mobileFileName
+          ? `attachment; filename="${mobileFileName.replace(/["\\]/g, "_")}"`
+          : driveResponse.headers.get("Content-Disposition") || `attachment; filename="${fallbackName}"`
+      );
       const length = driveResponse.headers.get("Content-Length");
       if (length) headers.set("Content-Length", length);
       headers.set("Cache-Control", "private, no-store");

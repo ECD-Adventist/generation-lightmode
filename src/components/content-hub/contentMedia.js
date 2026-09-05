@@ -15,15 +15,19 @@ export function formatBytes(bytes) {
 
 // Streams the media through the backend. When onProgress is supplied the body is
 // read chunk by chunk so real transfer progress can be reported while it loads.
-export async function fetchContentFile(item, action, platform = "", record = true, onProgress = null) {
+// variant "mobile" asks for the lighter copy; expectedSize skips the size lookup
+// when the caller already knows it.
+export async function fetchContentFile(item, action, options = {}) {
+  const { platform = "", record = true, onProgress = null, variant = "original", expectedSize = 0 } = options;
+
   // Ask for the file size alongside the transfer so a percentage is available
   // even when the response carries no Content-Length header.
-  const metaPromise = onProgress ? fetchContentMeta(item).catch(() => ({})) : null;
+  const metaPromise = onProgress && !expectedSize ? fetchContentMeta(item).catch(() => ({})) : null;
 
   const response = await base44.functions.fetch("/trackContentEngagement", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content_id: item.id, action, platform, stream: true, record }),
+    body: JSON.stringify({ content_id: item.id, action, platform, stream: true, record, variant }),
   });
   if (!response.ok) throw new Error("Media request failed");
 
@@ -39,7 +43,7 @@ export async function fetchContentFile(item, action, platform = "", record = tru
   }
 
   const headerLength = Number(response.headers.get("Content-Length")) || 0;
-  const total = headerLength || Number((await metaPromise)?.size) || 0;
+  const total = headerLength || expectedSize || Number((await metaPromise)?.size) || 0;
   const reader = response.body.getReader();
   const chunks = [];
   let received = 0;

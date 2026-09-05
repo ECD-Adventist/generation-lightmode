@@ -1,23 +1,20 @@
 import React, { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Save, Share2, Loader2, Lock, Copy, Check, Eye } from "lucide-react";
+import { Share2, Lock, Copy, Check, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { typeMeta } from "./contentConstants";
 import ContentPreviewModal from "./ContentPreviewModal";
 import ContentRepostButton from "./ContentRepostButton";
 import BrandIcon from "./BrandIcon";
 import ContentThumbnail from "./ContentThumbnail";
-import { fetchContentFile, saveContentFile } from "./contentMedia";
-import { progressPercent } from "./ContentTransferProgress";
+import ContentDownloadMenu from "./ContentDownloadMenu";
 import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
 import { copyShareLink, openShareWindow, tryNativeShare, buildDirectShareUrl, isUploadPlatform, ALL_SHARE_PLATFORMS, DIRECT_SHARE_PLATFORMS } from "@/lib/shareActions";
 
 const SHARE_PLATFORMS = ALL_SHARE_PLATFORMS;
 
 export default function ContentCard({ item, priority = false }) {
-  const [downloading, setDownloading] = useState(false);
-  const [downloadProgress, setDownloadProgress] = useState(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [shareMenuView, setShareMenuView] = useState("main");
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -47,21 +44,6 @@ export default function ContentCard({ item, priority = false }) {
   // View tracking is handled by ContentPreviewModal when it opens, so every
   // path into the preview (thumbnail tap, View button, shared link) counts.
   const handleView = () => setPreviewOpen(true);
-
-  const handleDownload = async () => {
-    setDownloading(true);
-    setDownloadProgress({ received: 0, total: 0 });
-    try {
-      const file = await fetchContentFile(item, "download", "", true, setDownloadProgress);
-      saveContentFile(file);
-      queryClient.invalidateQueries({ queryKey: ["digital-content-public"] });
-      toast.success("Download ready");
-    } catch {
-      toast.error("Download failed — please try again");
-    }
-    setDownloading(false);
-    setDownloadProgress(null);
-  };
 
   const toggleShareMenu = () => {
     setShareMenuView("main");
@@ -174,21 +156,7 @@ export default function ContentCard({ item, priority = false }) {
             style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${meta.color}55`, color: meta.color }}>
             <Eye size={12} /> View
           </button>
-          <button type="button" onClick={handleDownload} disabled={downloading}
-            className="relative flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 rounded-full font-black text-[11px] font-['Space_Grotesk'] transition active:scale-95 overflow-hidden"
-            style={{ background: meta.color, color: "#0B0F1A" }}>
-            {/* Progress fills the button itself while the file transfers */}
-            {downloading && (
-              <span className="absolute inset-y-0 left-0 transition-all duration-200"
-                style={{ width: `${progressPercent(downloadProgress) ?? 8}%`, background: "rgba(11,15,26,0.28)" }} />
-            )}
-            <span className="relative flex items-center gap-1">
-              {downloading ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
-              {downloading
-                ? (progressPercent(downloadProgress) !== null ? `${progressPercent(downloadProgress)}%` : "Starting…")
-                : "Download"}
-            </span>
-          </button>
+          <ContentDownloadMenu item={item} color={meta.color} />
           <ContentRepostButton item={item} />
           <div className="relative shrink-0">
             <button type="button" ref={shareBtnRef} onClick={toggleShareMenu}

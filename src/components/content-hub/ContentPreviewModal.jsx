@@ -30,7 +30,7 @@ export default function ContentPreviewModal({ item, open, onClose }) {
     setProgress({ received: 0, total: 0 });
     // Full-quality media is fetched in the background while the thumbnail shows,
     // and its transfer progress is reported so the wait is never a blank spinner.
-    fetchContentFile(item, "view", "", false, (value) => active && setProgress(value)).then((file) => {
+    fetchContentFile(item, "view", { record: false, onProgress: (value) => active && setProgress(value) }).then((file) => {
       if (!active) return;
       objectUrl = URL.createObjectURL(file);
       setMediaUrl(objectUrl);

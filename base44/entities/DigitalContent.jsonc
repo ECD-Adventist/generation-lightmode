@@ -39,6 +39,10 @@
       "type": "string",
       "description": "Google Drive share link pasted by the admin"
     },
+    "mobile_drive_link": {
+      "type": "string",
+      "description": "Optional Google Drive link to a smaller, compressed copy offered to mobile users as a lighter download"
+    },
     "thumbnail_url": {
       "type": "string"
     },

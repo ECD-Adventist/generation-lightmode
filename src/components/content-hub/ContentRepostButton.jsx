@@ -32,7 +32,7 @@ export default function ContentRepostButton({ item }) {
       let safeMediaUrl = isAllowedMediaUrl(item.thumbnail_url) ? item.thumbnail_url : null;
       if (!safeMediaUrl) {
         try {
-          const sourceFile = await fetchContentFile(item, "view", "", false);
+          const sourceFile = await fetchContentFile(item, "view", { record: false });
           const uploaded = await base44.integrations.Core.UploadFile({ file: sourceFile });
           safeMediaUrl = uploaded.file_url;
         } catch (mediaErr) {
