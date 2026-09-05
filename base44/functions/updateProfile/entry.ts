@@ -7,9 +7,6 @@ export default async function(req) {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const rateLimited = await enforceApiRateLimit(base44, req, user);
-    if (rateLimited) return rateLimited;
-
     const validated = await readValidatedJson(req, {
       location_options: { type: 'boolean' },
       confirm_location: { type: 'boolean' },
@@ -37,8 +34,13 @@ export default async function(req) {
     if (body.location_options === true) {
       const country = validatedRegistrationCountry(user.country);
       const city = String(user.city || '').trim();
-      return Response.json({ countries: REGISTRATION_COUNTRIES, country, city, complete: Boolean(country && city) });
+      return Response.json({ complete: Boolean(country && city), country, city, countries: REGISTRATION_COUNTRIES });
     }
+
+    // Profile reads above use only the authenticated user; reserve the database
+    // rate-limit ledger for mutations so checking location does not write records.
+    const rateLimited = await enforceApiRateLimit(base44, req, user);
+    if (rateLimited) return rateLimited;
 
     const has = (key) => Object.prototype.hasOwnProperty.call(body, key);
     const clean = (value) => (typeof value === 'string' ? value.trim() : value);
@@ -131,6 +133,11 @@ export default async function(req) {
 
     return Response.json({ success: true });
   } catch (error) {
+    const status = error?.status || error?.response?.status;
+    console.error('updateProfile failed', { name: error?.name, message: error?.message, status });
+    if (status === 429) {
+      return Response.json({ error: 'Too many requests. Please try again shortly.' }, { status: 429, headers: { 'Retry-After': '60' } });
+    }
     return Response.json({ error: 'Unable to update profile' }, { status: 500 });
   }
 }
