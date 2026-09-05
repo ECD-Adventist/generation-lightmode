@@ -9,6 +9,7 @@ import ContentRepostButton from "./ContentRepostButton";
 import BrandIcon from "./BrandIcon";
 import ContentThumbnail from "./ContentThumbnail";
 import { fetchContentFile, saveContentFile } from "./contentMedia";
+import { progressPercent } from "./ContentTransferProgress";
 import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
 import { copyShareLink, openShareWindow, tryNativeShare, buildDirectShareUrl, isUploadPlatform, ALL_SHARE_PLATFORMS, DIRECT_SHARE_PLATFORMS } from "@/lib/shareActions";
 
@@ -16,6 +17,7 @@ const SHARE_PLATFORMS = ALL_SHARE_PLATFORMS;
 
 export default function ContentCard({ item, priority = false }) {
   const [downloading, setDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [shareMenuView, setShareMenuView] = useState("main");
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -48,15 +50,17 @@ export default function ContentCard({ item, priority = false }) {
 
   const handleDownload = async () => {
     setDownloading(true);
+    setDownloadProgress({ received: 0, total: 0 });
     try {
-      const file = await fetchContentFile(item, "download");
+      const file = await fetchContentFile(item, "download", "", true, setDownloadProgress);
       saveContentFile(file);
       queryClient.invalidateQueries({ queryKey: ["digital-content-public"] });
-      toast.success("Download started");
+      toast.success("Download ready");
     } catch {
       toast.error("Download failed — please try again");
     }
     setDownloading(false);
+    setDownloadProgress(null);
   };
 
   const toggleShareMenu = () => {
@@ -171,9 +175,19 @@ export default function ContentCard({ item, priority = false }) {
             <Eye size={12} /> View
           </button>
           <button type="button" onClick={handleDownload} disabled={downloading}
-            className="flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 rounded-full font-black text-[11px] font-['Space_Grotesk'] transition active:scale-95"
+            className="relative flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 rounded-full font-black text-[11px] font-['Space_Grotesk'] transition active:scale-95 overflow-hidden"
             style={{ background: meta.color, color: "#0B0F1A" }}>
-            {downloading ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />} Download
+            {/* Progress fills the button itself while the file transfers */}
+            {downloading && (
+              <span className="absolute inset-y-0 left-0 transition-all duration-200"
+                style={{ width: `${progressPercent(downloadProgress) ?? 8}%`, background: "rgba(11,15,26,0.28)" }} />
+            )}
+            <span className="relative flex items-center gap-1">
+              {downloading ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+              {downloading
+                ? (progressPercent(downloadProgress) !== null ? `${progressPercent(downloadProgress)}%` : "Starting…")
+                : "Download"}
+            </span>
           </button>
           <ContentRepostButton item={item} />
           <div className="relative shrink-0">

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { fetchContentFile } from "./contentMedia";
 import ContentThumbnail from "./ContentThumbnail";
+import ContentTransferProgress from "./ContentTransferProgress";
 
 export default function ContentPreviewModal({ item, open, onClose }) {
   const [mediaUrl, setMediaUrl] = useState("");
   const [failed, setFailed] = useState(false);
+  const [progress, setProgress] = useState(null);
   const queryClient = useQueryClient();
   const isVideo = item.content_type === "video" || item.content_type === "animation";
 
@@ -26,17 +27,28 @@ export default function ContentPreviewModal({ item, open, onClose }) {
     let active = true;
     let objectUrl = "";
     setFailed(false);
-    fetchContentFile(item, "view", "", false).then((file) => {
+    setProgress({ received: 0, total: 0 });
+    // Full-quality media is fetched in the background while the thumbnail shows,
+    // and its transfer progress is reported so the wait is never a blank spinner.
+    fetchContentFile(item, "view", "", false, (value) => active && setProgress(value)).then((file) => {
       if (!active) return;
       objectUrl = URL.createObjectURL(file);
       setMediaUrl(objectUrl);
-    }).catch(() => active && setFailed(true));
+      setProgress(null);
+    }).catch(() => {
+      if (!active) return;
+      setFailed(true);
+      setProgress(null);
+    });
     return () => {
       active = false;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
       setMediaUrl("");
+      setProgress(null);
     };
   }, [item.id, open]);
+
+  const loading = !mediaUrl && !failed;
 
   return (
     <Dialog open={open} onOpenChange={(value) => !value && onClose()}>
@@ -46,18 +58,24 @@ export default function ContentPreviewModal({ item, open, onClose }) {
           {item.description && <p className="text-xs text-white/50 leading-relaxed">{item.description}</p>}
         </DialogHeader>
         {/* Media keeps its own aspect ratio — portrait stays portrait on every device. */}
-        <div className="bg-black flex items-center justify-center min-h-[220px] max-h-[75vh] overflow-hidden">
-          {!mediaUrl && !failed && <Loader2 className="w-7 h-7 animate-spin text-white/60" />}
-          {failed && (
+        <div className="relative bg-black flex items-center justify-center min-h-[220px] max-h-[75vh] overflow-hidden">
+          {/* The thumbnail appears immediately so there is something to look at
+              while the large original transfers. */}
+          {(loading || failed) && (
             <ContentThumbnail
               item={item}
               priority
               className="max-w-full max-h-[75vh] w-auto h-auto object-contain"
-              fallback={<p className="text-sm text-white/60">Preview unavailable</p>}
+              fallback={<div className="w-full h-[220px]" style={{ background: "#0B0F1A" }} />}
             />
           )}
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(6,10,20,0.62)" }}>
+              <ContentTransferProgress progress={progress} label={isVideo ? "Loading video" : "Loading full quality"} />
+            </div>
+          )}
           {mediaUrl && (isVideo
-            ? <video src={mediaUrl} className="max-w-full max-h-[75vh] w-auto h-auto" controls playsInline />
+            ? <video src={mediaUrl} poster={item.thumbnail_url || undefined} className="max-w-full max-h-[75vh] w-auto h-auto" controls playsInline autoPlay />
             : <img src={mediaUrl} alt={item.title} className="max-w-full max-h-[75vh] w-auto h-auto object-contain" />)}
         </div>
       </DialogContent>

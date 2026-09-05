@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { extractDriveFileId, toDirectDownloadUrl } from '../../shared/driveLinks.ts';
 
 const VALID_ACTIONS = ["view", "download", "share"];
@@ -6,6 +6,10 @@ const VALID_PLATFORMS = ["whatsapp", "facebook", "youtube", "instagram", "tiktok
 
 // Records a download or share for a content item and returns the direct
 // download URL (downloads only). Enforces the scheduled unlock time.
+//
+// Also supports { meta: true } — a cheap Drive metadata lookup that returns the
+// file's real byte size so the app can show accurate download/loading progress
+// instead of an indefinite spinner.
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -17,9 +21,10 @@ export default async function(req) {
     const action = String(payload.action || "");
     const platform = String(payload.platform || "").slice(0, 30);
     const streamMedia = payload.stream === true && VALID_ACTIONS.includes(action);
-    const recordEngagement = payload.record !== false;
+    const metaOnly = payload.meta === true;
+    const recordEngagement = payload.record !== false && !metaOnly;
 
-    if (!contentId || !VALID_ACTIONS.includes(action)) {
+    if (!contentId || (!metaOnly && !VALID_ACTIONS.includes(action))) {
       return Response.json({ error: "Invalid request" }, { status: 400 });
     }
     if (action === "share" && !VALID_PLATFORMS.includes(platform)) {
@@ -32,6 +37,26 @@ export default async function(req) {
     const unlockTime = new Date(item.scheduled_at).getTime();
     if (Number.isNaN(unlockTime) || unlockTime > Date.now()) {
       return Response.json({ error: "This content is not unlocked yet" }, { status: 403 });
+    }
+
+    // Metadata lookup — used by the app to size its progress bar before the
+    // (potentially large) media transfer begins. No engagement is recorded.
+    if (metaOnly) {
+      const fileId = extractDriveFileId(item.drive_link);
+      if (!fileId) return Response.json({ error: "Invalid Drive file" }, { status: 400 });
+      const { accessToken } = await base44.asServiceRole.connectors.getConnection("googledrive");
+      const metaRes = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${fileId}?fields=size,mimeType,name&supportsAllDrives=true`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      if (!metaRes.ok) return Response.json({ error: "File details unavailable" }, { status: metaRes.status });
+      const meta = await metaRes.json();
+      return Response.json({
+        ok: true,
+        size: Number(meta.size) || 0,
+        mime_type: meta.mimeType || "",
+        file_name: meta.name || item.title || ""
+      });
     }
 
     let driveResponse = null;
@@ -72,6 +97,8 @@ export default async function(req) {
       const headers = new Headers();
       headers.set("Content-Type", driveResponse.headers.get("Content-Type") || "application/octet-stream");
       headers.set("Content-Disposition", driveResponse.headers.get("Content-Disposition") || `attachment; filename="${item.title.replace(/["\\]/g, "_")}"`);
+      const length = driveResponse.headers.get("Content-Length");
+      if (length) headers.set("Content-Length", length);
       headers.set("Cache-Control", "private, no-store");
       return new Response(driveResponse.body, { status: 200, headers });
     }
