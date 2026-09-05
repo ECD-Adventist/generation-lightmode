@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { enforceApiRateLimit } from '../../shared/apiSecurity.ts';
 import { waitUntil } from 'base44:runtime';
+import { resolveReportingCountry } from '../../shared/countryResolution.ts';
 
 const PAGE_SIZE = 5000;
 const CACHE_TTL_MS = 5 * 60_000;
@@ -46,43 +47,9 @@ async function buildSnapshot(svc) {
     // Only approved, non-hidden drops are part of the public movement story.
     const approvedDrops = drops.filter((d) => d.status === 'approved' && !d.hidden && !d.is_flagged);
 
-    const COUNTRY_ALIASES = {
-      "usa": "United States", "u.s.a.": "United States", "us": "United States", "united states of america": "United States",
-      "uk": "United Kingdom", "great britain": "United Kingdom", "england": "United Kingdom",
-      "southafrica": "South Africa", "united republic of tanzania": "Tanzania", "tanzanie": "Tanzania",
-      "kenia": "Kenya", "ouganda": "Uganda", "ethiopie": "Ethiopia", "éthiopie": "Ethiopia",
-      "drc": "Democratic Republic of the Congo", "rdc": "Democratic Republic of the Congo", "rd congo": "Democratic Republic of the Congo",
-      "dr congo": "Democratic Republic of the Congo", "congo": "Democratic Republic of the Congo",
-      "congo dr": "Democratic Republic of the Congo", "congo, democratic republic": "Democratic Republic of the Congo",
-      "république démocratique du congo": "Democratic Republic of the Congo", "republique democratique du congo": "Democratic Republic of the Congo",
-      "rep. dem. du congo": "Democratic Republic of the Congo", "democratic republic of congo": "Democratic Republic of the Congo",
-      "s. sudan": "South Sudan", "ivory coast": "Côte d'Ivoire", "somali": "Somalia",
-    };
-    const CANONICAL_COUNTRIES = [
-      "Kenya", "Tanzania", "Uganda", "Rwanda", "Burundi", "Ethiopia", "Somalia", "Djibouti", "Eritrea", "Sudan", "South Sudan",
-      "Democratic Republic of the Congo", "Zambia", "Namibia", "Zimbabwe", "Angola", "Nigeria", "Ghana", "South Africa",
-      "United States", "United Kingdom", "Canada", "Brazil", "India", "Philippines", "Australia", "China", "France", "Côte d'Ivoire",
-    ];
-    const canonicalByLower = new Map(CANONICAL_COUNTRIES.map((country) => [country.toLowerCase(), country]));
-
-    const normalizeCountry = (countryName) => {
-      if (!countryName) return "";
-      const cleaned = String(countryName).replace(/[\u{1F1E6}-\u{1F1FF}]/gu, "").trim().replace(/\s+/g, " ");
-      const lower = cleaned.toLowerCase();
-      if (!lower || lower === "other" || lower === "ecd" || lower === "global") return "";
-      if (COUNTRY_ALIASES[lower]) return COUNTRY_ALIASES[lower];
-      if (canonicalByLower.has(lower)) return canonicalByLower.get(lower);
-      const aliasMatch = Object.entries(COUNTRY_ALIASES).find(([alias]) => lower.includes(alias));
-      if (aliasMatch) return aliasMatch[1];
-      const countryMatch = CANONICAL_COUNTRIES.find((country) => lower.includes(country.toLowerCase()));
-      if (countryMatch) return countryMatch;
-      if (/lubumbashi|bukavu/.test(lower)) return "Democratic Republic of the Congo";
-      if (/kisumu|khwisero|nairobi|webuye/.test(lower)) return "Kenya";
-      if (/arua|mbarara|kampala/.test(lower)) return "Uganda";
-      if (/dar es salaam/.test(lower)) return "Tanzania";
-      if (/butanyerera/.test(lower)) return "Burundi";
-      return cleaned;
-    };
+    // Use only recognized country names; cities/codes cannot create country rows.
+    // Ambiguous and missing locations remain in global totals without a guessed country.
+    const normalizeCountry = resolveReportingCountry;
 
     const userCountryByEmail = new Map(users.map((user) => [user.email, normalizeCountry(user.country)]));
 
@@ -130,7 +97,7 @@ async function buildSnapshot(svc) {
       .map((group) => ({
         id: group.id,
         name: group.name,
-        country: group.country || 'Global',
+        country: normalizeCountry(group.country) || 'Global',
         description: group.description || '',
         membersCount: memberCountByGroup[group.id] || 0,
       }))

@@ -1,22 +1,21 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 import { logAdminAction, logPermissionDenied } from '../../shared/securityEvents.ts';
-import { validatedRegistrationCountry } from '../../shared/registrationCountries.ts';
+import { resolveLegacyUserCountry } from '../../shared/countryResolution.ts';
 
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const caller = await base44.auth.me();
     if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    const rateLimited = await enforceApiRateLimit(base44, req, caller);
-    if (rateLimited) return rateLimited;
-    if (!['admin', 'super_admin'].includes(caller.role)) {
+    if (caller.role !== 'admin') {
       await logPermissionDenied(base44, req, caller, 'users', 'normalize_countries');
       return Response.json({ error: 'Admin access required' }, { status: 403 });
     }
 
     const validated = await readValidatedJson(req, {
       dry_run: { type: 'boolean' },
+      country_values: { type: 'array', maxItems: 100, items: { type: 'string', minLength: 1, maxLength: 100 } },
       limit: { type: 'number', integer: true, min: 1, max: 500 },
       skip: { type: 'number', integer: true, min: 0, max: 1000000 },
     }, { allowEmpty: true });
@@ -25,13 +24,16 @@ export default async function(req) {
     const dryRun = validated.data.dry_run !== false;
     const limit = validated.data.limit || 100;
     const skip = validated.data.skip || 0;
-    const users = await base44.asServiceRole.entities.User.list('-created_date', limit, skip);
+    const countryValues = validated.data.country_values;
+    const users = countryValues?.length
+      ? await base44.entities.User.filter({ country: { $in: countryValues } }, 'id', limit, skip)
+      : await base44.entities.User.list('id', limit, skip);
     const updates = [];
     const changes = [];
 
     for (const account of users) {
       const original = String(account.country || '').trim();
-      const normalized = validatedRegistrationCountry(original);
+      const normalized = resolveLegacyUserCountry(account);
       if (normalized && normalized !== original) {
         updates.push({ id: account.id, country: normalized });
         changes.push({ id: account.id, from: original, to: normalized });
@@ -39,7 +41,9 @@ export default async function(req) {
     }
 
     if (!dryRun && updates.length) {
-      await base44.asServiceRole.entities.User.bulkUpdate(updates);
+      const rateLimited = await enforceApiRateLimit(base44, req, caller);
+      if (rateLimited) return rateLimited;
+      await base44.entities.User.bulkUpdate(updates);
       await logAdminAction(base44, req, caller, 'users', 'normalize_countries', `Normalized ${updates.length} explicit country values`);
     }
 
