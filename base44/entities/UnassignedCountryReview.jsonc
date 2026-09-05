@@ -4,8 +4,7 @@
   "properties": {
     "user_id": {
       "type": "string",
-      "maxLength": 64,
-      "description": "User record id this review row belongs to"
+      "maxLength": 64
     },
     "user_email": {
       "type": "string",
@@ -17,23 +16,41 @@
     },
     "stored_country": {
       "type": "string",
-      "maxLength": 120,
-      "description": "Raw country value on the account, if any (may be invalid)"
+      "maxLength": 120
+    },
+    "stored_city": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "missing_country": {
+      "type": "boolean"
+    },
+    "missing_city": {
+      "type": "boolean"
     },
     "registration_evidence": {
       "type": "string",
       "maxLength": 1000,
-      "description": "City / location / region / address / phone text captured at registration"
+      "description": "Saved profile location evidence; not proof of physical signup origin."
+    },
+    "evidence_origin": {
+      "type": "string",
+      "enum": [
+        "saved_profile",
+        "none"
+      ]
+    },
+    "review_reason": {
+      "type": "string",
+      "maxLength": 500
     },
     "suggested_country": {
       "type": "string",
-      "maxLength": 120,
-      "description": "Country resolved from registration evidence. Empty when evidence is insufficient."
+      "maxLength": 120
     },
     "suggestion_source": {
       "type": "string",
-      "maxLength": 60,
-      "description": "Which evidence field produced the suggestion, e.g. city, location, address, phone"
+      "maxLength": 60
     },
     "confidence": {
       "type": "string",
@@ -55,8 +72,7 @@
     },
     "notify_pending": {
       "type": "boolean",
-      "default": true,
-      "description": "Remembered for the upcoming reminder notification campaign"
+      "default": true
     },
     "notified_at": {
       "type": "string",
@@ -67,6 +83,16 @@
       "format": "date-time"
     },
     "last_scanned_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assigned_country": {
+      "type": "string"
+    },
+    "previous_country": {
+      "type": "string"
+    },
+    "assigned_at": {
       "type": "string",
       "format": "date-time"
     }
