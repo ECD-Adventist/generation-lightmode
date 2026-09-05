@@ -1,6 +1,6 @@
 import { normalizeCountryName } from './territoryNames.ts';
 
-const REGISTRATION_COUNTRIES = [
+export const REGISTRATION_COUNTRIES = [
   'Afghanistan','Albania','Algeria','Angola','Argentina','Australia','Austria','Bangladesh','Belgium','Benin',
   'Bolivia','Botswana','Brazil','Burkina Faso','Burundi','Cambodia','Cameroon','Canada','Central African Republic',
   'Chad','Chile','China','Colombia','Republic of the Congo',"Côte d'Ivoire",'Cuba','Democratic Republic of the Congo','Denmark','Ecuador','Egypt',
@@ -13,7 +13,8 @@ const REGISTRATION_COUNTRIES = [
   'Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Tanzania','Thailand','Togo','Tunisia',
   'Turkey','Uganda','Ukraine','United Kingdom','United States','Uruguay','Venezuela','Vietnam',
   'Yemen','Zambia','Zimbabwe',
-];
+  'Andorra','Antigua and Barbuda','Armenia','Azerbaijan','Bahamas','Bahrain','Barbados','Belarus','Belize','Bhutan','Bosnia and Herzegovina','Brunei','Bulgaria','Cabo Verde','Comoros','Costa Rica','Croatia','Cyprus','Czechia','Djibouti','Dominica','Dominican Republic','El Salvador','Equatorial Guinea','Estonia','Eswatini','Fiji','Gambia','Georgia','Greece','Grenada','Guinea-Bissau','Guyana','Iceland','Ireland','Kiribati','Kosovo','Kuwait','Kyrgyzstan','Laos','Latvia','Lebanon','Liechtenstein','Lithuania','Luxembourg','Maldives','Malta','Marshall Islands','Mauritius','Micronesia','Moldova','Monaco','Mongolia','Montenegro','Nauru','Nepal','North Macedonia','Oman','Palau','Palestine','Qatar','Romania','Russia','Saint Kitts and Nevis','Saint Lucia','Saint Vincent and the Grenadines','Samoa','San Marino','Sao Tome and Principe','Serbia','Seychelles','Singapore','Slovakia','Slovenia','Solomon Islands','Suriname','Taiwan','Tajikistan','Timor-Leste','Tonga','Trinidad and Tobago','Turkmenistan','Tuvalu','United Arab Emirates','Uzbekistan','Vanuatu','Vatican City',
+].sort((a, b) => a.localeCompare(b));
 
 const ALLOWED = new Set(REGISTRATION_COUNTRIES);
 

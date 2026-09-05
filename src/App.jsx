@@ -19,6 +19,7 @@ import ReportProblemButton from '@/components/ReportProblemButton';
 import SessionSecurity from '@/components/security/SessionSecurity';
 import SplashScreen from '@/components/SplashScreen';
 import RouteLoadBoundary from '@/components/routing/RouteLoadBoundary';
+import LocationCompletionGate from '@/components/onboarding/LocationCompletionGate';
 
 // Code-split route pages — loaded on demand to reduce initial bundle.
 const LightReflections = lazy(() => import('./pages/LightReflections'));
@@ -101,6 +102,8 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <AgeRestrictionGate user={isAuthenticated ? user : null}>
+      <LocationCompletionGate>
+      <NotificationOnboardingModal />
       <RouteLoadBoundary>
       <Suspense fallback={<RouteFallback />}>
       <Routes>
@@ -145,6 +148,7 @@ const AuthenticatedApp = () => {
     </Routes>
       </Suspense>
       </RouteLoadBoundary>
+      </LocationCompletionGate>
     </AgeRestrictionGate>
   );
 };
@@ -159,7 +163,6 @@ function App() {
           <Router>
             <SwitchItOnProvider>
               <AutoTranslator />
-              <NotificationOnboardingModal />
               <SessionSecurity />
               <AuthenticatedApp />
               <ReportProblemButton />

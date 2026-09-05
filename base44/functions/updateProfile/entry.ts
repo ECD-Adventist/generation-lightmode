@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
-import { validatedRegistrationCountry } from '../../shared/registrationCountries.ts';
+import { validatedRegistrationCountry, REGISTRATION_COUNTRIES } from '../../shared/registrationCountries.ts';
 
 export default async function(req) {
   try {
@@ -11,6 +11,8 @@ export default async function(req) {
     if (rateLimited) return rateLimited;
 
     const validated = await readValidatedJson(req, {
+      location_options: { type: 'boolean' },
+      confirm_location: { type: 'boolean' },
       display_name: { type: 'string', maxLength: 120 },
       username: { type: 'string', maxLength: 40 },
       website_url: { type: 'string', maxLength: 2048 },
@@ -32,6 +34,11 @@ export default async function(req) {
     });
     if (validated.response) return validated.response;
     const body = validated.data;
+    if (body.location_options === true) {
+      const country = validatedRegistrationCountry(user.country);
+      const city = String(user.city || '').trim();
+      return Response.json({ countries: REGISTRATION_COUNTRIES, country, city, complete: Boolean(country && city) });
+    }
 
     const has = (key) => Object.prototype.hasOwnProperty.call(body, key);
     const clean = (value) => (typeof value === 'string' ? value.trim() : value);
@@ -43,6 +50,17 @@ export default async function(req) {
       cutoff.setFullYear(cutoff.getFullYear() - 13);
       return birthDate <= cutoff;
     };
+
+    if (has('city') && !clean(body.city)) {
+      return Response.json({ error: 'City / Town is required' }, { status: 400 });
+    }
+    if (body.confirm_location === true || body.privacy_consent_given === true) {
+      const country = validatedRegistrationCountry(has('country') ? body.country : user.country);
+      const city = clean(has('city') ? body.city : user.city);
+      if (!country || !city) {
+        return Response.json({ error: 'Select your country and enter your city / town before finishing setup' }, { status: 400 });
+      }
+    }
 
     const display_name = has('display_name') ? clean(body.display_name) : null;
     const username = has('username') ? clean(body.username) : null;
