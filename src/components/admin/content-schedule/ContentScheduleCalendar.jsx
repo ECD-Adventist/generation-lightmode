@@ -43,8 +43,8 @@ export default function ContentScheduleCalendar({ items, onAddClick, onItemClick
           {month.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
         </h3>
         <div className="flex items-center gap-1">
-          <button onClick={() => shift(-1)} className="w-8 h-8 rounded-lg flex items-center justify-center transition hover:opacity-70" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "rgba(11,63,217,0.06)", color: t.textSecondary }}><ChevronLeft size={15} /></button>
-          <button onClick={() => shift(1)} className="w-8 h-8 rounded-lg flex items-center justify-center transition hover:opacity-70" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "rgba(11,63,217,0.06)", color: t.textSecondary }}><ChevronRight size={15} /></button>
+          <button aria-label="Previous month" onClick={() => shift(-1)} className="w-8 h-8 rounded-lg flex items-center justify-center transition hover:opacity-70" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "rgba(11,63,217,0.06)", color: t.textSecondary }}><ChevronLeft size={15} /></button>
+          <button aria-label="Next month" onClick={() => shift(1)} className="w-8 h-8 rounded-lg flex items-center justify-center transition hover:opacity-70" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "rgba(11,63,217,0.06)", color: t.textSecondary }}><ChevronRight size={15} /></button>
         </div>
       </div>
 
@@ -69,7 +69,11 @@ export default function ContentScheduleCalendar({ items, onAddClick, onItemClick
                 border: `1px solid ${selectedDay === key ? t.accent : isToday ? (isDark ? "rgba(0,207,255,0.35)" : "rgba(11,63,217,0.3)") : t.border}`,
               }}>
               <div className="flex items-center justify-between px-0.5">
-                <span className="text-[10px] font-bold" style={{ color: isToday ? t.accent : t.textSecondary }}>{date.getDate()}</span>
+                <button type="button" onClick={(event) => { event.stopPropagation(); setSelectedDay(key); }}
+                  aria-label={`${date.toLocaleDateString(undefined, { dateStyle: "full" })}, ${dayItems.length} scheduled items`}
+                  aria-pressed={selectedDay === key}
+                  className="min-h-11 min-w-11 rounded text-[10px] font-bold focus-visible:outline focus-visible:outline-2"
+                  style={{ color: isToday ? t.accent : t.textSecondary }}>{date.getDate()}</button>
                 <Plus size={10} className="opacity-0 group-hover:opacity-60 transition" style={{ color: t.textMuted }} />
               </div>
               <div className="space-y-0.5 mt-0.5">

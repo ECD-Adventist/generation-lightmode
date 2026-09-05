@@ -62,7 +62,7 @@ function AdminCenterInner() {
       try {
         const isAuth = await base44.auth.isAuthenticated();
         if (!isAuth) {
-          base44.auth.redirectToLogin(window.location.pathname);
+          base44.auth.redirectToLogin(window.location.pathname + window.location.search);
           return;
         }
         const me = await base44.auth.me();

@@ -1090,6 +1090,9 @@ export default function Feed() {
                 <SidebarLink to={createPageUrl("Discover")} icon={<Compass className="w-[18px] h-[18px]" />} label="Discover" />
                 <SidebarLink to={createPageUrl("Notifications")} icon={<Bell className="w-[18px] h-[18px]" />} label="Notifications" badge={notifications.length > 0 ? notifications.length : null} />
                 <SidebarLink to={createPageUrl("Dashboard")} icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
+              {["admin", "super_admin", "ecd_admin"].includes(user?.role) && (
+                <SidebarLink to="/AdminCenter?tab=content-schedule" icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Content Schedule" />
+              )}
                 <SidebarLink to={createPageUrl("Profile")} icon={
                   <div className="w-[18px] h-[18px] rounded-full overflow-hidden shrink-0" style={{ border: "1px solid #D5E3F0" }}>
                     <UserAvatar user={user} className="w-full h-full" />

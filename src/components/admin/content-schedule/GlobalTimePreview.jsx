@@ -14,7 +14,7 @@ export default function GlobalTimePreview({ date, time }) {
   const adminZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "your local timezone";
   if (Number.isNaN(instant.getTime())) return null;
 
-  return <div className="rounded-xl p-3 bg-cyan-400/5 border border-cyan-400/20">
+  return <div role="region" aria-label="Global Time Preview" aria-live="polite" className="rounded-xl p-3 bg-cyan-400/5 border border-cyan-400/20">
     <p className="text-xs font-bold text-cyan-300 flex items-center gap-1.5"><Globe2 size={13} /> One global release</p>
     <p className="text-[10px] text-white/50 mt-1 mb-2">Entered in {adminZone}. Everyone unlocks at the same instant.</p>
     <div className="space-y-1.5">{zones.map(([label, timeZone]) => (
