@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -10,6 +10,7 @@ export default function MusicPickerModal({ isOpen, onClose, onSelect }) {
   const [search, setSearch] = useState("");
   const [resolved, setResolved] = useState({}); // driveId -> playable url
   const [busyId, setBusyId] = useState(null);
+  const [previewId, setPreviewId] = useState(null);
 
   const { data: tracks = [], isLoading, isError } = useQuery({
     queryKey: ["musicLibrary", search],
@@ -54,16 +55,17 @@ export default function MusicPickerModal({ isOpen, onClose, onSelect }) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-lg max-h-[80vh] overflow-hidden z-[2100] p-0 rounded-3xl" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#0B1B3D" }}>
         <div className="px-5 pt-5 pb-3">
-          <h2 className="text-lg font-black font-['Space_Grotesk'] flex items-center gap-2">
-            <Music className="w-5 h-5" style={{ color: "#0B3FD9" }} /> Music Library
-          </h2>
-          <p className="text-xs mt-1" style={{ color: "#6B7FA0" }}>Royalty-free tracks from the shared drive</p>
+          <DialogTitle className="text-lg font-bold flex items-center gap-2">
+            <Music className="w-5 h-5" /> Music Library
+          </DialogTitle>
+          <DialogDescription className="text-xs mt-1">Search tracks by name and preview before choosing.</DialogDescription>
           <div className="relative mt-3">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#8A97B5" }} />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search tracks..."
+              aria-label="Search music tracks by name"
               className="h-11 rounded-xl pl-9"
               style={{ background: "#F6F8FC", border: "1px solid #E0EAF5" }}
             />
@@ -83,13 +85,14 @@ export default function MusicPickerModal({ isOpen, onClose, onSelect }) {
                 <div key={track.id} className="rounded-xl p-3 flex items-center gap-3" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold truncate">{track.name}</p>
-                    {resolved[track.id] ? (
-                      <audio src={resolved[track.id]} controls autoPlay className="w-full h-8 mt-1" />
+                    {previewId === track.id && resolved[track.id] ? (
+                      <audio src={resolved[track.id]} controls autoPlay aria-label={`Preview ${track.name}`} onError={() => toast.error("This track could not play. Please try another track.")} className="w-full h-8 mt-1" />
                     ) : (
                       <button
                         type="button"
-                        onClick={() => resolveUrl(track)}
-                        disabled={busyId === track.id}
+                        onClick={() => { setPreviewId(track.id); resolveUrl(track); }}
+                        aria-label={`Preview ${track.name}`}
+                        disabled={busyId !== null}
                         className="mt-1 text-[11px] font-bold flex items-center gap-1.5 disabled:opacity-60"
                         style={{ color: "#0B3FD9" }}
                       >
@@ -97,7 +100,7 @@ export default function MusicPickerModal({ isOpen, onClose, onSelect }) {
                       </button>
                     )}
                   </div>
-                  <button
+                  {onSelect && <button
                     type="button"
                     onClick={() => handleUse(track)}
                     disabled={busyId === track.id}
@@ -105,7 +108,7 @@ export default function MusicPickerModal({ isOpen, onClose, onSelect }) {
                     style={{ background: "linear-gradient(90deg, #1FB8FF, #0B3FD9)", color: "#FFFFFF" }}
                   >
                     USE
-                  </button>
+                  </button>}
                 </div>
               ))}
             </div>

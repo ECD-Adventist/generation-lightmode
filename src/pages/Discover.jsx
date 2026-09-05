@@ -10,6 +10,9 @@ import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
 import AppFooter from "@/components/AppFooter";
 import { getDisplayName } from "@/lib/displayName";
 import MobileDiscover from "@/components/discover/MobileDiscover";
+import MusicLibraryCard from "@/components/discover/MusicLibraryCard";
+import MusicPickerModal from "@/components/feed/MusicPickerModal";
+import useUrlOverlay from "@/hooks/useUrlOverlay";
 
 const fetchAll = async (entity, query = {}, sort = null) => {
   let allRecords = [];
@@ -31,6 +34,14 @@ export default function Discover() {
   const [selectedTag, setSelectedTag] = useState(null);
 
   const [authChecked, setAuthChecked] = useState(false);
+  const musicLibrary = useUrlOverlay("music");
+  const openMusicLibrary = () => {
+    if (!user) {
+      base44.auth.redirectToLogin(`${window.location.origin}/Discover?music=true`);
+      return;
+    }
+    musicLibrary.open();
+  };
 
   React.useEffect(() => {
     // Discover is fully public — guests can browse read-only. Only load the
@@ -119,6 +130,7 @@ export default function Discover() {
           allUsers={allUsers}
           trendingTags={trendingTags}
           topLikedDrops={topLikedDrops}
+          onOpenMusicLibrary={openMusicLibrary}
           getUserInfo={getUserInfo}
         />
       </div>
@@ -161,6 +173,9 @@ export default function Discover() {
           <p className="text-lg" style={{ color: "#6B7FA0" }}>Trending content and top creators across the community.</p>
         </div>
 
+        <div className="mb-8">
+          <MusicLibraryCard onOpen={openMusicLibrary} />
+        </div>
         {/* Search */}
         <div className="relative mb-8 max-w-lg">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: "#1FB8FF" }} />
@@ -246,6 +261,9 @@ export default function Discover() {
       </div>
       <AppFooter />
       </div>
+      {user && musicLibrary.isOpen && (
+        <MusicPickerModal isOpen onClose={musicLibrary.close} />
+      )}
     </div>
   );
 }

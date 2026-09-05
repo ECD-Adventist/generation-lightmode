@@ -5,6 +5,7 @@ import { Search, X, Heart, Sparkles, TrendingUp, Flame, Compass } from "lucide-r
 import { getDisplayName } from "@/lib/displayName";
 import KeepIt100Poster from "@/components/keep-it-100/KeepIt100Poster";
 import CodesOfTruthPoster from "@/components/codes-of-truth/CodesOfTruthPoster";
+import MusicLibraryCard from "@/components/discover/MusicLibraryCard";
 
 const PROFILE_POST_BG = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/6a1c1025d_Gemini_Generated_Image_s3fvlrs3fvlrs3fv.png?v=2";
 
@@ -18,6 +19,7 @@ export default function MobileDiscover({
   allUsers,
   trendingTags,
   topLikedDrops,
+  onOpenMusicLibrary,
   getUserInfo,
 }) {
   const [search, setSearch] = useState("");
@@ -135,6 +137,7 @@ export default function MobileDiscover({
       )}
 
       <div className="relative z-10 px-3 pb-10">
+        <div className="pt-4"><MusicLibraryCard onOpen={onOpenMusicLibrary} /></div>
         {!q ? (
           <IdleView
             topCreators={topCreators}
