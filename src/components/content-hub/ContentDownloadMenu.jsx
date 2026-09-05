@@ -22,8 +22,14 @@ export default function ContentDownloadMenu({ item, color }) {
     if (isTooLargeForInAppDownload(variant?.size)) {
       setOpen(false);
       const directUrl = item.download_url || item.drive_view_url;
-      const opened = directUrl ? window.open(directUrl, "_blank", "noopener,noreferrer") : null;
-      if (!opened) return toast.error("Please allow pop-ups to download this large file");
+      if (!directUrl) return toast.error("Download link unavailable — please try again");
+      const link = document.createElement("a");
+      link.href = directUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
       recordContentEngagement(item, "download")
         .then(() => queryClient.invalidateQueries({ queryKey: ["digital-content-public"] }))
         .catch(() => {});

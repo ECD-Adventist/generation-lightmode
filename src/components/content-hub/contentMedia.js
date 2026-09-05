@@ -7,12 +7,11 @@ export async function fetchContentMeta(item) {
   return res.data || {};
 }
 
-// Files above this size are handed to the browser via the file's own page instead of
-// being proxied through the app — a multi-hundred-MB transfer can't be held in memory.
-export const MAX_IN_APP_DOWNLOAD_BYTES = 100 * 1024 * 1024;
+// Files of 50 MB or larger download in a new tab instead of buffering in the app.
+export const MAX_IN_APP_DOWNLOAD_BYTES = 50 * 1024 * 1024;
 
 export function isTooLargeForInAppDownload(size) {
-  return Number(size) > MAX_IN_APP_DOWNLOAD_BYTES;
+  return Number(size) >= MAX_IN_APP_DOWNLOAD_BYTES;
 }
 
 // Records an engagement (view/download/share) without transferring the file.

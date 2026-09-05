@@ -80,7 +80,7 @@ export default function DashboardMapHero({ userCountry }) {
 
       <div className="relative rounded-[1.75rem] overflow-hidden" style={{ height: "400px", background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
         <style>{`.leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 12px; } .leaflet-popup-tip { background: #FFFFFF; border: 1px solid #E6ECF5; }`}</style>
-        <MapContainer center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>
+        <MapContainer className="isolate z-0" center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>
           <LocalWorldBasemap variant="light" />
           {countryClusters.map((cluster) => {
             const radius = Math.max(10, Math.min(45, Math.sqrt(cluster.count) * 5));
