@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Search, CheckCircle, XCircle, Clock, Zap, MapPin, RefreshCw, UserCheck, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
+import useAdminDirectory from "@/components/admin/data/useAdminDirectory";
 
 const TERRITORY_LEVELS = [
   { value: "church", label: "Church" },
@@ -129,7 +130,7 @@ function AssignModal({ user: targetUser, onClose, onSave, t, isDark }) {
   );
 }
 
-export default function AdminTerritoryAssignTab() {
+export default function AdminTerritoryAssignTab({ user: admin }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
@@ -142,10 +143,9 @@ export default function AdminTerritoryAssignTab() {
   const [editingUser, setEditingUser] = useState(null);
   const [autoAssigning, setAutoAssigning] = useState(false);
 
-  const { data: users = [], isLoading } = useQuery({
-    queryKey: ["assign_tab_users"],
-    queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []),
-  });
+  const directory = useAdminDirectory(admin);
+  const users = directory.users;
+  const isLoading = !directory.complete;
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -162,7 +162,7 @@ export default function AdminTerritoryAssignTab() {
   const handleQuickStatus = async (userId, newStatus) => {
     try {
       await base44.functions.invoke("assignUserTerritory", { userId, status: newStatus });
-      queryClient.invalidateQueries({ queryKey: ["assign_tab_users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
       toast.success(`Status updated to ${newStatus}`);
     } catch {
       toast.error("Failed to update status");
@@ -176,9 +176,7 @@ export default function AdminTerritoryAssignTab() {
       const assigned = res.data?.assigned || 0;
       const unresolved = res.data?.unresolved || 0;
       toast.success(`Assigned ${assigned} user(s) from stored location data. ${unresolved} still have no usable location.`);
-      queryClient.invalidateQueries({ queryKey: ["assign_tab_users"] });
-      queryClient.invalidateQueries({ queryKey: ["territory_map_users"] });
-      queryClient.invalidateQueries({ queryKey: ["admin_users_countries"] });
+      queryClient.invalidateQueries({ queryKey: ["admin_users_full"] });
     } catch {
       toast.error("Auto-assign failed");
     } finally {
@@ -199,7 +197,7 @@ export default function AdminTerritoryAssignTab() {
         <AssignModal
           user={editingUser}
           onClose={() => setEditingUser(null)}
-          onSave={() => queryClient.invalidateQueries({ queryKey: ["assign_tab_users"] })}
+          onSave={() => queryClient.invalidateQueries({ queryKey: ["admin_users_full"] })}
           t={t} isDark={isDark}
         />
       )}

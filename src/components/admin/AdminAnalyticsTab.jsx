@@ -8,6 +8,8 @@ import { Users, Zap, Globe, MessageSquare, Heart, Target, TrendingUp, TrendingDo
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import { getUserCountry } from "@/lib/countryUtils";
 import * as territoryScope from "@/lib/territoryScope";
+import useAdminDirectory from "@/components/admin/data/useAdminDirectory";
+import readAdminRecords from "@/components/admin/data/readAdminRecords";
 
 const { buildTerritoryScope, scopeUsers, scopeGroups, scopeDropsByAuthor } = territoryScope;
 
@@ -71,22 +73,16 @@ export default function AdminAnalyticsTab({ user, territoryRestricted, territory
 
   const [dateRange, setDateRange] = useState("30d");
 
-  const { data: users = [] } = useQuery({
-    queryKey: ["analytics_users"],
-    queryFn: async () => {
-      const res = await base44.functions.invoke("adminListUsers", {});
-      return res.data || [];
-    }
-  });
+  const { users } = useAdminDirectory(user);
 
   const { data: drops = [] } = useQuery({
     queryKey: ["analytics_drops"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000),
+    queryFn: () => readAdminRecords("GlowDrop"),
   });
 
   const { data: groups = [] } = useQuery({
     queryKey: ["analytics_groups"],
-    queryFn: () => base44.entities.GlowGroup.list("-created_date", 10000),
+    queryFn: () => readAdminRecords("GlowGroup"),
   });
 
   const { data: prayers = [] } = useQuery({

@@ -8,6 +8,8 @@ import { Globe, Users, TrendingUp, Zap, MapPin, CheckCircle, Activity } from "lu
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import { getUserCountry } from "@/lib/countryUtils";
 import { buildTerritoryScope, scopeUsers } from "@/lib/territoryScope";
+import useAdminDirectory from "@/components/admin/data/useAdminDirectory";
+import readAdminRecords from "@/components/admin/data/readAdminRecords";
 
 const COLORS = ["#00CFFF", "#8A5CFF", "#FFD000", "#10B981", "#F43F5E", "#F97316", "#EC4899", "#6366F1", "#14B8A6", "#EAB308"];
 
@@ -38,26 +40,23 @@ function StatCard({ label, value, icon, color, sub, t }) {
   );
 }
 
-export default function AdminGrowthAnalyticsTab({ territoryRestricted, territoryCountries, territoryRegions }) {
+export default function AdminGrowthAnalyticsTab({ user, territoryRestricted, territoryCountries, territoryRegions }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
   const chartAxisColor = isDark ? "#6B7280" : "#8A97B5";
   const chartGridColor = isDark ? "rgba(255,255,255,0.04)" : "rgba(11,27,61,0.04)";
 
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ["adminAllUsersGrowth"],
-    queryFn: async () => { const r = await base44.functions.invoke("adminListUsers", {}); return r.data || []; },
-  });
+  const { users: allUsers } = useAdminDirectory(user);
 
   const { data: drops = [] } = useQuery({
     queryKey: ["adminDropsGrowth"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000),
+    queryFn: () => readAdminRecords("GlowDrop"),
   });
 
   const { data: groups = [] } = useQuery({
     queryKey: ["adminGroupsGrowth"],
-    queryFn: () => base44.entities.GlowGroup.list("-created_date", 10000),
+    queryFn: () => readAdminRecords("GlowGroup"),
   });
 
   const { data: challenges = [] } = useQuery({

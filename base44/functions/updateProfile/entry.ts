@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity.ts';
 import { validatedRegistrationCountry, REGISTRATION_COUNTRIES } from '../../shared/registrationCountries.ts';
+import { resolveUnassignedLocation } from '../../shared/unassignedLocationEvidence.ts';
 
 export default async function(req) {
   try {
@@ -131,7 +132,36 @@ export default async function(req) {
 
     if (Object.keys(customUpdate).length > 0) await base44.auth.updateMe(customUpdate);
 
-    return Response.json({ success: true });
+    if (has('country') || has('city') || has('location') || has('address')) {
+      const current = { ...user, ...customUpdate };
+      const country = validatedRegistrationCountry(current.country);
+      const city = String(current.city || '').trim();
+      const [review] = await base44.asServiceRole.entities.UnassignedCountryReview.filter({ user_id: user.id }, '-created_date', 1);
+      if (country && city) {
+        if (review) await base44.asServiceRole.entities.UnassignedCountryReview.update(review.id, {
+          stored_country: country, stored_city: city, missing_country: false, missing_city: false,
+          status: 'assigned', notify_pending: false, review_reason: 'Country and city completed by the member.',
+          last_scanned_at: new Date().toISOString(),
+        });
+      } else {
+        const evidence = resolveUnassignedLocation(current);
+        const record = {
+          user_id: user.id, user_email: user.email || '',
+          display_name: current.display_name || current.username || current.full_name || '',
+          stored_country: String(current.country || ''), stored_city: city,
+          missing_country: !country, missing_city: !city,
+          registration_evidence: evidence.evidence, evidence_origin: evidence.evidence ? 'saved_profile' : 'none',
+          review_reason: evidence.reason, suggested_country: !country ? evidence.suggestion : '',
+          suggestion_source: !country ? evidence.source : '', confidence: !country ? evidence.confidence : 'none',
+          status: 'pending_review', notify_pending: true,
+          user_registered_at: user.created_date, last_scanned_at: new Date().toISOString(),
+        };
+        if (review) await base44.asServiceRole.entities.UnassignedCountryReview.update(review.id, record);
+        else await base44.asServiceRole.entities.UnassignedCountryReview.create(record);
+      }
+    }
+
+    return Response.json({ success: true, location_review_synced: has('country') || has('city') || has('location') || has('address') });
   } catch (error) {
     const status = error?.status || error?.response?.status;
     console.error('updateProfile failed', { name: error?.name, message: error?.message, status });

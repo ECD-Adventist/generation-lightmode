@@ -1,3 +1,5 @@
+import { validatedRegistrationCountry } from "@/../base44/shared/registrationCountries.ts";
+
 const COUNTRY_ALIASES = {
   "usa": "United States",
   "u.s.a.": "United States",
@@ -35,5 +37,5 @@ export function normalizeCountryName(country) {
 }
 
 export function getUserCountry(user) {
-  return normalizeCountryName(user?.country);
+  return validatedRegistrationCountry(user?.country);
 }

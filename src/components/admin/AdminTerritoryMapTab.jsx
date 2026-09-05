@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import useAdminDirectory from "@/components/admin/data/useAdminDirectory";
 import { Users, MapPin, Building2, ChevronDown, ChevronRight, Search, Zap } from "lucide-react";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import { getUserCountry } from "@/lib/countryUtils";
@@ -34,10 +33,9 @@ export default function AdminTerritoryMapTab({ currentUser, territoryRestricted,
   const [groupBy, setGroupBy] = useState("country");
   const [expanded, setExpanded] = useState({});
 
-  const { data: allUsers = [], isLoading } = useQuery({
-    queryKey: ["territory_map_users"],
-    queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []),
-  });
+  const directory = useAdminDirectory(currentUser);
+  const allUsers = directory.users;
+  const isLoading = !directory.complete;
 
   // Only show the countries/regions this admin selected in Territory Setup.
   const scope = useMemo(
@@ -67,7 +65,7 @@ export default function AdminTerritoryMapTab({ currentUser, territoryRestricted,
     return Object.entries(map).sort((a, b) => b[1].length - a[1].length);
   }, [filtered, groupBy]);
 
-  const totalWithAddress = users.filter(u => getUserCountry(u)).length;
+  const totalWithAddress = users.filter(u => getUserCountry(u) && String(u.city || "").trim()).length;
   const totalUsers = users.length;
 
   const toggle = (key) => setExpanded(prev => ({ ...prev, [key]: !prev[key] }));

@@ -5,9 +5,9 @@ import { resolveReportingCountry } from '../../shared/countryResolution.ts';
 import { validatedRegistrationCountry } from '../../shared/registrationCountries.ts';
 
 const PAGE_SIZE = 5000;
-const CACHE_TTL_MS = 5 * 60_000;
+const CACHE_TTL_MS = 60_000;
 const SNAPSHOT_FIELDS = {
-  User: ['email', 'country'],
+  User: ['email', 'country', 'city'],
   GlowGroup: ['id', 'name', 'country', 'description'],
   GlowGroupMember: ['group_id'],
   GlowDrop: ['id', 'user_email', 'status', 'hidden', 'is_flagged', 'verse', 'reflection', 'likes_count', 'category'],
@@ -127,7 +127,12 @@ async function buildSnapshot(svc) {
       category: drop.category || '',
     }));
 
-    const totalCountries = countryStats.length;
+    const totalCountries = countryStats.filter(row => row.users > 0).length;
+    const totalLocatedUsers = countryStats.reduce((sum, row) => sum + row.users, 0);
+    const totalMissingCountry = Math.max(0, users.length - totalLocatedUsers);
+    const totalMissingCity = users.filter(user => !String(user.city || '').trim()).length;
+    const totalLocationComplete = users.filter(user => validatedRegistrationCountry(user.country) && String(user.city || '').trim()).length;
+    const uniqueCities = new Set(users.map(user => String(user.city || '').trim().toLowerCase()).filter(Boolean)).size;
 
     return {
       generated_at: new Date().toISOString(),
@@ -135,6 +140,11 @@ async function buildSnapshot(svc) {
       totalGroups: groups.length,
       totalDrops: approvedDrops.length,
       totalCountries,
+      totalLocatedUsers,
+      totalMissingCountry,
+      totalMissingCity,
+      totalLocationComplete,
+      uniqueCities,
       totalChallenges: publicChallenges.filter((challenge) => challenge.active).length,
       countryStats,
       topGroups,
@@ -149,7 +159,7 @@ export default async function(req) {
     if (snapshotCache && Date.now() - Date.parse(snapshotCache.generated_at) < 60_000) {
       return Response.json(snapshotCache);
     }
-    const [saved] = await base44.entities.CommunitySnapshotCache.filter({ cache_key: 'public-community-v2' }, '-generated_at', 1);
+    const [saved] = await base44.entities.CommunitySnapshotCache.filter({ cache_key: 'public-community-v3' }, '-generated_at', 1);
     if (saved?.snapshot?.generated_at) snapshotCache = saved.snapshot;
 
     const refresh = () => {
@@ -163,7 +173,7 @@ export default async function(req) {
           // receive the explicitly public aggregate, never underlying records.
           const client = user?.role === 'admin' ? base44 : base44.asServiceRole;
           const snapshot = await buildSnapshot(client);
-          const record = { cache_key: 'public-community-v2', generated_at: snapshot.generated_at, snapshot };
+          const record = { cache_key: 'public-community-v3', generated_at: snapshot.generated_at, snapshot };
           if (saved?.id) await client.entities.CommunitySnapshotCache.update(saved.id, record);
           else await client.entities.CommunitySnapshotCache.create(record);
           snapshotCache = snapshot;

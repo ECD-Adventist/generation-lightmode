@@ -4,12 +4,12 @@ import { base44 } from "@/api/base44Client";
 
 export default function useAdminDirectory(admin) {
   const query = useInfiniteQuery({
-    queryKey: ["admin_users_full", admin?.id, "database-pages-v2"],
+    queryKey: ["admin_users_full", admin?.id, "database-pages-v3"],
     enabled: !!admin?.id,
     initialPageParam: null,
     queryFn: async ({ pageParam }) => {
       const res = await base44.functions.invoke("adminListUsers", {
-        view: "directory", limit: pageParam ? 2000 : 100,
+        view: "directory", limit: 5000,
         ...(pageParam || {}),
       });
       if (!Array.isArray(res.data?.items)) throw new Error("Unable to read the directory");
@@ -25,7 +25,7 @@ export default function useAdminDirectory(admin) {
   });
   useEffect(() => {
     if (!query.hasNextPage || query.isFetching || query.isError) return;
-    const timer = setTimeout(() => query.fetchNextPage(), 350);
+    const timer = setTimeout(() => query.fetchNextPage(), 0);
     return () => clearTimeout(timer);
   }, [query.hasNextPage, query.isFetching, query.isError, query.fetchNextPage]);
   const users = useMemo(() => [...new Map((query.data?.pages || []).flatMap(p => p.items).map(u => [u.id, u])).values()], [query.data]);

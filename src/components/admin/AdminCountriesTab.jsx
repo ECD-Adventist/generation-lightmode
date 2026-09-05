@@ -7,6 +7,8 @@ import CountriesWorldMap from "./CountriesWorldMap";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import { getUserCountry, normalizeCountryName } from "@/lib/countryUtils";
 import { buildTerritoryScope, scopeUsers, scopeGroups, scopeDropsByAuthor } from "@/lib/territoryScope";
+import useAdminDirectory from "@/components/admin/data/useAdminDirectory";
+import readAdminRecords from "@/components/admin/data/readAdminRecords";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
@@ -41,17 +43,16 @@ export default function AdminCountriesTab({ user, territoryRestricted, territory
     }
   };
 
-  const { data: users = [], isLoading } = useQuery({
-    queryKey: ["admin_users_countries"],
-    queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []),
-  });
+  const directory = useAdminDirectory(user);
+  const users = directory.users;
+  const isLoading = !directory.complete;
   const { data: drops = [] } = useQuery({
     queryKey: ["admin_drops_countries"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000),
+    queryFn: () => readAdminRecords("GlowDrop"),
   });
   const { data: groups = [] } = useQuery({
     queryKey: ["admin_groups_countries"],
-    queryFn: () => base44.entities.GlowGroup.list("-created_date", 10000),
+    queryFn: () => readAdminRecords("GlowGroup"),
   });
 
   const scope = buildTerritoryScope({ territoryRestricted, territoryApproved, territoryCountries, territoryRegions });

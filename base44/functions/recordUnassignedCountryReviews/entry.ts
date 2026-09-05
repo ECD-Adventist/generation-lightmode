@@ -79,6 +79,7 @@ export default async function (req) {
           registration_evidence: match.evidence, evidence_origin: match.evidence ? 'saved_profile' : 'none',
           review_reason: missingCountry ? match.reason : 'Country is known; city is missing and requires member confirmation.',
           suggested_country: suggestion, suggestion_source: suggestion ? match.source : '', confidence,
+          status: 'pending_review', notify_pending: true,
           user_registered_at: account.created_date, last_scanned_at: now,
         };
         if (suggestion && prior?.status !== 'dismissed') {

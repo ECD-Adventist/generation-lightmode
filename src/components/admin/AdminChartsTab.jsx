@@ -9,6 +9,8 @@ import { format, subDays, eachDayOfInterval, startOfDay } from "date-fns";
 import { useAdminTheme, getAdminTokens } from "./AdminThemeContext";
 import { getUserCountry } from "@/lib/countryUtils";
 import { buildTerritoryScope, scopeUsers } from "@/lib/territoryScope";
+import useAdminDirectory from "@/components/admin/data/useAdminDirectory";
+import readAdminRecords from "@/components/admin/data/readAdminRecords";
 
 const CustomTooltip = ({ active, payload, label, t }) => {
   if (!active || !payload?.length) return null;
@@ -22,7 +24,7 @@ const CustomTooltip = ({ active, payload, label, t }) => {
   );
 };
 
-export default function AdminChartsTab({ territoryRestricted, territoryCountries, territoryRegions, territoryApproved }) {
+export default function AdminChartsTab({ user, territoryRestricted, territoryCountries, territoryRegions, territoryApproved }) {
   const { theme } = useAdminTheme();
   const t = getAdminTokens(theme);
   const isDark = theme === "dark";
@@ -30,17 +32,14 @@ export default function AdminChartsTab({ territoryRestricted, territoryCountries
   const chartAxisColor = isDark ? "#6B7280" : "#8A97B5";
   const chartGridColor = isDark ? "rgba(255,255,255,0.04)" : "rgba(11,27,61,0.04)";
 
-  const { data: rawUsers = [] } = useQuery({
-    queryKey: ["charts_users"],
-    queryFn: () => base44.functions.invoke("adminListUsers", {}).then(r => r.data || []),
-  });
+  const { users: rawUsers } = useAdminDirectory(user);
   const { data: groups = [] } = useQuery({
     queryKey: ["charts_groups"],
-    queryFn: () => base44.entities.GlowGroup.list("-created_date", 10000),
+    queryFn: () => readAdminRecords("GlowGroup"),
   });
   const { data: drops = [] } = useQuery({
     queryKey: ["charts_drops"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000),
+    queryFn: () => readAdminRecords("GlowDrop"),
   });
 
   const scope = buildTerritoryScope({ territoryRestricted, territoryApproved, territoryCountries, territoryRegions });
