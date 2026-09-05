@@ -68,7 +68,7 @@ export default function DashboardMapHero({ userCountry }) {
     <div className="space-y-4 font-['Inter']">
       {hasSnapshot && <p className="text-xs text-muted-foreground" role="status">
         {isFetching ? "Updating totals… " : isError ? "Refresh unavailable — showing last loaded totals. " : ""}
-        Last updated {new Date(snapshot.generated_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.
+        Last updated {new Date(snapshot.generated_at).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}.
       </p>}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[

@@ -23,6 +23,7 @@ export default function ContentCard({ item, priority = false }) {
   const shareBtnRef = React.useRef(null);
   const queryClient = useQueryClient();
   const meta = typeMeta(item.content_type);
+  const canPreview = item.unlocked !== false && Boolean(item.preview_url || item.image_url || item.drive_view_url);
   const shareUrl = getSharePreviewUrl("content", item.id);
   const shareText = buildShareText(item.title, item.description, shareUrl);
 
@@ -122,8 +123,8 @@ export default function ContentCard({ item, priority = false }) {
       <div
         role="button"
         tabIndex={0}
-        onClick={() => item.download_url && handleView()}
-        onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && item.download_url) { e.preventDefault(); handleView(); } }}
+        onClick={() => canPreview && handleView()}
+        onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && canPreview) { e.preventDefault(); handleView(); } }}
         className="relative cursor-pointer overflow-hidden aspect-video rounded-t-xl"
         style={{ background: "#0B0F1A" }}
       >
@@ -142,7 +143,7 @@ export default function ContentCard({ item, priority = false }) {
         {item.description && <p className="text-[11.5px] leading-relaxed mb-3 line-clamp-2" style={{ color: "#8A9BB0" }}>{item.description}</p>}
 
         <div className="mt-auto flex items-center gap-1.5">
-          <button type="button" onClick={handleView} disabled={!item.download_url}
+          <button type="button" onClick={handleView} disabled={!canPreview}
             className="flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 rounded-full font-black text-[11px] font-['Space_Grotesk'] transition active:scale-95 disabled:opacity-40"
             style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${meta.color}55`, color: meta.color }}>
             <Eye size={12} /> View

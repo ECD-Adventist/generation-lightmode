@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ExternalLink } from "lucide-react";
+import { Dialog, DialogPortal, DialogOverlay, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { ExternalLink, X } from "lucide-react";
 import ContentPreviewMedia from "@/components/content-hub/ContentPreviewMedia";
 
 export default function ContentPreviewModal({ item, open, onClose }) {
@@ -20,7 +21,10 @@ export default function ContentPreviewModal({ item, open, onClose }) {
 
   return (
     <Dialog open={open} onOpenChange={(value) => !value && onClose()}>
-      <DialogContent className="max-w-3xl bg-[#0E1524] border-white/10 text-white p-0 overflow-hidden">
+      <DialogPortal>
+      <DialogOverlay className="z-[6000]" />
+      <DialogPrimitive.Content aria-describedby={undefined} className="fixed left-1/2 top-1/2 z-[6001] grid w-[calc(100%_-_2rem)] max-w-3xl max-h-[calc(100dvh_-_2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border border-white/10 bg-[#0E1524] text-white shadow-xl overflow-y-auto">
+        <DialogClose aria-label="Close preview" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full"><X size={20} /></DialogClose>
         <DialogHeader className="px-5 pt-5 pr-12">
           <DialogTitle className="font-['Space_Grotesk'] text-base">{item.title}</DialogTitle>
           {item.description && <p className="text-xs text-white/50 leading-relaxed">{item.description}</p>}
@@ -40,7 +44,8 @@ export default function ContentPreviewModal({ item, open, onClose }) {
             </a>
           </div>
         )}
-      </DialogContent>
+      </DialogPrimitive.Content>
+      </DialogPortal>
     </Dialog>
   );
 }

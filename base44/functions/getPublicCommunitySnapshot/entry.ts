@@ -1,10 +1,20 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { enforceApiRateLimit } from '../../shared/apiSecurity.ts';
+import { waitUntil } from 'base44:runtime';
 
-const PAGE_SIZE = 500;
-const CACHE_TTL_MS = 60_000;
+const PAGE_SIZE = 5000;
+const CACHE_TTL_MS = 5 * 60_000;
+const SNAPSHOT_FIELDS = {
+  User: ['email', 'country'],
+  GlowGroup: ['id', 'name', 'country', 'description'],
+  GlowGroupMember: ['group_id'],
+  GlowDrop: ['id', 'user_email', 'status', 'hidden', 'is_flagged', 'verse', 'reflection', 'likes_count', 'category'],
+  Challenge: ['id', 'title', 'description', 'points_reward', 'active', 'start_date', 'end_date'],
+  ChallengeSubmission: ['challenge_id'],
+};
 let snapshotCache = null;
 let snapshotRefresh = null;
+let nextRefreshAt = 0;
 
 async function buildSnapshot(svc) {
 
@@ -13,7 +23,7 @@ async function buildSnapshot(svc) {
       try {
         const records = [];
         for (let skip = 0; ; skip += PAGE_SIZE) {
-          const page = await svc.entities[entity].list('-created_date', PAGE_SIZE, skip);
+          const page = await svc.entities[entity].list('-created_date', PAGE_SIZE, skip, SNAPSHOT_FIELDS[entity]);
           records.push(...page);
           if (page.length < PAGE_SIZE) break;
         }
@@ -168,18 +178,41 @@ async function buildSnapshot(svc) {
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    const rateLimited = await enforceApiRateLimit(base44, req);
-    if (rateLimited) return rateLimited;
-    if (snapshotCache && Date.now() - Date.parse(snapshotCache.generated_at) < CACHE_TTL_MS) {
+    if (snapshotCache && Date.now() - Date.parse(snapshotCache.generated_at) < 60_000) {
       return Response.json(snapshotCache);
     }
-    // Coalesce simultaneous requests; only cache a completely successful snapshot.
-    if (!snapshotRefresh) {
-      snapshotRefresh = buildSnapshot(base44.asServiceRole)
-        .then(data => { snapshotCache = data; return data; })
-        .finally(() => { snapshotRefresh = null; });
+    const [saved] = await base44.entities.CommunitySnapshotCache.filter({ cache_key: 'public-community-v1' }, '-generated_at', 1);
+    if (saved?.snapshot?.generated_at) snapshotCache = saved.snapshot;
+
+    const refresh = () => {
+      if (!snapshotRefresh) {
+        nextRefreshAt = Date.now() + 60_000;
+        snapshotRefresh = (async () => {
+          const user = await base44.auth.me().catch(() => null);
+          const rateLimited = await enforceApiRateLimit(base44, req, user);
+          if (rateLimited) throw new Error('Rate limit exceeded');
+          // Administrators already have full read access; other callers only
+          // receive the explicitly public aggregate, never underlying records.
+          const client = user?.role === 'admin' ? base44 : base44.asServiceRole;
+          const snapshot = await buildSnapshot(client);
+          const record = { cache_key: 'public-community-v1', generated_at: snapshot.generated_at, snapshot };
+          if (saved?.id) await client.entities.CommunitySnapshotCache.update(saved.id, record);
+          else await client.entities.CommunitySnapshotCache.create(record);
+          snapshotCache = snapshot;
+          console.info('Community snapshot saved', { totalUsers: snapshot.totalUsers, totalGroups: snapshot.totalGroups, totalDrops: snapshot.totalDrops, generated_at: snapshot.generated_at });
+          return snapshot;
+        })().finally(() => { snapshotRefresh = null; });
+      }
+      return snapshotRefresh;
+    };
+
+    if (snapshotCache) {
+      if (Date.now() - Date.parse(snapshotCache.generated_at) >= CACHE_TTL_MS && Date.now() >= nextRefreshAt) {
+        waitUntil(refresh().catch(error => console.error('Community snapshot refresh failed; retaining saved totals:', error?.message)));
+      }
+      return Response.json(snapshotCache);
     }
-    return Response.json(await snapshotRefresh);
+    return Response.json(await refresh());
   } catch (error) {
     console.error('getPublicCommunitySnapshot failed:', error?.message);
     if ((error?.status || error?.response?.status) === 429 || /rate limit exceeded/i.test(error?.message || '')) {
