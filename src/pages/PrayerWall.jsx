@@ -58,17 +58,8 @@ export default function PrayerWall() {
     enabled: !!user,
   });
 
-  useEffect(() => {
-    if (!user) return;
-    const unsubRequests = base44.entities.PrayerRequest.subscribe(() => queryClient.invalidateQueries({ queryKey: ["prayerWall"] }));
-    const unsubSupports = base44.entities.PrayerSupport.subscribe(() => queryClient.invalidateQueries({ queryKey: ["prayerSupports"] }));
-    const unsubComments = base44.entities.PrayerComment.subscribe(() => queryClient.invalidateQueries({ queryKey: ["prayerWall"] }));
-    return () => {
-      unsubRequests();
-      unsubSupports();
-      unsubComments();
-    };
-  }, [user, queryClient]);
+  // Realtime subscriptions removed: the wall is polled every 60s (see listPrayerRequests query).
+
 
   const postMutation = useMutation({
     mutationFn: async () => {

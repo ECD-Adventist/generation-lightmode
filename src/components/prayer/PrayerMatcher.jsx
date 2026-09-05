@@ -38,6 +38,7 @@ export default function PrayerMatcher({ currentUser }) {
         if (!convId) { const c = await base44.entities.DirectConversation.create({ participant_a: currentUser.email, participant_b: recipientEmail }); convId = c.id; }
         const dmRec = await base44.entities.DirectMessage.create({ conversation_id: convId, sender_email: currentUser.email, recipient_email: recipientEmail, content: `Hi! I saw your prayer request and wanted to reach out. I'm here to pray with you. 🙏` });
         dualWriteSupabase("direct_messages", dmRec);
+        base44.entities.DirectConversation.update(convId, { last_message: String(dmRec.content || "").slice(0, 80), last_message_at: new Date().toISOString() }).catch(() => {});
         base44.entities.Notification.create({ user_email: recipientEmail, type: "message", message: `${currentUser.full_name || 'Someone'} sent you a prayer support message.`, link: createPageUrl("Messages") + `?user=${encodeURIComponent(currentUser.email)}` }).then(n => dualWriteSupabase("notifications", n)).catch(() => {});
         toast.success("Message sent! Check Messages.");
       } finally { setInitiatingDM(false); }

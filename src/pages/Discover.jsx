@@ -1,6 +1,7 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { fetchAllUserGlowDropLikes } from "@/lib/glowDropLikes";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Search, TrendingUp, Heart, Zap, Home, Bell, User, Globe, Users, Flame, ArrowLeft } from "lucide-react";
@@ -15,18 +16,6 @@ import MusicPickerModal from "@/components/feed/MusicPickerModal";
 import useUrlOverlay from "@/hooks/useUrlOverlay";
 import { profileUrl } from "@/lib/profileLink";
 
-const fetchAll = async (entity, query = {}, sort = null) => {
-  let allRecords = [];
-  let skip = 0;
-  const limit = 100;
-  while (true) {
-    const result = await entity.filter(query, sort, limit, skip);
-    allRecords = [...allRecords, ...result];
-    if (result.length < limit) break;
-    skip += limit;
-  }
-  return allRecords;
-};
 
 export default function Discover() {
   const navigate = useNavigate();
@@ -65,7 +54,7 @@ export default function Discover() {
 
   const { data: userLikes = [] } = useQuery({
     queryKey: ["userLikes", user?.email],
-    queryFn: () => fetchAll(base44.entities.GlowDropLike, { user_email: user?.email }),
+    queryFn: () => fetchAllUserGlowDropLikes(base44.entities.GlowDropLike, user?.email, 1000),
     enabled: !!user,
   });
 

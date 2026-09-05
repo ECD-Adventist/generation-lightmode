@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
+import { fetchConnections, manageFollow } from "@/lib/follows";
 import { createPageUrl } from "@/utils";
 import { Heart, Sparkles, Users, BookOpen, ArrowRight, MessageCircle, UserPlus, UserCheck, ChevronLeft, Globe } from "lucide-react";
 import { format } from "date-fns";
@@ -19,33 +19,24 @@ export default function MobileGenerationLightMode() {
   const queryClient = useQueryClient();
 
   const { data: me } = useQuery({ queryKey: ["glmMe"], queryFn: () => base44.auth.me() });
-  const { data: follows = [] } = useQuery({
-    queryKey: ["glmFollowers"],
-    queryFn: () => base44.entities.Follow.filter({ following_id: ACCOUNT_ID })
+  // Follower count + "am I following" from the backend (cached counters, first page only).
+  // Replaces two client queries that loaded every follower of the official account.
+  const { data: connections } = useQuery({
+    queryKey: ["glmConnections", me?.id],
+    queryFn: () => fetchConnections(ACCOUNT_ID, { include_viewer: !!me?.id }),
   });
-  const { data: myFollowing = [] } = useQuery({
-    queryKey: ["glmMyFollowing", me?.id],
-    queryFn: () => base44.entities.Follow.filter({ follower_id: me?.id }),
-    enabled: !!me?.id
-  });
+  const followersCount = connections?.followers_count ?? 0;
   const { data: posts = [] } = useQuery({
     queryKey: ["glmPosts"],
     queryFn: () => base44.entities.GlowDrop.filter({ user_email: ACCOUNT_EMAIL }, "-created_date", 50)
   });
 
-  const isFollowing = myFollowing.some((f) => f.following_id === ACCOUNT_ID);
+  const isFollowing = connections?.is_following === true;
 
   const followMutation = useMutation({
-    mutationFn: async () => {
-      const existing = myFollowing.find((f) => f.following_id === ACCOUNT_ID);
-      if (existing) return base44.entities.Follow.delete(existing.id);
-      const rec = await base44.entities.Follow.create({ follower_id: me.id, following_id: ACCOUNT_ID });
-      dualWriteSupabase("follows", rec);
-      return rec;
-    },
+    mutationFn: async () => manageFollow(ACCOUNT_ID, "toggle"),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["glmFollowers"] });
-      queryClient.invalidateQueries({ queryKey: ["glmMyFollowing", me?.id] });
+      queryClient.invalidateQueries({ queryKey: ["glmConnections"] });
     }
   });
 
@@ -116,7 +107,7 @@ export default function MobileGenerationLightMode() {
           The official Generation LightMode profile — daily drops, movement announcements, campaign highlights. Faith. Always On. ⚡
         </p>
         <div className="flex items-center gap-4 text-xs flex-wrap" style={{ color: "#6B7FA0" }}>
-          <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" style={{ color: "#0B3FD9" }} /> <strong style={{ color: "#0B1B3D" }}>{follows.length}</strong> followers</span>
+          <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" style={{ color: "#0B3FD9" }} /> <strong style={{ color: "#0B1B3D" }}>{followersCount}</strong> followers</span>
           <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" style={{ color: "#CC7A00" }} /> <strong style={{ color: "#0B1B3D" }}>{posts.length}</strong> posts</span>
           <span className="flex items-center gap-1"><Globe className="w-3.5 h-3.5" style={{ color: "#1FB8FF" }} /> Global</span>
         </div>

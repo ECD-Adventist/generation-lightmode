@@ -28,13 +28,7 @@ export default function Live() {
     refetchInterval: 8000,
   });
 
-  useEffect(() => {
-    if (!user) return;
-    const unsubscribe = base44.entities.LiveSession.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ["liveSessions"] });
-    });
-    return unsubscribe;
-  }, [user, queryClient]);
+  // The session list is polled every 8s above; no table-wide subscription.
 
   if (!user) return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><span style={{ color: "#1FB8FF" }}>Loading live...</span></div>;
 

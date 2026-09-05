@@ -121,12 +121,14 @@ export default function GroupChat() {
     queryKey: ["groupReactions", groupId],
     queryFn: () => base44.entities.GlowGroupMessageReaction.filter({ group_id: groupId }),
     enabled: !!groupId,
+    refetchInterval: 30 * 1000,
   });
 
   const { data: members = [] } = useQuery({
     queryKey: ["groupMembers", groupId],
     queryFn: () => base44.entities.GlowGroupMember.filter({ group_id: groupId }),
     enabled: !!groupId,
+    refetchInterval: 30 * 1000,
   });
 
   const { data: events = [] } = useQuery({
@@ -169,16 +171,9 @@ export default function GroupChat() {
         queryClient.invalidateQueries({ queryKey: ["groupMessages", groupId] });
       }
     });
-    const unsubR = base44.entities.GlowGroupMessageReaction.subscribe((event) => {
-      if (event.data?.group_id === groupId) queryClient.invalidateQueries({ queryKey: ["groupReactions", groupId] });
-    });
-    const unsubRequests = base44.entities.GlowGroupJoinRequest.subscribe((event) => {
-      if (event.data?.group_id === groupId) queryClient.invalidateQueries({ queryKey: ["groupPendingJoinRequestDetails", groupId] });
-    });
-    const unsubMembers = base44.entities.GlowGroupMember.subscribe((event) => {
-      if (event.data?.group_id === groupId) queryClient.invalidateQueries({ queryKey: ["groupMembers", groupId] });
-    });
-    return () => { unsub(); unsubR(); unsubRequests(); unsubMembers(); };
+    // Reactions, join requests and members are polled (30s) instead of three more
+    // table-wide subscriptions; only new messages stay realtime.
+    return () => { unsub(); };
   }, [groupId, queryClient]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages.length]);
@@ -260,7 +255,9 @@ export default function GroupChat() {
       return res.data;
     },
     onSuccess: (data, vars) => {
-      queryClient.invalidateQueries({ queryKey: ["groupPendingJoinRequestDetails", groupId] });
+      queryClient.invalidateQueries({ queryKey: ["groupPendingJoinRequestDetails", groupId],
+    refetchInterval: 30 * 1000,
+  });
       queryClient.invalidateQueries({ queryKey: ["groupMembers", groupId] });
       toast.success(vars.action === "approve" ? "Member approved ✅" : "Request declined");
     },

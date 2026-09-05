@@ -67,7 +67,7 @@ function PostSnippet({ post, getCategoryStyle }) {
 
 export default function GenerationLightModeDesktop({
   me,
-  follows,
+  followersCount = 0,
   posts,
   isFollowing,
   followMutation,
@@ -188,7 +188,7 @@ export default function GenerationLightModeDesktop({
               </div>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { icon: Users, value: follows.length, label: "Followers", color: "#0B3FD9" },
+                  { icon: Users, value: followersCount, label: "Followers", color: "#0B3FD9" },
                   { icon: BookOpen, value: posts.length, label: "Posts", color: "#A86B00" },
                   { icon: Globe, value: "Global", label: "Movement", color: "#1FB8FF" },
                 ].map((stat) => {
@@ -207,7 +207,7 @@ export default function GenerationLightModeDesktop({
         </section>
 
         <OfficialProfileHighlights
-          followersCount={follows.length}
+          followersCount={followersCount}
           postsCount={posts.length}
           codeCount={codeOfTruthCount}
           keepCount={keepIt100Count}

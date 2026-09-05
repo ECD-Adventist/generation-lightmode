@@ -84,18 +84,10 @@ export default function Notifications() {
     enabled: !!user,
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
+    // Polled instead of a table-wide realtime subscription (see Layout.jsx).
+    refetchInterval: 30 * 1000,
   });
 
-  useEffect(() => {
-    if (!user?.id) return;
-    const unsub = base44.entities.Notification.subscribe((event) => {
-      if (event.data?.user_id === user.id) {
-        queryClient.invalidateQueries({ queryKey: ["allNotifications", user.id] });
-        queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
-      }
-    });
-    return unsub;
-  }, [user?.id, queryClient]);
 
   const markReadMutation = useMutation({
     mutationFn: (id) => base44.entities.Notification.update(id, { read: true }),

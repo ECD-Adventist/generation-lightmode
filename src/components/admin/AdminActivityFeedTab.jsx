@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { formatDistanceToNow } from "date-fns";
@@ -19,7 +19,9 @@ export default function AdminActivityFeedTab({ currentUser }) {
   const scrollRef = useRef(null);
 
   const { pullDistance, isRefreshing, threshold } = usePullToRefresh(scrollRef, async () => {
-    await queryClient.invalidateQueries({ queryKey: ["community_moments"] });
+    await queryClient.invalidateQueries({ queryKey: ["community_moments"],
+    refetchInterval: 30 * 1000, // polled; table-wide subscription removed
+  });
   });
 
   const { data: moments = [], isLoading } = useQuery({
@@ -34,13 +36,6 @@ export default function AdminActivityFeedTab({ currentUser }) {
     staleTime: 60000,
   });
 
-  // Real-time
-  useEffect(() => {
-    const unsub = base44.entities.CommunityMoment.subscribe(event => {
-      queryClient.invalidateQueries({ queryKey: ["community_moments"] });
-    });
-    return unsub;
-  }, [queryClient]);
 
   const postMutation = useMutation({
     mutationFn: async () => {

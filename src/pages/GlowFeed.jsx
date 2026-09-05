@@ -10,18 +10,6 @@ import usePullToRefresh from "@/hooks/usePullToRefresh";
 import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
 import { fetchAllUserGlowDropLikes } from "@/lib/glowDropLikes";
 
-const fetchAll = async (entity, query = {}, sort = null) => {
-  let allRecords = [];
-  let skip = 0;
-  const limit = 100;
-  while (true) {
-    const result = await entity.filter(query, sort, limit, skip);
-    allRecords = [...allRecords, ...result];
-    if (result.length < limit) break;
-    skip += limit;
-  }
-  return allRecords;
-};
 
 const FILTERS = [
   { id: "latest", label: "Latest", icon: Clock },
@@ -54,7 +42,8 @@ export default function GlowFeed() {
 
   const { data: drops = [], isLoading } = useQuery({
     queryKey: ["glowFeed"],
-    queryFn: () => fetchAll(base44.entities.GlowDrop, { status: "approved" }, "-created_date"),
+    // Bounded: was a page-everything loop over every approved drop in the app.
+    queryFn: () => base44.entities.GlowDrop.filter({ status: "approved" }, "-created_date", 300),
     staleTime: 1000 * 60 * 2,
   });
 

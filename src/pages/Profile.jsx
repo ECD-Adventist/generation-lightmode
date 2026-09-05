@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
-import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
-import { dualDeleteSupabase } from "@/lib/dualDeleteSupabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Grid, Award, Heart, MessageCircle, Camera, Target, CheckCircle, Zap, Home, Users, Bell, Bookmark, Building2, Sparkles, BarChart3 } from "lucide-react";
 import { createPageUrl } from "@/utils";
@@ -13,7 +11,6 @@ import SubmitDropModal from "@/components/feed/SubmitDropModal";
 import ProfileConnectionsModal from "@/components/profile/ProfileConnectionsModal";
 import ProfileInstitutionsTab from "@/components/institution/ProfileInstitutionsTab";
 import ExecutiveProfileHeader from "@/components/institution/ExecutiveProfileHeader";
-import { isNotificationEnabled } from "@/lib/notifications";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 import LeaderAccountSwitcher from "@/components/profile/LeaderAccountSwitcher";
 import LeaderProfileHeader from "@/components/profile/LeaderProfileHeader";
@@ -25,7 +22,10 @@ import PostViewerModal from "@/components/profile/PostViewerModal";
 import StoryAnalyticsDashboard from "@/components/profile/StoryAnalyticsDashboard";
 import AppFooter from "@/components/AppFooter";
 import { getDisplayName } from "@/lib/displayName";
-import { fetchAllFollowers, fetchAllFollowing } from "@/lib/follows";
+import { fetchConnections, manageFollow } from "@/lib/follows";
+import { fetchAllUserGlowDropLikes } from "@/lib/glowDropLikes";
+
+const PROFILE_DROPS_LIMIT = 200;
 import MobileProfile from "@/components/profile/MobileProfile";
 import MobileInstitutionProfile from "@/components/institution/MobileInstitutionProfile";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -141,11 +141,13 @@ export default function Profile() {
     queryFn: async () => {
       if (!displayUser?.id && !profileEmail) return [];
 
-      const emailDrops = profileEmail ? await fetchAll(base44.entities.GlowDrop, { user_email: profileEmail }, '-created_date') : [];
+      // Bounded to the most recent PROFILE_DROPS_LIMIT posts per lookup (was an unbounded
+      // page-everything loop; a prolific leader account could ship thousands of rows).
+      const emailDrops = profileEmail ? await base44.entities.GlowDrop.filter({ user_email: profileEmail }, '-created_date', PROFILE_DROPS_LIMIT) : [];
       // Leader profiles: only posts published AS the leader (matched by leader email).
       // Never mix in the manager's personal posts (which share created_by_id).
       const idDrops = (!isLeaderAccountProfile && displayUser?.id)
-        ? await fetchAll(base44.entities.GlowDrop, { created_by_id: displayUser.id }, '-created_date')
+        ? await base44.entities.GlowDrop.filter({ created_by_id: displayUser.id }, '-created_date', PROFILE_DROPS_LIMIT)
         : [];
 
       // Personal profiles: exclude posts made on behalf of another account
@@ -172,26 +174,27 @@ export default function Profile() {
     enabled: !!profileEmail && activeProfileTab === "badges",
   });
 
-  const { data: myFollowing = [], isLoading: isMyFollowingLoading } = useQuery({
-    queryKey: ["myFollowing", displayUser?.id, profileEmail],
-    queryFn: () => fetchAllFollowing(displayUser?.id, profileEmail),
-    enabled: !!displayUser?.id || !!profileEmail,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-  });
-
   // When a manager switches into leader view, displayUser keeps the manager's own
   // user id — so followers must be counted against the ManagedLeaderAccount id,
   // which is what the auto-follow automation writes into Follow.following_id.
   const followersTargetId = isViewingLeader ? activeLeaderAccount.id : displayUser?.id;
 
-  const { data: myFollowers = [], isLoading: isMyFollowersLoading } = useQuery({
-    queryKey: ["myFollowers", followersTargetId, profileEmail],
-    queryFn: () => fetchAllFollowers(followersTargetId, profileEmail),
-    enabled: !!followersTargetId || !!profileEmail,
+  // ONE backend call: follower/following counts (cached on the User record), the first page
+  // of each list, and the viewer's own following set. Replaces three client loops that
+  // loaded every Follow row of the profile AND of the viewer into the browser.
+  const { data: connections, isLoading: isConnectionsLoading } = useQuery({
+    queryKey: ["profileConnections", followersTargetId, displayUser?.id],
+    queryFn: () => fetchConnections(followersTargetId || displayUser?.id),
+    enabled: !!(followersTargetId || displayUser?.id),
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
   });
+  const myFollowers = connections?.followers || [];
+  const myFollowing = connections?.following || [];
+  const followersCount = connections?.followers_count ?? myFollowers.length;
+  const followingCount = connections?.following_count ?? myFollowing.length;
+  const isMyFollowersLoading = isConnectionsLoading;
+  const isMyFollowingLoading = isConnectionsLoading;
 
   const { data: myMemberships = [] } = useQuery({
     queryKey: ["myMemberships", profileEmail],
@@ -207,7 +210,7 @@ export default function Profile() {
 
   const { data: savedRecords = [], isLoading: isSavedRecordsLoading } = useQuery({
     queryKey: ["mySavedDropsProfile", profileEmail],
-    queryFn: () => fetchAll(base44.entities.SavedDrop, { user_email: profileEmail }),
+    queryFn: () => base44.entities.SavedDrop.filter({ user_email: profileEmail }, "-created_date", 500),
     enabled: Boolean(profileEmail && isOwnProfile && activeProfileTab === "saved"),
   });
 
@@ -266,13 +269,13 @@ export default function Profile() {
 
   const { data: profileUserLikes = [] } = useQuery({
     queryKey: ["profileUserLikes", currentUser?.email],
-    queryFn: () => fetchAll(base44.entities.GlowDropLike, { user_email: currentUser?.email }),
+    queryFn: () => fetchAllUserGlowDropLikes(base44.entities.GlowDropLike, currentUser?.email, 1000),
     enabled: !!currentUser && activeProfileTab === "drops",
   });
 
   const { data: profileSavedDrops = [] } = useQuery({
     queryKey: ["profileSavedDrops", currentUser?.email],
-    queryFn: () => fetchAll(base44.entities.SavedDrop, { user_email: currentUser?.email }),
+    queryFn: () => base44.entities.SavedDrop.filter({ user_email: currentUser?.email }, "-created_date", 500),
     enabled: !!currentUser && (activeProfileTab === "drops" || activeProfileTab === "saved"),
   });
 
@@ -324,11 +327,8 @@ export default function Profile() {
     }
   };
 
-  const { data: currentUserFollowing = [] } = useQuery({
-    queryKey: ["currentUserFollowing", currentUser?.id, currentUser?.email],
-    queryFn: () => fetchAllFollowing(currentUser?.id, currentUser?.email),
-    enabled: !!currentUser
-  });
+  // The viewer's own following comes back with the same connections call (no extra query).
+  const currentUserFollowing = connections?.viewer_following || [];
 
   // Follow records store user IDs only — resolve emails for components that match by email.
   const currentUserFollowingEnriched = useMemo(() => {
@@ -350,39 +350,14 @@ export default function Profile() {
         || [...publicLeaderAccounts, ...managedLeaderAccounts].find(a => a.leader_email === targetEmail)?.id;
       if (!targetUserId) throw new Error("Could not find that member.");
 
-      const existingFollows = await base44.entities.Follow.filter({ follower_id: currentUser.id, following_id: targetUserId });
-      if (existingFollows.length > 0) {
-        if (shouldFollow === true) {
-          const extras = existingFollows.slice(1);
-          await Promise.all(extras.map(f => base44.entities.Follow.delete(f.id)));
-          extras.forEach(f => dualDeleteSupabase("follows", f.id));
-          return { targetEmail, action: "follow" };
-        }
-        await Promise.all(existingFollows.map(f => base44.entities.Follow.delete(f.id)));
-        existingFollows.forEach(f => dualDeleteSupabase("follows", f.id));
-        return { targetEmail, action: "unfollow" };
-      }
-      
-      const followRec = await base44.entities.Follow.create({ 
-        follower_id: currentUser.id, 
-        following_id: targetUserId
-      });
-      dualWriteSupabase("follows", followRec);
-      if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
-        await base44.functions.invoke("createNotification", {
-          user_id: targetUser.id,
-          type: "follow",
-          reference_id: `follow_${currentUser.id}`,
-          message: `${currentUser.full_name || "Someone"} started following you.`,
-          link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`
-        });
-      }
-      return { targetEmail, action: "follow" };
+      // Follow/unfollow through the backend: it keeps follower counters, the Supabase mirror
+      // and the "started following you" notification consistent and collapses duplicates.
+      const result = await manageFollow(targetUserId, shouldFollow === true ? "follow" : shouldFollow === false ? "unfollow" : "toggle");
+      if (!result) throw new Error("Could not update follow.");
+      return { targetEmail, action: result.following ? "follow" : "unfollow" };
     },
     onSuccess: ({ targetEmail, action }) => {
-      queryClient.invalidateQueries({ queryKey: ["currentUserFollowing"] });
-      queryClient.invalidateQueries({ queryKey: ["myFollowing"] });
-      queryClient.invalidateQueries({ queryKey: ["myFollowers"] });
+      queryClient.invalidateQueries({ queryKey: ["profileConnections"] });
       toast.success(action === "unfollow" ? "Unfollowed" : "Following! ⚡");
     }
   });
@@ -458,8 +433,8 @@ export default function Profile() {
   const glowRank = getGlowRank(user?.glow_score || 0);
 
   const postsCountText = isMyDropsLoading ? "…" : myDrops.length;
-  const followersCountText = isMyFollowersLoading ? "…" : myFollowers.length;
-  const followingCountText = isMyFollowingLoading ? "…" : myFollowing.length;
+  const followersCountText = isMyFollowersLoading ? "…" : followersCount;
+  const followingCountText = isMyFollowingLoading ? "…" : followingCount;
 
   const recentActivity = useMemo(() => ([
     { icon: "✨", label: "Glow Drops", value: isMyDropsLoading ? "Loading..." : `${myDrops.length} shared so far` },
@@ -617,7 +592,7 @@ export default function Profile() {
       );
     }
     if (activeProfileTab === "badges") {
-      return <AchievementBadges user={user} myDrops={myDrops} myFollowing={myFollowing} myFollowers={myFollowers} myMemberships={myMemberships} mySupports={mySupports} challengeSubmissions={challengeSubmissions} certificates={certificates} />;
+      return <AchievementBadges user={user} myDrops={myDrops} myFollowing={myFollowing} myFollowers={myFollowers} followersCount={followersCount} followingCount={followingCount} myMemberships={myMemberships} mySupports={mySupports} challengeSubmissions={challengeSubmissions} certificates={certificates} />;
     }
     if (activeProfileTab === "institutions") {
       return <ProfileInstitutionsTab profileEmail={profileEmail} isOwnProfile={isOwnProfile} />;
@@ -1250,7 +1225,7 @@ export default function Profile() {
         )}
 
         {activeProfileTab === "badges" && (
-          <AchievementBadges user={user} myDrops={myDrops} myFollowing={myFollowing} myFollowers={myFollowers} myMemberships={myMemberships} mySupports={mySupports} challengeSubmissions={challengeSubmissions} certificates={certificates} />
+          <AchievementBadges user={user} myDrops={myDrops} myFollowing={myFollowing} myFollowers={myFollowers} followersCount={followersCount} followingCount={followingCount} myMemberships={myMemberships} mySupports={mySupports} challengeSubmissions={challengeSubmissions} certificates={certificates} />
         )}
       </div>
 

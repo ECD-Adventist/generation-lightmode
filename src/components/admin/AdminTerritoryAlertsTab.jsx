@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bell, Check, Flag, Eye, AlertTriangle, Loader2, Search, Globe, Zap, Users, CheckCheck, X, Shield } from "lucide-react";
@@ -27,19 +27,9 @@ export default function AdminTerritoryAlertsTab({ currentUser }) {
     queryKey: ["territoryAlerts", currentUser?.email],
     queryFn: () => base44.entities.TerritoryAlert.filter({ admin_email: currentUser?.email }, "-created_date", 200),
     enabled: !!currentUser?.email,
+    refetchInterval: 30 * 1000, // polled; table-wide subscription removed
   });
 
-  // Real-time subscription
-  useEffect(() => {
-    if (!currentUser?.email) return;
-    const unsub = base44.entities.TerritoryAlert.subscribe((event) => {
-      if (event.type === "create" && event.data.admin_email === currentUser.email) {
-        toast(`🔔 Territory Alert: ${event.data.summary}`, { icon: "🌍" });
-        queryClient.invalidateQueries({ queryKey: ["territoryAlerts", currentUser.email] });
-      }
-    });
-    return unsub;
-  }, [currentUser?.email, queryClient]);
 
   const markReadMutation = useMutation({
     mutationFn: (id) => base44.entities.TerritoryAlert.update(id, { read: true }),

@@ -8,7 +8,7 @@ import { useSwitchItOn } from "./components/pledge/SwitchItOnProvider";
 import MobileBottomNav from "./components/mobile/MobileBottomNav";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { toast } from "sonner";
+
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const navLinks = [
@@ -69,20 +69,12 @@ export default function Layout({ children, currentPageName }) {
 
   const { data: notifications = [] } = useQuery({
     queryKey: ["notifications", userId],
-    queryFn: () => base44.entities.Notification.filter({ user_id: userId, read: false }),
-    enabled: !!userId
+    queryFn: () => base44.entities.Notification.filter({ user_id: userId, read: false }, "-created_date", 50),
+    enabled: !!userId,
+    // Polled instead of a table-wide realtime subscription: every notification in the app used
+    // to be pushed to every connected client, which then refetched. 60s is plenty for a badge.
+    refetchInterval: 60 * 1000,
   });
-
-  useEffect(() => {
-    if (!userId) return;
-    const unsubscribe = base44.entities.Notification.subscribe((event) => {
-      if (event.type === 'create' && event.data.user_id === userId && !event.data.read) {
-        toast(event.data.message, { icon: '🔔' });
-        queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
-      }
-    });
-    return unsubscribe;
-  }, [userId, queryClient]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);

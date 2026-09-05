@@ -28,6 +28,8 @@ export default function Messages() {
     queryKey: ["directConversations", user?.email],
     queryFn: () => base44.entities.DirectConversation.list("-updated_date", 200),
     enabled: !!user,
+    // Polled: the previous DirectConversation subscription received every conversation change in the app.
+    refetchInterval: 30 * 1000,
   });
 
   const uniqueParticipantEmails = useMemo(() => {
@@ -217,18 +219,16 @@ export default function Messages() {
     onError: () => toast.error("Failed to delete message"),
   });
 
+  // Realtime only while a conversation is open, and only for that conversation. The list
+  // itself is polled (see above), so idle Messages tabs hold no subscription at all.
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.email || !selectedConversationId) return;
     const unsubMsgs = base44.entities.DirectMessage.subscribe((event) => {
-      if (event.data?.recipient_id === user.id || event.data?.sender_id === user.id) {
-        queryClient.invalidateQueries({ queryKey: ["directMessages", selectedConversationId] });
-        queryClient.invalidateQueries({ queryKey: ["directConversations", user.email] });
-      }
-    });
-    const unsubConvs = base44.entities.DirectConversation.subscribe(() => {
+      if (event.data?.conversation_id !== selectedConversationId) return;
+      queryClient.invalidateQueries({ queryKey: ["directMessages", selectedConversationId] });
       queryClient.invalidateQueries({ queryKey: ["directConversations", user.email] });
     });
-    return () => { unsubMsgs(); unsubConvs(); };
+    return () => { unsubMsgs(); };
   }, [user?.email, selectedConversationId, queryClient]);
 
   useEffect(() => {

@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { Award, Flame, Zap, Heart, Users, MessageCircle, Target, Star, Globe, BookOpen, Shield, Crown, Sparkles, TrendingUp } from "lucide-react";
+import React, { useMemo } from "react";
+import { Award, Zap, Heart, Users, MessageCircle, Target, Globe, BookOpen, Shield, Crown, Sparkles, TrendingUp } from "lucide-react";
 
 // Badge definitions with milestone-based criteria
 const BADGE_DEFINITIONS = [
@@ -68,7 +68,7 @@ const CATEGORIES = [
   { key: "special", label: "Special" },
 ];
 
-export default function AchievementBadges({ user, myDrops, myFollowing, myFollowers, myMemberships, mySupports, challengeSubmissions, certificates }) {
+export default function AchievementBadges({ user, myDrops, myFollowing, myFollowers, followersCount, followingCount, myMemberships, mySupports, challengeSubmissions, certificates }) {
   const [activeCategory, setActiveCategory] = React.useState("all");
 
   // Build context for badge evaluation
@@ -99,15 +99,16 @@ export default function AchievementBadges({ user, myDrops, myFollowing, myFollow
       totalLikes,
       maxLikesOnDrop,
       bestMonthDrops,
-      following: myFollowing.length,
-      followers: myFollowers.length,
+      // Counts come from the backend (cached on the User record); the arrays are only the first page.
+      following: typeof followingCount === "number" ? followingCount : myFollowing.length,
+      followers: typeof followersCount === "number" ? followersCount : myFollowers.length,
       groups: myMemberships.length,
       prayerSupports: mySupports.length,
       challenges: challengeSubmissions.length,
       hasEarlyDrop,
       pledgeSigned: !!user?.pledge_signed,
     };
-  }, [user, myDrops, myFollowing, myFollowers, myMemberships, mySupports, challengeSubmissions]);
+  }, [user, myDrops, myFollowing, myFollowers, followersCount, followingCount, myMemberships, mySupports, challengeSubmissions]);
 
   // Evaluate which badges are earned and which are locked
   const { earned, locked } = useMemo(() => {

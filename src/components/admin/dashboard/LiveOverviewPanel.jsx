@@ -38,29 +38,10 @@ export default function LiveOverviewPanel({ databaseDrops = [], databaseUsers = 
   });
   useEffect(() => { if (likesQuery.data) setLikes(likesQuery.data); }, [likesQuery.data]);
 
-  // Real-time subscriptions
-  useEffect(() => {
-    const unsubDrops = base44.entities.GlowDrop.subscribe((ev) => {
-      if (!mountedRef.current) return;
-      setLastEvent({ type: "drop", at: Date.now() });
-      if (ev.type === "create") setDrops(prev => [ev.data, ...prev.filter(d => d.id !== ev.id)]);
-      else if (ev.type === "update") setDrops(prev => prev.map(d => d.id === ev.id ? ev.data : d));
-      else if (ev.type === "delete") setDrops(prev => prev.filter(d => d.id !== ev.id));
-    });
-    const unsubLikes = base44.entities.GlowDropLike.subscribe((ev) => {
-      if (!mountedRef.current) return;
-      setLastEvent({ type: "like", at: Date.now() });
-      if (ev.type === "create") setLikes(prev => [ev.data, ...prev.filter(l => l.id !== ev.id)]);
-      else if (ev.type === "delete") setLikes(prev => prev.filter(l => l.id !== ev.id));
-    });
-    const unsubUsers = base44.entities.User.subscribe((ev) => {
-      if (!mountedRef.current) return;
-      setLastEvent({ type: "user", at: Date.now() });
-      if (ev.type === "create") setUsers(prev => [ev.data, ...prev.filter(u => u.id !== ev.id)]);
-      else if (ev.type === "update") setUsers(prev => prev.map(u => u.id === ev.id ? ev.data : u));
-    });
-    return () => { unsubDrops?.(); unsubLikes?.(); unsubUsers?.(); };
-  }, []);
+  // Realtime subscriptions on GlowDrop / GlowDropLike / User were removed: they pushed every
+  // event in the app to this panel. Drops and users arrive from the dashboard's polled reads
+  // (props); recent likes are polled every 30s above.
+  useEffect(() => { setLastEvent({ type: "poll", at: Date.now() }); }, [databaseDrops, databaseUsers, likesQuery.data]);
 
   // Tick every 30s so time-windowed metrics stay fresh
   useEffect(() => {

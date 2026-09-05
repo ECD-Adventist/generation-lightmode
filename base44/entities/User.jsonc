@@ -419,6 +419,14 @@
       "type": "boolean",
       "default": true
     },
+    "followers_count": {
+      "type": "number",
+      "description": "Cached number of Follow rows with following_id = this user. Maintained by manageFollow; backfilled by getConnections."
+    },
+    "following_count": {
+      "type": "number",
+      "description": "Cached number of Follow rows with follower_id = this user. Maintained by manageFollow; backfilled by getConnections."
+    },
     "notify_follows": {
       "type": "boolean",
       "default": true

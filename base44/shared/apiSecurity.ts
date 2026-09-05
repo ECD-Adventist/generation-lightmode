@@ -12,6 +12,45 @@ async function sha256(value) {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
+// Rate limiting.
+//
+// Previous design did 2 reads + 1–2 writes on the ApiRateLimit entity for EVERY function call —
+// 3–4 database operations before any request did its work. That cost more than most of the
+// requests it protected.
+//
+// New design:
+//   1. An in-memory fixed-window counter per isolate (Map<identity+endpoint, {window, count}>)
+//      answers every call with zero database operations. Base44 keeps warm isolates, so this
+//      catches bursts from one client the way the ledger did.
+//   2. The ApiRateLimit ledger is only touched for GUEST (IP-identified) traffic, and only on a
+//      sample (every LEDGER_SAMPLE-th call) plus every call once a guest is over half its limit,
+//      so cross-isolate abuse is still visible and abuse events are still logged.
+//   Authenticated users never touch the ledger; their identity is already verified.
+//
+// Trade-off (documented on purpose): limits are enforced per isolate for authenticated users, so
+// a user hitting several isolates at once could exceed 120/min by that factor. That is acceptable
+// for a verified account and is far cheaper than a database round-trip per call. Move the counter
+// to Redis (one atomic INCR) when the backend moves off Base44.
+
+const memoryWindows = new Map();
+const MEMORY_MAX_KEYS = 20_000;
+const LEDGER_SAMPLE = 5;
+
+function bumpMemory(key, windowStart) {
+  const entry = memoryWindows.get(key);
+  if (entry && entry.window === windowStart) {
+    entry.count += 1;
+    return entry.count;
+  }
+  if (memoryWindows.size >= MEMORY_MAX_KEYS) {
+    // Cheap eviction: drop everything from previous windows.
+    for (const [k, v] of memoryWindows) if (v.window !== windowStart) memoryWindows.delete(k);
+    if (memoryWindows.size >= MEMORY_MAX_KEYS) memoryWindows.clear();
+  }
+  memoryWindows.set(key, { window: windowStart, count: 1 });
+  return 1;
+}
+
 // Never let the rate-limit bookkeeping itself break a request. Under heavy traffic
 // the counter reads/writes can be rejected by the database; when that happens we log
 // and allow the request through. Real limit breaches still return 429 below.
@@ -19,7 +58,7 @@ export async function enforceApiRateLimit(base44, req, user = null) {
   try {
     return await applyApiRateLimit(base44, req, user);
   } catch (error) {
-    console.error('enforceApiRateLimit: ledger unavailable, allowing request:', error?.message);
+    console.error('enforceApiRateLimit: limiter unavailable, allowing request:', error?.message);
     return null;
   }
 }
@@ -29,51 +68,40 @@ async function applyApiRateLimit(base44, req, user = null) {
   const ip = forwarded || req.headers.get('cf-connecting-ip') || req.headers.get('x-real-ip') || 'unknown';
   const identity = user?.id ? `user:${user.id}` : `ip:${ip}`;
   const endpoint = new URL(req.url).pathname;
-  const subjectHash = await sha256(`${endpoint}|${identity}`);
-  const abuseHash = await sha256(`abuse|${identity}`);
   const limit = user?.id ? 120 : 60;
   const now = Date.now();
   const windowStart = Math.floor(now / WINDOW_MS) * WINDOW_MS;
-  const windowIso = new Date(windowStart).toISOString();
   const retryAfter = Math.max(1, Math.ceil((windowStart + WINDOW_MS - now) / 1000));
+  const tooMany = () => Response.json({ error: 'Too many requests. Please try again shortly.' }, {
+    status: 429,
+    headers: { 'Retry-After': String(retryAfter) },
+  });
 
-  const [records, abuseRecords] = await Promise.all([
-    base44.asServiceRole.entities.ApiRateLimit.filter({ subject_hash: subjectHash }, '-updated_date', 1),
-    base44.asServiceRole.entities.ApiRateLimit.filter({ subject_hash: abuseHash }, '-updated_date', 1),
-  ]);
-  const record = records[0];
-  const abuseRecord = abuseRecords[0];
-  const abuseCount = abuseRecord?.window_started_at === windowIso ? Number(abuseRecord.request_count || 0) + 1 : 1;
-  if (abuseRecord) {
-    await base44.asServiceRole.entities.ApiRateLimit.update(abuseRecord.id, { window_started_at: windowIso, request_count: abuseCount });
-  } else {
-    await base44.asServiceRole.entities.ApiRateLimit.create({ subject_hash: abuseHash, window_started_at: windowIso, request_count: 1 });
-  }
+  // 1. In-memory counters — no database work.
+  const endpointCount = bumpMemory(`${identity}|${endpoint}`, windowStart);
+  const abuseCount = bumpMemory(`${identity}|*`, windowStart);
   if (abuseCount === 101) {
-    await logSecurityEvent(base44, req, {
+    logSecurityEvent(base44, req, {
       event_type: 'api_abuse_flagged', severity: 'critical', user_id: user?.id || '',
       resource: endpoint, action: req.method, request_count: abuseCount,
-      details: 'More than 100 API calls in one minute',
-    });
+      details: 'More than 100 API calls in one minute (in-memory counter)',
+    }).catch(() => {});
   }
-  if (record?.window_started_at === windowIso && Number(record.request_count || 0) >= limit) {
-    return Response.json({ error: 'Too many requests. Please try again shortly.' }, {
-      status: 429,
-      headers: { 'Retry-After': String(retryAfter) },
-    });
-  }
+  if (endpointCount > limit) return tooMany();
 
-  if (record) {
-    await base44.asServiceRole.entities.ApiRateLimit.update(record.id, {
-      window_started_at: windowIso,
-      request_count: record.window_started_at === windowIso ? Number(record.request_count || 0) + 1 : 1,
-    });
-  } else {
-    await base44.asServiceRole.entities.ApiRateLimit.create({
-      subject_hash: subjectHash,
-      window_started_at: windowIso,
-      request_count: 1,
-    });
+  // 2. Guests only: sampled ledger so abuse spread across isolates is still caught.
+  if (!user?.id && (endpointCount % LEDGER_SAMPLE === 0 || endpointCount > limit / 2)) {
+    const subjectHash = await sha256(`${endpoint}|${identity}`);
+    const windowIso = new Date(windowStart).toISOString();
+    const records = await base44.asServiceRole.entities.ApiRateLimit.filter({ subject_hash: subjectHash }, '-updated_date', 1);
+    const record = records[0];
+    const ledgerCount = record?.window_started_at === windowIso ? Number(record.request_count || 0) + LEDGER_SAMPLE : LEDGER_SAMPLE;
+    if (record) {
+      await base44.asServiceRole.entities.ApiRateLimit.update(record.id, { window_started_at: windowIso, request_count: ledgerCount });
+    } else {
+      await base44.asServiceRole.entities.ApiRateLimit.create({ subject_hash: subjectHash, window_started_at: windowIso, request_count: ledgerCount });
+    }
+    if (ledgerCount > limit) return tooMany();
   }
   return null;
 }

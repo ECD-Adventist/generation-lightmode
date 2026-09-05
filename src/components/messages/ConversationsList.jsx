@@ -3,15 +3,11 @@ import { Search, Archive, MoreVertical, PenSquare, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { getDisplayName } from "@/lib/displayName";
 import UserAvatar from "@/components/common/UserAvatar";
-import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
 
-function ConversationPreviewMessage({ conversationId, defaultMessage, isSelected }) {
-  const { data: messages } = useQuery({
-    queryKey: ["lastMessage", conversationId],
-    queryFn: () => base44.entities.DirectMessage.filter({ conversation_id: conversationId }, "-created_date", 1),
-  });
-  const text = messages?.[0]?.content || defaultMessage || "Start chatting";
+// The conversation row carries `last_message` (written on every send), so the list
+// no longer runs one DirectMessage query per conversation (was N+1 for 200 rows).
+function ConversationPreviewMessage({ defaultMessage, isSelected }) {
+  const text = defaultMessage || "Start chatting";
   const truncated = text.length > 40 ? text.substring(0, 40) + "..." : text;
   return (
     <div className="text-sm truncate mt-0.5" style={{ color: isSelected ? "#4A5878" : "#6B7FA0" }}>
@@ -220,7 +216,7 @@ export default function ConversationsList({
                       )}
                     </div>
                   </div>
-                  <ConversationPreviewMessage conversationId={conversation.id} defaultMessage={conversation.last_message} isSelected={isSelected} />
+                  <ConversationPreviewMessage defaultMessage={conversation.last_message} isSelected={isSelected} />
                 </div>
               </button>
 

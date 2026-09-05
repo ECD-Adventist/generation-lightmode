@@ -24,7 +24,8 @@ function displayName(user: Record<string, unknown> | undefined, email: string): 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
+    // auth.me() throws for anonymous callers on this SDK version; treat that as 401, not 500.
+    const user = await base44.auth.me().catch(() => null);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
     const limited = await enforceApiRateLimit(base44, req, user);
     if (limited) return limited;

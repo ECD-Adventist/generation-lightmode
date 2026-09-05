@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchAllFollowing } from "@/lib/follows";
+import { manageFollow } from "@/lib/follows";
 import { Loader2, Heart, MessageCircle, Bell, Plus, Home, Search as SearchIcon, Globe, Settings, Zap, Menu, Compass, LayoutDashboard, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera, X } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { createPageUrl } from "@/utils";
@@ -13,7 +13,6 @@ import DailyChallenges from "@/components/feed/DailyChallenges";
 import useGlowDropsFeed from "@/hooks/useGlowDropsFeed";
 import useFeedUserSearch from "@/hooks/useFeedUserSearch";
 import AIContentSuggestions from "@/components/feed/AIContentSuggestions";
-import { isNotificationEnabled } from "@/lib/notifications";
 import useNetworkStatus from "@/hooks/useNetworkStatus";
 import useOfflineSync from "@/hooks/useOfflineSync";
 import usePullToRefresh from "@/hooks/usePullToRefresh";
@@ -40,7 +39,6 @@ import ShareFallbackDialog from "@/components/share/ShareFallbackDialog";
 import useRequireAuth from "@/hooks/useRequireAuth";
 import useFeedScrollRestore from "@/hooks/useFeedScrollRestore";
 import useUrlOverlay from "@/hooks/useUrlOverlay";
-import { fetchAllUserGlowDropLikes } from "@/lib/glowDropLikes";
 import { useAuth } from "@/lib/AuthContext";
 import { awardXp } from "@/lib/xp";
 
@@ -227,11 +225,22 @@ export default function Feed() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const { data: following = [] } = useQuery({
-    queryKey: ["feedViewerFollowing", user?.id],
-    queryFn: () => fetchAllFollowing(user?.id, user?.email),
-    enabled: !!user?.id || !!user?.email
+  // ONE backend call for everything the feed knows about the viewer (likes, saves, follows,
+  // unread notifications), each capped server-side. Replaces four separate queries — two of
+  // which loaded every row the viewer ever created. Polled every 60s in place of the
+  // table-wide Notification / DirectMessage subscriptions this page used to hold.
+  const { data: viewerState } = useQuery({
+    queryKey: ["feedViewerState", user?.id],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("getFeedViewerState", {});
+      return res?.data || null;
+    },
+    enabled: !!user?.id,
+    staleTime: 1000 * 60,
+    refetchInterval: 1000 * 60,
+    refetchOnWindowFocus: true,
   });
+  const following = viewerState?.following || [];
 
   // Deferred — stories are a secondary section above the feed.
   // Stories expire within 24h, so the most recent 100 always covers all active ones.
@@ -257,32 +266,18 @@ export default function Feed() {
     mutationFn: async (target) => {
       if (!user) { requireAuth(); throw new Error("Not logged in"); }
       const targetUser = typeof target === "object" ? target : [...users, ...suggestedUsers].find(u => u.email === target);
-      const targetEmail = targetUser?.email || (typeof target === "string" ? target : null);
       if (!targetUser?.id) throw new Error("Could not find that member.");
-      const isFollowing = following.some(f => f.following_id === targetUser.id || f.following_email === targetEmail);
-      if (isFollowing) {
-        const followRecord = following.find(f => f.following_id === targetUser.id || f.following_email === targetEmail);
-        await base44.entities.Follow.delete(followRecord.id);
-        return true;
-      } else {
-        const followRec = await base44.entities.Follow.create({ follower_id: user.id, following_id: targetUser.id });
-        dualWriteSupabase("follows", followRec);
-        if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
-          await base44.functions.invoke("createNotification", {
-            user_id: targetUser.id,
-            type: "follow",
-            reference_id: `follow_${user.id}`,
-            message: `${getDisplayName(user)} started following you.`,
-            link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
-          });
-        }
-        // Server verifies the follow record and awards +5 once per person followed.
-        const xp = await awardXp("follow", { following_id: targetUser.id }).catch(() => ({ awarded: 0 }));
-        return { wasFollowing: false, awarded: xp.awarded || 0 };
-      }
+      // Follow/unfollow through the backend: keeps follower counters, the Supabase mirror and
+      // the notification consistent, and collapses duplicate rows.
+      const result = await manageFollow(targetUser.id, "toggle");
+      if (!result) throw new Error("Could not update follow.");
+      if (!result.following) return true;
+      // Server verifies the follow record and awards +5 once per person followed.
+      const xp = await awardXp("follow", { following_id: targetUser.id }).catch(() => ({ awarded: 0 }));
+      return { wasFollowing: false, awarded: xp.awarded || 0 };
     },
     onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: ["feedViewerFollowing", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["feedViewerState", user?.id] });
       if (result && result.wasFollowing === false) {
         toast.success(result.awarded > 0 ? `Followed! +${result.awarded} XP ⚡` : "Followed!");
       }
@@ -296,18 +291,17 @@ export default function Feed() {
     return token;
   }, [user]);
   const likeIdentity = user?.email || "guest";
-  const { data: userLikes = [] } = useQuery({
+  // Signed-in likes come from the viewer-state call (capped at 1,000 most recent); guests keep
+  // their local list.
+  const { data: guestLikes = [] } = useQuery({
     queryKey: ["userLikes", likeIdentity],
-    queryFn: () => user ? fetchAllUserGlowDropLikes(base44.entities.GlowDropLike, user.email) : JSON.parse(localStorage.getItem("lightmode_guest_likes") || "[]").map(drop_id => ({ drop_id })),
+    queryFn: () => JSON.parse(localStorage.getItem("lightmode_guest_likes") || "[]").map(drop_id => ({ drop_id })),
+    enabled: !user,
     staleTime: 1000 * 60 * 2,
   });
+  const userLikes = user ? (viewerState?.likes || []) : guestLikes;
 
-  const { data: savedDropRecords = [] } = useQuery({
-    queryKey: ["savedDrops", user?.email],
-    queryFn: () => base44.entities.SavedDrop.filter({ user_email: user?.email }, "-created_date", 500),
-    enabled: !!user,
-    staleTime: 1000 * 60 * 2,
-  });
+  const savedDropRecords = viewerState?.saved || [];
 
   const updateDropsCache = (updater) => {
     queryClient.setQueryData(["allGlowDrops"], old => {
@@ -369,32 +363,11 @@ export default function Feed() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
-      queryClient.invalidateQueries({ queryKey: ["userLikes", likeIdentity] });
+      queryClient.invalidateQueries({ queryKey: user ? ["feedViewerState", user.id] : ["userLikes", likeIdentity] });
     }
   });
 
-  const { data: notifications = [] } = useQuery({
-    queryKey: ["notifications", user?.id],
-    queryFn: () => base44.entities.Notification.filter({ user_id: user.id, read: false }),
-    enabled: !!user?.id
-  });
-
-  useEffect(() => {
-    if (!user?.id) return;
-    const unsubNotifs = base44.entities.Notification.subscribe((event) => {
-      if (event.type === 'create' && event.data.user_id === user.id && !event.data.read) {
-        toast(event.data.message, { icon: '🔔' });
-        queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
-      }
-    });
-    const unsubDMs = base44.entities.DirectMessage.subscribe((event) => {
-      if (event.type === 'create' && event.data.recipient_id === user.id) {
-        const senderName = getDisplayName(users.find(u => u.id === event.data.sender_id) || {});
-        toast(`New message from ${senderName}`, { icon: '💬' });
-      }
-    });
-    return () => { unsubNotifs(); unsubDMs(); };
-  }, [user?.id, user?.email, queryClient]);
+  const notifications = viewerState?.notifications || [];
 
   const handleShare = async (drop) => {
     if (!drop?.id) return toast.error("This post is no longer available");
@@ -523,7 +496,9 @@ export default function Feed() {
         if (drop.pinned && activeFilter === "All" && !searchQuery) return false;
 
         const matchesFilter = activeFilter === 'All' ||
-          (activeFilter === 'Following' && (followingTargets.emails.has(drop.user_email) || followingTargets.ids.has(getUserInfo(drop.user_email)?.id))) ||
+          // Leader accounts are followed implicitly by everyone (no Follow rows are created on
+          // signup any more), so their posts always pass the Following filter.
+          (activeFilter === 'Following' && (followingTargets.emails.has(drop.user_email) || followingTargets.ids.has(getUserInfo(drop.user_email)?.id) || leaderAccounts.some(a => a.leader_email === drop.user_email))) ||
           (activeFilter === 'Most Liked' && (drop.likes_count || 0) >= 1) ||
           (activeFilter === 'Devotional' && drop.category === 'Devotional') ||
           (activeFilter === 'Testimony' && drop.category === 'Testimony');

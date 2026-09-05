@@ -5,15 +5,11 @@ import { Search, X, PenSquare, MessageCircle, Users, ArrowLeft, Crown, Sparkles,
 import { formatDistanceToNow } from "date-fns";
 import { getDisplayName } from "@/lib/displayName";
 import UserAvatar from "@/components/common/UserAvatar";
-import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
 
-function ConversationPreviewMessage({ conversationId, defaultMessage }) {
-  const { data: messages } = useQuery({
-    queryKey: ["lastMessage", conversationId],
-    queryFn: () => base44.entities.DirectMessage.filter({ conversation_id: conversationId }, "-created_date", 1),
-  });
-  const text = messages?.[0]?.content || defaultMessage || "Start chatting";
+// The conversation row carries `last_message` (written on every send), so the list
+// no longer runs one DirectMessage query per conversation (was N+1 for 200 rows).
+function ConversationPreviewMessage({ defaultMessage }) {
+  const text = defaultMessage || "Start chatting";
   const truncated = text.length > 40 ? text.substring(0, 40) + "..." : text;
   return (
     <div className="text-[12px] truncate flex-1" style={{ color: "#6B7FA0" }}>
@@ -267,7 +263,7 @@ export default function MobileMessagesList({
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <ConversationPreviewMessage conversationId={conversation.id} defaultMessage={conversation.last_message} />
+                      <ConversationPreviewMessage defaultMessage={conversation.last_message} />
                       {hasUnread && (
                         <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "#0B3FD9" }} />
                       )}
