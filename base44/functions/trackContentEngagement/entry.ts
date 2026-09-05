@@ -76,7 +76,8 @@ export default async function(req) {
         return Response.json({ thumbnail_url: item.thumbnail_url });
       }
       const thumbnailUrl = await fetchContentThumbnail(base44, item.drive_link);
-      if (thumbnailUrl && !item.thumbnail_url) {
+      const providerThumbnail = /^https:\/\/[^/]*googleusercontent\.com\//i.test(item.thumbnail_url || '');
+      if (thumbnailUrl && (!item.thumbnail_url || providerThumbnail)) {
         await base44.asServiceRole.entities.DigitalContent.update(item.id, { thumbnail_url: thumbnailUrl });
       }
       return Response.json({ thumbnail_url: thumbnailUrl });
