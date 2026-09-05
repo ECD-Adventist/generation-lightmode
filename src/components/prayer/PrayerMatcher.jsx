@@ -35,9 +35,11 @@ export default function PrayerMatcher({ currentUser }) {
       try {
         // DirectConversation stores participant_a_email / participant_b_email (the old participant_a /
         // participant_b names never matched the Messages page lookup, so these chats were invisible).
-        const existing = await base44.entities.DirectConversation.filter({ participant_a_email: currentUser.email, participant_b_email: recipientEmail });
+        // Same pair ordering as Messages.jsx (alphabetical), so an existing thread is reused.
+        const [pairA, pairB] = [currentUser.email, recipientEmail].sort();
+        const existing = await base44.entities.DirectConversation.filter({ participant_a_email: pairA, participant_b_email: pairB });
         let convId = existing[0]?.id;
-        if (!convId) { const c = await base44.entities.DirectConversation.create({ participant_a_email: currentUser.email, participant_b_email: recipientEmail }); convId = c.id; }
+        if (!convId) { const c = await base44.entities.DirectConversation.create({ participant_a_email: pairA, participant_b_email: pairB, last_message: "", last_message_at: new Date().toISOString() }); convId = c.id; }
         const dmRec = await base44.entities.DirectMessage.create({ conversation_id: convId, sender_email: currentUser.email, recipient_email: recipientEmail, content: `Hi! I saw your prayer request and wanted to reach out. I'm here to pray with you. 🙏` });
         dualWriteSupabase("direct_messages", dmRec);
         base44.entities.DirectConversation.update(convId, { last_message: String(dmRec.content || "").slice(0, 80), last_message_at: new Date().toISOString() }).catch(() => {});

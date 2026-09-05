@@ -68,7 +68,7 @@ export default function Layout({ children, currentPageName }) {
     });
   }, [isAppShellPage]);
 
-  const { data: notifications = [] } = useQuery({
+  const { data: notifications = [], isFetched: notificationsFetched } = useQuery({
     queryKey: ["notifications", userId],
     queryFn: () => base44.entities.Notification.filter({ user_id: userId, read: false }, "-created_date", 50),
     enabled: !!userId,
@@ -82,12 +82,13 @@ export default function Layout({ children, currentPageName }) {
   const seenNotificationIds = useRef(null);
   useEffect(() => {
     if (!userId) { seenNotificationIds.current = null; return; }
+    if (!notificationsFetched) return; // wait for the first real result, not the [] default
     const ids = notifications.map(n => n.id);
     if (seenNotificationIds.current === null) { seenNotificationIds.current = new Set(ids); return; }
     const fresh = notifications.filter(n => !seenNotificationIds.current.has(n.id));
     fresh.slice(0, 3).forEach(n => toast(n.message, { icon: n.type === "message" ? "💬" : "🔔" }));
     ids.forEach(id => seenNotificationIds.current.add(id));
-  }, [notifications, userId]);
+  }, [notifications, notificationsFetched, userId]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);

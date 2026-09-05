@@ -180,6 +180,7 @@ export default function GlowGroups() {
     },
     onSuccess: (action) => {
       queryClient.invalidateQueries({ queryKey: ["glowGroupsViewerFollowingById", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["feedViewerState"] });
       queryClient.invalidateQueries({ queryKey: ["profileFollowers"] });
       if (action === "followed") toast.success("Connected!");
       else if (String(action).startsWith("followed:")) toast.success(`Connected! +${action.split(":")[1]} XP ⚡`);

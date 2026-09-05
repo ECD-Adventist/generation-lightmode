@@ -145,14 +145,21 @@ export default function Notifications() {
     mutationFn: async (targetEmail) => {
       const existingFollow = following.find(f => f.following_email === targetEmail);
       if (existingFollow) return "already_following";
-      const targetUser = allUsers.find(entry => entry.email === targetEmail);
+      // `allUsers` is only the most recent page of members; resolve the actor by email when absent.
+      let targetUser = allUsers.find(entry => entry.email === targetEmail);
+      if (!targetUser?.id) {
+        const res = await base44.functions.invoke("listPublicUsers", { emails: [targetEmail], limit: 1 });
+        targetUser = (Array.isArray(res?.data) ? res.data : res?.data?.users || [])[0];
+      }
       if (!targetUser?.id) throw new Error("Could not find that member.");
       // Follow through the backend (ID-based row, counters, mirror and notification handled there).
       const result = await manageFollow(targetUser.id, "follow");
       return result?.changed === false ? "already_following" : "followed";
     },
+    onError: () => toast.error("Could not follow back right now."),
     onSuccess: (status) => {
       queryClient.invalidateQueries({ queryKey: ["notificationViewerLegacyFollowingByEmail", user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["feedViewerState"] });
       if (status === "followed") toast.success("Followed back");
     }
   });

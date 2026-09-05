@@ -178,6 +178,7 @@ export default function Post() {
     },
     onSuccess: (action) => {
       queryClient.invalidateQueries({ queryKey: ["following", currentUser?.id] });
+      queryClient.invalidateQueries({ queryKey: ["feedViewerState"] });
       toast.success(action === "unfollow" ? "Unfollowed" : "Following! ⚡");
     },
   });

@@ -22,8 +22,13 @@ import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity
 
 const PAGE = 50;
 const COUNT_PAGE = 500;
-const COUNT_CAP = 20_000;
+const COUNT_CAP = 100_000; // a recount is at most 200 reads, and it happens at most every 6 hours
 const COUNT_TTL_MS = 6 * 60 * 60 * 1000; // recount at most every 6 hours so counters self-heal
+
+// Targets with no record to cache on (the synthetic official account id) keep their counts in
+// isolate memory for 10 minutes instead of being recounted on every page view.
+const memoryCounts = new Map<string, { followers_count: number; following_count: number; counts_exact: boolean; at: number }>();
+const MEMORY_TTL_MS = 10 * 60 * 1000;
 
 async function countRows(entity: any, query: Record<string, unknown>) {
   let total = 0;
@@ -83,17 +88,23 @@ Deno.serve(async (req) => {
     let followers_count = typeof record?.followers_count === 'number' ? record.followers_count : null;
     let following_count = typeof record?.following_count === 'number' ? record.following_count : null;
     let counts_exact = true;
-    const stale = !isFresh(record);
-    if (followers_count === null || following_count === null || stale) {
+    const memo = record ? null : memoryCounts.get(target_id);
+    if (memo && Date.now() - memo.at < MEMORY_TTL_MS) {
+      followers_count = memo.followers_count; following_count = memo.following_count; counts_exact = memo.counts_exact;
+    } else if (followers_count === null || following_count === null || !isFresh(record)) {
       const [f, g] = await Promise.all([
         countRows(follows, { following_id: target_id }),
         countRows(follows, { follower_id: target_id }),
       ]);
       followers_count = f.total; following_count = g.total; counts_exact = f.exact && g.exact;
-      if (record && entityName && counts_exact) {
+      if (record && entityName) {
+        // Written back even when capped: a capped value refreshed every 6 hours beats a full
+        // recount on every view. `counts_exact` tells the client when the number is a floor.
         service.entities[entityName].update(target_id, {
           followers_count, following_count, counts_updated_at: new Date().toISOString(),
         }).catch(() => {});
+      } else {
+        memoryCounts.set(target_id, { followers_count, following_count, counts_exact, at: Date.now() });
       }
     }
 

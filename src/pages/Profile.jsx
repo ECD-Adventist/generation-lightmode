@@ -339,8 +339,15 @@ export default function Profile() {
   }, [currentUserFollowing, allUsersForProfile, publicLeaderAccounts, managedLeaderAccounts]);
 
   // Leader accounts are followed implicitly by everyone (no per-member Follow rows), so their
-  // profiles read as "Following" even without a row.
+  // profiles read as "Following" and the button explains instead of unfollowing.
   const isFollowingThisUser = isLeaderAccountProfile || currentUserFollowingEnriched.some(f => f.following_email === profileEmail || (displayUser?.id && f.following_id === displayUser.id));
+  const handleProfileFollowToggle = () => {
+    if (isLeaderAccountProfile) {
+      toast.info("Leaders are followed automatically — their posts are already in your Following feed.");
+      return;
+    }
+    followMutation.mutate({ targetEmail: profileEmail, shouldFollow: !isFollowingThisUser });
+  };
 
   const followMutation = useMutation({
     mutationFn: async (input) => {
@@ -360,6 +367,7 @@ export default function Profile() {
     },
     onSuccess: ({ targetEmail, action }) => {
       queryClient.invalidateQueries({ queryKey: ["profileConnections"] });
+      queryClient.invalidateQueries({ queryKey: ["feedViewerState"] });
       toast.success(action === "unfollow" ? "Unfollowed" : "Following! ⚡");
     }
   });
@@ -630,7 +638,7 @@ export default function Profile() {
           institutionApps={visibleInstitutionApps}
           onEditProfile={() => setIsEditing(true)}
           onShareProfile={handleShareProfile}
-          onFollowToggle={() => followMutation.mutate({ targetEmail: profileEmail, shouldFollow: !isFollowingThisUser })}
+          onFollowToggle={() => handleProfileFollowToggle()}
           isFollowingThisUser={isFollowingThisUser}
           onProfileImageSelect={(e) => handleImageSelect(e, "profile")}
           onCoverImageSelect={(e) => handleImageSelect(e, "cover")}
@@ -660,7 +668,7 @@ export default function Profile() {
           onEditProfile={() => setIsEditing(true)}
           onEditLeader={() => setIsEditingLeader(true)}
           onShareProfile={handleShareProfile}
-          onFollowToggle={() => followMutation.mutate({ targetEmail: profileEmail, shouldFollow: !isFollowingThisUser })}
+          onFollowToggle={() => handleProfileFollowToggle()}
           isFollowingThisUser={isFollowingThisUser}
           onProfileImageSelect={(e) => handleImageSelect(e, "profile")}
           onCoverImageSelect={(e) => handleImageSelect(e, "cover")}
@@ -813,7 +821,7 @@ export default function Profile() {
             isFollowingThisUser={isFollowingThisUser}
             profileEmail={profileEmail}
             onEditLeader={() => setIsEditingLeader(true)}
-            onFollowToggle={() => followMutation.mutate({ targetEmail: profileEmail, shouldFollow: !isFollowingThisUser })}
+            onFollowToggle={() => handleProfileFollowToggle()}
             onShareProfile={handleShareProfile}
             onProfileImageSelect={e => handleImageSelect(e, "profile")}
             onCoverImageSelect={e => handleImageSelect(e, "cover")}
@@ -825,7 +833,7 @@ export default function Profile() {
               user={user} isOwnProfile={isOwnProfile} profileEmail={profileEmail}
               myDrops={myDrops} myFollowers={myFollowers} myFollowing={myFollowing} followersCount={followersCount} followingCount={followingCount}
               onSetConnectionsView={setConnectionsView} onEditProfile={() => setIsEditing(true)}
-              onFollowToggle={() => followMutation.mutate({ targetEmail: profileEmail, shouldFollow: !isFollowingThisUser })} isFollowingThisUser={isFollowingThisUser}
+              onFollowToggle={() => handleProfileFollowToggle()} isFollowingThisUser={isFollowingThisUser}
               currentUser={currentUser} onProfileImageSelect={e => handleImageSelect(e, "profile")}
               onCoverImageSelect={e => handleImageSelect(e, "cover")} uploadingImage={uploadingImage}
               institutionApps={visibleInstitutionApps}
@@ -942,7 +950,7 @@ export default function Profile() {
                   {!isOwnProfile && currentUser && (
                     <div className="flex flex-wrap gap-3">
                       <button
-                        onClick={() => followMutation.mutate({ targetEmail: profileEmail, shouldFollow: !isFollowingThisUser })}
+                        onClick={() => handleProfileFollowToggle()}
                         className="px-6 py-2 rounded-full text-sm font-bold transition"
                         style={isFollowingThisUser
                           ? { background: "#FFFFFF", border: "1px solid #E6ECF5", color: "#4A5878" }
