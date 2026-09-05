@@ -133,6 +133,10 @@
   .has-mobile-bottom-nav { padding-bottom: 0; }
 }
 
+/* While a mobile bottom sheet is open, hide the floating tab bar so the sheet's
+   own action buttons are never covered. */
+body.sheet-open [data-mobile-bottom-nav="primary"] { display: none; }
+
 /* Splash screen animations — cold-start loading state, see SplashScreen.jsx */
 @keyframes splashBreathe {
   0%, 100% { transform: scale(1); }
