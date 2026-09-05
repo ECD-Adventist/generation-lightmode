@@ -32,14 +32,6 @@ export default function ContentCard({ item, priority = false }) {
     return res;
   };
 
-  const primePreview = () => {
-    if (!item.download_url || document.querySelector(`link[data-preview-id="${item.id}"]`)) return;
-    const link = document.createElement("link");
-    link.rel = "prefetch";
-    link.href = item.download_url;
-    link.dataset.previewId = item.id;
-    document.head.appendChild(link);
-  };
 
   // View tracking is handled by ContentPreviewModal when it opens, so every
   // path into the preview (thumbnail tap, View button, shared link) counts.
@@ -132,7 +124,6 @@ export default function ContentCard({ item, priority = false }) {
         tabIndex={0}
         onClick={() => item.download_url && handleView()}
         onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && item.download_url) { e.preventDefault(); handleView(); } }}
-        onPointerEnter={primePreview}
         className="relative cursor-pointer overflow-hidden aspect-video rounded-t-xl"
         style={{ background: "#0B0F1A" }}
       >
@@ -151,7 +142,7 @@ export default function ContentCard({ item, priority = false }) {
         {item.description && <p className="text-[11.5px] leading-relaxed mb-3 line-clamp-2" style={{ color: "#8A9BB0" }}>{item.description}</p>}
 
         <div className="mt-auto flex items-center gap-1.5">
-          <button type="button" onClick={handleView} onPointerEnter={primePreview} onFocus={primePreview} disabled={!item.download_url}
+          <button type="button" onClick={handleView} disabled={!item.download_url}
             className="flex-1 min-w-0 flex items-center justify-center gap-1 py-2.5 rounded-full font-black text-[11px] font-['Space_Grotesk'] transition active:scale-95 disabled:opacity-40"
             style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${meta.color}55`, color: meta.color }}>
             <Eye size={12} /> View
