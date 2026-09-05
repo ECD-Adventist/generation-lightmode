@@ -1,0 +1,108 @@
+{
+  "name": "UnassignedCountryReview",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "maxLength": 64,
+      "description": "User record id this review row belongs to"
+    },
+    "user_email": {
+      "type": "string",
+      "maxLength": 320
+    },
+    "display_name": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "stored_country": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Raw country value on the account, if any (may be invalid)"
+    },
+    "registration_evidence": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "City / location / region / address / phone text captured at registration"
+    },
+    "suggested_country": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Country resolved from registration evidence. Empty when evidence is insufficient."
+    },
+    "suggestion_source": {
+      "type": "string",
+      "maxLength": 60,
+      "description": "Which evidence field produced the suggestion, e.g. city, location, address, phone"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "none"
+      ],
+      "default": "none"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_review",
+        "assigned",
+        "dismissed"
+      ],
+      "default": "pending_review"
+    },
+    "notify_pending": {
+      "type": "boolean",
+      "default": true,
+      "description": "Remembered for the upcoming reminder notification campaign"
+    },
+    "notified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "user_registered_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_scanned_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "super_admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "super_admin"
+      }
+    }
+  }
+}

@@ -15,7 +15,6 @@ const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1
 
 import { countryCoordinates } from "@/lib/countryCoordinates";
 import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
-import MapCoverageNotice from "@/components/dashboard/MapCoverageNotice";
 import { profileUrl } from "@/lib/profileLink";
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -278,8 +277,6 @@ export default function GlobalReach() {
           </div>
 
           {snapshotQuery.isError && <div role="alert" className="rounded-xl border border-destructive p-4 text-destructive">Community totals could not refresh. <button className="font-bold underline" onClick={() => snapshotQuery.refetch()}>Retry</button></div>}
-          <p className="text-xs text-muted-foreground" role="status">{snapshot?.generated_at ? `Database totals updated ${new Date(snapshot.generated_at).toLocaleString()}. Refreshes every five minutes.` : "Loading database totals…"} Map circles show country totals, not individual locations; Glow Drops counts approved, visible posts, with small markers for the latest mapped stories.</p>
-          {snapshot && <MapCoverageNotice total={snapshot.totalUsers} mapped={mappedUsers} awaitingCountry={Math.max(0, snapshot.totalUsers - locatedUsers)} unmapped={locatedUsers - mappedUsers} />}
           {/* Map */}
           <div className="rounded-3xl overflow-hidden" style={{ height: "65vh", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
             <MapContainer center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>

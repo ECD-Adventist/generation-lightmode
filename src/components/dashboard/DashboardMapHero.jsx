@@ -6,7 +6,6 @@ import { AlertCircle, Globe, RefreshCw, X } from "lucide-react";
 import { countryCoordinates } from "@/lib/countryCoordinates";
 import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
 import { validatedRegistrationCountry } from "@/../base44/shared/registrationCountries.ts";
-import MapCoverageNotice from "@/components/dashboard/MapCoverageNotice";
 
 export default function DashboardMapHero({ userCountry, showCoverageNotice = true }) {
   const [activePanel, setActivePanel] = useState(null);
@@ -73,10 +72,6 @@ export default function DashboardMapHero({ userCountry, showCoverageNotice = tru
 
   return (
     <div className="space-y-4 font-['Inter']">
-      {hasSnapshot && <p className="text-xs text-muted-foreground" role="status">
-        {isFetching ? "Updating totals… " : isError ? "Refresh unavailable — showing last loaded totals. " : ""}
-        Last updated {new Date(snapshot.generated_at).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}.
-      </p>}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { key: "registered", val: isLoading ? "…" : totalRegisteredUsers.toLocaleString(), label: "Registered Users", color: "#0B3FD9", bg: "rgba(11, 63, 217, 0.08)", border: "#D6E4FF" },
@@ -91,7 +86,6 @@ export default function DashboardMapHero({ userCountry, showCoverageNotice = tru
         ))}
       </div>
 
-      {showCoverageNotice && hasSnapshot && !isLoading && (awaitingCountry > 0 || unmapped > 0) && <MapCoverageNotice total={totalRegisteredUsers} mapped={totalMappedUsers} awaitingCountry={awaitingCountry} unmapped={unmapped} />}
       <div className="relative rounded-[1.75rem] overflow-hidden" style={{ height: "400px", background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
         <style>{`.leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 12px; } .leaflet-popup-tip { background: #FFFFFF; border: 1px solid #E6ECF5; }`}</style>
         <MapContainer className="isolate z-0" center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>
@@ -126,7 +120,6 @@ export default function DashboardMapHero({ userCountry, showCoverageNotice = tru
               <button onClick={() => setActivePanel(null)} className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "#F6F8FC", color: "#0B1B3D" }}><X className="w-4 h-4" /></button>
             </div>
             <div className="overflow-y-auto p-4 space-y-2" style={{ maxHeight: "calc(80vh - 82px)" }}>
-              {activePanel === "registered" && <MapCoverageNotice total={totalRegisteredUsers} mapped={totalMappedUsers} awaitingCountry={awaitingCountry} unmapped={unmapped} />}
               {panelClusters.length === 0 && <p className="text-sm text-center py-8" style={{ color: "#6B7FA0" }}>No country data has been recorded yet.</p>}
               {panelClusters.map((cluster) => (
                 <div key={cluster.country} className="w-full flex items-center justify-between gap-4 rounded-2xl px-4 py-3" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
