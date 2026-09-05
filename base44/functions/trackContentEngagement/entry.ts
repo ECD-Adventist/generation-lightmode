@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { extractDriveFileId, toDirectDownloadUrl } from '../../shared/driveLinks.ts';
+import { driveMeta, mediaResolution, fetchContentThumbnail } from '../../shared/contentDriveMedia.ts';
 
 const VALID_ACTIONS = ["view", "download", "share"];
 const VALID_PLATFORMS = ["whatsapp", "facebook", "youtube", "instagram", "tiktok", "x", "telegram", "copy_link", "native", "Base 1_feed", ""];
@@ -9,14 +10,6 @@ const MOBILE_IMAGE_PX = 1280;
 
 const isImageItem = (item) => item.content_type === "poster";
 
-async function driveMeta(fileId, accessToken) {
-  const res = await fetch(
-    `https://www.googleapis.com/drive/v3/files/${fileId}?fields=size,mimeType,name,thumbnailLink&supportsAllDrives=true`,
-    { headers: { Authorization: `Bearer ${accessToken}` } }
-  );
-  if (!res.ok) return null;
-  return await res.json();
-}
 
 // Google serves resized copies of an image through its thumbnail URL, which lets
 // posters offer a light mobile download without anyone uploading a second file.
@@ -55,7 +48,8 @@ export default async function(req) {
     const platform = String(payload.platform || "").slice(0, 30);
     const wantsMobile = payload.variant === "mobile";
     const streamMedia = payload.stream === true && VALID_ACTIONS.includes(action);
-    const metaOnly = payload.meta === true;
+    const thumbnailOnly = payload.thumbnail === true;
+    const metaOnly = payload.meta === true || thumbnailOnly;
     const recordEngagement = payload.record !== false && !metaOnly;
 
     if (!contentId || (!metaOnly && !VALID_ACTIONS.includes(action))) {
@@ -77,6 +71,17 @@ export default async function(req) {
     if (!originalId) return Response.json({ error: "Invalid Drive file" }, { status: 400 });
     const mobileId = item.mobile_drive_link ? extractDriveFileId(item.mobile_drive_link) : null;
 
+    if (thumbnailOnly) {
+      if (item.thumbnail_url && payload.refresh_thumbnail !== true) {
+        return Response.json({ thumbnail_url: item.thumbnail_url });
+      }
+      const thumbnailUrl = await fetchContentThumbnail(base44, item.drive_link);
+      if (thumbnailUrl && !item.thumbnail_url) {
+        await base44.asServiceRole.entities.DigitalContent.update(item.id, { thumbnail_url: thumbnailUrl });
+      }
+      return Response.json({ thumbnail_url: thumbnailUrl });
+    }
+
     // Metadata lookup — lists every available download option with its true size.
     // No engagement is recorded.
     if (metaOnly) {
@@ -93,18 +98,19 @@ export default async function(req) {
         const mobileSize = Number(mobile.size) || 0;
         const originalSize = Number(original.size) || 0;
         if (mobileSize > 0 && (originalSize === 0 || mobileSize < originalSize)) {
-          variants.push({ id: "mobile", label: "Mobile", size: mobileSize, source: "compressed_upload", available: true });
+          variants.push({ id: "mobile", label: "Smaller copy", resolution: mediaResolution(mobile), size: mobileSize, source: "compressed_upload", available: true });
         }
       } else if (isImageItem(item)) {
         const resized = resizedImageUrl(original.thumbnailLink, MOBILE_IMAGE_PX);
         const size = resized ? await urlByteSize(resized) : 0;
         if (size > 0 && size < (Number(original.size) || Infinity)) {
-          variants.push({ id: "mobile", label: "Phone size", size, source: "auto_resized", available: true });
+          variants.push({ id: "mobile", label: "Phone size", resolution: `Up to ${MOBILE_IMAGE_PX}px longest edge`, size, source: "auto_resized", available: true });
         }
       }
       variants.push({
         id: "original",
         label: "Original",
+        resolution: mediaResolution(original),
         size: Number(original.size) || 0,
         source: "original",
         available: true

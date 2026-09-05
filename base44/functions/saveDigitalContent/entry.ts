@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { fetchContentThumbnail } from '../../shared/contentDriveMedia.ts';
 
 const ALLOWED_ROLES = [
   'admin', 'super_admin', 'ecd_admin', 'country_admin',
@@ -40,6 +41,10 @@ export default async function(req) {
       thumbnail_url: data.thumbnail_url || '',
       scheduled_at: data.scheduled_at
     };
+
+    if (!payload.thumbnail_url) {
+      payload.thumbnail_url = await fetchContentThumbnail(base44, payload.drive_link) || '';
+    }
 
     const record = id
       ? await base44.asServiceRole.entities.DigitalContent.update(id, payload)

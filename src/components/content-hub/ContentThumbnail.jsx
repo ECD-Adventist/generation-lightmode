@@ -1,44 +1,35 @@
-import React, { useEffect, useState } from "react";
-import { fetchContentFile } from "./contentMedia";
+import React, { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
 export default function ContentThumbnail({ item, fallback, priority = false, className = "w-full h-full object-cover" }) {
-  // Only trust the stored thumbnail_url as a direct <img> source.
-  // The Google Drive thumbnail URL (image_url) only works for public files —
-  // for private shared-drive files it renders a broken-image icon before
-  // onError fires, so we skip it and recover via the authenticated stream.
-  const candidates = [item.thumbnail_url].filter(Boolean);
-  const [candidateIndex, setCandidateIndex] = useState(0);
-  const [mediaUrl, setMediaUrl] = useState("");
-  const [recovering, setRecovering] = useState(false);
-  const [recoveryFailed, setRecoveryFailed] = useState(false);
-
+  const placeholderRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+  const [storedFailed, setStoredFailed] = useState(false);
+  const [resolvedFailed, setResolvedFailed] = useState(false);
+  const needsThumbnail = !item.thumbnail_url || storedFailed;
   useEffect(() => {
-    setCandidateIndex(0);
-    setMediaUrl("");
-    setRecoveryFailed(false);
-  }, [item.id, item.thumbnail_url, item.image_url]);
-
+    setStoredFailed(false);
+    setResolvedFailed(false);
+  }, [item.id, item.thumbnail_url]);
   useEffect(() => {
-    if (candidateIndex < candidates.length || !item.unlocked || mediaUrl || recoveryFailed) return;
-    let active = true;
-    let objectUrl = "";
-    setRecovering(true);
-    fetchContentFile(item, "view", "", false)
-      .then((file) => {
-        if (!active || !file.type.startsWith("image/")) throw new Error("Not an image");
-        objectUrl = URL.createObjectURL(file);
-        setMediaUrl(objectUrl);
-      })
-      .catch(() => active && setRecoveryFailed(true))
-      .finally(() => active && setRecovering(false));
-    return () => {
-      active = false;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [candidateIndex, candidates.length, item.id, item.unlocked, recoveryFailed]);
-
-  const src = candidates[candidateIndex] || mediaUrl;
-  if (!src) return recovering ? <div className="w-full h-full animate-pulse bg-white/5" aria-label="Loading thumbnail" /> : fallback;
+    if (!needsThumbnail || !placeholderRef.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setVisible(true); observer.disconnect(); }
+    }, { rootMargin: "150px" });
+    observer.observe(placeholderRef.current);
+    return () => observer.disconnect();
+  }, [needsThumbnail, item.id]);
+  const { data, isFetching } = useQuery({
+    queryKey: ["content-thumbnail", item.id],
+    queryFn: async () => (await base44.functions.invoke("trackContentEngagement", { content_id: item.id, thumbnail: true, refresh_thumbnail: storedFailed })).data,
+    enabled: needsThumbnail && visible && !!item.unlocked,
+    staleTime: 30 * 60_000,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const src = !storedFailed && item.thumbnail_url ? item.thumbnail_url : !resolvedFailed && data?.thumbnail_url;
+  if (!src) return <div ref={placeholderRef} className="w-full h-full">{isFetching ? <div className="w-full h-full animate-pulse bg-muted" aria-label="Loading thumbnail" /> : fallback}</div>;
 
   return (
     <img
@@ -50,7 +41,7 @@ export default function ContentThumbnail({ item, fallback, priority = false, cla
       decoding="async"
       width="640"
       height="360"
-      onError={() => setCandidateIndex((index) => index + 1)}
+      onError={() => !storedFailed && item.thumbnail_url ? setStoredFailed(true) : setResolvedFailed(true)}
     />
   );
 }
