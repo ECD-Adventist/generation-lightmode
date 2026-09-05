@@ -8,7 +8,7 @@ import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
 import { validatedRegistrationCountry } from "@/../base44/shared/registrationCountries.ts";
 import MapCoverageNotice from "@/components/dashboard/MapCoverageNotice";
 
-export default function DashboardMapHero({ userCountry }) {
+export default function DashboardMapHero({ userCountry, showCoverageNotice = true }) {
   const [activePanel, setActivePanel] = useState(null);
   const { data: snapshot, isLoading: queryLoading, isPlaceholderData, isError, error, refetch, isFetching } = usePublicCommunitySnapshot();
   const isLoading = queryLoading || isPlaceholderData;
@@ -91,7 +91,7 @@ export default function DashboardMapHero({ userCountry }) {
         ))}
       </div>
 
-      {hasSnapshot && !isLoading && (awaitingCountry > 0 || unmapped > 0) && <MapCoverageNotice total={totalRegisteredUsers} mapped={totalMappedUsers} awaitingCountry={awaitingCountry} unmapped={unmapped} />}
+      {showCoverageNotice && hasSnapshot && !isLoading && (awaitingCountry > 0 || unmapped > 0) && <MapCoverageNotice total={totalRegisteredUsers} mapped={totalMappedUsers} awaitingCountry={awaitingCountry} unmapped={unmapped} />}
       <div className="relative rounded-[1.75rem] overflow-hidden" style={{ height: "400px", background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
         <style>{`.leaflet-popup-content-wrapper { background: transparent; padding: 0; box-shadow: none; border-radius: 12px; } .leaflet-popup-tip { background: #FFFFFF; border: 1px solid #E6ECF5; }`}</style>
         <MapContainer className="isolate z-0" center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>
