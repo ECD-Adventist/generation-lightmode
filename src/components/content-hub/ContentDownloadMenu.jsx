@@ -21,12 +21,13 @@ export default function ContentDownloadMenu({ item, color }) {
     // the file itself so the browser downloads it natively.
     if (isTooLargeForInAppDownload(variant?.size)) {
       setOpen(false);
-      const opened = item.drive_view_url ? window.open(item.drive_view_url, "_blank", "noopener,noreferrer") : null;
+      const directUrl = item.download_url || item.drive_view_url;
+      const opened = directUrl ? window.open(directUrl, "_blank", "noopener,noreferrer") : null;
       if (!opened) return toast.error("Please allow pop-ups to download this large file");
       recordContentEngagement(item, "download")
         .then(() => queryClient.invalidateQueries({ queryKey: ["digital-content-public"] }))
         .catch(() => {});
-      toast.success("Large file — your download opens in a new tab");
+      toast.success("Large file — your download is starting in a new tab");
       return;
     }
     setOpen(false);
