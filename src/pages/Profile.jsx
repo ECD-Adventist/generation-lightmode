@@ -30,19 +30,11 @@ import MobileProfile from "@/components/profile/MobileProfile";
 import MobileInstitutionProfile from "@/components/institution/MobileInstitutionProfile";
 import CountryFlag from "@/components/common/CountryFlag";
 import DropGridTile from "@/components/profile/DropGridTile";
+import useProfileIdentity from "@/hooks/useProfileIdentity";
+import ProfileUnavailable from "@/components/profile/ProfileUnavailable";
+import shareProfile from "@/components/profile/shareProfile";
 
-const fetchAll = async (entity, query = {}, sort = null) => {
-  let allRecords = [];
-  let skip = 0;
-  const limit = 100;
-  while (true) {
-    const result = await entity.filter(query, sort, limit, skip);
-    allRecords = [...allRecords, ...result];
-    if (result.length < limit) break;
-    skip += limit;
-  }
-  return allRecords;
-};
+import fetchAll from "@/components/profile/fetchAllProfileRecords";
 
 export default function Profile() {
   const [currentUser, setCurrentUser] = useState(null); // logged-in user
@@ -71,150 +63,26 @@ export default function Profile() {
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
 
-  const urlParams = new URLSearchParams(window.location.search);
-  // Older links (and any link built from an incomplete record) can carry the
-  // literal text "undefined"/"null". Treat those as "no target" so the page
-  // falls back to the signed-in profile instead of loading forever.
-  const readParam = (key) => {
-    const raw = urlParams.get(key)?.trim();
-    if (!raw || raw === "undefined" || raw === "null") return null;
-    return raw;
-  };
-  const viewUserEmail = readParam("user")?.toLowerCase() || null;
-  const viewUserId = readParam("id");
-  const viewLeaderId = readParam("leader");
-  const hasProfileTarget = !!(viewUserEmail || viewUserId || viewLeaderId);
-
-  const { data: allUsersForProfile = [], isFetched: profileIdentityFetched } = useQuery({
-    queryKey: ["publicUserProfileIdentity", { email: viewUserEmail, id: viewUserId }],
-    queryFn: async () => {
-      // When viewing another user's profile, request them explicitly so they aren't
-      // missed due to the default 100-user limit.
-      const params = viewUserEmail ? { emails: [viewUserEmail] } : viewUserId ? { ids: [viewUserId] } : {};
-      const res = await base44.functions.invoke("listPublicUsers", params);
-      const data = Array.isArray(res.data) ? res.data : [];
-      return data;
-    },
-    enabled: !!currentUser && hasProfileTarget,
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const { data: publicLeaderAccounts = [], isFetched: leaderIdentityFetched } = useQuery({
-    queryKey: ["publicLeaderAccountsForProfile", viewUserEmail, viewLeaderId],
-    queryFn: async () => {
-      const params = viewUserEmail ? { emails: [viewUserEmail], limit: 1 } : { ids: [viewLeaderId], limit: 1 };
-      const res = await base44.functions.invoke("listPublicLeaderAccounts", params);
-      return Array.isArray(res.data) ? res.data : [];
-    },
-    enabled: !!(viewUserEmail || viewLeaderId) && !!currentUser,
-  });
-
+  const { resolvedProfile, allUsersForProfile, publicLeaderAccounts, viewUserEmail, viewUserId, viewLeaderId, hasProfileTarget, broken } = useProfileIdentity(currentUser);
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        const isAuth = await base44.auth.isAuthenticated();
-        if (isAuth) {
-          const me = await base44.auth.me();
-          setCurrentUser(me);
-          if (hasProfileTarget && viewUserEmail !== me.email && viewUserId !== me.id) {
-            // set later from the targeted public identity query
-          } else {
-            setUser(me);
-            setEditData({
-              full_name: me.full_name || "",
-              country: me.country || "",
-              bio: me.bio || "",
-              website_url: me.website_url || "",
-              profile_picture: me.profile_picture || me.profile_picture_url || "",
-              profile_picture_url: me.profile_picture || me.profile_picture_url || "",
-              cover_image: me.cover_image || me.cover_picture_url || "",
-              cover_picture_url: me.cover_image || me.cover_picture_url || "",
-              gender: me.gender || "",
-              date_of_birth: me.date_of_birth || "",
-              phone: me.phone || "",
-              city: me.city || "",
-              address: me.address || "",
-              postal_code: me.postal_code || ""
-            });
-          }
-        } else if (!hasProfileTarget) {
-          base44.auth.redirectToLogin(window.location.pathname + window.location.search);
-        }
-      } catch (err) {
-        console.error("Profile auth check failed:", err);
-        if (!hasProfileTarget) {
-          base44.auth.redirectToLogin(window.location.pathname + window.location.search);
-        }
-      }
-    }
-    checkAuth();
-  }, [viewUserEmail, viewUserId, viewLeaderId, hasProfileTarget]);
-
-  // A disabled identity query never "fetches", so treat it as answered.
-  const identityResolved = (profileIdentityFetched || !(!!currentUser && hasProfileTarget))
-    && (leaderIdentityFetched || !((viewUserEmail || viewLeaderId) && !!currentUser));
-
+    let cancelled = false;
+    base44.auth.me().then(me => { if (!cancelled) setCurrentUser(me); });
+    return () => { cancelled = true; };
+  }, []);
   useEffect(() => {
-    if (!hasProfileTarget) return;
+    setUser(resolvedProfile);
+    if (resolvedProfile && resolvedProfile === currentUser) setEditData({
+      ...resolvedProfile,
+      profile_picture: resolvedProfile.profile_picture || resolvedProfile.profile_picture_url || "",
+      profile_picture_url: resolvedProfile.profile_picture || resolvedProfile.profile_picture_url || "",
+      cover_image: resolvedProfile.cover_image || resolvedProfile.cover_picture_url || "",
+      cover_picture_url: resolvedProfile.cover_image || resolvedProfile.cover_picture_url || "",
+    });
+  }, [resolvedProfile, currentUser]);
+  useEffect(() => { setActiveLeaderEmail(null); }, [viewUserEmail, viewUserId, viewLeaderId]);
 
-    if (currentUser && (viewUserEmail === currentUser.email || viewUserId === currentUser.id)) {
-      setUser(currentUser);
-      setEditData({
-        full_name: currentUser.full_name || "",
-        country: currentUser.country || "",
-        bio: currentUser.bio || "",
-        website_url: currentUser.website_url || "",
-        profile_picture: currentUser.profile_picture || currentUser.profile_picture_url || "",
-        profile_picture_url: currentUser.profile_picture || currentUser.profile_picture_url || "",
-        cover_image: currentUser.cover_image || currentUser.cover_picture_url || "",
-        cover_picture_url: currentUser.cover_image || currentUser.cover_picture_url || "",
-        gender: currentUser.gender || "",
-        date_of_birth: currentUser.date_of_birth || "",
-        phone: currentUser.phone || "",
-        city: currentUser.city || "",
-        address: currentUser.address || "",
-        postal_code: currentUser.postal_code || ""
-      });
-      return;
-    }
-
-    const found = allUsersForProfile.find(u => viewUserId ? u.id === viewUserId : u.email === viewUserEmail);
-    if (found) {
-      setUser(found);
-      return;
-    }
-
-    const leader = publicLeaderAccounts.find(a => viewLeaderId ? a.id === viewLeaderId : a.leader_email === viewUserEmail);
-    if (leader) {
-      setUser({
-        id: leader.id,
-        email: leader.leader_email,
-        username: leader.leader_name,
-        display_name: leader.leader_name,
-        full_name: leader.leader_name,
-        profile_picture: leader.leader_profile_picture_url,
-    profile_picture_url: leader.leader_profile_picture_url,
-        cover_image: leader.leader_cover_picture_url,
-    cover_picture_url: leader.leader_cover_picture_url,
-        bio: leader.leader_bio,
-        country: leader.leader_country,
-        glow_score: 0,
-        is_managed_leader: true,
-      });
-      return;
-    }
-
-    // Both identity lookups have answered and the target still wasn't found —
-    // show a minimal profile (or a clear "not found" state) instead of spinning.
-    if (currentUser && identityResolved) {
-      setUser(viewUserEmail
-        ? { email: viewUserEmail, full_name: viewUserEmail.split('@')[0] || "User", glow_score: 0 }
-        : { not_found: true, full_name: "Profile unavailable", glow_score: 0 });
-    }
-  }, [viewUserEmail, viewUserId, viewLeaderId, hasProfileTarget, currentUser, allUsersForProfile, publicLeaderAccounts, identityResolved]);
-
-  const isOwnProfile = currentUser && (!hasProfileTarget || viewUserEmail === currentUser.email || viewUserId === currentUser.id);
-  const baseProfileEmail = viewUserEmail || (!viewUserId ? currentUser?.email : null);
+  const isOwnProfile = currentUser && !broken && !viewLeaderId && (!hasProfileTarget || viewUserEmail === currentUser.email || viewUserId === currentUser.id);
+  const baseProfileEmail = resolvedProfile?.not_found ? null : (resolvedProfile?.email || null);
 
   useEffect(() => {
     if (editOverlay.value && editOverlay.value !== "true") editOverlay.clearInvalid();
@@ -232,15 +100,18 @@ export default function Profile() {
   });
 
   // When an active leader is selected, the displayed profile becomes that leader.
-  const activeLeaderAccount = activeLeaderEmail
+  const activeLeaderAccount = isOwnProfile && activeLeaderEmail
     ? managedLeaderAccounts.find(a => a.leader_email === activeLeaderEmail)
     : null;
-  const profileEmail = activeLeaderEmail || baseProfileEmail;
+  const profileEmail = activeLeaderAccount?.leader_email || baseProfileEmail;
   const isViewingLeader = !!activeLeaderAccount;
 
   // When viewing a leader account, override the displayed user identity (name, photo, bio, etc.)
-  const displayUser = user ? (isViewingLeader ? {
+  const profileReady = !!resolvedProfile && user?.id === resolvedProfile.id && user?.email === resolvedProfile.email;
+  const displayUser = user && profileReady && !resolvedProfile.not_found ? (isViewingLeader && isOwnProfile ? {
     ...user,
+    id: activeLeaderAccount.id,
+    is_managed_leader: true,
     email: activeLeaderAccount.leader_email,
     username: activeLeaderAccount.leader_name,
     display_name: activeLeaderAccount.leader_name,
@@ -597,27 +468,7 @@ export default function Profile() {
     { icon: "🏆", label: "Achievements", value: `${certificates.length} certificates unlocked` },
   ]), [isMyDropsLoading, myDrops.length, challengeSubmissions.length, myMemberships.length, certificates.length]);
 
-  const handleShareProfile = async () => {
-    const shareUrl = `${window.location.origin}${createPageUrl("Profile")}${displayUser?.id ? `?id=${encodeURIComponent(displayUser.id)}` : `?user=${encodeURIComponent(profileEmail)}`}`;
-    const displayName = getDisplayName(user);
-    const shareText = `${displayName} • ${glowRank.name} • ${user.glow_score || 0} Glow Points`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: `${displayName} | LightMode`, text: shareText, url: shareUrl });
-        return;
-      } catch (error) {
-        if (error?.name === "AbortError") return;
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      toast.success("Profile link copied");
-    } catch {
-      toast.error("Sharing is unavailable here. Please copy the link from your browser.");
-    }
-  };
+  const handleShareProfile = () => shareProfile(displayUser, glowRank);
 
   const handleImageSelect = (e, type) => {
     const file = e.target.files[0];
@@ -665,7 +516,8 @@ export default function Profile() {
     }
   };
 
-  if (!user) {
+  if (resolvedProfile?.not_found) return <ProfileUnavailable />;
+  if (!user || !displayUser) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}>
         <div className="flex flex-col items-center gap-3">

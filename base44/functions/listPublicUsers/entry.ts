@@ -52,6 +52,7 @@ export default async function(req) {
       ids: { type: 'array', maxItems: MAX_EXPLICIT_EMAILS, items: { type: 'string', maxLength: 64 } },
       search: { type: 'string', maxLength: 100 },
       q: { type: 'string', maxLength: 100 },
+      country: { type: 'string', maxLength: 100 },
       // Signed-in members may request emails so the app can link people to their
       // profiles and match post authors. Guests never receive emails.
       include_email: { type: 'boolean' },
@@ -92,6 +93,8 @@ export default async function(req) {
         base44.asServiceRole.entities.User.filter({ id }).catch(() => [])
       ));
       users = batches.flat().slice(0, MAX_EXPLICIT_EMAILS);
+    } else if (payload.country) {
+      users = await base44.asServiceRole.entities.User.filter({ country: cleanString(payload.country, 100) }, '-created_date', limit, skip);
     } else if (search.length >= 2) {
       const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       users = await base44.asServiceRole.entities.User.filter({

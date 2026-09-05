@@ -41,17 +41,15 @@ export default async function(req) {
       : null;
 
     // Leader profiles are publicly readable; use the caller's permitted read access.
-    const accounts = await base44.entities.ManagedLeaderAccount.filter({ active: true });
-    const filtered = accounts
-      .filter((account) => {
-        if (emails && !emails.has(String(account.leader_email || '').trim().toLowerCase())) return false;
-        if (ids && !ids.has(String(account.id || ''))) return false;
-        if (!search) return true;
-        const text = `${account.leader_name || ''} ${account.leader_title || ''} ${account.leader_country || ''}`.toLowerCase();
-        return text.includes(search);
-      })
-      .slice(0, limit)
-      .map((account) => safeLeader(account, Boolean(emails || ids)));
+    const query = { active: true };
+    if (ids) query.id = { $in: [...ids] };
+    if (emails) query.leader_email = { $in: [...emails] };
+    if (search) {
+      const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.$or = ['leader_name', 'leader_title', 'leader_country'].map(field => ({ [field]: { $regex: escaped, $options: 'i' } }));
+    }
+    const accounts = await base44.entities.ManagedLeaderAccount.filter(query, '-created_date', limit);
+    const filtered = accounts.map(account => safeLeader(account, Boolean(user || emails || ids)));
 
     return Response.json(filtered);
   } catch (error) {

@@ -99,7 +99,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, isSuperAdmin, is
       </div>
 
       {/* Scrollable Nav */}
-      <div className="flex-1 overflow-x-auto md:overflow-y-auto py-2 px-2 flex md:flex-col gap-0.5 hide-scrollbar relative z-10">
+      <div className="flex-1 min-h-0 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto py-2 px-2 flex md:flex-col gap-0.5 relative z-10">
 
         <SidebarSection label="Overview" isDark={isDark}>
           <SidebarItem id="dashboard" icon={<LayoutDashboard size={16} />} label="Dashboard" />

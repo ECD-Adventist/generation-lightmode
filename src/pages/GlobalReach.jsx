@@ -5,6 +5,7 @@ import { MapContainer, CircleMarker, Popup, Marker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import LocalWorldBasemap from "@/components/maps/LocalWorldBasemap";
+import RecentReachMarkers from "@/components/maps/RecentReachMarkers";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { useNavigate } from "react-router-dom";
@@ -12,28 +13,10 @@ import { Users, Zap, Globe, MapPin, Heart, X, ExternalLink, Home, Bell, User, Fi
 
 const defaultAvatar = "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png";
 
-const countryCoordinates = {
-  Kenya: [-1.286389, 36.817223],
-  Tanzania: [-6.369028, 34.888822],
-  Uganda: [1.373333, 32.290275],
-  Rwanda: [-1.940278, 29.873888],
-  Nigeria: [9.082, 8.6753],
-  Ghana: [7.9465, -1.0232],
-  SouthAfrica: [-30.5595, 22.9375],
-  "South Africa": [-30.5595, 22.9375],
-  USA: [37.0902, -95.7129],
-  Canada: [56.1304, -106.3468],
-  Brazil: [-14.235, -51.9253],
-  India: [20.5937, 78.9629],
-  Philippines: [12.8797, 121.774],
-  Australia: [-25.2744, 133.7751],
-  Global: [0, 20],
-};
-
-const addJitter = ([lat, lng], seed = 1) => [
-  lat + ((seed * 13 + 7) % 17 - 8) * 0.5,
-  lng + ((seed * 7 + 3) % 13 - 6) * 0.5,
-];
+import { countryCoordinates } from "@/lib/countryCoordinates";
+import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
+import MapCoverageNotice from "@/components/dashboard/MapCoverageNotice";
+import { profileUrl } from "@/lib/profileLink";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -86,7 +69,7 @@ function ImpactStoryPanel({ drop, onClose }) {
             <Heart className="w-4 h-4 text-red-400" /> {drop.likes_count || 0} lights
           </div>
           <Link
-            to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}&user=${encodeURIComponent(drop.user_email)}`}
+            to={createPageUrl("Post") + `?id=${encodeURIComponent(drop.id)}`}
             className="flex items-center gap-1.5 text-sm font-bold transition"
             style={{ color: "#0B3FD9" }}
           >
@@ -112,48 +95,32 @@ export default function GlobalReach() {
     });
   }, []);
 
-  const { data: users = [] } = useQuery({
-    queryKey: ["allUsers"],
+  const snapshotQuery = usePublicCommunitySnapshot();
+  const snapshot = snapshotQuery.isPlaceholderData ? null : snapshotQuery.data;
+  const { data: nearbyUsers = [], isPending: nearbyLoading, isError: nearbyError, refetch: reloadNearby } = useQuery({
+    queryKey: ["globalReachNearbyUsers", user?.country],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicUsers", {});
+      const res = await base44.functions.invoke("listPublicUsers", { country: user.country, limit: 9 });
+      if (!Array.isArray(res.data)) throw new Error("Unable to load regional members");
       return res.data;
     },
-    enabled: !!user,
+    enabled: !!user?.country,
+    staleTime: 60_000,
+    refetchInterval: 5 * 60_000,
   });
-
-  const { data: glowDrops = [] } = useQuery({
-    queryKey: ["mapGlowDrops"],
-    queryFn: () => base44.entities.GlowDrop.list("-created_date", 10000),
-    enabled: !!user,
-  });
-
-  const userByEmail = useMemo(() => Object.fromEntries(users.map(u => [u.email, u])), [users]);
-
-  // Warriors: cluster users by country — one circle per country, radius = member count
-  const warriorClusters = useMemo(() => {
-    const clusters = {};
-    users.forEach(u => {
-      const country = u.country || "Global";
-      const coords = countryCoordinates[country] || countryCoordinates.Global;
-      if (!clusters[country]) clusters[country] = { country, coords, count: 0, members: [] };
-      clusters[country].count++;
-      clusters[country].members.push(u);
-    });
-    return Object.values(clusters);
-  }, [users]);
-
-  // Drops: each drop is a pin with jitter
-  const dropMarkers = useMemo(() => glowDrops.map((drop, i) => {
-    const owner = userByEmail[drop.user_email] || {};
-    const country = owner.country || "Global";
-    const base = countryCoordinates[country] || countryCoordinates.Global;
-    return { ...drop, owner, position: addJitter(base, i + 1) };
-  }), [glowDrops, userByEmail]);
-
-  const localBelievers = users.filter(u => u.email !== user?.email && u.country && u.country === user?.country).slice(0, 8);
-
-  // Stats
-  const totalCountries = useMemo(() => new Set(users.map(u => u.country).filter(Boolean)).size, [users]);
+  const localBelievers = nearbyUsers.filter(person => person.id !== user?.id).slice(0, 8);
+  const countryStats = snapshot?.countryStats || [];
+  const glowDrops = snapshot?.recentDrops || [];
+  const totalCountries = countryStats.filter(row => row.users > 0).length;
+  const regionalCount = countryStats.find(row => row.country === user?.country)?.users || 0;
+  const locatedUsers = countryStats.reduce((sum, row) => sum + row.users, 0);
+  const mappedUsers = countryStats.reduce((sum, row) => sum + (countryCoordinates[row.country] ? row.users : 0), 0);
+  const warriorClusters = countryStats.map(row => ({
+    country: row.country,
+    coords: countryCoordinates[row.country],
+    count: mapMode === "drops" ? row.drops : row.users,
+    members: nearbyUsers.filter(person => person.country === row.country),
+  })).filter(row => row.coords && row.count > 0);
 
   if (!user && !authChecked) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}>
@@ -291,32 +258,35 @@ export default function GlobalReach() {
                 <>
                   <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
                     <Heart className="w-3 h-3 text-red-400" />
-                    <span style={{ color: "#4A5878" }}>Few likes</span>
+                    <span style={{ color: "#4A5878" }}>Fewer drops</span>
                   </div>
                   <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
                     <Heart className="w-4 h-4 text-red-400" />
-                    <span style={{ color: "#4A5878" }}>Popular</span>
+                    <span style={{ color: "#4A5878" }}>More drops</span>
                   </div>
                   <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
                     <Zap className="w-3 h-3" style={{ color: "#CC7A00" }} />
-                    <span style={{ color: "#4A5878" }}>Click to view</span>
+                    <span style={{ color: "#4A5878" }}>Country totals</span>
                   </div>
                   <div className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}>
                     <TrendingUp className="w-3 h-3" style={{ color: "#1FB8FF" }} />
-                    <span style={{ color: "#4A5878" }}>Newest first</span>
+                    <span style={{ color: "#4A5878" }}>Approved posts</span>
                   </div>
                 </>
               )}
             </div>
           </div>
 
+          {snapshotQuery.isError && <div role="alert" className="rounded-xl border border-destructive p-4 text-destructive">Community totals could not refresh. <button className="font-bold underline" onClick={() => snapshotQuery.refetch()}>Retry</button></div>}
+          <p className="text-xs text-muted-foreground" role="status">{snapshot?.generated_at ? `Database totals updated ${new Date(snapshot.generated_at).toLocaleString()}. Refreshes every five minutes.` : "Loading database totals…"} Map circles show country totals, not individual locations; Glow Drops counts approved, visible posts, with small markers for the latest mapped stories.</p>
+          {snapshot && <MapCoverageNotice total={snapshot.totalUsers} mapped={mappedUsers} awaitingCountry={Math.max(0, snapshot.totalUsers - locatedUsers)} unmapped={locatedUsers - mappedUsers} />}
           {/* Map */}
           <div className="rounded-3xl overflow-hidden" style={{ height: "65vh", border: "1px solid #E6ECF5", boxShadow: "0 4px 16px rgba(11, 63, 217, 0.06)" }}>
             <MapContainer center={[5, 25]} zoom={3} style={{ height: "100%", width: "100%" }} zoomControl={true}>
               <LocalWorldBasemap variant="light" />
 
               {/* WARRIORS MODE: density circles */}
-              {mapMode === "warriors" && warriorClusters.map(cluster => {
+              {warriorClusters.map(cluster => {
                 const radius = Math.max(8, Math.min(40, cluster.count * 4));
                 const isLocal = cluster.country === user?.country;
                 return (
@@ -338,13 +308,13 @@ export default function GlobalReach() {
                           <strong style={{ color: isLocal ? "#CC7A00" : "#0B3FD9", fontSize: 15 }}>{cluster.country}</strong>
                         </div>
                         <div style={{ fontSize: 13, color: "#6B7FA0", marginBottom: 12 }}>
-                          <strong style={{ color: "#0B1B3D", fontSize: 22, fontFamily: "Space Grotesk, sans-serif" }}>{cluster.count}</strong> Light Warrior{cluster.count !== 1 ? "s" : ""}
+                          <strong style={{ color: "#0B1B3D", fontSize: 22, fontFamily: "Space Grotesk, sans-serif" }}>{cluster.count}</strong> {mapMode === "drops" ? "Glow Drops" : "Light Warriors"}
                         </div>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
                           {cluster.members.slice(0, 5).map(m => (
-                            <img key={m.email} src={m.profile_picture_url || defaultAvatar} title={m.full_name} style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover", border: "1px solid #E6ECF5" }} />
+                            <img key={m.id} src={m.profile_picture_url || defaultAvatar} title={m.full_name} style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover", border: "1px solid #E6ECF5" }} />
                           ))}
-                          {cluster.count > 5 && <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(11,63,217,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#0B3FD9", fontWeight: "bold" }}>+{cluster.count - 5}</div>}
+                          {cluster.members.length > 5 && <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(11,63,217,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#0B3FD9", fontWeight: "bold" }}>+{cluster.members.length - 5}</div>}
                         </div>
                         {isLocal && <div style={{ fontSize: 11, color: "#CC7A00", fontWeight: 600 }}>⭐ Your region</div>}
                       </div>
@@ -353,43 +323,8 @@ export default function GlobalReach() {
                 );
               })}
 
-              {/* DROPS MODE: individual pins */}
-              {mapMode === "drops" && dropMarkers.map(drop => {
-                const intensity = Math.min(1, 0.3 + (drop.likes_count || 0) * 0.07);
-                return (
-                  <CircleMarker
-                    key={drop.id}
-                    center={drop.position}
-                    radius={6 + Math.min((drop.likes_count || 0), 8)}
-                    pathOptions={{
-                      color: "#FFD000",
-                      fillColor: "#FFD000",
-                      fillOpacity: intensity,
-                      weight: 1.5,
-                    }}
-                    eventHandlers={{ click: () => setSelectedDrop(drop) }}
-                  >
-                    <Popup>
-                      <div style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", borderRadius: 12, padding: 14, minWidth: 190, color: "#0B1B3D", fontFamily: "Inter, sans-serif", cursor: "pointer", boxShadow: "0 8px 24px rgba(11, 63, 217, 0.12)" }}
-                        onClick={() => setSelectedDrop(drop)}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                          <img src={drop.owner?.profile_picture_url || defaultAvatar} style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", border: "1px solid #E6ECF5" }} />
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: 13, color: "#0B1B3D" }}>{drop.owner?.full_name || "Glow Believer"}</div>
-                            <div style={{ fontSize: 11, color: "#6B7FA0" }}>{drop.owner?.country || "Global"}</div>
-                          </div>
-                        </div>
-                        <div style={{ fontSize: 12, color: "#4A5878", marginBottom: 8, lineHeight: 1.5, maxWidth: 200, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
-                          {drop.verse || drop.reflection || "Glow Drop"}
-                        </div>
-                        <div style={{ fontSize: 11, color: "#0B3FD9", fontWeight: 700, cursor: "pointer" }}>
-                          📖 Read local story →
-                        </div>
-                      </div>
-                    </Popup>
-                  </CircleMarker>
-                );
-              })}
+
+              {mapMode === "drops" && <RecentReachMarkers drops={glowDrops} onSelect={setSelectedDrop} />}
             </MapContainer>
           </div>
         </div>
@@ -399,17 +334,17 @@ export default function GlobalReach() {
           {/* Stats Cards */}
           <div className="grid grid-cols-3 lg:grid-cols-1 gap-3">
             <div className="rounded-2xl p-4 text-center" style={{ background: "rgba(31, 184, 255, 0.06)", border: "1px solid #B8E5FF" }}>
-              <div className="text-3xl font-black font-['Space_Grotesk'] mb-1" style={{ color: "#0B3FD9" }}>{users.length}</div>
+              <div className="text-3xl font-black font-['Space_Grotesk'] mb-1" style={{ color: "#0B3FD9" }}>{snapshot?.totalUsers ?? "—"}</div>
               <div className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#6B7FA0" }}>Light Warriors</div>
-              <div className="text-[9px] mt-2" style={{ color: "#8A97B5" }}>Across {totalCountries} nations</div>
+              <div className="text-[9px] mt-2" style={{ color: "#8A97B5" }}>Across {snapshot ? totalCountries : "—"} nations</div>
             </div>
             <div className="rounded-2xl p-4 text-center" style={{ background: "rgba(255, 208, 0, 0.06)", border: "1px solid #FFE4A0" }}>
-              <div className="text-3xl font-black font-['Space_Grotesk'] mb-1" style={{ color: "#CC7A00" }}>{glowDrops.length}</div>
+              <div className="text-3xl font-black font-['Space_Grotesk'] mb-1" style={{ color: "#CC7A00" }}>{snapshot?.totalDrops ?? "—"}</div>
               <div className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#6B7FA0" }}>Glow Drops</div>
               <div className="text-[9px] mt-2" style={{ color: "#8A97B5" }}>Faith stories shared</div>
             </div>
             <div className="rounded-2xl p-4 text-center" style={{ background: "rgba(11, 63, 217, 0.04)", border: "1px solid #D6E4FF" }}>
-              <div className="text-3xl font-black font-['Space_Grotesk'] mb-1" style={{ color: "#0B3FD9" }}>{totalCountries}</div>
+              <div className="text-3xl font-black font-['Space_Grotesk'] mb-1" style={{ color: "#0B3FD9" }}>{snapshot ? totalCountries : "—"}</div>
               <div className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#6B7FA0" }}>Nations Active</div>
               <div className="text-[9px] mt-2" style={{ color: "#8A97B5" }}>Spreading light</div>
             </div>
@@ -421,10 +356,10 @@ export default function GlobalReach() {
               <MapPin className="w-4 h-4" style={{ color: "#CC7A00" }} />
               <div className="text-sm font-bold uppercase tracking-wider" style={{ color: "#CC7A00" }}>Your Region</div>
             </div>
-            <div className="text-xs mb-4" style={{ color: "#6B7FA0" }}>{user.country || "Your location"} — {localBelievers.length} warriors nearby</div>
+            <div className="text-xs mb-4" style={{ color: "#6B7FA0" }}>{user.country || "Country not set"} — {snapshot ? regionalCount : "—"} registered warriors; showing up to 8 other members</div>
             <div className="space-y-2">
               {localBelievers.map(person => (
-                <Link key={person.email} to={createPageUrl("Profile") + `?user=${encodeURIComponent(person.email)}`}
+                <Link key={person.id} to={profileUrl(person)}
                   className="flex items-center gap-3 p-2.5 rounded-2xl transition group hover:bg-[#F0F4FA]">
                   <img src={person.profile_picture_url || defaultAvatar} className="w-10 h-10 rounded-full object-cover transition" style={{ border: "1px solid #E6ECF5" }} />
                   <div className="min-w-0 flex-1">
@@ -434,10 +369,12 @@ export default function GlobalReach() {
                   <div className="opacity-0 group-hover:opacity-100 transition text-xs font-bold" style={{ color: "#0B3FD9" }}>→</div>
                 </Link>
               ))}
-              {localBelievers.length === 0 && (
+              {user.country && nearbyLoading && <p role="status" className="text-sm text-muted-foreground">Loading regional members…</p>}
+              {nearbyError && <p role="alert" className="text-sm text-destructive">Regional members could not load. <button className="underline" onClick={() => reloadNearby()}>Retry</button></p>}
+              {!nearbyError && (!user.country || !nearbyLoading) && localBelievers.length === 0 && (
                 <div className="text-sm py-4 text-center" style={{ color: "#8A97B5" }}>
                   <Globe className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                  No nearby warriors yet. You're pioneering your region!
+                  {user.country ? "No other members found for this country." : "Set your country in your profile to see regional members."}
                 </div>
               )}
             </div>
@@ -452,7 +389,7 @@ export default function GlobalReach() {
             <div className="text-xs mb-4" style={{ color: "#6B7FA0" }}>Latest inspiring drops from the movement</div>
             <div className="space-y-3">
               {glowDrops.slice(0, 5).map(drop => {
-                const owner = userByEmail[drop.user_email] || {};
+                const owner = { country: drop.country };
                 return (
                   <button key={drop.id} onClick={() => setSelectedDrop({ ...drop, owner })}
                     className="w-full text-left flex items-start gap-3 p-3 rounded-2xl hover:bg-[#F0F4FA] transition group">

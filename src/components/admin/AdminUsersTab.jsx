@@ -180,12 +180,21 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
 
   const queryClient = useQueryClient();
 
-  const { data: users = [], isLoading } = useQuery({
-    queryKey: ["admin_users_full"],
+  const { data: users = [], isLoading, isError, refetch } = useQuery({
+    queryKey: ["admin_users_full", currentAdmin?.id, "complete"],
     queryFn: async () => {
-      const res = await base44.functions.invoke("adminListUsers", {});
-      return res.data || [];
-    }
+      const records = new Map();
+      for (let skip = 0; ; skip += 1000) {
+        const res = await base44.functions.invoke("adminListUsers", { limit: 1000, skip });
+        if (!Array.isArray(res.data)) throw new Error("Unable to load the user directory");
+        res.data.forEach(record => records.set(record.id, record));
+        if (res.data.length < 1000) break;
+      }
+      return [...records.values()];
+    },
+    staleTime: 60_000,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const ROLE_ORDER = [
@@ -198,7 +207,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
   const allRoles = useMemo(() => {
     const fromData = new Set(users.map(u => u.role).filter(Boolean));
     ROLE_ORDER.forEach(r => fromData.add(r));
-    return ROLE_ORDER.filter(r => fromData.has(r));
+    return [...ROLE_ORDER, ...[...fromData].filter(r => !ROLE_ORDER.includes(r)).sort()];
   }, [users]);
 
   const allCountries = useMemo(() => {
@@ -505,6 +514,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
         />
       )}
 
+      {isError && <div role="alert" className="rounded-xl border border-destructive p-4 text-destructive">The complete directory could not load. <button onClick={() => refetch()} className="underline font-bold">Retry</button></div>}
       {/* ── Header ─────────────────────────────── */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
@@ -608,7 +618,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
             </div>
             <div>
               <p className="text-xs" style={{ color: t.textSecondary }}>{s.label}</p>
-              <p className="font-bold text-lg leading-tight" style={{ color: t.textPrimary }}>{s.value}</p>
+              <p className="font-bold text-lg leading-tight" style={{ color: t.textPrimary }}>{isLoading || isError ? "—" : s.value}</p>
             </div>
           </div>
         ))}
@@ -720,7 +730,7 @@ export default function AdminUsersTab({ user: currentAdmin, readOnly = false }) 
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs" style={{ color: t.textSecondary }}>
-            Showing <span className="font-bold" style={{ color: t.textPrimary }}>{filteredUsers.length}</span> of {users.length} users
+            {isLoading ? "Loading the complete directory…" : isError ? "Directory unavailable" : <>Showing <span className="font-bold" style={{ color: t.textPrimary }}>{filteredUsers.length}</span> of {users.length} users</>}
             {selectedUsers.size > 0 && <span className="ml-2 font-bold" style={{ color: t.accent }}>· {selectedUsers.size} selected</span>}
           </p>
 

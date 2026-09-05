@@ -17,6 +17,7 @@ import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
 import { useAuth } from "@/lib/AuthContext";
 import { getDisplayName } from "@/lib/displayName";
 import { awardXp } from "@/lib/xp";
+import { profileUrl } from "@/lib/profileLink";
 
 const rankColors = { Champion: "#FFD000", Trendsetter: "#8A5CFF", Warrior: "#1DA1FF", Starter: "#00CFFF" };
 
@@ -89,9 +90,9 @@ export default function GlowGroups() {
   // them separately and merge them into the `users` list so they appear in
   // People search, Light Leaders, and follow flows just like regular users.
   const { data: leaderAccounts = [] } = useQuery({
-    queryKey: ["activeLeaderAccountsForExplore"],
+    queryKey: ["activeLeaderAccountsForExplore", directorySearch],
     queryFn: async () => {
-      const res = await base44.functions.invoke("listPublicLeaderAccounts", { limit: 200 });
+      const res = await base44.functions.invoke("listPublicLeaderAccounts", { limit: 200, ...(directorySearch ? { search: directorySearch } : {}) });
       return Array.isArray(res.data) ? res.data : [];
     },
     staleTime: 1000 * 60 * 5,
@@ -395,7 +396,7 @@ export default function GlowGroups() {
               const userDrops = dropCountByUser[u.id] || 0;
               return (
                 <div key={u.id} className="flex items-center gap-4 rounded-2xl p-4 transition-all hover:-translate-y-0.5" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}>
-                  <Link to={createPageUrl("Profile") + (u.is_managed_leader ? `?user=${encodeURIComponent(u.email)}` : `?id=${encodeURIComponent(u.id)}`)} className="flex items-center gap-4 flex-1 min-w-0 no-underline">
+                  <Link to={profileUrl(u)} className="flex items-center gap-4 flex-1 min-w-0 no-underline">
                     <div className="w-14 h-14 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF 0%, #0B3FD9 100%)" }}>
                       <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center font-bold text-lg" style={{ background: "#FFFFFF" }}>
                         <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} className="w-full h-full object-cover" />
@@ -412,7 +413,7 @@ export default function GlowGroups() {
                     </div>
                   </Link>
                   <button
-                    onClick={() => followMutation.mutate(u.email)}
+                    onClick={() => followMutation.mutate(u)}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0"
                     style={isFollowing
                       ? { background: "#F6F8FC", border: "1px solid #E6ECF5", color: "#4A5878" }

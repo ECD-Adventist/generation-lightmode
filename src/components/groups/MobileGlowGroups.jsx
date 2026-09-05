@@ -6,6 +6,7 @@ import {
   MapPin, Zap, Plus, ChevronRight, Sparkles, Flame, Lock
 } from "lucide-react";
 import { getDisplayName } from "@/lib/displayName";
+import { profileUrl } from "@/lib/profileLink";
 import GroupSessionsPanel from "@/components/groups/GroupSessionsPanel";
 import LightLeadersBoard from "@/components/groups/LightLeadersBoard";
 import usePullToRefresh from "@/hooks/usePullToRefresh";
@@ -367,7 +368,7 @@ export default function MobileGlowGroups({
               const userDrops = dropCountByUser[u.id] || 0;
               return (
                 <div key={u.id} className="flex items-center gap-3 rounded-2xl p-3" style={{ background: "#FFFFFF", border: "1px solid #E6ECF5", boxShadow: "0 2px 8px rgba(11, 63, 217, 0.04)" }}>
-                  <Link to={createPageUrl("Profile") + (u.is_managed_leader ? `?user=${encodeURIComponent(u.email)}` : `?id=${encodeURIComponent(u.id)}`)} className="flex items-center gap-3 flex-1 min-w-0 no-underline">
+                  <Link to={profileUrl(u)} className="flex items-center gap-3 flex-1 min-w-0 no-underline">
                     <div className="w-12 h-12 rounded-full p-[2px] shrink-0" style={{ background: "linear-gradient(135deg, #1FB8FF, #0B3FD9, #FFD000)" }}>
                       <div className="w-full h-full rounded-full overflow-hidden" style={{ background: "#FFFFFF", border: "2px solid #FFFFFF" }}>
                         <img src={u.profile_picture_url || "https://media.base44.com/images/public/69a6fca6155ae283f1b55144/c5b1f7d62_DefaultProfilePicture.png"} alt="" width="48" height="48" loading="lazy" decoding="async" className="w-full h-full object-cover" />

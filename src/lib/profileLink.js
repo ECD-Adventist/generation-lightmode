@@ -9,6 +9,10 @@ import { createPageUrl } from "@/utils";
 export function profileUrl(person) {
   if (!person) return null;
   const base = createPageUrl("Profile");
+  if (person.is_managed_leader || person.leader_id || person.leader_name) {
+    const leaderId = String(person.leader_id || person.id || '').replace(/^leader_/, '');
+    if (leaderId) return `${base}?leader=${encodeURIComponent(leaderId)}`;
+  }
   if (person.id) return `${base}?id=${encodeURIComponent(person.id)}`;
   if (person.email) return `${base}?user=${encodeURIComponent(person.email)}`;
   return null;

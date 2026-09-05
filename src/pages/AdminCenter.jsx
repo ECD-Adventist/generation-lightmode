@@ -160,7 +160,7 @@ function AdminCenterInner() {
 
   if (!user || !isAdmin) return null;
 
-  const isSuperAdmin = user.role === "super_admin";
+  const isSuperAdmin = ["admin", "super_admin"].includes(user.role);
   // ECD Officers get division-wide (whole app) visibility like super admins — read-only enforced below.
   const isEcdOfficer = user.role === "ecd_officer";
   const canViewAll = isSuperAdmin || isEcdOfficer;

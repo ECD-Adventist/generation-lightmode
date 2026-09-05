@@ -39,7 +39,7 @@ export default function MobileDiscover({
 
   // People search runs on the server, so members outside the locally loaded
   // page are still findable and always carry an id we can link to.
-  const { accounts: searchedAccounts } = useAccountSearch(search);
+  const { accounts: searchedAccounts, isSearching, isError: accountSearchError, refetch: retryAccountSearch } = useAccountSearch(search);
   const filteredAccounts = useMemo(() => {
     if (!q) return [];
     return searchedAccounts.filter(u => u.id || u.email).slice(0, 30);
@@ -143,6 +143,8 @@ export default function MobileDiscover({
           />
         ) : (
           <div className="pt-3">
+            {isSearching && tab !== "tags" && <p role="status" className="py-3 text-sm text-muted-foreground">Searching people and leaders…</p>}
+            {accountSearchError && tab !== "tags" && <p role="alert" className="py-3 text-sm text-destructive">Search could not load. <button className="underline" onClick={() => retryAccountSearch()}>Retry</button></p>}
             {tab === "top" && (
               <div className="space-y-4">
                 {filteredAccounts.slice(0, 3).length > 0 && (
@@ -160,7 +162,7 @@ export default function MobileDiscover({
                     <DropGrid drops={filteredDrops.slice(0, 30)} />
                   </Section>
                 )}
-                {filteredAccounts.length === 0 && filteredTags.length === 0 && filteredDrops.length === 0 && (
+                {!isSearching && !accountSearchError && filteredAccounts.length === 0 && filteredTags.length === 0 && filteredDrops.length === 0 && (
                   <EmptyState q={search} />
                 )}
               </div>
@@ -168,7 +170,7 @@ export default function MobileDiscover({
 
             {tab === "accounts" && (
               <div className="space-y-1 pt-1">
-                {filteredAccounts.length === 0 ? <EmptyState q={search} type="accounts" /> : filteredAccounts.map(u => <AccountRow key={u.id || u.email} u={u} />)}
+                {filteredAccounts.length === 0 ? (!isSearching && !accountSearchError && <EmptyState q={search} type="accounts" />) : filteredAccounts.map(u => <AccountRow key={u.id || u.email} u={u} />)}
               </div>
             )}
 
