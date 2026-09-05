@@ -19,8 +19,14 @@ export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me().catch(() => null);
-    const rateLimited = await enforceApiRateLimit(base44, req, user);
-    if (rateLimited) return rateLimited;
+    // Public leader lookup: if the rate-limit ledger itself errors, still return the
+    // leader details instead of failing, so cards don't fall back to generic names.
+    try {
+      const rateLimited = await enforceApiRateLimit(base44, req, user);
+      if (rateLimited) return rateLimited;
+    } catch (rateLimitError) {
+      console.error('listPublicLeaderAccounts: rate limit ledger unavailable:', rateLimitError?.message);
+    }
 
     const validated = await readValidatedJson(req, {
       limit: { type: 'number', integer: true, min: 1, max: 200 },
