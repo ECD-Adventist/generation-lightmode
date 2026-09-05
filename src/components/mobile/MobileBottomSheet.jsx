@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import useSheetViewport from "@/hooks/useSheetViewport";
 
 /**
  * Shared mobile bottom-sheet shell — LightMode branded (light mode).
@@ -14,8 +15,10 @@ export default function MobileBottomSheet({
   header, // optional node rendered above children
   footer, // optional actions kept outside the scrolling content
   portal = false,
+  scrollHeader = false,
   maxHeight = "92dvh",
 }) {
+  const viewport = useSheetViewport(portal && isOpen);
   useEffect(() => {
     if (!isOpen) return;
     const prev = document.body.style.overflow;
@@ -28,7 +31,7 @@ export default function MobileBottomSheet({
   const sheet = (
     <div
       className="fixed inset-0 z-[9999] flex items-end font-['Inter']"
-      style={{ background: "rgba(11, 27, 61, 0.55)", backdropFilter: "blur(12px)" }}
+      style={{ background: "rgba(11, 27, 61, 0.55)", backdropFilter: "blur(12px)", ...(viewport ? { ...viewport, right: "auto", bottom: "auto" } : {}) }}
       onClick={() => { if (dismissible) onClose?.(); }}
     >
       <div
@@ -37,7 +40,7 @@ export default function MobileBottomSheet({
         style={{
           background: "#FFFFFF",
           color: "#0B1B3D",
-          maxHeight,
+          maxHeight: portal ? `min(${maxHeight}, 100%)` : maxHeight,
           boxShadow: "0 -20px 60px rgba(11, 27, 61, 0.25)",
           paddingBottom: "env(safe-area-inset-bottom)",
         }}
@@ -63,9 +66,10 @@ export default function MobileBottomSheet({
           </button>
         )}
 
-        {footer ? <div className="shrink-0">{header}</div> : header}
+        {!scrollHeader && (footer ? <div className="shrink-0">{header}</div> : header)}
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          {scrollHeader && header}
           {children}
         </div>
         {footer && <div className="shrink-0">{footer}</div>}

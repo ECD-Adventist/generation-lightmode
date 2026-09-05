@@ -172,7 +172,7 @@ export default function MobileOnboardingSheet({ isOpen, onCompleted }) {
   );
 
   return (
-    <MobileBottomSheet isOpen={isOpen} onClose={() => {}} dismissible={false} header={header} footer={footer} portal maxHeight="94dvh">
+    <MobileBottomSheet isOpen={isOpen} onClose={() => {}} dismissible={false} header={header} footer={footer} portal scrollHeader maxHeight="94dvh">
       <div className="px-5 py-4 space-y-3">
         {step === 0 && (
           <>
