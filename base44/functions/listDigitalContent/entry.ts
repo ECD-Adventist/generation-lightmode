@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { toDirectDownloadUrl, toDrivePreviewUrl, toDriveImageUrl } from '../../shared/driveLinks.ts';
+import { toDirectDownloadUrl, toDrivePreviewUrl, toDriveImageUrl, toDriveViewUrl } from '../../shared/driveLinks.ts';
 import { enforceApiRateLimit } from '../../shared/apiSecurity.ts';
 
 // Public listing of scheduled digital content.
@@ -31,6 +31,7 @@ export default async function(req) {
         repost_count: item.repost_count || 0,
         unlocked,
         preview_url: unlocked ? toDrivePreviewUrl(item.drive_link) : null,
+        drive_view_url: unlocked ? toDriveViewUrl(item.drive_link) : null,
         image_url: unlocked ? toDriveImageUrl(item.drive_link) : null,
         download_url: unlocked ? toDirectDownloadUrl(item.drive_link) : null
       };

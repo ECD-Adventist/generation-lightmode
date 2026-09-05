@@ -21,6 +21,13 @@ export function toDriveImageUrl(link) {
   return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w2000` : link;
 }
 
+// Live Google Drive page for the file — opened in a new tab so users can
+// view or download straight from Drive.
+export function toDriveViewUrl(link) {
+  const id = extractDriveFileId(link);
+  return id ? `https://drive.google.com/file/d/${id}/view` : null;
+}
+
 export function toDrivePreviewUrl(link) {
   const id = extractDriveFileId(link);
   return id ? `https://drive.google.com/file/d/${id}/preview` : null;

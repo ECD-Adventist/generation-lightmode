@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ExternalLink } from "lucide-react";
 import { fetchContentFile } from "./contentMedia";
 import ContentThumbnail from "./ContentThumbnail";
 import ContentTransferProgress from "./ContentTransferProgress";
@@ -78,6 +79,20 @@ export default function ContentPreviewModal({ item, open, onClose }) {
             ? <video src={mediaUrl} poster={item.thumbnail_url || undefined} className="max-w-full max-h-[75vh] w-auto h-auto" controls playsInline autoPlay />
             : <img src={mediaUrl} alt={item.title} className="max-w-full max-h-[75vh] w-auto h-auto object-contain" />)}
         </div>
+        {item.drive_view_url && (
+          <div className="px-5 py-3 border-t border-white/10 flex items-center justify-between gap-3">
+            <p className="text-[11px] text-white/45">Slow connection? Open it in Google Drive and download from there.</p>
+            <a
+              href={item.drive_view_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full font-['Space_Grotesk'] font-black text-[11px] transition active:scale-95"
+              style={{ background: "rgba(0,207,255,0.12)", border: "1px solid rgba(0,207,255,0.45)", color: "#00CFFF" }}
+            >
+              <ExternalLink size={12} /> Open in Google Drive
+            </a>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
