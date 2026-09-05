@@ -8,7 +8,9 @@ import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
 
 export default function DashboardMapHero({ userCountry }) {
   const [activePanel, setActivePanel] = useState(null);
-  const { data: snapshot, isLoading, isError, error, refetch, isFetching } = usePublicCommunitySnapshot();
+  const { data: snapshot, isLoading: queryLoading, isPlaceholderData, isError, error, refetch, isFetching } = usePublicCommunitySnapshot();
+  const isLoading = queryLoading || isPlaceholderData;
+  const hasSnapshot = Boolean(snapshot?.generated_at);
 
   const countryClusters = useMemo(() => {
     const stats = Array.isArray(snapshot?.countryStats) ? snapshot.countryStats : [];
@@ -49,7 +51,7 @@ export default function DashboardMapHero({ userCountry }) {
           ? `${topCountry.count.toLocaleString()} mapped warriors`
           : "No region data available";
 
-  if (isError) {
+  if (isError && !hasSnapshot) {
     return (
       <div className="rounded-2xl p-6 text-center" style={{ background: "#FFF8E6", border: "1px solid #FFE4A0" }}>
         <AlertCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "#CC7A00" }} />
@@ -64,6 +66,10 @@ export default function DashboardMapHero({ userCountry }) {
 
   return (
     <div className="space-y-4 font-['Inter']">
+      {hasSnapshot && <p className="text-xs text-muted-foreground" role="status">
+        {isFetching ? "Updating totals… " : isError ? "Refresh unavailable — showing last loaded totals. " : ""}
+        Last updated {new Date(snapshot.generated_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.
+      </p>}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { key: "registered", val: isLoading ? "…" : totalRegisteredUsers.toLocaleString(), label: "Registered Users", color: "#0B3FD9", bg: "rgba(11, 63, 217, 0.08)", border: "#D6E4FF" },

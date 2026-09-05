@@ -1,14 +1,12 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { enforceApiRateLimit } from '../../shared/apiSecurity.ts';
 
 const PAGE_SIZE = 500;
+const CACHE_TTL_MS = 60_000;
+let snapshotCache = null;
+let snapshotRefresh = null;
 
-export default async function(req) {
-  try {
-    const base44 = createClientFromRequest(req);
-    const rateLimited = await enforceApiRateLimit(base44, req);
-    if (rateLimited) return rateLimited;
-    const svc = base44.asServiceRole;
+async function buildSnapshot(svc) {
 
     // Read every database page so map totals stay accurate as the community grows.
     const safeList = async (entity) => {
@@ -22,7 +20,7 @@ export default async function(req) {
         return records;
       } catch (e) {
         console.error(`getPublicCommunitySnapshot: ${entity} read failed:`, e?.message);
-        return [];
+        throw e;
       }
     };
 
@@ -153,7 +151,8 @@ export default async function(req) {
 
     const totalCountries = countryStats.length;
 
-    return Response.json({
+    return {
+      generated_at: new Date().toISOString(),
       totalUsers: users.length,
       totalGroups: groups.length,
       totalDrops: approvedDrops.length,
@@ -163,9 +162,29 @@ export default async function(req) {
       topGroups,
       recentDrops,
       challenges: publicChallenges,
-    });
+    };
+}
+
+export default async function(req) {
+  try {
+    const base44 = createClientFromRequest(req);
+    const rateLimited = await enforceApiRateLimit(base44, req);
+    if (rateLimited) return rateLimited;
+    if (snapshotCache && Date.now() - Date.parse(snapshotCache.generated_at) < CACHE_TTL_MS) {
+      return Response.json(snapshotCache);
+    }
+    // Coalesce simultaneous requests; only cache a completely successful snapshot.
+    if (!snapshotRefresh) {
+      snapshotRefresh = buildSnapshot(base44.asServiceRole)
+        .then(data => { snapshotCache = data; return data; })
+        .finally(() => { snapshotRefresh = null; });
+    }
+    return Response.json(await snapshotRefresh);
   } catch (error) {
     console.error('getPublicCommunitySnapshot failed:', error?.message);
+    if ((error?.status || error?.response?.status) === 429 || /rate limit exceeded/i.test(error?.message || '')) {
+      return Response.json({ error: 'Community totals are temporarily busy. Please retry shortly.' }, { status: 429, headers: { 'Retry-After': '60' } });
+    }
     return Response.json({ error: 'Unable to load community snapshot' }, { status: 500 });
   }
 }

@@ -33,7 +33,7 @@ export default function Post() {
   });
 
   const drop = drops[0];
-  const authorEmail = drop?.user_email || backUser;
+  const authorEmail = (drop?.user_email || backUser || '').trim().toLowerCase();
 
   const { data: allUsers = [], isPending: authorIdentityPending, isFetching: authorIdentityFetching } = useQuery({
     queryKey: ["postAuthorIdentity", authorEmail],
@@ -46,15 +46,25 @@ export default function Post() {
     refetchOnMount: "always",
   });
 
-  const { data: leaderAccounts = [], isPending: leaderIdentityPending, isFetching: leaderIdentityFetching } = useQuery({
+  const { data: leaderAccounts = [], isPending: leaderIdentityPending, isError: leaderIdentityError, refetch: refetchLeader } = useQuery({
     queryKey: ["postLeaderAccount", authorEmail],
     queryFn: async () => {
       const res = await base44.functions.invoke("listPublicLeaderAccounts", { emails: [authorEmail], limit: 1 });
-      return Array.isArray(res.data) ? res.data : [];
+      if (!Array.isArray(res.data)) throw new Error("Unable to load post author");
+      return res.data;
     },
     enabled: !!authorEmail,
-    staleTime: 0,
-    refetchOnMount: "always",
+    initialData: () => {
+      const cached = queryClient.getQueriesData({ queryKey: ["pinnedLeaderAccounts"] })
+        .flatMap(([, accounts]) => Array.isArray(accounts) ? accounts : [])
+        .find(account => account.leader_email?.trim().toLowerCase() === authorEmail);
+      return cached ? [cached] : undefined;
+    },
+    initialDataUpdatedAt: 0,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    retry: 1,
+    retryDelay: (attempt, error) => error?.response?.status === 429 ? 60_000 : 1000,
   });
 
   const { data: userLikes = [] } = useQuery({
@@ -102,7 +112,7 @@ export default function Post() {
     if (currentUser?.email === email) return currentUser;
     const found = allUsers.find((u) => u.email === email);
     if (found) return found;
-    const leader = leaderAccounts.find(a => a.leader_email === email);
+    const leader = leaderAccounts.find(a => a.leader_email?.trim().toLowerCase() === email?.trim().toLowerCase());
     if (leader) {
       return {
         id: leader.id,
@@ -222,18 +232,18 @@ export default function Post() {
   };
 
   const identityResolving = !!authorEmail && (
-    authorIdentityPending || authorIdentityFetching || leaderIdentityPending || leaderIdentityFetching
+    (authorIdentityPending && !leaderAccounts.length) || leaderIdentityPending
   );
 
-  if (isLoading || postFetching || identityResolving) {
+  if (isLoading || identityResolving) {
     return <div className="min-h-screen flex items-center justify-center" style={{ background: "#F6F8FC" }}><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1FB8FF" }} /></div>;
   }
 
-  if (postError || !drop) {
+  if (postError || !drop || (leaderIdentityError && !leaderAccounts.length)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 px-4 text-center" style={{ background: "#F6F8FC", color: "#0B1B3D" }}>
         <p className="font-bold">This post could not be loaded.</p>
-        <button type="button" onClick={() => refetchPost()} className="min-h-11 rounded-full px-5 text-sm font-bold text-white" style={{ background: "#0B3FD9" }}>Try Again</button>
+        <button type="button" onClick={() => { refetchPost(); refetchLeader(); }} className="min-h-11 rounded-full px-5 text-sm font-bold text-white" style={{ background: "#0B3FD9" }}>Try Again</button>
       </div>
     );
   }

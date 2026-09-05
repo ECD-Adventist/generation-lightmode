@@ -20,11 +20,15 @@ import AppFooter from "@/components/AppFooter";
 import { useIsMobile } from "@/hooks/use-mobile";
 import MobileDashboard from "@/components/dashboard/MobileDashboard";
 import DashboardMoreLinks from "@/components/dashboard/DashboardMoreLinks";
+import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function Dashboard() {
   const isMobile = useIsMobile();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  usePublicCommunitySnapshot();
+  const { user: authenticatedUser } = useAuth();
+  const [user, setUser] = useState(authenticatedUser);
+  const [loading, setLoading] = useState(!authenticatedUser);
 
   useEffect(() => {
     async function checkAuth() {

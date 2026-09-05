@@ -47,11 +47,12 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
 
   const userHasLiked = userLikes.some(like => like.drop_id === drop.id);
   // Managed leader records are authoritative for leader names, titles, and portraits.
-  const leaderForDrop = leaderAccounts.find(a => a.leader_email === drop.user_email);
+  const leaderForDrop = leaderAccounts.find(a => a.leader_email?.trim().toLowerCase() === drop.user_email?.trim().toLowerCase());
   const authorProfile = {
     ...(dropUser || {}),
     email: drop.user_email,
-    username: drop.author_username || dropUser?.username || "",
+    display_name: leaderForDrop?.leader_name || dropUser?.display_name || "",
+    username: leaderForDrop ? "" : (drop.author_username || dropUser?.username || ""),
     full_name: leaderForDrop?.leader_name || dropUser?.display_name || dropUser?.username || dropUser?.full_name || drop.author_name || drop.user_email?.split('@')[0] || "Glow Believer",
     profile_picture: leaderForDrop?.leader_profile_picture_url || drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",
     profile_picture_url: leaderForDrop?.leader_profile_picture_url || drop.author_avatar || dropUser?.profile_picture || dropUser?.profile_picture_url || "",

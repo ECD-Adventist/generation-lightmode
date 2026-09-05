@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { readCommunitySnapshot, saveCommunitySnapshot } from "@/components/dashboard/communitySnapshotCache";
 
 export default function usePublicCommunitySnapshot() {
   return useQuery({
@@ -10,11 +11,16 @@ export default function usePublicCommunitySnapshot() {
       if (!data || data.error || typeof data.totalUsers !== "number" || !Array.isArray(data.countryStats)) {
         throw new Error(data?.error || "Invalid community snapshot response");
       }
+      saveCommunitySnapshot(data);
       return data;
     },
-    staleTime: 1000 * 60 * 5,
+    initialData: readCommunitySnapshot,
+    initialDataUpdatedAt: () => Date.parse(readCommunitySnapshot()?.generated_at || '') || 0,
+    staleTime: 1000 * 60,
+    gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
     retry: 1,
+    retryDelay: (attempt, error) => error?.response?.status === 429 ? 60_000 : 1000,
     placeholderData: {
       totalUsers: 0,
       totalGroups: 0,

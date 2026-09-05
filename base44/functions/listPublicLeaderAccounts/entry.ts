@@ -4,7 +4,7 @@ import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity
 function safeLeader(account, includeEmail = false) {
   return {
     id: account.id,
-    ...(includeEmail ? { leader_email: account.leader_email || '' } : {}),
+    ...(includeEmail ? { leader_email: String(account.leader_email || '').trim().toLowerCase() } : {}),
     leader_name: account.leader_name || '',
     leader_title: account.leader_title || '',
     leader_country: account.leader_country || '',
@@ -40,10 +40,11 @@ export default async function(req) {
       ? new Set(body.ids.map((id) => String(id || '').trim()).filter(Boolean).slice(0, 100))
       : null;
 
-    const accounts = await base44.asServiceRole.entities.ManagedLeaderAccount.filter({ active: true });
+    // Leader profiles are publicly readable; use the caller's permitted read access.
+    const accounts = await base44.entities.ManagedLeaderAccount.filter({ active: true });
     const filtered = accounts
       .filter((account) => {
-        if (emails && !emails.has(String(account.leader_email || '').toLowerCase())) return false;
+        if (emails && !emails.has(String(account.leader_email || '').trim().toLowerCase())) return false;
         if (ids && !ids.has(String(account.id || ''))) return false;
         if (!search) return true;
         const text = `${account.leader_name || ''} ${account.leader_title || ''} ${account.leader_country || ''}`.toLowerCase();
@@ -55,6 +56,9 @@ export default async function(req) {
     return Response.json(filtered);
   } catch (error) {
     console.error('listPublicLeaderAccounts failed:', error?.message);
+    if ((error?.status || error?.response?.status) === 429 || /rate limit exceeded/i.test(error?.message || '')) {
+      return Response.json({ error: 'Leader details are temporarily busy. Please retry shortly.' }, { status: 429, headers: { 'Retry-After': '60' } });
+    }
     return Response.json({ error: 'Unable to list leader accounts' }, { status: 500 });
   }
 }
