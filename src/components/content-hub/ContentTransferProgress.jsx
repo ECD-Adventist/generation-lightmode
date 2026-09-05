@@ -4,9 +4,10 @@ import { formatBytes } from "./contentMedia";
 
 // Shared progress readout for content downloads and previews.
 // Falls back to a byte counter when the total size isn't known yet.
-export function progressPercent({ received = 0, total = 0 } = {}) {
+export function progressPercent(progress) {
+  const total = progress?.total || 0;
   if (!total) return null;
-  return Math.min(99, Math.round((received / total) * 100));
+  return Math.min(99, Math.round(((progress?.received || 0) / total) * 100));
 }
 
 export default function ContentTransferProgress({ progress, label = "Loading", color = "#00CFFF" }) {
