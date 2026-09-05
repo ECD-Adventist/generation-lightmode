@@ -1,4 +1,4 @@
-const CACHE_KEY = "lightmode:community-snapshot:v2";
+const CACHE_KEY = "lightmode:community-snapshot:v3";
 const MAX_AGE = 24 * 60 * 60 * 1000;
 
 export function readCommunitySnapshot() {

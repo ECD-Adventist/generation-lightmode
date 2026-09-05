@@ -43,7 +43,10 @@ export default async function(req) {
     if (!dryRun && updates.length) {
       const rateLimited = await enforceApiRateLimit(base44, req, caller);
       if (rateLimited) return rateLimited;
-      await base44.entities.User.bulkUpdate(updates);
+      // Built-in users support individual updates; the batch endpoint rejects them.
+      for (const update of updates) {
+        await base44.entities.User.update(update.id, { country: update.country });
+      }
       await logAdminAction(base44, req, caller, 'users', 'normalize_countries', `Normalized ${updates.length} explicit country values`);
     }
 

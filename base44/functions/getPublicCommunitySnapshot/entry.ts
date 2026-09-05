@@ -148,7 +148,7 @@ export default async function(req) {
     if (snapshotCache && Date.now() - Date.parse(snapshotCache.generated_at) < 60_000) {
       return Response.json(snapshotCache);
     }
-    const [saved] = await base44.entities.CommunitySnapshotCache.filter({ cache_key: 'public-community-v1' }, '-generated_at', 1);
+    const [saved] = await base44.entities.CommunitySnapshotCache.filter({ cache_key: 'public-community-v2' }, '-generated_at', 1);
     if (saved?.snapshot?.generated_at) snapshotCache = saved.snapshot;
 
     const refresh = () => {
@@ -162,7 +162,7 @@ export default async function(req) {
           // receive the explicitly public aggregate, never underlying records.
           const client = user?.role === 'admin' ? base44 : base44.asServiceRole;
           const snapshot = await buildSnapshot(client);
-          const record = { cache_key: 'public-community-v1', generated_at: snapshot.generated_at, snapshot };
+          const record = { cache_key: 'public-community-v2', generated_at: snapshot.generated_at, snapshot };
           if (saved?.id) await client.entities.CommunitySnapshotCache.update(saved.id, record);
           else await client.entities.CommunitySnapshotCache.create(record);
           snapshotCache = snapshot;
