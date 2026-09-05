@@ -338,7 +338,9 @@ export default function Profile() {
     return currentUserFollowing.map(f => f.following_email ? f : { ...f, following_email: emailById.get(f.following_id) });
   }, [currentUserFollowing, allUsersForProfile, publicLeaderAccounts, managedLeaderAccounts]);
 
-  const isFollowingThisUser = currentUserFollowingEnriched.some(f => f.following_email === profileEmail || (displayUser?.id && f.following_id === displayUser.id));
+  // Leader accounts are followed implicitly by everyone (no per-member Follow rows), so their
+  // profiles read as "Following" even without a row.
+  const isFollowingThisUser = isLeaderAccountProfile || currentUserFollowingEnriched.some(f => f.following_email === profileEmail || (displayUser?.id && f.following_id === displayUser.id));
 
   const followMutation = useMutation({
     mutationFn: async (input) => {
@@ -623,6 +625,8 @@ export default function Profile() {
           myDrops={myDrops}
           myFollowers={myFollowers}
           myFollowing={myFollowing}
+          followersCount={followersCount}
+          followingCount={followingCount}
           institutionApps={visibleInstitutionApps}
           onEditProfile={() => setIsEditing(true)}
           onShareProfile={handleShareProfile}
@@ -646,6 +650,8 @@ export default function Profile() {
           myDrops={myDrops}
           myFollowers={myFollowers}
           myFollowing={isLeaderProfile ? [] : myFollowing}
+          followersCount={followersCount}
+          followingCount={isLeaderProfile ? 0 : followingCount}
           myMemberships={isLeaderProfile ? [] : myMemberships}
           certificates={isLeaderProfile ? [] : certificates}
           isLeader={isLeaderProfile}
@@ -681,7 +687,8 @@ export default function Profile() {
       <PledgeModal isOpen={viewPledgeOpen} onClose={() => setViewPledgeOpen(false)} readOnly signedAt={user?.pledge_signed_at} />
       <ProfileConnectionsModal
         title={connectionsView}
-        items={connectionsView === "Followers" 
+        total={connectionsView === "Followers" ? followersCount : followingCount}
+        items={connectionsView === "Followers"
           ? myFollowers.map((item) => ({ email: item.follower_email || allUsersForProfile.find(u => u.id === item.follower_id)?.email }))
           : myFollowing.map((item) => ({ email: item.following_email || allUsersForProfile.find(u => u.id === item.following_id)?.email }))}
         allUsers={allUsersForProfile}
@@ -755,7 +762,8 @@ export default function Profile() {
       <PledgeModal isOpen={viewPledgeOpen} onClose={() => setViewPledgeOpen(false)} readOnly signedAt={user?.pledge_signed_at} />
       <ProfileConnectionsModal
         title={connectionsView}
-        items={connectionsView === "Followers" 
+        total={connectionsView === "Followers" ? followersCount : followingCount}
+        items={connectionsView === "Followers"
           ? myFollowers.map((item) => ({ email: item.follower_email || allUsersForProfile.find(u => u.id === item.follower_id)?.email }))
           : myFollowing.map((item) => ({ email: item.following_email || allUsersForProfile.find(u => u.id === item.following_id)?.email }))}
         allUsers={allUsersForProfile}
@@ -815,7 +823,7 @@ export default function Profile() {
           <>
             <ExecutiveProfileHeader
               user={user} isOwnProfile={isOwnProfile} profileEmail={profileEmail}
-              myDrops={myDrops} myFollowers={myFollowers} myFollowing={myFollowing}
+              myDrops={myDrops} myFollowers={myFollowers} myFollowing={myFollowing} followersCount={followersCount} followingCount={followingCount}
               onSetConnectionsView={setConnectionsView} onEditProfile={() => setIsEditing(true)}
               onFollowToggle={() => followMutation.mutate({ targetEmail: profileEmail, shouldFollow: !isFollowingThisUser })} isFollowingThisUser={isFollowingThisUser}
               currentUser={currentUser} onProfileImageSelect={e => handleImageSelect(e, "profile")}

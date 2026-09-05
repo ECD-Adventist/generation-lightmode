@@ -32,6 +32,7 @@
           "with": {
             "function_name": "repairAndRecoverFollows",
             "args": {
+              "full": true,
               "dry_run": false,
               "recover_old_users": false,
               "recovery_cap": 50

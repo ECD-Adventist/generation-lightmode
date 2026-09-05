@@ -8,7 +8,7 @@ import CountryFlag from "@/components/common/CountryFlag";
 import { getDisplayName } from "@/lib/displayName";
 import UserAvatar from "@/components/common/UserAvatar";
 
-export default function ProfileConnectionsModal({ title, items, allUsers, currentUserEmail, currentUserFollowing, onClose, onToggleFollow }) {
+export default function ProfileConnectionsModal({ title, items, total, allUsers, currentUserEmail, currentUserFollowing, onClose, onToggleFollow }) {
   const uniqueItems = React.useMemo(() => Array.from(new Map(items.filter(i => i.email).map(i => [i.email, i])).values()), [items]);
   const knownEmails = React.useMemo(() => new Set((allUsers || []).map(user => user.email).filter(Boolean)), [allUsers]);
   const missingEmails = React.useMemo(() => uniqueItems.map(item => item.email).filter(email => email && !knownEmails.has(email)), [uniqueItems, knownEmails]);
@@ -32,7 +32,12 @@ export default function ProfileConnectionsModal({ title, items, allUsers, curren
     <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center" onClick={onClose}>
       <div className="w-full sm:max-w-md max-h-[80vh] bg-white border border-[#E6ECF5] rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#E6ECF5] bg-[#F6F8FC]">
-          <h3 className="text-lg font-bold text-[#0B1B3D]">{title}</h3>
+          <h3 className="text-lg font-bold text-[#0B1B3D]">
+            {title}
+            {typeof total === "number" && total > uniqueItems.length && (
+              <span className="ml-2 text-xs font-medium text-[#6B7FA0]">showing {uniqueItems.length} of {total}</span>
+            )}
+          </h3>
           <button onClick={onClose} className="text-[#6B7FA0] hover:text-[#0B1B3D] transition">
             <X className="w-5 h-5" />
           </button>

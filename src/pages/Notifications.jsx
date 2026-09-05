@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
+import { manageFollow } from "@/lib/follows";
 import { dualDeleteSupabase } from "@/lib/dualDeleteSupabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bell, Heart, MessageCircle, Zap, Info, CheckCheck, Trash2, Loader2, Home, Users, User, Globe, UserPlus } from "lucide-react";
@@ -8,7 +8,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
-import { getNotificationCategory, notificationCategoryLabels, isNotificationEnabled } from "@/lib/notifications";
+import { getNotificationCategory, notificationCategoryLabels } from "@/lib/notifications";
 import AppFooter from "@/components/AppFooter";
 import usePullToRefresh from "@/hooks/usePullToRefresh";
 import PullToRefreshIndicator from "@/components/mobile/PullToRefreshIndicator";
@@ -84,8 +84,6 @@ export default function Notifications() {
     enabled: !!user,
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
-    // Polled instead of a table-wide realtime subscription (see Layout.jsx).
-    refetchInterval: 30 * 1000,
   });
 
 
@@ -147,18 +145,11 @@ export default function Notifications() {
     mutationFn: async (targetEmail) => {
       const existingFollow = following.find(f => f.following_email === targetEmail);
       if (existingFollow) return "already_following";
-      const followRec = await base44.entities.Follow.create({ follower_email: user.email, following_email: targetEmail });
-      dualWriteSupabase("follows", followRec);
       const targetUser = allUsers.find(entry => entry.email === targetEmail);
-      if (targetUser?.id && isNotificationEnabled(targetUser, "follows")) {
-        await base44.functions.invoke("createNotification", {
-          user_id: targetUser.id,
-          type: "follow",
-          message: `${user.full_name || 'Someone'} followed you back.`,
-          link: createPageUrl("Profile") + `?user=${encodeURIComponent(user.email)}`
-        });
-      }
-      return "followed";
+      if (!targetUser?.id) throw new Error("Could not find that member.");
+      // Follow through the backend (ID-based row, counters, mirror and notification handled there).
+      const result = await manageFollow(targetUser.id, "follow");
+      return result?.changed === false ? "already_following" : "followed";
     },
     onSuccess: (status) => {
       queryClient.invalidateQueries({ queryKey: ["notificationViewerLegacyFollowingByEmail", user?.email] });

@@ -1,46 +1,25 @@
 import { base44 } from "@/api/base44Client";
 
-// Bounded page loader. The previous `fetchAll` looped until the table ran out, which for a
-// leader with tens of thousands of followers shipped every row to the phone. Profile
-// follower/following counts and lists now come from the `getConnections` backend function;
-// this file only serves the viewer's OWN following set (used for "is following" checks),
-// capped at MAX_FOLLOWING rows.
-const PAGE = 100;
-const MAX_FOLLOWING = 1000;
+// Follow data now comes from the backend:
+//   - getConnections   → counts, first pages, and the viewer's rows for the people on screen
+//   - getFeedViewerState → the viewer's own following (capped) for the feed
+//   - manageFollow     → follow / unfollow with counters, mirror and notification kept consistent
+// The old page-everything loops (`fetchAllFollowers` / `fetchAllFollowing`) are gone: a leader with
+// tens of thousands of followers used to ship every row to the phone.
 
-const fetchPages = async (entity, query, cap) => {
-  const rows = [];
-  let skip = 0;
-  while (rows.length < cap) {
-    const size = Math.min(PAGE, cap - rows.length);
-    const page = await entity.filter(query, null, size, skip);
-    rows.push(...page);
-    if (page.length < size) break;
-    skip += size;
-  }
-  return rows;
-};
-
-const dedupeBy = (rows, key) => {
-  const seen = new Set();
-  return rows.filter((row) => {
-    const value = row[key] || row.id;
-    if (seen.has(value)) return false;
-    seen.add(value);
-    return true;
-  });
-};
-
-// Follow records are ID-based only (email fields were removed as PII).
-// The second (email) argument is accepted for backward compatibility but ignored.
-export const fetchAllFollowing = async (userId) => {
-  if (!userId) return [];
-  return dedupeBy(await fetchPages(base44.entities.Follow, { follower_id: userId }, MAX_FOLLOWING), "following_id");
-};
+export const OFFICIAL_ACCOUNT_EMAIL = "system@lightmode.com";
 
 /**
- * Follower/following summary for a profile: counts, first pages and the viewer's own following.
- * See base44/functions/getConnections.
+ * Leader accounts and the official Generation LightMode account are followed by everyone
+ * implicitly — no Follow row is written per member any more (that was 50M rows at 1M users).
+ * Use this wherever the UI decides between "Follow" and "Following" for a post author.
+ */
+export const isImplicitlyFollowed = (authorEmail, leaderAccounts = []) =>
+  !!authorEmail && (authorEmail === OFFICIAL_ACCOUNT_EMAIL || leaderAccounts.some((a) => a.leader_email === authorEmail));
+
+/**
+ * Follower/following summary for a profile: counts, first pages and the viewer's own rows for
+ * the people shown. See base44/functions/getConnections.
  */
 export const fetchConnections = async (targetId, options = {}) => {
   if (!targetId) return null;
@@ -48,7 +27,11 @@ export const fetchConnections = async (targetId, options = {}) => {
   return res?.data || null;
 };
 
-/** Follow or unfollow through the backend (keeps counters, mirror and notification consistent). */
+/**
+ * Follow or unfollow through the backend. Pass an explicit "follow" / "unfollow" whenever the
+ * caller knows the current state: local follow lists are capped, so "toggle" could unfollow
+ * someone the viewer meant to follow.
+ */
 export const manageFollow = async (targetId, action = "toggle") => {
   const res = await base44.functions.invoke("manageFollow", { target_id: targetId, action });
   return res?.data || null;

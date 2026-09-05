@@ -48,10 +48,14 @@ Deno.serve(async (req) => {
     const emails = new Set<string>();
     for (const r of requests) if (!r.is_anonymous && r.user_email) emails.add(String(r.user_email).toLowerCase());
     for (const c of comments) if (!c.is_anonymous && c.user_email) emails.add(String(c.user_email).toLowerCase());
+    // One batched `$in` lookup per 100 authors instead of one query per author.
     const users = new Map<string, Record<string, unknown>>();
-    await Promise.all([...emails].slice(0, 200).map(async (email) => {
-      const found = await service.entities.User.filter({ email }, '-created_date', 1).catch(() => []);
-      if (found[0]) users.set(email, found[0]);
+    const emailList = [...emails].slice(0, 300);
+    const batches: string[][] = [];
+    for (let i = 0; i < emailList.length; i += 100) batches.push(emailList.slice(i, i + 100));
+    await Promise.all(batches.map(async (batch) => {
+      const found = await service.entities.User.filter({ email: { $in: batch } }, '-created_date', batch.length).catch(() => []);
+      for (const u of found) if (u?.email) users.set(String(u.email).toLowerCase(), u);
     }));
 
     const me = String(user.email || '').toLowerCase();

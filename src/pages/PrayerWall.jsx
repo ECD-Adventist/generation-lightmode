@@ -47,6 +47,7 @@ export default function PrayerWall() {
     queryKey: ["prayerSupports"],
     queryFn: () => base44.entities.PrayerSupport.list("-created_date", 500),
     enabled: !!user,
+    refetchInterval: 60 * 1000, // polled; the table-wide PrayerSupport subscription was removed
   });
 
   const { data: allUsers = [] } = useQuery({

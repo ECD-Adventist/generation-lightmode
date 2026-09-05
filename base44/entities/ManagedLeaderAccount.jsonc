@@ -42,6 +42,19 @@
     "notes": {
       "type": "string",
       "description": "Internal notes about this account"
+    },
+    "followers_count": {
+      "type": "number",
+      "description": "Cached number of Follow rows with following_id = this leader account. Maintained by manageFollow; recounted by getConnections."
+    },
+    "following_count": {
+      "type": "number",
+      "description": "Cached number of Follow rows with follower_id = this leader account."
+    },
+    "counts_updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the counters were last recounted from rows (getConnections recounts after 6 hours)."
     }
   },
   "required": [

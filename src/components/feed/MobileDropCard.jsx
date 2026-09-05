@@ -89,7 +89,8 @@ function MobileDropCard({
   const isFollowingAuthor = following.some(follow =>
     follow.following_id === dropUser?.id || follow.following_email === drop.user_email
   );
-  const canFollowAuthor = !!user && user.email !== drop.user_email && drop.user_email !== "system@lightmode.com" && !isFollowingAuthor;
+  // Leader accounts and the official account are followed implicitly by everyone — no button.
+  const canFollowAuthor = !!user && user.email !== drop.user_email && drop.user_email !== "system@lightmode.com" && !isLeaderPost && !isFollowingAuthor;
 
   const savedForThisDrop = savedDropRecords.filter(s => s.drop_id === drop.id);
   const isSaved = savedForThisDrop.length > 0;
@@ -107,6 +108,7 @@ function MobileDropCard({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["savedDrops", user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["feedViewerState"] });
       toast.success(isSaved ? "Removed from Saved" : "Saved");
     },
   });

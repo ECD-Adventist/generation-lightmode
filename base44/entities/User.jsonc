@@ -427,6 +427,11 @@
       "type": "number",
       "description": "Cached number of Follow rows with follower_id = this user. Maintained by manageFollow; backfilled by getConnections."
     },
+    "counts_updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When followers_count / following_count were last recounted from rows. getConnections recounts after 6 hours so the cache self-heals."
+    },
     "notify_follows": {
       "type": "boolean",
       "default": true

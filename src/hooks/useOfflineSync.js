@@ -82,6 +82,7 @@ export default function useOfflineSync(liveDrops, isOnline) {
         await queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
         queryClient.invalidateQueries({ queryKey: ["myGlowDropsProfile"] });
         queryClient.invalidateQueries({ queryKey: ["userLikes"] });
+        queryClient.invalidateQueries({ queryKey: ["feedViewerState"] });
         toast.success(`Synced ${syncedCount} offline action${syncedCount > 1 ? "s" : ""}!`);
       }
     } finally {

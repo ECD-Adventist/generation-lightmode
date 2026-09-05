@@ -19,9 +19,7 @@ export default function AdminActivityFeedTab({ currentUser }) {
   const scrollRef = useRef(null);
 
   const { pullDistance, isRefreshing, threshold } = usePullToRefresh(scrollRef, async () => {
-    await queryClient.invalidateQueries({ queryKey: ["community_moments"],
-    refetchInterval: 30 * 1000, // polled; table-wide subscription removed
-  });
+    await queryClient.invalidateQueries({ queryKey: ["community_moments"] });
   });
 
   const { data: moments = [], isLoading } = useQuery({

@@ -72,7 +72,8 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
   const users = allUsers;
 
   const isFollowingAuthor = following.some(f => f.following_email === drop.user_email);
-  const canFollowAuthor = !!user && user.email !== drop.user_email && typeof followMutation?.mutate === "function";
+  // Leader accounts and the official account are followed implicitly by everyone — no button.
+  const canFollowAuthor = !!user && user.email !== drop.user_email && drop.user_email !== "system@lightmode.com" && !leaderForDrop && typeof followMutation?.mutate === "function";
 
   // Keep It 100 posts get a custom branded background image (cyan frame + golden splatter + logos baked in).
   const isKeepIt100 = !drop.media_url && (
@@ -116,6 +117,7 @@ export default function DropCard({ drop, user, dropUser, likeMutation, handleSha
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["savedDrops", user?.email] });
+      queryClient.invalidateQueries({ queryKey: ["feedViewerState"] });
       queryClient.invalidateQueries({ queryKey: ["mySavedDrops"] });
       toast.success(isSaved ? "Removed from Saved" : "Saved to your bookmarks");
     }

@@ -144,6 +144,7 @@ export default function GroupChat() {
       return response.data?.requests || [];
     },
     enabled: !!groupId && !!currentUser,
+    refetchInterval: 30 * 1000, // polled; the table-wide GlowGroupJoinRequest subscription was removed
     staleTime: 15_000,
   });
 
@@ -255,9 +256,7 @@ export default function GroupChat() {
       return res.data;
     },
     onSuccess: (data, vars) => {
-      queryClient.invalidateQueries({ queryKey: ["groupPendingJoinRequestDetails", groupId],
-    refetchInterval: 30 * 1000,
-  });
+      queryClient.invalidateQueries({ queryKey: ["groupPendingJoinRequestDetails", groupId] });
       queryClient.invalidateQueries({ queryKey: ["groupMembers", groupId] });
       toast.success(vars.action === "approve" ? "Member approved ✅" : "Request declined");
     },

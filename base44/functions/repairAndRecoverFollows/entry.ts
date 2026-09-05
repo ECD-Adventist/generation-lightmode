@@ -52,6 +52,14 @@ Deno.serve(async (req) => {
       payload = {};
     }
 
+    // This job lists EVERY User and EVERY Follow row. It must only run from the scheduled
+    // "Daily Follow Repair" workflow (which passes full: true). The old "Repair Follow Records on
+    // Change" workflow invoked it with {} on every single Follow create/update — a full table scan
+    // per follow click — so any call without `full` is refused here even if that trigger lingers.
+    if (payload.full !== true) {
+      return Response.json({ skipped: true, reason: 'Full repair runs only from the daily schedule (pass full: true).' });
+    }
+
     const dryRun = payload.dry_run === true;
     const recoverOldUsers = payload.recover_old_users === true;
     const recoveryCap = Math.max(1, Math.min(Number(payload.recovery_cap || DEFAULT_RECOVERY_CAP), 50));

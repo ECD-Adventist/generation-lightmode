@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { manageFollow } from "@/lib/follows";
+import { manageFollow, isImplicitlyFollowed } from "@/lib/follows";
 import { Loader2, Heart, MessageCircle, Bell, Plus, Home, Search as SearchIcon, Globe, Settings, Zap, Menu, Compass, LayoutDashboard, Bot, BookOpen, ExternalLink, Trophy, Map as MapIcon, Target, Sparkles, Medal, Handshake, ChevronRight, Camera, X } from "lucide-react";
 import GlobalSearchBar from "@/components/search/GlobalSearchBar";
 import { createPageUrl } from "@/utils";
@@ -235,10 +235,11 @@ export default function Feed() {
       const res = await base44.functions.invoke("getFeedViewerState", {});
       return res?.data || null;
     },
+    // This data only changes through the viewer's own actions, which invalidate the query;
+    // no interval polling (the unread badge is polled separately below, shared with Layout).
     enabled: !!user?.id,
-    staleTime: 1000 * 60,
-    refetchInterval: 1000 * 60,
-    refetchOnWindowFocus: true,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
   });
   const following = viewerState?.following || [];
 
@@ -268,8 +269,10 @@ export default function Feed() {
       const targetUser = typeof target === "object" ? target : [...users, ...suggestedUsers].find(u => u.email === target);
       if (!targetUser?.id) throw new Error("Could not find that member.");
       // Follow/unfollow through the backend: keeps follower counters, the Supabase mirror and
-      // the notification consistent, and collapses duplicate rows.
-      const result = await manageFollow(targetUser.id, "toggle");
+      // the notification consistent, and collapses duplicate rows. The action is explicit (the
+      // local following list is capped, so a blind toggle could unfollow by mistake).
+      const isFollowing = following.some(f => f.following_id === targetUser.id);
+      const result = await manageFollow(targetUser.id, isFollowing ? "unfollow" : "follow");
       if (!result) throw new Error("Could not update follow.");
       if (!result.following) return true;
       // Server verifies the follow record and awards +5 once per person followed.
@@ -343,23 +346,29 @@ export default function Feed() {
       return response.data;
     },
     onMutate: async ({ id }) => {
+      // Optimistic update against whichever cache the UI actually reads: the viewer-state call
+      // for signed-in users, the local guest list otherwise.
+      const likesKey = user ? ["feedViewerState", user.id] : ["userLikes", likeIdentity];
+      const readLikes = (data) => (user ? (data?.likes || []) : (data || []));
+      const writeLikes = (data, likes) => (user ? { ...(data || {}), likes } : likes);
       await queryClient.cancelQueries({ queryKey: ["allGlowDrops"] });
-      await queryClient.cancelQueries({ queryKey: ["userLikes", likeIdentity] });
+      await queryClient.cancelQueries({ queryKey: likesKey });
       const prevDrops = queryClient.getQueryData(["allGlowDrops"]);
-      const prevLikes = queryClient.getQueryData(["userLikes", likeIdentity]) || [];
+      const prevLikesData = queryClient.getQueryData(likesKey);
+      const prevLikes = readLikes(prevLikesData);
       const alreadyLiked = prevLikes.some(like => like.drop_id === id);
       if (alreadyLiked) {
         updateDropsCache(d => d.id === id ? { ...d, likes_count: Math.max(0, (d.likes_count || 1) - 1) } : d);
-        queryClient.setQueryData(["userLikes", likeIdentity], old => (old || []).filter(like => like.drop_id !== id));
+        queryClient.setQueryData(likesKey, old => writeLikes(old, readLikes(old).filter(like => like.drop_id !== id)));
       } else {
         updateDropsCache(d => d.id === id ? { ...d, likes_count: (d.likes_count || 0) + 1 } : d);
-        queryClient.setQueryData(["userLikes", likeIdentity], old => [...(old || []), { drop_id: id, user_email: user?.email }]);
+        queryClient.setQueryData(likesKey, old => writeLikes(old, [...readLikes(old), { drop_id: id, user_email: user?.email }]));
       }
-      return { prevDrops, prevLikes };
+      return { prevDrops, prevLikesData, likesKey };
     },
     onError: (err, vars, context) => {
       if (context?.prevDrops) queryClient.setQueryData(["allGlowDrops"], context.prevDrops);
-      if (context?.prevLikes) queryClient.setQueryData(["userLikes", likeIdentity], context.prevLikes);
+      if (context?.likesKey) queryClient.setQueryData(context.likesKey, context.prevLikesData);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["allGlowDrops"] });
@@ -367,7 +376,13 @@ export default function Feed() {
     }
   });
 
-  const notifications = viewerState?.notifications || [];
+  // Unread badge: same query key as Layout, so React Query shares one poll between them.
+  const { data: notifications = [] } = useQuery({
+    queryKey: ["notifications", user?.id],
+    queryFn: () => base44.entities.Notification.filter({ user_id: user.id, read: false }, "-created_date", 50),
+    enabled: !!user?.id,
+    refetchInterval: 60 * 1000,
+  });
 
   const handleShare = async (drop) => {
     if (!drop?.id) return toast.error("This post is no longer available");
@@ -498,7 +513,7 @@ export default function Feed() {
         const matchesFilter = activeFilter === 'All' ||
           // Leader accounts are followed implicitly by everyone (no Follow rows are created on
           // signup any more), so their posts always pass the Following filter.
-          (activeFilter === 'Following' && (followingTargets.emails.has(drop.user_email) || followingTargets.ids.has(getUserInfo(drop.user_email)?.id) || leaderAccounts.some(a => a.leader_email === drop.user_email))) ||
+          (activeFilter === 'Following' && (followingTargets.emails.has(drop.user_email) || followingTargets.ids.has(getUserInfo(drop.user_email)?.id) || isImplicitlyFollowed(drop.user_email, leaderAccounts))) ||
           (activeFilter === 'Most Liked' && (drop.likes_count || 0) >= 1) ||
           (activeFilter === 'Devotional' && drop.category === 'Devotional') ||
           (activeFilter === 'Testimony' && drop.category === 'Testimony');

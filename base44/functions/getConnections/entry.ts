@@ -6,23 +6,24 @@ import { enforceApiRateLimit, readValidatedJson } from '../../shared/apiSecurity
  * / `fetchAllFollowing` loops that shipped every Follow row to the phone.
  *
  * Returns:
- *   followers_count, following_count   — from the cached counters on the User record when
- *                                         present, otherwise counted server-side (capped) and
- *                                         written back so the next call is O(1).
- *   followers, following               — the first page (50) of rows: { id, follower_id } /
- *                                         { id, following_id }, plus `has_more`.
- *   viewer_following                   — the caller's own following rows (up to 1,000),
- *                                         needed for "is following" checks in the UI.
- *   is_following                       — whether the caller follows `target_id`.
+ *   followers_count, following_count — cached on the target record (User or ManagedLeaderAccount),
+ *                                       recounted server-side when missing or older than COUNT_TTL_MS
+ *                                       and written back (fire-and-forget) so later calls are O(1).
+ *                                       Counts are capped at COUNT_CAP; `counts_exact` says whether
+ *                                       the cap was hit.
+ *   followers, following             — the first page (50) of rows, plus `has_more` flags.
+ *   viewer_following                 — the caller's Follow rows for the target and the people on
+ *                                       the two pages (one `$in` query, never the whole set).
+ *   is_following                     — whether the caller follows `target_id`.
  *
- * `target_id` may be a User id or a ManagedLeaderAccount id (the auto-follow automation writes
- * leader account ids into Follow.following_id). Counters are only cached on User records.
+ * `target_id` may be a User id, a ManagedLeaderAccount id (the auto-follow automation writes leader
+ * account ids into Follow.following_id) or the official account id 'official-generation-lightmode'.
  */
 
 const PAGE = 50;
 const COUNT_PAGE = 500;
 const COUNT_CAP = 20_000;
-const VIEWER_CAP = 1_000;
+const COUNT_TTL_MS = 6 * 60 * 60 * 1000; // recount at most every 6 hours so counters self-heal
 
 async function countRows(entity: any, query: Record<string, unknown>) {
   let total = 0;
@@ -41,6 +42,11 @@ async function listRows(entity: any, query: Record<string, unknown>, limit: numb
   return { rows: page.slice(0, limit), has_more: page.length > limit };
 }
 
+function isFresh(record: any) {
+  const at = Date.parse(record?.counts_updated_at || '');
+  return Number.isFinite(at) && Date.now() - at < COUNT_TTL_MS;
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -51,7 +57,7 @@ Deno.serve(async (req) => {
     if (limited) return limited;
 
     const validated = await readValidatedJson(req, {
-      target_id: { type: 'string', required: true, maxLength: 64, format: 'uuid' },
+      target_id: { type: 'string', required: true, maxLength: 64, format: 'record-id' },
       followers_skip: { type: 'number', integer: true, min: 0, max: 100_000 },
       following_skip: { type: 'number', integer: true, min: 0, max: 100_000 },
       include_viewer: { type: 'boolean' },
@@ -62,38 +68,43 @@ Deno.serve(async (req) => {
     const service = base44.asServiceRole;
     const follows = service.entities.Follow;
 
-    const targetUser = await service.entities.User.get(target_id).catch(() => null);
-
-    // Counts: cached on the User record when available, otherwise counted once and cached.
-    let followers_count = typeof targetUser?.followers_count === 'number' ? targetUser.followers_count : null;
-    let following_count = typeof targetUser?.following_count === 'number' ? targetUser.following_count : null;
-    let counts_exact = true;
-    if (followers_count === null) {
-      const c = await countRows(follows, { following_id: target_id });
-      followers_count = c.total; counts_exact = counts_exact && c.exact;
-    }
-    if (following_count === null) {
-      const c = await countRows(follows, { follower_id: target_id });
-      following_count = c.total; counts_exact = counts_exact && c.exact;
-    }
-    if (targetUser && counts_exact && (typeof targetUser.followers_count !== 'number' || typeof targetUser.following_count !== 'number')) {
-      await service.entities.User.update(target_id, { followers_count, following_count }).catch(() => {});
-    }
-
-    const [followersPage, followingPage] = await Promise.all([
+    // Everything that does not depend on anything else runs in parallel.
+    const [targetUser, leaderAccount, followersPage, followingPage] = await Promise.all([
+      service.entities.User.get(target_id).catch(() => null),
+      service.entities.ManagedLeaderAccount.get(target_id).catch(() => null),
       listRows(follows, { following_id: target_id }, PAGE, followers_skip),
       listRows(follows, { follower_id: target_id }, PAGE, following_skip),
     ]);
+    const record = targetUser || leaderAccount;
+    const entityName = targetUser ? 'User' : leaderAccount ? 'ManagedLeaderAccount' : null;
 
+    // Counts: cached on the record when present and fresh; otherwise recounted (both directions
+    // in parallel) and written back without blocking the response.
+    let followers_count = typeof record?.followers_count === 'number' ? record.followers_count : null;
+    let following_count = typeof record?.following_count === 'number' ? record.following_count : null;
+    let counts_exact = true;
+    const stale = !isFresh(record);
+    if (followers_count === null || following_count === null || stale) {
+      const [f, g] = await Promise.all([
+        countRows(follows, { following_id: target_id }),
+        countRows(follows, { follower_id: target_id }),
+      ]);
+      followers_count = f.total; following_count = g.total; counts_exact = f.exact && g.exact;
+      if (record && entityName && counts_exact) {
+        service.entities[entityName].update(target_id, {
+          followers_count, following_count, counts_updated_at: new Date().toISOString(),
+        }).catch(() => {});
+      }
+    }
+
+    // The viewer's follow rows for the target and the people shown on these pages — one query.
     let viewer_following: Array<{ id: string; following_id: string }> = [];
     if (include_viewer) {
-      let skip = 0;
-      while (skip < VIEWER_CAP) {
-        const page = await follows.filter({ follower_id: user.id }, '-created_date', COUNT_PAGE, skip);
-        viewer_following.push(...page.map((f: any) => ({ id: f.id, following_id: f.following_id })));
-        if (page.length < COUNT_PAGE) break;
-        skip += COUNT_PAGE;
-      }
+      const ids = new Set<string>([target_id]);
+      for (const f of followersPage.rows) if (f.follower_id) ids.add(f.follower_id);
+      for (const f of followingPage.rows) if (f.following_id) ids.add(f.following_id);
+      const rows = await follows.filter({ follower_id: user.id, following_id: { $in: [...ids] } }, '-created_date', ids.size + 50).catch(() => []);
+      viewer_following = rows.map((f: any) => ({ id: f.id, following_id: f.following_id }));
     }
     const is_following = viewer_following.some((f) => f.following_id === target_id);
 

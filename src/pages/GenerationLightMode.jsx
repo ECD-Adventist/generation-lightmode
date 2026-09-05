@@ -24,6 +24,7 @@ export default function GenerationLightMode() {
   const { data: connections } = useQuery({
     queryKey: ["glmConnections", me?.id],
     queryFn: () => fetchConnections(ACCOUNT_ID, { include_viewer: !!me?.id }),
+    enabled: me !== undefined, // one call, after we know who is looking
   });
   const followersCount = connections?.followers_count ?? 0;
   const { data: posts = [] } = useQuery({

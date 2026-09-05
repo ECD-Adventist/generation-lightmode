@@ -4,10 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { fetchAllUserGlowDropLikes } from "@/lib/glowDropLikes";
-import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
+import { manageFollow } from "@/lib/follows";
 import { createPageUrl } from "@/utils";
 import { toast } from "sonner";
-import { isNotificationEnabled } from "@/lib/notifications";
 import { buildShareText, getSharePreviewUrl } from "@/lib/sharePreview";
 import { tryNativeShare } from "@/lib/shareActions";
 import ShareFallbackDialog from "@/components/share/ShareFallbackDialog";
@@ -171,28 +170,11 @@ export default function Post() {
     mutationFn: async (targetEmail) => {
       if (!currentUser) { toast.error("Please log in to follow"); return; }
       const targetUser = getUserInfo(targetEmail);
-      const existing = followingWithEmails.find(f => f.following_email === targetEmail || (targetUser?.id && f.following_id === targetUser.id));
-      if (existing) {
-        await base44.entities.Follow.delete(existing.id);
-        return "unfollow";
-      }
       if (!targetUser?.id) { toast.error("Could not find that member."); return; }
-      const followRec = await base44.entities.Follow.create({ follower_id: currentUser.id, following_id: targetUser.id });
-      dualWriteSupabase("follows", followRec);
-      if (isNotificationEnabled(targetUser, "follows")) {
-        try {
-          await base44.functions.invoke("createNotification", {
-            user_id: targetUser.id,
-            type: "follow",
-            reference_id: `follow_${currentUser.id}`,
-            message: `${currentUser.username || currentUser.full_name || "Someone"} started following you.`,
-            link: createPageUrl("Profile") + `?user=${encodeURIComponent(currentUser.email)}`
-          });
-        } catch (notificationError) {
-          console.error('[notification:error]', { type: 'follow', recipient: targetUser.id, action: 'follow_user', error: notificationError });
-        }
-      }
-      return "follow";
+      const existing = followingWithEmails.find(f => f.following_email === targetEmail || f.following_id === targetUser.id);
+      // Follow/unfollow through the backend: counters, Supabase mirror and the notification stay consistent.
+      const result = await manageFollow(targetUser.id, existing ? "unfollow" : "follow");
+      return result?.following ? "follow" : "unfollow";
     },
     onSuccess: (action) => {
       queryClient.invalidateQueries({ queryKey: ["following", currentUser?.id] });

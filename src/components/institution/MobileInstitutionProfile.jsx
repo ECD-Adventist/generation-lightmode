@@ -19,6 +19,8 @@ export default function MobileInstitutionProfile({
   myDrops,
   myFollowers,
   myFollowing,
+  followersCount,
+  followingCount,
   institutionApps,
   onEditProfile,
   onShareProfile,
@@ -205,7 +207,7 @@ export default function MobileInstitutionProfile({
           </div>
 
           <div className="mt-4 grid grid-cols-3 gap-2">
-            {[{ value: myDrops.length, label: "Posts" }, { value: myFollowers.length, label: "Followers", onClick: () => onSetConnectionsView("Followers") }, { value: myFollowing.length, label: "Following", onClick: () => onSetConnectionsView("Following") }].map((s, i) => {
+            {[{ value: myDrops.length, label: "Posts" }, { value: typeof followersCount === "number" ? followersCount : myFollowers.length, label: "Followers", onClick: () => onSetConnectionsView("Followers") }, { value: typeof followingCount === "number" ? followingCount : myFollowing.length, label: "Following", onClick: () => onSetConnectionsView("Following") }].map((s, i) => {
               const Tag = s.onClick ? "button" : "div";
               return <Tag key={i} onClick={s.onClick} className="rounded-2xl py-3 text-center" style={{ background: "#F6F8FC", border: "1px solid #E6ECF5" }}><div className="text-lg font-black font-['Space_Grotesk']" style={{ color: "#0B1B3D" }}>{s.value}</div><div className="text-[10px] font-bold uppercase" style={{ color: "#6B7FA0" }}>{s.label}</div></Tag>;
             })}

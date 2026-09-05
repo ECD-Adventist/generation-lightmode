@@ -18,6 +18,8 @@ export default function MobileProfile({
   myDrops,
   myFollowers,
   myFollowing,
+  followersCount,
+  followingCount,
   myMemberships,
   certificates,
   onEditProfile,
@@ -47,13 +49,16 @@ export default function MobileProfile({
   const glowRank = getGlowRank(user?.glow_score || 0);
   const displayName = getDisplayName(user);
 
+  // Counts come from the backend (cached on the record); the arrays are only the first page.
+  const followersTotal = typeof followersCount === "number" ? followersCount : myFollowers.length;
+  const followingTotal = typeof followingCount === "number" ? followingCount : myFollowing.length;
   const stats = isLeader ? [
     { value: myDrops.length, label: "Posts" },
-    { value: myFollowers.length, label: "Followers", onClick: () => onSetConnectionsView("Followers") },
+    { value: followersTotal, label: "Followers", onClick: () => onSetConnectionsView("Followers") },
   ] : [
     { value: myDrops.length, label: "Drops" },
-    { value: myFollowers.length, label: "Followers", onClick: () => onSetConnectionsView("Followers") },
-    { value: myFollowing.length, label: "Following", onClick: () => onSetConnectionsView("Following") },
+    { value: followersTotal, label: "Followers", onClick: () => onSetConnectionsView("Followers") },
+    { value: followingTotal, label: "Following", onClick: () => onSetConnectionsView("Following") },
   ];
 
   const tabs = isLeader ? [

@@ -4,6 +4,9 @@ import { logSecurityEvent } from './securityEvents.ts';
 // may use UUIDs. Accept both canonical identifier formats without accepting
 // arbitrary query/operator strings.
 const UUID_PATTERN = /^(?:[0-9a-f]{24}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i;
+// Record ids as they actually appear in Follow.following_id: Base44 ids, UUIDs, and the synthetic
+// official-account id ('official-generation-lightmode'). Still rejects operators and query syntax.
+const RECORD_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{2,63}$/i;
 const WINDOW_MS = 60_000;
 
 async function sha256(value) {
@@ -20,17 +23,19 @@ async function sha256(value) {
 //
 // New design:
 //   1. An in-memory fixed-window counter per isolate (Map<identity+endpoint, {window, count}>)
-//      answers every call with zero database operations. Base44 keeps warm isolates, so this
-//      catches bursts from one client the way the ledger did.
-//   2. The ApiRateLimit ledger is only touched for GUEST (IP-identified) traffic, and only on a
-//      sample (every LEDGER_SAMPLE-th call) plus every call once a guest is over half its limit,
-//      so cross-isolate abuse is still visible and abuse events are still logged.
+//      answers every call with zero database operations.
+//   2. The ApiRateLimit ledger is only touched for GUEST (IP-identified) traffic: every
+//      LEDGER_SAMPLE-th call, and every call once a guest is past half its limit. Each sync writes
+//      the exact number of calls seen since the previous sync (not a constant), so the ledger stays
+//      accurate and abuse spread across isolates is still caught.
 //   Authenticated users never touch the ledger; their identity is already verified.
 //
-// Trade-off (documented on purpose): limits are enforced per isolate for authenticated users, so
-// a user hitting several isolates at once could exceed 120/min by that factor. That is acceptable
-// for a verified account and is far cheaper than a database round-trip per call. Move the counter
-// to Redis (one atomic INCR) when the backend moves off Base44.
+// Trade-offs (documented on purpose):
+//   - Each Base44 function is its own deployment, so the in-memory counters are per function and
+//     per isolate. A verified user hitting several isolates at once could exceed 120/min on one
+//     endpoint by that factor, and the "abuse" flag below is per endpoint, not app-wide. That is
+//     acceptable for a verified account and far cheaper than 3–4 database operations per call.
+//     Move the counter to Redis (one atomic INCR) when the backend moves off Base44.
 
 const memoryWindows = new Map();
 const MEMORY_MAX_KEYS = 20_000;
@@ -40,15 +45,16 @@ function bumpMemory(key, windowStart) {
   const entry = memoryWindows.get(key);
   if (entry && entry.window === windowStart) {
     entry.count += 1;
-    return entry.count;
+    return entry;
   }
   if (memoryWindows.size >= MEMORY_MAX_KEYS) {
     // Cheap eviction: drop everything from previous windows.
     for (const [k, v] of memoryWindows) if (v.window !== windowStart) memoryWindows.delete(k);
     if (memoryWindows.size >= MEMORY_MAX_KEYS) memoryWindows.clear();
   }
-  memoryWindows.set(key, { window: windowStart, count: 1 });
-  return 1;
+  const fresh = { window: windowStart, count: 1, synced: 0 };
+  memoryWindows.set(key, fresh);
+  return fresh;
 }
 
 // Never let the rate-limit bookkeeping itself break a request. Under heavy traffic
@@ -77,25 +83,27 @@ async function applyApiRateLimit(base44, req, user = null) {
     headers: { 'Retry-After': String(retryAfter) },
   });
 
-  // 1. In-memory counters — no database work.
-  const endpointCount = bumpMemory(`${identity}|${endpoint}`, windowStart);
-  const abuseCount = bumpMemory(`${identity}|*`, windowStart);
-  if (abuseCount === 101) {
+  // 1. In-memory counter — no database work.
+  const entry = bumpMemory(`${identity}|${endpoint}`, windowStart);
+  const endpointCount = entry.count;
+  if (endpointCount === 101) {
     logSecurityEvent(base44, req, {
       event_type: 'api_abuse_flagged', severity: 'critical', user_id: user?.id || '',
-      resource: endpoint, action: req.method, request_count: abuseCount,
-      details: 'More than 100 API calls in one minute (in-memory counter)',
+      resource: endpoint, action: req.method, request_count: endpointCount,
+      details: 'More than 100 calls to one endpoint in one minute (in-memory counter)',
     }).catch(() => {});
   }
   if (endpointCount > limit) return tooMany();
 
-  // 2. Guests only: sampled ledger so abuse spread across isolates is still caught.
+  // 2. Guests only: sampled ledger, written as a delta so it never over-counts.
   if (!user?.id && (endpointCount % LEDGER_SAMPLE === 0 || endpointCount > limit / 2)) {
+    const delta = endpointCount - entry.synced;
+    entry.synced = endpointCount;
     const subjectHash = await sha256(`${endpoint}|${identity}`);
     const windowIso = new Date(windowStart).toISOString();
     const records = await base44.asServiceRole.entities.ApiRateLimit.filter({ subject_hash: subjectHash }, '-updated_date', 1);
     const record = records[0];
-    const ledgerCount = record?.window_started_at === windowIso ? Number(record.request_count || 0) + LEDGER_SAMPLE : LEDGER_SAMPLE;
+    const ledgerCount = (record?.window_started_at === windowIso ? Number(record.request_count || 0) : 0) + delta;
     if (record) {
       await base44.asServiceRole.entities.ApiRateLimit.update(record.id, { window_started_at: windowIso, request_count: ledgerCount });
     } else {
@@ -115,6 +123,7 @@ function validateValue(name, value, rule) {
     if (rule.minLength !== undefined && value.length < rule.minLength) return `${name} is too short`;
     if (rule.maxLength !== undefined && value.length > rule.maxLength) return `${name} must be at most ${rule.maxLength} characters`;
     if (rule.format === 'uuid' && !UUID_PATTERN.test(value)) return `${name} must be a valid identifier`;
+    if (rule.format === 'record-id' && !(UUID_PATTERN.test(value) || RECORD_ID_PATTERN.test(value))) return `${name} must be a valid identifier`;
     if (rule.enum && !rule.enum.includes(value)) return `${name} has an invalid value`;
   } else if (rule.type === 'number') {
     if (typeof value !== 'number' || !Number.isFinite(value)) return `${name} must be a number`;

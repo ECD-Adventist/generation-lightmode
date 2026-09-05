@@ -8,9 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { dualWriteSupabase } from "@/lib/dualWriteSupabase";
+import { manageFollow } from "@/lib/follows";
 import { Link } from "react-router-dom";
-import { isNotificationEnabled } from "@/lib/notifications";
 import AppFooter from "@/components/AppFooter";
 import MobileGlowGroups from "@/components/groups/MobileGlowGroups";
 import usePublicCommunitySnapshot from "@/hooks/usePublicCommunitySnapshot";
@@ -172,21 +171,9 @@ export default function GlowGroups() {
       const targetId = String(targetUser?.id || "").replace(/^leader_/, "");
       if (!targetId) throw new Error("Missing target user id");
       const existing = following.find(f => f.following_id === targetId);
-      if (existing) {
-        await base44.entities.Follow.delete(existing.id);
-        return "unfollowed";
-      }
-      const followRec = await base44.entities.Follow.create({ follower_id: user.id, following_id: targetId });
-      dualWriteSupabase("follows", followRec);
-      if (!targetUser.is_managed_leader && isNotificationEnabled(targetUser, "follows")) {
-        await base44.functions.invoke("createNotification", {
-          user_id: targetId,
-          type: "follow",
-          reference_id: `follow_${user.id}`,
-          message: `${user.full_name || "Someone"} started following you.`,
-          link: createPageUrl("Profile") + `?id=${encodeURIComponent(user.id)}`,
-        });
-      }
+      // Follow/unfollow through the backend: counters, Supabase mirror and the notification stay consistent.
+      const result = await manageFollow(targetId, existing ? "unfollow" : "follow");
+      if (!result?.following) return "unfollowed";
       // Server verifies the follow record and awards +5 once per person followed.
       const xp = await awardXp("follow", { following_id: targetId }).catch(() => ({ awarded: 0 }));
       return xp.awarded > 0 ? `followed:${xp.awarded}` : "followed";

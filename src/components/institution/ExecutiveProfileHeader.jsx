@@ -9,7 +9,7 @@ import TerritoryMapVisual from "@/components/institution/TerritoryMapVisual";
 import { getDisplayName } from "@/lib/displayName";
 
 export default function ExecutiveProfileHeader({
-  user, isOwnProfile, profileEmail, myDrops, myFollowers, myFollowing,
+  user, isOwnProfile, profileEmail, myDrops, myFollowers, myFollowing, followersCount, followingCount,
   onSetConnectionsView, onEditProfile, onFollowToggle, isFollowingThisUser,
   currentUser, onProfileImageSelect, onCoverImageSelect, uploadingImage, institutionApps,
 }) {
@@ -142,8 +142,8 @@ export default function ExecutiveProfileHeader({
             <div className="grid grid-cols-5 gap-2 sm:gap-4">
               {[
                 { val: myDrops.length, label: "Posts", color: "#0B1B3D" },
-                { val: myFollowers.length, label: "Followers", color: "#0B3FD9", onClick: () => onSetConnectionsView("Followers") },
-                { val: myFollowing.length, label: "Following", color: "#0B3FD9", onClick: () => onSetConnectionsView("Following") },
+                { val: typeof followersCount === "number" ? followersCount : myFollowers.length, label: "Followers", color: "#0B3FD9", onClick: () => onSetConnectionsView("Followers") },
+                { val: typeof followingCount === "number" ? followingCount : myFollowing.length, label: "Following", color: "#0B3FD9", onClick: () => onSetConnectionsView("Following") },
                 { val: user.glow_score || 0, label: "XP", color: "#CC7A00" },
                 { val: user.faith_streak_count || 0, label: "Streak", color: "#1FB8FF" },
               ].map((stat, i) => (

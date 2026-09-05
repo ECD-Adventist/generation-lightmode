@@ -8,6 +8,7 @@ import { useSwitchItOn } from "./components/pledge/SwitchItOnProvider";
 import MobileBottomNav from "./components/mobile/MobileBottomNav";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -75,6 +76,18 @@ export default function Layout({ children, currentPageName }) {
     // to be pushed to every connected client, which then refetched. 60s is plenty for a badge.
     refetchInterval: 60 * 1000,
   });
+
+  // In-session toast for notifications that arrived since the last poll (what the removed
+  // subscription used to do). The first result after login is treated as already seen.
+  const seenNotificationIds = useRef(null);
+  useEffect(() => {
+    if (!userId) { seenNotificationIds.current = null; return; }
+    const ids = notifications.map(n => n.id);
+    if (seenNotificationIds.current === null) { seenNotificationIds.current = new Set(ids); return; }
+    const fresh = notifications.filter(n => !seenNotificationIds.current.has(n.id));
+    fresh.slice(0, 3).forEach(n => toast(n.message, { icon: n.type === "message" ? "💬" : "🔔" }));
+    ids.forEach(id => seenNotificationIds.current.add(id));
+  }, [notifications, userId]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
