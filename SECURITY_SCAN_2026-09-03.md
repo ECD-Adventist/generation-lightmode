@@ -9,7 +9,7 @@ XSS-sink review, per-function auth review, entity rule review, header review, an
 
 | Area | Weight | Before | After this commit | After the Supabase script is run |
 | --- | ---: | ---: | ---: | ---: |
-| Data exposure and access control | 30% | 20% | 70% | 95% |
+| Data exposure and access control | 30% | 20% | 70% | 95% ✅ |
 | Backend function authorisation | 15% | 95% | 95% | 95% |
 | Dependencies | 10% | 100% | 100% | 100% |
 | Secrets management | 10% | 100% | 100% | 100% |
@@ -17,7 +17,7 @@ XSS-sink review, per-function auth review, entity rule review, header review, an
 | Transport and security headers | 10% | 70% | 70% | 70% |
 | Session and token handling | 5% | 60% | 60% | 60% |
 | Service worker and PWA | 5% | 90% | 90% | 90% |
-| **Overall** | | **66%** | **83%** | **91%** |
+| **Overall** | | **66%** | **83%** | **91%** ✅ achieved 3 Sep 2026 |
 
 The last 9 points sit with Base44 hosting (inline-script CSP, header-level policies, token in
 `localStorage`) and cannot be closed from this repository; they are listed under "Remaining".
@@ -32,11 +32,29 @@ The last 9 points sit with Base44 hosting (inline-script CSP, header-level polic
 | 6 | Low | Eleven `target="_blank"` links without `rel="noopener"`. | All eleven now carry `rel="noopener noreferrer"`; the HTML sanitizer also forces it on any link inside rich posts. |
 | 7 | Low | Rich posts could embed images from any host (tracking pixels). | Sanitizer allow-list: images must be https and come from `media.base44.com` or this origin. |
 
+## Applied to the live database — 3 Sep 2026
+
+`supabase/security/001_enable_rls.sql` was run in the Supabase SQL editor. All 70 existing
+tables report `rowsecurity = true`, and the public keys are now denied:
+
+| Probe with the public (anon / publishable) key | Before | After |
+| --- | --- | --- |
+| `glow_drops` | 9,010 rows | 401 permission denied |
+| `follows` | 28,788 rows | 401 permission denied |
+| `prayer_requests` (emails + prayer text) | 132 rows | 401 permission denied |
+| `app_users`, `notifications`, `direct_messages`, `glow_group_messages` | readable | 401 permission denied |
+| insert into `glow_drops` | accepted | 401 rejected |
+
+Backend functions are unaffected: `service_role` bypasses RLS.
+
+**Outstanding key rotation:** the `service_role` key was pasted into a chat during this work and
+must be rolled (Project Settings → API), with `SUPABASE_SERVICE_ROLE_KEY` updated in the Base44
+function secrets. The anon key no longer needs rotating — the app does not use it and RLS blocks it.
+
 ## Remaining (needs Base44 hosting or an operator action)
 
 | # | Severity | Finding | What to do |
 | --- | --- | --- | --- |
-| 1b | Critical until run | RLS script not yet applied to the live Supabase project. | Run `supabase/security/001_enable_rls.sql`, then regenerate the anon key. Moves the overall score to 91%. |
 | 3 | Medium | CSP `script-src` allows `'unsafe-inline'` (Base44's builder requires it). | Ask Base44 for nonce/hash support on the production build, or a separate production policy. |
 | 4 | Medium | Base44 SDK keeps the access token in `localStorage`. | Platform behaviour; keep the sanitizer strict and CSP as tight as Base44 allows. |
 | 5 | Low | HSTS lacks `includeSubDomains; preload`; no `Permissions-Policy`; CSP is a meta tag so `frame-ancestors` cannot apply (X-Frame-Options DENY covers clickjacking). | Hosting headers; raise with Base44. |
