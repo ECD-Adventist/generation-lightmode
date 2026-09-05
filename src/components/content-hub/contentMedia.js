@@ -7,6 +7,19 @@ export async function fetchContentMeta(item) {
   return res.data || {};
 }
 
+// Files above this size are handed to the browser via the file's own page instead of
+// being proxied through the app — a multi-hundred-MB transfer can't be held in memory.
+export const MAX_IN_APP_DOWNLOAD_BYTES = 100 * 1024 * 1024;
+
+export function isTooLargeForInAppDownload(size) {
+  return Number(size) > MAX_IN_APP_DOWNLOAD_BYTES;
+}
+
+// Records an engagement (view/download/share) without transferring the file.
+export async function recordContentEngagement(item, action, platform = "") {
+  await base44.functions.invoke("trackContentEngagement", { content_id: item.id, action, platform });
+}
+
 export function formatBytes(bytes) {
   if (!bytes || bytes < 1024) return `${bytes || 0} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;

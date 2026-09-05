@@ -1,7 +1,7 @@
 import React from "react";
 import { ExternalLink, Loader2, Download } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { formatBytes } from "@/components/content-hub/contentMedia";
+import { formatBytes, isTooLargeForInAppDownload } from "@/components/content-hub/contentMedia";
 
 export default function ContentDownloadOptions({ item, open, onOpenChange, checking, variants, downloading, onSelect, onRetry }) {
   return (
@@ -17,7 +17,7 @@ export default function ContentDownloadOptions({ item, open, onOpenChange, check
               className="flex min-h-14 w-full items-center gap-3 rounded-xl border border-border px-4 py-3 text-left hover:bg-accent disabled:opacity-50">
               <Download className="h-4 w-4 shrink-0" />
               <span><span className="block text-sm font-semibold">{variant.label}{variant.resolution ? ` · ${variant.resolution}` : ""}</span>
-                <span className="block text-xs text-muted-foreground">{variant.size > 0 ? formatBytes(variant.size) : "Size unavailable"}{!variant.resolution ? " · Resolution unavailable" : ""}</span></span>
+                <span className="block text-xs text-muted-foreground">{variant.size > 0 ? formatBytes(variant.size) : "Size unavailable"}{!variant.resolution ? " · Resolution unavailable" : ""}{isTooLargeForInAppDownload(variant.size) ? " · Opens in a new tab" : ""}</span></span>
             </button>
           ))}
         </div>

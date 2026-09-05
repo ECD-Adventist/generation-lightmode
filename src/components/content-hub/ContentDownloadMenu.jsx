@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Save, Loader2 } from "lucide-react";
 import ContentDownloadOptions from "@/components/content-hub/ContentDownloadOptions";
 import { toast } from "sonner";
-import { fetchContentMeta, fetchContentFile, saveContentFile } from "./contentMedia";
+import { fetchContentMeta, fetchContentFile, saveContentFile, recordContentEngagement, isTooLargeForInAppDownload } from "./contentMedia";
 import { progressPercent } from "./ContentTransferProgress";
 
 // Download control that offers a lighter "mobile" copy whenever one exists —
@@ -17,6 +17,18 @@ export default function ContentDownloadMenu({ item, color }) {
   const queryClient = useQueryClient();
 
   const start = async (variant) => {
+    // Very large files can't be buffered in the browser — send the user straight to
+    // the file itself so the browser downloads it natively.
+    if (isTooLargeForInAppDownload(variant?.size)) {
+      setOpen(false);
+      const opened = item.drive_view_url ? window.open(item.drive_view_url, "_blank", "noopener,noreferrer") : null;
+      if (!opened) return toast.error("Please allow pop-ups to download this large file");
+      recordContentEngagement(item, "download")
+        .then(() => queryClient.invalidateQueries({ queryKey: ["digital-content-public"] }))
+        .catch(() => {});
+      toast.success("Large file — your download opens in a new tab");
+      return;
+    }
     setOpen(false);
     setDownloading(true);
     setProgress({ received: 0, total: variant?.size || 0 });
